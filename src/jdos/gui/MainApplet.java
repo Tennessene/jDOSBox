@@ -17,6 +17,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.net.URLConnection;
 import java.net.URL;
+import java.net.URLClassLoader;
 
 public class MainApplet extends Applet implements GUI, KeyListener, Runnable, MouseListener, MouseMotionListener {
     final private static String base_dir = ".jdosbox";
@@ -145,6 +146,19 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         UnZip.unzip(file.getAbsolutePath(), directory.getAbsolutePath(), progressBar);
     }
     public void run() {
+        ClassLoader base = ClassLoader.getSystemClassLoader();
+        URL[] urls = null;
+        if (base instanceof URLClassLoader) {
+            urls = ((URLClassLoader)base).getURLs();
+        } else {
+            try {
+                urls = new URL[]{ new File(".").toURI().toURL() };
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        URLClassLoader loader = new URLClassLoader(urls, base);
+        Thread.currentThread().setContextClassLoader(loader);
         System.out.println("About to start DosBox");
         // Not sure why this pause helps so much or what the right value is
         // Perhaps during a page reload this gives the first copy of this applet
@@ -228,6 +242,9 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         Main.addEvent(null);
         try {thread.join(5000);} catch (Exception e) {}
         thread = null;
+        // Without this the 2nd time you run the applet after starting a browswer
+        // it might run out of memory.  Not sure why
+        try {Thread.sleep(2000);} catch (Exception e) {}
     }
     Graphics bufferGraphics;
     Image offscreen;

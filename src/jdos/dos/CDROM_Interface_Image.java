@@ -205,7 +205,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 	public boolean GetAudioTrackInfo(int track, Dos_cdrom.TMSF start, ShortRef attr) {
         if (track < 1 || track > (int)tracks.size()) return false;
 
-        int value = tracks.elementAt(tracks.size() - 1).start + 150;
+        int value = tracks.elementAt(track - 1).start + 150;
         start.fr = value%Dos_cdrom.CD_FPS;
         value /= Dos_cdrom.CD_FPS;
         start.sec = value%60;
@@ -337,7 +337,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
                         player.currFrame++;
                         player.bufLen += Dos_cdrom.RAW_SECTOR_SIZE;
                     } else {
-                        java.util.Arrays.fill(player.buffer, player.bufLen, len-1, (byte)0);
+                        java.util.Arrays.fill(player.buffer, player.bufLen, len-player.bufLen, (byte)0);
                         player.bufLen = len;
                         player.isPlaying = false;
                     }
@@ -346,8 +346,8 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
             int tIndex = 0;
             int pIndex = 0;
             for (int i=0;i<len/4;i++) {
-                Mixer.MixTemp16[tIndex++] = (short)(player.buffer[pIndex] | (player.buffer[pIndex+1] << 8));
-                Mixer.MixTemp16[tIndex++] = (short)(player.buffer[pIndex+2] | (player.buffer[pIndex+3] << 8));
+                Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8));
+                Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8));
                 pIndex+=4;
             }
             player.channel.AddSamples_s16(len/4,Mixer.MixTemp16);

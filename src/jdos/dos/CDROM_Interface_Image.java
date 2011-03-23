@@ -12,7 +12,10 @@ import jdos.util.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileInputStream;
 import java.util.Vector;
+
+import javazoom.jl.decoder.*;
 
 public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 	private static interface TrackFile {
@@ -52,6 +55,106 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 		private FileIO file;
 	}
 
+    static private class AudioFile implements TrackFile {
+        Decoder decoder;
+        Bitstream in;
+        Header currFrame;
+        int frameCount=-1;
+        String filename;
+		private long lastSeek;
+        int framePos = 0;
+        short[] frame = new short[0];
+
+        public AudioFile(String filename, BooleanRef error) {
+            decoder = new Decoder();
+            try {
+                in = new Bitstream(new FileInputStream(filename));
+                this. filename = filename;
+                error.value = false;
+            } catch (Exception e) {
+                error.value = true;
+            }
+        }
+
+        private void reopen() {
+            try {
+                in = new Bitstream(new FileInputStream(filename));
+                frameCount = -1;
+                currFrame = null;
+            } catch (Exception e) {
+                // This shouldn't happen
+                e.printStackTrace();
+            }
+        }
+        protected short[] decodeFrame() throws JavaLayerException {
+            try{
+                if(decoder==null)return null;
+                if(in==null)return null;
+
+                currFrame = in.readFrame();
+                if(currFrame==null)return null;
+                SampleBuffer output = (SampleBuffer)decoder.decodeFrame(currFrame, in);
+                short[] samps = output.getBuffer();
+                in.closeFrame();
+                frameCount++;
+                return samps;
+            } catch (RuntimeException e){
+                throw new JavaLayerException("Exception decoding audio frame", e);
+            }
+        }
+
+        protected boolean seek(int ms) throws JavaLayerException {
+            int gotoFrame = (int)(ms / currFrame.ms_per_frame());
+            if (gotoFrame<frameCount) {
+                reopen();
+            }
+            while (gotoFrame>frameCount) {
+                currFrame = in.readFrame();
+                if (currFrame == null)
+                    return false;
+                in.closeFrame();
+                frameCount++;
+            }
+            return true;
+        }
+        public boolean read(byte[] buffer, int offset, long seek, int count) {
+            try {
+                if (currFrame == null) {
+                    frame = decodeFrame();
+                    framePos = 0;
+                }
+                if (lastSeek != (seek - count)) {
+                    if (!seek((int)((double)(seek) / 176.4f)))
+                        return false;
+                }
+                lastSeek = seek;
+                // kind of a bummer to go from short[] to byte[] just so we can go back to short[] for the mixer
+                while (count>0) {
+                    if (framePos<frame.length) {
+                        buffer[offset++] = (byte)(frame[framePos] & 0xFF);
+                        buffer[offset++] = (byte)((frame[framePos] >> 8) & 0xFF);
+                        framePos++;
+                        count-=2;
+                    } else {
+                        frame = decodeFrame();
+                        framePos = 0;
+                    }
+                }
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        public long getLength() {
+            return -1;
+        }
+
+        public void close() {
+            try {in.close();} catch (Exception e) {}
+        }
+    }
 //    // :TODO: research this class, probably SDL
 //    private static class Sound_Sample {
 //    }
@@ -503,21 +606,11 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
                     if (parts[2].equals("BINARY")) {
                         track.file = new BinaryFile(filename.value, error);
                     }
-    //    //#if defined(C_SDL_SOUND)
-    //                //The next if has been surpassed by the else, but leaving it in as not
-    //                //to break existing cue sheets that depend on this.(mine with OGG tracks specifying MP3 as type)
-    //                 else if (parts[2].equals("WAVE") || parts[2].equals("AIFF") || parts[2].equals("MP3")) {
-    //                    track.file = new AudioFile(filename.c_str(), error);
-    //                } else {
-    //                    const Sound_DecoderInfo **i;
-    //                    for (i = Sound_AvailableDecoders(); *i != NULL; i++) {
-    //                        if (*(*i)->extensions == type) {
-    //                            track.file = new AudioFile(filename.c_str(), error);
-    //                            break;
-    //                        }
-    //                    }
-    //                }
-    //    //#endif
+                    //The next if has been surpassed by the else, but leaving it in as not
+                    //to break existing cue sheets that depend on this.(mine with OGG tracks specifying MP3 as type)
+                     else if (/*parts[2].equals("WAVE") || parts[2].equals("AIFF") ||*/ parts[2].equals("MP3")) {
+                        track.file = new AudioFile(filename.value, error);
+                    }
                     if (error.value) {
                         if (track.file != null)
                             track.file.close();

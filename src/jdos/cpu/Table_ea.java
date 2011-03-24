@@ -7,6 +7,45 @@ public class Table_ea extends Core {
     }
     static public boolean EA16 = true;
 
+    static public long getEaa(int rm) {
+        long eaa = 0;
+        if (rm<0x40) {
+            switch (rm & 7) {
+                case 0x00: eaa = EA_00_n(); break;
+                case 0x01: eaa = EA_01_n(); break;
+                case 0x02: eaa = EA_02_n(); break;
+                case 0x03: eaa = EA_03_n(); break;
+                case 0x04: eaa = EA_04_n(); break;
+                case 0x05: eaa = EA_05_n(); break;
+                case 0x06: eaa = EA_06_n(); break;
+                case 0x07: eaa = EA_07_n(); break;
+            }
+        } else if (rm<0x80) {
+            switch (rm & 7) {
+                case 0x00: eaa = EA_40_n(); break;
+                case 0x01: eaa = EA_41_n(); break;
+                case 0x02: eaa = EA_42_n(); break;
+                case 0x03: eaa = EA_43_n(); break;
+                case 0x04: eaa = EA_44_n(); break;
+                case 0x05: eaa = EA_45_n(); break;
+                case 0x06: eaa = EA_46_n(); break;
+                case 0x07: eaa = EA_47_n(); break;
+            }
+        } else {
+            switch (rm & 7) {
+                case 0x00: eaa = EA_80_n(); break;
+                case 0x01: eaa = EA_81_n(); break;
+                case 0x02: eaa = EA_82_n(); break;
+                case 0x03: eaa = EA_83_n(); break;
+                case 0x04: eaa = EA_84_n(); break;
+                case 0x05: eaa = EA_85_n(); break;
+                case 0x06: eaa = EA_86_n(); break;
+                case 0x07: eaa = EA_87_n(); break;
+            }
+        }
+        return eaa;
+    }
+    
     static public long  EA_00_n() {
         if (EA16)
             return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF);

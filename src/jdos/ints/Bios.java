@@ -5,6 +5,7 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.dos.Dos_tables;
+import jdos.dos.Dos_programs;
 import jdos.hardware.*;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
@@ -953,7 +954,7 @@ public class Bios extends Module_base {
             Log.log_msg(new String(text));
             double start = Pic.PIC_FullIndex();
             while((Pic.PIC_FullIndex()-start)<3000) Callback.CALLBACK_Idle();
-            throw new RuntimeException();
+            throw new Dos_programs.RebootException();
         }
     };
 

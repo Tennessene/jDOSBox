@@ -193,7 +193,27 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/final short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {
-                    Modrm.GetEArb[rm].set(ADDB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
+                    short value = 0;
+                    switch ((rm >> 3) & 7) {
+                        case 0: value = reg_eax.low(); break;
+                        case 1: value = reg_ecx.low(); break;
+                        case 2: value = reg_edx.low(); break;
+                        case 3: value = reg_ebx.low(); break;
+                        case 4: value = reg_eax.high(); break;
+                        case 5: value = reg_ecx.high(); break;
+                        case 6: value = reg_edx.high(); break;
+                        case 7: value = reg_ebx.high(); break;
+                    }
+                    switch (rm & 7) {
+                        case 0: reg_eax.low(ADDB(value, reg_eax.low())); break;
+                        case 1: reg_ecx.low(ADDB(value, reg_ecx.low())); break;
+                        case 2: reg_edx.low(ADDB(value, reg_edx.low())); break;
+                        case 3: reg_ebx.low(ADDB(value, reg_ebx.low())); break;
+                        case 4: reg_eax.high(ADDB(value, reg_eax.high())); break;
+                        case 5: reg_ecx.high(ADDB(value, reg_ecx.high())); break;
+                        case 6: reg_edx.high(ADDB(value, reg_edx.high())); break;
+                        case 7: reg_ebx.high(ADDB(value, reg_ebx.high())); break;
+                    }
                 }
                 else {
                     long eaa = ea_table[rm].call();
@@ -1682,7 +1702,7 @@ static private final mov[] MovEbGb = new mov[] {
                         case 0x04:Memory.mem_writeb(eaa, ANDB(ib,Memory.mem_readb(eaa)));break;
                         case 0x05:Memory.mem_writeb(eaa, SUBB(ib,Memory.mem_readb(eaa)));break;
                         case 0x06:Memory.mem_writeb(eaa, XORB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x07:CMPB(ib,Memory.host_readb(index));break;
+                        case 0x07:CMPB(ib,Memory.mem_readb(eaa));break;
                         }
                     }
                 }
@@ -1895,42 +1915,8 @@ static private final mov[] MovEbGb = new mov[] {
                             }
                         }
                     }
-                    long eaa = 0;
+                    long eaa = getEaa(rm);
 
-                    if (rm<0x40) {
-                        switch (rm & 7) {
-                            case 0x00: eaa = EA_00_n(); break;
-                            case 0x01: eaa = EA_01_n(); break;
-                            case 0x02: eaa = EA_02_n(); break;
-                            case 0x03: eaa = EA_03_n(); break;
-                            case 0x04: eaa = EA_04_n(); break;
-                            case 0x05: eaa = EA_05_n(); break;
-                            case 0x06: eaa = EA_06_n(); break;
-                            case 0x07: eaa = EA_07_n(); break;
-                        }
-                    } else if (rm<0x80) {
-                        switch (rm & 7) {
-                            case 0x00: eaa = EA_40_n(); break;
-                            case 0x01: eaa = EA_41_n(); break;
-                            case 0x02: eaa = EA_42_n(); break;
-                            case 0x03: eaa = EA_43_n(); break;
-                            case 0x04: eaa = EA_44_n(); break;
-                            case 0x05: eaa = EA_45_n(); break;
-                            case 0x06: eaa = EA_46_n(); break;
-                            case 0x07: eaa = EA_47_n(); break;
-                        }
-                    } else {
-                        switch (rm & 7) {
-                            case 0x00: eaa = EA_80_n(); break;
-                            case 0x01: eaa = EA_81_n(); break;
-                            case 0x02: eaa = EA_82_n(); break;
-                            case 0x03: eaa = EA_83_n(); break;
-                            case 0x04: eaa = EA_84_n(); break;
-                            case 0x05: eaa = EA_85_n(); break;
-                            case 0x06: eaa = EA_86_n(); break;
-                            case 0x07: eaa = EA_87_n(); break;
-                        }
-                    }
                     switch ((rm >> 3) & 7) {
                         case 0: Memory.mem_writeb(eaa, reg_eax.low()); break;
                         case 1: Memory.mem_writeb(eaa, reg_ecx.low()); break;
@@ -1965,41 +1951,7 @@ static private final mov[] MovEbGb = new mov[] {
                 if (rm >= 0xc0) {
                     MovGbEb[rm-0xc0].call();
                 } else {
-                    long eaa = 0;
-                    if (rm<0x40) {
-                        switch (rm & 7) {
-                            case 0x00: eaa = EA_00_n(); break;
-                            case 0x01: eaa = EA_01_n(); break;
-                            case 0x02: eaa = EA_02_n(); break;
-                            case 0x03: eaa = EA_03_n(); break;
-                            case 0x04: eaa = EA_04_n(); break;
-                            case 0x05: eaa = EA_05_n(); break;
-                            case 0x06: eaa = EA_06_n(); break;
-                            case 0x07: eaa = EA_07_n(); break;
-                        }
-                    } else if (rm<0x80) {
-                        switch (rm & 7) {
-                            case 0x00: eaa = EA_40_n(); break;
-                            case 0x01: eaa = EA_41_n(); break;
-                            case 0x02: eaa = EA_42_n(); break;
-                            case 0x03: eaa = EA_43_n(); break;
-                            case 0x04: eaa = EA_44_n(); break;
-                            case 0x05: eaa = EA_45_n(); break;
-                            case 0x06: eaa = EA_46_n(); break;
-                            case 0x07: eaa = EA_47_n(); break;
-                        }
-                    } else {
-                        switch (rm & 7) {
-                            case 0x00: eaa = EA_80_n(); break;
-                            case 0x01: eaa = EA_81_n(); break;
-                            case 0x02: eaa = EA_82_n(); break;
-                            case 0x03: eaa = EA_83_n(); break;
-                            case 0x04: eaa = EA_84_n(); break;
-                            case 0x05: eaa = EA_85_n(); break;
-                            case 0x06: eaa = EA_86_n(); break;
-                            case 0x07: eaa = EA_87_n(); break;
-                        }
-                    }
+                    long eaa = getEaa(rm);
                     switch ((rm >> 3) & 7) {
                         case 0: reg_eax.low(Memory.mem_readb(eaa)); break;
                         case 1: reg_ecx.low(Memory.mem_readb(eaa)); break;

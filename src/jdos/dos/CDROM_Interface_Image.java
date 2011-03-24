@@ -440,7 +440,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
                         player.currFrame++;
                         player.bufLen += Dos_cdrom.RAW_SECTOR_SIZE;
                     } else {
-                        java.util.Arrays.fill(player.buffer, player.bufLen, len-player.bufLen, (byte)0);
+                        java.util.Arrays.fill(player.buffer, player.bufLen, player.bufLen, (byte)0);
                         player.bufLen = len;
                         player.isPlaying = false;
                     }

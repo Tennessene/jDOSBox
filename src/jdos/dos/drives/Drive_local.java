@@ -116,6 +116,8 @@ public class Drive_local extends Dos_Drive {
         for (int i=0;i<srchInfo.length;i++)
             srchInfo[i] = new SrchInfo();
         basedir=startdir;
+        basedir = StringHelper.replace(basedir, "/", File.separator);
+        basedir = StringHelper.replace(basedir, "\\", File.separator);
         info="local directory "+startdir;
         allocation.bytes_sector=_bytes_sector;
         allocation.sectors_cluster=_sectors_cluster;

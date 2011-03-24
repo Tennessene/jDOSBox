@@ -31,223 +31,6 @@ public class Prefix_none extends String {
     static private final call1 callback = new call1() {final public int call() {returnValue=Fetchw.call();Flags.FillFlags();SAVEIP();return RETURN;}};
 
     static private final mov[] MovGbEb = new mov[] {
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_00_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_01_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_02_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_03_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_04_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_05_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_06_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_07_n()));}},
-
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_40_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_41_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_42_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_43_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_44_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_45_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_46_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_47_n()));}},
-
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_eax.low(Memory.mem_readb(EA_87_n()));}},
-
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_ecx.low(Memory.mem_readb(EA_87_n()));}},
-
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_edx.low(Memory.mem_readb(EA_87_n()));}},
-
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_ebx.low(Memory.mem_readb(EA_87_n()));}},
-
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_eax.high(Memory.mem_readb(EA_87_n()));}},
-
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_ecx.high(Memory.mem_readb(EA_87_n()));}},
-
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_edx.high(Memory.mem_readb(EA_87_n()));}},
-
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_80_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_81_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_82_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_83_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_84_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_85_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_86_n()));}},
-         new mov() {final public void call() {reg_ebx.high(Memory.mem_readb(EA_87_n()));}},
-
-
          new mov() {final public void call() {reg_eax.low(reg_eax.low());}},
          new mov() {final public void call() {reg_eax.low(reg_ecx.low());}},
          new mov() {final public void call() {reg_eax.low(reg_edx.low());}},
@@ -322,231 +105,6 @@ public class Prefix_none extends String {
     };
 
 static private final mov[] MovEbGb = new mov[] {
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_eax.low());}},
-         new mov() {final public void call() {
-             if (CPU.cpu.pmode && !CPU.cpu.code.big) {
-                    CPU.cpu.gdt.GetDescriptor((int)CPU.seg_value(base_val_ds),desc);
-                    if ((desc.Type()==CPU.DESC_CODE_R_NC_A) || (desc.Type()==CPU.DESC_CODE_R_NC_NA)) {
-                        CPU.CPU_Exception(CPU.EXCEPTION_GP,(int)CPU.seg_value(base_val_ds) & 0xfffc);
-                        throw new ContinueException();
-                    }
-             }
-             Memory.mem_writeb(EA_05_n(),reg_eax.low());}
-         },
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_eax.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_05_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_ecx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_05_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_edx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_05_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_ebx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_05_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_eax.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_05_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_ecx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_05_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_edx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_00_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_01_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_02_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_03_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_04_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_05_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_06_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_07_n(),reg_ebx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_eax.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_ecx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_edx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_ebx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_eax.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_ecx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_edx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_40_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_41_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_42_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_43_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_44_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_45_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_46_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_47_n(),reg_ebx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_eax.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_eax.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_ecx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_ecx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_edx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_edx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_ebx.low());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_ebx.low());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_eax.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_eax.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_ecx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_ecx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_edx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_edx.high());}},
-
-         new mov() {final public void call() {Memory.mem_writeb(EA_80_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_81_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_82_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_83_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_84_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_85_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_86_n(),reg_ebx.high());}},
-         new mov() {final public void call() {Memory.mem_writeb(EA_87_n(),reg_ebx.high());}},
-
          new mov() {final public void call() {reg_eax.low(reg_eax.low());}},
          new mov() {final public void call() {reg_ecx.low(reg_eax.low());}},
          new mov() {final public void call() {reg_edx.low(reg_eax.low());}},
@@ -620,111 +178,6 @@ static private final mov[] MovEbGb = new mov[] {
          new mov() {final public void call() {reg_ebx.high(reg_ebx.high());}}
     };
 
-static private final call1[] Grp4Eb = new call1[] {
-        new call1() {final public int call() {long eaa=EA_00_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_01_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_02_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_03_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_04_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_05_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_06_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_07_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-
-        new call1() {final public int call() {long eaa=EA_00_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_01_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_02_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_03_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_04_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_05_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_06_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_07_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-
-        callback, callback, callback, callback, callback, callback, callback, callback,
-
-        new call1() {final public int call() {long eaa=EA_40_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_41_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_42_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_43_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_44_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_45_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_46_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_47_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-
-        new call1() {final public int call() {long eaa=EA_40_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_41_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_42_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_43_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_44_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_45_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_46_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_47_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-
-        callback, callback, callback, callback, callback, callback, callback, callback,
-
-        new call1() {final public int call() {long eaa=EA_80_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_81_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_82_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_83_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_84_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_85_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_86_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_87_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, INCB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));return HANDLED;}},
-
-        new call1() {final public int call() {long eaa=EA_80_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_81_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_82_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_83_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_84_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_85_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_86_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-        new call1() {final public int call() {long eaa=EA_87_n(); int index = Paging.getDirectIndex(eaa); if (index>=0) Memory.host_writeb(index, DECB(Memory.host_readb(index))); else Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));return HANDLED;}},
-
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-
-        callback, callback, callback, callback, callback, callback, callback, callback,
-
-        new call1() {final public int call() {reg_eax.low(INCB(reg_eax.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_ecx.low(INCB(reg_ecx.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_edx.low(INCB(reg_edx.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_ebx.low(INCB(reg_ebx.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_eax.high(INCB(reg_eax.high()));return HANDLED;}},
-        new call1() {final public int call() {reg_ecx.high(INCB(reg_ecx.high()));return HANDLED;}},
-        new call1() {final public int call() {reg_edx.high(INCB(reg_edx.high()));return HANDLED;}},
-        new call1() {final public int call() {reg_ebx.high(INCB(reg_ebx.high()));return HANDLED;}},
-
-        new call1() {final public int call() {reg_eax.low(DECB(reg_eax.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_ecx.low(DECB(reg_ecx.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_edx.low(DECB(reg_edx.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_ebx.low(DECB(reg_ebx.low()));return HANDLED;}},
-        new call1() {final public int call() {reg_eax.high(DECB(reg_eax.high()));return HANDLED;}},
-        new call1() {final public int call() {reg_ecx.high(DECB(reg_ecx.high()));return HANDLED;}},
-        new call1() {final public int call() {reg_edx.high(DECB(reg_edx.high()));return HANDLED;}},
-        new call1() {final public int call() {reg_ebx.high(DECB(reg_ebx.high()));return HANDLED;}},
-
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null,
-
-        callback, callback, callback, callback, callback, callback, callback, callback
-    };
     static {
         OP not_handled = new OP() {
             public int call() {
@@ -2429,7 +1882,66 @@ static private final call1[] Grp4Eb = new call1[] {
         /* MOV Eb,Gb */
         ops[0x88] = new OP() {
             final public int call() {
-                MovEbGb[Fetchb.call()].call();
+                short rm = Fetchb.call();
+                if (rm >= 0xc0) {
+                    MovEbGb[rm-0xc0].call();
+                } else {
+                    if (rm == 5) {
+                        if (CPU.cpu.pmode && !CPU.cpu.code.big) {
+                            CPU.cpu.gdt.GetDescriptor((int)CPU.seg_value(base_val_ds),desc);
+                            if ((desc.Type()==CPU.DESC_CODE_R_NC_A) || (desc.Type()==CPU.DESC_CODE_R_NC_NA)) {
+                                CPU.CPU_Exception(CPU.EXCEPTION_GP,(int)CPU.seg_value(base_val_ds) & 0xfffc);
+                                return CONTINUE;
+                            }
+                        }
+                    }
+                    long eaa = 0;
+
+                    if (rm<0x40) {
+                        switch (rm & 7) {
+                            case 0x00: eaa = EA_00_n(); break;
+                            case 0x01: eaa = EA_01_n(); break;
+                            case 0x02: eaa = EA_02_n(); break;
+                            case 0x03: eaa = EA_03_n(); break;
+                            case 0x04: eaa = EA_04_n(); break;
+                            case 0x05: eaa = EA_05_n(); break;
+                            case 0x06: eaa = EA_06_n(); break;
+                            case 0x07: eaa = EA_07_n(); break;
+                        }
+                    } else if (rm<0x80) {
+                        switch (rm & 7) {
+                            case 0x00: eaa = EA_40_n(); break;
+                            case 0x01: eaa = EA_41_n(); break;
+                            case 0x02: eaa = EA_42_n(); break;
+                            case 0x03: eaa = EA_43_n(); break;
+                            case 0x04: eaa = EA_44_n(); break;
+                            case 0x05: eaa = EA_45_n(); break;
+                            case 0x06: eaa = EA_46_n(); break;
+                            case 0x07: eaa = EA_47_n(); break;
+                        }
+                    } else {
+                        switch (rm & 7) {
+                            case 0x00: eaa = EA_80_n(); break;
+                            case 0x01: eaa = EA_81_n(); break;
+                            case 0x02: eaa = EA_82_n(); break;
+                            case 0x03: eaa = EA_83_n(); break;
+                            case 0x04: eaa = EA_84_n(); break;
+                            case 0x05: eaa = EA_85_n(); break;
+                            case 0x06: eaa = EA_86_n(); break;
+                            case 0x07: eaa = EA_87_n(); break;
+                        }
+                    }
+                    switch ((rm >> 3) & 7) {
+                        case 0: Memory.mem_writeb(eaa, reg_eax.low()); break;
+                        case 1: Memory.mem_writeb(eaa, reg_ecx.low()); break;
+                        case 2: Memory.mem_writeb(eaa, reg_edx.low()); break;
+                        case 3: Memory.mem_writeb(eaa, reg_ebx.low()); break;
+                        case 4: Memory.mem_writeb(eaa, reg_eax.high()); break;
+                        case 5: Memory.mem_writeb(eaa, reg_ecx.high()); break;
+                        case 6: Memory.mem_writeb(eaa, reg_edx.high()); break;
+                        case 7: Memory.mem_writeb(eaa, reg_ebx.high()); break;
+                    }
+                }
                 return HANDLED;
             }
         };
@@ -2448,7 +1960,57 @@ static private final call1[] Grp4Eb = new call1[] {
         /* MOV Gb,Eb */
         ops[0x8a] = new OP() {
             final public int call() {
-                MovGbEb[Fetchb.call()].call();
+                short rm = Fetchb.call();
+
+                if (rm >= 0xc0) {
+                    MovGbEb[rm-0xc0].call();
+                } else {
+                    long eaa = 0;
+                    if (rm<0x40) {
+                        switch (rm & 7) {
+                            case 0x00: eaa = EA_00_n(); break;
+                            case 0x01: eaa = EA_01_n(); break;
+                            case 0x02: eaa = EA_02_n(); break;
+                            case 0x03: eaa = EA_03_n(); break;
+                            case 0x04: eaa = EA_04_n(); break;
+                            case 0x05: eaa = EA_05_n(); break;
+                            case 0x06: eaa = EA_06_n(); break;
+                            case 0x07: eaa = EA_07_n(); break;
+                        }
+                    } else if (rm<0x80) {
+                        switch (rm & 7) {
+                            case 0x00: eaa = EA_40_n(); break;
+                            case 0x01: eaa = EA_41_n(); break;
+                            case 0x02: eaa = EA_42_n(); break;
+                            case 0x03: eaa = EA_43_n(); break;
+                            case 0x04: eaa = EA_44_n(); break;
+                            case 0x05: eaa = EA_45_n(); break;
+                            case 0x06: eaa = EA_46_n(); break;
+                            case 0x07: eaa = EA_47_n(); break;
+                        }
+                    } else {
+                        switch (rm & 7) {
+                            case 0x00: eaa = EA_80_n(); break;
+                            case 0x01: eaa = EA_81_n(); break;
+                            case 0x02: eaa = EA_82_n(); break;
+                            case 0x03: eaa = EA_83_n(); break;
+                            case 0x04: eaa = EA_84_n(); break;
+                            case 0x05: eaa = EA_85_n(); break;
+                            case 0x06: eaa = EA_86_n(); break;
+                            case 0x07: eaa = EA_87_n(); break;
+                        }
+                    }
+                    switch ((rm >> 3) & 7) {
+                        case 0: reg_eax.low(Memory.mem_readb(eaa)); break;
+                        case 1: reg_ecx.low(Memory.mem_readb(eaa)); break;
+                        case 2: reg_edx.low(Memory.mem_readb(eaa)); break;
+                        case 3: reg_ebx.low(Memory.mem_readb(eaa)); break;
+                        case 4: reg_eax.high(Memory.mem_readb(eaa)); break;
+                        case 5: reg_ecx.high(Memory.mem_readb(eaa)); break;
+                        case 6: reg_edx.high(Memory.mem_readb(eaa)); break;
+                        case 7: reg_ebx.high(Memory.mem_readb(eaa)); break;
+                    }
+                }
                 return HANDLED;
             }
         };
@@ -3884,7 +3446,64 @@ static private final call1[] Grp4Eb = new call1[] {
         /* GRP4 Eb */
         ops[0xfe] = new OP() {
             final public int call() {
-                return Grp4Eb[Fetchb.call()].call();
+                /*Bit8u*/short rm=Fetchb.call();
+                /*Bitu*/int which=(rm>>3)&7;
+                switch (which) {
+                case 0x00:										/* INC Eb */
+                    if (rm >= 0xc0 ) {
+                        switch (rm & 0x7) {
+                            case 0: reg_eax.low(INCB(reg_eax.low()));break;
+                            case 1: reg_ecx.low(INCB(reg_ecx.low()));break;
+                            case 2: reg_edx.low(INCB(reg_edx.low()));break;
+                            case 3: reg_ebx.low(INCB(reg_ebx.low()));break;
+                            case 4: reg_eax.high(INCB(reg_eax.high()));break;
+                            case 5: reg_ecx.high(INCB(reg_ecx.high()));break;
+                            case 6: reg_edx.high(INCB(reg_edx.high()));break;
+                            case 7: reg_ebx.high(INCB(reg_ebx.high()));break;
+                        }
+                    }
+                    else {
+                        long eaa = ea_table[rm].call();
+                        int index = Paging.getDirectIndex(eaa);
+                        if (index>=0)
+                            Memory.host_writeb(index, INCB(Memory.host_readb(index)));
+                        else
+                            Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));
+                    }
+                    break;
+                case 0x01:										/* DEC Eb */
+                    if (rm >= 0xc0 ) {
+                        switch (rm & 0x7) {
+                            case 0: reg_eax.low(DECB(reg_eax.low()));break;
+                            case 1: reg_ecx.low(DECB(reg_ecx.low()));break;
+                            case 2: reg_edx.low(DECB(reg_edx.low()));break;
+                            case 3: reg_ebx.low(DECB(reg_ebx.low()));break;
+                            case 4: reg_eax.high(DECB(reg_eax.high()));break;
+                            case 5: reg_ecx.high(DECB(reg_ecx.high()));break;
+                            case 6: reg_edx.high(DECB(reg_edx.high()));break;
+                            case 7: reg_ebx.high(DECB(reg_ebx.high()));break;
+                        }
+                    }
+                    else {
+                        long eaa = ea_table[rm].call();
+                        int addr = Paging.getDirectIndex(eaa);
+                        if (addr>=0)
+                            Memory.host_writeb(addr, DECB(Memory.host_readb(addr)));
+                        else
+                            Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));
+                    }
+                    break;
+                case 0x07:										/* CallBack */
+                    {
+                        returnValue=Fetchw.call();
+                        Flags.FillFlags();SAVEIP();
+                        return RETURN;
+                    }
+                default:
+                    Log.exit("Illegal GRP4 Call %d",(rm>>3) & 7);
+                    break;
+                }
+                return HANDLED;
             }
         };
         ops[0x2fe] = ops[0xfe];

@@ -216,7 +216,7 @@ static private final mov[] MovEbGb = new mov[] {
                     }
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writeb(index, ADDB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
@@ -237,7 +237,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArw[rm].word(ADDW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -259,7 +259,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrb[rm].set(ADDB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
                 else {
-                    Modrm.Getrb[rm].set(ADDB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get()));
+                    Modrm.Getrb[rm].set(ADDB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get()));
                 }
                 return HANDLED;
             }
@@ -274,7 +274,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(ADDW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
                 else {
-                    Modrm.Getrw[rm].word(ADDW(Memory.mem_readw(ea_table[rm].call()),Modrm.Getrw[rm].word()));
+                    Modrm.Getrw[rm].word(ADDW(Memory.mem_readw(getEaa(rm)),Modrm.Getrw[rm].word()));
                 }
                 return HANDLED;
             }
@@ -321,7 +321,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArb[rm].set(ORB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0)
                         Memory.host_writeb(index, ORB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
@@ -342,7 +342,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArw[rm].word(ORW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -364,7 +364,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrb[rm].set(ORB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
                 else {
-                    Modrm.Getrb[rm].set(ORB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get()));
+                    Modrm.Getrb[rm].set(ORB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get()));
                 }
                 return HANDLED;
             }
@@ -380,7 +380,7 @@ static private final mov[] MovEbGb = new mov[] {
                     r.word(ORW(Modrm.GetEArw[rm].word(),r.word()));
                 }
                 else {
-                    r.word(ORW(Memory.mem_readw(ea_table[rm].call()),r.word()));
+                    r.word(ORW(Memory.mem_readw(getEaa(rm)),r.word()));
                 }
                 return HANDLED;
             }
@@ -429,7 +429,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArb[rm].set(ADCB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0)
                         Memory.host_writeb(index, ADCB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
@@ -449,7 +449,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArw[rm].word(ADCW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -471,7 +471,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrb[rm].set(ADCB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
                 else {
-                    Modrm.Getrb[rm].set(ADCB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get()));
+                    Modrm.Getrb[rm].set(ADCB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get()));
                 }
                 return HANDLED;
             }
@@ -486,7 +486,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(ADCW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
                 else {
-                    Modrm.Getrw[rm].word(ADCW(Memory.mem_readw(ea_table[rm].call()),Modrm.Getrw[rm].word()));
+                    Modrm.Getrw[rm].word(ADCW(Memory.mem_readw(getEaa(rm)),Modrm.Getrw[rm].word()));
                 }
                 return HANDLED;
             }
@@ -534,7 +534,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArb[rm].set(SBBB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writeb(index, SBBB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
@@ -556,7 +556,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArw[rm].word(SBBW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -578,7 +578,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrb[rm].set(SBBB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
                 else {
-                    Modrm.Getrb[rm].set(SBBB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get()));
+                    Modrm.Getrb[rm].set(SBBB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get()));
                 }
                 return HANDLED;
             }
@@ -594,7 +594,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(SBBW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
                 else {
-                    Modrm.Getrw[rm].word(SBBW(Memory.mem_readw(ea_table[rm].call()),Modrm.Getrw[rm].word()));
+                    Modrm.Getrw[rm].word(SBBW(Memory.mem_readw(getEaa(rm)),Modrm.Getrw[rm].word()));
                 }
                 return HANDLED;
             }
@@ -641,7 +641,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArb[rm].set(ANDB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0)
                         Memory.host_writeb(index, ANDB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
@@ -661,7 +661,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArw[rm].word(ANDW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -683,7 +683,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrb[rm].set(ANDB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
                 else {
-                    Modrm.Getrb[rm].set(ANDB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get()));
+                    Modrm.Getrb[rm].set(ANDB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get()));
                 }
                 return HANDLED;
             }
@@ -699,7 +699,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(ANDW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
                 else {
-                    Modrm.Getrw[rm].word(ANDW(Memory.mem_readw(ea_table[rm].call()),Modrm.Getrw[rm].word()));
+                    Modrm.Getrw[rm].word(ANDW(Memory.mem_readw(getEaa(rm)),Modrm.Getrw[rm].word()));
                 }
                 return HANDLED;
             }
@@ -748,7 +748,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArb[rm].set(SUBB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0)
                         Memory.host_writeb(index, SUBB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
@@ -768,7 +768,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArw[rm].word(SUBW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -790,7 +790,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrb[rm].set(SUBB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
                 else {
-                    Modrm.Getrb[rm].set(SUBB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get()));
+                    Modrm.Getrb[rm].set(SUBB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get()));
                 }
                 return HANDLED;
             }
@@ -806,7 +806,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(SUBW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
                 else {
-                    Modrm.Getrw[rm].word(SUBW(Memory.mem_readw(ea_table[rm].call()),Modrm.Getrw[rm].word()));
+                    Modrm.Getrw[rm].word(SUBW(Memory.mem_readw(getEaa(rm)),Modrm.Getrw[rm].word()));
                 }
                 return HANDLED;
             }
@@ -855,7 +855,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArb[rm].set(XORB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0)
                         Memory.host_writeb(index, XORB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
@@ -875,7 +875,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.GetEArw[rm].word(XORW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -897,7 +897,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrb[rm].set(XORB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
                 else {
-                    Modrm.Getrb[rm].set(XORB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get()));
+                    Modrm.Getrb[rm].set(XORB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get()));
                 }
                 return HANDLED;
             }
@@ -912,7 +912,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(XORW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
                 else {
-                    Modrm.Getrw[rm].word(XORW(Memory.mem_readw(ea_table[rm].call()),Modrm.Getrw[rm].word()));
+                    Modrm.Getrw[rm].word(XORW(Memory.mem_readw(getEaa(rm)),Modrm.Getrw[rm].word()));
                 }
                 return HANDLED;
             }
@@ -961,7 +961,7 @@ static private final mov[] MovEbGb = new mov[] {
                     CMPB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get());
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     CMPB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa));
                 }
                 return HANDLED;
@@ -977,7 +977,7 @@ static private final mov[] MovEbGb = new mov[] {
                     CMPW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word());
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     CMPW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa));
                 }
                 return HANDLED;
@@ -992,7 +992,7 @@ static private final mov[] MovEbGb = new mov[] {
                     CMPB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get());
                 }
                 else {
-                    CMPB(Memory.mem_readb(ea_table[rm].call()),Modrm.Getrb[rm].get());
+                    CMPB(Memory.mem_readb(getEaa(rm)),Modrm.Getrb[rm].get());
                 }
                 return HANDLED;
             }
@@ -1007,7 +1007,7 @@ static private final mov[] MovEbGb = new mov[] {
                     CMPW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word());
                 }
                 else {
-                    CMPW(Memory.mem_readw(ea_table[rm].call()),Modrm.Getrw[rm].word());
+                    CMPW(Memory.mem_readw(getEaa(rm)),Modrm.Getrw[rm].word());
                 }
                 return HANDLED;
             }
@@ -1375,7 +1375,7 @@ static private final mov[] MovEbGb = new mov[] {
         ops[0x62] = new OP() {
             final public int call() {
                 /*Bit16s*/short bound_min, bound_max;
-                /*Bit8u*/short rm=Fetchb.call();/*PhysPt*/long eaa=ea_table[rm].call();
+                /*Bit8u*/short rm=Fetchb.call();/*PhysPt*/long eaa=getEaa(rm);
                 bound_min=(short)Memory.mem_readw(eaa);
                 bound_max=(short)Memory.mem_readw(eaa+2);
                 if ( (((short)Modrm.Getrw[rm].word()) < bound_min) || (((short)Modrm.Getrw[rm].word()) > bound_max) ) {
@@ -1395,7 +1395,7 @@ static private final mov[] MovEbGb = new mov[] {
                     CPU.CPU_ARPL(int_ref_1,Modrm.Getrw[rm].word());
                     Modrm.GetEArw[rm].word(int_ref_1.value);
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();int_ref_1.value = Memory.mem_readw(eaa);
+                    /*PhysPt*/long eaa=getEaa(rm);int_ref_1.value = Memory.mem_readw(eaa);
                     CPU.CPU_ARPL(int_ref_1,Modrm.Getrw[rm].word());
                     Memory.mem_writew(eaa,int_ref_1.value);
                 }
@@ -1434,7 +1434,6 @@ static private final mov[] MovEbGb = new mov[] {
         ops[0x67] = new OP() {
             final public int call() {
                 prefixes=(prefixes & ~PREFIX_ADDR) |(CPU.cpu.code.big?0:1);
-                ea_table=(prefixes&1)==0? EATable16 : EATable32;
                 EA16 = (prefixes&1)==0;
                 return RESTART;
             }
@@ -1459,7 +1458,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(DIMULW(Modrm.GetEArw[rm].word(),op3));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int op3 = Fetchws.call();
                     Modrm.Getrw[rm].word(DIMULW(Memory.mem_readw(eaa),op3));
                 }
@@ -1485,7 +1484,7 @@ static private final mov[] MovEbGb = new mov[] {
                     Modrm.Getrw[rm].word(DIMULW(Modrm.GetEArw[rm].word(),op3));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     int op3 = Fetchbs.call();
                     Modrm.Getrw[rm].word(DIMULW(Memory.mem_readw(eaa),op3));
                 }
@@ -1678,7 +1677,7 @@ static private final mov[] MovEbGb = new mov[] {
                     case 0x07:CMPB(ib,r.get());break;
                     }
                 } else {
-                    long eaa = m = ea_table[rm].call();
+                    long eaa = m = getEaa(rm);
 
                     /*Bit8u*/short ib=Fetchb.call();
                     int index = Paging.getDirectIndex(eaa);
@@ -1734,7 +1733,7 @@ static private final mov[] MovEbGb = new mov[] {
                     case 0x07:CMPW(iw,r.word());break;
                     }
                 } else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     /*Bit16u*/int iw=Fetchw.call();
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
@@ -1786,7 +1785,7 @@ static private final mov[] MovEbGb = new mov[] {
                     case 0x07:CMPW(iw,r.word());break;
                     }
                 } else {
-                    long eaa = m = ea_table[rm].call();
+                    long eaa = m = getEaa(rm);
 
                     /*Bit16u*/int iw=(((short)Fetchbs.call()) & 0xFFFF);
                     if ((eaa & 0xFFF)<0xFFF) {
@@ -1828,7 +1827,7 @@ static private final mov[] MovEbGb = new mov[] {
                     TESTB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get());
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     TESTB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa));
                 }
                 return HANDLED;
@@ -1844,7 +1843,7 @@ static private final mov[] MovEbGb = new mov[] {
                     TESTW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word());
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     TESTW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa));
                 }
                 return HANDLED;
@@ -1857,7 +1856,7 @@ static private final mov[] MovEbGb = new mov[] {
                 /*Bit8u*/short rm=Fetchb.call();/*Bit8u*/short oldrmrb=Modrm.Getrb[rm].get();
                 if (rm >= 0xc0 ) {Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());Modrm.GetEArb[rm].set(oldrmrb);}
                 else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();
+                    /*PhysPt*/long eaa=getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Modrm.Getrb[rm].set(Memory.host_readb(index));
@@ -1883,7 +1882,7 @@ static private final mov[] MovEbGb = new mov[] {
                     rw.word(ea.word());ea.word(oldrmrw);
                 } else {
                     /*Bit16u*/int oldrmrw=Modrm.Getrw[rm].word();
-                    /*PhysPt*/long eaa=ea_table[rm].call();
+                    /*PhysPt*/long eaa=getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
@@ -1938,7 +1937,7 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word(Modrm.Getrw[rm].word());}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Memory.mem_writew(eaa,Modrm.Getrw[rm].word());}
+                else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writew(eaa,Modrm.Getrw[rm].word());}
                 return HANDLED;
             }
         };
@@ -1973,7 +1972,7 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0 )Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Modrm.Getrw[rm].word(Memory.mem_readw(eaa));}
+                else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readw(eaa));}
                 return HANDLED;
             }
         };
@@ -2000,7 +1999,7 @@ static private final mov[] MovEbGb = new mov[] {
                     return ILLEGAL_OPCODE;
                 }
                 if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word((int)val);}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Memory.mem_writew(eaa,(int)val);}
+                else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writew(eaa,(int)val);}
                 return HANDLED;
             }
         };
@@ -2012,9 +2011,9 @@ static private final mov[] MovEbGb = new mov[] {
                 base_ds=base_ss=0;
                 /*Bit8u*/short rm=Fetchb.call();
                 if (TEST_PREFIX_ADDR()!=0) {
-                    Modrm.Getrw[rm].word((/*Bit16u*/int)(EATable32[rm]).call());
+                    Modrm.Getrw[rm].word((/*Bit16u*/int)(getEaa32(rm)));
                 } else {
-                    Modrm.Getrw[rm].word((/*Bit16u*/int)(EATable16[rm]).call());
+                    Modrm.Getrw[rm].word((/*Bit16u*/int)(getEaa16(rm)));
                 }
                 return HANDLED;
             }
@@ -2025,7 +2024,7 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
                 if (rm >= 0xc0 ) {val=Modrm.GetEArw[rm].word();}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();val=Memory.mem_readw(eaa);}
+                else {/*PhysPt*/long eaa=getEaa(rm);val=Memory.mem_readw(eaa);}
                 switch (which) {
                 case 0x02:					/* MOV SS,Ew */
                     CPU.CPU_Cycles++; //Always do another instruction
@@ -2049,7 +2048,7 @@ static private final mov[] MovEbGb = new mov[] {
                 /*Bit16u*/int val=CPU.CPU_Pop16();
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word(val);}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Memory.mem_writew(eaa,val);}
+                else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writew(eaa,val);}
                 return HANDLED;
             }
         };
@@ -2515,7 +2514,7 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa=ea_table[rm].call();
+                /*PhysPt*/long eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
                 Modrm.Getrw[rm].word(Memory.mem_readw(eaa));
                 return HANDLED;
@@ -2527,7 +2526,7 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa=ea_table[rm].call();
+                /*PhysPt*/long eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
                 Modrm.Getrw[rm].word(Memory.mem_readw(eaa));
                 return HANDLED;
@@ -2539,7 +2538,7 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0) {Modrm.GetEArb[rm].set(Fetchb.call());}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Memory.mem_writeb(eaa,Fetchb.call());}
+                else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writeb(eaa,Fetchb.call());}
                 return HANDLED;
             }
         };
@@ -2550,7 +2549,7 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0) {Modrm.GetEArw[rm].word(Fetchw.call());}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Memory.mem_writew(eaa,Fetchw.call());}
+                else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writew(eaa,Fetchw.call());}
                 return HANDLED;
             }
         };
@@ -2746,12 +2745,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC0_Normal(rm);
                     } else {
-                        FPU.FPU_ESC0_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC0_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -2768,12 +2767,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC1_Normal(rm);
                     } else {
-                        FPU.FPU_ESC1_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC1_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -2790,12 +2789,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC2_Normal(rm);
                     } else {
-                        FPU.FPU_ESC2_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC2_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -2812,12 +2811,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC3_Normal(rm);
                     } else {
-                        FPU.FPU_ESC3_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC3_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -2834,12 +2833,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC4_Normal(rm);
                     } else {
-                        FPU.FPU_ESC4_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC4_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -2856,12 +2855,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC5_Normal(rm);
                     } else {
-                        FPU.FPU_ESC5_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC5_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -2878,12 +2877,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC6_Normal(rm);
                     } else {
-                        FPU.FPU_ESC6_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC6_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -2900,12 +2899,12 @@ static private final mov[] MovEbGb = new mov[] {
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC7_Normal(rm);
                     } else {
-                        FPU.FPU_ESC7_EA(rm,ea_table[rm].call());
+                        FPU.FPU_ESC7_EA(rm,getEaa(rm));
                     }
                 } else {
                     /*Bit8u*/short rm=Fetchb.call();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
-                    if (rm<0xc0) ea_table[rm].call();
+                    if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
                 }
                 return HANDLED;
@@ -3164,7 +3163,7 @@ static private final mov[] MovEbGb = new mov[] {
                             TESTB(Fetchb.call(),Modrm.GetEArb[rm].get());
                         }
                         else {
-                            final short val = Memory.mem_readb(ea_table[rm].call());
+                            final short val = Memory.mem_readb(getEaa(rm));
                             TESTB(Fetchb.call(),val);
                         }
                         break;
@@ -3173,7 +3172,7 @@ static private final mov[] MovEbGb = new mov[] {
                     {
                         if (rm >= 0xc0 ) {Modrm.GetEArb[rm].set((short)~Modrm.GetEArb[rm].get());}
                         else {
-                            /*PhysPt*/long eaa=ea_table[rm].call();
+                            /*PhysPt*/long eaa=getEaa(rm);
                             int index = Paging.getDirectIndex(eaa);
                             if (index>=0)
                                 Memory.direct[index]=(byte)~Memory.direct[index];
@@ -3189,7 +3188,7 @@ static private final mov[] MovEbGb = new mov[] {
                             Flags.lf_var1b(Modrm.GetEArb[rm].get());Flags.lf_resb(0-Flags.lf_var1b());
                             Modrm.GetEArb[rm].set(Flags.lf_resb());
                         } else {
-                            /*PhysPt*/long eaa=ea_table[rm].call();Flags.lf_var1b(Memory.mem_readb(eaa));Flags.lf_resb(0-Flags.lf_var1b());
+                            /*PhysPt*/long eaa=getEaa(rm);Flags.lf_var1b(Memory.mem_readb(eaa));Flags.lf_resb(0-Flags.lf_var1b());
                              Memory.mem_writeb(eaa,Flags.lf_resb());
                         }
                         break;
@@ -3199,7 +3198,7 @@ static private final mov[] MovEbGb = new mov[] {
                         MULB(Modrm.GetEArb[rm].get());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         MULB(Memory.mem_readb(eaa));
                     }
                     break;
@@ -3209,7 +3208,7 @@ static private final mov[] MovEbGb = new mov[] {
                         IMULB(Modrm.GetEArb[rm].get());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         IMULB(Memory.mem_readb(eaa));
                     }
                     break;
@@ -3218,7 +3217,7 @@ static private final mov[] MovEbGb = new mov[] {
                         DIVB(Modrm.GetEArb[rm].get());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         DIVB(Memory.mem_readb(eaa));
                     }
                     break;
@@ -3227,7 +3226,7 @@ static private final mov[] MovEbGb = new mov[] {
                         IDIVB(Modrm.GetEArb[rm].get());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         IDIVB(Memory.mem_readb(eaa));
                     }
                     break;
@@ -3250,7 +3249,7 @@ static private final mov[] MovEbGb = new mov[] {
                             TESTW(op,Modrm.GetEArw[rm].word());
                         }
                         else {
-                            final long eaa = ea_table[rm].call();
+                            final long eaa = getEaa(rm);
                             TESTW(Fetchw.call(),Memory.mem_readw(eaa));
                         }
                         break;
@@ -3259,7 +3258,7 @@ static private final mov[] MovEbGb = new mov[] {
                     {
                         if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word(~Modrm.GetEArw[rm].word());}
                         else {
-                            /*PhysPt*/long eaa=ea_table[rm].call();
+                            /*PhysPt*/long eaa=getEaa(rm);
                             if ((eaa & 0xFFF)<0xFFF) {
                                 int index = Paging.getDirectIndex(eaa);
                                 if (index>=0) {
@@ -3278,7 +3277,7 @@ static private final mov[] MovEbGb = new mov[] {
                             Flags.lf_var1w(Modrm.GetEArw[rm].word());Flags.lf_resw(0-Flags.lf_var1w());
                             Modrm.GetEArw[rm].word(Flags.lf_resw());
                         } else {
-                            /*PhysPt*/long eaa=ea_table[rm].call();
+                            /*PhysPt*/long eaa=getEaa(rm);
                             if ((eaa & 0xFFF)<0xFFF) {
                                 int index = Paging.getDirectIndex(eaa);
                                 if (index>=0) {
@@ -3299,7 +3298,7 @@ static private final mov[] MovEbGb = new mov[] {
                         MULW(Modrm.GetEArw[rm].word());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         MULW(Memory.mem_readw(eaa));
                     }
                     break;
@@ -3308,7 +3307,7 @@ static private final mov[] MovEbGb = new mov[] {
                         IMULW(Modrm.GetEArw[rm].word());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         IMULW(Memory.mem_readw(eaa));
                     }
                     break;
@@ -3317,7 +3316,7 @@ static private final mov[] MovEbGb = new mov[] {
                         DIVW(Modrm.GetEArw[rm].word());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         DIVW(Memory.mem_readw(eaa));
                     }
                     break;
@@ -3326,7 +3325,7 @@ static private final mov[] MovEbGb = new mov[] {
                         IDIVW(Modrm.GetEArw[rm].word());
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         IDIVW(Memory.mem_readw(eaa));
                     }
                     break;
@@ -3415,7 +3414,7 @@ static private final mov[] MovEbGb = new mov[] {
                         }
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0)
                             Memory.host_writeb(index, INCB(Memory.host_readb(index)));
@@ -3437,7 +3436,7 @@ static private final mov[] MovEbGb = new mov[] {
                         }
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         int addr = Paging.getDirectIndex(eaa);
                         if (addr>=0)
                             Memory.host_writeb(addr, DECB(Memory.host_readb(addr)));
@@ -3480,7 +3479,7 @@ static private final mov[] MovEbGb = new mov[] {
                         }
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         if ((eaa & 0xFFF)<0xFFF) {
                             int index = Paging.getDirectIndex(eaa);
                             if (index>=0) {
@@ -3497,7 +3496,7 @@ static private final mov[] MovEbGb = new mov[] {
                         r.word(DECW(r.word()));
                     }
                     else {
-                        long eaa = ea_table[rm].call();
+                        long eaa = getEaa(rm);
                         if ((eaa & 0xFFF)<0xFFF) {
                             int addr = Paging.getDirectIndex(eaa);
                             if (addr>=0) {
@@ -3510,13 +3509,13 @@ static private final mov[] MovEbGb = new mov[] {
                     break;
                 case 0x02:										/* CALL Ev */
                     if (rm >= 0xc0 ) {reg_eip(Modrm.GetEArw[rm].word());}
-                    else {/*PhysPt*/long eaa=ea_table[rm].call();reg_eip(Memory.mem_readw(eaa));}
+                    else {/*PhysPt*/long eaa=getEaa(rm);reg_eip(Memory.mem_readw(eaa));}
                     CPU.CPU_Push16((int)(GETIP() & 0xFFFFl));
                     return CONTINUE;
                 case 0x03:										/* CALL Ep */
                     {
                         if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                        /*PhysPt*/long eaa=ea_table[rm].call();
+                        /*PhysPt*/long eaa=getEaa(rm);
                         /*Bit16u*/int newip=Memory.mem_readw(eaa);
                         /*Bit16u*/int newcs=Memory.mem_readw(eaa+2);
                         Flags.FillFlags();
@@ -3531,12 +3530,12 @@ static private final mov[] MovEbGb = new mov[] {
                     }
                 case 0x04:										/* JMP Ev */
                     if (rm >= 0xc0 ) {reg_eip(Modrm.GetEArw[rm].word());}
-                    else {/*PhysPt*/long eaa=ea_table[rm].call();reg_eip(Memory.mem_readw(eaa));}
+                    else {/*PhysPt*/long eaa=getEaa(rm);reg_eip(Memory.mem_readw(eaa));}
                     return CONTINUE;
                 case 0x05:										/* JMP Ep */
                     {
                         if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                        /*PhysPt*/long eaa=ea_table[rm].call();
+                        /*PhysPt*/long eaa=getEaa(rm);
                         /*Bit16u*/int newip=Memory.mem_readw(eaa);
                         /*Bit16u*/int newcs=Memory.mem_readw(eaa+2);
                         Flags.FillFlags();
@@ -3551,7 +3550,7 @@ static private final mov[] MovEbGb = new mov[] {
                     }
                 case 0x06:										/* PUSH Ev */
                     if (rm >= 0xc0 ) {CPU.CPU_Push16(Modrm.GetEArw[rm].word());}
-                    else {/*PhysPt*/long eaa=ea_table[rm].call();CPU.CPU_Push16(Memory.mem_readw(eaa));}
+                    else {/*PhysPt*/long eaa=getEaa(rm);CPU.CPU_Push16(Memory.mem_readw(eaa));}
                     break;
                 default:
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"CPU:GRP5:Illegal Call %2X",which);

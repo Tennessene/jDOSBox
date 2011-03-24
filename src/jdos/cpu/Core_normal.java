@@ -51,12 +51,10 @@ public class Core_normal extends Prefix_66_0f {
                 if (CPU.cpu.code.big) {
                     opcode_index=0x200;
                     prefixes=1;
-                    ea_table= EATable32;
                     EA16 = false;
                 } else {
                     opcode_index=0;
                     prefixes=0;
-                    ea_table= EATable16;
                     EA16 = true;
                 }
                 base_ds=CPU.Segs_DSphys;

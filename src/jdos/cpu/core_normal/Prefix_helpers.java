@@ -80,7 +80,7 @@ public class Prefix_helpers extends Instructions {
         /*Bit8u*/short rm=Fetchb.call();
         if (rm >= 0xc0 ) {
             Modrm.GetEArb[rm].set((short)((cc) ? 1 : 0));}
-        else {Memory.mem_writeb(ea_table[rm].call(),(cc) ? 1 : 0);}
+        else {Memory.mem_writeb(getEaa(rm),(cc) ? 1 : 0);}
     }
 
 //    #define RMGdEdOp3(inst,op3)													\
@@ -233,7 +233,7 @@ public class Prefix_helpers extends Instructions {
             case 0x07:SARB(val,earb_l,earb_s);break;
             }
         } else {
-            m = ea_table[rm].call();
+            m = getEaa(rm);
             /*Bit8u*/short val=(short)(blah & 0x1f);
             switch (which) {
             case 0x00:ROLB((short)m,val,b_l,b_s);break;
@@ -266,7 +266,7 @@ public class Prefix_helpers extends Instructions {
             case 0x07:SARB(val,earb_l,earb_s);break;
             }
         } else {
-            m = ea_table[rm].call();
+            m = getEaa(rm);
             short blah = Fetchb.call();
             /*Bit8u*/short val=(short)(blah & 0x1f);
             switch (which) {
@@ -300,7 +300,7 @@ public class Prefix_helpers extends Instructions {
             case 0x07:SARW(val,earw_l,earw_s);break;
             }
         } else {
-            m = ea_table[rm].call();
+            m = getEaa(rm);
             /*Bit8u*/int val=blah & 0x1f;
             switch (which) {
             case 0x00:ROLW((int)m,val,w_l,w_s);break;
@@ -334,7 +334,7 @@ public class Prefix_helpers extends Instructions {
             case 0x07:SARW(val,earw_l,earw_s);break;
             }
         } else {
-            m = ea_table[rm].call();
+            m = getEaa(rm);
             int blah = Fetchb.call();
             /*Bit8u*/int val=blah & 0x1f;
             switch (which) {
@@ -367,7 +367,7 @@ public class Prefix_helpers extends Instructions {
             case 0x07:r.dword(SARD(val,r.dword()));break;
             }
         } else {
-            long eaa = ea_table[rm].call();
+            long eaa = getEaa(rm);
             /*Bit8u*/int val=blah & 0x1f;
 
             if (val == 0) return;

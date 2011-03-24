@@ -26,14 +26,14 @@ public class Prefix_0f extends Prefix_none {
                         if (which==0) saveval=CPU.CPU_SLDT();
                         else saveval=CPU.CPU_STR();
                         if (rm >= 0xc0) {Modrm.GetEArw[rm].word(saveval);}
-                        else {/*PhysPt*/long eaa=ea_table[rm].call();Memory.mem_writew(eaa,saveval);}
+                        else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writew(eaa,saveval);}
                     }
                     break;
                 case 0x02:case 0x03:case 0x04:case 0x05:
                     {
                         /*Bitu*/int loadval;
                         if (rm >= 0xc0 ) {loadval=Modrm.GetEArw[rm].word();}
-                        else {/*PhysPt*/long eaa=ea_table[rm].call();loadval=Memory.mem_readw(eaa);}
+                        else {/*PhysPt*/long eaa=getEaa(rm);loadval=Memory.mem_readw(eaa);}
                         switch (which) {
                         case 0x02:
                             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
@@ -64,7 +64,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();/*Bitu*/int which=(rm>>3)&7;
                 if (rm < 0xc0)	{ //First ones all use EA
-                    /*PhysPt*/long eaa=ea_table[rm].call();/*Bitu*/int limit;
+                    /*PhysPt*/long eaa=getEaa(rm);/*Bitu*/int limit;
                     switch (which) {
                     case 0x00:										/* SGDT */
                         Memory.mem_writew(eaa,CPU.CPU_SGDT_limit());
@@ -134,7 +134,7 @@ public class Prefix_0f extends Prefix_none {
                 if (rm >= 0xc0) {
                     CPU.CPU_LAR(Modrm.GetEArw[rm].word(),int_ref_1);
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();CPU.CPU_LAR(Memory.mem_readw(eaa),int_ref_1);
+                    /*PhysPt*/long eaa=getEaa(rm);CPU.CPU_LAR(Memory.mem_readw(eaa),int_ref_1);
                 }
                 Modrm.Getrw[rm].word(int_ref_1.value);
                 return HANDLED;
@@ -149,7 +149,7 @@ public class Prefix_0f extends Prefix_none {
                 if (rm >= 0xc0) {
                     CPU.CPU_LSL(Modrm.GetEArw[rm].word(),int_ref_1);
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();CPU.CPU_LSL(Memory.mem_readw(eaa),int_ref_1);
+                    /*PhysPt*/long eaa=getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),int_ref_1);
                 }
                 Modrm.Getrw[rm].word(int_ref_1.value);
                 return HANDLED;
@@ -590,7 +590,7 @@ public class Prefix_0f extends Prefix_none {
                 if (rm >= 0xc0 ) {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0?true:false);
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
+                    /*PhysPt*/long eaa=getEaa(rm);eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
                     /*Bit16u*/int old=Memory.mem_readw(eaa);
                     SETFLAGBIT(CF,(old & mask)!=0?true:false);
                 }
@@ -608,7 +608,7 @@ public class Prefix_0f extends Prefix_none {
                     DSHLW.call(Modrm.Getrw[rm].word(),op3,earw_l,earw_s);
                 }
                 else {
-                    m = ea_table[rm].call();
+                    m = getEaa(rm);
                     int op3 = Fetchb.call();
                     DSHLW.call(Modrm.Getrw[rm].word(),op3,w_l,w_s);
                 }
@@ -625,7 +625,7 @@ public class Prefix_0f extends Prefix_none {
                     DSHLW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
                 }
                 else {
-                    m = ea_table[rm].call();
+                    m = getEaa(rm);
                     DSHLW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),w_l,w_s);
                 }
                 return HANDLED;
@@ -657,7 +657,7 @@ public class Prefix_0f extends Prefix_none {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0);
                     Modrm.GetEArw[rm].word(Modrm.GetEArw[rm].word() | mask);
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
+                    /*PhysPt*/long eaa=getEaa(rm);eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
                     /*Bit16u*/int old=Memory.mem_readw(eaa);
                     SETFLAGBIT(CF,(old & mask)!=0);
                     Memory.mem_writew(eaa,old | mask);
@@ -676,7 +676,7 @@ public class Prefix_0f extends Prefix_none {
                     DSHRW.call(Modrm.Getrw[rm].word(),op3,earw_l,earw_s);
                 }
                 else {
-                    m = ea_table[rm].call();
+                    m = getEaa(rm);
                     int op3 = Fetchb.call();
                     DSHRW.call(Modrm.Getrw[rm].word(),op3,w_l,w_s);
                 }
@@ -693,7 +693,7 @@ public class Prefix_0f extends Prefix_none {
                     DSHRW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
                 }
                 else {
-                    m = ea_table[rm].call();
+                    m = getEaa(rm);
                     DSHRW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),w_l,w_s);
                 }
                 return HANDLED;
@@ -709,7 +709,7 @@ public class Prefix_0f extends Prefix_none {
                     r.word(DIMULW(Modrm.GetEArw[rm].word(),r.word()));
                 }
                 else {
-                    long eaa = ea_table[rm].call();
+                    long eaa = getEaa(rm);
                     r.word(DIMULW(Memory.mem_readw(eaa),r.word()));
                 }
                 return HANDLED;
@@ -732,7 +732,7 @@ public class Prefix_0f extends Prefix_none {
                         SETFLAGBIT(ZF,false);
                     }
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();
+                    /*PhysPt*/long eaa=getEaa(rm);
                     /*Bit8u*/short val = Memory.mem_readb(eaa);
                     if (reg_eax.low() == val) {
                         Memory.mem_writeb(eaa,Modrm.Getrb[rm].get());
@@ -763,7 +763,7 @@ public class Prefix_0f extends Prefix_none {
                         SETFLAGBIT(ZF,false);
                     }
                 } else {
-                       /*PhysPt*/long eaa=ea_table[rm].call();
+                       /*PhysPt*/long eaa=getEaa(rm);
                     /*Bit16u*/int val = Memory.mem_readw(eaa);
                     if(reg_eax.word() == val) {
                         Memory.mem_writew(eaa,Modrm.Getrw[rm].word());
@@ -783,7 +783,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa=ea_table[rm].call();
+                /*PhysPt*/long eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
                 Modrm.Getrw[rm].word(Memory.mem_readw(eaa));
                 return HANDLED;
@@ -799,7 +799,7 @@ public class Prefix_0f extends Prefix_none {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0);
                     Modrm.GetEArw[rm].word(Modrm.GetEArw[rm].word() & ~mask);
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
+                    /*PhysPt*/long eaa=getEaa(rm);eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
                     /*Bit16u*/int old=Memory.mem_readw(eaa);
                     SETFLAGBIT(CF,(old & mask)!=0);
                     Memory.mem_writew(eaa,old & ~mask);
@@ -813,7 +813,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa=ea_table[rm].call();
+                /*PhysPt*/long eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
                 Modrm.Getrw[rm].word(Memory.mem_readw(eaa));
                 return HANDLED;
@@ -825,7 +825,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa=ea_table[rm].call();
+                /*PhysPt*/long eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
                 Modrm.Getrw[rm].word(Memory.mem_readw(eaa));
                 return HANDLED;
@@ -837,7 +837,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArb[rm].get());}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Modrm.Getrw[rm].word(Memory.mem_readb(eaa));}
+                else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readb(eaa));}
                 return HANDLED;
             }
         };
@@ -847,7 +847,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Modrm.Getrw[rm].word(Memory.mem_readw(eaa));}
+                else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readw(eaa));}
                 return HANDLED;
             }
         };
@@ -877,7 +877,7 @@ public class Prefix_0f extends Prefix_none {
                         Log.exit("CPU:0F:BA:Illegal subfunction %X",rm & 0x38);
                     }
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();/*Bit16u*/int old=Memory.mem_readw(eaa);
+                    /*PhysPt*/long eaa=getEaa(rm);/*Bit16u*/int old=Memory.mem_readw(eaa);
                     /*Bit16u*/int mask=1 << (Fetchb.call() & 15);
                     SETFLAGBIT(CF,(old & mask)!=0);
                     switch (rm & 0x38) {
@@ -909,7 +909,7 @@ public class Prefix_0f extends Prefix_none {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0);
                     Modrm.GetEArw[rm].word(Modrm.GetEArw[rm].word()^mask);
                 } else {
-                    /*PhysPt*/long eaa=ea_table[rm].call();eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
+                    /*PhysPt*/long eaa=getEaa(rm);eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
                     /*Bit16u*/int old=Memory.mem_readw(eaa);
                     SETFLAGBIT(CF,(old & mask)!=0);
                     Memory.mem_writew(eaa,old ^ mask);
@@ -924,7 +924,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bit8u*/short rm=Fetchb.call();
                 /*Bit16u*/int result,value;
                 if (rm >= 0xc0) { value=Modrm.GetEArw[rm].word(); }
-                else			{ /*PhysPt*/long eaa=ea_table[rm].call(); value=Memory.mem_readw(eaa); }
+                else			{ /*PhysPt*/long eaa=getEaa(rm); value=Memory.mem_readw(eaa); }
                 if (value==0) {
                     SETFLAGBIT(ZF,true);
                 } else {
@@ -944,7 +944,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bit8u*/short rm=Fetchb.call();
                 /*Bit16u*/int result,value;
                 if (rm >= 0xc0) { value=Modrm.GetEArw[rm].word(); }
-                else			{ /*PhysPt*/long eaa=ea_table[rm].call(); value=Memory.mem_readw(eaa); }
+                else			{ /*PhysPt*/long eaa=getEaa(rm); value=Memory.mem_readw(eaa); }
                 if (value==0) {
                     SETFLAGBIT(ZF,true);
                 } else {
@@ -963,7 +963,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArb[rm].get());}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Modrm.Getrw[rm].word((byte)Memory.mem_readb(eaa));}
+                else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrw[rm].word((byte)Memory.mem_readb(eaa));}
                 return HANDLED;
             }
         };
@@ -974,7 +974,7 @@ public class Prefix_0f extends Prefix_none {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
                 /*Bit8u*/short rm=Fetchb.call();/*Bit8u*/short oldrmrb=Modrm.Getrb[rm].get();
                 if (rm >= 0xc0 ) {Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());Modrm.GetEArb[rm].set((short)(Modrm.GetEArb[rm].get()+oldrmrb));}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Modrm.Getrb[rm].set(Memory.mem_readb(eaa));Memory.mem_writeb(eaa,Memory.mem_readb(eaa)+oldrmrb);}
+                else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrb[rm].set(Memory.mem_readb(eaa));Memory.mem_writeb(eaa,Memory.mem_readb(eaa)+oldrmrb);}
                 return HANDLED;
             }
         };
@@ -986,7 +986,7 @@ public class Prefix_0f extends Prefix_none {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
                 /*Bit8u*/short rm=Fetchb.call();/*Bit16u*/int oldrmrw=Modrm.Getrw[rm].word();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());Modrm.GetEArw[rm].word(Modrm.GetEArw[rm].word()+oldrmrw);}
-                else {/*PhysPt*/long eaa=ea_table[rm].call();Modrm.Getrw[rm].word(Memory.mem_readw(eaa));Memory.mem_writew(eaa,Memory.mem_readw(eaa)+oldrmrw);}
+                else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readw(eaa));Memory.mem_writew(eaa,Memory.mem_readw(eaa)+oldrmrw);}
                 return HANDLED;
             }
         };

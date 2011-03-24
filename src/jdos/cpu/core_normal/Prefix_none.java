@@ -28,155 +28,6 @@ public class Prefix_none extends String {
     static protected interface call1 {
         public int call();
     }
-    static private final call1 callback = new call1() {final public int call() {returnValue=Fetchw.call();Flags.FillFlags();SAVEIP();return RETURN;}};
-
-    static private final mov[] MovGbEb = new mov[] {
-         new mov() {final public void call() {reg_eax.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_eax.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_eax.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_eax.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_eax.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_eax.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_eax.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_eax.low(reg_ebx.high());}},
-
-         new mov() {final public void call() {reg_ecx.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ecx.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ebx.high());}},
-
-         new mov() {final public void call() {reg_edx.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_edx.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_edx.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_edx.low(reg_ebx.high());}},
-
-         new mov() {final public void call() {reg_ebx.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ebx.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ebx.high());}},
-
-         new mov() {final public void call() {reg_eax.high(reg_eax.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_ecx.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_edx.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_ebx.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_eax.high());}},
-         new mov() {final public void call() {reg_eax.high(reg_ecx.high());}},
-         new mov() {final public void call() {reg_eax.high(reg_edx.high());}},
-         new mov() {final public void call() {reg_eax.high(reg_ebx.high());}},
-
-         new mov() {final public void call() {reg_ecx.high(reg_eax.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_edx.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_eax.high());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ecx.high(reg_edx.high());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ebx.high());}},
-
-         new mov() {final public void call() {reg_edx.high(reg_eax.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_ecx.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_edx.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_ebx.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_eax.high());}},
-         new mov() {final public void call() {reg_edx.high(reg_ecx.high());}},
-         new mov() {final public void call() {reg_edx.high(reg_edx.high());}},
-         new mov() {final public void call() {reg_edx.high(reg_ebx.high());}},
-
-         new mov() {final public void call() {reg_ebx.high(reg_eax.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_edx.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_eax.high());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ebx.high(reg_edx.high());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ebx.high());}}
-    };
-
-static private final mov[] MovEbGb = new mov[] {
-         new mov() {final public void call() {reg_eax.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_eax.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_eax.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_eax.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_eax.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_eax.low());}},
-
-         new mov() {final public void call() {reg_eax.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ecx.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ecx.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_ecx.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ecx.low());}},
-
-         new mov() {final public void call() {reg_eax.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_edx.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_edx.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_edx.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_edx.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_edx.low());}},
-
-         new mov() {final public void call() {reg_eax.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_edx.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ebx.low());}},
-         new mov() {final public void call() {reg_eax.high(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ebx.low());}},
-         new mov() {final public void call() {reg_edx.high(reg_ebx.low());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ebx.low());}},
-
-         new mov() {final public void call() {reg_eax.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_ecx.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_edx.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_ebx.low(reg_eax.high());}},
-         new mov() {final public void call() {reg_eax.high(reg_eax.high());}},
-         new mov() {final public void call() {reg_ecx.high(reg_eax.high());}},
-         new mov() {final public void call() {reg_edx.high(reg_eax.high());}},
-         new mov() {final public void call() {reg_ebx.high(reg_eax.high());}},
-
-         new mov() {final public void call() {reg_eax.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_edx.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ecx.high());}},
-         new mov() {final public void call() {reg_eax.high(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ecx.high());}},
-         new mov() {final public void call() {reg_edx.high(reg_ecx.high());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ecx.high());}},
-
-         new mov() {final public void call() {reg_eax.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_ecx.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_edx.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_ebx.low(reg_edx.high());}},
-         new mov() {final public void call() {reg_eax.high(reg_edx.high());}},
-         new mov() {final public void call() {reg_ecx.high(reg_edx.high());}},
-         new mov() {final public void call() {reg_edx.high(reg_edx.high());}},
-         new mov() {final public void call() {reg_ebx.high(reg_edx.high());}},
-
-         new mov() {final public void call() {reg_eax.low(reg_ebx.high());}},
-         new mov() {final public void call() {reg_ecx.low(reg_ebx.high());}},
-         new mov() {final public void call() {reg_edx.low(reg_ebx.high());}},
-         new mov() {final public void call() {reg_ebx.low(reg_ebx.high());}},
-         new mov() {final public void call() {reg_eax.high(reg_ebx.high());}},
-         new mov() {final public void call() {reg_ecx.high(reg_ebx.high());}},
-         new mov() {final public void call() {reg_edx.high(reg_ebx.high());}},
-         new mov() {final public void call() {reg_ebx.high(reg_ebx.high());}}
-    };
 
     static {
         OP not_handled = new OP() {
@@ -1903,7 +1754,28 @@ static private final mov[] MovEbGb = new mov[] {
             final public int call() {
                 short rm = Fetchb.call();
                 if (rm >= 0xc0) {
-                    MovEbGb[rm-0xc0].call();
+                    short value;
+                    switch ((rm >> 3) & 7) {
+                        case 0: value = reg_eax.low(); break;
+                        case 1: value = reg_ecx.low(); break;
+                        case 2: value = reg_edx.low(); break;
+                        case 3: value = reg_ebx.low(); break;
+                        case 4: value = reg_eax.high(); break;
+                        case 5: value = reg_ecx.high(); break;
+                        case 6: value = reg_edx.high(); break;
+                        case 7: value = reg_ebx.high(); break;
+                        default: value = 0; // shouldn't be possible
+                    }
+                    switch (rm & 7) {
+                        case 0: reg_eax.low(value); break;
+                        case 1: reg_ecx.low(value); break;
+                        case 2: reg_edx.low(value); break;
+                        case 3: reg_ebx.low(value); break;
+                        case 4: reg_eax.high(value); break;
+                        case 5: reg_ecx.high(value); break;
+                        case 6: reg_edx.high(value); break;
+                        case 7: reg_ebx.high(value); break;
+                    }
                 } else {
                     if (rm == 5) {
                         if (CPU.cpu.pmode && !CPU.cpu.code.big) {
@@ -1948,7 +1820,28 @@ static private final mov[] MovEbGb = new mov[] {
                 short rm = Fetchb.call();
 
                 if (rm >= 0xc0) {
-                    MovGbEb[rm-0xc0].call();
+                    short value;
+                    switch (rm & 7) {
+                        case 0: value = reg_eax.low(); break;
+                        case 1: value = reg_ecx.low(); break;
+                        case 2: value = reg_edx.low(); break;
+                        case 3: value = reg_ebx.low(); break;
+                        case 4: value = reg_eax.high(); break;
+                        case 5: value = reg_ecx.high(); break;
+                        case 6: value = reg_edx.high(); break;
+                        case 7: value = reg_ebx.high(); break;
+                        default: value = 0; // shouldn't be possible
+                    }
+                    switch ((rm >> 3) & 7) {
+                        case 0: reg_eax.low(value); break;
+                        case 1: reg_ecx.low(value); break;
+                        case 2: reg_edx.low(value); break;
+                        case 3: reg_ebx.low(value); break;
+                        case 4: reg_eax.high(value); break;
+                        case 5: reg_ecx.high(value); break;
+                        case 6: reg_edx.high(value); break;
+                        case 7: reg_ebx.high(value); break;
+                    }
                 } else {
                     long eaa = getEaa(rm);
                     switch ((rm >> 3) & 7) {

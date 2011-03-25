@@ -2,6 +2,7 @@ package jdos.cpu;
 
 import jdos.cpu.core_normal.Prefix_helpers;
 import jdos.util.LongHelper;
+import jdos.hardware.Memory;
 
 public class Instructions extends Table_ea {
     static public interface loadb {
@@ -884,27 +885,19 @@ public class Instructions extends Table_ea {
         return res & 0xFFFFFFFFl;
     }
 
-    static public Instruction2d DSHLD = new Instruction2d() {
-        final public void call(long op2,long op3, loadd l, saved s) {
-            /*Bit8u*/long val=op3 & 0x1F;
-            if (val==0) return;
-            lf_var2b(val);lf_var1d(l.call());
-            lf_resd((lf_var1d() << lf_var2b()) | (op2 >> (32-lf_var2b())));
-            s.call(lf_resd());
-            lflags.type=t_DSHLd;
-        }
-    };
+    static public long DSHLD(long op2,long val, long l) {
+        lf_var2b(val);lf_var1d(l);
+        lflags.res = ((l << val) | (op2 >> (32-val))) & 0xFFFFFFFFl;
+        lflags.type=t_DSHLd;
+        return lflags.res;
+    }
 
-    final static public Instruction2d DSHRD = new Instruction2d() {
-        final public void call(long op2,long op3, loadd l, saved s) {
-            /*Bit8u*/long val=op3 & 0x1F;
-            if (val==0) return;
-            lf_var2b(val);lf_var1d(l.call());
-            lf_resd((lf_var1d() >> lf_var2b()) | (op2 << (32-lf_var2b())));
-            s.call(lf_resd());
-            lflags.type=t_DSHRd;
-        }
-    };
+    static public long DSHRD(long op2,long val, long l) {
+        lf_var2b(val);lf_var1d(l);
+        lflags.res = ((l >> val) | (op2 << (32-val))) & 0xFFFFFFFFl;
+        lflags.type=t_DSHRd;
+        return lflags.res;
+    }
 
     /* let's hope bochs has it correct with the higher than 16 shifts */
     /* double-precision shift left has low Bits in second argument */

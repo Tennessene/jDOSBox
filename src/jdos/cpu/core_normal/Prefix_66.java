@@ -1096,19 +1096,23 @@ public class Prefix_66 extends Prefix_0f {
         /* XCHG Ed,Gd */
         ops[0x287] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb.call();/*Bit32u*/long oldrmrd=Modrm.Getrd[rm].dword;
-                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;Modrm.GetEArd[rm].dword = oldrmrd;}
-                else {
+                /*Bit8u*/short rm=Fetchb.call();
+                Reg rd = Modrm.Getrd[rm];
+                /*Bit32u*/long oldrmrd=rd.dword;
+                if (rm >= 0xc0 ) {
+                    Reg eard = Modrm.GetEArd[rm];
+                    rd.dword = eard.dword;eard.dword = oldrmrd;
+                } else {
                     /*PhysPt*/long eaa=getEaa(rm);
                     if ((eaa & 0xFFF)<0xFFD) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
-                            Modrm.Getrd[rm].dword = Memory.host_readd(index);
+                            rd.dword = Memory.host_readd(index);
                             Memory.host_writed(index,oldrmrd);
                             return HANDLED;
                         }
                     }
-                    Modrm.Getrd[rm].dword = Memory.mem_readd(eaa);
+                    rd.dword = Memory.mem_readd(eaa);
                     Memory.mem_writed(eaa,oldrmrd);
                 }
                 return HANDLED;

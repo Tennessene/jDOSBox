@@ -93,16 +93,6 @@ public class Prefix_helpers extends Instructions {
     static protected short r;
     static protected long m;
 
-    static protected final Instructions.loadd rd_l = new Instructions.loadd() {
-        final public long call() {
-            return Modrm.Getrd[r].dword();
-        }
-    };
-    static protected final Instructions.saved rd_s = new Instructions.saved() {
-        final public void call(long value) {
-            Modrm.Getrd[r].dword(value);
-        }
-    };
     static protected final Instructions.loadw rw_l = new Instructions.loadw() {
         final public int call() {
             return Modrm.Getrw[r].word();
@@ -133,16 +123,7 @@ public class Prefix_helpers extends Instructions {
             Modrm.GetEArw[r].word(value);
         }
     };
-    static protected final Instructions.loadd eard_l = new Instructions.loadd() {
-        final public long call() {
-            return Modrm.GetEArd[r].dword();
-        }
-    };
-    static protected final Instructions.saved eard_s = new Instructions.saved() {
-        final public void call(long value) {
-            Modrm.GetEArd[r].dword(value);
-        }
-    };
+
     static protected final Instructions.loadb b_l = new Instructions.loadb() {
         final public short call() {
             return Memory.mem_readb(m);
@@ -161,58 +142,6 @@ public class Prefix_helpers extends Instructions {
     static protected final Instructions.savew w_s = new Instructions.savew() {
         final public void call(int value) {
             Memory.mem_writew(m, value);
-        }
-    };
-    static protected final Instructions.loadd d_l = new Instructions.loadd() {
-        final public long call() {
-            return Memory.mem_readd(m);
-        }
-    };
-    static protected final Instructions.saved d_s = new Instructions.saved() {
-        final public void call(long value) {
-            Memory.mem_writed(m, value);
-        }
-    };
-
-//#define ALIb(inst)															\
-//	{ inst(reg_al,Fetchb.call(),LoadRb,SaveRb)}
-
-    static protected Instructions.loadb al_l = new Instructions.loadb() {
-        final public short call() {
-            return reg_eax.low();
-        }
-    };
-    static protected Instructions.saveb al_s = new Instructions.saveb() {
-        final public void call(short value) {
-            reg_eax.low(value);
-        }
-    };
-
-//#define AXIw(inst)															\
-//	{ inst(reg_ax,Fetchw.call(),LoadRw,SaveRw);}
-
-    static protected Instructions.loadw ax_l = new Instructions.loadw() {
-        final public int call() {
-            return reg_eax.word();
-        }
-    };
-    static protected Instructions.savew ax_s = new Instructions.savew() {
-        final public void call(int value) {
-            reg_eax.word(value);
-        }
-    };
-
-//#define EAXId(inst)															\
-//	{ inst(reg_eax,Fetchd.call(),LoadRd,SaveRd);}
-
-    static protected Instructions.loadd eax_l = new Instructions.loadd() {
-        final public long call() {
-            return reg_eax.dword();
-        }
-    };
-    static protected Instructions.saved eax_s = new Instructions.saved() {
-        final public void call(long value) {
-            reg_eax.dword(value);
         }
     };
 

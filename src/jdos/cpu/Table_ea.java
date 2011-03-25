@@ -8,94 +8,84 @@ public class Table_ea extends Core {
     static public boolean EA16 = true;
 
     static public long getEaa32(int rm) {
-        boolean ea = EA16;
-        EA16 = false;
-        long result = getEaa(rm);
-        EA16 = ea;
-        return result;
+        if (rm<0x40) {
+            switch (rm & 7) {
+                case 0x00: return (base_ds+reg_eax.dword()) & 0xFFFFFFFFl;
+                case 0x01: return (base_ds+reg_ecx.dword()) & 0xFFFFFFFFl;
+                case 0x02: return (base_ds+reg_edx.dword()) & 0xFFFFFFFFl;
+                case 0x03: return (base_ds+reg_ebx.dword()) & 0xFFFFFFFFl;
+                case 0x04: return Sib(0);
+                case 0x05: return (base_ds+Fetchd.call()) & 0xFFFFFFFFl;
+                case 0x06: return (base_ds+reg_esi.dword()) & 0xFFFFFFFFl;
+                case 0x07: return (base_ds+reg_edi.dword()) & 0xFFFFFFFFl;
+            }
+        } else if (rm<0x80) {
+            switch (rm & 7) {
+                case 0x00: return (base_ds+reg_eax.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x01: return (base_ds+reg_ecx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x02: return (base_ds+reg_edx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x03: return (base_ds+reg_ebx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x04: return (Sib(1)+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x05: return (base_ss+reg_ebp.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x06: return (base_ds+reg_esi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x07: return (base_ds+reg_edi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+            }
+        } else {
+            switch (rm & 7) {
+                case 0x00: return (base_ds+reg_eax.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x01: return (base_ds+reg_ecx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x02: return (base_ds+reg_edx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x03: return (base_ds+reg_ebx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x04: return (Sib(2)+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x05: return (base_ss+reg_ebp.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x06: return (base_ds+reg_esi.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x07: return (base_ds+reg_edi.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+            }
+        }
+        return 0;
     }
 
     static public long getEaa16(int rm) {
-        boolean ea = EA16;
-        EA16 = true;
-        long result = getEaa(rm);
-        EA16 = ea;
-        return result;
+        if (rm<0x40) {
+            switch (rm & 7) {
+                case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF);
+                case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF);
+                case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF);
+                case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF);
+                case 0x04: return base_ds+(reg_esi.word());
+                case 0x05: return base_ds+(reg_edi.word());
+                case 0x06: return base_ds+(Fetchw.call());
+                case 0x07: return base_ds+(reg_ebx.word());
+            }
+        } else if (rm<0x80) {
+            switch (rm & 7) {
+                case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x04: return base_ds+((reg_esi.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x05: return base_ds+((reg_edi.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x06: return base_ss+((reg_ebp.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x07: return base_ds+((reg_ebx.word()+Fetchbs.call()) & 0xFFFF);
+            }
+        } else {
+            switch (rm & 7) {
+                case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws.call()) & 0xFFFF);
+                case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws.call()) & 0xFFFF);
+                case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws.call()) & 0xFFFF);
+                case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws.call()) & 0xFFFF);
+                case 0x04: return base_ds+((reg_esi.word()+Fetchws.call()) & 0xFFFF);
+                case 0x05: return base_ds+((reg_edi.word()+Fetchws.call()) & 0xFFFF);
+                case 0x06: return base_ss+((reg_ebp.word()+Fetchws.call()) & 0xFFFF);
+                case 0x07: return base_ds+((reg_ebx.word()+Fetchws.call()) & 0xFFFF);
+            }
+        }
+        return 0;
     }
 
     static public long getEaa(int rm) {
-        if (EA16) {
-            if (rm<0x40) {
-                switch (rm & 7) {
-                    case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF);
-                    case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF);
-                    case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF);
-                    case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF);
-                    case 0x04: return base_ds+(reg_esi.word());
-                    case 0x05: return base_ds+(reg_edi.word());
-                    case 0x06: return base_ds+(Fetchw.call());
-                    case 0x07: return base_ds+(reg_ebx.word());
-                }
-            } else if (rm<0x80) {
-                switch (rm & 7) {
-                    case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs.call()) & 0xFFFF);
-                    case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs.call()) & 0xFFFF);
-                    case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs.call()) & 0xFFFF);
-                    case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs.call()) & 0xFFFF);
-                    case 0x04: return base_ds+((reg_esi.word()+Fetchbs.call()) & 0xFFFF);
-                    case 0x05: return base_ds+((reg_edi.word()+Fetchbs.call()) & 0xFFFF);
-                    case 0x06: return base_ss+((reg_ebp.word()+Fetchbs.call()) & 0xFFFF);
-                    case 0x07: return base_ds+((reg_ebx.word()+Fetchbs.call()) & 0xFFFF);
-                }
-            } else {
-                switch (rm & 7) {
-                    case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws.call()) & 0xFFFF);
-                    case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws.call()) & 0xFFFF);
-                    case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws.call()) & 0xFFFF);
-                    case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws.call()) & 0xFFFF);
-                    case 0x04: return base_ds+((reg_esi.word()+Fetchws.call()) & 0xFFFF);
-                    case 0x05: return base_ds+((reg_edi.word()+Fetchws.call()) & 0xFFFF);
-                    case 0x06: return base_ss+((reg_ebp.word()+Fetchws.call()) & 0xFFFF);
-                    case 0x07: return base_ds+((reg_ebx.word()+Fetchws.call()) & 0xFFFF);
-                }
-            }
-        } else {
-            if (rm<0x40) {
-                switch (rm & 7) {
-                    case 0x00: return (base_ds+reg_eax.dword()) & 0xFFFFFFFFl;
-                    case 0x01: return (base_ds+reg_ecx.dword()) & 0xFFFFFFFFl;
-                    case 0x02: return (base_ds+reg_edx.dword()) & 0xFFFFFFFFl;
-                    case 0x03: return (base_ds+reg_ebx.dword()) & 0xFFFFFFFFl;
-                    case 0x04: return Sib(0);
-                    case 0x05: return (base_ds+Fetchd.call()) & 0xFFFFFFFFl;
-                    case 0x06: return (base_ds+reg_esi.dword()) & 0xFFFFFFFFl;
-                    case 0x07: return (base_ds+reg_edi.dword()) & 0xFFFFFFFFl;
-                }
-            } else if (rm<0x80) {
-                switch (rm & 7) {
-                    case 0x00: return (base_ds+reg_eax.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                    case 0x01: return (base_ds+reg_ecx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                    case 0x02: return (base_ds+reg_edx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                    case 0x03: return (base_ds+reg_ebx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                    case 0x04: return (Sib(1)+Fetchbs.call()) & 0xFFFFFFFFl;
-                    case 0x05: return (base_ss+reg_ebp.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                    case 0x06: return (base_ds+reg_esi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                    case 0x07: return (base_ds+reg_edi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                }
-            } else {
-                switch (rm & 7) {
-                    case 0x00: return (base_ds+reg_eax.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                    case 0x01: return (base_ds+reg_ecx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                    case 0x02: return (base_ds+reg_edx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                    case 0x03: return (base_ds+reg_ebx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                    case 0x04: return (Sib(2)+Fetchds.call()) & 0xFFFFFFFFl;
-                    case 0x05: return (base_ss+reg_ebp.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                    case 0x06: return (base_ds+reg_esi.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                    case 0x07: return (base_ds+reg_edi.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                }
-            }
-        }
-        return 0; // shouldn't happen
+        if (EA16) return getEaa16(rm);
+        return getEaa32(rm);            
     }
 
     static final /*Bit32u*/long SIBZero=0;

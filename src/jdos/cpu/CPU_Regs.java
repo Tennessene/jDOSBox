@@ -125,7 +125,7 @@ public class CPU_Regs extends Flags {
             return (int)(dword & 0xFFFFl);
         }
         final public void word(int value) {
-            dword = value & 0xFFFF | (dword & 0xFFFF0000l);
+            dword = (value & 0xFFFF) | (dword & 0xFFFF0000l);
         }
 
         final public short low() {
@@ -136,12 +136,12 @@ public class CPU_Regs extends Flags {
         }
 
         final public short high() {
-            return (short)((dword >>> 8) & 0xffl);
+            return (short)((dword >> 8) & 0xffl);
         }
         final public void high(int value) {
             dword = ((value & 0xFF) << 8) | (dword & 0xFFFF00FFl);
         }
-        public long dword;
+        private long dword;
     }
 
     final static public Reg reg_eax = new Reg();

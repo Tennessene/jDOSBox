@@ -970,13 +970,13 @@ public class EMS extends Module_base {
                         CPU.cpu.cpl=0;
 
                         /* Read data from ESI (linear address) */
-                        /*Bit32u*/long new_cr3=Memory.mem_readd(CPU_Regs.reg_esi.dword);
-                        /*Bit32u*/long new_gdt_addr=Memory.mem_readd(CPU_Regs.reg_esi.dword+4);
-                        /*Bit32u*/long new_idt_addr=Memory.mem_readd(CPU_Regs.reg_esi.dword+8);
-                        /*Bit16u*/int new_ldt=Memory.mem_readw(CPU_Regs.reg_esi.dword+0x0c);
-                        /*Bit16u*/int new_tr=Memory.mem_readw(CPU_Regs.reg_esi.dword+0x0e);
-                        /*Bit32u*/long new_eip=Memory.mem_readd(CPU_Regs.reg_esi.dword+0x10);
-                        /*Bit16u*/int new_cs=Memory.mem_readw(CPU_Regs.reg_esi.dword+0x14);
+                        /*Bit32u*/long new_cr3=Memory.mem_readd(CPU_Regs.reg_esi.dword());
+                        /*Bit32u*/long new_gdt_addr=Memory.mem_readd(CPU_Regs.reg_esi.dword() +4);
+                        /*Bit32u*/long new_idt_addr=Memory.mem_readd(CPU_Regs.reg_esi.dword() +8);
+                        /*Bit16u*/int new_ldt=Memory.mem_readw(CPU_Regs.reg_esi.dword() +0x0c);
+                        /*Bit16u*/int new_tr=Memory.mem_readw(CPU_Regs.reg_esi.dword() +0x0e);
+                        /*Bit32u*/long new_eip=Memory.mem_readd(CPU_Regs.reg_esi.dword() +0x10);
+                        /*Bit16u*/int new_cs=Memory.mem_readw(CPU_Regs.reg_esi.dword() +0x14);
 
                         /* Get GDT and IDT entries */
                         /*Bit16u*/int new_gdt_limit=Memory.mem_readw(new_gdt_addr);
@@ -1075,7 +1075,7 @@ public class EMS extends Module_base {
                 if (CPU.CPU_LTR(0x10)) Log.log_msg("VCPI:Could not load TR");
 
                 CPU_Regs.flags&=(~CPU_Regs.NT);
-                CPU_Regs.reg_esp.dword+=8;		// skip interrupt return information
+                CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword() + 8);		// skip interrupt return information
         //		MEM_A20_Enable(false);
 
                 /* Switch to v86-task */
@@ -1103,11 +1103,11 @@ public class EMS extends Module_base {
                 /* Protection violation during V86-execution,
                    needs intervention by monitor (depends on faulting opcode) */
 
-                CPU_Regs.reg_esp.dword+=6;		// skip ip of CALL and error code of EXCEPTION 0x0d
+                CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword() + 6);		// skip ip of CALL and error code of EXCEPTION 0x0d
 
                 /* Get adress of faulting instruction */
-                /*Bit16u*/int v86_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+4) & CPU.cpu.stack.mask));
-                /*Bit16u*/int v86_ip=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask));
+                /*Bit16u*/int v86_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +4) & CPU.cpu.stack.mask));
+                /*Bit16u*/int v86_ip=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword()) & CPU.cpu.stack.mask));
                 /*Bit8u*/short v86_opcode=Memory.mem_readb((v86_cs<<4)+v86_ip);
         //		LOG_MSG("v86 monitor caught protection violation at %x:%x, opcode=%x",v86_cs,v86_ip,v86_opcode);
                 switch (v86_opcode) {
@@ -1121,16 +1121,16 @@ public class EMS extends Module_base {
                                     Log.exit("Invalid opcode 0x0f 0x20 %x caused a protection fault!",rm_val);
                                 /*Bit32u*/long crx=CPU.CPU_GET_CRX(which);
                                 switch (rm_val&7) {
-                                    case 0:	CPU_Regs.reg_eax.dword=crx;	break;
-                                    case 1:	CPU_Regs.reg_ecx.dword=crx;	break;
-                                    case 2:	CPU_Regs.reg_edx.dword=crx;	break;
-                                    case 3:	CPU_Regs.reg_ebx.dword=crx;	break;
-                                    case 4:	CPU_Regs.reg_esp.dword=crx;	break;
-                                    case 5:	CPU_Regs.reg_ebp.dword=crx;	break;
-                                    case 6:	CPU_Regs.reg_esi.dword=crx;	break;
-                                    case 7:	CPU_Regs.reg_edi.dword=crx;	break;
+                                    case 0:	CPU_Regs.reg_eax.dword(crx);	break;
+                                    case 1:	CPU_Regs.reg_ecx.dword(crx);	break;
+                                    case 2:	CPU_Regs.reg_edx.dword(crx);	break;
+                                    case 3:	CPU_Regs.reg_ebx.dword(crx);	break;
+                                    case 4:	CPU_Regs.reg_esp.dword(crx);	break;
+                                    case 5:	CPU_Regs.reg_ebp.dword(crx);	break;
+                                    case 6:	CPU_Regs.reg_esi.dword(crx);	break;
+                                    case 7:	CPU_Regs.reg_edi.dword(crx);	break;
                                 }
-                                Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+3);
+                                Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword()) & CPU.cpu.stack.mask),v86_ip+3);
                                 }
                                 break;
                             case 0x22: {	// mov CRx,reg
@@ -1140,18 +1140,18 @@ public class EMS extends Module_base {
                                     Log.exit("Invalid opcode 0x0f 0x22 %x caused a protection fault!",rm_val);
                                 /*Bit32u*/long crx=0;
                                 switch (rm_val&7) {
-                                    case 0:	crx=CPU_Regs.reg_eax.dword;	break;
-                                    case 1:	crx=CPU_Regs.reg_ecx.dword;	break;
-                                    case 2:	crx=CPU_Regs.reg_edx.dword;	break;
-                                    case 3:	crx=CPU_Regs.reg_ebx.dword;	break;
-                                    case 4:	crx=CPU_Regs.reg_esp.dword;	break;
-                                    case 5:	crx=CPU_Regs.reg_ebp.dword;	break;
-                                    case 6:	crx=CPU_Regs.reg_esi.dword;	break;
-                                    case 7:	crx=CPU_Regs.reg_edi.dword;	break;
+                                    case 0:	crx= CPU_Regs.reg_eax.dword();	break;
+                                    case 1:	crx= CPU_Regs.reg_ecx.dword();	break;
+                                    case 2:	crx= CPU_Regs.reg_edx.dword();	break;
+                                    case 3:	crx= CPU_Regs.reg_ebx.dword();	break;
+                                    case 4:	crx= CPU_Regs.reg_esp.dword();	break;
+                                    case 5:	crx= CPU_Regs.reg_ebp.dword();	break;
+                                    case 6:	crx= CPU_Regs.reg_esi.dword();	break;
+                                    case 7:	crx= CPU_Regs.reg_edi.dword();	break;
                                 }
                                 if (which==0) crx|=1;	// protection bit always on
                                 CPU.CPU_SET_CRX(which,(int)crx);
-                                Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+3);
+                                Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword()) & CPU.cpu.stack.mask),v86_ip+3);
                                 }
                                 break;
                             default:
@@ -1160,11 +1160,11 @@ public class EMS extends Module_base {
                         break;
                     case 0xe4:		// IN AL,Ib
                         CPU_Regs.reg_eax.low((/*Bit8u*/short)(IO.IO_ReadB(Memory.mem_readb((v86_cs<<4)+v86_ip+1))&0xff));
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
+                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword()) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xe5:		// IN AX,Ib
                         CPU_Regs.reg_eax.word((/*Bit16u*/int)(IO.IO_ReadW(Memory.mem_readb((v86_cs<<4)+v86_ip+1))&0xffff));
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
+                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword()) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xe6:		// OUT Ib,AL
                         IO.IO_WriteB(Memory.mem_readb((v86_cs<<4)+v86_ip+1),CPU_Regs.reg_eax.low());
@@ -1207,23 +1207,23 @@ public class EMS extends Module_base {
             /* Get address to interrupt handler */
             /*Bit16u*/int vint_vector_seg=Memory.mem_readw(CPU.Segs_DSval+int_num+2);
             /*Bit16u*/int vint_vector_ofs=Memory.mem_readw(int_num);
-            if (CPU_Regs.reg_esp.word()!=0x1fda) CPU_Regs.reg_esp.dword+=(2+3*4);	// Interrupt from within protected mode
-            else CPU_Regs.reg_esp.dword+=2;
+            if (CPU_Regs.reg_esp.word()!=0x1fda) CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword() + (2+3*4));	// Interrupt from within protected mode
+            else CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword() + 2);
 
             /* Read entries that were pushed onto the stack by the interrupt */
-            /*Bit16u*/int return_ip=Memory.mem_readw(CPU.Segs_SSphys+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask));
-            /*Bit16u*/int return_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+4) & CPU.cpu.stack.mask));
-            /*Bit32u*/long return_eflags=Memory.mem_readd(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+8) & CPU.cpu.stack.mask));
+            /*Bit16u*/int return_ip=Memory.mem_readw(CPU.Segs_SSphys+(CPU_Regs.reg_esp.dword() & CPU.cpu.stack.mask));
+            /*Bit16u*/int return_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +4) & CPU.cpu.stack.mask));
+            /*Bit32u*/long return_eflags=Memory.mem_readd(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +8) & CPU.cpu.stack.mask));
 
             /* Modify stack to call v86-interrupt handler */
-            Memory.mem_writed(CPU.Segs_SSphys+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask),vint_vector_ofs);
-            Memory.mem_writed(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+4) & CPU.cpu.stack.mask),vint_vector_seg);
-            Memory.mem_writed(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+8) & CPU.cpu.stack.mask),return_eflags&(~(CPU_Regs.IF|CPU_Regs.TF)));
+            Memory.mem_writed(CPU.Segs_SSphys+(CPU_Regs.reg_esp.dword() & CPU.cpu.stack.mask),vint_vector_ofs);
+            Memory.mem_writed(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +4) & CPU.cpu.stack.mask),vint_vector_seg);
+            Memory.mem_writed(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +8) & CPU.cpu.stack.mask),return_eflags&(~(CPU_Regs.IF|CPU_Regs.TF)));
 
             /* Adjust SP of v86-stack */
-            /*Bit16u*/int v86_ss=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+0x10) & CPU.cpu.stack.mask));
-            /*Bit16u*/int v86_sp=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+0x0c) & CPU.cpu.stack.mask))-6;
-            Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword+0x0c) & CPU.cpu.stack.mask),v86_sp);
+            /*Bit16u*/int v86_ss=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +0x10) & CPU.cpu.stack.mask));
+            /*Bit16u*/int v86_sp=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +0x0c) & CPU.cpu.stack.mask))-6;
+            Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword() +0x0c) & CPU.cpu.stack.mask),v86_sp);
 
             /* Return to original code after v86-interrupt handler */
             Memory.mem_writew((v86_ss<<4)+v86_sp+0,return_ip);

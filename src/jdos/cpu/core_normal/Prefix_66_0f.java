@@ -318,7 +318,7 @@ public class Prefix_66_0f extends Prefix_66 {
                     int op3 = Fetchb.call() & 0x1F;
                     if (op3!=0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword = DSHLD(Modrm.Getrd[rm].dword(),op3,r.dword());
+                        r.dword(DSHLD(Modrm.Getrd[rm].dword(),op3,r.dword()));
                     }
                 }
                 else {
@@ -335,11 +335,11 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3a5] = new OP() {
             final public int call() {
                 /*Bit8u*/final short rm=Fetchb.call();
-                long val = reg_ecx.dword & 0x1f;
+                long val = reg_ecx.dword() & 0x1f;
                 if (rm >= 0xc0 ) {
                     if (val != 0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword = DSHLD(Modrm.Getrd[rm].dword(),val,r.dword());
+                        r.dword(DSHLD(Modrm.Getrd[rm].dword(),val,r.dword()));
                     }
                 }
                 else {
@@ -395,7 +395,7 @@ public class Prefix_66_0f extends Prefix_66 {
                     int op3 = Fetchb.call() & 0x1F;
                     if (op3!=0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword = DSHRD(Modrm.Getrd[rm].dword(),op3,r.dword());
+                        r.dword(DSHRD(Modrm.Getrd[rm].dword(),op3,r.dword()));
                     }
                 }
                 else {
@@ -412,11 +412,11 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3ad] = new OP() {
             final public int call() {
                 /*Bit8u*/final short rm=Fetchb.call();
-                long val = reg_ecx.dword & 0x1f;
+                long val = reg_ecx.dword() & 0x1f;
                 if (rm >= 0xc0 ) {
                     if (val != 0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword = DSHRD(Modrm.Getrd[rm].dword(),val,r.dword());
+                        r.dword(DSHRD(Modrm.Getrd[rm].dword(),val,r.dword()));
                     }
                 }
                 else {

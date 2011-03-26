@@ -147,9 +147,9 @@ public class Table_ea extends Core {
 
     protected static long GetEADirect() {
         if ((prefixes & PREFIX_ADDR)!=0) {
-            return base_ds+Fetchd.call();
+            return (base_ds+Fetchd.call() & 0xFFFFFFFFl);
         } else {
-            return base_ds+Fetchw.call();
+            return (base_ds+Fetchw.call() & 0xFFFFFFFFl);
         }
     }
 }

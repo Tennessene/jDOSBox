@@ -360,7 +360,7 @@ public class Paging extends Module_base {
         CPU.CPU_Decoder old_cpudecoder;
         old_cpudecoder=CPU.cpudecoder;
         CPU.cpudecoder=PageFaultCore;
-        paging.cr2=(int)lin_addr;
+        paging.cr2=lin_addr;
         PF_Entry entry=pf_queue.entries[pf_queue.used++];
         if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PAGING, LogSeverities.LOG_NORMAL,"PageFault at "+Long.toString(lin_addr, 16)+" type ["+Integer.toString(faultcode,16)+"] queue "+pf_queue.used);
 //	LOG_MSG("EAX:%04X ECX:%04X EDX:%04X EBX:%04X",reg_eax,reg_ecx,reg_edx,reg_ebx);
@@ -427,7 +427,7 @@ public class Paging extends Module_base {
         /*Bitu*/long table_addr=(paging.base.page<<12)+d_index*4;
         table.load((int)Memory.phys_readd(table_addr));
         if (table.block.p==0) {
-            paging.cr2=(int)lin_addr;
+            paging.cr2=lin_addr;
             CPU.cpu.exception.which=CPU.EXCEPTION_PF;
             CPU.cpu.exception.error=(writing?0x02:0x00) | (((CPU.cpu.cpl & CPU.cpu.mpl)==0)?0x00:0x04);
             return false;
@@ -435,7 +435,7 @@ public class Paging extends Module_base {
         /*Bitu*/int entry_addr=(table.block.base<<12)+t_index*4;
         entry.load((int)Memory.phys_readd(entry_addr));
         if (entry.block.p==0) {
-            paging.cr2=(int)lin_addr;
+            paging.cr2=lin_addr;
             CPU.cpu.exception.which=CPU.EXCEPTION_PF;
             CPU.cpu.exception.error=(writing?0x02:0x00) | (((CPU.cpu.cpl & CPU.cpu.mpl)==0)?0x00:0x04);
             return false;
@@ -648,7 +648,7 @@ public class Paging extends Module_base {
                         (((entry.block.wr==0) || (table.block.wr==0)) && writing)) {
                     if (Log.level<=LogSeverities.LOG_NORMAL)
                         Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl="+CPU.cpu.cpl+", "+Integer.toString(entry.block.us, 16)+":"+Integer.toString(table.block.us, 16)+":"+Integer.toString(entry.block.wr, 16)+":"+Integer.toString(table.block.wr, 16));
-                    paging.cr2=(int)lin_addr;
+                    paging.cr2=lin_addr;
                     CPU.cpu.exception.which=CPU.EXCEPTION_PF;
                     CPU.cpu.exception.error=0x05 | (writing?0x02:0x00);
                     return false;
@@ -661,8 +661,8 @@ public class Paging extends Module_base {
             }
             return true;
         }
-        public void InitPageForced(/*Bitu*/int lin_addr) {
-            /*Bitu*/int lin_page=lin_addr >> 12;
+        public void InitPageForced(/*Bitu*/long lin_addr) {
+            /*Bitu*/int lin_page=(int)(lin_addr >> 12);
             /*Bitu*/int phys_page;
             if (paging.enabled) {
                 X86PageEntry table=new X86PageEntry();
@@ -692,19 +692,19 @@ public class Paging extends Module_base {
             flags=PFLAG_INIT|PFLAG_NOCODE;
         }
         public void writeb(/*PhysPt*/long addr,/*Bitu*/int val) {
-            InitPage((int)addr,(val&0xff));
+            InitPage(addr,(val&0xff));
             Memory.host_writeb((int)(get_tlb_read(addr)+addr),(short)(val&0xff));
         }
         public void writew(/*PhysPt*/long addr,/*Bitu*/int val) {
-            InitPage((int)addr,(val&0xffff));
+            InitPage(addr,(val&0xffff));
             Memory.host_writew((int)(get_tlb_read(addr)+addr),(val&0xffff));
         }
         public void writed(/*PhysPt*/long addr,/*Bitu*/int val) {
-            InitPage((int)addr,val);
+            InitPage(addr,val);
             Memory.host_writed((int)(get_tlb_read(addr)+addr),val);
         }
         public boolean writeb_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            /*Bitu*/int writecode=InitPageCheckOnly((int)addr,(val&0xff));
+            /*Bitu*/int writecode=InitPageCheckOnly(addr,(val&0xff));
             if (writecode!=0) {
                 /*HostPt*/int tlb_addr;
                 if (writecode>1) tlb_addr=get_tlb_read(addr);
@@ -715,7 +715,7 @@ public class Paging extends Module_base {
             return true;
         }
         public boolean writew_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            /*Bitu*/int writecode=InitPageCheckOnly((int)addr,(val&0xffff));
+            /*Bitu*/int writecode=InitPageCheckOnly(addr,(val&0xffff));
             if (writecode!=0) {
                 /*HostPt*/int tlb_addr;
                 if (writecode>1) tlb_addr=get_tlb_read(addr);
@@ -726,7 +726,7 @@ public class Paging extends Module_base {
             return true;
         }
         public boolean writed_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            /*Bitu*/int writecode=InitPageCheckOnly((int)addr,val);
+            /*Bitu*/int writecode=InitPageCheckOnly(addr,val);
             if (writecode!=0) {
                 /*HostPt*/int tlb_addr;
                 if (writecode>1) tlb_addr=get_tlb_read(addr);
@@ -736,7 +736,7 @@ public class Paging extends Module_base {
             }
             return true;
         }
-        public void InitPage(/*Bitu*/int lin_addr,/*Bitu*/int val) {
+        public void InitPage(/*Bitu*/long lin_addr,/*Bitu*/int val) {
             /*Bitu*/int lin_page=(int)(lin_addr >> 12);
             /*Bitu*/int phys_page;
             if (paging.enabled) {
@@ -767,7 +767,7 @@ public class Paging extends Module_base {
                 PAGING_LinkPage(lin_page,phys_page);
             }
         }
-        public /*Bitu*/int InitPageCheckOnly(/*Bitu*/int lin_addr,/*Bitu*/int val) {
+        public /*Bitu*/int InitPageCheckOnly(/*Bitu*/long lin_addr,/*Bitu*/int val) {
             /*Bitu*/int lin_page=(int)(lin_addr >> 12);
             if (paging.enabled) {
                 if (!USERWRITE_PROHIBITED()) return 2;
@@ -779,7 +779,7 @@ public class Paging extends Module_base {
                 if (InitPage_CheckUseraccess(entry.block.us,table.block.us) || (((entry.block.wr==0) || (table.block.wr==0)))) {
                     if (Log.level<=LogSeverities.LOG_NORMAL)
                         Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl="+CPU.cpu.cpl+", "+Integer.toString(entry.block.us, 16)+":"+Integer.toString(table.block.us, 16)+":"+Integer.toString(entry.block.wr, 16)+":"+Integer.toString(table.block.wr, 16));
-                    paging.cr2=(int)lin_addr;
+                    paging.cr2=lin_addr;
                     CPU.cpu.exception.which=CPU.EXCEPTION_PF;
                     CPU.cpu.exception.error=0x07;
                     return 0;
@@ -793,8 +793,8 @@ public class Paging extends Module_base {
             }
             return 1;
         }
-        public void InitPageForced(/*Bitu*/int lin_addr) {
-            /*Bitu*/int lin_page=lin_addr >> 12;
+        public void InitPageForced(/*Bitu*/long lin_addr) {
+            /*Bitu*/int lin_page=(int)(lin_addr >> 12);
             /*Bitu*/int phys_page;
             if (paging.enabled) {
                 X86PageEntry table=new X86PageEntry();
@@ -845,13 +845,13 @@ public class Paging extends Module_base {
         return paging.cr3;
     }
 
-    private static boolean PAGING_ForcePageInit(/*Bitu*/int lin_addr) {
+    private static boolean PAGING_ForcePageInit(/*Bitu*/long lin_addr) {
         PageHandler handler=get_tlb_readhandler(lin_addr);
         if (handler==init_page_handler) {
             init_page_handler.InitPageForced(lin_addr);
             return true;
         } else if (handler==init_page_handler_userro) {
-            PAGING_UnlinkPages(lin_addr>>12,1);
+            PAGING_UnlinkPages((int)(lin_addr>>12),1);
             init_page_handler_userro.InitPageForced(lin_addr);
             return true;
         }

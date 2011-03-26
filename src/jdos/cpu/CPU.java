@@ -1717,7 +1717,7 @@ public class CPU extends Module_base {
             cpu.code.big=false;
         } else {
              /*Bitu*/int offset,selector;
-            if (!use32) selector = Memory.mem_readw((int)(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask) + 2));
+            if (!use32) selector = Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask) + 2) & 0xFFFFFFFFl);
             else selector = (int)(Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask) + 4) & 0xffffl);
 
              /*Bitu*/int rpl=selector & 3;
@@ -2617,7 +2617,7 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_PopSegES(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((int)(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)));
+         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
         if (CPU_SetSegGeneralES(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
         CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
@@ -2625,7 +2625,7 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_PopSegCS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((int)(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)));
+        /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
         if (CPU_SetSegGeneralCS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
         CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
@@ -2633,7 +2633,7 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_PopSegSS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((int)(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)));
+         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
         if (CPU_SetSegGeneralSS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
         CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
@@ -2641,7 +2641,7 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_PopSegDS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((int)(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)));
+         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
         if (CPU_SetSegGeneralDS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
         CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
@@ -2649,7 +2649,7 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_PopSegFS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((int)(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)));
+         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
         if (CPU_SetSegGeneralFS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
         CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
@@ -2657,7 +2657,7 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_PopSegGS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((int)(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)));
+         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
         if (CPU_SetSegGeneralGS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
         CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));

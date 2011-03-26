@@ -135,7 +135,7 @@ public class Dos_InfoBlock  extends MemStruct {
     private static final int fcbTable = 64;         // 64     RealPt	fcbTable;		//  0x1a pointer to system FCB table
     private static final int protFCBs = 68;         // 68     Bit16u	protFCBs;		//  0x1e protected fcbs
     private static final int blockDevices = 70;     // 70     Bit8u	blockDevices;		//  0x20 installed block devices
-    private static final int lastdrive = 72;        // 71     Bit8u	lastdrive;		//  0x21 lastdrive
+    private static final int lastdrive = 71;        // 71     Bit8u	lastdrive;		//  0x21 lastdrive
     private static final int nulNextDriver = 72;    // 72     Bit32u	nulNextDriver;	//  0x22 NUL driver next pointer
     private static final int nulAttributes = 76;    // 76     Bit16u	nulAttributes;	//  0x26 NUL driver aattributes
     private static final int nulStrategy = 78;      // 78     Bit32u	nulStrategy;	//  0x28 NUL driver strategy routine

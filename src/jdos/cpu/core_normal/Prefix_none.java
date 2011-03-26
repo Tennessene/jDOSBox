@@ -2940,7 +2940,7 @@ public class Prefix_none extends String {
             final public int call() {
                 /*Bit16s*/short addip=Fetchbs.call();
                 SAVEIP();
-                reg_eip(reg_eip()+addip);
+                reg_eip((reg_eip()+addip) & 0xFFFF);
                 return CONTINUE;
             }
         };

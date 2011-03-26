@@ -586,11 +586,12 @@ public class Prefix_0f extends Prefix_none {
         ops[0x1a3] = new OP() {
             final public int call() {
                 Flags.FillFlags();/*Bit8u*/short rm=Fetchb.call();
-                /* Bit16u*/int mask=1 << (Modrm.Getrw[rm].word() & 15);
+                int rw = Modrm.Getrw[rm].word();
+                /* Bit16u*/int mask=1 << (rw & 15);
                 if (rm >= 0xc0 ) {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0?true:false);
                 } else {
-                    /*PhysPt*/long eaa=getEaa(rm);eaa+=(((/*Bit16s*/short)Modrm.Getrw[rm].word())>>4)*2;
+                    /*PhysPt*/long eaa=getEaa(rm);eaa+=(((/*Bit16s*/short)rw)>>4)*2;
                     /*Bit16u*/int old=Memory.mem_readw(eaa);
                     SETFLAGBIT(CF,(old & mask)!=0?true:false);
                 }

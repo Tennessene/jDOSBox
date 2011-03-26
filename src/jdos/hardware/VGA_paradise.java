@@ -88,7 +88,7 @@ public class VGA_paradise {
                 pvga1a.PR5 = val;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:GFX:PVGA1A:Write to illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:GFX:PVGA1A:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -115,7 +115,7 @@ public class VGA_paradise {
             case 0x0f:
                 return pvga1a.PR5;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:GFX:PVGA1A:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:GFX:PVGA1A:Read from illegal index "+Integer.toString(reg,16));
                 break;
             }
             return 0x0;

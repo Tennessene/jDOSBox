@@ -420,25 +420,25 @@ public class Int10_modes {
 
 public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearmem) {
 	switch (Dosbox.machine) {
-	case MCH_CGA:
+	case MachineType.MCH_CGA:
 		if (mode>6) return false;
-    case MCH_TANDY:
-	case MCH_PCJR: //TANDY_ARCH_CASE:
+    case MachineType.MCH_TANDY:
+	case MachineType.MCH_PCJR: //TANDY_ARCH_CASE:
 		if (mode>0xa) return false;
 		if (mode==7) mode=0; // PCJR defaults to 0 on illegal mode 7
 		if (!SetCurMode(ModeList_OTHER,mode)) {
-			Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Trying to set illegal mode %X",mode);
+			if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Trying to set illegal mode "+Integer.toString(mode,16));
 			return false;
 		}
 		break;
-	case MCH_HERC:
+	case MachineType.MCH_HERC:
 		// Only init the adapter if the equipment word is set to monochrome (Testdrive)
 		if ((Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_INITIAL_MODE)&0x30)!=0x30) return false;
 		CurMode=Hercules_Mode;
 		mode=7; // in case the video parameter table is modified
 		break;
 	}
-	Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_NORMAL,"Set Video Mode %X",mode);
+	if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_NORMAL,"Set Video Mode "+Integer.toString(mode,16));
 
 	/* Setup the VGA to the correct mode */
 //	VGA_SetMode(CurMode.type);
@@ -498,7 +498,7 @@ public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearm
 	};
 	/*Bit8u*/short mode_control,color_select;
 	switch (Dosbox.machine) {
-	case MCH_HERC:
+	case MachineType.MCH_HERC:
 		IO.IO_WriteB(0x3b8,0x28);	// TEXT mode and blinking characters
 
 		VGA_other.Herc_Palette();
@@ -507,7 +507,7 @@ public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearm
 
 		Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MSR,0x29); // attribute controls blinking
 		break;
-	case MCH_CGA:
+	case MachineType.MCH_CGA:
 		mode_control=mode_control_list[CurMode.mode];
 		if (CurMode.mode == 0x6) color_select=0x3f;
 		else color_select=0x30;
@@ -516,7 +516,7 @@ public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearm
 		Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MSR,mode_control);
 		Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL,color_select);
 		break;
-	case MCH_TANDY:
+	case MachineType.MCH_TANDY:
 		/* Init some registers */
 		IO.IO_WriteB(0x3da,0x1);IO.IO_WriteB(0x3de,0xf);		//Palette mask always 0xf
 		IO.IO_WriteB(0x3da,0x2);IO.IO_WriteB(0x3de,0x0);		//black border
@@ -548,7 +548,7 @@ public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearm
 		Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MSR,mode_control);
 		Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL,color_select);
 		break;
-	case MCH_PCJR:
+	case MachineType.MCH_PCJR:
 		/* Init some registers */
 		IO.IO_ReadB(0x3da);
 		IO.IO_WriteB(0x3da,0x1);IO.IO_WriteB(0x3da,0xf);		//Palette mask always 0xf
@@ -624,7 +624,7 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 		mode-=0x80;
 	}
 	Int10.int10.vesa_setmode=0xffff;
-	Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_NORMAL,"Set Video Mode %X",mode);
+	if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_NORMAL,"Set Video Mode "+Integer.toString(mode,16));
 	if (!Dosbox.IS_EGAVGA_ARCH()) return INT10_SetVideoMode_OTHER(mode,clearmem);
 
 	/* First read mode setup settings from bios area */
@@ -638,22 +638,22 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 		}
 
 		switch(Dosbox.svgaCard) {
-		case SVGA_TsengET4K:
-		case SVGA_TsengET3K:
+		case SVGACards.SVGA_TsengET4K:
+		case SVGACards.SVGA_TsengET3K:
 			if (!SetCurMode(ModeList_VGA_Tseng,mode)){
-				Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"VGA:Trying to set illegal mode %X",mode);
+				if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"VGA:Trying to set illegal mode "+Integer.toString(mode,16));
 				return false;
 			}
 			break;
-		case SVGA_ParadisePVGA1A:
+		case SVGACards.SVGA_ParadisePVGA1A:
 			if (!SetCurMode(ModeList_VGA_Paradise,mode)){
-				Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"VGA:Trying to set illegal mode %X",mode);
+				if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"VGA:Trying to set illegal mode "+Integer.toString(mode,16));
 				return false;
 			}
 			break;
 		default:
 			if (!SetCurMode(ModeList_VGA,mode)){
-				Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"VGA:Trying to set illegal mode %X",mode);
+				if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"VGA:Trying to set illegal mode "+Integer.toString(mode,16));
 				return false;
 			}
 		}
@@ -671,7 +671,7 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 		}
 	} else {
 		if (!SetCurMode(ModeList_EGA,mode)){
-			Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA:Trying to set illegal mode %X",mode);
+			if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA:Trying to set illegal mode "+Integer.toString(mode,16));
 			return false;
 		}
 	}
@@ -1367,11 +1367,11 @@ static public /*Bitu*/int VideoModeMemSize(/*Bitu*/int mode) {
 	Int10.VideoModeBlock[] modelist = null;
 
 	switch (Dosbox.svgaCard) {
-	case SVGA_TsengET4K:
-	case SVGA_TsengET3K:
+	case SVGACards.SVGA_TsengET4K:
+	case SVGACards.SVGA_TsengET3K:
 		modelist = ModeList_VGA_Tseng;
 		break;
-	case SVGA_ParadisePVGA1A:
+	case SVGACards.SVGA_ParadisePVGA1A:
 		modelist = ModeList_VGA_Paradise;
 		break;
 	default:

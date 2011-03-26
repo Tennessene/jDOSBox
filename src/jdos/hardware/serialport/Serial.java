@@ -6,6 +6,7 @@ import jdos.misc.setup.CommandLine;
 import jdos.util.FileIO;
 import jdos.util.IntRef;
 import jdos.util.ShortRef;
+import jdos.util.StringHelper;
 
 public class Serial {
     //  DUMMY
@@ -94,10 +95,10 @@ public class Serial {
 	boolean dbg_register;
 	boolean dbg_interrupt;
 	boolean dbg_aux;
-	void log_ser(boolean active, String format, Object ... args) {
+	void log_ser(boolean active, String format) {
         if(active) {
-            String buf = String.format("%12.3f [% 7d] ", Pic.PIC_FullIndex(), Main.GetTicks());
-            buf+=String.format(format, args);
+            String buf = StringHelper.format(Pic.PIC_FullIndex(), 3)+" ["+StringHelper.format(Main.GetTicks(), 7)+"] ";
+            buf+=format;
             if(!buf.endsWith("\n")) buf+="\r\n";
             try {debugfp.write(buf.getBytes());} catch (Exception e){}
         }

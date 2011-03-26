@@ -94,7 +94,7 @@ public class VGA_other {
                 VGA.vga.other.lightpen |= (/*Bit8u*/short)val;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"MC6845:Write %X to illegal index %x",val,VGA.vga.other.index);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"MC6845:Write "+Integer.toString(val, 16)+" to illegal index "+Integer.toString(VGA.vga.other.index,16));
             }
         }
     };
@@ -139,7 +139,7 @@ public class VGA_other {
             case 0x11:	/* Light Pen Low */
                 return (/*Bit8u*/short)(VGA.vga.other.lightpen & 0xff);
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"MC6845:Read from illegal index %x",VGA.vga.other.index);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"MC6845:Read from illegal index "+Integer.toString(VGA.vga.other.index,16));
             }
             return (/*Bitu*/int)(~0);
         }
@@ -216,7 +216,7 @@ public class VGA_other {
                 return;
             hue_offset += 5.0;
             update_cga16_color();
-            Log.log_msg("Hue at %f",hue_offset);
+            Log.log_msg("Hue at "+hue_offset);
         }
     };
 
@@ -226,7 +226,7 @@ public class VGA_other {
                 return;
             hue_offset -= 5.0;
             update_cga16_color();
-            Log.log_msg("Hue at %f",hue_offset);
+            Log.log_msg("Hue at %f"+hue_offset);
         }
     };
 
@@ -322,7 +322,7 @@ public class VGA_other {
                 PCJr_FindMode();
                 VGA.vga.attr.disabled = (short)((val&0x8)!=0? 0: 1);
             } else {
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Unhandled Write %2X to tandy reg %X",val,VGA.vga.tandy.reg_index);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Unhandled Write "+Integer.toString(val, 16)+" to tandy reg "+Integer.toString(VGA.vga.tandy.reg_index,16));
             }
             break;
         case 0x2:	/* Border color */
@@ -344,7 +344,7 @@ public class VGA_other {
         case 0x8:	/* Monitor mode seletion */
             //Bit 1 select mode e, for 640x200x16, some double clocking thing?
             //Bit 4 select 350 line mode for hercules emulation
-            Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Write %2X to tandy monitor mode",val );
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Write "+Integer.toString(val, 16)+" to tandy monitor mode");
             break;
         /* palette colors */
         case 0x10: case 0x11: case 0x12: case 0x13:
@@ -354,7 +354,7 @@ public class VGA_other {
             VGA_attr.VGA_ATTR_SetPalette(VGA.vga.tandy.reg_index-0x10,val & 0xf);
             break;
         default:
-            Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Unhandled Write %2X to tandy reg %X",val,VGA.vga.tandy.reg_index);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Unhandled Write "+Integer.toString(val, 16)+" to tandy reg "+Integer.toString(VGA.vga.tandy.reg_index,16));
         }
     }
 

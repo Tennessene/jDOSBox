@@ -509,7 +509,7 @@ public class EMS extends Module_base {
             CPU_Regs.reg_eax.low((/*Bit8u*/short)(2+CPU_Regs.reg_ebx.word()*(2+EMM_Mapping.size)));
             break;
         default:
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call %2X Subfunction %2X not supported",CPU_Regs.reg_eax.high(),CPU_Regs.reg_eax.low());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
             return EMM_FUNC_NOSUP;
         }
         return EMM_NO_ERROR;
@@ -545,7 +545,7 @@ public class EMS extends Module_base {
             CPU_Regs.reg_ebx.word(EMM_MAX_HANDLES);
             break;
         default:
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call %2X Subfunction %2X not supported",CPU_Regs.reg_eax.high(),CPU_Regs.reg_eax.low());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
             return EMM_INVALID_SUB;
         }
         return EMM_NO_ERROR;
@@ -563,7 +563,7 @@ public class EMS extends Module_base {
             emm_handles[handle].name=Memory.MEM_BlockRead(CPU.Segs_ESphys+CPU_Regs.reg_edi.word(),8);
             break;
         default:
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call %2X Subfunction %2X not supported",CPU_Regs.reg_eax.high(),CPU_Regs.reg_eax.low());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
             return EMM_INVALID_SUB;
         }
         return EMM_NO_ERROR;
@@ -590,7 +590,7 @@ public class EMS extends Module_base {
         /*Bit8u*/byte[] buf_src=new byte[Paging.MEM_PAGE_SIZE];
         /*Bit8u*/byte[] buf_dest=new byte[Paging.MEM_PAGE_SIZE];
         if (CPU_Regs.reg_eax.low()>1) {
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call %2X Subfunction %2X not supported",CPU_Regs.reg_eax.high(),CPU_Regs.reg_eax.low());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
             return EMM_FUNC_NOSUP;
         }
         LoadMoveRegion(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),region);
@@ -774,7 +774,7 @@ public class EMS extends Module_base {
                     CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                     break;
                 default:
-                    Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call %2X Subfunction %2X not supported",CPU_Regs.reg_eax.high(),CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
                     CPU_Regs.reg_eax.high(EMM_INVALID_SUB);
                     break;
                 }
@@ -804,7 +804,7 @@ public class EMS extends Module_base {
                         }
                         break;
                     default:
-                        Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call %2X Subfunction %2X not supported",CPU_Regs.reg_eax.high(),CPU_Regs.reg_eax.low());
+                        if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
                         CPU_Regs.reg_eax.high(EMM_INVALID_SUB);
                         break;
                 }
@@ -841,13 +841,13 @@ public class EMS extends Module_base {
                     CPU_Regs.reg_eax.high(EMM_AllocateMemory(CPU_Regs.reg_ebx.word(),dx,true));	// can allocate 0 pages
                     CPU_Regs.reg_edx.word(dx.value);
                 } else {
-                    Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call 5A subfct %2X not supported",CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call 5A subfct "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
                     CPU_Regs.reg_eax.high(EMM_INVALID_SUB);
                 }
                 break;
             case 0xDE:		/* VCPI Functions */
                 if (!vcpi.enabled) {
-                    Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:VCPI Call %2X not supported",CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:VCPI Call "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
                     CPU_Regs.reg_eax.high(EMM_FUNC_NOSUP);
                 } else {
                     switch (CPU_Regs.reg_eax.low()) {
@@ -997,8 +997,8 @@ public class EMS extends Module_base {
                         /* Load tables and initialize segment registers */
                         CPU.CPU_LGDT(new_gdt_limit, new_gdt_base);
                         CPU.CPU_LIDT(new_idt_limit, new_idt_base);
-                        if (CPU.CPU_LLDT(new_ldt)) Log.log_msg("VCPI:Could not load LDT with %x",new_ldt);
-                        if (CPU.CPU_LTR(new_tr)) Log.log_msg("VCPI:Could not load TR with %x",new_tr);
+                        if (CPU.CPU_LLDT(new_ldt)) Log.log_msg("VCPI:Could not load LDT with "+Integer.toString(new_ldt,16));
+                        if (CPU.CPU_LTR(new_tr)) Log.log_msg("VCPI:Could not load TR with "+Integer.toString(new_tr, 16));
 
                         CPU.CPU_SetSegGeneralDS(0);
                         CPU.CPU_SetSegGeneralES(0);
@@ -1014,14 +1014,14 @@ public class EMS extends Module_base {
                         }
                         break;
                     default:
-                        Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:VCPI Call %x not supported",CPU_Regs.reg_eax.word());
+                        if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:VCPI Call "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" not supported");
                         CPU_Regs.reg_eax.high(EMM_FUNC_NOSUP);
                         break;
                     }
                 }
                 break;
             default:
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call %2X not supported",CPU_Regs.reg_eax.high());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" not supported");
                 CPU_Regs.reg_eax.high(EMM_FUNC_NOSUP);
                 break;
             }
@@ -1083,7 +1083,7 @@ public class EMS extends Module_base {
                 }
                 break;
             default:
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Unhandled VCPI-function %x in protected mode",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Unhandled VCPI-function "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" in protected mode");
                 break;
             }
             return Callback.CBRET_NONE;
@@ -1118,7 +1118,7 @@ public class EMS extends Module_base {
                                 /*Bitu*/int rm_val=Memory.mem_readb((v86_cs<<4)+v86_ip+2);
                                 /*Bitu*/int which=(rm_val >> 3) & 7;
                                 if ((rm_val<0xc0) || (rm_val>=0xe8))
-                                    Log.exit("Invalid opcode 0x0f 0x20 %x caused a protection fault!",rm_val);
+                                    Log.exit("Invalid opcode 0x0f 0x20 "+Integer.toString(rm_val, 16)+" caused a protection fault!");
                                 /*Bit32u*/long crx=CPU.CPU_GET_CRX(which);
                                 switch (rm_val&7) {
                                     case 0:	CPU_Regs.reg_eax.dword(crx);	break;
@@ -1137,7 +1137,7 @@ public class EMS extends Module_base {
                                 /*Bitu*/int rm_val=Memory.mem_readb((v86_cs<<4)+v86_ip+2);
                                 /*Bitu*/int which=(rm_val >> 3) & 7;
                                 if ((rm_val<0xc0) || (rm_val>=0xe8))
-                                    Log.exit("Invalid opcode 0x0f 0x22 %x caused a protection fault!",rm_val);
+                                    Log.exit("Invalid opcode 0x0f 0x22 "+Integer.toString(rm_val, 16)+" caused a protection fault!");
                                 /*Bit32u*/long crx=0;
                                 switch (rm_val&7) {
                                     case 0:	crx= CPU_Regs.reg_eax.dword();	break;
@@ -1155,7 +1155,7 @@ public class EMS extends Module_base {
                                 }
                                 break;
                             default:
-                                Log.exit("Unhandled opcode 0x0f %x caused a protection fault!",v86_opcode);
+                                Log.exit("Unhandled opcode 0x0f "+Integer.toString(v86_opcode, 16)+" caused a protection fault!");
                         }
                         break;
                     case 0xe4:		// IN AL,Ib
@@ -1199,7 +1199,7 @@ public class EMS extends Module_base {
                         Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword()) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     default:
-                        Log.exit("Unhandled opcode %x caused a protection fault!",v86_opcode);
+                        Log.exit("Unhandled opcode "+Integer.toString(v86_opcode, 16)+" caused a protection fault!");
                 }
                 return Callback.CBRET_NONE;
             }
@@ -1310,7 +1310,7 @@ public class EMS extends Module_base {
                 CPU_Regs.reg_eax.word(0x1);
                 break;
             default:
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Unhandled interrupt 4B function %x",CPU_Regs.reg_eax.high());
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Unhandled interrupt 4B function "+Integer.toString(CPU_Regs.reg_eax.high(),16));
                 break;
             }
             return Callback.CBRET_NONE;

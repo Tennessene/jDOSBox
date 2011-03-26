@@ -9,15 +9,15 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 
 public class DMA extends Module_base {
-    static public enum DMAEvent {
-        DMA_REACHED_TC,
-        DMA_MASKED,
-        DMA_UNMASKED,
-        DMA_TRANSFEREND
+    static public final class DMAEvent {
+        public static final int DMA_REACHED_TC=0;
+        public static final int DMA_MASKED=1;
+        public static final int DMA_UNMASKED=2;
+        public static final int DMA_TRANSFEREND=3;
     }
 
     static public interface DMA_CallBack {
-        public void call(DmaChannel chan, DMAEvent event);
+        public void call(DmaChannel chan, int event);
     }
 
     static public class DmaChannel {
@@ -54,7 +54,7 @@ public class DMA extends Module_base {
             tcount = false;
             request = false;
         }
-        public void DoCallBack(DMAEvent event) {
+        public void DoCallBack(int event) {
             if (callback!=null) callback.call(this,event);
         }
         public void SetMask(boolean _mask) {
@@ -309,7 +309,7 @@ public class DMA extends Module_base {
                 }
                 return ret;
             default:
-                Log.log(LogTypes.LOG_DMACONTROL, LogSeverities.LOG_NORMAL,"Trying to read undefined DMA port %x",reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_DMACONTROL, LogSeverities.LOG_NORMAL,"Trying to read undefined DMA port "+Integer.toString(reg,16));
                 break;
             }
             return 0xffffffff;

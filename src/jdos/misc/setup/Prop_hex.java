@@ -1,7 +1,7 @@
 package jdos.misc.setup;
 
 public class Prop_hex extends Property {
-    public Prop_hex(String _propname, Changeable when, Hex _value) {
+    public Prop_hex(String _propname, int when, Hex _value) {
         super(_propname, when);
         default_value.set(_value);
         value.set(_value);

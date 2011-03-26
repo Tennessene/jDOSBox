@@ -335,7 +335,7 @@ public class VGA_crtc {
                 if (VGA.svga.write_p3d5!=null) {
                     VGA.svga.write_p3d5.call(VGA.vga.crtc.index, val, iolen);
                 } else {
-                    Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:CRTC:Write to unknown index %X",VGA.vga.crtc.index);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:CRTC:Write to unknown index "+Integer.toString(VGA.vga.crtc.index,16));
                 }
                 break;
             }
@@ -400,7 +400,7 @@ public class VGA_crtc {
                 if (VGA.svga.read_p3d5!=null) {
                     return VGA.svga.read_p3d5.call(VGA.vga.crtc.index, iolen);
                 } else {
-                    Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:Read from unknown index %X",VGA.vga.crtc.index);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:Read from unknown index "+Integer.toString(VGA.vga.crtc.index,16));
                     return 0x0;
                 }
             }

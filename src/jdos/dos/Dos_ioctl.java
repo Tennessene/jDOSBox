@@ -33,7 +33,7 @@ public class Dos_ioctl {
                 }
             }
         } else {
-            Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"DOS:IOCTL Call %2X unhandled",CPU_Regs.reg_eax.low());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"DOS:IOCTL Call "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" unhandled");
             Dos.DOS_SetError(Dos.DOSERR_FUNCTION_NUMBER_INVALID);
             return false;
         }
@@ -103,11 +103,11 @@ public class Dos_ioctl {
                     CPU_Regs.reg_eax.low(0x0); //EOF or beyond
                 }
                 Dos_files.Files[handle].Seek(oldlocation, Dos_files.DOS_SEEK_SET); //restore filelocation
-                Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"06:Used Get Input Status on regular file with handle %d",handle);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"06:Used Get Input Status on regular file with handle "+handle);
             }
             return true;
         case 0x07:		/* Get Output Status */
-            Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"07:Fakes output status is ready for handle %d",handle);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"07:Fakes output status is ready for handle "+handle);
             CPU_Regs.reg_eax.low(0xff);
             return true;
         case 0x08:		/* Check if block device removable */
@@ -187,7 +187,7 @@ public class Dos_ioctl {
                     }
                     break;
                 default	:
-                    Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_ERROR,"DOS:IOCTL Call 0D:%2X Drive %2X unhandled",CPU_Regs.reg_ecx.low(),drive);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_ERROR,"DOS:IOCTL Call 0D:"+Integer.toString(CPU_Regs.reg_ecx.low(), 16)+" Drive "+Integer.toString(drive, 16)+" unhandled");
                     Dos.DOS_SetError(Dos.DOSERR_FUNCTION_NUMBER_INVALID);
                     return false;
                 }
@@ -201,7 +201,7 @@ public class Dos_ioctl {
             CPU_Regs.reg_eax.low(0);		/* Only 1 logical drive assigned */
             return true;
         default:
-            Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:IOCTL Call %2X unhandled",CPU_Regs.reg_eax.low());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:IOCTL Call "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" unhandled");
             Dos.DOS_SetError(Dos.DOSERR_FUNCTION_NUMBER_INVALID);
             break;
         }

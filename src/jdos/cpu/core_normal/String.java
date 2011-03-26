@@ -262,7 +262,7 @@ public class String extends Prefix_helpers {
             }
             break;
         default:
-            Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Unhandled string op %d",type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Unhandled string op "+type);
         }
         /* Clean up after certain amount of instructions */
         reg_esi.dword(reg_esi.dword() & not_add_mask);

@@ -25,8 +25,8 @@ public class Dos_shell extends Program {
         public void call(String arg);
     }
 
-    private Vector<String> l_history = new Vector<String>();
-    private Vector<String> l_completion = new Vector<String>();
+    private Vector l_history = new Vector();
+    private Vector l_completion = new Vector();
 
     /* The shell's variables */
     /*Bit16u*/int input_handle;
@@ -64,7 +64,7 @@ public class Dos_shell extends Program {
             return;
         }
         //:TODO:/* Start a normal shell and check for a first command init */
-        WriteOut(Msg.get("SHELL_STARTUP_BEGIN"), Config.VERSION);
+        WriteOut(Msg.get("SHELL_STARTUP_BEGIN"), new Object[] {Config.VERSION});
         if (Config.C_DEBUG)
             WriteOut(Msg.get("SHELL_STARTUP_DEBUG"));
         if (Dosbox.machine == MachineType.MCH_CGA) WriteOut(Msg.get("SHELL_STARTUP_CGA"));
@@ -115,7 +115,7 @@ public class Dos_shell extends Program {
 
 /* A load of subfunctions */
     void ParseLine(String line) {
-        Log.log(LogTypes.LOG_EXEC, LogSeverities.LOG_ERROR,"Parsing command line: %s",line);
+        Log.log(LogTypes.LOG_EXEC, LogSeverities.LOG_ERROR,"Parsing command line: "+line);
         /* Check for a leading @ */
         if (line.startsWith("@")) line = line.substring(1);
         line = line.trim();
@@ -142,13 +142,13 @@ public class Dos_shell extends Program {
         if (in.value != null) {
             if(Dos_files.DOS_OpenFile(in.value,Dos_files.OPEN_READ,dummy)) {	//Test if file exists
                 Dos_files.DOS_CloseFile(dummy.value);
-                Log.log_msg("SHELL:Redirect input from %s",in);
+                Log.log_msg("SHELL:Redirect input from "+in);
                 if(normalstdin) Dos_files.DOS_CloseFile(0);	//Close stdin
                 Dos_files.DOS_OpenFile(in.value,Dos_files.OPEN_READ,dummy);	//Open new stdin
             }
         }
         if (out.value != null){
-            Log.log_msg("SHELL:Redirect output to %s",out.value);
+            Log.log_msg("SHELL:Redirect output to "+out.value);
             if(normalstdout) Dos_files.DOS_CloseFile(1);
             if(!normalstdin && in.value == null) Dos_files.DOS_OpenFile("con",Dos_files.OPEN_READWRITE,dummy);
             boolean status = true;
@@ -275,14 +275,14 @@ public class Dos_shell extends Program {
                     case 0x3d:		/* F3 */
                         if (l_history.size()==0) break;
                         it_history = 0;
-                        if (l_history.size()>0 && l_history.firstElement().length() > str_len) {
-                            String reader = l_history.firstElement().substring(str_len);
+                        if (l_history.size()>0 && ((String)l_history.firstElement()).length() > str_len) {
+                            String reader = ((String)l_history.firstElement()).substring(str_len);
                             for (int i=0;i<reader.length();i++) {
                                 c[0]=(byte)reader.charAt(0);
                                 line[str_index ++] = (byte)reader.charAt(0);
                                 Dos_files.DOS_WriteFile(Dos_files.STDOUT,c,n);
                             }
-                            str_len = str_index = l_history.firstElement().length();
+                            str_len = str_index = ((String)l_history.firstElement()).length();
                             size = Shell.CMD_MAXLINE - str_index - 2;
                             line[str_len] = 0;
                         }
@@ -328,8 +328,8 @@ public class Dos_shell extends Program {
                             // removes all characters
                             outc(8); outc(' '); outc(8);
                         }
-                        StringHelper.strcpy(line, l_history.elementAt(it_history));
-                        len.value = l_history.elementAt(it_history).length();
+                        StringHelper.strcpy(line, (String)l_history.elementAt(it_history));
+                        len.value = ((String)l_history.elementAt(it_history)).length();
                         str_len = str_index = len.value;
                         size = Shell.CMD_MAXLINE - str_index - 2;
                         Dos_files.DOS_WriteFile(Dos_files.STDOUT, line, len);
@@ -357,8 +357,8 @@ public class Dos_shell extends Program {
                             // removes all characters
                             outc(8); outc(' '); outc(8);
                         }
-                        StringHelper.strcpy(line, l_history.elementAt(it_history));
-                        len.value = l_history.elementAt(it_history).length();
+                        StringHelper.strcpy(line, (String)l_history.elementAt(it_history));
+                        len.value = ((String)l_history.elementAt(it_history)).length();
                         str_len = str_index = len.value;
                         size = Shell.CMD_MAXLINE - str_index - 2;
                         Dos_files.DOS_WriteFile(Dos_files.STDOUT, line, len);
@@ -497,17 +497,17 @@ public class Dos_shell extends Program {
                         Dos.dos.dta((int)save_dta);
                     }
 
-                    if (l_completion.size()!=0 && l_completion.elementAt(it_completion).length()!=0) {
+                    if (l_completion.size()!=0 && ((String)l_completion.elementAt(it_completion)).length()!=0) {
                         for (;str_index > completion_index; str_index--) {
                             // removes all characters
                             outc(8); outc(' '); outc(8);
                         }
 
-                        StringHelper.strcpy(line,completion_index, l_completion.elementAt(it_completion));
-                        len.value = l_completion.elementAt(it_completion).length();
+                        StringHelper.strcpy(line,completion_index, (String)l_completion.elementAt(it_completion));
+                        len.value = ((String)l_completion.elementAt(it_completion)).length();
                         str_len = str_index = completion_index + len.value;
                         size = Shell.CMD_MAXLINE - str_index - 2;
-                        Dos_files.DOS_WriteFile(Dos_files.STDOUT, l_completion.elementAt(it_completion).getBytes(), len);
+                        Dos_files.DOS_WriteFile(Dos_files.STDOUT, ((String)l_completion.elementAt(it_completion)).getBytes(), len);
                     }
                 }
                 break;
@@ -570,7 +570,7 @@ public class Dos_shell extends Program {
         char drive=(char)(Dos_files.DOS_GetDefaultDrive()+'A');
         StringRef dir = new StringRef();
         Dos_files.DOS_GetCurrentDir((short)0,dir);
-        WriteOut("%c:\\%s>",drive,dir.value);
+        WriteOut(String.valueOf((char)drive)+":\\"+dir.value+">");
     }
 
     void DoCommand(String line) {
@@ -609,7 +609,7 @@ public class Dos_shell extends Program {
     /* This isn't an internal command execute it */
         if(Execute(cmd_buffer.toString(),line)) return;
         if(CheckConfig(cmd_buffer.toString(),line)) return;
-        WriteOut(Msg.get("SHELL_EXECUTE_ILLEGAL_COMMAND"),cmd_buffer);
+        WriteOut(Msg.get("SHELL_EXECUTE_ILLEGAL_COMMAND"),new Object[] {cmd_buffer.toString()});
     }
 
     public static String full_arguments;
@@ -629,7 +629,7 @@ public class Dos_shell extends Program {
         if ((name.substring(1).equals(":") || name.substring(1).equals(":\\")) && StringHelper.isalpha(name.charAt(0)))
         {
             if (!Dos_files.DOS_SetDrive((short)(name.toUpperCase().charAt(0)-'A'))) {
-                WriteOut(Msg.get("SHELL_EXECUTE_DRIVE_NOT_FOUND"),name.toUpperCase().charAt(0));
+                WriteOut(Msg.get("SHELL_EXECUTE_DRIVE_NOT_FOUND"),new Object[] {new Character(name.toUpperCase().charAt(0))});
             }
             return true;
         }
@@ -746,7 +746,7 @@ public class Dos_shell extends Program {
         if(test==null) return false;
         if(line!=null && line.length()==0) {
             String val = test.GetPropValue(cmd_in);
-            if(!val.equals(Section.NO_SUCH_PROPERTY)) WriteOut("%s\n",val);
+            if(!val.equals(Section.NO_SUCH_PROPERTY)) WriteOut(val+"\n");
             return true;
         }
         String newcom = "z:\\config "+test.GetName()+" "+cmd_in+line;
@@ -856,15 +856,15 @@ public class Dos_shell extends Program {
         num/=1000;
         numg=num;
         if (numg!=0) {
-            return String.format("%d,%03d,%03d,%03d",numg,numm,numk,numb);
+            return StringHelper.sprintf("%d,%03d,%03d,%03d",new Object[]{new Long(numg),new Long(numm),new Long(numk),new Long(numb)});
         }
         if (numm!=0) {
-            return String.format("%d,%03d,%03d",numm,numk,numb);
+            return StringHelper.sprintf("%d,%03d,%03d",new Object[]{new Long(numm),new Long(numk),new Long(numb)});
         }
         if (numk!=0) {
-            return String.format("%d,%03d",numk,numb);
+            return StringHelper.sprintf("%d,%03d",new Object[]{new Long(numk),new Long(numb)});
         }
-        return String.format("%d",numb);
+        return String.valueOf(numb);
     }
 
     private static String ExpandDot(StringRef args) {
@@ -917,7 +917,7 @@ public class Dos_shell extends Program {
             /*Bit32u*/int cmd_index=0,write_count=0;
             while (cmd_list[cmd_index].name!=null) {
                 if (optall || cmd_list[cmd_index].flags==0) {
-                    WriteOut("<\033[34;1m%-8s\033[0m> %s",cmd_list[cmd_index].name,Msg.get(cmd_list[cmd_index].help));
+                    WriteOut("<\033[34;1m"+StringHelper.leftJustify(cmd_list[cmd_index].name, 8)+"\033[0m> "+Msg.get(cmd_list[cmd_index].help));
                     if((++write_count%22)==0) CMD_PAUSE.call("");
                 }
                 cmd_index++;
@@ -959,7 +959,7 @@ public class Dos_shell extends Program {
             Dos_DTA dta = new Dos_DTA(Dos.dos.dta());
             /*Bit32u*/LongRef size = new LongRef(0);/*Bit16u*/IntRef date=new IntRef(0);/*Bit16u*/IntRef time=new IntRef(0);/*Bit8u*/ShortRef attr=new ShortRef();
             StringRef name = new StringRef();
-            Vector<copysource> sources = new Vector<copysource>();
+            Vector sources = new Vector();
             // ignore /b and /t switches: always copy binary
             while(ScanCMDBool(args,"B")) ;
             while(ScanCMDBool(args,"T")) ; //Shouldn't this be A ?
@@ -969,7 +969,7 @@ public class Dos_shell extends Program {
 
             String rem=ScanCMDRemain(args);
             if (rem!=null) {
-                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),rem);
+                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),new Object[] {rem});
                 Dos.dos.dta(save_dta);
                 return;
             }
@@ -1007,7 +1007,7 @@ public class Dos_shell extends Program {
                 } while(source_p.length()>0);
             }
             // At least one source has to be there
-            if (sources.size()==0 || sources.elementAt(0).filename.length()==0) {
+            if (sources.size()==0 || ((copysource)sources.elementAt(0)).filename.length()==0) {
                 WriteOut(Msg.get("SHELL_MISSING_PARAMETER"));
                 Dos.dos.dta(save_dta);
                 return;
@@ -1016,8 +1016,8 @@ public class Dos_shell extends Program {
             copysource target=new copysource();
             // If more then one object exists and last target is not part of a
             // concat sequence then make it the target.
-            if(sources.size()>1 && !sources.elementAt(sources.size()-2).concat){
-                target = sources.lastElement();
+            if(sources.size()>1 && !((copysource)sources.elementAt(sources.size()-2)).concat){
+                target = (copysource)sources.lastElement();
                 sources.removeElementAt(sources.size()-1);
             }
             //If no target => default target with concat flag true to detect a+b+c
@@ -1029,7 +1029,7 @@ public class Dos_shell extends Program {
             while(sources.size()>0) {
                 /* Get next source item and keep track of old source for concat start end */
                 oldsource = source;
-                source = sources.firstElement();
+                source = (copysource)sources.firstElement();
                 sources.remove(0);
 
                 //Skip first file if doing a+b+c. Set target to first file
@@ -1071,7 +1071,7 @@ public class Dos_shell extends Program {
                 //Find first sourcefile
                 boolean ret = Dos_files.DOS_FindFirst(source.filename,0xffff & ~Dos_system.DOS_ATTR_VOLUME);
                 if (!ret) {
-                    WriteOut(Msg.get("SHELL_CMD_FILE_NOT_FOUND"),source.filename);
+                    WriteOut(Msg.get("SHELL_CMD_FILE_NOT_FOUND"),new Object[] {source.filename});
                     Dos.dos.dta(save_dta);
                     return;
                 }
@@ -1108,26 +1108,26 @@ public class Dos_shell extends Program {
                                     } while (toread.value==0x8000);
                                     failed |= Dos_files.DOS_CloseFile(sourceHandle.value);
                                     failed |= Dos_files.DOS_CloseFile(targetHandle.value);
-                                    WriteOut(" %s\n",name.value);
+                                    WriteOut(" "+name.value+"\n");
                                     if(!source.concat) count++; //Only count concat files once
                                 } else {
                                     Dos_files.DOS_CloseFile(sourceHandle.value);
-                                    WriteOut(Msg.get("SHELL_CMD_COPY_FAILURE"),target.filename);
+                                    WriteOut(Msg.get("SHELL_CMD_COPY_FAILURE"),new Object[] {target.filename});
                                 }
                             } else {
                                 Dos_files.DOS_CloseFile(sourceHandle.value);
                                 if (targetHandle.value != 0)
                                     Dos_files.DOS_CloseFile(targetHandle.value);
-                                WriteOut(Msg.get("SHELL_CMD_COPY_FAILURE"),target.filename);
+                                WriteOut(Msg.get("SHELL_CMD_COPY_FAILURE"),new Object[] {target.filename});
                             }
-                        } else WriteOut(Msg.get("SHELL_CMD_COPY_FAILURE"),source.filename);
+                        } else WriteOut(Msg.get("SHELL_CMD_COPY_FAILURE"),new Object[] {source.filename});
                     }
                     //On the next file
                     ret = Dos_files.DOS_FindNext();
                 }
             }
 
-            WriteOut(Msg.get("SHELL_CMD_COPY_SUCCESS"),count);
+            WriteOut(Msg.get("SHELL_CMD_COPY_SUCCESS"),new Object[] {new Integer(count)});
             Dos.dos.dta(save_dta);
         }
     };
@@ -1155,7 +1155,7 @@ public class Dos_shell extends Program {
             boolean optAD=ScanCMDBool(args,"AD");
             String rem=ScanCMDRemain(args);
             if (rem!=null) {
-                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),rem);
+                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),new Object[] {rem});
                 return;
             }
             /*Bit32u*/long byte_count,file_count,dir_count;
@@ -1191,7 +1191,7 @@ public class Dos_shell extends Program {
                 return;
             }
             path.value = path.value.substring(0, path.value.lastIndexOf('\\')+1);
-            if (!optB) WriteOut(Msg.get("SHELL_CMD_DIR_INTRO"),path.value);
+            if (!optB) WriteOut(Msg.get("SHELL_CMD_DIR_INTRO"),new Object[] {path.value});
 
             /* Command uses dta so set it to our internal dta */
             /*RealPt*/int save_dta=Dos.dos.dta();
@@ -1199,7 +1199,7 @@ public class Dos_shell extends Program {
             Dos_DTA dta=new Dos_DTA(Dos.dos.dta());
             boolean ret=Dos_files.DOS_FindFirst(args.value,0xffff & ~Dos_system.DOS_ATTR_VOLUME);
             if (!ret) {
-                if (!optB) WriteOut(Msg.get("SHELL_CMD_FILE_NOT_FOUND"),args.value);
+                if (!optB) WriteOut(Msg.get("SHELL_CMD_FILE_NOT_FOUND"),new Object[] {args.value});
                 Dos.dos.dta(save_dta);
                 return;
             }
@@ -1215,7 +1215,7 @@ public class Dos_shell extends Program {
                 if (optB) {
                     // this overrides pretty much everything
                     if (!name.equals(".") && !name.equals("..")) {
-                        WriteOut("%s\n",name);
+                        WriteOut(name+"\n");
                     }
                 } else {
                     String ext = "";
@@ -1234,21 +1234,21 @@ public class Dos_shell extends Program {
 
                     if ((attr.value & Dos_system.DOS_ATTR_DIRECTORY)!=0) {
                         if (optW) {
-                            WriteOut("[%s]",name.value);
+                            WriteOut("["+name.value+"]");
                             int namelen = name.value.length();
                             if (namelen <= 14) {
                                 for (int i=14-namelen;i>0;i--) WriteOut(" ");
                             }
                         } else {
-                            WriteOut("%-8s %-3s   %-16s %02d-%02d-%04d %2d:%02d\n",name.value,ext,"<DIR>",day,month,year,hour,minute);
+                            WriteOut("%-8s %-3s   %-16s %02d-%02d-%04d %2d:%02d\n",new Object[] {name.value,ext,"<DIR>",new Integer(day),new Integer(month),new Integer(year),new Integer(hour),new Integer(minute)});
                         }
                         dir_count++;
                     } else {
                         if (optW) {
-                            WriteOut("%-16s",name.value);
+                            WriteOut("%-16s",new Object[] {name.value});
                         } else {
                             String numformat = FormatNumber(size.value);
-                            WriteOut("%-8s %-3s   %16s %02d-%02d-%04d %2d:%02d\n",name.value,ext,numformat,day,month,year,hour,minute);
+                            WriteOut("%-8s %-3s   %16s %02d-%02d-%04d %2d:%02d\n",new Object[] {name.value,ext,numformat,new Integer(day),new Integer(month),new Integer(year),new Integer(hour),new Integer(minute)});
                         }
                         file_count++;
                         byte_count+=size.value;
@@ -1267,7 +1267,7 @@ public class Dos_shell extends Program {
             if (!optB) {
                 /* Show the summary of results */
                 String numformat = FormatNumber(byte_count);
-                WriteOut(Msg.get("SHELL_CMD_DIR_BYTES_USED"),file_count,numformat);
+                WriteOut(Msg.get("SHELL_CMD_DIR_BYTES_USED"),new Object[] {new Long(file_count),numformat});
                 /*Bit8u*/short drive=dta.GetSearchDrive();
                 //TODO Free Space
                 /*Bitu*/int free_space=1024*1024*100;
@@ -1277,7 +1277,7 @@ public class Dos_shell extends Program {
                     free_space=bytes_sector.value*sectors_cluster.value*free_clusters.value;
                 }
                 numformat = FormatNumber(free_space);
-                WriteOut(Msg.get("SHELL_CMD_DIR_BYTES_FREE"),dir_count,numformat);
+                WriteOut(Msg.get("SHELL_CMD_DIR_BYTES_FREE"),new Object[] {new Long(dir_count),numformat});
             }
             Dos.dos.dta(save_dta);
         }
@@ -1293,7 +1293,7 @@ public class Dos_shell extends Program {
 
             String rem=ScanCMDRemain(args);
             if (rem!=null) {
-                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),rem);
+                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),new Object[] {rem});
                 return;
             }
             /* If delete accept switches mind the space infront of them. See the dir /p code */
@@ -1305,7 +1305,7 @@ public class Dos_shell extends Program {
         //TODO Maybe support confirmation for *.* like dos does.
             boolean res=Dos_files.DOS_FindFirst(args.value,0xffff & ~Dos_system.DOS_ATTR_VOLUME);
             if (!res) {
-                WriteOut(Msg.get("SHELL_CMD_DEL_ERROR"),args);
+                WriteOut(Msg.get("SHELL_CMD_DEL_ERROR"),new Object[] {args});
                 Dos.dos.dta(save_dta);
                 return;
             }
@@ -1315,7 +1315,7 @@ public class Dos_shell extends Program {
             while (res) {
                 dta.GetResult(name,size,date,time,attr);
                 if ((attr.value & (Dos_system.DOS_ATTR_DIRECTORY|Dos_system.DOS_ATTR_READ_ONLY))==0) {
-                    if (!Dos_files.DOS_UnlinkFile(path+name.value)) WriteOut(Msg.get("SHELL_CMD_DEL_ERROR"),full.value);
+                    if (!Dos_files.DOS_UnlinkFile(path+name.value)) WriteOut(Msg.get("SHELL_CMD_DEL_ERROR"),new Object[] {full.value});
                 }
                 res=Dos_files.DOS_FindNext();
             }
@@ -1346,8 +1346,8 @@ public class Dos_shell extends Program {
             //TODO check input of else ook nodig is.
             if(args.endsWith("\r")) {
                 Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Hu ? carriage return allready present. Is this possible?");
-                WriteOut("%s\n",args);
-            } else WriteOut("%s\r\n",args);
+                WriteOut(args+"\n");
+            } else WriteOut(args+"\r\n");
         }
     };
     handler CMD_EXIT = new handler() {
@@ -1364,11 +1364,11 @@ public class Dos_shell extends Program {
             args.value = StripSpaces(args.value);
             String rem=ScanCMDRemain(args);
             if (rem!=null) {
-                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),rem);
+                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),new Object[] {rem});
                 return;
             }
             if (!Dos_files.DOS_MakeDir(args.value)) {
-                WriteOut(Msg.get("SHELL_CMD_MKDIR_ERROR"),args);
+                WriteOut(Msg.get("SHELL_CMD_MKDIR_ERROR"),new Object[] {args});
             }
         }
     };
@@ -1382,9 +1382,9 @@ public class Dos_shell extends Program {
                 /*Bit8u*/char drive=(char)(Dos_files.DOS_GetDefaultDrive()+'A');
                 StringRef dir = new StringRef();
                 Dos_files.DOS_GetCurrentDir((short)0,dir);
-                WriteOut("%c:\\%s\n",drive,dir);
+                WriteOut(String.valueOf(drive)+":\\"+dir+"\n");
             } else if(args.value.length() == 2 && args.value.charAt(1)==':') {
-                WriteOut(Msg.get("SHELL_CMD_CHDIR_HINT"),args.value.toUpperCase());
+                WriteOut(Msg.get("SHELL_CMD_CHDIR_HINT"),new Object[]{args.value.toUpperCase()});
             } else 	if (!Dos_files.DOS_ChangeDir(args.value)) {
                 /* Changedir failed. Check if the filename is longer then 8 and/or contains spaces */
 
@@ -1410,15 +1410,15 @@ public class Dos_shell extends Program {
                     shortversion.append(s);
                 }
                 if (space) {/* Contains spaces */
-                    WriteOut(Msg.get("SHELL_CMD_CHDIR_HINT_2"),shortversion.toString());
+                    WriteOut(Msg.get("SHELL_CMD_CHDIR_HINT_2"),new Object[]{shortversion.toString()});
                 } else if (toolong) {
-                    WriteOut(Msg.get("SHELL_CMD_CHDIR_HINT_2"),shortversion.toString());
+                    WriteOut(Msg.get("SHELL_CMD_CHDIR_HINT_2"),new Object[]{shortversion.toString()});
                 } else {
                     /*Bit8u*/char drive=(char)(Dos_files.DOS_GetDefaultDrive()+'A');
                     if (drive=='Z') {
                         WriteOut(Msg.get("SHELL_CMD_CHDIR_HINT_3"));
                     } else {
-                        WriteOut(Msg.get("SHELL_CMD_CHDIR_ERROR"),args.value);
+                        WriteOut(Msg.get("SHELL_CMD_CHDIR_ERROR"),new Object[]{args.value});
                     }
                 }
             }
@@ -1432,11 +1432,11 @@ public class Dos_shell extends Program {
             args.value = StripSpaces(args.value);
             String rem=ScanCMDRemain(args);
             if (rem!=null) {
-                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),rem);
+                WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),new Object[]{rem});
                 return;
             }
             if (!Dos_files.DOS_RemoveDir(args.value)) {
-                WriteOut(Msg.get("SHELL_CMD_RMDIR_ERROR"),args);
+                WriteOut(Msg.get("SHELL_CMD_RMDIR_ERROR"),new Object[]{args});
             }
         }
     };
@@ -1451,14 +1451,14 @@ public class Dos_shell extends Program {
                 /* No command line show all environment lines */
                 /*Bitu*/int count=GetEnvCount();
                 for (/*Bitu*/int a=0;a<count;a++) {
-                    if (GetEnvNum(a,line)) WriteOut("%s\n",line.value);
+                    if (GetEnvNum(a,line)) WriteOut(line.value+"\n");
                 }
                 return;
             }
             int p=args.value.indexOf("=");
             if (p<0) {
-                if (!GetEnvStr(args.value,line)) WriteOut(Msg.get("SHELL_CMD_SET_NOT_SET"),args.value);
-                WriteOut("%s\n",line.value);
+                if (!GetEnvStr(args.value,line)) WriteOut(Msg.get("SHELL_CMD_SET_NOT_SET"),new Object[]{args.value});
+                WriteOut(line.value+"\n");
             } else {
                 String key = args.value.substring(0, p);
                 p++;
@@ -1602,7 +1602,7 @@ public class Dos_shell extends Program {
                 return;
             }
             if (!bf.Goto(args.value)) {
-                WriteOut(Msg.get("SHELL_CMD_GOTO_LABEL_NOT_FOUND"),args);
+                WriteOut(Msg.get("SHELL_CMD_GOTO_LABEL_NOT_FOUND"),new Object[]{args});
                 return;
             }
         }
@@ -1621,7 +1621,7 @@ public class Dos_shell extends Program {
             while (true) {
                 String word=StripWord(args);
                 if (!Dos_files.DOS_OpenFile(word,0,handle)) {
-                    WriteOut(Msg.get("SHELL_CMD_FILE_NOT_FOUND"),word);
+                    WriteOut(Msg.get("SHELL_CMD_FILE_NOT_FOUND"),new Object[]{word});
                     return;
                 }
                 /*Bit16u*/IntRef n=new IntRef(0);/*Bit8u*/byte[] c=new byte[1];
@@ -1793,7 +1793,7 @@ public class Dos_shell extends Program {
                 args.value = StripSpaces(args.value);
                 rem = ScanCMDRemain(args);
                 if (rem!=null && rem.toLowerCase().charAt(0) != 'c') {
-                    WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),rem);
+                    WriteOut(Msg.get("SHELL_ILLEGAL_SWITCH"),new Object[]{rem});
                     return;
                 }
                 if (rem != null && args.value.substring(1).startsWith(rem)) args.value = args.value.substring(rem.length()+1);
@@ -1816,9 +1816,9 @@ public class Dos_shell extends Program {
                 WriteOut("[");
                 int len = rem.length();
                 for(int t = 1; t < len; t++) {
-                    WriteOut("%c,",rem.charAt(t-1));
+                    WriteOut(String.valueOf(rem.charAt(t-1))+",");
                 }
-                WriteOut("%c]?",rem.charAt(len-1));
+                WriteOut(String.valueOf(rem.charAt(len-1))+"]?");
             }
 
             /*Bit16u*/IntRef n=new IntRef(1);
@@ -1858,7 +1858,7 @@ public class Dos_shell extends Program {
             } else {
                 StringRef line = new StringRef();
                 if(GetEnvStr("PATH",line)) {
-                    WriteOut("%s",line.value);
+                    WriteOut(line.value);
                 } else {
                     WriteOut("PATH=(null)");
                 }
@@ -1888,7 +1888,7 @@ public class Dos_shell extends Program {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else WriteOut(Msg.get("SHELL_CMD_VER_VER"),Config.VERSION,Dos.dos.version.major,Dos.dos.version.minor);
+            } else WriteOut(Msg.get("SHELL_CMD_VER_VER"),new Object[]{Config.VERSION,new Integer(Dos.dos.version.major),new Integer(Dos.dos.version.minor)});
         }
     };
 

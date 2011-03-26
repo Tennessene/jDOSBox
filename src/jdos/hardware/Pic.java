@@ -313,7 +313,7 @@ public class Pic extends Module_base {
                         CPU.CPU_CycleLeft += CPU.CPU_Cycles;
                         CPU.CPU_Cycles = 0;
                     }
-                    Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"port %X : special mask %s",port,(pic.special)?"ON":"OFF");
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"port "+Integer.toString(port, 16)+" : special mask "+((pic.special)?"ON":"OFF"));
                 }
             } else {	// OCW2 issued
                 if ((val&0x20)!=0) {		// EOI commands
@@ -363,7 +363,7 @@ public class Pic extends Module_base {
             boolean old_irq2_mask = irqs[2].masked;
             switch(pic.icw_index) {
             case 0:                        /* mask register */
-                Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"%d mask %X",port==0x21 ? 0 : 1,val);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,(port==0x21 ? 0 : 1)+" mask "+Integer.toString(val,16));
                 for (i=0;i<=7;i++) {
                     irqs[i+irq_base].masked=(val&(1<<i))>0;
                     if(port==0x21) {
@@ -391,7 +391,7 @@ public class Pic extends Module_base {
                 }
                 break;
             case 1:                        /* icw2          */
-                Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"%d:Base vector %X",port==0x21 ? 0 : 1,val);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,(port==0x21 ? 0 : 1)+":Base vector "+Integer.toString(val,16));
                 for (i=0;i<=7;i++) {
                     irqs[i+irq_base].vector=(val&0xf8)+i;
                 };
@@ -399,7 +399,7 @@ public class Pic extends Module_base {
                 else if(pic.single) pic.icw_index=3;		/* skip ICW3 in single mode */
                 break;
             case 2:							/* icw 3 */
-                Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"%d:ICW 3 %X",port==0x21 ? 0 : 1,val);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,(port==0x21 ? 0 : 1)+":ICW 3 "+Integer.toString(val,16));
                 if(pic.icw_index++ >= pic.icw_words) pic.icw_index=0;
                 break;
             case 3:							/* icw 4 */
@@ -413,15 +413,15 @@ public class Pic extends Module_base {
                 */
                 pic.auto_eoi=(val & 0x2)>0;
 
-                Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"%d:ICW 4 %X",port==0x21 ? 0 : 1,val);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,(port==0x21 ? 0 : 1)+":ICW 4 "+Integer.toString(val,16));
 
-                if ((val&0x01)==0) Log.exit("PIC:ICW4: %x, 8085 mode not handled",val);
-                if ((val&0x10)!=0) Log.log_msg("PIC:ICW4: %x, special fully-nested mode not handled",val);
+                if ((val&0x01)==0) Log.exit("PIC:ICW4: "+Integer.toString(val, 16)+", 8085 mode not handled");
+                if ((val&0x10)!=0) Log.log_msg("PIC:ICW4: "+Integer.toString(val, 16)+", special fully-nested mode not handled");
 
                 if(pic.icw_index++ >= pic.icw_words) pic.icw_index=0;
                 break;
             default:
-                Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"ICW HUH? %X",val);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"ICW HUH? "+Integer.toString(val,16));
                 break;
             }
         }

@@ -37,7 +37,7 @@ public class IoHandler {
                 m_mask=mask;
                 m_range=range;
                 IO_RegisterReadHandler(port,handler,mask,range);
-            } else Log.exit("IO_readHandler allready installed port %x",port);
+            } else Log.exit("IO_readHandler allready installed port "+Integer.toString(port,16));
         }
         public void destroy() {
             if(!installed) return;
@@ -55,7 +55,7 @@ public class IoHandler {
                 m_mask=mask;
                 m_range=range;
                 IO_RegisterWriteHandler(port,handler,mask,range);
-            } else Log.exit("IO_writeHandler allready installed port %x",port);
+            } else Log.exit("IO_writeHandler allready installed port "+Integer.toString(port,16));
         }
         public void destroy() {
             if(!installed) return;
@@ -88,7 +88,7 @@ public class IoHandler {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             switch (iolen) {
             case 1:
-                Log.log(LogTypes.LOG_IO, LogSeverities.LOG_WARN, "Read from port %04X",port);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_IO, LogSeverities.LOG_WARN, "Read from port "+Integer.toString(port,16));
                 io_readhandlers[0][port]=IO_ReadBlocked;
                 return 0xff;
             case 2:
@@ -108,7 +108,7 @@ public class IoHandler {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             switch (iolen) {
             case 1:
-                Log.log(LogTypes.LOG_IO,LogSeverities.LOG_WARN,"Writing %02X to port %04X",val,port);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_IO,LogSeverities.LOG_WARN,"Writing "+Integer.toString(val, 16)+" to port "+Integer.toString(port,16));
                 io_writehandlers[0][port]=IO_WriteBlocked;
                 break;
             case 2:

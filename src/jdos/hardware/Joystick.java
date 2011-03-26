@@ -6,14 +6,14 @@ import jdos.misc.setup.Section_prop;
 import jdos.sdl.SDL_Mapper;
 
 public class Joystick extends Module_base {
-    static private enum JoystickType {
-        JOY_NONE,
-        JOY_AUTO,
-        JOY_2AXIS,
-        JOY_4AXIS,
-        JOY_4AXIS_2,
-        JOY_FCS,
-        JOY_CH
+    static private final class JoystickType {
+        static public final int JOY_NONE=0;
+        static public final int JOY_AUTO=1;
+        static public final int JOY_2AXIS=2;
+        static public final int JOY_4AXIS=3;
+        static public final int JOY_4AXIS_2=4;
+        static public final int JOY_FCS=5;
+        static public final int JOY_CH=6;
     }
 
     static final private int RANGE = 64;
@@ -31,7 +31,7 @@ public class Joystick extends Module_base {
         boolean[] button=new boolean[2];
     }
 
-    JoystickType joytype;
+    int joytype;
     static Stick[] stick=new Stick[2];
 
     static private /*Bit32u*/long last_write = 0;

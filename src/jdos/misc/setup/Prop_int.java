@@ -3,14 +3,14 @@ package jdos.misc.setup;
 import jdos.misc.Log;
 
 public class Prop_int extends Property{
-    public Prop_int(String _propname, Changeable when, int _value) {
+    public Prop_int(String _propname, int when, int _value) {
         super(_propname, when);
         default_value.set(_value);
         value.set(_value);
         min.set(-1);
         max.set(-1);
     }
-    public Prop_int(String _propname, Changeable when, int _min, int _max, int _value) {
+    public Prop_int(String _propname, int when, int _min, int _max, int _value) {
         super(_propname, when);
         default_value.set(_value);
         value.set(_value);
@@ -30,7 +30,7 @@ public class Prop_int extends Property{
         int va = in.getInt();
         if (mi == -1 && ma == -1) return true;
         if (va >= mi && va <= ma) return true;
-        if (warn) Log.log_msg("%s lies outside the range %s-%s for variable: %s.\nIt might now be reset to the default value: %s",in.toString(),min.toString(),max.toString(),propname,default_value.toString());
+        if (warn) Log.log_msg(in.toString()+" lies outside the range "+min.toString()+"-"+max.toString()+" for variable: "+propname+".\nIt might now be reset to the default value: "+default_value.toString());
         return false;
     }
     private Value min = new Value();

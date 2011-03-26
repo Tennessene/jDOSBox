@@ -1,7 +1,7 @@
 package jdos.misc.setup;
 
 public class Prop_bool extends Property {
-    public Prop_bool(String _propname, Changeable when, boolean _value) {
+    public Prop_bool(String _propname, int when, boolean _value) {
         super(_propname, when);
         default_value.set(_value);
         value.set(_value);

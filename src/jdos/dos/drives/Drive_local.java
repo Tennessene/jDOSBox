@@ -108,8 +108,12 @@ public class Drive_local extends Dos_Drive {
 
         private FileIO fhandle;
         private boolean read_only_medium;
-        private enum Last_action{ NONE,READ,WRITE }
-        private Last_action last_action;
+        private static final class Last_action{
+            public static final int NONE=0;
+            public static final int READ=1;
+            public static final int WRITE=2;
+        }
+        private int last_action;
     }
 
     public Drive_local(String startdir,/*Bit16u*/int _bytes_sector,/*Bit8u*/short _sectors_cluster,/*Bit16u*/int _total_clusters,/*Bit16u*/int _free_clusters,/*Bit8u*/short _mediaid) {
@@ -170,7 +174,7 @@ public class Drive_local extends Dos_Drive {
             file.flags=Dos_files.OPEN_READWRITE;
             return file;
         } catch (Exception e) {
-            Log.log_msg("Warning: file creation failed: %s",newname);
+            Log.log_msg("Warning: file creation failed: "+newname);
             return null;
         }
     }

@@ -194,7 +194,7 @@ public class Int10 {
 
                 break;
             default:
-                Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_NORMAL,"Function AX:%04X , BX %04X DX %04X",CPU_Regs.reg_eax.word(),CPU_Regs.reg_ebx.word(),CPU_Regs.reg_edx.word());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_NORMAL,"Function AX:"+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" , BX "+Integer.toString(CPU_Regs.reg_ebx.word(), 16)+" DX "+Integer.toString(CPU_Regs.reg_edx.word(), 16));
                 break;
             }
         }
@@ -359,7 +359,7 @@ public class Int10 {
             //case 0xF1:							/* ET4000: GET DAC TYPE */
             //case 0xF2:							/* ET4000: CHECK/SET HiColor MODE */
             default:
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 10:Unhandled EGA/VGA Palette Function %2X",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 10:Unhandled EGA/VGA Palette Function "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                 break;
             }
             break;
@@ -458,7 +458,7 @@ public class Int10 {
                     CPU_Regs.reg_ebp.word(Memory.RealOff(int10.rom.font_16_alternate));
                     break;
                 default:
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 11:30 Request for font %2X",CPU_Regs.reg_ebx.high());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 11:30 Request for font "+Integer.toString(CPU_Regs.reg_ebx.high(),16));
                     break;
                 }
                 if ((CPU_Regs.reg_ebx.high()<=7) || (Dosbox.svgaCard== SVGACards.SVGA_TsengET4K)) {
@@ -472,7 +472,7 @@ public class Int10 {
                 }
                 break;
             default:
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 11:Unsupported character generator call %2X",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 11:Unsupported character generator call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                 break;
             }
             break;
@@ -491,7 +491,7 @@ public class Int10 {
             case 0x30:							/* Select vertical resolution */
                 {
                     if (!Dosbox.IS_VGA_ARCH()) break;
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_WARN,"Function 12:Call %2X (select vertical resolution)",CPU_Regs.reg_ebx.low());
+                    if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_WARN,"Function 12:Call "+Integer.toString(CPU_Regs.reg_ebx.low(), 16)+" (select vertical resolution)");
                     if (Dosbox.svgaCard != SVGACards.SVGA_None) {
                         if (CPU_Regs.reg_eax.low() > 2) {
                             CPU_Regs.reg_eax.low(0);		// invalid subfunction
@@ -541,7 +541,7 @@ public class Int10 {
                 }
             case 0x32:							/* Video adressing */
                 if (!Dosbox.IS_VGA_ARCH()) break;
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 12:Call %2X not handled",CPU_Regs.reg_ebx.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 12:Call "+Integer.toString(CPU_Regs.reg_ebx.low(), 16)+" not handled");
                 if (Dosbox.svgaCard==SVGACards.SVGA_TsengET4K) CPU_Regs.reg_eax.low((CPU_Regs.reg_eax.low() & 1));
                 if (CPU_Regs.reg_eax.low()>1) CPU_Regs.reg_eax.low(0);		//invalid subfunction
                 else CPU_Regs.reg_eax.low(0x12);			//fake a success call
@@ -576,7 +576,7 @@ public class Int10 {
                 }
             case 0x35:
                 if (!Dosbox.IS_VGA_ARCH()) break;
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 12:Call %2X not handled",CPU_Regs.reg_ebx.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 12:Call "+Integer.toString(CPU_Regs.reg_ebx.low(), 16)+" not handled");
                 CPU_Regs.reg_eax.low(0x12);
                 break;
             case 0x36: {						/* VGA Refresh control */
@@ -598,7 +598,7 @@ public class Int10 {
                 break;
             }
             default:
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 12:Call %2X not handled",CPU_Regs.reg_ebx.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 12:Call "+Integer.toString(CPU_Regs.reg_ebx.low(), 16)+" not handled");
                 if (Dosbox.machine!=MachineType.MCH_EGA) CPU_Regs.reg_eax.low(0);
                 break;
             }
@@ -658,7 +658,7 @@ public class Int10 {
                 CPU_Regs.reg_eax.low(0x1B);
                 break;
             default:
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"1B:Unhandled call BX %2X",CPU_Regs.reg_ebx.word());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"1B:Unhandled call BX "+Integer.toString(CPU_Regs.reg_ebx.word(),16));
                 CPU_Regs.reg_eax.low(0);
                 break;
             }
@@ -741,7 +741,7 @@ public class Int10 {
                     CPU_Regs.reg_eax.high(0);
                     CPU_Regs.reg_eax.low(0x4f);
                 } else {
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function %X Subfunction %X",CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.high());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_ebx.high(),16));
                     CPU_Regs.reg_eax.high(0x01);
                 }
                 break;
@@ -776,7 +776,7 @@ public class Int10 {
                 }
                     break;
                 default:
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function %X Subfunction %X",CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_ebx.low(),16));
                     CPU_Regs.reg_eax.high(0x1);
                     break;
                 }
@@ -794,7 +794,7 @@ public class Int10 {
                     CPU_Regs.reg_eax.low(0x4f);
                     break;
                 default:
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function %X Subfunction %X",CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_ebx.low(),16));
                     CPU_Regs.reg_eax.high(0x01);
                     break;
                 }
@@ -836,7 +836,7 @@ public class Int10 {
                 break;
 
             default:
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function %X",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                 CPU_Regs.reg_eax.low(0x0);
                 break;
             }
@@ -870,7 +870,7 @@ public class Int10 {
             warned_ff=true;
             break;
         default:
-            Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function %4X not supported",CPU_Regs.reg_eax.word());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" not supported");
     //		CPU_Regs.reg_eax.low()=0x00;		//Successfull, breaks marriage
             break;
         }

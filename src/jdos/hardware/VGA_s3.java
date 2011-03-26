@@ -330,7 +330,7 @@ public class VGA_s3 {
                 VGA.vga.s3.reg_6b=(short)val;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:S3:CRTC:Write to illegal index %2X", reg );
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:S3:CRTC:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -453,7 +453,7 @@ public class VGA_s3 {
                 VGA.VGA_StartResize();
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:S3:SEQ:Write to illegal index %2X", reg );
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:S3:SEQ:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -480,7 +480,7 @@ public class VGA_s3 {
             case 0x15:
                 return VGA.vga.s3.pll.cmd;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:S3:SEQ:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:S3:SEQ:Read from illegal index "+Integer.toString(reg,16));
                 return 0;
             }
         }

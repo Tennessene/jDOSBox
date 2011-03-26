@@ -1,6 +1,7 @@
 package jdos.hardware;
 
 import jdos.Dosbox;
+import jdos.util.StringHelper;
 import jdos.cpu.CPU;
 import jdos.misc.Log;
 
@@ -91,7 +92,7 @@ public class VGA_xga {
                 xga.read_sel = dataval;
                 break;
             default:
-                Log.log_msg("XGA: Unhandled multifunction command %x", regselect);
+                Log.log_msg("XGA: Unhandled multifunction command "+Integer.toString(regselect,16));
                 break;
         }
     }
@@ -312,7 +313,7 @@ public class VGA_xga {
                     XGA_DrawPoint(xat,yat, destval);
                     break;
                 default:
-                    Log.log_msg("XGA: DrawLine: Needs mixmode %x", mixmode);
+                    Log.log_msg("XGA: DrawLine: Needs mixmode "+Integer.toString(mixmode,16));
                     break;
             }
             xat += sx;
@@ -419,7 +420,7 @@ public class VGA_xga {
 
                         break;
                     default:
-                        Log.log_msg("XGA: DrawLine: Needs mixmode %x", mixmode);
+                        Log.log_msg("XGA: DrawLine: Needs mixmode "+Integer.toString(mixmode,16));
                         break;
                 }
                 while (e > 0) {
@@ -491,7 +492,7 @@ public class VGA_xga {
                         XGA_DrawPoint(srcx,srcy, destval);
                         break;
                     default:
-                        Log.log_msg("XGA: DrawRect: Needs mixmode %x", mixmode);
+                        Log.log_msg("XGA: DrawRect: Needs mixmode "+Integer.toString(mixmode,16));
                         break;
                 }
                 srcx += dx;
@@ -628,8 +629,8 @@ public class VGA_xga {
                                 break;
                             default:
                                 // Let's hope they never show up ;)
-                                Log.log_msg("XGA: unsupported bpp / datawidth combination %x",
-                                    xga.waitcmd.buswidth);
+                                Log.log_msg("XGA: unsupported bpp / datawidth combination "+
+                                    Integer.toString(xga.waitcmd.buswidth,16));
                                 break;
                         };
                         break;
@@ -676,8 +677,8 @@ public class VGA_xga {
                                         srcval = xga.forecolor;
                                         break;
                                     default:
-                                        Log.log_msg("XGA: DrawBlitWait: Unsupported src %x",
-                                            (mixmode1 >> 5) & 0x03);
+                                        Log.log_msg("XGA: DrawBlitWait: Unsupported src "+
+                                            Integer.toString((mixmode1 >> 5) & 0x03,16));
                                         srcval=0;
                                         break;
                                 }
@@ -696,12 +697,12 @@ public class VGA_xga {
                         break;
 
                     default:
-                        Log.log_msg("XGA: DrawBlitWait: Unhandled mixmode: %d", mixmode);
+                        Log.log_msg("XGA: DrawBlitWait: Unhandled mixmode: "+mixmode);
                         break;
                 } // switch mixmode
                 break;
             default:
-                Log.log_msg("XGA: Unhandled draw command %x", xga.waitcmd.cmd);
+                Log.log_msg("XGA: Unhandled draw command "+Integer.toString(xga.waitcmd.cmd,16));
                 break;
         }
     }
@@ -909,7 +910,7 @@ public class VGA_xga {
                 if((val & 0x100) == 0) {
                     xga.waitcmd.wait = false;
                     if (XGA_SHOW_COMMAND_TRACE)
-                        Log.log_msg("XGA: Draw immediate rect: xy(%3d/%3d), len(%3d/%3d)", xga.curx,xga.cury,xga.MAPcount,xga.MIPcount);
+                        Log.log_msg(StringHelper.sprintf("XGA: Draw immediate rect: xy(%3d/%3d), len(%3d/%3d)", new Object[] {new Integer(xga.curx),new Integer(xga.cury),new Integer(xga.MAPcount),new Integer(xga.MIPcount)}));
                     XGA_DrawRectangle(val);
 
                 } else {
@@ -930,10 +931,10 @@ public class VGA_xga {
                     xga.waitcmd.datasize = 0;
 
                     if (XGA_SHOW_COMMAND_TRACE)
-                        Log.log_msg("XGA: Draw wait rect, w/h(%3d/%3d), x/y1(%3d/%3d), x/y2(%3d/%3d), %4x",
-                            xga.MAPcount+1, xga.MIPcount+1,xga.curx,xga.cury,
-                            (xga.curx + xga.MAPcount)&0x0fff,
-                            (xga.cury + xga.MIPcount + 1)&0x0fff,val&0xffff);
+                        Log.log_msg(StringHelper.sprintf("XGA: Draw wait rect, w/h(%3d/%3d), x/y1(%3d/%3d), x/y2(%3d/%3d), %4x",
+                            new Object[] {new Integer(xga.MAPcount+1), new Integer(xga.MIPcount+1),new Integer(xga.curx),new Integer(xga.cury),
+                            new Integer((xga.curx + xga.MAPcount)&0x0fff),
+                            new Integer((xga.cury + xga.MIPcount + 1)&0x0fff),new Integer(val&0xffff)}));
                 }
                 break;
             case 6: /* BitBLT */
@@ -943,12 +944,12 @@ public class VGA_xga {
                 break;
             case 7: /* Pattern fill */
                 if (XGA_SHOW_COMMAND_TRACE)
-                    Log.log_msg("XGA: Pattern fill: src(%3d/%3d), dest(%3d/%3d), fill(%3d/%3d)",
-                        xga.curx,xga.cury,xga.destx,xga.desty,xga.MAPcount,xga.MIPcount);
+                    Log.log_msg(StringHelper.sprintf("XGA: Pattern fill: src(%3d/%3d), dest(%3d/%3d), fill(%3d/%3d)",
+                        new Object[]{new Integer(xga.curx),new Integer(xga.cury),new Integer(xga.destx),new Integer(xga.desty),new Integer(xga.MAPcount),new Integer(xga.MIPcount)}));
                 XGA_DrawPattern(val);
                 break;
             default:
-                Log.log_msg("XGA: Unhandled draw command %x", cmd);
+                Log.log_msg("XGA: Unhandled draw command "+Integer.toString(cmd,16));
                 break;
         }
     }
@@ -1140,7 +1141,7 @@ public class VGA_xga {
                         XGA_DrawWait(val, len);
 
                     }
-                    else Log.log_msg("XGA: Wrote to port %x with %x, len %x", port, val, len);
+                    else Log.log_msg("XGA: Wrote to port "+Integer.toString(port, 16)+" with "+Integer.toString(val, 16)+", len "+Integer.toString(len));
                     break;
             }
         }

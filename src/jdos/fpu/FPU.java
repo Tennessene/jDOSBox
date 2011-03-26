@@ -781,7 +781,7 @@ public class FPU {
             FPU_FLD_F32(addr,fpu.top);
             break;
         case 0x01: /* UNKNOWN */
-            Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN,"ESC EA 1:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN,"ESC EA 1:Unhandled group "+group+" subfunction "+sub);
             break;
         case 0x02: /* FST float*/
             FPU_FST_F32(addr);
@@ -803,7 +803,7 @@ public class FPU {
             Memory.mem_writew(addr,fpu.cw);
             break;
         default:
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC EA 1:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC EA 1:Unhandled group "+group+" subfunction "+sub);
             break;
         }
     }
@@ -839,7 +839,7 @@ public class FPU {
                 break;
             case 0x02:       /* UNKNOWN */
             case 0x03:       /* ILLEGAL */
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group %X subfunction %X",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group "+group+" subfunction "+sub);
                 break;
             case 0x04:       /* FTST */
                 FPU_FTST();
@@ -849,7 +849,7 @@ public class FPU {
                 break;
             case 0x06:       /* FTSTP (cyrix)*/
             case 0x07:       /* UNKNOWN */
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group %X subfunction %X",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group "+group+" subfunction "+sub);
                 break;
             }
             break;
@@ -877,7 +877,7 @@ public class FPU {
                 FPU_FLDZ();
                 break;
             case 0x07:       /* ILLEGAL */
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group %X subfunction %X",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group "+group+" subfunction "+sub);
                 break;
             }
             break;
@@ -908,7 +908,7 @@ public class FPU {
                 fpu.top = (fpu.top + 1) & 7;
                 break;
             default:
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group %X subfunction %X",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group "+group+" subfunction "+sub);
                 break;
             }
             break;
@@ -939,12 +939,12 @@ public class FPU {
                 FPU_FCOS();
                 break;
             default:
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group %X subfunction %X",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group "+group+" subfunction "+sub);
                 break;
             }
             break;
             default:
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group %X subfunction %X",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 1:Unhandled group "+group+" subfunction "+sub);
         }
     }
 
@@ -967,12 +967,12 @@ public class FPU {
                 FPU_FPOP();
                 break;
             default:
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 2:Unhandled group %d subfunction %d",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 2:Unhandled group "+group+" subfunction "+sub);
                 break;
             }
             break;
         default:
-               Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 2:Unhandled group %d subfunction %d",group,sub);
+               if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 2:Unhandled group "+group+" subfunction "+sub);
             break;
         }
     }
@@ -987,7 +987,7 @@ public class FPU {
             FPU_FLD_I32(addr,fpu.top);
             break;
         case 0x01:	/* FISTTP */
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3 EA:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3 EA:Unhandled group "+group+" subfunction "+sub);
             break;
         case 0x02:	/* FIST */
             FPU_FST_I32(addr);
@@ -1005,7 +1005,7 @@ public class FPU {
             FPU_FPOP();
             break;
         default:
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3 EA:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3 EA:Unhandled group "+group+" subfunction "+sub);
         }
     }
 
@@ -1017,7 +1017,7 @@ public class FPU {
             switch (sub) {
             case 0x00:				//FNENI
             case 0x01:				//FNDIS
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_ERROR,"8087 only fpu code used esc 3: group 4: subfuntion :%d",sub);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_ERROR,"8087 only fpu code used esc 3: group 4: subfuntion :"+sub);
                 break;
             case 0x02:				//FNCLEX FCLEX
                 FPU_FCLEX();
@@ -1031,11 +1031,11 @@ public class FPU {
                 FPU_FNOP();
                 break;
             default:
-                Log.exit("ESC 3:ILLEGAL OPCODE group %d subfunction %d",group,sub);
+                Log.exit("ESC 3:ILLEGAL OPCODE group "+group+" subfunction "+sub);
             }
             break;
         default:
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3:Unhandled group "+group+" subfunction "+sub);
             break;
         }
     }
@@ -1091,7 +1091,7 @@ public class FPU {
             FPU_FLD_F64(addr,fpu.top);
             break;
         case 0x01:  /* FISTTP longint*/
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 5 EA:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 5 EA:Unhandled group "+group+" subfunction "+sub);
             break;
         case 0x02:   /* FST double real*/
             FPU_FST_F64(addr);
@@ -1112,7 +1112,7 @@ public class FPU {
             //seems to break all dos4gw games :)
             break;
         default:
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 5 EA:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 5 EA:Unhandled group "+group+" subfunction "+sub);
         }
     }
 
@@ -1141,7 +1141,7 @@ public class FPU {
             FPU_FPOP();
             break;
         default:
-        Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 5:Unhandled group %d subfunction %d",group,sub);
+        if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 5:Unhandled group "+group+" subfunction "+sub);
         break;
         }
     }
@@ -1169,7 +1169,7 @@ public class FPU {
             break;	/* TODO IS THIS ALLRIGHT ????????? */
         case 0x03:  /*FCOMPP*/
             if(sub != 1) {
-                Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 6:Unhandled group %d subfunction %d",group,sub);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 6:Unhandled group "+group+" subfunction "+sub);
                 return;
             }
             FPU_FCOM(fpu.top,STV(1));
@@ -1203,7 +1203,7 @@ public class FPU {
             FPU_FLD_I16(addr,fpu.top);
             break;
         case 0x01:
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7 EA:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7 EA:Unhandled group "+group+" subfunction "+sub);
             break;
         case 0x02:   /* FIST Bit16s */
             FPU_FST_I16(addr);
@@ -1229,7 +1229,7 @@ public class FPU {
             FPU_FPOP();
             break;
         default:
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7 EA:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7 EA:Unhandled group "+group+" subfunction "+sub);
             break;
         }
     }
@@ -1257,12 +1257,12 @@ public class FPU {
                     CPU_Regs.reg_eax.word(fpu.sw);
                     break;
                 default:
-                    Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7:Unhandled group %d subfunction %d",group,sub);
+                    if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7:Unhandled group "+group+" subfunction "+sub);
                     break;
             }
             break;
         default:
-            Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7:Unhandled group %d subfunction %d",group,sub);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7:Unhandled group "+group+" subfunction "+sub);
             break;
         }
     }

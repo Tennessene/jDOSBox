@@ -1,6 +1,7 @@
 package jdos.hardware;
 
 import jdos.Dosbox;
+import jdos.types.SVGACards;
 import jdos.cpu.Paging;
 import jdos.misc.setup.Section;
 import jdos.util.Ptr;
@@ -101,9 +102,9 @@ public class VGA {
         public /*Bit32u*/long full_enable_and_set_reset;
     }
 
-    static enum Drawmode {
-        PART,
-        LINE,
+    static final class Drawmode {
+        static final public int PART = 0;
+        static final public int LINE = 1;
         //EGALINE
     }
 
@@ -155,7 +156,7 @@ public class VGA {
             /*Bit8u*/boolean enabled;
         }
         public Cursor cursor = new Cursor();
-        public Drawmode mode;
+        public int mode;
         public boolean vret_triggered;
     }
 
@@ -623,16 +624,16 @@ public class VGA {
         svga = new SVGA_Driver();
 
         switch(Dosbox.svgaCard) {
-        case SVGA_S3Trio:
+        case SVGACards.SVGA_S3Trio:
             VGA_s3.SVGA_Setup_S3Trio();
             break;
-        case SVGA_TsengET4K:
+        case SVGACards.SVGA_TsengET4K:
             VGA_tseng.SVGA_Setup_TsengET4K();
             break;
-        case SVGA_TsengET3K:
+        case SVGACards.SVGA_TsengET3K:
             VGA_tseng.SVGA_Setup_TsengET3K();
             break;
-        case SVGA_ParadisePVGA1A:
+        case SVGACards.SVGA_ParadisePVGA1A:
             VGA_paradise.SVGA_Setup_ParadisePVGA1A();
             break;
         default:

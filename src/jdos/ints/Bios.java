@@ -438,7 +438,7 @@ public class Bios extends Module_base {
                 Callback.CALLBACK_SCF(false);
                 break;
             case 0x80:	/* Pcjr Setup Sound Multiplexer */
-                Log.log(LogTypes.LOG_BIOS, LogSeverities.LOG_ERROR,"INT1A:80:Setup tandy sound multiplexer to %d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS, LogSeverities.LOG_ERROR,"INT1A:80:Setup tandy sound multiplexer to "+Integer.toString(CPU_Regs.reg_eax.low()));
                 break;
             case 0x81:	/* Tandy sound system check */
             case 0x82:	/* Tandy sound system start recording */
@@ -448,11 +448,11 @@ public class Bios extends Module_base {
                 TandyDAC_Handler(CPU_Regs.reg_eax.high());
                 break;
             case 0xb1:		/* PCI Bios Calls */
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT1A:PCI bios call %2X",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT1A:PCI bios call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                 Callback.CALLBACK_SCF(true);
                 break;
             default:
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT1A:Undefined call %2X",CPU_Regs.reg_eax.high());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT1A:Undefined call "+Integer.toString(CPU_Regs.reg_eax.high(),16));
             }
             return Callback.CBRET_NONE;
         }
@@ -538,7 +538,7 @@ public class Bios extends Module_base {
             return "Bios.INT17_Handler";
         }
         public /*Bitu*/int call() {
-            Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT17:Function %X",CPU_Regs.reg_eax.high());
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT17:Function "+Integer.toString(CPU_Regs.reg_eax.high(),16));
             switch(CPU_Regs.reg_eax.high()) {
             case 0x00:		/* PRINTER: Write Character */
                 CPU_Regs.reg_eax.high(1);	/* Report a timeout */
@@ -551,7 +551,7 @@ public class Bios extends Module_base {
             case 0x20:		/* Some sort of printerdriver install check*/
                 break;
             default:
-                Log.exit("Unhandled INT 17 call %2X",CPU_Regs.reg_eax.high());
+                Log.exit("Unhandled INT 17 call "+Integer.toString(CPU_Regs.reg_eax.high(),16));
             }
             return Callback.CBRET_NONE;
         }
@@ -578,14 +578,14 @@ public class Bios extends Module_base {
         public /*Bitu*/int call() {
             if (CPU_Regs.reg_eax.high() > 0x3 || CPU_Regs.reg_edx.word() > 0x3) {	// 0-3 serial port functions
                                                 // and no more than 4 serial ports
-                Log.log_msg("BIOS INT14: Unhandled call AH=%2X DX=%4x",CPU_Regs.reg_eax.high(),CPU_Regs.reg_edx.word());
+                Log.log_msg("BIOS INT14: Unhandled call AH="+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" DX="+Integer.toString(CPU_Regs.reg_edx.word(),16));
                 return Callback.CBRET_NONE;
             }
 
             /*Bit16u*/int port = Memory.real_readw(0x40,CPU_Regs.reg_edx.word()*2); // DX is always port number
             /*Bit8u*/short timeout = Memory.mem_readb(BIOS_COM1_TIMEOUT + CPU_Regs.reg_edx.word());
             if (port==0)	{
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"BIOS INT14: port %d does not exist.",CPU_Regs.reg_edx.word());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"BIOS INT14: port "+CPU_Regs.reg_edx.word()+" does not exist.");
                 return Callback.CBRET_NONE;
             }
             switch (CPU_Regs.reg_eax.high())	{
@@ -828,7 +828,7 @@ public class Bios extends Module_base {
                 }
             case 0x88:	/* SYSTEM - GET EXTENDED MEMORY SIZE (286+) */
                 CPU_Regs.reg_eax.word(other_memsystems!=0?0:size_extended);
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT15:Function 0x88 Remaining %04X kb",CPU_Regs.reg_eax.word());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT15:Function 0x88 Remaining "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" kb");
                 Callback.CALLBACK_SCF(false);
                 break;
             case 0x89:	/* SYSTEM - SWITCH TO PROTECTED MODE */
@@ -920,11 +920,11 @@ public class Bios extends Module_base {
                 Callback.CALLBACK_SCF(true);
                 break;
             case 0xc4:	/* BIOS POS Programm option Select */
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT15:Function %X called, bios mouse not supported",CPU_Regs.reg_eax.high());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT15:Function "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" called, bios mouse not supported");
                 Callback.CALLBACK_SCF(true);
                 break;
             default:
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT15:Unknown call %4X",CPU_Regs.reg_eax.word());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT15:Unknown call "+Integer.toString(CPU_Regs.reg_eax.word(),16));
                 CPU_Regs.reg_eax.high(0x86);
                 Callback.CALLBACK_SCF(true);
                 if ((Dosbox.IS_EGAVGA_ARCH()) || (Dosbox.machine==MachineType.MCH_CGA)) {
@@ -1187,16 +1187,16 @@ public class Bios extends Module_base {
                 config|=0x2;
         }
         switch (Dosbox.machine) {
-        case MCH_HERC:
+        case MachineType.MCH_HERC:
             //Startup monochrome
             config|=0x30;
             break;
         // EGAVGA_ARCH_CASE
-        case MCH_EGA:
-        case MCH_VGA:
-        case MCH_CGA:
-        case MCH_TANDY:
-	    case MCH_PCJR: //TANDY_ARCH_CASE:
+        case MachineType.MCH_EGA:
+        case MachineType.MCH_VGA:
+        case MachineType.MCH_CGA:
+        case MachineType.MCH_TANDY:
+	    case MachineType.MCH_PCJR: //TANDY_ARCH_CASE:
             //Startup 80x25 color
             config|=0x20;
             break;

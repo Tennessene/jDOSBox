@@ -55,7 +55,7 @@ public class Serialports extends Module_base {
 				serialports[i] = null;
 			} else {
 				serialports[i] = null;
-				Log.log_msg("Invalid type for serial%d",i+1);
+				Log.log_msg("Invalid type for serial"+(i+1));
 			}
 			if(serialports[i]!=null) biosParameter[i] = serial_baseaddr[i];
 		} // for 1-4

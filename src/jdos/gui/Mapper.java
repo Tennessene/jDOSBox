@@ -8,12 +8,27 @@ public class Mapper {
         public void call(boolean pressed);
     }
 
-    public static enum MapKeys {
-	    MK_f1,MK_f2,MK_f3,MK_f4,MK_f5,MK_f6,MK_f7,MK_f8,MK_f9,MK_f10,MK_f11,MK_f12,
-	    MK_return,MK_kpminus,MK_scrolllock,MK_printscreen,MK_pause
+    public static final class MapKeys {
+	    public static final int MK_f1=0;
+        public static final int MK_f2=1;
+        public static final int MK_f3=2;
+        public static final int MK_f4=3;
+        public static final int MK_f5=4;
+        public static final int MK_f6=5;
+        public static final int MK_f7=6;
+        public static final int MK_f8=7;
+        public static final int MK_f9=8;
+        public static final int MK_f10=9;
+        public static final int MK_f11=10;
+        public static final int MK_f12=11;
+	    public static final int MK_return=12;
+        public static final int MK_kpminus=13;
+        public static final int MK_scrolllock=14;
+        public static final int MK_printscreen=15;
+        public static final int MK_pause=16;
     }
 
-    public static void MAPPER_AddHandler(MAPPER_Handler handler,MapKeys key,/*Bitu*/int mods,String eventname,String buttonname) {
+    public static void MAPPER_AddHandler(MAPPER_Handler handler,int key,/*Bitu*/int mods,String eventname,String buttonname) {
 
     }
 }

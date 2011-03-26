@@ -6,7 +6,7 @@ import java.io.File;
 
 public class Prop_path extends Prop_string {
     public String realpath;
-    public Prop_path(String _propname, Changeable when, String _value) {
+    public Prop_path(String _propname, int when, String _value) {
         super(_propname, when, _value);
         default_value.set(_value);
         value.set(_value);

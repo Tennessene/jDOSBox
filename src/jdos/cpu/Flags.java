@@ -197,7 +197,7 @@ public class Flags {
         case t_DIV:
             return false;	/* Unkown */
         default:
-            Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"get_CF Unknown %d",lflags.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"get_CF Unknown "+lflags.type);
         }
         return false;
     }
@@ -278,7 +278,7 @@ public class Flags {
         case t_MUL:
             return false;			          /* Unkown */
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_AF Unknown %d",lflags.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_AF Unknown "+lflags.type);
         }
         return false;
     }
@@ -344,7 +344,7 @@ public class Flags {
         case t_MUL:
             return false;		/* Unkown */
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_ZF Unknown %d",lflags.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_ZF Unknown "+lflags.type);
         }
         return false;
     }
@@ -412,7 +412,7 @@ public class Flags {
         case t_MUL:
             return false;	/* Unkown */
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_SF Unkown %d",lflags.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_SF Unkown "+lflags.type);
         }
         return false;
     }
@@ -499,7 +499,7 @@ public class Flags {
         case t_DIV:
             return false;		/* Unkown */
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_OF Unkown %d",lflags.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"get_OF Unkown "+lflags.type);
         }
         return false;
     }
@@ -1078,7 +1078,7 @@ public class Flags {
             break;
 
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled flag type %d",lflags.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled flag type "+lflags.type);
             return 0;
         }
         lflags.type=t_UNKNOWN;
@@ -1379,7 +1379,7 @@ public class Flags {
             break;
 
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled flag type %d",lflags.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled flag type "+lflags.type);
             break;
         }
         lflags.type=t_UNKNOWN;

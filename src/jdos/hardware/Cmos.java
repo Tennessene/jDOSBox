@@ -6,6 +6,7 @@ import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
+import jdos.util.StringHelper;
 
 import java.util.Calendar;
 
@@ -53,7 +54,7 @@ public class Cmos extends Module_base {
         if (cmos.timer.div<=2) cmos.timer.div+=7;
         cmos.timer.delay=(1000.0f/(32768.0f / (1 << (cmos.timer.div - 1))));
         if (cmos.timer.div==0 || !cmos.timer.enabled) return;
-        Log.log(LogTypes.LOG_PIT, LogSeverities.LOG_NORMAL,"RTC Timer at %.2f hz",1000.0/cmos.timer.delay);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIT, LogSeverities.LOG_NORMAL,"RTC Timer at "+ StringHelper.format(1000.0/cmos.timer.delay, 2)+" hz");
     //	PIC_AddEvent(cmos_timerevent,cmos.timer.delay);
         /* A rtc is always running */
         double remd=Pic.PIC_FullIndex() % (double)cmos.timer.delay;
@@ -108,7 +109,7 @@ public class Cmos extends Module_base {
                 break;
             default:
                 cmos.regs[cmos.reg]=(byte)(val & 0x7f);
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:WRite to unhandled register %x",cmos.reg);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:WRite to unhandled register "+Integer.toString(cmos.reg,16));
             }
         }
     };
@@ -120,7 +121,7 @@ public class Cmos extends Module_base {
     static private IoHandler.IO_ReadHandler cmos_readreg = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             if (cmos.reg>0x3f) {
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:Read from illegal register %x",cmos.reg);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:Read from illegal register "+Integer.toString(cmos.reg,16));
                 return 0xff;
             }
             /*Bitu*/int drive_a, drive_b;
@@ -267,7 +268,7 @@ public class Cmos extends Module_base {
         //		Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg %X : %04X",cmos.reg,cmos.regs[cmos.reg]);
                 return cmos.regs[cmos.reg];
             default:
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg %X",cmos.reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg "+Integer.toString(cmos.reg,16));
                 return cmos.regs[cmos.reg];
             }
         }

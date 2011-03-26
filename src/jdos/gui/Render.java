@@ -215,7 +215,7 @@ public class Render {
     }
 
     static private Main.GFX_CallBack_t RENDER_CallBack = new Main.GFX_CallBack_t() {
-        public void call(Main.GFX_CallBackFunctions_t function) {
+        public void call(int function) {
             if (function == Main.GFX_CallBackFunctions_t.GFX_CallBackStop) {
                 RENDER_Halt( );
             } else if (function == Main.GFX_CallBackFunctions_t.GFX_CallBackRedraw) {
@@ -223,7 +223,7 @@ public class Render {
                 Main.GFX_EndUpdate();
                 RENDER_Reset();
             } else {
-                Log.exit("Unhandled GFX_CallBackReset %d", function );
+                Log.exit("Unhandled GFX_CallBackReset "+function );
             }
         }
     };
@@ -254,7 +254,7 @@ public class Render {
             if (!pressed)
                 return;
             if (render.frameskip.max<10) render.frameskip.max++;
-            Log.log_msg("Frame Skip at %d",render.frameskip.max);
+            Log.log_msg("Frame Skip at "+render.frameskip.max);
             Main.GFX_SetTitle(-1,render.frameskip.max,false);
         }
     };
@@ -264,7 +264,7 @@ public class Render {
             if (!pressed)
                 return;
             if (render.frameskip.max>0) render.frameskip.max--;
-            Log.log_msg("Frame Skip at %d",render.frameskip.max);
+            Log.log_msg("Frame Skip at "+render.frameskip.max);
             Main.GFX_SetTitle(-1,render.frameskip.max,false);
         }
     };

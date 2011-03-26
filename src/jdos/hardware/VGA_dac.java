@@ -57,7 +57,7 @@ public class VGA_dac {
     static private IoHandler.IO_WriteHandler write_p3c6 = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             if ( VGA.vga.dac.pel_mask != val ) {
-                Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:DCA:Pel Mask set to %X", val);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:DCA:Pel Mask set to "+Integer.toString(val,16));
                 VGA.vga.dac.pel_mask = (short)val;
                 for ( /*Bitu*/int i = 0;i<256;i++)
                     VGA_DAC_UpdateColor( i );

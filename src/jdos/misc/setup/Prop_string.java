@@ -3,7 +3,7 @@ package jdos.misc.setup;
 import jdos.misc.Log;
 
 public class Prop_string extends Property {
-    public Prop_string(String _propname, Changeable when, String _value) {
+    public Prop_string(String _propname, int when, String _value) {
         super(_propname, when);
         default_value.set(_value);
         value.set(_value);
@@ -16,7 +16,8 @@ public class Prop_string extends Property {
     }
     public boolean CheckValue(Value in, boolean warn) {
         if (suggested_values.isEmpty()) return true;
-        for (Value v: suggested_values) {
+        for (int i=0;i<suggested_values.size();i++) {
+            Value v = (Value)suggested_values.elementAt(i);
             if (v.equals(in)) { //Match!
                 return true;
             }
@@ -28,7 +29,7 @@ public class Prop_string extends Property {
                 }
             }
         }
-        if (warn) Log.log_msg("\"%s\" is not a valid value for variable: %s.\nIt might now be reset it to default value: %s",in.toString(),propname,default_value.toString());
+        if (warn) Log.log_msg("\""+in.toString()+"\" is not a valid value for variable: "+propname+".\nIt might now be reset it to default value: "+default_value.toString());
         return false;
     }
 }

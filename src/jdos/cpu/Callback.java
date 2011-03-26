@@ -118,7 +118,7 @@ public class Callback {
 
     static private Handler default_handler = new Handler() {
         public /*Bitu*/int call() {
-            Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Illegal Unhandled Interrupt Called %X",CPU.lastint);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Illegal Unhandled Interrupt Called "+Integer.toString(CPU.lastint,16));
             return CBRET_NONE;
         }
         public String getName() {
@@ -482,7 +482,7 @@ public class Callback {
             return (use_cb?15:11);
 
         default:
-            Log.exit("CALLBACK:Setup:Illegal type %d",type);
+            Log.exit("CALLBACK:Setup:Illegal type "+type);
         }
         return 0;
     }
@@ -527,7 +527,7 @@ public class Callback {
                 if(Memory.RealGetVec(vectorhandler.interrupt) == Get_RealPointer()) {
                     Memory.RealSetVec(vectorhandler.interrupt,vectorhandler.old_vector);
                 } else
-                    Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Interrupt vector changed on %X %s",vectorhandler.interrupt,CALLBACK_GetDescription(m_callback));
+                    if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Interrupt vector changed on "+Integer.toString(vectorhandler.interrupt, 16)+" "+CALLBACK_GetDescription(m_callback));
             }
             CALLBACK_RemoveSetup(m_callback);
         } else if(m_type == SETUPAT){

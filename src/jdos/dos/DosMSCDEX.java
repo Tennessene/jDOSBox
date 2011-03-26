@@ -164,7 +164,7 @@ public class DosMSCDEX {
             // Get Mounttype and init needed cdrom interface
             switch (Dos_cdrom.CDROM_GetMountType(physicalPath,forceCD)) {
             case 0x00: {
-                Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"MSCDEX: Mounting physical cdrom not supported: %s", physicalPath);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"MSCDEX: Mounting physical cdrom not supported: "+physicalPath);
 //                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: Mounting physical cdrom: %s"	,physicalPath);
 //        #if defined (WIN32)
 //                // Check OS
@@ -207,13 +207,13 @@ public class DosMSCDEX {
 //        #endif
                 } break;
             case 0x01:	// iso cdrom interface
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: Mounting iso file as cdrom: %s", physicalPath);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: Mounting iso file as cdrom: "+physicalPath);
                 cdrom[numDrives] = new CDROM_Interface_Image((/*Bit8u*/short)numDrives);
                 break;
             case 0x02:	// fake cdrom interface (directories)
                 cdrom[numDrives] = new CDROM_Interface_Fake();
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: Mounting directory as cdrom: %s",physicalPath);
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: You wont have full MSCDEX support !");
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: Mounting directory as cdrom: "+physicalPath);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: You wont have full MSCDEX support !");
                 result = 5;
                 break;
             default	:	// weird result
@@ -778,7 +778,7 @@ public class DosMSCDEX {
 
     private static /*Bit16u*/int MSCDEX_IOCTL_Input(/*PhysPt*/long buffer,/*Bit8u*/short drive_unit) {
         /*Bitu*/int ioctl_fct = Memory.mem_readb(buffer);
-        Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: IOCTL INPUT Subfunction %02X",ioctl_fct);
+        if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: IOCTL INPUT Subfunction "+Integer.toString(ioctl_fct,16));
         switch (ioctl_fct) {
             case 0x00 : /* Get Device Header address */
                         Memory.mem_writed(buffer+1,Memory.RealMake(mscdex.rootDriverHeaderSeg,0));
@@ -789,7 +789,7 @@ public class DosMSCDEX {
                         /*Bit8u*/short addr_mode = Memory.mem_readb(buffer+1);
                         if (addr_mode==0) {			// HSG
                             /*Bit32u*/long frames=pos.min*60*Dos_cdrom.CD_FPS+ pos.sec*Dos_cdrom.CD_FPS+pos.fr;
-                            if (frames<150) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Get position: invalid position %d:%d:%d", pos.min, pos.sec, pos.fr);
+                            if (frames<150) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Get position: invalid position "+pos.min+":"+pos.sec+":"+pos.fr);
                             else frames-=150;
                             Memory.mem_writed(buffer+2,frames);
                         } else if (addr_mode==1) {	// Red book
@@ -798,7 +798,7 @@ public class DosMSCDEX {
                             Memory.mem_writeb(buffer+4,pos.min);
                             Memory.mem_writeb(buffer+5,0x00);
                         } else {
-                            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Get position: invalid address mode %x",addr_mode);
+                            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Get position: invalid address mode "+Integer.toString(addr_mode,16));
                             return 0x03;		// invalid function
                         }
                        }break;
@@ -879,7 +879,7 @@ public class DosMSCDEX {
                         Memory.mem_writeb(buffer+10,0x00);
                         break;
                        }
-            default :	Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unsupported IOCTL INPUT Subfunction %02X",ioctl_fct);
+            default :	if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unsupported IOCTL INPUT Subfunction "+Integer.toString(ioctl_fct,16));
                         return 0x03;	// invalid function
         }
         return 0x00;	// success
@@ -903,7 +903,7 @@ public class DosMSCDEX {
                         break;
             case 0x05 :	// load media
                         if (!mscdex.LoadUnloadMedia(drive_unit,false)) return 0x02;
-            default	:	Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unsupported IOCTL OUTPUT Subfunction %02X",ioctl_fct);
+            default	:	if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unsupported IOCTL OUTPUT Subfunction "+Integer.toString(ioctl_fct,16));
                         return 0x03;	// invalid function
         }
         return 0x00;	// success
@@ -934,7 +934,7 @@ public class DosMSCDEX {
             /*Bit16u*/int	errcode		= 0;
             /*PhysPt*/long	buffer		= 0;
 
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Driver Function %02X",funcNr);
+            if (Log.level<=LogSeverities.LOG_ERROR)Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Driver Function "+Integer.toString(funcNr,16));
 
             if ((funcNr==0x03) || (funcNr==0x0c) || (funcNr==0x80) || (funcNr==0x82)) {
                 buffer = Memory.PhysMake(Memory.mem_readw(curReqheaderPtr+0x10),Memory.mem_readw(curReqheaderPtr+0x0E));
@@ -982,14 +982,14 @@ public class DosMSCDEX {
                 case 0x88	:	/* Resume Audio */
                                 mscdex.ResumeAudio(subUnit);
                                 break;
-                default		:	Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unsupported Driver Request %02X",funcNr);
+                default		:	if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unsupported Driver Request "+Integer.toString(funcNr,16));
                                 break;
 
             }
 
             // Set Statusword
             Memory.mem_writew(curReqheaderPtr+3,mscdex.GetStatusWord(subUnit,errcode));
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Status : %04X",Memory.mem_readw(curReqheaderPtr+3));
+            if (Log.level<=LogSeverities.LOG_ERROR)Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Status : "+Integer.toString(Memory.mem_readw(curReqheaderPtr+3),16));
             return Callback.CBRET_NONE;
         }
     };
@@ -1016,7 +1016,7 @@ public class DosMSCDEX {
             if (CPU_Regs.reg_eax.high()!=0x15) return false;		// not handled here, continue chain
 
             /*PhysPt*/long data = Memory.PhysMake((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word());
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: INT 2F %04X BX= %04X CX=%04X",CPU_Regs.reg_eax.word(),CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: INT 2F "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" BX= "+Integer.toString(CPU_Regs.reg_ebx.word(), 16)+" CX="+Integer.toString(CPU_Regs.reg_ecx.word(),16));
             switch (CPU_Regs.reg_eax.word()) {
 
                 case 0x1500:	/* Install check */
@@ -1127,7 +1127,7 @@ public class DosMSCDEX {
                                 }
                                 return true;
             }
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unknwon call : %04X",CPU_Regs.reg_eax.word());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unknwon call : "+Integer.toString(CPU_Regs.reg_eax.word(),16));
             return true;
         }
     };

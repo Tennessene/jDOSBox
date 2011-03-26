@@ -23,14 +23,18 @@ public class Mixer extends Program {
         public void call(/*Bitu*/int len);
     }
 
-    static private enum BlahModes {
-        MIXER_8MONO,MIXER_8STEREO,
-        MIXER_16MONO,MIXER_16STEREO
+    static private final class BlahModes {
+        static public final int MIXER_8MONO=0;
+        static public final int MIXER_8STEREO=1;
+        static public final int MIXER_16MONO=2;
+        static public final int MIXER_16STEREO=3;
     }
 
-    static private enum MixerModes {
-        M_8M,M_8S,
-        M_16M,M_16S
+    static private final class MixerModes {
+        static public final int M_8M = 0;
+        static public final int M_8S = 1;
+        static public final int M_16M = 2;
+        static public final int M_16S = 3;
     }
 
     static private final int MIXER_BUFSIZE = (16*1024);
@@ -746,9 +750,9 @@ public class Mixer extends Program {
     }
 
     private void ShowVolume(String name,FloatRef vol0,FloatRef vol1) {
-        WriteOut("%-8s %3.0f:%-3.0f  %+3.2f:%-+3.2f \n",name,
-            vol0.value*100,vol1.value*100,
-            20*Math.log(vol0.value)/Math.log(10.0f),20*Math.log(vol1.value)/Math.log(10.0f)
+        WriteOut("%-8s %3.0f:%-3.0f  %+3.2f:%-+3.2f \n",new Object[] {name,
+            new Float(vol0.value*100),new Float(vol1.value*100),
+            new Float(20*Math.log(vol0.value)/Math.log(10.0f)),new Float(20*Math.log(vol1.value)/Math.log(10.0f))}
         );
     }
 
@@ -756,7 +760,7 @@ public class Mixer extends Program {
         MidiDevice.Info[] devices = MidiSystem.getMidiDeviceInfo();
 
         for (int i=0;i<devices.length;i++) {
-            WriteOut("%2d\t \"%s\"\n",i,devices[i].getName());
+            WriteOut("%2d\t \"%s\"\n",new Object[]{new Integer(i),devices[i].getName()});
         }
     }
 

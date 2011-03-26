@@ -1,6 +1,7 @@
 package jdos.ints;
 
 import jdos.Dosbox;
+import jdos.types.MachineType;
 import jdos.hardware.Memory;
 
 public class Int10_vptable {
@@ -516,12 +517,12 @@ public class Int10_vptable {
         /* video parameter table at F000:F0A4 */
         Memory.RealSetVec(0x1d,Memory.RealMake(0xF000, 0xF0A4));
         switch (Dosbox.machine) {
-        case MCH_TANDY:
+        case MachineType.MCH_TANDY:
             for (/*Bit16u*/int i = 0; i < vparams_tandy.length; i++) {
                 Memory.phys_writeb(0xFF0A4+i,vparams_tandy[i]);
             }
             break;
-        case MCH_PCJR:
+        case MachineType.MCH_PCJR:
             for (/*Bit16u*/int i = 0; i < vparams_pcjr.length; i++) {
                 Memory.phys_writeb(0xFF0A4+i,vparams_pcjr[i]);
             }

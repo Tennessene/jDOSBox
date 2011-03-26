@@ -187,7 +187,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
-                    Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"MOV XXX,CR%u with non-register",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"MOV XXX,CR"+which+" with non-register");
                 }
                 if (CPU.CPU_READ_CRX(which,long_ref_1)) return RUNEXCEPTION();
                 Modrm.GetEArd[rm].dword(long_ref_1.value);
@@ -203,7 +203,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,DR%u with non-register",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,DR"+which+" with non-register");
                 }
                 if (CPU.CPU_READ_DRX(which,long_ref_1)) return RUNEXCEPTION();
                 Modrm.GetEArd[rm].dword(long_ref_1.value);
@@ -219,7 +219,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,CR%u with non-register",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,CR"+which+" with non-register");
                 }
                 if (CPU.CPU_WRITE_CRX(which,Modrm.GetEArd[rm].dword())) return RUNEXCEPTION();
                 return HANDLED;
@@ -234,7 +234,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV DR%u,XXX with non-register",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV DR"+which+",XXX with non-register");
                 }
                 if (CPU.CPU_WRITE_DRX(which,Modrm.GetEArd[rm].dword())) return RUNEXCEPTION();
                 return HANDLED;
@@ -249,7 +249,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,TR%u with non-register",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,TR"+which+" with non-register");
                 }
                 if (CPU.CPU_READ_TRX(which,long_ref_1)) return RUNEXCEPTION();
                 Modrm.GetEArd[rm].dword(long_ref_1.value);
@@ -265,7 +265,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV TR%u,XXX with non-register",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV TR"+which+",XXX with non-register");
                 }
                 if (CPU.CPU_WRITE_TRX(which,(int)Modrm.GetEArd[rm].dword())) return RUNEXCEPTION();
                 return HANDLED;
@@ -874,7 +874,7 @@ public class Prefix_0f extends Prefix_none {
                         Modrm.GetEArw[rm].word(Modrm.GetEArw[rm].word() ^ mask);
                         break;
                     default:
-                        Log.exit("CPU:0F:BA:Illegal subfunction %X",rm & 0x38);
+                        Log.exit("CPU:0F:BA:Illegal subfunction "+Integer.toString(rm & 0x38,16));
                     }
                 } else {
                     /*PhysPt*/long eaa=getEaa(rm);/*Bit16u*/int old=Memory.mem_readw(eaa);
@@ -893,7 +893,7 @@ public class Prefix_0f extends Prefix_none {
                         Memory.mem_writew(eaa,old ^ mask);
                         break;
                     default:
-                        Log.exit("CPU:0F:BA:Illegal subfunction %X",rm & 0x38);
+                        Log.exit("CPU:0F:BA:Illegal subfunction "+Integer.toString(rm & 0x38,16));
                     }
                 }
                 return HANDLED;

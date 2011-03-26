@@ -6,6 +6,7 @@ import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
+import jdos.util.StringHelper;
 
 public class Timer extends Module_base {
     static public final int PIT_TICK_RATE = 1193182;
@@ -145,7 +146,7 @@ public class Timer extends Module_base {
             //Easiest solution is to report always high (Space marines uses this mode)
             return true;
         default:
-            Log.log(LogTypes.LOG_PIT, LogSeverities.LOG_ERROR,"Illegal Mode %d for reading output",p.mode);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_PIT, LogSeverities.LOG_ERROR,"Illegal Mode "+p.mode+" for reading output");
             return true;
         }
     }
@@ -226,7 +227,7 @@ public class Timer extends Module_base {
             p.read_latch&=0xfffe;
             break;
         default:
-            Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"Illegal Mode %d for reading counter %d",p.mode,counter);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"Illegal Mode "+p.mode+" for reading counter "+counter);
             p.read_latch=0xffff;
             break;
         }
@@ -279,7 +280,7 @@ public class Timer extends Module_base {
                         if(p.mode==0) Pic.PIC_RemoveEvents(PIT0_Event); // DoWhackaDo demo
                         Pic.PIC_AddEvent(PIT0_Event,p.delay);
                     } else Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_NORMAL,"PIT 0 Timer set without new control word");
-                    Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_NORMAL,"PIT 0 Timer at %.4f Hz mode %d",1000.0/p.delay,p.mode);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_NORMAL,"PIT 0 Timer at "+ StringHelper.format(1000.0/p.delay, 4)+" Hz mode "+p.mode);
                     break;
                 case 0x02:			/* Timer hooked to PC-Speaker */
         //			LOG(LOG_PIT,"PIT 2 Timer at %.3g Hz mode %d",PIT_TICK_RATE/(double)p.cntr,p.mode);
@@ -438,7 +439,7 @@ public class Timer extends Module_base {
             break;
         case 4:
         case 5:
-            Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"unsupported gate 2 mode %x",pit[2].mode);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"unsupported gate 2 mode "+Integer.toString(pit[2].mode,16));
             break;
         }
         gate2 = in; //Set it here so the counter_latch above works

@@ -254,7 +254,7 @@ public class XMS extends Module_base {
             return "XMS.XMS_Handler";
         }
         public /*Bitu*/int call() {
-        	Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"XMS: CALL %02X",CPU_Regs.reg_eax.high());
+        	if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"XMS: CALL "+Integer.toString(CPU_Regs.reg_eax.high(),16));
             switch (CPU_Regs.reg_eax.high() & 0xFF) {
             case XMS_GET_VERSION:										/* 00 */
                 CPU_Regs.reg_eax.word(XMS_VERSION);
@@ -416,7 +416,7 @@ public class XMS extends Module_base {
                 CPU_Regs.reg_eax.word((result==0)?1:0);
                 } break;
             default:
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"XMS: unknown function %02X",CPU_Regs.reg_eax.high());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"XMS: unknown function "+Integer.toString(CPU_Regs.reg_eax.high(),16));
                 CPU_Regs.reg_eax.word(0);
                 CPU_Regs.reg_ebx.low(XMS_FUNCTION_NOT_IMPLEMENTED);
             }

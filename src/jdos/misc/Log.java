@@ -3,11 +3,13 @@ package jdos.misc;
 import jdos.Dosbox;
 
 public class Log {
-    static public void log_msg(String format, Object ... args) {
-        System.out.println(String.format(format, args));
+    static public final int level = 1;
+
+    static public void log_msg(String msg) {
+        System.out.println(msg);
     }
-    static public void exit(String format, Object ... args) {
-        System.out.print(String.format(format, args));
+    static public void exit(String msg) {
+        System.out.print(msg);
         try {
             throw new Exception("Stacktrace");
         } catch (Exception e) {
@@ -18,8 +20,7 @@ public class Log {
         else
             throw new RuntimeException("Exit");
     }
-    static public void log(int type, int severity, String format, Object ... args) {
-        if (severity>0)
-            System.out.println(String.format(format, args));
+    static public void log(int type, int severity, String msg) {
+        System.out.println(msg);
     }
 }

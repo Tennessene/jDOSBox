@@ -171,7 +171,7 @@ public class VGA_attr {
                         VGA.svga.write_p3c0.call(VGA.vga.attr.index, val, iolen);
                         break;
                     }
-                    Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:ATTR:Write to unkown Index %2X",VGA.vga.attr.index);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:ATTR:Write to unkown Index "+Integer.toString(VGA.vga.attr.index,16));
                     break;
                 }
             }
@@ -201,7 +201,7 @@ public class VGA_attr {
             default:
                 if (VGA.svga.read_p3c1!=null)
                     return VGA.svga.read_p3c1.call(VGA.vga.attr.index, iolen);
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:Read from unkown Index %2X",VGA.vga.attr.index);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:Read from unkown Index "+Integer.toString(VGA.vga.attr.index,16));
             }
             return 0;
         }

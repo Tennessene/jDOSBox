@@ -17,8 +17,8 @@ public abstract class Section {
             canchange = _ch;
         }
     }
-    private Vector<Function_wrapper> initfunctions = new Vector<Function_wrapper>();
-    private Vector<Function_wrapper> destroyfunction = new Vector<Function_wrapper>();
+    private Vector initfunctions = new Vector();
+    private Vector destroyfunction = new Vector();
     private String sectionname;
 
     public Section(String _sectionname) {
@@ -42,7 +42,8 @@ public abstract class Section {
         ExecuteInit(true);
     }
     public void ExecuteInit(boolean initall) {
-        for (Function_wrapper f: initfunctions) {
+        for (int i=0;i<initfunctions.size();i++) {
+            Function_wrapper f = (Function_wrapper)initfunctions.elementAt(i);
             if (initall || f.canchange) f.function.call(this);
         }
     }
@@ -50,7 +51,8 @@ public abstract class Section {
         ExecuteDestroy(true);
     }
     public void ExecuteDestroy(boolean destroyall) {
-        for (Function_wrapper f: destroyfunction) {
+        for (int i=0;i<destroyfunction.size();i++) {
+            Function_wrapper f = (Function_wrapper)destroyfunction.elementAt(i);
             if (destroyall || f.canchange) f.function.call(this);
         }
     }

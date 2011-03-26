@@ -4,14 +4,14 @@ import java.util.Vector;
 
 public class CommandLine {
     public CommandLine(String[] args) {
-        cmds = new Vector<String>(args.length);
+        cmds = new Vector(args.length);
         for (int i=0;i<args.length;i++)
             cmds.add(args[i]);
         // :TODO: file_name = ?
     }
 
     public CommandLine(String name,String cmdline) {
-        cmds = new Vector<String>();
+        cmds = new Vector();
         file_name=name;
         /* Parse the cmds and put them in the list */
         boolean inword,inquote;char c;
@@ -62,7 +62,7 @@ public class CommandLine {
         int index = FindEntry(name, true);
         if (index < 0) return null;
         try {
-            Integer result = Integer.parseInt(cmds.elementAt(index+1), 16);
+            Integer result = new Integer(Integer.parseInt((String)cmds.elementAt(index+1), 16));
             if (remove) {
                 cmds.removeElementAt(index);
                 cmds.removeElementAt(index+1);
@@ -80,7 +80,7 @@ public class CommandLine {
         int index = FindEntry(name, true);
         if (index < 0) return null;
         try {
-            Integer result = Integer.parseInt(cmds.elementAt(index+1), 10);
+            Integer result = new Integer(Integer.parseInt((String)cmds.elementAt(index+1), 10));
             if (remove) {
                 cmds.removeElementAt(index);
                 cmds.removeElementAt(index+1);
@@ -97,7 +97,7 @@ public class CommandLine {
     public String FindString(String name, boolean remove) {
         int index = FindEntry(name, true);
         if (index < 0) return null;
-        String result = cmds.elementAt(index+1);
+        String result = (String)cmds.elementAt(index+1);
         if (remove) {
             cmds.removeElementAt(index);
             cmds.removeElementAt(index);
@@ -108,7 +108,7 @@ public class CommandLine {
     public String FindCommand(int which) {
         if (which<1) return null;
         if (which>cmds.size()) return null;
-        return cmds.elementAt(which-1);
+        return (String)cmds.elementAt(which-1);
     }
 
     public String FindStringBegin(String begin) {
@@ -117,8 +117,8 @@ public class CommandLine {
     public String FindStringBegin(String begin, boolean remove) {
         begin = begin.toLowerCase();
         for (int i=0;i<cmds.size();i++) {
-            if (cmds.elementAt(i).toLowerCase().startsWith(begin)) {
-                String result = cmds.elementAt(i);
+            if (((String)cmds.elementAt(i)).toLowerCase().startsWith(begin)) {
+                String result = (String)cmds.elementAt(i);
                 if (remove)
                     cmds.removeElementAt(i);
                 return result;
@@ -155,7 +155,7 @@ public class CommandLine {
     }
     public void Shift(int amount) {
         for (int i=0;i<amount;i++) {
-            file_name = cmds.size()>0?cmds.elementAt(0):"";
+            file_name = cmds.size()>0?(String)cmds.elementAt(0):"";
             if (cmds.size()>0) cmds.removeElementAt(0);
         }
     }
@@ -167,16 +167,16 @@ public class CommandLine {
         for (int i=0;i<cmds.size();i++) {
             if (i>0)
                 result++;
-            result+=cmds.elementAt(i).length();
+            result+=((String)cmds.elementAt(i)).length();
         }
         return result;
     }
 
-    private Vector<String> cmds;
+    private Vector cmds;
     private String file_name;
     private int FindEntry(String name, boolean needNext) {
         for (int i=0;i<cmds.size();i++) {
-            if (cmds.elementAt(i).equalsIgnoreCase(name)) {
+            if (((String)cmds.elementAt(i)).equalsIgnoreCase(name)) {
                 if (needNext && i==cmds.size()-1)
                     return -1;
                 return i;

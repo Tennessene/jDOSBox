@@ -6,67 +6,68 @@ import java.util.Scanner;
 import java.util.Vector;
 
 public class Section_prop extends Section {
-    private Vector<Property> properties = new Vector<Property>();
+    private Vector properties = new Vector();
     public Section_prop(String _sectionname) {
         super(_sectionname);
     }
-    public Prop_int Add_int(String _propname, Property.Changeable when) {
+    public Prop_int Add_int(String _propname, int when) {
         return Add_int(_propname, when, 0);
     }
-    public Prop_int Add_int(String _propname, Property.Changeable when, int _value) {
+    public Prop_int Add_int(String _propname, int when, int _value) {
         Prop_int test = new Prop_int(_propname, when, _value);
         properties.add(test);
         return test;
     }
-    public Prop_string Add_string(String _propname, Property.Changeable when) {
+    public Prop_string Add_string(String _propname, int when) {
         return Add_string(_propname, when, null);
     }
-	public Prop_string Add_string(String _propname, Property.Changeable when, String _value) {
+	public Prop_string Add_string(String _propname, int when, String _value) {
         Prop_string test = new Prop_string(_propname, when, _value);
         properties.add(test);
         return test;
     }
-    public Prop_path Add_path(String _propname, Property.Changeable when) {
+    public Prop_path Add_path(String _propname, int when) {
         return Add_path(_propname, when);
     }
-	public Prop_path Add_path(String _propname, Property.Changeable when, String _value) {
+	public Prop_path Add_path(String _propname, int when, String _value) {
         Prop_path test = new Prop_path(_propname, when, _value);
         properties.add(test);
         return test;
     }
-    public Prop_bool Add_bool(String _propname, Property.Changeable when) {
+    public Prop_bool Add_bool(String _propname, int when) {
         return Add_bool(_propname, when, false);
     }
-	public Prop_bool Add_bool(String _propname, Property.Changeable when, boolean _value) {
+	public Prop_bool Add_bool(String _propname, int when, boolean _value) {
         Prop_bool test = new Prop_bool(_propname, when, _value);
         properties.add(test);
         return test;
     }
-    public Prop_hex Add_hex(String _propname, Property.Changeable when) {
+    public Prop_hex Add_hex(String _propname, int when) {
         return Add_hex(_propname, when, new Hex(0));
     }
-	public Prop_hex Add_hex(String _propname, Property.Changeable when, Hex _value) {
+	public Prop_hex Add_hex(String _propname, int when, Hex _value) {
         Prop_hex test = new Prop_hex(_propname, when, _value);
         properties.add(test);
         return test;
     }
-	public Prop_multival Add_multi(String _propname, Property.Changeable when,String sep) {
+	public Prop_multival Add_multi(String _propname, int when,String sep) {
         Prop_multival test = new Prop_multival(_propname, when, sep);
         properties.add(test);
         return test;
     }
-	public Prop_multival_remain Add_multiremain(String _propname, Property.Changeable when,String sep) {
+	public Prop_multival_remain Add_multiremain(String _propname, int when,String sep) {
         Prop_multival_remain test = new Prop_multival_remain(_propname, when, sep);
         properties.add(test);
         return test;
     }
 	public Property Get_prop(int index) {
         if (index>=0 && index<properties.size())
-            return properties.elementAt(index);
+            return (Property)properties.elementAt(index);
         return null;
     }
     private Property byname(String name) {
-        for (Property p: properties) {
+        for (int i=0;i<properties.size();i++) {
+            Property p = (Property)properties.elementAt(i);
             if (p.propname.equals(name))
                 return p;
         }
@@ -140,7 +141,8 @@ public class Section_prop extends Section {
         }        
     }
 	public void PrintData(OutputStream os) throws IOException {
-        for (Property p: properties) {
+        for (int i=0;i<properties.size();i++) {
+            Property p = (Property)properties.elementAt(i);
             String line = p.propname+"="+p.GetValue().toString()+"\n";
             Config.fputs(line, os);
         }

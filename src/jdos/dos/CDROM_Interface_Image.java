@@ -250,7 +250,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
     private static int refCount;
     public static CDROM_Interface_Image[] images = new CDROM_Interface_Image[26];
 
-    private Vector<Track> tracks = new Vector<Track>();
+    private Vector tracks = new Vector();
 	private String mcn;
 	private /*Bit8u*/short	subUnit;
 
@@ -296,7 +296,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         stTrack.value = 1;
         end.value = tracks.size() - 1;
 
-        int value = tracks.elementAt(tracks.size() - 1).start + 150;
+        int value = ((Track)tracks.elementAt(tracks.size() - 1)).start + 150;
         leadOut.fr = value%Dos_cdrom.CD_FPS;
         value /= Dos_cdrom.CD_FPS;
         leadOut.sec = value%60;
@@ -308,14 +308,14 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 	public boolean GetAudioTrackInfo(int track, Dos_cdrom.TMSF start, ShortRef attr) {
         if (track < 1 || track > (int)tracks.size()) return false;
 
-        int value = tracks.elementAt(track - 1).start + 150;
+        int value = ((Track)tracks.elementAt(track - 1)).start + 150;
         start.fr = value%Dos_cdrom.CD_FPS;
         value /= Dos_cdrom.CD_FPS;
         start.sec = value%60;
         value /= 60;
         start.min = value;
 
-        attr.value = (short)(tracks.elementAt(track - 1).attr);
+        attr.value = ((short)((Track)tracks.elementAt(track - 1)).attr);
         return true;
     }
 
@@ -323,7 +323,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         int cur_track = GetTrack(player.currFrame);
         if (cur_track < 1) return false;
         track.value = (short)cur_track;
-        attr.value = (short)tracks.elementAt(track.value - 1).attr;
+        attr.value = (short)((Track)tracks.elementAt(track.value - 1)).attr;
         index.value = 1;
         int value = player.currFrame + 150;
         absPos.fr = value%Dos_cdrom.CD_FPS;
@@ -332,7 +332,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         value /= 60;
         absPos.min = value;
 
-        value = player.currFrame - tracks.elementAt(track.value - 1).start + 150;
+        value = player.currFrame - ((Track)tracks.elementAt(track.value - 1)).start + 150;
         relPos.fr = value%Dos_cdrom.CD_FPS;
         value /= Dos_cdrom.CD_FPS;
         relPos.sec = value%60;
@@ -360,7 +360,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
             player.currFrame = (int)start;
             player.targetFrame = (int)(start + len);
             int track = GetTrack((int)start) - 1;
-            if(track >= 0 && tracks.elementAt(track).attr == 0x40) {
+            if(track >= 0 && ((Track)tracks.elementAt(track)).attr == 0x40) {
                 Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_WARN,"Game tries to play the data track. Not doing this");
                 player.isPlaying = false;
                 //Unclear wether return false should be here.
@@ -403,7 +403,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         int track = GetTrack(sector) - 1;
         if (track < 0) return false;
 
-        Track t = tracks.elementAt(track);
+        Track t = (Track)tracks.elementAt(track);
         int seek = t.skip + (sector - t.start) * t.sectorSize;
         int length = (raw ? Dos_cdrom.RAW_SECTOR_SIZE : Dos_cdrom.COOKED_SECTOR_SIZE);
         if (t.sectorSize != Dos_cdrom.RAW_SECTOR_SIZE && raw) return false;
@@ -414,7 +414,8 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
     }
 	public boolean HasDataTrack() {
         //Data track has attribute 0x40
-        for (Track it: tracks) {
+        for (int i=0;i<tracks.size();i++) {
+            Track it = (Track)tracks.elementAt(i);
             if (it.attr == 0x40) return true;
         }
         return false;
@@ -462,8 +463,8 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 
 	private int	GetTrack(int sector) {
         for (int i=0;i<tracks.size()-1;i++) {
-            Track curr = tracks.elementAt(i);
-            Track next = tracks.elementAt(i+1);
+            Track curr = (Track)tracks.elementAt(i);
+            Track next = (Track)tracks.elementAt(i+1);
             if (curr.start <= sector && sector < next.start) return curr.number;
         }
         return -1;
@@ -473,7 +474,8 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 
 	private void ClearTracks() {
         TrackFile last = null;
-        for (Track curr: tracks) {
+        for (int i=0;i<tracks.size();i++) {
+            Track curr = (Track)tracks.elementAt(i);
             if (curr.file!=null)
                 curr.file.close();
         }
@@ -706,7 +708,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
             return true;
         }
 
-        Track prev = tracks.lastElement();
+        Track prev = (Track)tracks.lastElement();
 
         // current track consumes data from the same file as the previous
         if (prev.file == curr.file) {

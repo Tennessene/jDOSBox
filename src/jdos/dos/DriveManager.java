@@ -15,7 +15,7 @@ public class DriveManager {
         DriveInfo driveInfo = driveInfos[currentDrive];
         if (driveInfo.disks.size() > 0) {
             driveInfo.currentDisk = 0;
-            Dos_Drive disk = driveInfo.disks.elementAt(driveInfo.currentDisk);
+            Dos_Drive disk = (Dos_Drive)driveInfo.disks.elementAt(driveInfo.currentDisk);
             Dos_files.Drives[currentDrive] = disk;
             disk.Activate();
         }
@@ -29,7 +29,7 @@ public class DriveManager {
         } else {
             // managed drive
             int currentDisk = driveInfos[drive].currentDisk;
-            result = driveInfos[drive].disks.elementAt(currentDisk).UnMount();
+            result = ((Dos_Drive)driveInfos[drive].disks.elementAt(currentDisk)).UnMount();
             // only delete on success, current disk set to NULL because of UnMount
             if (result == 0) {
                 driveInfos[drive].disks.clear();
@@ -46,16 +46,16 @@ public class DriveManager {
             if (numDisks > 1) {
                 // cycle disk
                 int currentDisk = driveInfos[idrive].currentDisk;
-                Dos_Drive oldDisk = driveInfos[idrive].disks.elementAt(currentDisk);
+                Dos_Drive oldDisk = (Dos_Drive)driveInfos[idrive].disks.elementAt(currentDisk);
                 currentDisk = (currentDisk + 1) % numDisks;
-                Dos_Drive newDisk = driveInfos[idrive].disks.elementAt(currentDisk);
+                Dos_Drive newDisk = (Dos_Drive)driveInfos[idrive].disks.elementAt(currentDisk);
                 driveInfos[idrive].currentDisk = currentDisk;
 
                 // copy working directory, acquire system resources and finally switch to next drive
                 newDisk.curdir = oldDisk.curdir;
                 newDisk.Activate();
                 Dos_files.Drives[idrive] = newDisk;
-                Log.log_msg("Drive %c: disk %d of %d now active", 'A'+idrive, currentDisk+1, numDisks);
+                Log.log_msg("Drive "+String.valueOf('A'+idrive)+": disk "+String.valueOf(currentDisk+1)+" of "+numDisks+" now active");
             }
         }
     }
@@ -72,7 +72,7 @@ public class DriveManager {
 //	MAPPER_AddHandler(&CycleDrive, MK_f3, MMOD2, "cycledrive", "Cycle Drv");
 
     static private class DriveInfo {
-        Vector<Dos_Drive> disks = new Vector<Dos_Drive>();
+        Vector disks = new Vector();
         /*Bit32u*/int currentDisk;
     }
     static private DriveInfo[] driveInfos = new DriveInfo[Dos_files.DOS_DRIVES];

@@ -819,7 +819,7 @@ public class Mouse {
         mouse.inhibit_draw=false;
         /* Get the correct resolution from the current video mode */
         /*Bit8u*/short mode=Memory.mem_readb(Bios.BIOS_VIDEO_MODE);
-        if(mode == mouse.mode) {Log.log(LogTypes.LOG_MOUSE, LogSeverities.LOG_NORMAL,"New video is the same as the old"); /*return;*/}
+        if(mode == mouse.mode) {if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MOUSE, LogSeverities.LOG_NORMAL,"New video is the same as the old"); /*return;*/}
         switch (mode) {
         case 0x00:
         case 0x01:
@@ -851,7 +851,7 @@ public class Mouse {
             mouse.max_y=479;
             break;
         default:
-            Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_ERROR,"Unhandled videomode %X on reset",mode);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_ERROR,"Unhandled videomode "+Integer.toString(mode, 16)+" on reset");
             mouse.inhibit_draw=true;
             return;
         }
@@ -991,7 +991,7 @@ public class Mouse {
                     if(mouse.x < mouse.min_x) mouse.x = mouse.min_x;
                     /* Or alternatively this:
                     mouse.x = (mouse.max_x - mouse.min_x + 1)/2;*/
-                    Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_NORMAL,"Define Hortizontal range min:%d max:%d",min,max);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_NORMAL,"Define Hortizontal range min:"+min+" max:"+max);
                 }
                 break;
             case 0x08:	/* Define vertical cursor range */
@@ -1008,7 +1008,7 @@ public class Mouse {
                     if(mouse.y < mouse.min_y) mouse.y = mouse.min_y;
                     /* Or alternatively this:
                     mouse.y = (mouse.max_y - mouse.min_y + 1)/2;*/
-                    Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_NORMAL,"Define Vertical range min:%d max:%d",min,max);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_NORMAL,"Define Vertical range min:"+min+" max:"+max);
                 }
                 break;
             case 0x09:	/* Define GFX Cursor */
@@ -1096,14 +1096,14 @@ public class Mouse {
                 // ToDo : double mouse speed value
                 Mouse_SetSensitivity(CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word());
 
-                Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Set sensitivity used with %d %d (%d)",CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word());
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Set sensitivity used with "+CPU_Regs.reg_ebx.word()+" "+CPU_Regs.reg_ecx.word()+" ("+CPU_Regs.reg_edx.word()+")");
                 break;
             case 0x1b:	/* Get mouse sensitivity */
                 CPU_Regs.reg_ebx.word(mouse.senv_x_val);
                 CPU_Regs.reg_ecx.word(mouse.senv_y_val);
                 CPU_Regs.reg_edx.word(mouse.dspeed_val);
 
-                Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Get sensitivity %d %d",CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word());
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Get sensitivity "+CPU_Regs.reg_ebx.word()+" "+CPU_Regs.reg_ecx.word());
                 break;
             case 0x1c:	/* Set interrupt rate */
                 /* Can't really set a rate this is host determined */
@@ -1163,7 +1163,7 @@ public class Mouse {
                 CPU_Regs.reg_edx.word((/*Bit16u*/int)mouse.max_y);
                 break;
             default:
-                Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_ERROR,"Mouse Function %04X not implemented!",CPU_Regs.reg_eax.word());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_ERROR,"Mouse Function "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" not implemented!");
                 break;
             }
             return Callback.CBRET_NONE;

@@ -28,8 +28,8 @@ public class Dosbox {
     }
     public static boolean applet = false;
     public static Config control;
-    public static MachineType machine;
-    public static SVGACards svgaCard;
+    public static int machine;
+    public static int svgaCard;
     private static LoopHandler loop;
     public static boolean SDLNetInited;
 
@@ -238,7 +238,7 @@ public class Dosbox {
         //	else if (mtype.equals("vga_pvga1a")   { svgaCard = SVGA_ParadisePVGA1A; }
             else if (mtype.equals("svga_paradise")) { svgaCard = SVGACards.SVGA_ParadisePVGA1A; }
             else if (mtype.equals("vgaonly"))      { svgaCard = SVGACards.SVGA_None; }
-            else Log.exit("DOSBOX:Unknown machine type %s",mtype);
+            else Log.exit("DOSBOX:Unknown machine type "+mtype);
             VGA.VGA_Init();
         }
     };
@@ -282,7 +282,7 @@ public class Dosbox {
         Pstring = secprop.Add_path("captures",Property.Changeable.Always,"capture");
         Pstring.Set_help("Directory where things like wave, midi, screenshot get captured.");
 
-        if (Main.DEBUG)
+        if (Config.C_DEBUG)
             Debug_gui.LOG_StartUp();
 
         secprop.AddInitFunction(IO.IO_Init);//done
@@ -420,7 +420,7 @@ public class Dosbox {
         Pstring.Set_help("Special configuration options for the device driver. This is usually the id of the device you want to use.\n" +
                           "  See the README/Manual for more details.");
 
-        if (Main.DEBUG)
+        if (Config.C_DEBUG)
             secprop=control.AddSection_prop("debug", Debug.DEBUG_Init);
 
         secprop=control.AddSection_prop("sblaster",SBlaster.SBLASTER_Init,true);//done

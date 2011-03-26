@@ -66,7 +66,7 @@ public class Dos_memory {
                 umb_start+=umb_mcb.GetSize()+1;
                 umb_mcb.SetPt(umb_start);
             }
-        } else if (umb_start!=0xffff) Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"Corrupt UMB chain: %x",umb_start);
+        } else if (umb_start!=0xffff) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"Corrupt UMB chain: "+Integer.toString(umb_start,16));
 
         DOS_CompressMemory();
     }
@@ -94,7 +94,7 @@ public class Dos_memory {
         if (umb_start==UMB_START_SEG) {
             /* start with UMBs if requested (bits 7 or 6 set) */
             if ((mem_strat&0xc0)!=0) mcb_segment=umb_start;
-        } else if (umb_start!=0xffff) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Corrupt UMB chain: %x",umb_start);
+        } else if (umb_start!=0xffff) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Corrupt UMB chain: "+Integer.toString(umb_start,16));
 
         Dos_MCB mcb=new Dos_MCB(0);
         Dos_MCB mcb_next=new Dos_MCB(0);
@@ -208,7 +208,7 @@ public class Dos_memory {
 
     static public boolean DOS_ResizeMemory(/*Bit16u*/int segment,/*Bit16u*/IntRef blocks) {
         if (segment < Dos.DOS_MEM_START+1) {
-            Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Program resizes %X, take care",segment);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Program resizes "+Integer.toString(segment, 16)+", take care");
         }
 
         Dos_MCB mcb=new Dos_MCB(segment-1);
@@ -280,7 +280,7 @@ public class Dos_memory {
     static public boolean DOS_FreeMemory(/*Bit16u*/int segment) {
     //TODO Check if allowed to free this segment
         if (segment < Dos.DOS_MEM_START+1) {
-            Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Program tried to free %X ---ERROR",segment);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Program tried to free "+Integer.toString(segment, 16)+" ---ERROR");
             Dos.DOS_SetError(Dos.DOSERR_MB_ADDRESS_INVALID);
             return false;
         }
@@ -337,7 +337,7 @@ public class Dos_memory {
         /* Get start of UMB-chain */
         /*Bit16u*/int umb_start=Dos.dos_infoblock.GetStartOfUMBChain();
         if (umb_start!=UMB_START_SEG) {
-            if (umb_start!=0xffff) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Corrupt UMB chain: %x",umb_start);
+            if (umb_start!=0xffff) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Corrupt UMB chain: "+Integer.toString(umb_start,16));
             return false;
         }
 
@@ -368,7 +368,7 @@ public class Dos_memory {
                 }
                 break;
             default:
-                Log.log_msg("Invalid link state %x when reconfiguring MCB chain",linkstate);
+                Log.log_msg("Invalid link state "+Integer.toString(linkstate, 16)+" when reconfiguring MCB chain");
                 return false;
         }
 
@@ -380,7 +380,7 @@ public class Dos_memory {
             return "Dos_memory.DOS_default_handler";
         }
         public /*Bitu*/int call() {
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"DOS rerouted Interrupt Called %X", CPU.lastint);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"DOS rerouted Interrupt Called "+Integer.toString(CPU.lastint,16));
             return Callback.CBRET_NONE;
         }
     };

@@ -24,7 +24,7 @@ public class BatchFile {
         //Test if file is openable
         if (!Dos_files.DOS_OpenFile(totalname.value,128, file_handle)) {
             //TODO Come up with something better
-            Log.exit("SHELL:Can't open BatchFile %s",totalname.value);
+            Log.exit("SHELL:Can't open BatchFile "+totalname.value);
         }
         Dos_files.DOS_CloseFile(file_handle.value);
     }
@@ -37,7 +37,7 @@ public class BatchFile {
     String ReadLine() {
         //Open the batchfile and seek to stored postion
         if (!Dos_files.DOS_OpenFile(filename,128,file_handle)) {
-            Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"ReadLine Can't open BatchFile %s",filename);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"ReadLine Can't open BatchFile "+filename);
             close();
             return null;
         }
@@ -120,7 +120,7 @@ public class BatchFile {
     boolean Goto(String where) {
         //Open bat file and search for the where string
         if (!Dos_files.DOS_OpenFile(filename,128,file_handle)) {
-            Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"SHELL:Goto Can't open BatchFile %s",filename);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"SHELL:Goto Can't open BatchFile "+filename);
             close();
             return false;
         }

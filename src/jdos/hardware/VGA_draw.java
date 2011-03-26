@@ -11,6 +11,7 @@ import jdos.types.SVGACards;
 import jdos.util.IntPtr;
 import jdos.util.Ptr;
 import jdos.util.ShortPtr;
+import jdos.util.StringHelper;
 
 public class VGA_draw {
     static private final int VGA_PARTS = 4;
@@ -711,7 +712,7 @@ public class VGA_draw {
 
     public static void VGA_SetBlinking(/*Bitu*/int enabled) {
         /*Bitu*/int b;
-        Log.log(LogTypes.LOG_VGA, LogSeverities.LOG_NORMAL,"Blinking %d",enabled);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA, LogSeverities.LOG_NORMAL,"Blinking "+enabled);
         if (enabled!=0) {
             b=0;VGA.vga.draw.blinking=true; //used to -1 but blinking is unsigned
             VGA.vga.attr.mode_control|=0x08;
@@ -797,21 +798,21 @@ public class VGA_draw {
             Pic.PIC_AddEvent( VGA_VerticalTimer, (float)VGA.vga.draw.delay.vtotal );
 
             switch(Dosbox.machine) {
-            case MCH_PCJR:
-            case MCH_TANDY:
+            case MachineType.MCH_PCJR:
+            case MachineType.MCH_TANDY:
                 // PCJr: Vsync is directly connected to the IRQ controller
                 // Some earlier Tandy models are said to have a vsync interrupt too
                 Pic.PIC_AddEvent(VGA_Other_VertInterrupt, (float)VGA.vga.draw.delay.vrstart, 1);
                 Pic.PIC_AddEvent(VGA_Other_VertInterrupt, (float)VGA.vga.draw.delay.vrend, 0);
                 // fall-through
-            case MCH_CGA:
-            case MCH_HERC:
+            case MachineType.MCH_CGA:
+            case MachineType.MCH_HERC:
                 // MC6845-powered graphics: Loading the display start latch happens somewhere
                 // after vsync off and before first visible scanline, so probably here
                 VGA_DisplayStartLatch.call(0);
                 break;
-            case MCH_VGA:
-            case MCH_EGA:
+            case MachineType.MCH_VGA:
+            case MachineType.MCH_EGA:
                 Pic.PIC_AddEvent(VGA_DisplayStartLatch, (float)VGA.vga.draw.delay.vrstart);
                 Pic.PIC_AddEvent(VGA_PanningLatch, (float)VGA.vga.draw.delay.vrend);
                 // EGA: 82c435 datasheet: interrupt happens at display end
@@ -917,9 +918,9 @@ public class VGA_draw {
 
             // add the draw event
             switch (VGA.vga.draw.mode) {
-            case PART:
+            case VGA.Drawmode.PART:
                 if (VGA.vga.draw.parts_left!=0) {
-                    Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL, "Parts left: %d", VGA.vga.draw.parts_left );
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL, "Parts left: "+VGA.vga.draw.parts_left );
                     Pic.PIC_RemoveEvents(VGA_DrawPart);
                     Render.RENDER_EndUpdate(true);
                 }
@@ -927,10 +928,9 @@ public class VGA_draw {
                 VGA.vga.draw.parts_left = VGA.vga.draw.parts_total;
                 Pic.PIC_AddEvent(VGA_DrawPart,(float)VGA.vga.draw.delay.parts + draw_skip,VGA.vga.draw.parts_lines);
                 break;
-            case LINE:
+            case VGA.Drawmode.LINE:
                 if (VGA.vga.draw.lines_done < VGA.vga.draw.lines_total) {
-                    Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL, "Lines left: %d",
-                        VGA.vga.draw.lines_total-VGA.vga.draw.lines_done);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL, "Lines left: %d"+(VGA.vga.draw.lines_total-VGA.vga.draw.lines_done));
                     Pic.PIC_RemoveEvents(VGA_DrawSingleLine);
                     Render.RENDER_EndUpdate(true);
                 }
@@ -1022,11 +1022,11 @@ public class VGA_draw {
             }
             // set the drawing mode
             switch (Dosbox.machine) {
-            case MCH_CGA:
-            case MCH_PCJR:
+            case MachineType.MCH_CGA:
+            case MachineType.MCH_PCJR:
                 VGA.vga.draw.mode = VGA.Drawmode.LINE;
                 break;
-            case MCH_VGA:
+            case MachineType.MCH_VGA:
                 if (Dosbox.svgaCard==SVGACards.SVGA_None) {
                     VGA.vga.draw.mode = VGA.Drawmode.LINE;
                     break;
@@ -1149,12 +1149,12 @@ public class VGA_draw {
                 vbend = vtotal;
                 VGA.vga.draw.double_scan=false;
                 switch (Dosbox.machine) {
-                case MCH_CGA:
-                case MCH_TANDY:
-                case MCH_PCJR: //TANDY_ARCH_CASE:
+                case MachineType.MCH_CGA:
+                case MachineType.MCH_TANDY:
+                case MachineType.MCH_PCJR: //TANDY_ARCH_CASE:
                     clock=((VGA.vga.tandy.mode_control & 1)!=0 ? 14318180 : (14318180/2))/8;
                     break;
-                case MCH_HERC:
+                case MachineType.MCH_HERC:
                     if ((VGA.vga.herc.mode_control & 0x2)!=0) clock=16000000/16;
                     else clock=16000000/8;
                     break;
@@ -1165,10 +1165,8 @@ public class VGA_draw {
                 VGA.vga.draw.delay.hdend = hdend*1000.0/clock; //in milliseconds
             }
             if (Config.C_DEBUG) {
-                Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"h total %d end %d blank (%d/%d) retrace (%d/%d)",
-                    htotal, hdend, hbstart, hbend, hrstart, hrend );
-                Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"v total %d end %d blank (%d/%d) retrace (%d/%d)",
-                    vtotal, vdend, vbstart, vbend, vrstart, vrend );
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"h total "+htotal+" end "+hdend+" blank ("+hbstart+"/"+hbend+") retrace ("+hrstart+"/"+hrend+")");
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"v total "+vtotal+" end "+vdend+" blank ("+vbstart+"/"+vbend+") retrace ("+vrstart+"/"+vrend+")");
             }
             if (htotal==0) return;
             if (vtotal==0) return;
@@ -1205,15 +1203,15 @@ public class VGA_draw {
                     if(vbstart < vdend) {
                         vdend = vbstart;
                     }
-                    Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Blanking wrap to line %d", vblank_skip);
+                    if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Blanking wrap to line "+vblank_skip);
                 } else if (vbstart==1) {
                     // blanking is used to cut lines at the start of the screen
                     vblank_skip = vbend;
-                    Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Upper %d lines of the screen blanked", vblank_skip);
+                    if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Upper "+vblank_skip+" lines of the screen blanked");
                 } else if (vbstart < vdend) {
                     if(vbend < vdend) {
                         // the game wants a black bar somewhere on the screen
-                        Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Unsupported blanking: line %d-%d",vbstart,vbend);
+                        if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Unsupported blanking: line "+vbstart+"-"+vbend);
                     } else {
                         // blanking is used to cut off some lines from the bottom
                         vdend = vbstart;
@@ -1447,7 +1445,7 @@ public class VGA_draw {
                 VGA_DrawLine=VGA_TEXT_Herc_Draw_Line;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_ERROR,"Unhandled VGA mode %d while checking for resolution",VGA.vga.mode);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_ERROR,"Unhandled VGA mode "+VGA.vga.mode+" while checking for resolution");
                 break;
             }
             VGA_CheckScanLength();
@@ -1497,14 +1495,14 @@ public class VGA_draw {
             }
 
             if (Config.C_DEBUG) {
-                Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"h total %2.5f (%3.2fkHz) blank(%02.5f/%02.5f) retrace(%02.5f/%02.5f)",
-                    VGA.vga.draw.delay.htotal,(1.0/VGA.vga.draw.delay.htotal),
-                    VGA.vga.draw.delay.hblkstart,VGA.vga.draw.delay.hblkend,
-                    VGA.vga.draw.delay.hrstart,VGA.vga.draw.delay.hrend);
-                Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"v total %2.5f (%3.2fHz) blank(%02.5f/%02.5f) retrace(%02.5f/%02.5f)",
-                    VGA.vga.draw.delay.vtotal,(1000.0/VGA.vga.draw.delay.vtotal),
-                    VGA.vga.draw.delay.vblkstart,VGA.vga.draw.delay.vblkend,
-                    VGA.vga.draw.delay.vrstart,VGA.vga.draw.delay.vrend);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL, StringHelper.sprintf("h total %2.5f (%3.2fkHz) blank(%02.5f/%02.5f) retrace(%02.5f/%02.5f)",
+                    new Object[] {new Float(VGA.vga.draw.delay.htotal),new Float(1.0/VGA.vga.draw.delay.htotal),
+                    new Float(VGA.vga.draw.delay.hblkstart),new Float(VGA.vga.draw.delay.hblkend),
+                    new Float(VGA.vga.draw.delay.hrstart),new Float(VGA.vga.draw.delay.hrend)}));
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL, StringHelper.sprintf("v total %2.5f (%3.2fHz) blank(%02.5f/%02.5f) retrace(%02.5f/%02.5f)",
+                    new Object[] {new Float(VGA.vga.draw.delay.vtotal),new Float((1000.0/VGA.vga.draw.delay.vtotal)),
+                    new Float(VGA.vga.draw.delay.vblkstart),new Float(VGA.vga.draw.delay.vblkend),
+                    new Float(VGA.vga.draw.delay.vrstart),new Float(VGA.vga.draw.delay.vrend)}));
             }
 
             // need to resize the output window?
@@ -1526,9 +1524,8 @@ public class VGA_draw {
                 if (doubleheight) VGA.vga.draw.lines_scaled=2;
                 else VGA.vga.draw.lines_scaled=1;
                 if (Config.C_DEBUG) {
-                    Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"Width %d, Height %d, fps %f",width,height,fps);
-                    Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"%s width, %s height aspect %f",
-                        doublewidth ? "double":"normal",doubleheight ? "double":"normal",aspect_ratio);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"Width "+width+", Height "+height+", fps "+fps);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,(doublewidth ? "double":"normal")+" width, "+(doubleheight ? "double":"normal")+" height aspect "+aspect_ratio);
                 }
                 Render.RENDER_SetSize(width,height,bpp,(float)fps,aspect_ratio,doublewidth,doubleheight);
             }

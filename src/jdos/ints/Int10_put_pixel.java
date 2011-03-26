@@ -102,9 +102,9 @@ public class Int10_put_pixel {
                 //Perhaps also set mode 1
                 /* Calculate where the pixel is in video memory */
                 if (Int10_modes.CurMode.plength!=Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE))
-                    Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_ERROR,"PutPixel_EGA_p: %x!=%x",Int10_modes.CurMode.plength,Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE));
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_ERROR,"PutPixel_EGA_p: "+Integer.toString(Int10_modes.CurMode.plength, 16)+"!="+Integer.toString(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE),16));
                 if (Int10_modes.CurMode.swidth!=Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8)
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"PutPixel_EGA_w: %x!=%x",Int10_modes.CurMode.swidth,Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"PutPixel_EGA_w: "+Integer.toString(Int10_modes.CurMode.swidth, 16)+"!="+Integer.toString(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8, 16));
                 /*PhysPt*/long off=0xa0000+Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE)*page+
                     ((y*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8+x)>>3);
                 /* Bitmask and set/reset should do the rest */
@@ -123,7 +123,7 @@ public class Int10_put_pixel {
             break;
         case VGA.M_LIN8: {
                 if (Int10_modes.CurMode.swidth!=Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8)
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"PutPixel_VGA_w: %x!=%x",Int10_modes.CurMode.swidth,Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"PutPixel_VGA_w: "+Integer.toString(Int10_modes.CurMode.swidth, 16)+"!="+Integer.toString(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8,16));
                 /*PhysPt*/long off=Int10.S3_LFB_BASE+y*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8+x;
                 Memory.mem_writeb(off,color);
                 break;
@@ -131,7 +131,7 @@ public class Int10_put_pixel {
         default:
             if(!putpixelwarned) {
                 putpixelwarned = true;
-                Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"PutPixel unhandled mode type %d",Int10_modes.CurMode.type);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"PutPixel unhandled mode type "+Int10_modes.CurMode.type);
             }
             break;
         }
@@ -160,9 +160,9 @@ public class Int10_put_pixel {
             {
                 /* Calculate where the pixel is in video memory */
                 if (Int10_modes.CurMode.plength!=Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE))
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel_EGA_p: %x!=%x",Int10_modes.CurMode.plength,Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE));
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel_EGA_p: "+Integer.toString(Int10_modes.CurMode.plength, 16)+"!="+Integer.toString(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE),16));
                 if (Int10_modes.CurMode.swidth!=Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8)
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel_EGA_w: %x!=%x",Int10_modes.CurMode.swidth,Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel_EGA_w: "+Integer.toString(Int10_modes.CurMode.swidth, 16)+"!="+Integer.toString(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8,16));
                 /*PhysPt*/long off=0xa0000+Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE)*page+
                     ((y*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8+x)>>3);
                 /*Bitu*/int shift=7-(x & 7);
@@ -183,13 +183,13 @@ public class Int10_put_pixel {
             break;
         case VGA.M_LIN8: {
                 if (Int10_modes.CurMode.swidth!=Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8)
-                    Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel_VGA_w: %x!=%x",Int10_modes.CurMode.swidth,Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel_VGA_w: "+Integer.toString(Int10_modes.CurMode.swidth, 16)+"!="+Integer.toString(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8,16));
                 /*PhysPt*/long off=Int10.S3_LFB_BASE+y*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)*8+x;
                 color = Memory.mem_readb(off);
                 break;
             }
         default:
-            Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel unhandled mode type %d",Int10_modes.CurMode.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"GetPixel unhandled mode type "+Int10_modes.CurMode.type);
             break;
         }
         return (short)color;

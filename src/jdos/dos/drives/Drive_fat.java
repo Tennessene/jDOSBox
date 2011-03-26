@@ -638,7 +638,7 @@ public class Drive_fat extends Dos_Drive {
             for(m=0;m<4;m++) {
                 /* Pick the first available partition */
                 if(mbrData.pentry[m].partSize != 0x00) {
-                    Log.log_msg("Using partition %d on drive; skipping %d sectors", m, mbrData.pentry[m].absSectStart);
+                    Log.log_msg("Using partition "+m+" on drive; skipping "+mbrData.pentry[m].absSectStart+" sectors");
                     startSector = mbrData.pentry[m].absSectStart;
                     break;
                 }
@@ -685,13 +685,13 @@ public class Drive_fat extends Dos_Drive {
 
         if(CountOfClusters < 4085) {
             /* Volume is FAT12 */
-            Log.log_msg("Mounted FAT volume is FAT12 with %d clusters", CountOfClusters);
+            Log.log_msg("Mounted FAT volume is FAT12 with "+CountOfClusters+" clusters");
             fattype = FAT12;
         } else if (CountOfClusters < 65525) {
-            Log.log_msg("Mounted FAT volume is FAT16 with %d clusters", CountOfClusters);
+            Log.log_msg("Mounted FAT volume is FAT16 with "+CountOfClusters+" clusters");
             fattype = FAT16;
         } else {
-            Log.log_msg("Mounted FAT volume is FAT32 with %d clusters", CountOfClusters);
+            Log.log_msg("Mounted FAT volume is FAT32 with "+CountOfClusters+" clusters");
             fattype = FAT32;
         }
 

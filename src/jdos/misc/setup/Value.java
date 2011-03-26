@@ -1,5 +1,7 @@
 package jdos.misc.setup;
 
+import jdos.util.StringHelper;
+
 /*
  * Multitype storage container that is aware of the currently stored type in it.
  * Value st = "hello";
@@ -15,8 +17,16 @@ public class Value {
     private double _double;
 
     public class WrongType extends RuntimeException {}
-    public enum Etype {V_NONE, V_HEX, V_BOOL, V_INT, V_STRING, V_DOUBLE,V_CURRENT}
-    public Etype type;
+    public static final class Etype {
+        static final int V_NONE = 0;
+        static final int V_HEX = 1;
+        static final int V_BOOL = 2;
+        static final int V_INT = 3;
+        static final int V_STRING = 4;
+        static final int V_DOUBLE = 5;
+        static final int V_CURRENT = 6;
+    }
+    public int type;
 
     public Value() { type = Etype.V_NONE;}
     public Value(Hex in) { _hex = new Hex(in); type = Etype.V_HEX; }
@@ -25,7 +35,7 @@ public class Value {
     public Value(double in) {_double = in; type = Etype.V_DOUBLE; }
     public Value(String in) {_string = in; type = Etype.V_STRING; }
     public Value(Value in) {plaincopy(in);}
-    public Value(String in, Etype _t) { type = Etype.V_NONE; try {SetValue(in, _t);} catch (WrongType e){}}
+    public Value(String in, int _t) { type = Etype.V_NONE; try {SetValue(in, _t);} catch (WrongType e){}}
 
     public void set(Hex in) throws WrongType {copy(new Value(in));}
     public void set(int in) throws WrongType {copy(new Value(in));}
@@ -64,7 +74,7 @@ public class Value {
         return _string;
     }
 
-    public void SetValue(String in, Etype _type) throws WrongType {
+    public void SetValue(String in, int _type) throws WrongType {
         if (_type == Etype.V_CURRENT && type == Etype.V_NONE) throw new WrongType();
         if (_type != Etype.V_CURRENT) {
             if (type != Etype.V_NONE && type != _type) throw new WrongType();
@@ -100,7 +110,7 @@ public class Value {
         else if (type == Etype.V_STRING)
             return _string;
         else if (type == Etype.V_DOUBLE)
-            return String.format("%.2f", _double);
+            return StringHelper.format(_double, 2);
         else
             throw new RuntimeException("ToString messed up ?");
     }

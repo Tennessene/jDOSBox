@@ -72,7 +72,7 @@ public class Midi extends Module_base {
                 midi.sysex.buf[midi.sysex.used++]=(byte)0xf7;
                 try {sysex_msg.setMessage(midi.sysex.buf, midi.sysex.used);} catch (Exception e) {}
                 midi.handler.send(sysex_msg, -1);
-                Log.log(LogTypes.LOG_ALL, LogSeverities.LOG_NORMAL,"Sysex message size %d",midi.sysex.used);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_ALL, LogSeverities.LOG_NORMAL,"Sysex message size "+midi.sysex.used);
 //                if (CaptureState & CAPTURE_MIDI) {
 //                    CAPTURE_AddMidi( true, midi.sysex.used-1, &midi.sysex.buf[1]);
 //                }
@@ -131,7 +131,7 @@ public class Midi extends Module_base {
                 }
             }
             if (midi.handler==null) {
-                Log.log_msg("MIDI:Can't find device:%s, finding default handler.",dev);
+                Log.log_msg("MIDI:Can't find device:"+dev+", finding default handler.");
             }
         }
         if (midi.handler == null) {
@@ -185,7 +185,7 @@ public class Midi extends Module_base {
                 device.open();
                 midi.handler =  device.getReceiver();
                 midi.device = device;
-                Log.log_msg("MIDI:Opened device:%s",devices[i].getName());
+                Log.log_msg("MIDI:Opened device:"+devices[i].getName());
             } catch (Exception e) {
                 e.printStackTrace();
             }

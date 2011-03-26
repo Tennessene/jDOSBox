@@ -1,7 +1,7 @@
 package jdos.misc.setup;
 
 public class Prop_multival_remain extends Prop_multival {
-    public Prop_multival_remain(String _propname, Changeable when, String sep) {
+    public Prop_multival_remain(String _propname, int when, String sep) {
         super(_propname, when, sep);
     }
 

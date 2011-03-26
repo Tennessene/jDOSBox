@@ -366,7 +366,7 @@ public class Gameblaster {
             break;
         default:	/* Error! */
     //		logerror("%04x: (SAA1099 #%d) Unknown operation (reg:%02x, data:%02x)\n",activecpu_get_pc(), chip, reg, data);
-            Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"CMS Unkown write to reg %x with %x",reg, data);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"CMS Unkown write to reg "+Integer.toString(reg,16)+" with "+Integer.toString(data,16));
         }
     }
 

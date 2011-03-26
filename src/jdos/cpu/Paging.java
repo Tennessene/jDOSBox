@@ -40,7 +40,7 @@ public class Paging extends Module_base {
     }
     static public class PageHandler {
         public /*Bitu*/int readb(/*PhysPt*/long addr) {
-            Log.exit("No byte handler for read from %d",addr);
+            Log.exit("No byte handler for read from "+addr);
 	        return 0;
         }
         public /*Bitu*/int readw(/*PhysPt*/long addr) {
@@ -50,7 +50,7 @@ public class Paging extends Module_base {
             return readb(addr+0) | (readb(addr+1) << 8) | (readb(addr+2) << 16) | (readb(addr+3) << 24);
         }
         public void writeb(/*PhysPt*/long addr,/*Bitu*/int val) {
-            Log.exit("No byte handler for write to %d",addr);
+            Log.exit("No byte handler for write to "+addr);
         }
         public void writew(/*PhysPt*/long addr,/*Bitu*/int val) {
             writeb(addr+0,(val));
@@ -362,7 +362,7 @@ public class Paging extends Module_base {
         CPU.cpudecoder=PageFaultCore;
         paging.cr2=(int)lin_addr;
         PF_Entry entry=pf_queue.entries[pf_queue.used++];
-        Log.log(LogTypes.LOG_PAGING, LogSeverities.LOG_NORMAL,"PageFault at %X type [%x] queue %d",lin_addr,faultcode,pf_queue.used);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PAGING, LogSeverities.LOG_NORMAL,"PageFault at "+Long.toString(lin_addr, 16)+" type ["+Integer.toString(faultcode,16)+"] queue "+pf_queue.used);
 //	LOG_MSG("EAX:%04X ECX:%04X EDX:%04X EBX:%04X",reg_eax,reg_ecx,reg_edx,reg_ebx);
 //	LOG_MSG("CS:%04X EIP:%08X SS:%04x SP:%08X",SegValue(cs),reg_eip,SegValue(ss),reg_esp);
         entry.cs=CPU.Segs_CSphys;
@@ -377,7 +377,7 @@ public class Paging extends Module_base {
         }
         Dosbox.DOSBOX_RunMachine();
         pf_queue.used--;
-        Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Left PageFault for %x queue %d",lin_addr,pf_queue.used);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Left PageFault for "+Long.toString(lin_addr, 16)+" queue "+pf_queue.used);
         Flags.lflags.copy(old_lflags);
         CPU.cpudecoder=old_cpudecoder;
 //	LOG_MSG("SS:%04x SP:%08X",SegValue(ss),reg_esp);
@@ -584,8 +584,8 @@ public class Paging extends Module_base {
                     if (writing && USERWRITE_PROHIBITED()) priv_check=3;
                 }
                 if (priv_check==3) {
-                    Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl=%i, %x:%x:%x:%x",
-                        CPU.cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+                    if (Log.level<=LogSeverities.LOG_NORMAL)
+                        Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl="+CPU.cpu.cpl+", "+Integer.toString(entry.block.us, 16)+":"+Integer.toString(table.block.us, 16)+":"+Integer.toString(entry.block.wr, 16)+":"+Integer.toString(table.block.wr, 16));
                     PAGING_PageFault(lin_addr,(table.block.base<<12)+(lin_page & 0x3ff)*4,0x05 | (writing?0x02:0x00));
                     priv_check=0;
                 }
@@ -646,8 +646,8 @@ public class Paging extends Module_base {
 
                 if (InitPage_CheckUseraccess(entry.block.us,table.block.us) ||
                         (((entry.block.wr==0) || (table.block.wr==0)) && writing)) {
-                    Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl=%i, %x:%x:%x:%x",
-                        CPU.cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+                    if (Log.level<=LogSeverities.LOG_NORMAL)
+                        Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl="+CPU.cpu.cpl+", "+Integer.toString(entry.block.us, 16)+":"+Integer.toString(table.block.us, 16)+":"+Integer.toString(entry.block.wr, 16)+":"+Integer.toString(table.block.wr, 16));
                     paging.cr2=(int)lin_addr;
                     CPU.cpu.exception.which=CPU.EXCEPTION_PF;
                     CPU.cpu.exception.error=0x05 | (writing?0x02:0x00);
@@ -746,8 +746,8 @@ public class Paging extends Module_base {
                 X86PageEntry entry=new X86PageEntry();
                 InitPageCheckPresence(lin_addr,true,table,entry);
 
-                Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl=%i, %x:%x:%x:%x",
-                    CPU.cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+                if (Log.level<=LogSeverities.LOG_NORMAL)
+                        Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl="+CPU.cpu.cpl+", "+Integer.toString(entry.block.us, 16)+":"+Integer.toString(table.block.us, 16)+":"+Integer.toString(entry.block.wr, 16)+":"+Integer.toString(table.block.wr, 16));
                 PAGING_PageFault(lin_addr,(table.block.base<<12)+(lin_page & 0x3ff)*4,0x07);
 
                 if (table.block.a==0) {
@@ -777,8 +777,8 @@ public class Paging extends Module_base {
                 if (!InitPageCheckPresence_CheckOnly(lin_addr,true,table,entry)) return 0;
 
                 if (InitPage_CheckUseraccess(entry.block.us,table.block.us) || (((entry.block.wr==0) || (table.block.wr==0)))) {
-                    Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl=%i, %x:%x:%x:%x",
-                        CPU.cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+                    if (Log.level<=LogSeverities.LOG_NORMAL)
+                        Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Page access denied: cpl="+CPU.cpu.cpl+", "+Integer.toString(entry.block.us, 16)+":"+Integer.toString(table.block.us, 16)+":"+Integer.toString(entry.block.wr, 16)+":"+Integer.toString(table.block.wr, 16));
                     paging.cr2=(int)lin_addr;
                     CPU.cpu.exception.which=CPU.EXCEPTION_PF;
                     CPU.cpu.exception.error=0x07;

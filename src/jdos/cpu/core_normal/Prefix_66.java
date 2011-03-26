@@ -1970,7 +1970,7 @@ public class Prefix_66 extends Prefix_0f {
                     else {/*PhysPt*/long eaa=getEaa(rm);CPU.CPU_Push32(Memory.mem_readd(eaa));}
                     break;
                 default:
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"CPU:66:GRP5:Illegal call %2X",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"CPU:66:GRP5:Illegal call "+Integer.toString(which,16));
                     return ILLEGAL_OPCODE;
                 }
                 return HANDLED;

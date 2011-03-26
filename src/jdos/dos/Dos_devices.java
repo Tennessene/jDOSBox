@@ -93,15 +93,15 @@ public class Dos_devices {
         public boolean Read(byte[] data,/*Bit16u*/IntRef size) {
             for(/*Bitu*/int i = 0; i < size.value;i++)
                 data[i]=0;
-            Log.log(LogTypes.LOG_IOCTL, LogSeverities.LOG_NORMAL,"%s:READ",GetName());
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL, LogSeverities.LOG_NORMAL,GetName()+":READ");
             return true;
         }
         public boolean Write(byte[] data,/*Bit16u*/IntRef size) {
-            Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"%s:WRITE",GetName());
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,GetName()+":WRITE");
             return true;
         }
         public boolean Seek(/*Bit32u*/LongRef pos,/*Bit32u*/int type) {
-            Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"%s:SEEK",GetName());
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,GetName()+":SEEK");
             return true;
         }
         public boolean Close() { return true; }
@@ -225,7 +225,7 @@ public class Dos_devices {
                 case 'D':/* scrolling DOWN*/
                 case 'M':/* scrolling UP*/
                 default:
-                    Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unknown char %c after a esc",data[count]); /*prob () */
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unknown char "+String.valueOf((char)data[count])+" after a esc"); /*prob () */
                     ClearAnsi();
                     break;
                 }
@@ -396,7 +396,7 @@ public class Dos_devices {
                 case 'J': /*erase screen and move cursor home*/
                     if(ansi.data[0]==0) ansi.data[0]=2;
                     if(ansi.data[0]!=2) {/* every version behaves like type 2 */
-                        Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: esc[%dJ called : not supported handling as 2",ansi.data[0]);
+                        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: esc["+ansi.data[0]+"J called : not supported handling as 2");
                     }
                     Int10_char.INT10_ScrollWindow((short)0,(short)0,(short)255,(short)255,(byte)0,ansi.attr,page);
                     ClearAnsi();
@@ -434,7 +434,7 @@ public class Dos_devices {
                 case 'p':/* reassign keys (needs strings) */
                 case 'i':/* printer stuff */
                 default:
-                    Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unhandled char %c in esc[",data[count]);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unhandled char "+String.valueOf((char)data[count])+" in esc[");
                     ClearAnsi();
                     break;
                 }

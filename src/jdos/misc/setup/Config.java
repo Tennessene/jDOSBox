@@ -9,6 +9,8 @@ import jdos.Dosbox;
 import java.io.*;
 import java.util.Map;
 import java.util.Vector;
+import java.util.Set;
+import java.util.Iterator;
 
 public class Config {
     static public final String MAJOR_VERSION = "0.74";
@@ -28,7 +30,7 @@ public class Config {
     }
     public CommandLine cmdline;
 
-    private Vector<Section> sectionlist = new Vector<Section>();
+    private Vector sectionlist = new Vector();
     private boolean secure_mode; //Sandbox mode
     private StartFunction _start_function;
 
@@ -55,17 +57,19 @@ public class Config {
     }
     public Section GetSection(int index) {
         if (index>=0 && index< sectionlist.size())
-            return sectionlist.elementAt(index);
+            return (Section)sectionlist.elementAt(index);
         return null;
     }
     public Section GetSection(String _sectionname) {
-        for (Section s: sectionlist) {
+        for (int i=0;i<sectionlist.size();i++) {
+            Section s = (Section)sectionlist.elementAt(i);
             if (s.GetName().equalsIgnoreCase(_sectionname)) return s;
         }
         return null;
     }
     public Section GetSectionFromProperty(String prop) {
-        for (Section s: sectionlist) {
+        for (int i=0;i<sectionlist.size();i++) {
+            Section s = (Section)sectionlist.elementAt(i);
             if (!s.GetPropValue(prop).equals(Section.NO_SUCH_PROPERTY)) return s;
         }
         return null;
@@ -74,7 +78,8 @@ public class Config {
         _start_function = _function;
     }
     public void Init() {
-        for (Section s: sectionlist) {
+        for (int i=0;i<sectionlist.size();i++) {
+            Section s = (Section)sectionlist.elementAt(i);
             s.ExecuteInit();
         }
     }
@@ -87,8 +92,15 @@ public class Config {
     public void StartUp() {
         _start_function.call();
     }
-    private void fprintf(OutputStream outfile, String format, Object ... args) throws IOException {
-        fputs(String.format(format, args), outfile);
+    private void fprintf(OutputStream outfile, String format, String args, int maxwidth) throws IOException {
+        format = StringHelper.replace(format, "%s", args);
+        if (maxwidth>0) {
+            while (args.length()<maxwidth) {
+                args = " "+args;
+            }
+            format = StringHelper.replace(format, "%"+maxwidth+"s", args);
+        }
+        fputs(format, outfile);
     }
 
     static public void fputs(String str, OutputStream outfile) throws IOException {
@@ -102,8 +114,9 @@ public class Config {
         FileOutputStream outfile = null;
         try {
             outfile = new FileOutputStream(configfilename);
-            fprintf(outfile, Msg.get("CONFIGFILE_INTRO")+"\n", VERSION);
-            for (Section tel: sectionlist) {
+            fprintf(outfile, Msg.get("CONFIGFILE_INTRO")+"\n", VERSION, 0);
+            for (int k=0;k<sectionlist.size();k++) {
+                Section tel = (Section)sectionlist.elementAt(k);
                 Section_prop sec = null;
                 if (tel instanceof Section_prop)
                     sec = (Section_prop)tel;
@@ -117,17 +130,20 @@ public class Config {
                         maxwidth = Math.max(maxwidth, p.propname.length());
                     }
                     String prefix = "\n# %"+(maxwidth>0?String.valueOf(maxwidth):"")+"s";
-                    String prefix2 = String.format(prefix, "")+"  ";
+                    String prefix2 = "\n#   ";
+                    for (int l=0;l<maxwidth;l++) {
+                        prefix2 = prefix2+" ";
+                    }
                     i = 0;
                     while ((p = sec.Get_prop(i++)) != null) {
                         String help = p.Get_help();
                         help = StringHelper.replace(help, "\n", prefix2);
-                        fprintf(outfile,  prefix+": "+help,p.propname);
-                        Vector<Value> values = p.GetValues();
+                        fprintf(outfile,  prefix+": "+help,p.propname, maxwidth);
+                        Vector values = p.GetValues();
                         if (!values.isEmpty()) {
                             fputs(prefix2+Msg.get("CONFIG_SUGGESTED_VALUES"), outfile);
                             for (int j=0;j<values.size();j++) {
-                                Value v = values.elementAt(j);
+                                Value v = (Value)values.elementAt(j);
                                 if (!v.toString().equals("%u")) {
                                     if (j!=0)
                                         fputs(",", outfile);
@@ -168,7 +184,7 @@ public class Config {
             in = new BufferedReader(new FileReader(configfilename));
             String settings_type = first_configfile?"primary":"additional";
             first_configfile = false;
-            Log.log_msg("CONFIG:Loading %s settings from config file %s", settings_type,configfilename);
+            Log.log_msg("CONFIG:Loading "+settings_type+" settings from config file "+configfilename);
             current_config_dir = new File(configfilename).getAbsoluteFile().getParentFile().getAbsolutePath();
             String line;
             Section currentsection = null;
@@ -205,8 +221,11 @@ public class Config {
     }
     public void ParseEnv() {
         if (!Dosbox.applet) {
-            Map<String, String> env = System.getenv();
-            for (String envName : env.keySet()) {
+            Map env = System.getenv();
+            Set keyset = env.keySet();
+            Iterator it = keyset.iterator();
+            while (it.hasNext()) {
+                String envName = (String)it.next();
                 if (envName.startsWith("DOSBOX_")) {
                     String sec_name = envName.substring(7);
                     int pos = sec_name.indexOf("_");

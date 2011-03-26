@@ -120,7 +120,7 @@ public class MPU401 extends Module_base {
                     case 2: {Midi.MIDI_RawOutByte(0xfa);break;}
                     case 3: {Midi.MIDI_RawOutByte(0xfb);break;}
                 }
-                if ((val&0x20)!=0) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"MPU-401:Unhandled Recording Command %x",val);
+                if ((val&0x20)!=0) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_ERROR,"MPU-401:Unhandled Recording Command "+Integer.toString(val,16));
                 switch (val&0xc) {
                     case  0x4:	/* Stop */
                         Pic.PIC_RemoveEvents(MPU401_Event);
@@ -234,7 +234,7 @@ public class MPU401 extends Module_base {
                     mpu.state.irq_pending=true;
                     break;
                 case 0xff:	/* Reset MPU-401 */
-                    Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_NORMAL,"MPU-401:Reset %X",val);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_NORMAL,"MPU-401:Reset "+Integer.toString(val,16));
                     mpu.state.reset=true;
                     if (CPU.CPU_Cycles > 5) { //It came from the desert wants a fast irq
                         CPU.CPU_CycleLeft += CPU.CPU_Cycles;
@@ -243,7 +243,7 @@ public class MPU401 extends Module_base {
                     MPU401_Reset();
                     break;
                 case 0x3f:	/* UART mode */
-                    Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_NORMAL,"MPU-401:Set UART mode %X",val);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_NORMAL,"MPU-401:Set UART mode "+Integer.toString(val,16));
                     mpu.mode=M_UART;
                     break;
                 default:;

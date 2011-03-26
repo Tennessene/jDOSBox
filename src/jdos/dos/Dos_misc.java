@@ -11,7 +11,7 @@ import jdos.util.LongRef;
 import java.util.Vector;
 
 public class Dos_misc {
-    static public Vector<Dos_system.MultiplexHandler> Multiplex;
+    static public Vector Multiplex;
 
     public static void DOS_AddMultiplexHandler(Dos_system.MultiplexHandler handler) {
         Multiplex.add(handler);
@@ -26,10 +26,12 @@ public class Dos_misc {
             return "Dos_misc.INT2F_Handler";
         }
         public /*Bitu*/int call() {
-            for (Dos_system.MultiplexHandler m:Multiplex)
+            for (int i=0;i<Multiplex.size();i++) {
+                Dos_system.MultiplexHandler m = (Dos_system.MultiplexHandler)Multiplex.elementAt(i);
                 if (m.call())
                     return Callback.CBRET_NONE;
-            Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"DOS:Multiplex Unhandled call %4X", CPU_Regs.reg_eax.word());
+            }
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"DOS:Multiplex Unhandled call "+Integer.toString(CPU_Regs.reg_eax.word(),16));
             return Callback.CBRET_NONE;
         }
     };
@@ -49,7 +51,7 @@ public class Dos_misc {
             case 0x1216:	/* GET ADDRESS OF SYSTEM FILE TABLE ENTRY */
                 // reg_bx is a system file table entry, should coincide with
                 // the file handle so just use that
-                Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Some BAD filetable call used bx=%X",CPU_Regs.reg_ebx.word());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Some BAD filetable call used bx="+Integer.toString(CPU_Regs.reg_ebx.word(),16));
                 if(CPU_Regs.reg_ebx.word() <= Dos_files.DOS_FILES) Callback.CALLBACK_SCF(false);
                 else Callback.CALLBACK_SCF(true);
                 if (CPU_Regs.reg_ebx.word()<16) {
@@ -191,7 +193,7 @@ public class Dos_misc {
 
     static private /*Bitu*/int call_int2f,call_int2a;
     static public void DOS_SetupMisc() {
-        Multiplex = new Vector<Dos_system.MultiplexHandler>();
+        Multiplex = new Vector();
         /* Setup the dos multiplex interrupt */
         call_int2f=Callback.CALLBACK_Allocate();
         Callback.CALLBACK_Setup(call_int2f,INT2F_Handler,Callback.CB_IRET,"DOS Int 2f");

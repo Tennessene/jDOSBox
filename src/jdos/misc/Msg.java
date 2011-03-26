@@ -17,10 +17,11 @@ public class Msg {
         }
     }
 
-    static Vector<MessageBlock> Lang = new Vector<MessageBlock>();
+    static Vector Lang = new Vector();
 
     static public void add(String name, String value) {
-        for (MessageBlock m: Lang) {
+        for (int i=0;i<Lang.size();i++) {
+            MessageBlock m = (MessageBlock)Lang.elementAt(i);
             if (m.name.equals(name))
                 return;
         }
@@ -28,7 +29,8 @@ public class Msg {
     }
 
     static public void replace(String name, String value) {
-        for (MessageBlock m: Lang) {
+        for (int i=0;i<Lang.size();i++) {
+            MessageBlock m = (MessageBlock)Lang.elementAt(i);
             if (m.name.equals(name))
                 Lang.remove(m);
         }
@@ -73,7 +75,8 @@ public class Msg {
     }
 
     static public String get(String msg) {
-        for (MessageBlock m: Lang) {
+        for (int i=0;i<Lang.size();i++) {
+            MessageBlock m = (MessageBlock)Lang.elementAt(i);
             if (m.name.equals(msg))
                 return m.val;
         }
@@ -84,7 +87,8 @@ public class Msg {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(location);
-            for (MessageBlock m: Lang) {
+            for (int i=0;i<Lang.size();i++) {
+            MessageBlock m = (MessageBlock)Lang.elementAt(i);
                 String line = ":"+m.name+"\n"+m.val+"\n.\n";
                 fos.write(line.getBytes());
             }

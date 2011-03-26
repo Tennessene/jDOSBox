@@ -21,7 +21,7 @@ public class Prop_multival extends Property {
             }
         }
     }
-    public Prop_multival(String _propname, Changeable when, String sep) {
+    public Prop_multival(String _propname, int when, String sep) {
         super(_propname, when);
         section = new Section_prop("");
         separator = sep;
@@ -58,16 +58,16 @@ public class Prop_multival extends Property {
             p.SetValue(in);
         }
     }
-    public Vector<Value> GetValues() {
+    public Vector GetValues() {
         if (section.Get_prop(0) == null)
             return suggested_values;
-        Vector<Value> result = new Vector<Value>();
+        Vector result = new Vector();
         int i=0;
         while (true) {
             Property p = section.Get_prop(i++);
             if (p == null)
                 return suggested_values;
-            Vector<Value> v = p.GetValues();
+            Vector v = p.GetValues();
             if (!v.isEmpty()) return v;
         }
     }

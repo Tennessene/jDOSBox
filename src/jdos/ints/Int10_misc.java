@@ -61,7 +61,7 @@ public class Int10_misc {
         case VGA.M_VGA:
             col_count=256;break;
         default:
-            Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_ERROR,"Get Func State illegal mode type %d",Int10_modes.CurMode.type);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10, LogSeverities.LOG_ERROR,"Get Func State illegal mode type "+Int10_modes.CurMode.type);
         }
         /* Colour count */
         Memory.mem_writew(save+0x27,col_count);
@@ -124,7 +124,7 @@ public class Int10_misc {
             port.value = 0x3CA;
             break;
         default:
-            Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"unknown RIL port selection %X",dx);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"unknown RIL port selection "+Integer.toString(dx,16));
             break;
         }
     }
@@ -171,7 +171,7 @@ public class Int10_misc {
         /*Bitu*/IntRef regs = new IntRef(0);
         EGA_RIL(dx,port,regs);
         if(regs.value == 0) {
-            Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range read with port %x called",port);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range read with port "+Integer.toString(port.value, 16)+" called");
         } else {
             if(ch<regs.value) {
                 if (ch+cl>regs.value) cl=(short)(regs.value-ch);
@@ -181,7 +181,9 @@ public class Int10_misc {
                     Memory.mem_writeb(dst++,IoHandler.IO_Read(port.value+1));
                 }
                 if(port.value == 0x3c0) IoHandler.IO_Read(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CRTC_ADDRESS) + 6);
-            } else Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range read from %x for invalid register %x",port,ch);
+            } else {
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range read from "+Integer.toString(port.value, 16)+" for invalid register "+Integer.toString(ch,16));
+            }
         }
     }
 
@@ -190,7 +192,7 @@ public class Int10_misc {
         /*Bitu*/IntRef regs = new IntRef(0);
         EGA_RIL(dx,port,regs);
         if(regs.value == 0) {
-            Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range write called with port %x",port);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range write called with port "+Integer.toString(port.value, 16));
         } else {
             if(ch<regs.value) {
                 if (ch+cl>regs.value) cl=(short)(regs.value-ch);
@@ -206,7 +208,9 @@ public class Int10_misc {
                         IoHandler.IO_Write(port.value+1,Memory.mem_readb(src++));
                     }
                 }
-            } else Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range write to %x with invalid register %x",port,ch);
+            } else {
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"EGA RIL range write to "+Integer.toString(port.value, 16)+" with invalid register "+Integer.toString(ch,16));
+            }
         }
     }
 

@@ -153,7 +153,7 @@ public class Dos extends Module_base {
                 }
                 break;
             case 0x05:		/* Write Character to PRINTER */
-                Log.exit("DOS:Unhandled call %02X",CPU_Regs.reg_eax.high());
+                Log.exit("DOS:Unhandled call "+Integer.toString(CPU_Regs.reg_eax.high(),16));
                 break;
             case 0x06:		/* Direct Console Output / Input */
                 switch (CPU_Regs.reg_edx.low() & 0xFF) {
@@ -288,7 +288,7 @@ public class Dos extends Module_base {
                 }else{
                     CPU_Regs.reg_eax.low(0xff);
                 }
-                Log.log(LogTypes.LOG_FCB, LogSeverities.LOG_NORMAL,"DOS:0x0f FCB-fileopen used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB, LogSeverities.LOG_NORMAL,"DOS:0x0f FCB-fileopen used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x10:		/* Close File using FCB */
                 if(Dos_files.DOS_FCBClose((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())){
@@ -296,35 +296,35 @@ public class Dos extends Module_base {
                 }else{
                     CPU_Regs.reg_eax.low(0xff);
                 }
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x10 FCB-fileclose used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x10 FCB-fileclose used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x11:		/* Find First Matching File using FCB */
                 if(Dos_files.DOS_FCBFindFirst((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x11 FCB-FindFirst used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x11 FCB-FindFirst used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x12:		/* Find Next Matching File using FCB */
                 if(Dos_files.DOS_FCBFindNext((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x12 FCB-FindNext used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x12 FCB-FindNext used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x13:		/* Delete File using FCB */
                 if (Dos_files.DOS_FCBDeleteFile((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x16 FCB-Delete used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x16 FCB-Delete used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x14:		/* Sequential read from FCB */
                 CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),0));
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x14 FCB-Read used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x14 FCB-Read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x15:		/* Sequential write to FCB */
                 CPU_Regs.reg_eax.low(Dos_files.DOS_FCBWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),0));
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x15 FCB-Write used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x15 FCB-Write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x16:		/* Create or truncate file using FCB */
                 if (Dos_files.DOS_FCBCreate((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x16 FCB-Create used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x16 FCB-Create used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x17:		/* Rename file using FCB */
                 if (Dos_files.DOS_FCBRenameFile((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
@@ -360,11 +360,11 @@ public class Dos extends Module_base {
             }
             case 0x21:		/* Read random record from FCB */
                 CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),1,true));
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x21 FCB-Random read used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x21 FCB-Random read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x22:		/* Write random record to FCB */
                 CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),1,true));
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x22 FCB-Random write used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x22 FCB-Random write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x23:		/* Get file size for FCB */
                 if (Dos_files.DOS_FCBGetFileSize((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
@@ -375,11 +375,11 @@ public class Dos extends Module_base {
                 break;
             case 0x27:		/* Random block read from FCB */
                 CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),CPU_Regs.reg_ecx.word(),false));
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x27 FCB-Random(block) read used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x27 FCB-Random(block) read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x28:		/* Random Block write to FCB */
                 CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),CPU_Regs.reg_ecx.word(),false));
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x28 FCB-Random(block) write used, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x28 FCB-Random(block) write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x29:		/* Parse filename into FCB */
                 {
@@ -389,7 +389,7 @@ public class Dos extends Module_base {
                     CPU_Regs.reg_eax.low(Dos_files.FCB_Parsename((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word(),CPU_Regs.reg_eax.low() ,string, difference));
                     CPU_Regs.reg_esi.word(CPU_Regs.reg_esi.word()+difference.value);
                 }
-                Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:29:FCB Parse Filename, result:al=%d",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:29:FCB Parse Filename, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x19:		/* Get current default drive */
                 CPU_Regs.reg_eax.low(Dos_files.DOS_GetDefaultDrive());
@@ -494,7 +494,7 @@ public class Dos extends Module_base {
                     case 3: /* Get cpsw */
                         /* Fallthrough */
                     case 4: /* Set cpsw */
-                        Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Someone playing with cpsw %x",CPU_Regs.reg_eax.word());
+                        if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Someone playing with cpsw "+Integer.toString(CPU_Regs.reg_eax.word(),16));
                         break;
                     case 5:CPU_Regs.reg_edx.low(3);break;//TODO should be z						/* Always boot from c: :) */
                     case 6:											/* Get true version number */
@@ -504,7 +504,7 @@ public class Dos extends Module_base {
                         CPU_Regs.reg_edx.high(0x10);								/* Dos in HMA */
                         break;
                     default:
-                        Log.exit("DOS:Illegal 0x33 Call %2X",CPU_Regs.reg_eax.low());
+                        Log.exit("DOS:Illegal 0x33 Call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                 }
                 break;
             case 0x34:		/* Get INDos Flag */
@@ -582,7 +582,7 @@ public class Dos extends Module_base {
                 } else {
                     CPU_Regs.reg_eax.word(dos.errorcode);
                     Callback.CALLBACK_SCF(true);
-                    Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"Remove dir failed on %s with error %X",name1,dos.errorcode);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"Remove dir failed on "+name1+" with error "+Integer.toString(dos.errorcode));
                 }
                 break;
             }
@@ -703,7 +703,7 @@ public class Dos extends Module_base {
                         break;
                     }
                 case 0x01:				/* Set */
-                    Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"DOS:Set File Attributes for %s not supported",name1);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"DOS:Set File Attributes for "+name1+" not supported");
                     if (Dos_files.DOS_SetFileAttr(name1,CPU_Regs.reg_ecx.word())) {
                         CPU_Regs.reg_eax.word(0x202);	/* ax destroyed */
                         Callback.CALLBACK_SCF(false);
@@ -713,7 +713,7 @@ public class Dos extends Module_base {
                     }
                     break;
                 default:
-                    Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"DOS:0x43:Illegal subfunction %2X",CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"DOS:0x43:Illegal subfunction "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                     CPU_Regs.reg_eax.word(1);
                     Callback.CALLBACK_SCF(true);
                     break;
@@ -799,7 +799,7 @@ public class Dos extends Module_base {
             case 0x4b:					/* EXEC Load and/or execute program */
                 {
                     String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
-                    Log.log(LogTypes.LOG_EXEC,LogSeverities.LOG_ERROR,"Execute %s %d",name1,CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_EXEC,LogSeverities.LOG_ERROR,"Execute "+name1+" "+CPU_Regs.reg_eax.low());
                     if (!Dos_execute.DOS_Execute(name1,CPU.Segs_ESphys+CPU_Regs.reg_ebx.word(),CPU_Regs.reg_eax.low())) {
                         CPU_Regs.reg_eax.word(dos.errorcode);
                         Callback.CALLBACK_SCF(true);
@@ -851,7 +851,7 @@ public class Dos extends Module_base {
     //TODO Think hard how shit this is gonna be
     //And will any game ever use this :)
             case 0x53:					/* Translate BIOS parameter block to drive parameter block */
-                Log.exit("Unhandled Dos 21 call %02X",CPU_Regs.reg_eax.high());
+                Log.exit("Unhandled Dos 21 call "+Integer.toString(CPU_Regs.reg_eax.high(),16));
                 break;
             case 0x54:					/* Get verify flag */
                 CPU_Regs.reg_eax.low(dos.verify?1:0);
@@ -887,7 +887,7 @@ public class Dos extends Module_base {
                     Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:57:Set File Date Time Faked");
                     Callback.CALLBACK_SCF(false);
                 } else {
-                    Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:57:Unsupported subtion %X",CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:57:Unsupported subtion "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                 }
                 break;
             case 0x58:					/* Get/Set Memory allocation strategy */
@@ -914,7 +914,7 @@ public class Dos extends Module_base {
                     }
                     break;
                 default:
-                    Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:58:Not Supported Set//Get memory allocation call %X",CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:58:Not Supported Set//Get memory allocation call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                     CPU_Regs.reg_eax.word(1);
                     Callback.CALLBACK_SCF(true);
                 }
@@ -1010,7 +1010,7 @@ public class Dos extends Module_base {
                 break;
             case 0x65:					/* Get extented country information and a lot of other useless shit*/
                 { /* Todo maybe fully support this for now we set it standard for USA */
-                    Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:65:Extended country information call %X",CPU_Regs.reg_eax.word());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:65:Extended country information call "+Integer.toString(CPU_Regs.reg_eax.word(),16));
                     if((CPU_Regs.reg_eax.low() <=  0x07) && (CPU_Regs.reg_ecx.word() < 0x05)) {
                         DOS_SetError(DOSERR_FUNCTION_NUMBER_INVALID);
                         Callback.CALLBACK_SCF(true);
@@ -1080,7 +1080,7 @@ public class Dos extends Module_base {
                         Callback.CALLBACK_SCF(false);
                         break;
                     default:
-                        Log.exit("DOS:0x65:Unhandled country information call %2X",CPU_Regs.reg_eax.low());
+                        Log.exit("DOS:0x65:Unhandled country information call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                     }
                     break;
                 }
@@ -1119,7 +1119,7 @@ public class Dos extends Module_base {
                     case 0x01:
                         Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:Set Disk serial number");
                     default:
-                        Log.exit("DOS:Illegal Get Serial Number call %2X",CPU_Regs.reg_eax.low());
+                        Log.exit("DOS:Illegal Get Serial Number call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                     }
                     break;
                 }
@@ -1141,7 +1141,7 @@ public class Dos extends Module_base {
             case 0x71:					/* Unknown probably 4dos detection */
                 CPU_Regs.reg_eax.word(0x7100);
                 Callback.CALLBACK_SCF(true);
-                Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_NORMAL,"DOS:Windows long file name support call %2X",CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_NORMAL,"DOS:Windows long file name support call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
                 break;
 
             case 0xE0:
@@ -1154,7 +1154,7 @@ public class Dos extends Module_base {
             case 0xEF:                  /* Used in Ancient Art Of War CGA */
             case 0x5e:					/* More Network Functions */
             default:
-                Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:Unhandled call %02X al=%02X. Set al to default of 0",CPU_Regs.reg_eax.high(),CPU_Regs.reg_eax.low());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:Unhandled call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" al="+Integer.toString(CPU_Regs.reg_eax.low(), 16)+". Set al to default of 0");
                 CPU_Regs.reg_eax.low(0x00); /* default value */
                 break;
             }
@@ -1197,7 +1197,7 @@ public class Dos extends Module_base {
             }else{
                 CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);
                 if((CPU_Regs.reg_ecx.word() != 1) ||(CPU_Regs.reg_edx.word() != 1))
-                    Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_NORMAL,"int 25 called but not as diskdetection drive %X",CPU_Regs.reg_eax.low());
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_NORMAL,"int 25 called but not as diskdetection drive "+Integer.toString(CPU_Regs.reg_eax.low(),16));
 
                CPU_Regs.reg_eax.word(0);
             }

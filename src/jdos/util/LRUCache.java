@@ -33,11 +33,11 @@ import java.util.ArrayList;
 * Author: Christian d'Heureuse, Inventec Informatik AG, Zurich, Switzerland<br>
 * Multi-licensed: EPL / LGPL / GPL / AL / BSD.
 */
-public class LRUCache<K,V> {
+public class LRUCache {
 
 private static final float   hashTableLoadFactor = 0.75f;
 
-private LinkedHashMap<K,V>   map;
+private LinkedHashMap   map;
 private int                  cacheSize;
 
 /**
@@ -47,10 +47,10 @@ private int                  cacheSize;
 public LRUCache (int cacheSize) {
    this.cacheSize = cacheSize;
    int hashTableCapacity = (int)Math.ceil(cacheSize / hashTableLoadFactor) + 1;
-   map = new LinkedHashMap<K,V>(hashTableCapacity, hashTableLoadFactor, true) {
+   map = new LinkedHashMap(hashTableCapacity, hashTableLoadFactor, true) {
       // (an anonymous inner class)
       private static final long serialVersionUID = 1;
-      @Override protected boolean removeEldestEntry (Map.Entry<K,V> eldest) {
+      protected boolean removeEldestEntry (Map.Entry eldest) {
          return size() > LRUCache.this.cacheSize; }}; }
 
 /**
@@ -59,7 +59,7 @@ public LRUCache (int cacheSize) {
 * @param key the key whose associated value is to be returned.
 * @return    the value associated to this key, or null if no value with this key exists in the cache.
 */
-public synchronized V get (K key) {
+public synchronized Object get (Object key) {
    return map.get(key); }
 
 /**
@@ -70,7 +70,7 @@ public synchronized V get (K key) {
 * @param key    the key with which the specified value is to be associated.
 * @param value  a value to be associated with the specified key.
 */
-public synchronized void put (K key, V value) {
+public synchronized void put (Object key, Object value) {
    map.put (key, value); }
 
 /**
@@ -86,11 +86,5 @@ public synchronized void clear() {
 public synchronized int usedEntries() {
    return map.size(); }
 
-/**
-* Returns a <code>Collection</code> that contains a copy of all cache entries.
-* @return a <code>Collection</code> with a copy of the cache content.
-*/
-public synchronized Collection<Map.Entry<K,V>> getAll() {
-   return new ArrayList<Map.Entry<K,V>>(map.entrySet()); }
 
 } // end class LRUCache

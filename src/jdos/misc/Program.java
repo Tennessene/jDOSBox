@@ -37,7 +37,7 @@ public abstract class Program {
         public Program call();
     }
 
-    static private Vector<PROGRAMS_Main> internal_progs = new Vector<PROGRAMS_Main>();
+    static private Vector internal_progs = new Vector();
 
     public abstract void Run();
     static public void PROGRAMS_MakeFile(String name,PROGRAMS_Main main) {
@@ -47,7 +47,7 @@ public abstract class Program {
         comdata[CB_POS+1]=(byte)((call_program>>8)&0xff);
 
         /* Copy save the pointer in the vector and save it's index */
-        if (internal_progs.size()>255) Log.exit("PROGRAMS_MakeFile program size too large (%d)",internal_progs.size());
+        if (internal_progs.size()>255) Log.exit("PROGRAMS_MakeFile program size too large ("+internal_progs.size()+")");
         /*Bit8u*/int index = internal_progs.size();
         internal_progs.addElement(main);
         comdata[exe_block.length] = (byte)(index & 0xFF);
@@ -68,7 +68,7 @@ public abstract class Program {
             index=Memory.mem_readb(reader++);
             Program new_program;
             if(index > internal_progs.size()) Log.exit("something is messing with the memory");
-            PROGRAMS_Main handler = internal_progs.elementAt(index);
+            PROGRAMS_Main handler = (PROGRAMS_Main)internal_progs.elementAt(index);
             new_program = handler.call();
             new_program.Run();
             return Callback.CBRET_NONE;
@@ -116,10 +116,11 @@ public abstract class Program {
     	Dos_shell.full_arguments=""; //Clear so it gets even more save
     }
 
-    protected void WriteOut(String format,Object ... args) {
-        format = StringHelper.replace(format, "%i", "%d");
-        String buf = String.format(format, args);
-
+    protected void WriteOut(String format) {
+        WriteOut(format, new Object[0]);
+    }
+    protected void WriteOut(String format, Object[] args) {
+        String buf = StringHelper.sprintf(format, args);
     	/*Bit16u*/int size = buf.length();
     	for(/*Bit16u*/int i = 0; i < size;i++) {
     		/*Bit8u*/byte[] out=new byte[1];/*Bit16u*/IntRef s=new IntRef(1);

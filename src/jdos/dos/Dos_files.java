@@ -45,7 +45,7 @@ public class Dos_files {
     static public /*Bit8u*/short DOS_GetDefaultDrive() {
     //	return DOS_SDA(DOS_SDA_SEG,DOS_SDA_OFS).GetDrive();
         /*Bit8u*/short d = new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).GetDrive();
-        if( d != Dos.dos.current_drive ) Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"SDA drive %d not the same as dos.current_drive %d",d,Dos.dos.current_drive);
+        if( d != Dos.dos.current_drive ) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC, LogSeverities.LOG_ERROR,"SDA drive "+d+" not the same as dos.current_drive "+Dos.dos.current_drive);
         return Dos.dos.current_drive;
     }
 
@@ -95,7 +95,7 @@ public class Dos_files {
                 upname[w++]=c;
                 break;
             default:
-                Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"Makename encountered an illegal char %c hex:%X in %s!",c,c,name);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"Makename encountered an illegal char "+String.valueOf((char)c)+" hex:"+Integer.toString(c, 16)+" in "+name+"!");
                 Dos.DOS_SetError(Dos.DOSERR_PATH_NOT_FOUND);return false;
                 //break;
             }
@@ -293,7 +293,7 @@ public class Dos_files {
 
         if (Drives[drivenew.value].Rename(fullold.value,fullnew.value)) return true;
         /* If it still fails. which error should we give ? PATH NOT FOUND or EACCESS */
-        Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"Rename fails for %s to %s, no proper errorcode returned.",oldname,newname);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"Rename fails for "+oldname+" to "+newname+", no proper errorcode returned.");
         Dos.DOS_SetError(Dos.DOSERR_FILE_NOT_FOUND);
         return false;
     }
@@ -331,7 +331,7 @@ public class Dos_files {
             if (pos>=0) pattern = pattern.substring(0, pos);
             //TODO use current date and time
             dta.SetResult(pattern,0,0,0,(short)Dos_system.DOS_ATTR_DEVICE);
-            Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_WARN,"finding device %s",pattern);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_WARN,"finding device "+pattern);
             return true;
         }
 
@@ -459,7 +459,7 @@ public class Dos_files {
         if (Dos_devices.DOS_FindDevice(name) != Dos_devices.DOS_DEVICES)
             return DOS_OpenFile(name, OPEN_READ, entry);
 
-        Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"file create attributes %X file %s",attributes,name);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"file create attributes "+Integer.toString(attributes, 16)+" file "+name);
         StringRef fullname = new StringRef();/*Bit8u*/ShortRef drive=new ShortRef();
         Dos_PSP psp = new Dos_PSP(Dos.dos.psp());
         if (!DOS_MakeName(name,fullname,drive)) return false;
@@ -502,8 +502,8 @@ public class Dos_files {
 
     public static boolean DOS_OpenFile(String name,/*Bit8u*/int flags,/*Bit16u*/IntRef entry) {
         /* First check for devices */
-        if (flags>2) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_ERROR,"Special file open command %X file %s",flags,name);
-        else Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"file open command %X file %s",flags,name);
+        if (flags>2) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_ERROR,"Special file open command "+Integer.toString(flags, 16)+" file "+name);
+        else if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"file open command "+Integer.toString(flags, 16)+" file "+name);
 
         Dos_PSP psp = new Dos_PSP(Dos.dos.psp());
         /*Bit16u*/IntRef attr = new IntRef(0);
@@ -921,7 +921,7 @@ public class Dos_files {
                 handle.value = psp.FindEntryByHandle(i);
                 if (handle.value==0xFF) {
                     // This shouldnt happen
-                    Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_ERROR,"DOS: File %s is opened but has no psp entry.",shortname);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_ERROR,"DOS: File "+shortname+" is opened but has no psp entry.");
                     return false;
                 }
                 fcb.FileOpen((/*Bit8u*/short)handle.value);

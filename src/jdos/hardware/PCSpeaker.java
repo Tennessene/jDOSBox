@@ -14,8 +14,11 @@ public class PCSpeaker extends Module_base {
     private static final int SPKR_VOLUME = 5000;
     private static final float SPKR_SPEED = (float)((SPKR_VOLUME*2)/0.070f);
 
-    private static enum SPKR_MODES {
-        SPKR_OFF,SPKR_ON,SPKR_PIT_OFF,SPKR_PIT_ON
+    private static final class SPKR_MODES {
+        public static final int SPKR_OFF=0;
+        public static final int SPKR_ON=1;
+        public static final int SPKR_PIT_OFF=2;
+        public static final int SPKR_PIT_ON=3;
     }
 
     private static class DelayEntry {
@@ -29,7 +32,7 @@ public class PCSpeaker extends Module_base {
                 entries[i] = new DelayEntry();
         }
         Mixer.MixerChannel chan = new Mixer.MixerChannel();
-        SPKR_MODES mode;
+        int mode;
         /*Bitu*/int pit_mode;
         /*Bitu*/int rate;
 
@@ -195,7 +198,7 @@ public class PCSpeaker extends Module_base {
             break;
         default:
             if (Config.C_DEBUG)
-                Log.log_msg("Unhandled speaker mode %d",mode);
+                Log.log_msg("Unhandled speaker mode "+mode);
             return;
         }
         spkr.pit_mode=mode;

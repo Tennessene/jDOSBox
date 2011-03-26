@@ -79,7 +79,7 @@ public class VGA_memory {
             full=RasterOp(VGA.vga.config.full_set_reset,VGA.ExpandTable[val] & VGA.vga.config.full_bit_mask);
             break;
         default:
-            Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:Unsupported write mode %d",VGA.vga.config.write_mode);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:Unsupported write mode "+VGA.vga.config.write_mode);
             full=0;
             break;
         }
@@ -681,12 +681,12 @@ public class VGA_memory {
 
         Paging.PageHandler newHandler;
         switch (Dosbox.machine) {
-        case MCH_CGA:
-        case MCH_PCJR:
+        case MachineType.MCH_CGA:
+        case MachineType.MCH_PCJR:
             Memory.MEM_SetPageHandler(VGA_PAGE_B8, 8, vgaph.pcjr);
             rangeDone();
             return;
-        case MCH_HERC:
+        case MachineType.MCH_HERC:
             vgapages.base=VGA_PAGE_B0;
             if ((VGA.vga.herc.enable_bits & 0x2)!=0) {
                 vgapages.mask=0xffff;
@@ -699,7 +699,7 @@ public class VGA_memory {
             }
             rangeDone();
             return;
-        case MCH_TANDY:
+        case MachineType.MCH_TANDY:
             /* Always map 0xa000 - 0xbfff, might overwrite 0xb800 */
             vgapages.base=VGA_PAGE_A0;
             vgapages.mask=0x1ffff;
@@ -718,11 +718,11 @@ public class VGA_memory {
             return;
     //		Memory.MEM_SetPageHandler(VGA.vga.tandy.mem_bank<<2,VGA.vga.tandy.is_32k_mode ? 0x08 : 0x04,range_handler);
         // EGAVGA_ARCH_CASE
-        case MCH_EGA:
-        case MCH_VGA:
+        case MachineType.MCH_EGA:
+        case MachineType.MCH_VGA:
             break;
         default:
-            Log.log_msg("Illegal machine type %d", Dosbox.machine);
+            Log.log_msg("Illegal machine type "+Dosbox.machine);
             return;
         }
 
@@ -776,11 +776,11 @@ public class VGA_memory {
         case 0:
             vgapages.base = VGA_PAGE_A0;
             switch (Dosbox.svgaCard) {
-            case SVGA_TsengET3K:
-            case SVGA_TsengET4K:
+            case SVGACards.SVGA_TsengET3K:
+            case SVGACards.SVGA_TsengET4K:
                 vgapages.mask = 0xffff;
                 break;
-            case SVGA_S3Trio:
+            case SVGACards.SVGA_S3Trio:
             default:
                 vgapages.mask = 0x1ffff;
                 break;

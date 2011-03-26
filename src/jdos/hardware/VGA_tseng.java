@@ -159,7 +159,7 @@ public class VGA_tseng {
                 } else VGA.vga.s3.ex_hor_overflow=(short)(val&0x15);
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:CRTC:ET4K:Write to illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:CRTC:ET4K:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -187,7 +187,7 @@ public class VGA_tseng {
                 case 0x3f:
                     return et4k.store_3d4_3f;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:ET4K:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:ET4K:Read from illegal index "+Integer.toString(reg,16));
                 break;
             }
             return 0x0;
@@ -216,7 +216,7 @@ public class VGA_tseng {
                 et4k.store_3c4_07 = val;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET4K:Write to illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET4K:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -230,7 +230,7 @@ public class VGA_tseng {
                 case 0x07:
                     return et4k.store_3c4_07;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET4K:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET4K:Read from illegal index "+Integer.toString(reg,16));
                 break;
             }
             return 0x0;
@@ -299,7 +299,7 @@ public class VGA_tseng {
                 et4k.store_3c0_17 = val;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET4K:Write to illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET4K:Write to illegal index "+Integer.toString(reg, 16));
                 break;
             }
         }
@@ -313,7 +313,7 @@ public class VGA_tseng {
                 case 0x17:
                     return et4k.store_3c0_17;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET4K:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET4K:Read from illegal index "+Integer.toString(reg,16));
                 break;
             }
             return 0x0;
@@ -624,7 +624,7 @@ public class VGA_tseng {
                 break;
 
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:ET3K:Write to illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:ET3K:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -654,7 +654,7 @@ public class VGA_tseng {
             case 0x25:
                 return et3k.store_3d4_25;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:ET3K:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:CRTC:ET3K:Read from illegal index "+Integer.toString(reg,16));
                 break;
             }
             return 0x0;
@@ -673,7 +673,7 @@ public class VGA_tseng {
                 et3k.store_3c4_07 = val;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET3K:Write to illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET3K:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -687,7 +687,7 @@ public class VGA_tseng {
             case 0x07:
                 return et3k.store_3c4_07;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET3K:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:SEQ:ET3K:Read from illegal index "+Integer.toString(reg,16));
                 break;
             }
             return 0x0;
@@ -730,7 +730,7 @@ public class VGA_tseng {
                 et3k.store_3c0_17 = val;
                 break;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET3K:Write to illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET3K:Write to illegal index "+Integer.toString(reg,16));
                 break;
             }
         }
@@ -744,7 +744,7 @@ public class VGA_tseng {
             case 0x17:
                 return et3k.store_3c0_17;
             default:
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET3K:Read from illegal index %2X", reg);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:ATTR:ET3K:Read from illegal index "+Integer.toString(reg,16));
                 break;
             }
             return 0x0;

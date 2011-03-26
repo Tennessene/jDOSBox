@@ -759,17 +759,19 @@ public class CPU extends Module_base {
 
     final private static TaskStateSegment cpu_tss = new TaskStateSegment();
 
-    static enum TSwitchType {
-        TSwitch_JMP,TSwitch_CALL_INT,TSwitch_IRET
+    static final class TSwitchType {
+        static public final int TSwitch_JMP=0;
+        static public final int TSwitch_CALL_INT=1;
+        static public final int TSwitch_IRET=2;
     }
 
     static private final TaskStateSegment new_tss_temp=new TaskStateSegment();
     static private final Descriptor cs_desc_temp = new Descriptor();
-    static private boolean CPU_SwitchTask( /*Bitu*/int new_tss_selector,TSwitchType tstype, /*Bitu*/long old_eip) {
+    static private boolean CPU_SwitchTask( /*Bitu*/int new_tss_selector,int tstype, /*Bitu*/long old_eip) {
         Flags.FillFlags();
 
         if (!new_tss_temp.SetSelector(new_tss_selector))
-            Log.exit("Illegal TSS for switch, selector=%x, switchtype=%x",new_tss_selector,tstype);
+            Log.exit("Illegal TSS for switch, selector="+Integer.toString(new_tss_selector, 16)+", switchtype="+Integer.toString(tstype, 16));
         if (tstype==TSwitchType.TSwitch_IRET) {
             if (new_tss_temp.desc.IsBusy()==0)
                 Log.exit("TSS not busy for IRET");
@@ -928,7 +930,7 @@ public class CPU extends Module_base {
                 Segs_CSval=new_cs;
                 break;
             default:
-                Log.exit("Task switch CS Type %d",cs_desc_temp.Type());
+                Log.exit("Task switch CS Type "+cs_desc_temp.Type());
             }
         }
         CPU_SetSegGeneralES((int)new_es);
@@ -937,7 +939,7 @@ public class CPU extends Module_base {
         CPU_SetSegGeneralFS((int)new_fs);
         CPU_SetSegGeneralGS((int)new_gs);
         if (!cpu_tss.SetSelector(new_tss_selector)) {
-            Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL, "TaskSwitch: set tss selector %X failed",new_tss_selector);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL, "TaskSwitch: set tss selector "+Integer.toString(new_tss_selector, 16)+" failed");
         }
 //	cpu_tss.desc.SetBusy(true);
 //	cpu_tss.SaveSelector();
@@ -947,7 +949,7 @@ public class CPU extends Module_base {
 
     static boolean doexception(int port) {
         cpu.mpl=3;
-        Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IO Exception port %X",port);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IO Exception port "+Integer.toString(port, 16));
         return CPU_PrepareException(EXCEPTION_GP,0);
     }
 
@@ -1160,7 +1162,7 @@ public class CPU extends Module_base {
                         }
                         break;
                     default:
-                        Log.exit("INT:Gate Selector points to illegal descriptor with type %x",cs_desc_temp_1.Type());
+                        Log.exit("INT:Gate Selector points to illegal descriptor with type "+Integer.toString(cs_desc_temp_1.Type(),16));
                     }
 
                     Segs_CSval=(gate_sel&0xfffc) | cpu.cpl;
@@ -1174,7 +1176,7 @@ public class CPU extends Module_base {
                     CPU_Regs.SETFLAGBIT(CPU_Regs.TF,false);
                     CPU_Regs.SETFLAGBIT(CPU_Regs.NT,false);
                     CPU_Regs.SETFLAGBIT(CPU_Regs.VM,false);
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"INT:Gate to %X:%X big %d %s",gate_sel,gate_off,cs_desc_temp_1.Big(),(gate_temp_1.Type() & 0x8) != 0 ? "386" : "286");
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"INT:Gate to "+Integer.toString(gate_sel, 16)+":"+Integer.toString(gate_off, 16)+" big "+cs_desc_temp_1.Big()+" "+((gate_temp_1.Type() & 0x8) != 0 ? "386" : "286"));
                     return;
                 }
             case DESC_TASK_GATE:
@@ -1188,7 +1190,7 @@ public class CPU extends Module_base {
                 }
                 return;
             default:
-                Log.exit("Illegal descriptor type %X for int %X", gate_temp_1.Type(),num);
+                Log.exit("Illegal descriptor type "+Integer.toString(gate_temp_1.Type(), 16)+" for int "+Integer.toString(num,16));
             }
         }
         throw new RuntimeException();
@@ -1293,7 +1295,7 @@ public class CPU extends Module_base {
                     CPU_Regs.reg_esp.dword(n_esp);
                     cpu.code.big=false;
                     CPU_Regs.SegSet16CS(n_cs_sel);
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IRET:Back to V86: CS:%X IP %X SS:%X SP %X FLAGS:%X",Segs_CSval,CPU_Regs.reg_eip(),Segs_SSval,CPU_Regs.reg_esp.dword(),CPU_Regs.flags);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IRET:Back to V86: CS:"+Long.toString(Segs_CSval, 16)+" IP "+Long.toString(CPU_Regs.reg_eip(), 16)+" SS:"+Long.toString(Segs_SSval, 16)+" SP "+Long.toString(CPU_Regs.reg_esp.dword(), 16)+" FLAGS:%X"+Integer.toString(CPU_Regs.flags,16));
                     return;
                 }
                 if ((n_flags & CPU_Regs.VM)!=0) Log.exit("IRET from pmode to v86 with CPL!=0");
@@ -1325,7 +1327,7 @@ public class CPU extends Module_base {
                 if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_desc_2.DPL()>n_cs_rpl, "IRET:C:DPL>RPL", EXCEPTION_GP,(n_cs_sel & 0xfffc));
                 break;
             default:
-                Log.exit("IRET:Illegal descriptor type %X",n_cs_desc_2.Type());
+                Log.exit("IRET:Illegal descriptor type "+Integer.toString(n_cs_desc_2.Type(),16));
             }
             if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_desc_2.saved.seg.p()==0, "IRET with nonpresent code segment",EXCEPTION_NP,(n_cs_sel & 0xfffc));
 
@@ -1405,7 +1407,7 @@ public class CPU extends Module_base {
                 // borland extender, zrdx
                 CPU_CheckSegments();
 
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IRET:Outer level:%X:%X big %d",n_cs_sel,n_eip,cpu.code.big);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IRET:Outer level:"+Integer.toString(n_cs_sel, 16)+":"+Long.toString(n_eip, 16)+" big "+cpu.code.big);
             }
         }
     }
@@ -1433,7 +1435,7 @@ public class CPU extends Module_base {
             case DESC_CODE_R_NC_A:		case DESC_CODE_R_NC_NA:
                 if (Config.C_DEBUG) CPU_CHECK_COND(rpl>cpu.cpl, "JMP:NC:RPL>CPL", EXCEPTION_GP,selector & 0xfffc);
                 if (Config.C_DEBUG) CPU_CHECK_COND(cpu.cpl!=desc_3.DPL(), "JMP:NC:RPL != DPL", EXCEPTION_GP,selector & 0xfffc);
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:Code:NC to %X:%X big %d",selector,offset,desc_3.Big());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:Code:NC to "+Integer.toString(selector, 16)+":"+Integer.toString(offset, 16)+" big "+desc_3.Big());
                 //goto CODE_jmp;
                 if (desc_3.saved.seg.p()==0) {
                     // win
@@ -1449,7 +1451,7 @@ public class CPU extends Module_base {
                 return;
             case DESC_CODE_N_C_A:		case DESC_CODE_N_C_NA:
             case DESC_CODE_R_C_A:		case DESC_CODE_R_C_NA:
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:Code:C to %X:%X big %d",selector,offset,desc_3.Big());
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:Code:C to "+Integer.toString(selector, 16)+":"+Integer.toString(offset, 16)+" big "+desc_3.Big());
                 if (Config.C_DEBUG) CPU_CHECK_COND(cpu.cpl<desc_3.DPL(), "JMP:C:CPL < DPL", EXCEPTION_GP,selector & 0xfffc);
     //CODE_jmp:
                 if (desc_3.saved.seg.p()==0) {
@@ -1467,11 +1469,11 @@ public class CPU extends Module_base {
             case DESC_386_TSS_A:
                 if (Config.C_DEBUG) CPU_CHECK_COND(desc_3.DPL()<cpu.cpl, "JMP:TSS:dpl<cpl", EXCEPTION_GP,selector & 0xfffc);
                 if (Config.C_DEBUG) CPU_CHECK_COND(desc_3.DPL()<rpl, "JMP:TSS:dpl<rpl", EXCEPTION_GP,selector & 0xfffc);
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:TSS to %X",selector);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:TSS to "+Integer.toString(selector,16));
                 CPU_SwitchTask(selector,TSwitchType.TSwitch_JMP,oldeip);
                 break;
             default:
-                Log.exit("JMP Illegal descriptor type %X",desc_3.Type());
+                Log.exit("JMP Illegal descriptor type "+Integer.toString(desc_3.Type(),16));
             }
         }
     }
@@ -1508,7 +1510,7 @@ public class CPU extends Module_base {
             case DESC_CODE_R_NC_A:case DESC_CODE_R_NC_NA:
                 if (Config.C_DEBUG) CPU_CHECK_COND(rpl>cpu.cpl, "CALL:CODE:NC:RPL>CPL", EXCEPTION_GP,selector & 0xfffc);
                 if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()!=cpu.cpl, "CALL:CODE:NC:DPL!=CPL", EXCEPTION_GP,selector & 0xfffc);
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:CODE:NC to %X:%X",selector,offset);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:CODE:NC to "+Integer.toString(selector, 16)+":"+Long.toString(offset,16));
                 //goto call_code;
                 if (call_4.saved.seg.p()==0) {
                     // borland extender (RTM)
@@ -1532,7 +1534,7 @@ public class CPU extends Module_base {
             case DESC_CODE_N_C_A:case DESC_CODE_N_C_NA:
             case DESC_CODE_R_C_A:case DESC_CODE_R_C_NA:
                 if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()>cpu.cpl, "CALL:CODE:C:DPL>CPL", EXCEPTION_GP,selector & 0xfffc);
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:CODE:C to %X:%X",selector,offset);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:CODE:C to "+Integer.toString(selector, 16)+":"+Long.toString(offset,16));
     //call_code:
                 if (call_4.saved.seg.p()==0) {
                     // borland extender (RTM)
@@ -1683,7 +1685,7 @@ public class CPU extends Module_base {
                 if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()<rpl, "CALL:TSS:dpl<rpl", EXCEPTION_GP,selector & 0xfffc);
                 if (Config.C_DEBUG) CPU_CHECK_COND(call_4.saved.seg.p()==0, "CALL:TSS:Segment not present", EXCEPTION_NP,selector & 0xfffc);
 
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:TSS to %X",selector);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:TSS to "+Integer.toString(selector,16));
                 CPU_SwitchTask(selector,TSwitchType.TSwitch_CALL_INT,oldeip);
                 break;
             case DESC_DATA_EU_RW_NA:	// vbdos
@@ -1691,7 +1693,7 @@ public class CPU extends Module_base {
                 CPU_Exception(EXCEPTION_GP,selector & 0xfffc);
                 return;
             default:
-                Log.exit("CALL:Descriptor type %x unsupported",call_4.Type());
+                Log.exit("CALL:Descriptor type "+Integer.toString(call_4.Type(), 16)+" unsupported");
             }
         }
     }
@@ -1767,7 +1769,7 @@ public class CPU extends Module_base {
                     if (Config.C_DEBUG) CPU_CHECK_COND(desc_5.DPL()>cpu.cpl, "RET to C segment of higher privilege", EXCEPTION_GP,selector & 0xfffc);
                     break;
                 default:
-                    Log.exit("RET from illegal descriptor type %X",desc_5.Type());
+                    Log.exit("RET from illegal descriptor type "+Integer.toString(desc_5.Type(),16));
                 }
     //RET_same_level:
                 if (desc_5.saved.seg.p()==0) {
@@ -1807,7 +1809,7 @@ public class CPU extends Module_base {
                     if (Config.C_DEBUG) CPU_CHECK_COND(desc_5.DPL()>rpl, "RET to outer C segment with DPL>RPL", EXCEPTION_GP,selector & 0xfffc);
                     break;
                 default:
-                    Log.exit("RET from illegal descriptor type %X",desc_5.Type());		// or #GP(selector)
+                    Log.exit("RET from illegal descriptor type "+Integer.toString(desc_5.Type(),16));		// or #GP(selector)
                 }
 
                 if (Config.C_DEBUG) CPU_CHECK_COND(desc_5.saved.seg.p()==0, "RET:Outer level:CS not present", EXCEPTION_NP,selector & 0xfffc);
@@ -1882,10 +1884,10 @@ public class CPU extends Module_base {
 
     static public boolean CPU_LLDT( /*Bitu*/int selector) {
         if (!cpu.gdt.LLDT(selector)) {
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"LLDT failed, selector=%X",selector);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"LLDT failed, selector="+Integer.toString(selector,16));
             return true;
         }
-        Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"LDT Set to %X",selector);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"LDT Set to "+Integer.toString(selector, 16));
         return false;
     }
 
@@ -1901,34 +1903,34 @@ public class CPU extends Module_base {
         }
 
         if ((selector & 4) != 0 || (!cpu.gdt.GetDescriptor(selector,desc_6))) {
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"LTR failed, selector=%X",selector);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"LTR failed, selector="+Integer.toString(selector,16));
             return CPU_PrepareException(EXCEPTION_GP,selector);
         }
 
         if ((desc_6.Type()==DESC_286_TSS_A) || (desc_6.Type()==DESC_386_TSS_A)) {
             if (desc_6.saved.seg.p()==0) {
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"LTR failed, selector=%X (not present)",selector);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"LTR failed, selector="+Integer.toString(selector, 16)+" (not present)");
                 return CPU_PrepareException(EXCEPTION_NP,selector);
             }
-            if (!cpu_tss.SetSelector(selector)) Log.exit("LTR failed, selector=%X",selector);
+            if (!cpu_tss.SetSelector(selector)) Log.exit("LTR failed, selector="+Integer.toString(selector,16));
             cpu_tss.desc.SetBusy(true);
             cpu_tss.SaveSelector();
         } else {
             /* Descriptor was no available TSS descriptor */
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"LTR failed, selector=%X (type=%X)",selector,desc_6.Type());
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"LTR failed, selector="+Integer.toString(selector, 16)+" (type="+Integer.toString(desc_6.Type(), 16)+")");
             return CPU_PrepareException(EXCEPTION_GP,selector);
         }
         return false;
     }
 
     static public void CPU_LGDT( /*Bitu*/int limit, /*Bitu*/long base) {
-        Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"GDT Set to base:%X limit:%X",base,limit);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"GDT Set to base:"+Long.toString(base, 16)+" limit:"+Integer.toString(limit,16));
         cpu.gdt.SetLimit(limit);
         cpu.gdt.SetBase(base);
     }
 
     static public void CPU_LIDT( /*Bitu*/int limit, /*Bitu*/long base) {
-        Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"IDT Set to base:%X limit:%X",base,limit);
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"IDT Set to base:"+Long.toString(base, 16)+" limit:"+Integer.toString(limit,16));
         cpu.idt.SetLimit(limit);
         cpu.idt.SetBase(base);
     }
@@ -1957,7 +1959,7 @@ public class CPU extends Module_base {
                 cpu.cr0=value;
                 if ((value & CR0_PROTECTION)!=0) {
                     cpu.pmode=true;
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"Protected mode");
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"Protected mode");
                     Paging.PAGING_Enable((value & CR0_PAGING)>0);
 
                     if ((CPU_AutoDetermineMode & CPU_AUTODETERMINE_MASK)==0) break;
@@ -1992,7 +1994,7 @@ public class CPU extends Module_base {
                     cpu.pmode=false;
                     if ((value & CR0_PAGING)!=0) Log.log_msg("Paging requested without PE=1");
                     Paging.PAGING_Enable(false);
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"Real mode");
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"Real mode");
                 }
                 break;
             }
@@ -2003,7 +2005,7 @@ public class CPU extends Module_base {
             Paging.PAGING_SetDirBase(value);
             break;
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV CR%d,%X",cr,value);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV CR"+cr+","+Long.toString(value, 16));
             break;
         }
     }
@@ -2030,7 +2032,7 @@ public class CPU extends Module_base {
         case 3:
             return Paging.PAGING_GetDirBase() & 0xfffff000l;
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, CR%d",cr);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, CR"+cr);
             break;
         }
         return 0;
@@ -2068,7 +2070,7 @@ public class CPU extends Module_base {
             }
             break;
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV DR%d,%X",dr,value);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV DR"+dr+","+Long.toString(value,16));
             break;
         }
         return false;
@@ -2093,7 +2095,7 @@ public class CPU extends Module_base {
             retvalue.value=cpu.drx[7];
             break;
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, DR%d",dr);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, DR"+dr);
             retvalue.value=0;
             break;
         }
@@ -2110,7 +2112,7 @@ public class CPU extends Module_base {
             cpu.trx[tr]=value;
             return false;
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV TR%d,%X",tr,value);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV TR"+tr+","+Integer.toString(value,16));
             break;
         }
         return CPU_PrepareException(EXCEPTION_UD,0);
@@ -2126,7 +2128,7 @@ public class CPU extends Module_base {
             retvalue.value=cpu.trx[tr];
             return false;
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, TR%d",tr);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, TR"+tr);
             break;
         }
         return CPU_PrepareException(EXCEPTION_UD,0);
@@ -2688,7 +2690,7 @@ public class CPU extends Module_base {
             }
             break;
         default:
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled CPUID Function %x",CPU_Regs.reg_eax.dword());
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled CPUID Function "+Long.toString(CPU_Regs.reg_eax.dword(),16));
             CPU_Regs.reg_eax.dword(0);
             CPU_Regs.reg_ebx.dword(0);
             CPU_Regs.reg_ecx.dword(0);
@@ -2759,7 +2761,7 @@ public class CPU extends Module_base {
             if (CPU_CycleAutoAdjust) {
                 CPU_CyclePercUsed+=5;
                 if (CPU_CyclePercUsed>105) CPU_CyclePercUsed=105;
-                Log.log_msg("CPU speed: max %d percent.",CPU_CyclePercUsed);
+                Log.log_msg("CPU speed: max "+CPU_CyclePercUsed+" percent.");
                 Main.GFX_SetTitle(CPU_CyclePercUsed,-1,false);
             } else {
                 /*Bit32s*/int old_cycles=CPU_CycleMax;
@@ -2772,9 +2774,9 @@ public class CPU extends Module_base {
                 CPU_CycleLeft=0;CPU_Cycles=0;
                 if (CPU_CycleMax==old_cycles) CPU_CycleMax++;
                 if(CPU_CycleMax > 15000 )
-                    Log.log_msg("CPU speed: fixed %d cycles. If you need more than 20000, try core=dynamic in DOSBox's options.",CPU_CycleMax);
+                    Log.log_msg("CPU speed: fixed "+CPU_CycleMax+" cycles. If you need more than 20000, try core=dynamic in DOSBox's options.");
                 else
-                    Log.log_msg("CPU speed: fixed %d cycles.",CPU_CycleMax);
+                    Log.log_msg("CPU speed: fixed "+CPU_CycleMax+" cycles.");
                 Main.GFX_SetTitle(CPU_CycleMax,-1,false);
             }
         }
@@ -2786,9 +2788,9 @@ public class CPU extends Module_base {
                 CPU_CyclePercUsed-=5;
                 if (CPU_CyclePercUsed<=0) CPU_CyclePercUsed=1;
                 if(CPU_CyclePercUsed <=70)
-                    Log.log_msg("CPU speed: max %d percent. If the game runs too fast, try a fixed cycles amount in DOSBox's options.",CPU_CyclePercUsed);
+                    Log.log_msg("CPU speed: max "+CPU_CyclePercUsed+" percent. If the game runs too fast, try a fixed cycles amount in DOSBox's options.");
                 else
-                    Log.log_msg("CPU speed: max %d percent.",CPU_CyclePercUsed);
+                    Log.log_msg("CPU speed: max "+CPU_CyclePercUsed+" percent.");
                 Main.GFX_SetTitle(CPU_CyclePercUsed,-1,false);
             } else {
                 if (CPU_CycleDown < 100) {
@@ -2798,7 +2800,7 @@ public class CPU extends Module_base {
                 }
                 CPU_CycleLeft=0;CPU_Cycles=0;
                 if (CPU_CycleMax <= 0) CPU_CycleMax=1;
-                Log.log_msg("CPU speed: fixed %d cycles.",CPU_CycleMax);
+                Log.log_msg("CPU speed: fixed "+CPU_CycleMax+" cycles.");
                 Main.GFX_SetTitle(CPU_CycleMax,-1,false);
             }
         }

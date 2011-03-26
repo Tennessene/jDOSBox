@@ -29,14 +29,14 @@ public class Main {
         gui.showProgress(msg, percent);
     }
     
-    public static enum GFX_CallBackFunctions_t{
-        GFX_CallBackReset,
-        GFX_CallBackStop,
-        GFX_CallBackRedraw
+    public static final class GFX_CallBackFunctions_t{
+        static final public int GFX_CallBackReset=0;
+        static final public int GFX_CallBackStop=1;
+        static final public int GFX_CallBackRedraw=2;
     }
 
     public static interface GFX_CallBack_t {
-        public void call(GFX_CallBackFunctions_t function);
+        public void call(int function);
     }
 
     static private long startTime = System.currentTimeMillis();
@@ -49,8 +49,7 @@ public class Main {
         try {Thread.sleep(ms);} catch (Exception e){}
     }
     
-    static private final String MAPPERFILE = "mapper-" + Config.VERSION + ".map";
-    static public final boolean DEBUG=true;
+    static private final String MAPPERFILE = "mapper-" + Config.MAJOR_VERSION + ".map";
 
     static public void GFX_SetPalette(/*Bitu*/int start,/*Bitu*/int count, Render.RenderPal_t.RGB[] entries, int entriesOffset) {
         for (int i=start;i<start+count;i++) {
@@ -218,7 +217,7 @@ public class Main {
         }
     }
     static private void handle(KeyEvent key) {
-        Keyboard.KBD_KEYS result = Keyboard.KBD_KEYS.KBD_NONE;
+        int result;
 
         switch (key.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:result=Keyboard.KBD_KEYS.KBD_esc;break;
@@ -349,7 +348,7 @@ public class Main {
             case KeyEvent.VK_PAUSE:result=Keyboard.KBD_KEYS.KBD_pause;break;
             case KeyEvent.VK_PRINTSCREEN:result=Keyboard.KBD_KEYS.KBD_printscreen;break;
             default:
-                Log.log(LogTypes.LOG_GUI, LogSeverities.LOG_WARN, "Unknown key code: %d", key.getKeyCode());
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_GUI, LogSeverities.LOG_WARN, "Unknown key code: "+key.getKeyCode());
                 return;
         }
         Keyboard.KEYBOARD_AddKey(result, key.getID()==KeyEvent.KEY_PRESSED);
@@ -481,23 +480,23 @@ public class Main {
         }
     }
 
-    static void SetPriority(PRIORITY_LEVELS level) {
+    static void SetPriority(int level) {
         if (true) return;
         switch (level) {
-        case PRIORITY_LEVEL_PAUSE:	// if DOSBox is paused, assume idle priority
-        case PRIORITY_LEVEL_LOWEST:
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_PAUSE:	// if DOSBox is paused, assume idle priority
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_LOWEST:
             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
             break;
-        case PRIORITY_LEVEL_LOWER:
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_LOWER:
             Thread.currentThread().setPriority((Thread.NORM_PRIORITY+Thread.MIN_PRIORITY)/2);
             break;
-        case PRIORITY_LEVEL_NORMAL:
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_NORMAL:
             Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
             break;
-        case PRIORITY_LEVEL_HIGHER:
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHER:
             Thread.currentThread().setPriority((Thread.NORM_PRIORITY+Thread.MAX_PRIORITY)/2);
             break;
-        case PRIORITY_LEVEL_HIGHEST:
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHEST:
             Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
             break;
         }
@@ -550,17 +549,17 @@ public class Main {
         }
     };
 
-    enum PRIORITY_LEVELS {
-        PRIORITY_LEVEL_PAUSE,
-        PRIORITY_LEVEL_LOWEST,
-        PRIORITY_LEVEL_LOWER,
-        PRIORITY_LEVEL_NORMAL,
-        PRIORITY_LEVEL_HIGHER,
-        PRIORITY_LEVEL_HIGHEST
+    static final class PRIORITY_LEVELS {
+        static public final int PRIORITY_LEVEL_PAUSE=0;
+        static public final int PRIORITY_LEVEL_LOWEST=1;
+        static public final int PRIORITY_LEVEL_LOWER=2;
+        static public final int PRIORITY_LEVEL_NORMAL=3;
+        static public final int PRIORITY_LEVEL_HIGHER=4;
+        static public final int PRIORITY_LEVEL_HIGHEST=5;
     }
 
-    private static PRIORITY_LEVELS priority_focus;
-    private static PRIORITY_LEVELS priority_nofocus;
+    private static int priority_focus;
+    private static int priority_nofocus;
     
     private static Section.SectionFunction GUI_StartUp = new Section.SectionFunction() {
         public void call(Section sec) {
@@ -667,7 +666,7 @@ public class Main {
     static void launcheditor() {
         String path = Cross.CreatePlatformConfigDir() + Cross.GetPlatformConfigName();
         if (!Dosbox.control.PrintConfig(path)) {
-            Log.exit("tried creating %s. but failed.\n",path);
+            Log.exit("tried creating "+path+". but failed.\n");
         }
 
         String edit;
@@ -695,7 +694,7 @@ public class Main {
         path += file;
         Cross.CreateDir(path);
         if(new File(path).isDirectory()) {
-            Log.exit("%s doesn't exists or isn't a directory.\n",path);
+            Log.exit(path+" doesn't exists or isn't a directory.\n");
         }
     /*	if(edit.empty()) {
             printf("no editor specified.\n");
@@ -710,7 +709,7 @@ public class Main {
 
         }
         //if you get here the launching failed!
-        Log.exit("can't find filemanager %s\n",edit);
+        Log.exit("can't find filemanager "+edit+"\n");
     }
 
     static void eraseconfigfile() {
@@ -740,7 +739,7 @@ public class Main {
     static void printconfiglocation() {
         String path = Cross.CreatePlatformConfigDir() + Cross.GetPlatformConfigName();
         if (!Dosbox.control.PrintConfig(path)) {
-            Log.exit("tried creating %s. but failed.\n",path);
+            Log.exit("tried creating "+path+". but failed.\n");
         }
         Log.log_msg(path+"\n");
         System.exit(0);
@@ -773,7 +772,7 @@ public class Main {
             if (Dosbox.control.cmdline.FindExist("-resetmapper")) erasemapperfile();
             // For now just use the java console, in the future we could open a separate swing windows and redirect to there if necessary
             if (Dosbox.control.cmdline.FindExist("-version") || Dosbox.control.cmdline.FindExist("--version")) {
-                Log.log_msg("\nDOSBox version %s, copyright 2002-2010 DOSBox Team.\n\n",Config.VERSION);
+                Log.log_msg("\nDOSBox version "+Config.VERSION+", copyright 2002-2010 DOSBox Team.\n\n");
                 Log.log_msg("DOSBox is written by the DOSBox Team (See AUTHORS file))\n");
                 Log.log_msg("DOSBox comes with ABSOLUTELY NO WARRANTY.  This is free software,\n");
                 Log.log_msg("and you are welcome to redistribute it under certain conditions;\n");
@@ -781,7 +780,7 @@ public class Main {
                 return;
             }
             if (Dosbox.control.cmdline.FindExist("-printconf")) printconfiglocation();
-            Log.log_msg("DOSBox version %s",Config.VERSION);
+            Log.log_msg("DOSBox version "+Config.VERSION);
             Log.log_msg("Copyright 2002-2010 DOSBox Team, published under GNU GPL.");
             Log.log_msg("---");
 

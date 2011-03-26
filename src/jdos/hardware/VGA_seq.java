@@ -102,7 +102,7 @@ public class VGA_seq {
                 if (VGA.svga.write_p3c5!=null) {
                     VGA.svga.write_p3c5.call(VGA.vga.seq.index, val, iolen);
                 } else {
-                    Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:SEQ:Write to illegal index %2X",VGA.vga.seq.index);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:SEQ:Write to illegal index "+Integer.toString(VGA.vga.seq.index,16));
                 }
                 break;
             }

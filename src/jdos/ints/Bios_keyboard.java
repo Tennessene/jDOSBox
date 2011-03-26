@@ -526,7 +526,7 @@ public class Bios_keyboard {
                     IoHandler.IO_Write(0x60,0xf3);
                     IoHandler.IO_Write(0x60,(CPU_Regs.reg_ebx.high()&3)<<5|(CPU_Regs.reg_ebx.low()&0x1f));
                 } else {
-                    Log.log(LogTypes.LOG_BIOS, LogSeverities.LOG_ERROR,"INT16:Unhandled Typematic Rate Call %2X BX=%X",CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.word());
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS, LogSeverities.LOG_ERROR,"INT16:Unhandled Typematic Rate Call "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" BX="+Integer.toString(CPU_Regs.reg_ebx.word(),16));
                 }
                 break;
             case 0x05:	/* STORE KEYSTROKE IN KEYBOARD BUFFER */
@@ -542,7 +542,7 @@ public class Bios_keyboard {
                 Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT16:55:Word TSR compatible call");
                 break;
             default:
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT16:Unhandled call %02X",CPU_Regs.reg_eax.high());
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT16:Unhandled call "+Integer.toString(CPU_Regs.reg_eax.high(),16));
                 break;
 
             }

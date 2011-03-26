@@ -52,7 +52,7 @@ public class Prefix_66_0f extends Prefix_66 {
                     }
                     break;
                 default:
-                    Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"GRP6:Illegal call %2X",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"GRP6:Illegal call "+Integer.toString(which,16));
                     return ILLEGAL_OPCODE;
                 }
                 return HANDLED;
@@ -110,7 +110,7 @@ public class Prefix_66_0f extends Prefix_66 {
                         if (CPU.CPU_LMSW((int)Modrm.GetEArd[rm].dword())) return RUNEXCEPTION();
                         break;
                     default:
-                        Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Illegal group 7 RM subfunction %d",which);
+                        if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Illegal group 7 RM subfunction "+which);
                         return ILLEGAL_OPCODE;
                     }
 
@@ -592,7 +592,7 @@ public class Prefix_66_0f extends Prefix_66 {
                         else eard.dword(eard.dword()|mask);
                         break;
                     default:
-                        Log.exit("CPU:66:0F:BA:Illegal subfunction %X",rm & 0x38);
+                        Log.exit("CPU:66:0F:BA:Illegal subfunction "+Integer.toString(rm & 0x38,16));
                     }
                 } else {
                     /*PhysPt*/long eaa = getEaa(rm);/*Bit32u*/long old=Memory.mem_readd(eaa);
@@ -613,7 +613,7 @@ public class Prefix_66_0f extends Prefix_66 {
                         Memory.mem_writed(eaa,old);
                         break;
                     default:
-                        Log.exit("CPU:66:0F:BA:Illegal subfunction %X",rm & 0x38);
+                        Log.exit("CPU:66:0F:BA:Illegal subfunction "+Integer.toString(rm & 0x38,16));
                     }
                 }
                 return HANDLED;

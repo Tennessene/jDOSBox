@@ -3344,7 +3344,7 @@ public class Prefix_none extends String {
                         return RETURN;
                     }
                 default:
-                    Log.exit("Illegal GRP4 Call %d",(rm>>3) & 7);
+                    Log.exit("Illegal GRP4 Call "+((rm>>3) & 7));
                     break;
                 }
                 return HANDLED;
@@ -3446,7 +3446,7 @@ public class Prefix_none extends String {
                     else {/*PhysPt*/long eaa=getEaa(rm);CPU.CPU_Push16(Memory.mem_readw(eaa));}
                     break;
                 default:
-                    Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"CPU:GRP5:Illegal Call %2X",which);
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"CPU:GRP5:Illegal Call "+Integer.toString(which,16));
                     return ILLEGAL_OPCODE;
                 }
                 return HANDLED;

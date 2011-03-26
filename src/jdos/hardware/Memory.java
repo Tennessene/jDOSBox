@@ -201,11 +201,11 @@ public class Memory extends Module_base {
         static /*Bits*/int r_lcount=0;
         public /*Bitu*/int readb(/*PhysPt*/long addr) {
             if (Config.C_DEBUG)
-                Log.log_msg("Illegal read from %x, CS:IP %8x:%8x",addr, CPU.Segs_CSval,CPU_Regs.reg_eip());
+                Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
             else {
                 if (r_lcount<1000) {
                     r_lcount++;
-                    Log.log_msg("Illegal read from %x, CS:IP %8x:%8x",addr,CPU.Segs_CSval,CPU_Regs.reg_eip());
+                    Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
                 }
             }
             return 0;
@@ -213,12 +213,12 @@ public class Memory extends Module_base {
         static /*Bits*/int w_lcount=0;
         public void writeb(/*PhysPt*/long addr,/*Bitu*/int val) {
             if (Config.C_DEBUG)
-                Log.log_msg("Illegal write to %x, CS:IP %8x:%8x",addr, CPU.Segs_CSval,CPU_Regs.reg_eip());
+                Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
             else {
 
                 if (w_lcount<1000) {
                     w_lcount++;
-                    Log.log_msg("Illegal write to %x, CS:IP %8x:%8x",addr,CPU.Segs_CSval,CPU_Regs.reg_eip());
+                    Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
                 }
             }
         }
@@ -241,13 +241,13 @@ public class Memory extends Module_base {
             flags=Paging.PFLAG_READABLE|Paging.PFLAG_HASROM;
         }
         public void writeb(/*PhysPt*/long addr,/*Bitu*/int val){
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write %x to rom at %x",val,addr);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Long.toString(addr,16));
         }
         public void writew(/*PhysPt*/long addr,/*Bitu*/int val){
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write %x to rom at %x",val,addr);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Long.toString(addr,16));
         }
         public void writed(/*PhysPt*/long addr,/*Bitu*/int val){
-            Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Write %x to rom at %x",val,addr);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Long.toString(addr,16));
         }
     }
 
@@ -739,11 +739,11 @@ public class Memory extends Module_base {
             if (memsize < 1) memsize = 1;
             /* max 63 to solve problems with certain xms handlers */
             if (memsize > MAX_MEMORY-1) {
-                Log.log_msg("Maximum memory size is %d MB",MAX_MEMORY - 1);
+                Log.log_msg("Maximum memory size is "+(MAX_MEMORY - 1)+" MB");
                 memsize = MAX_MEMORY-1;
             }
             if (memsize > SAFE_MEMORY-1) {
-                Log.log_msg("Memory sizes above %d MB are NOT recommended.",SAFE_MEMORY - 1);
+                Log.log_msg("Memory sizes above "+(SAFE_MEMORY - 1)+" MB are NOT recommended.");
                 Log.log_msg("Stick with the default values unless you are absolutely certain.");
             }
             try {
@@ -754,7 +754,7 @@ public class Memory extends Module_base {
                 host_memory = new Ptr(direct, 0);
                 MemBase = new Ptr(host_memory, 0, highwaterMark);
             } catch (java.lang.OutOfMemoryError e) {
-                Log.exit("Can't allocate main memory of %d MB",memsize);
+                Log.exit("Can't allocate main memory of "+memsize+" MB");
             }
             memory.pages = (memsize*1024*1024)/4096;
             /* Allocate the data for the different page information blocks */

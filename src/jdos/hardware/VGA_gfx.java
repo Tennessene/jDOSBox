@@ -170,11 +170,11 @@ static boolean index9warned=false;
                     break;
                 }
                 if (VGA.vga.gfx.index == 9 && !index9warned) {
-                    Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:3CF:Write %2X to illegal index 9",val);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:3CF:Write "+Integer.toString(val, 16)+" to illegal index 9");
                     index9warned=true;
                     break;
                 }
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:3CF:Write %2X to illegal index %2X",val,VGA.vga.gfx.index);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:3CF:Write "+Integer.toString(val, 16)+" to illegal index "+Integer.toString(VGA.vga.gfx.index,16));
                 break;
             }
         }
@@ -204,7 +204,7 @@ static boolean index9warned=false;
             default:
                 if (VGA.svga.read_p3cf!=null)
                     return VGA.svga.read_p3cf.call(VGA.vga.gfx.index, iolen);
-                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Reading from illegal index %2X in port %4X",VGA.vga.gfx.index,port);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Reading from illegal index "+Integer.toString(VGA.vga.gfx.index, 16)+" in port "+Integer.toString(port,16));
                 break;
             }
             return 0;	/* Compiler happy */

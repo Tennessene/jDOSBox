@@ -10,10 +10,7 @@ import jdos.misc.setup.Section_prop;
 import jdos.shell.AutoexecObject;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.util.IntRef;
-import jdos.util.Ptr;
-import jdos.util.ShortPtr;
-import jdos.util.ShortRef;
+import jdos.util.*;
 
 public class SBlaster extends Module_base {
     static final private int SB_PIC_EVENTS = 0;
@@ -238,7 +235,7 @@ public class SBlaster extends Module_base {
     }
 
     private static void SB_RaiseIRQ(/*SB_IRQS*/int type) {
-        Log.log(LogTypes.LOG_SB, LogSeverities.LOG_NORMAL,"Raising IRQ");
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB, LogSeverities.LOG_NORMAL,"Raising IRQ");
         switch (type) {
         case SB_IRQ_8:
             if (sb.irq.pending_8bit) {
@@ -267,21 +264,21 @@ public class SBlaster extends Module_base {
     }
 
     private static DMA.DMA_CallBack DSP_DMA_CallBack = new DMA.DMA_CallBack() {
-        public void call(DMA.DmaChannel chan, DMA.DMAEvent event) {
+        public void call(DMA.DmaChannel chan, int event) {
             if (event==DMA.DMAEvent.DMA_REACHED_TC) return;
             else if (event==DMA.DMAEvent.DMA_MASKED) {
                 if (sb.mode==MODE_DMA) {
                     GenerateDMASound(sb.dma.min);
                     sb.mode=MODE_DMA_MASKED;
     //			DSP_ChangeMode(MODE_DMA_MASKED);
-                    Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DMA masked,stopping output, left %d",chan.currcnt);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DMA masked,stopping output, left "+chan.currcnt);
                 }
             } else if (event==DMA.DMAEvent.DMA_UNMASKED) {
                 if (sb.mode==MODE_DMA_MASKED && sb.dma.mode!=DSP_DMA_NONE) {
                     DSP_ChangeMode(MODE_DMA);
     //			sb.mode=MODE_DMA;
                     CheckDMAEnd();
-                    Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DMA unmasked,starting output, auto %d block %d",chan.autoinit,chan.basecnt);
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DMA unmasked,starting output, auto "+chan.autoinit+" block "+chan.basecnt);
                 }
             }
         }
@@ -490,7 +487,7 @@ public class SBlaster extends Module_base {
             if (sb.dma.mode==DSP_DMA_16_ALIASED) read=read<<1;
             break;
         default:
-            Log.log_msg("Unhandled dma mode %d",sb.dma.mode);
+            Log.log_msg("Unhandled dma mode "+sb.dma.mode);
             sb.mode=MODE_NONE;
             return;
         }
@@ -547,10 +544,10 @@ public class SBlaster extends Module_base {
             /*Bitu*/int bigger=(sb.dma.left > sb.dma.min) ? sb.dma.min : sb.dma.left;
             float delay=(bigger*1000.0f)/sb.dma.rate;
             Pic.PIC_AddEvent(DMA_Silent_Event,delay,bigger);
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Silent DMA Transfer scheduling IRQ in %.3f milliseconds",delay);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Silent DMA Transfer scheduling IRQ in "+ StringHelper.format(delay, 3)+" milliseconds");
         } else if (sb.dma.left<sb.dma.min) {
             float delay=(sb.dma.left*1000.0f)/sb.dma.rate;
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Short transfer scheduling IRQ in %.3f milliseconds",delay);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Short transfer scheduling IRQ in "+ StringHelper.format(delay, 3)+" milliseconds");
             Pic.PIC_AddEvent(END_DMA_Event,delay,sb.dma.left);
         }
     }
@@ -602,7 +599,7 @@ public class SBlaster extends Module_base {
             sb.dma.mul=(1 << SB_SH);
             break;
         default:
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Illegal transfer mode %d",mode);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Illegal transfer mode "+mode);
             return;
         }
         if (sb.dma.stereo) sb.dma.mul*=2;
@@ -613,12 +610,7 @@ public class SBlaster extends Module_base {
         Pic.PIC_RemoveEvents(END_DMA_Event);
         sb.dma.chan.Register_Callback(DSP_DMA_CallBack);
         if (Config.C_DEBUG) {
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DMA Transfer:%s %s %s freq %d rate %d size %d",
-                type,
-                sb.dma.stereo ? "Stereo" : "Mono",
-                sb.dma.autoinit ? "Auto-Init" : "Single-Cycle",
-                freq,sb.dma.rate,sb.dma.total
-            );
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DMA Transfer:"+type+" "+(sb.dma.stereo ? "Stereo" : "Mono")+" "+(sb.dma.autoinit ? "Auto-Init" : "Single-Cycle")+" freq "+freq+" rate "+sb.dma.rate+" size "+sb.dma.total);
         }
     }
 
@@ -721,7 +713,7 @@ public class SBlaster extends Module_base {
     }
 
     private static DMA.DMA_CallBack DSP_E2_DMA_CallBack = new DMA.DMA_CallBack() {
-        public void call(DMA.DmaChannel c, DMA.DMAEvent event) {
+        public void call(DMA.DmaChannel c, int event) {
             if (event==DMA.DMAEvent.DMA_UNMASKED) {
                 /*Bit8u*/byte[] val=new byte[] {(/*Bit8u*/byte)(sb.e2.value&0xff)};
                 DMA.DmaChannel chan=DMA.GetDMAChannel(sb.hw.dma8);
@@ -732,7 +724,7 @@ public class SBlaster extends Module_base {
     };
 
     private static DMA.DMA_CallBack DSP_ADC_CallBack = new DMA.DMA_CallBack() {
-        public void call(DMA.DmaChannel chan, DMA.DMAEvent event) {
+        public void call(DMA.DmaChannel chan, int event) {
             if (event!=DMA.DMAEvent.DMA_UNMASKED) return;
             /*Bit8u*/byte[] val=new byte[] {(byte)128};
             DMA.DmaChannel ch=DMA.GetDMAChannel(sb.hw.dma8);
@@ -746,7 +738,7 @@ public class SBlaster extends Module_base {
 
     static private boolean DSP_SB16_ONLY() {
         if (sb.type != SBT_16) {
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Command %2X requires SB16",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Command "+Integer.toString(sb.dsp.cmd, 16)+" requires SB16");
             return true;
         }
         return false;
@@ -754,7 +746,7 @@ public class SBlaster extends Module_base {
 
     static private boolean DSP_SB2_ABOVE() {
         if (sb.type <= SBT_1) {
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Command %2X requires SB2 or above",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Command "+Integer.toString(sb.dsp.cmd, 16)+" requires SB2 or above");
             return true;
         }
         return false;
@@ -768,7 +760,7 @@ public class SBlaster extends Module_base {
                 /* SB16 ASP set mode register */
                 if ((sb.dsp.in.data[0]&0xf1)==0xf1) ASP_init_in_progress=true;
                 else ASP_init_in_progress=false;
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command %X (set mode register to %X)",sb.dsp.cmd,sb.dsp.in.data[0]);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" (set mode register to "+Integer.toString(sb.dsp.in.data[0],16)+")");
             } else {
                 /* DSP Status SB 2.0/pro version. NOT SB16. */
                 DSP_FlushData();
@@ -778,21 +770,21 @@ public class SBlaster extends Module_base {
             }
             break;
         case 0x05:	/* SB16 ASP set codec parameter */
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command %X (set codec parameter)",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" (set codec parameter)");
             break;
         case 0x08:	/* SB16 ASP get version */
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command %X sub %X",sb.dsp.cmd,sb.dsp.in.data[0]);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" sub "+Integer.toString(sb.dsp.in.data[0],16));
             if (sb.type == SBT_16) {
                 switch (sb.dsp.in.data[0]) {
                     case 0x03:
                         DSP_AddData(0x18);	// version ID (??)
                         break;
                     default:
-                        Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command %X sub %X",sb.dsp.cmd,sb.dsp.in.data[0]);
+                        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" sub "+Integer.toString(sb.dsp.in.data[0], 16));
                         break;
                 }
             } else {
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command %X sub %X",sb.dsp.cmd,sb.dsp.in.data[0]);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" sub "+Integer.toString(sb.dsp.in.data[0],16));
             }
             break;
         case 0x0e:	/* SB16 ASP set register */
@@ -800,7 +792,7 @@ public class SBlaster extends Module_base {
 //			Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"SB16 ASP set register %X := %X",sb.dsp.in.data[0],sb.dsp.in.data[1]);
                 ASP_regs[sb.dsp.in.data[0]] = sb.dsp.in.data[1];
             } else {
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command %X (set register)",sb.dsp.cmd);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" (set register)");
             }
             break;
         case 0x0f:	/* SB16 ASP get register */
@@ -811,7 +803,7 @@ public class SBlaster extends Module_base {
 //			Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"SB16 ASP get register %X == %X",sb.dsp.in.data[0],ASP_regs[sb.dsp.in.data[0]]);
                 DSP_AddData(ASP_regs[sb.dsp.in.data[0]]);
             } else {
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command %X (get register)",sb.dsp.cmd);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" (get register)");
             }
             break;
         case 0x10:	/* Direct DAC */
@@ -824,7 +816,7 @@ public class SBlaster extends Module_base {
         case 0x24:	/* Singe Cycle 8-Bit DMA ADC */
             sb.dma.left=sb.dma.total=1+sb.dsp.in.data[0]+(sb.dsp.in.data[1] << 8);
             sb.dma.sign=false;
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Faked ADC for %d bytes",sb.dma.total);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Faked ADC for "+sb.dma.total+" bytes");
             DMA.GetDMAChannel(sb.hw.dma8).Register_Callback(DSP_ADC_CallBack);
             break;
         case 0x14:	/* Singe Cycle 8-Bit DMA DAC */
@@ -981,15 +973,15 @@ public class SBlaster extends Module_base {
             DSP_AddData(0);
             break;
         case 0x30: case 0x31:
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented MIDI I/O command %2X",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented MIDI I/O command "+Integer.toString(sb.dsp.cmd,16));
             break;
         case 0x34: case 0x35: case 0x36: case 0x37:
             if (DSP_SB2_ABOVE()) break;
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented MIDI UART command %2X",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented MIDI UART command "+Integer.toString(sb.dsp.cmd,16));
             break;
         case 0x7d: case 0x7f: case 0x1f:
             if (DSP_SB2_ABOVE()) break;
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented auto-init DMA ADPCM command %2X",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented auto-init DMA ADPCM command "+Integer.toString(sb.dsp.cmd,16));
             break;
         case 0x20:
             DSP_AddData(0x7f);   // fake silent input for Creative parrot
@@ -997,11 +989,11 @@ public class SBlaster extends Module_base {
         case 0x2c:
         case 0x98: case 0x99: /* Documented only for DSP 2.x and 3.x */
         case 0xa0: case 0xa8: /* Documented only for DSP 3.x */
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented input command %2X",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented input command "+Integer.toString(sb.dsp.cmd,16));
             break;
         case 0xf9:	/* SB16 ASP ??? */
             if (sb.type == SBT_16) {
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"SB16 ASP unknown function %x",sb.dsp.in.data[0]);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"SB16 ASP unknown function "+Integer.toString(sb.dsp.in.data[0],16));
                 // just feed it what it expects
                 switch (sb.dsp.in.data[0]) {
                 case 0x0b:
@@ -1036,11 +1028,11 @@ public class SBlaster extends Module_base {
                     break;
                 }
             } else {
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"SB16 ASP unknown function %X",sb.dsp.cmd);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"SB16 ASP unknown function "+Integer.toString(sb.dsp.cmd,16));
             }
             break;
         default:
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unhandled (undocumented) command %2X",sb.dsp.cmd);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unhandled (undocumented) command "+Integer.toString(sb.dsp.cmd,16));
             break;
         }
         sb.dsp.cmd=DSP_NO_COMMAND;
@@ -1127,7 +1119,7 @@ public class SBlaster extends Module_base {
         switch (sb.mixer.index) {
         case 0x00:		/* Reset */
             CTMIXER_Reset();
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"Mixer reset value %x",val);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"Mixer reset value "+Integer.toString(val,16));
             break;
         case 0x02:		/* Master Volume (SB2 Only) */
             SETPROVOL(sb.mixer.master,(val&0xf)|(val<<4));
@@ -1141,7 +1133,7 @@ public class SBlaster extends Module_base {
             //volume controls both channels
             SETPROVOL(sb.mixer.fm,(val&0xf)|(val<<4));
             CTMIXER_UpdateVolumes();
-            if((val&0x60)!=0) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"Turned FM one channel off. not implemented %X",val);
+            if((val&0x60)!=0) if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"Turned FM one channel off. not implemented "+Integer.toString(val,16));
             //TODO Change FM Mode if only 1 fm channel is selected
             break;
         case 0x08:		/* CDA Volume (SB2 Only) */
@@ -1155,7 +1147,7 @@ public class SBlaster extends Module_base {
             sb.mixer.stereo=(val & 0x2) > 0;
             sb.mixer.filtered=(val & 0x20) > 0;
             DSP_ChangeStereo(sb.mixer.stereo);
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"Mixer set to %s",sb.dma.stereo ? "STEREO" : "MONO");
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"Mixer set to "+(sb.dma.stereo ? "STEREO" : "MONO"));
             break;
         case 0x22:		/* Master Volume (SBPRO) */
             SETPROVOL(sb.mixer.master,val);
@@ -1240,14 +1232,14 @@ public class SBlaster extends Module_base {
             if ((val & 0x20)!=0) sb.hw.dma16=5;
             else if ((val & 0x40)!=0) sb.hw.dma16=6;
             else if ((val & 0x80)!=0) sb.hw.dma16=7;
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Mixer select dma8:%x dma16:%x",sb.hw.dma8,sb.hw.dma16);
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Mixer select dma8:"+Integer.toString(sb.hw.dma8,16)+" dma16:"+Integer.toString(sb.hw.dma16,16));
             break;
         default:
 
             if(	((sb.type == SBT_PRO1 || sb.type == SBT_PRO2) && sb.mixer.index==0x0c) || /* Input control on SBPro */
                  (sb.type == SBT_16 && sb.mixer.index >= 0x3b && sb.mixer.index <= 0x47)) /* New SB16 registers */
                 sb.mixer.unhandled[sb.mixer.index] = val;
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"MIXER:Write %X to unhandled index %X",val,sb.mixer.index);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"MIXER:Write "+Integer.toString(val, 16)+" to unhandled index "+Integer.toString(sb.mixer.index,16));
         }
     }
 
@@ -1351,7 +1343,7 @@ public class SBlaster extends Module_base {
                 ret = sb.mixer.unhandled[sb.mixer.index];
             else
                 ret=0xa;
-            Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"MIXER:Read from unhandled index %X",sb.mixer.index);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_WARN,"MIXER:Read from unhandled index "+Integer.toString(sb.mixer.index,16));
         }
         return ret;
     }
@@ -1390,7 +1382,7 @@ public class SBlaster extends Module_base {
             case DSP_RESET:
                 return 0xff;
             default:
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Unhandled read from SB Port %4X",port);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Unhandled read from SB Port "+Integer.toString(port, 16));
                 break;
             }
             return 0xff;
@@ -1414,7 +1406,7 @@ public class SBlaster extends Module_base {
                 CTMIXER_Write(val8);
                 break;
             default:
-                Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Unhandled write to SB Port %4X",port);
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Unhandled write to SB Port "+Integer.toString(port,16));
                 break;
             }
         }
@@ -1626,7 +1618,7 @@ public class SBlaster extends Module_base {
         if (sb.type == SBT_16) sb.chan.Enable(true);
         else sb.chan.Enable(false);
 
-        String line = String.format("SET BLASTER=A%3x I%d D%d",sb.hw.base,sb.hw.irq, sb.hw.dma8);
+        String line = StringHelper.sprintf("SET BLASTER=A%3x I%d D%d",new Object[]{new Integer(sb.hw.base),new Integer(sb.hw.irq), new Integer(sb.hw.dma8)});
         if (sb.type==SBT_16) line+= " H"+ sb.hw.dma16;
         line+=" T"+sb.type;
 

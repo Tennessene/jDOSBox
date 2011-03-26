@@ -248,7 +248,7 @@ public class Bios_disk {
         /* If only one disk is loaded, this loop will load the same disk in dive A and drive B */
         while(diskcount<2) {
             if(diskSwap[swapPos] != null) {
-                Log.log_msg("Loaded disk %d from swaplist position %d - \"%s\"", diskcount, swapPos, diskSwap[swapPos].diskname);
+                Log.log_msg("Loaded disk "+diskcount+" from swaplist position "+swapPos+" - \""+diskSwap[swapPos].diskname+"\"");
                 imageDiskList[diskcount] = diskSwap[swapPos];
                 diskcount++;
             }
@@ -301,19 +301,19 @@ public class Bios_disk {
 
     static boolean driveInactive(/*Bitu*/int driveNum) {
         if(driveNum>=(2 + MAX_HDD_IMAGES)) {
-            Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"Disk %d non-existant", driveNum);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"Disk "+driveNum+" non-existant");
             last_status = 0x01;
             Callback.CALLBACK_SCF(true);
             return true;
         }
         if(imageDiskList[driveNum] == null) {
-            Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"Disk %d not active", driveNum);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"Disk "+driveNum+" not active");
             last_status = 0x01;
             Callback.CALLBACK_SCF(true);
             return true;
         }
         if(!imageDiskList[driveNum].active) {
-            Log.log(LogTypes.LOG_BIOS, LogSeverities.LOG_ERROR,"Disk %d not active", driveNum);
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS, LogSeverities.LOG_ERROR,"Disk "+driveNum+" not active");
             last_status = 0x01;
             Callback.CALLBACK_SCF(true);
             return true;
@@ -510,7 +510,7 @@ public class Bios_disk {
                 Callback.CALLBACK_SCF(false);
                 break;
             default:
-                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT13: Function %x called on drive %x (dos drive %d)", CPU_Regs.reg_eax.high(),  CPU_Regs.reg_edx.low(), drivenum);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT13: Function "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" called on drive "+Integer.toString(CPU_Regs.reg_edx.low(), 16)+" (dos drive "+drivenum+")");
                 CPU_Regs.reg_eax.high(0xff);
                 Callback.CALLBACK_SCF(true);
             }

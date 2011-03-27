@@ -122,6 +122,8 @@ public class Drive_local extends Dos_Drive {
         basedir=startdir;
         basedir = StringHelper.replace(basedir, "/", File.separator);
         basedir = StringHelper.replace(basedir, "\\", File.separator);
+        if (!basedir.endsWith(File.separator))
+            basedir+=File.separator;
         info="local directory "+startdir;
         allocation.bytes_sector=_bytes_sector;
         allocation.sectors_cluster=_sectors_cluster;

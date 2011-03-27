@@ -344,7 +344,7 @@ public class Paging extends Module_base {
             PF_Entry entry=pf_queue.entries[pf_queue.used-1];
             X86PageEntry pentry = new X86PageEntry();
             pentry.load((int)Memory.phys_readd(entry.page_addr));
-            if (pentry.block.p!=0 && entry.cs == CPU.Segs_CSphys && entry.eip==CPU_Regs.reg_eip()) {
+            if (pentry.block.p!=0 && entry.cs == CPU.Segs_CSval && entry.eip==CPU_Regs.reg_eip()) {
                 CPU.cpu.mpl=entry.mpl;
                 return -1;
             }
@@ -365,7 +365,7 @@ public class Paging extends Module_base {
         if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PAGING, LogSeverities.LOG_NORMAL,"PageFault at "+Long.toString(lin_addr, 16)+" type ["+Integer.toString(faultcode,16)+"] queue "+pf_queue.used);
 //	LOG_MSG("EAX:%04X ECX:%04X EDX:%04X EBX:%04X",reg_eax,reg_ecx,reg_edx,reg_ebx);
 //	LOG_MSG("CS:%04X EIP:%08X SS:%04x SP:%08X",SegValue(cs),reg_eip,SegValue(ss),reg_esp);
-        entry.cs=CPU.Segs_CSphys;
+        entry.cs=CPU.Segs_CSval;
         entry.eip=CPU_Regs.reg_eip();
         entry.page_addr=page_addr;
         entry.mpl=CPU.cpu.mpl;
@@ -375,7 +375,9 @@ public class Paging extends Module_base {
         if (Config.C_DEBUG) {
         //	DEBUG_EnableDebugger();
         }
+        Core_full.pushState();
         Dosbox.DOSBOX_RunMachine();
+        Core_full.popState();
         pf_queue.used--;
         if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Left PageFault for "+Long.toString(lin_addr, 16)+" queue "+pf_queue.used);
         Flags.lflags.copy(old_lflags);

@@ -15,7 +15,7 @@ public class Core_normal extends Prefix_66_0f {
         public int s_opcode_index;
         public long s_cseip;
         public int s_prefixes;
-        public Table_ea.GetEAHandler[] s_ea_table;
+        public boolean EA16;
         public long s_base_ds;
         public long s_base_ss;
         public int s_base_val_ds;
@@ -25,7 +25,7 @@ public class Core_normal extends Prefix_66_0f {
         state.s_opcode_index = opcode_index;
         state.s_cseip = cseip;
         state.s_prefixes = prefixes;
-        state.s_ea_table = ea_table;
+        state.EA16 = EA16;
         state.s_base_ds = base_ds;
         state.s_base_ss = base_ss;
         state.s_base_val_ds = base_val_ds;
@@ -35,7 +35,7 @@ public class Core_normal extends Prefix_66_0f {
         opcode_index = state.s_opcode_index;
         cseip = state.s_cseip;
         prefixes = state.s_prefixes;
-        ea_table = state.s_ea_table;
+        EA16 = state.EA16;
         base_ds = state.s_base_ds;
         base_ss = state.s_base_ss;
         base_val_ds = state.s_base_val_ds;

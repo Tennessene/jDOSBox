@@ -2,6 +2,7 @@ package jdos.gui;
 
 import jdos.sdl.GUI;
 import jdos.Dosbox;
+import jdos.ints.Mouse;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,8 +14,41 @@ public class MainFrame implements GUI {
     Image image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, pixels, 0, 16));
     Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(0, 0), "invisibleCursor");
 
+    static Robot robot;
+    static private boolean eatNextMouseMove = false;
+    static private int last_x;
+    static private int last_y;
+
     public void showProgress(String msg, int percent) {
         
+    }
+
+    static public void robotMouse(MouseEvent e) {
+         if (eatNextMouseMove) {
+            last_x = e.getX();
+            last_y = e.getY();
+            eatNextMouseMove = false;
+            return;
+        }
+        if (!Main.mouse_locked || robot == null)
+            Main.addEvent(e);
+        else {
+            int rel_x = e.getX() - last_x;
+            int rel_y = e.getY() - last_y;
+            Main.addEvent(new Main.MouseEvent2(e,rel_x, rel_y));
+            robotCenter();
+        }
+    }
+    static private void robotCenter() {
+        Point rel = panel.getLocationOnScreen();
+        eatNextMouseMove = true;
+        robot.mouseMove(rel.x+200, rel.x+200);
+    }
+
+    public void captureMouse(boolean on) {
+        if (robot != null) {
+            robotCenter();
+        }
     }
     public void showCursor(boolean on) {
         if (on)
@@ -76,6 +110,8 @@ public class MainFrame implements GUI {
     }
 
     public static void main(String[] args) {
+        try {robot = new Robot();} catch (Exception e) {e.printStackTrace();}
+
         frame = new MyFrame();
         frame.setFocusTraversalKeysEnabled(false);
         panel = new JPanel() {
@@ -180,11 +216,11 @@ public class MainFrame implements GUI {
         }
 
         public void mouseMoved(MouseEvent e) {
-            Main.addEvent(e);
+            robotMouse(e);
         }
 
         public void mouseDragged(MouseEvent e) {
-            Main.addEvent(e);
+            robotMouse(e);
         }
 
     }

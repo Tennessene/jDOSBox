@@ -36,11 +36,11 @@ public class Mouse {
     static private final int MOUSE_BUTTONS = 3;
     static private final int MOUSE_IRQ = 12;
 
-    static private short POS_X() {
+    static public short POS_X() {
         return ((/*Bit16s*/short)((short)mouse.x & mouse.granMask));
     }
 
-    static private short POS_Y() {
+    static public short POS_Y() {
         return (/*Bit16s*/short)(mouse.y);
     }
 

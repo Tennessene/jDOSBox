@@ -6,5 +6,6 @@ public interface GUI {
     public void showProgress(String msg, int percent);
     public void setTitle(String title);
     public void showCursor(boolean on);
+    public void captureMouse(boolean on);
     public void fullScreenToggle();
 }

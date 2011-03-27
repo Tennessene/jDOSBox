@@ -133,7 +133,7 @@ public class Main {
         events.add(o);
     }
 
-    static private boolean mouse_locked = false;
+    static public boolean mouse_locked = false;
     static private float mouse_sensitivity = 100.0f;
     static private boolean mouse_autoenable = false;
     static private boolean mouse_autolock = false;
@@ -144,23 +144,44 @@ public class Main {
         if (mouse_locked) {
             //SDL_WM_GrabInput(SDL_GRAB_ON);
             gui.showCursor(false);
+            gui.captureMouse(true);
         } else {
             //SDL_WM_GrabInput(SDL_GRAB_OFF);
+            gui.captureMouse(false);
             if (mouse_autoenable || !mouse_autolock) gui.showCursor(true);
         }
     }
 
-    static private Point lastMouse = new Point(0,0);
+    static public class MouseEvent2 extends MouseEvent {
+        public int rel_x;
+        public int rel_y;
+        public MouseEvent2(MouseEvent event, int rel_x, int rel_y) {
+            super(event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(), event.getX(), event.getY(), event.getClickCount(), event.isPopupTrigger());
+            this.rel_x = rel_x;
+            this.rel_y = rel_y;
+        }
+
+    }
+    static private Point lastMouse = new Point();
     static private void handle(MouseEvent event) {
         if (event.getID() == MouseEvent.MOUSE_MOVED || event.getID() == MouseEvent.MOUSE_DRAGGED) {
             // :TODO: test relative mouse with lucas arts games (indy3, indy4)
             if (mouse_locked || !mouse_autoenable) {
+                if (event instanceof MouseEvent2) {
+                    MouseEvent2 event2 = (MouseEvent2)event;
+                    Mouse.Mouse_CursorMoved((float)event2.rel_x*mouse_sensitivity/100.0f,
+                              (float)(event2.rel_y)*mouse_sensitivity/100.0f,
+                              (float)(Mouse.POS_X()+event2.rel_x)/(screen_width-1)*mouse_sensitivity/100.0f,
+                              (float)(Mouse.POS_Y()+event2.rel_y)/(screen_height-1)*mouse_sensitivity/100.0f,
+                              false);
+                } else {
                     Mouse.Mouse_CursorMoved((float)(event.getPoint().x-lastMouse.x)*mouse_sensitivity/100.0f,
                               (float)(event.getPoint().y-lastMouse.y)*mouse_sensitivity/100.0f,
                               (float)event.getPoint().x/(screen_width-1)*mouse_sensitivity/100.0f,
                               (float)event.getPoint().y/(screen_height-1)*mouse_sensitivity/100.0f,
                               false);
                     lastMouse = event.getPoint();
+                }
             }
         } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
             if (mouse_requestlock && !mouse_locked) {

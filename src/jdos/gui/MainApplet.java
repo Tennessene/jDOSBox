@@ -39,6 +39,9 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         progressPercent = percent;
         repaint();
     }
+    public void captureMouse(boolean on) {
+
+    }
     public void showCursor(boolean on) {
         if (on)
             setCursor(Cursor.getDefaultCursor());

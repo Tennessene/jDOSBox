@@ -81,7 +81,7 @@ public class Mouse {
         for (int i=0;i<a.length;i++) dos.writeInt(a[i]);
     }
 
-    static private class _mouse implements Serializable {
+    static public class _mouse {
         static private int[][] maskholder = new int[128][];
 
         public _mouse() {
@@ -306,9 +306,9 @@ public class Mouse {
         /*Bit16u*/int[] last_pressed_y = new int[MOUSE_BUTTONS];
         /*Bit16u*/int hidden;
         float add_x,add_y;
-        /*Bit16s*/short min_x,max_x,min_y,max_y;
+        public /*Bit16s*/short min_x,max_x,min_y,max_y;
         float mickey_x,mickey_y;
-        float x,y;
+        public float x,y;
         button_event[] event_queue = new button_event[QUEUE_SIZE];
         /*Bit8u*/short events;//Increase if QUEUE_SIZE >255 (currently 32)
         /*Bit16u*/int sub_seg,sub_ofs;
@@ -346,7 +346,7 @@ public class Mouse {
         /*Bit8u*/short mode;
         /*Bit16s*/short granMask;
     }
-    static private _mouse mouse = new _mouse();
+    static public _mouse mouse = new _mouse();
 
     static public boolean Mouse_SetPS2State(boolean use) {
         if (use && (!ps2callbackinit)) {

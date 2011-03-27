@@ -139,7 +139,7 @@ public class Main {
     static private boolean mouse_autolock = false;
     static private boolean mouse_requestlock = false;
 
-    static private void GFX_CaptureMouse() {
+    static public void GFX_CaptureMouse() {
         mouse_locked=!mouse_locked;
         if (mouse_locked) {
             //SDL_WM_GrabInput(SDL_GRAB_ON);
@@ -155,10 +155,14 @@ public class Main {
     static public class MouseEvent2 extends MouseEvent {
         public int rel_x;
         public int rel_y;
-        public MouseEvent2(MouseEvent event, int rel_x, int rel_y) {
+        public float abs_x;
+        public float abs_y;
+        public MouseEvent2(MouseEvent event, int rel_x, int rel_y, float abs_x, float abs_y) {
             super(event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(), event.getX(), event.getY(), event.getClickCount(), event.isPopupTrigger());
             this.rel_x = rel_x;
             this.rel_y = rel_y;
+            this.abs_x = abs_x;
+            this.abs_y = abs_y;
         }
 
     }
@@ -171,8 +175,8 @@ public class Main {
                     MouseEvent2 event2 = (MouseEvent2)event;
                     Mouse.Mouse_CursorMoved((float)event2.rel_x*mouse_sensitivity/100.0f,
                               (float)(event2.rel_y)*mouse_sensitivity/100.0f,
-                              (float)(Mouse.POS_X()+event2.rel_x)/(screen_width-1)*mouse_sensitivity/100.0f,
-                              (float)(Mouse.POS_Y()+event2.rel_y)/(screen_height-1)*mouse_sensitivity/100.0f,
+                              event2.abs_x,
+                              event2.abs_y,
                               false);
                 } else {
                     Mouse.Mouse_CursorMoved((float)(event.getPoint().x-lastMouse.x)*mouse_sensitivity/100.0f,

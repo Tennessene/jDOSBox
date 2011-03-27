@@ -40,7 +40,9 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         repaint();
     }
     public void captureMouse(boolean on) {
-
+        if (MainFrame.robot != null) {
+            MainFrame.robotCenter(getLocationOnScreen());
+        }
     }
     public void showCursor(boolean on) {
         if (on)
@@ -208,6 +210,13 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
     public void init() {
         System.out.println("Applet.init");
+        try {
+            if (MainFrame.robot == null) { 
+                MainFrame.robot = new Robot();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (thread != null) {
             System.out.println("Applet.init force stop");
             i_stop();
@@ -313,6 +322,9 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
 
     public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount()==2 && e.getButton() == MouseEvent.BUTTON3) {
+            Main.GFX_CaptureMouse();
+        }
     }
 
     public void mousePressed(MouseEvent e) {
@@ -330,10 +342,10 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
 
     public void mouseDragged(MouseEvent e) {
-        Main.addEvent(e);
+        MainFrame.robotMouse(e, getLocationOnScreen());
     }
 
     public void mouseMoved(MouseEvent e) {
-        Main.addEvent(e);
+        MainFrame.robotMouse(e, getLocationOnScreen());
     }
 }

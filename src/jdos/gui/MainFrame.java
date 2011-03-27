@@ -3,6 +3,7 @@ package jdos.gui;
 import jdos.sdl.GUI;
 import jdos.Dosbox;
 import jdos.ints.Mouse;
+import jdos.ints.Int10_modes;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +24,7 @@ public class MainFrame implements GUI {
         
     }
 
-    static public void robotMouse(MouseEvent e) {
+    static public void robotMouse(MouseEvent e, Point rel) {
          if (eatNextMouseMove) {
             last_x = e.getX();
             last_y = e.getY();
@@ -35,19 +36,20 @@ public class MainFrame implements GUI {
         else {
             int rel_x = e.getX() - last_x;
             int rel_y = e.getY() - last_y;
-            Main.addEvent(new Main.MouseEvent2(e,rel_x, rel_y));
-            robotCenter();
+            float abs_x = (Mouse.mouse.x+rel_x)/(Mouse.mouse.max_x);
+            float abs_y = (Mouse.mouse.y+rel_y)/(Mouse.mouse.max_y);
+            Main.addEvent(new Main.MouseEvent2(e,rel_x, rel_y, abs_x, abs_y));
+            robotCenter(rel);
         }
     }
-    static private void robotCenter() {
-        Point rel = panel.getLocationOnScreen();
+    static public void robotCenter(Point rel) {
         eatNextMouseMove = true;
-        robot.mouseMove(rel.x+200, rel.x+200);
+        robot.mouseMove(rel.x+200, rel.y+200);
     }
 
     public void captureMouse(boolean on) {
         if (robot != null) {
-            robotCenter();
+            robotCenter(panel.getLocationOnScreen());
         }
     }
     public void showCursor(boolean on) {
@@ -213,14 +215,17 @@ public class MainFrame implements GUI {
         }
 
         public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount()==2 && e.getButton() == MouseEvent.BUTTON3) {
+                Main.GFX_CaptureMouse();
+            }
         }
 
         public void mouseMoved(MouseEvent e) {
-            robotMouse(e);
+            robotMouse(e, panel.getLocationOnScreen());
         }
 
         public void mouseDragged(MouseEvent e) {
-            robotMouse(e);
+            robotMouse(e, panel.getLocationOnScreen());
         }
 
     }

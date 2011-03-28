@@ -151,19 +151,6 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         UnZip.unzip(file.getAbsolutePath(), directory.getAbsolutePath(), progressBar);
     }
     public void run() {
-        ClassLoader base = ClassLoader.getSystemClassLoader();
-        URL[] urls = null;
-        if (base instanceof URLClassLoader) {
-            urls = ((URLClassLoader)base).getURLs();
-        } else {
-            try {
-                urls = new URL[]{ new File(".").toURI().toURL() };
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        URLClassLoader loader = new URLClassLoader(urls, base);
-        Thread.currentThread().setContextClassLoader(loader);
         System.out.println("About to start DosBox");
         // Not sure why this pause helps so much or what the right value is
         // Perhaps during a page reload this gives the first copy of this applet
@@ -209,13 +196,13 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         Main.main(this, cmds);
     }
     public void init() {
-        System.out.println("Applet.init");
+        System.out.println("Applet.init()");
         try {
             if (MainFrame.robot == null) { 
                 MainFrame.robot = new Robot();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            System.out.println("Applet is not signed, mouse capture will not work");
         }
         if (thread != null) {
             System.out.println("Applet.init force stop");

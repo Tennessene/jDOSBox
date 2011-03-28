@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.MemoryImageSource;
+import java.security.AccessControlException;
 
 public class MainFrame implements GUI {
     int[] pixels = new int[16 * 16];
@@ -112,7 +113,7 @@ public class MainFrame implements GUI {
     }
 
     public static void main(String[] args) {
-        try {robot = new Robot();} catch (Exception e) {e.printStackTrace();}
+        try {robot = new Robot();} catch (Throwable e) {System.out.println("Applet is not signed, mouse capture will not work");}
 
         frame = new MyFrame();
         frame.setFocusTraversalKeysEnabled(false);

@@ -1191,7 +1191,8 @@ public class Dos extends Module_base {
             return "Dos.DOS_25Handler";
         }
         public /*Bitu*/int call() {
-            if(Dos_files.Drives[CPU_Regs.reg_eax.low()]==null){
+            int drive = CPU_Regs.reg_eax.low();
+            if(drive>=Dos_files.Drives.length || Dos_files.Drives[CPU_Regs.reg_eax.low()]==null){
                 CPU_Regs.reg_eax.word(0x8002);
                 CPU_Regs.SETFLAGBIT(CPU_Regs.CF,true);
             }else{

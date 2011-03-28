@@ -953,9 +953,10 @@ public class SBlaster extends Module_base {
             {
                 DSP_FlushData();
                 byte[] b = copyright_string.getBytes();
-                for (int i=0;i<=b.length;i++) {
+                for (int i=0;i<b.length;i++) {
                     DSP_AddData(b[i]);
                 }
+                DSP_AddData(0);
             }
             break;
         case 0xe4:	/* Write Test Register */

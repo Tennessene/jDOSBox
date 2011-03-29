@@ -4,6 +4,7 @@ import jdos.sdl.GUI;
 import jdos.util.FileHelper;
 import jdos.util.Progress;
 import jdos.util.UnZip;
+import jdos.util.StringHelper;
 
 import java.applet.Applet;
 import java.awt.*;
@@ -188,8 +189,15 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
             if (param == null) {
                 break;
             }
-            params.add("-c");
-            params.add(param);
+            if (param.startsWith("-")) {
+                String[] p = StringHelper.split(param, " ");
+                for (int j=0;j<p.length;j++) {
+                    params.addElement(p[j]);
+                }
+            } else {
+                params.add("-c");
+                params.add(param);
+            }
         }
         String[] cmds = new String[params.size()];
         params.copyInto(cmds);

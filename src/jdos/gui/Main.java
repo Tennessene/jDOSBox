@@ -444,9 +444,12 @@ public class Main {
     }
     static BufferedImage buffer;
     static public /*Bitu*/void GFX_SetSize(/*Bitu*/int width,/*Bitu*/int height,GFX_CallBack_t callback) {
-        gui.setSize(width, height);
         buffer_width = screen_width = width;
         buffer_height = screen_height = height;
+        if (Render.render.aspect) {
+            screen_height = screen_width*3/4;
+        }
+        gui.setSize(screen_width, screen_height);
         if (Render.render.src.dblh)
             buffer_height /= 2;
         if (Render.render.src.dblw)

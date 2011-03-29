@@ -7,8 +7,10 @@ import jdos.ints.Int10_modes;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.event.*;
 import java.awt.image.MemoryImageSource;
+import java.awt.image.BufferedImage;
 import java.security.AccessControlException;
 
 public class MainFrame implements GUI {
@@ -112,6 +114,52 @@ public class MainFrame implements GUI {
             frame.setTitle(title);
     }
 
+    public static GraphicsConfiguration getDefaultConfiguration() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        return gd.getDefaultConfiguration();
+    }
+
+    static BufferedImage tmpImage;
+
+    public static BufferedImage resizeImage(BufferedImage source, int destWidth, int destHeight, Object interpolation) {
+        if (source == null)
+            throw new NullPointerException("source image is NULL!");
+        if (destWidth <= 0 && destHeight <= 0)
+            throw new IllegalArgumentException("destination width & height are both <=0!");
+        int sourceWidth = source.getWidth();
+        int sourceHeight = source.getHeight();
+        double xScale = ((double) destWidth) / (double) sourceWidth;
+        double yScale = ((double) destHeight) / (double) sourceHeight;
+        if (destWidth <= 0) {
+            xScale = yScale;
+            destWidth = (int) Math.rint(xScale * sourceWidth);
+        }
+        if (destHeight <= 0) {
+            yScale = xScale;
+            destHeight = (int) Math.rint(yScale * sourceHeight);
+        }
+        if (tmpImage == null) {
+            try {
+                GraphicsConfiguration gc = getDefaultConfiguration();
+                tmpImage = gc.createCompatibleImage(destWidth, destHeight, source.getColorModel().getTransparency());
+            } catch (Throwable e) {
+                tmpImage = new BufferedImage(destWidth, destHeight, source.getColorModel().getTransparency());
+            }
+        }
+        Graphics2D g2d = null;
+        try {
+            g2d = tmpImage.createGraphics();
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, interpolation);
+            AffineTransform at = AffineTransform.getScaleInstance(xScale, yScale);
+            g2d.drawRenderedImage(source, at);
+        } finally {
+            if (g2d != null)
+                g2d.dispose();
+        }
+        return tmpImage;
+    }
+
     public static void main(String[] args) {
         try {robot = new Robot();} catch (Throwable e) {System.out.println("Applet is not signed, mouse capture will not work");}
 
@@ -123,7 +171,12 @@ public class MainFrame implements GUI {
                     if (fullscreen) {
                         g.drawImage(Main.buffer, fullscreen_cx_offset, 0, fullscreen_cx+fullscreen_cx_offset,  fullscreen_cy, 0, 0, Main.buffer_width, Main.buffer_height, null);
                     } else {
-                        g.drawImage(Main.buffer, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);
+                        if (Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
+                            BufferedImage resized = resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                            g.drawImage(resized, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.screen_width, Main.screen_height, null);
+                        } else {
+                            g.drawImage(Main.buffer, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);
+                        }
                     }
                 }
             }

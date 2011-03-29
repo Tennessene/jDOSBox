@@ -8,6 +8,7 @@ import jdos.util.StringHelper;
 
 import java.applet.Applet;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.event.*;
 import java.awt.image.MemoryImageSource;
 import java.awt.image.BufferedImage;
@@ -280,12 +281,21 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         g.drawString(progressMsg, x, y-yOffset);
         g.setClip(0, 0, width, height);
     }
+
+    private void draw(Graphics g) {
+        if (Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
+            BufferedImage resized = MainFrame.resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g.drawImage(resized, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.screen_width, Main.screen_height, null);
+        } else {
+            g.drawImage(Main.buffer, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);
+        }
+    }
     public void update( Graphics g ) {
         if (Main.buffer != null) {
             if (progressMsg != null) {
                 drawProgress(Main.buffer.getGraphics(), Main.screen_width, Main.screen_height);
             }
-            g.drawImage(Main.buffer, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);
+            draw(g);
         } else if (progressMsg != null) {
             if (bufferGraphics == null) {
                 Rectangle r = g.getClipBounds();

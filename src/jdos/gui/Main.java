@@ -615,7 +615,12 @@ public class Main {
             }
             SetPriority(priority_focus); //Assume focus on startup
 
-            mouse_autoenable = section.Get_bool("autolock");
+            Integer autolock = Dosbox.control.cmdline.FindInt("-autolock", true);
+            if (autolock != null) {
+                mouse_autoenable = autolock.intValue()==1;
+            } else {
+                mouse_autoenable = section.Get_bool("autolock");
+            }
             if (!mouse_autoenable) gui.showCursor(false);
             mouse_autolock = false;
             mouse_sensitivity = section.Get_int("sensitivity");

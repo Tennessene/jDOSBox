@@ -37,9 +37,9 @@ public class CommandLine {
                 }
             }
             else if (c=='"') { inquote=true;}
-            else if (c!=' ') { str.append(c);;inword=true;}
+            else if (c!=' ') { str.append(c);inword=true;}
         }
-        if (inword || inquote) cmds.addElement(str.toString());;
+        if (inword || inquote) cmds.addElement(str.toString());
     }
 
     public String GetFileName() {
@@ -65,7 +65,7 @@ public class CommandLine {
             Integer result = new Integer(Integer.parseInt((String)cmds.elementAt(index+1), 16));
             if (remove) {
                 cmds.removeElementAt(index);
-                cmds.removeElementAt(index+1);
+                cmds.removeElementAt(index);
             }
             return result;
         } catch (NumberFormatException e) {
@@ -83,7 +83,7 @@ public class CommandLine {
             Integer result = new Integer(Integer.parseInt((String)cmds.elementAt(index+1), 10));
             if (remove) {
                 cmds.removeElementAt(index);
-                cmds.removeElementAt(index+1);
+                cmds.removeElementAt(index);
             }
             return result;
         } catch (NumberFormatException e) {

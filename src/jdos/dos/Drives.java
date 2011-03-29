@@ -71,7 +71,7 @@ public class Drives {
 
             labelPos++; vnamePos++;
             togo--;
-            if ((togo==0) && !point) {
+            if (vnamePos<input.length() && (togo==0) && !point) {
                 if (input.charAt(vnamePos)=='.') vnamePos++;
                 output[labelPos]='.'; labelPos++; point=true; togo=3;
             }

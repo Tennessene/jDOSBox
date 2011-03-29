@@ -15,14 +15,14 @@ import jdos.util.ShortRef;
 public class Paging extends Module_base {
     public static final int MEM_PAGE_SIZE = 4096;
     public static final int XMS_START = 0x110;
-        
+
     public static final int PFLAG_READABLE=		0x1;
     public static final int PFLAG_WRITEABLE=	0x2;
     public static final int PFLAG_HASROM=		0x4;
     public static final int PFLAG_HASCODE=		0x8;				//Page contains dynamic code
     public static final int PFLAG_NOCODE=		0x10;			//No dynamic code can be generated here
     public static final int PFLAG_INIT=			0x20;			//No dynamic code can be generated here
-    
+
     static public final int PAGING_LINKS = (128*1024/4);
     static public final int TLB_SIZE;
     static public final int BANK_SHIFT = 28;
@@ -73,7 +73,7 @@ public class Paging extends Module_base {
             return false;
         }
         public boolean readw_checked(/*PhysPt*/long addr,/*Bit16u*/IntRef val) {
-            val.value=readw(addr);	
+            val.value=readw(addr);
             return false;
         }
         public boolean readd_checked(/*PhysPt*/long addr,/*Bit32u*/LongRef val) {
@@ -172,17 +172,17 @@ public class Paging extends Module_base {
 	    public boolean enabled;
     }
 
-    public static /*HostPt*/int get_tlb_read(/*PhysPt*/long address) {
-        return paging.tlb.read[(int)(address>>12)];
+    private static /*HostPt*/int get_tlb_read(/*PhysPt*/int address) {
+        return paging.tlb.read[address>>>12];
     }
-    public static /*HostPt*/int get_tlb_write(/*PhysPt*/long address) {
-        return paging.tlb.write[(int)(address>>12)];
+    private static /*HostPt*/int get_tlb_write(/*PhysPt*/int address) {
+        return paging.tlb.write[address>>>12];
     }
-    public static PageHandler get_tlb_readhandler(/*PhysPt*/long address) {
-        return paging.tlb.readhandler[(int)(address>>12)];
+    private static PageHandler get_tlb_readhandler(/*PhysPt*/int address) {
+        return paging.tlb.readhandler[address>>>12];
     }
-    public static PageHandler get_tlb_writehandler(/*PhysPt*/long address) {
-        return paging.tlb.writehandler[(int)(address>>12)];
+    private static PageHandler get_tlb_writehandler(/*PhysPt*/int address) {
+        return paging.tlb.writehandler[address>>>12];
     }
 
     /* Use these helper functions to access linear addresses in readX/writeX functions */
@@ -197,111 +197,131 @@ public class Paging extends Module_base {
     /* Special inlined memory reading/writing */
 
     public static int getDirectIndex(long address) {
-        /*HostPt*/int tlb_addr=get_tlb_read(address);
+        address&=0xFFFFFFFFl;
+        int a = (int)address;
+        /*HostPt*/int tlb_addr=get_tlb_read(a);
         if (tlb_addr!=Integer.MIN_VALUE) return (int)(tlb_addr+address);
-        get_tlb_readhandler(address).readb(address);
-        tlb_addr=get_tlb_read(address);
+        get_tlb_readhandler(a).readb(address);
+        tlb_addr=get_tlb_read(a);
         return (int)(tlb_addr+address);
     }
 
     public static /*Bit8u*/short mem_readb_inline(/*PhysPt*/long address) {
-        /*HostPt*/int tlb_addr=get_tlb_read(address);
-        if (tlb_addr!=Integer.MIN_VALUE) return Memory.host_readb((int)(tlb_addr+address));
-        else return (short)(get_tlb_readhandler(address)).readb(address);
+        address&=0xFFFFFFFFl; // truncate larger than int
+        int a = (int)address;
+        /*HostPt*/int tlb_addr=get_tlb_read(a);
+        if (tlb_addr!=Integer.MIN_VALUE) return Memory.host_readb((int)(tlb_addr+address)); // a might be negative when paging so use original long value
+        else return (short)(get_tlb_readhandler(a)).readb(address);
     }
 
     public static /*Bit16u*/int mem_readw_inline(/*PhysPt*/long address) {
-        if ((address & 0xfff)<0xfff) {
-            /*HostPt*/int tlb_addr=get_tlb_read(address);
+        address&=0xFFFFFFFFl;
+        int a = (int)address;
+        if ((a & 0xfff)<0xfff) {
+            /*HostPt*/int tlb_addr=get_tlb_read(a);
             if (tlb_addr!=Integer.MIN_VALUE) return Memory.host_readw((int)(tlb_addr+address));
-            else return (get_tlb_readhandler(address)).readw(address);
+            else return (get_tlb_readhandler(a)).readw(address);
         } else return Memory.mem_unalignedreadw(address);
     }
 
     public static /*Bit32u*/long mem_readd_inline(/*PhysPt*/long address) {
-        if ((address & 0xfff)<0xffd) {
-            /*HostPt*/int tlb_addr=get_tlb_read(address);
+        address&=0xFFFFFFFFl;
+        int a = (int)address;
+        if ((a & 0xfff)<0xffd) {
+            /*HostPt*/int tlb_addr=get_tlb_read(a);
             if (tlb_addr!=Integer.MIN_VALUE) return Memory.host_readd((int)(tlb_addr+address));
-            else return (get_tlb_readhandler(address)).readd(address);
+            else return (get_tlb_readhandler(a)).readd(address);
         } else return Memory.mem_unalignedreadd(address);
     }
 
     public static void mem_writeb_inline(/*PhysPt*/long address,/*Bit8u*/short val) {
-        /*HostPt*/int tlb_addr=get_tlb_write(address);
+        address&=0xFFFFFFFFl;
+        int a = (int)address;
+        /*HostPt*/int tlb_addr=get_tlb_write(a);
         if (tlb_addr!=Integer.MIN_VALUE) Memory.host_writeb((int)(tlb_addr+address),val);
-        else (get_tlb_writehandler(address)).writeb(address,val);
+        else (get_tlb_writehandler(a)).writeb(address,val);
     }
 
     public static void mem_writew_inline(/*PhysPt*/long address,/*Bit16u*/int val) {
-        if ((address & 0xfff)<0xfff) {
-            /*HostPt*/int tlb_addr=get_tlb_write(address);
+        address&=0xFFFFFFFFl;
+        int a = (int)address;
+        if ((a & 0xfff)<0xfff) {
+            /*HostPt*/int tlb_addr=get_tlb_write(a);
             if (tlb_addr!=Integer.MIN_VALUE) Memory.host_writew((int)(tlb_addr+address),val);
-            else (get_tlb_writehandler(address)).writew(address,val);
+            else (get_tlb_writehandler(a)).writew(address,val);
         } else Memory.mem_unalignedwritew(address,val);
     }
 
     public static void mem_writed_inline(/*PhysPt*/long address,/*Bit32u*/long val) {
-        if ((address & 0xfff)<0xffd) {
-            /*HostPt*/int tlb_addr=get_tlb_write(address);
+        address&=0xFFFFFFFFl;
+        int a = (int)address;
+        if ((a & 0xfff)<0xffd) {
+            /*HostPt*/int tlb_addr=get_tlb_write(a);
             if (tlb_addr!=Integer.MIN_VALUE) Memory.host_writed((int)(tlb_addr+address),val);
-            else (get_tlb_writehandler(address)).writed(address,(int)val);
+            else (get_tlb_writehandler(a)).writed(address,(int)val);
         } else Memory.mem_unalignedwrited(address,val);
     }
 
 
     public static boolean mem_readb_checked(/*PhysPt*/long address, /*Bit8u*/ShortRef val) {
-        /*HostPt*/int tlb_addr=get_tlb_read(address);
+        int a = (int)address;
+        /*HostPt*/int tlb_addr=get_tlb_read(a);
         if (tlb_addr!=Integer.MIN_VALUE) {
-            val.value=Memory.host_readb((int)((tlb_addr+address) & 0xFFFFFFFFl));
+            val.value=Memory.host_readb((int)(tlb_addr+address));
             return false;
-        } else return (get_tlb_readhandler(address)).readb_checked(address, val);
+        } else return (get_tlb_readhandler(a)).readb_checked(address, val);
     }
 
     public static boolean mem_readw_checked(/*PhysPt*/long address, /*Bit16u*/IntRef val) {
-        if ((address & 0xfff)<0xfff) {
-            /*HostPt*/int tlb_addr=get_tlb_read(address);
+        int a = (int)address;
+        if ((a & 0xfff)<0xfff) {
+            /*HostPt*/int tlb_addr=get_tlb_read(a);
             if (tlb_addr!=Integer.MIN_VALUE) {
-                val.value=Memory.host_readw((int)((tlb_addr+address) & 0xFFFFFFFFl));
+                val.value=Memory.host_readw((int)(tlb_addr+address));
                 return false;
-            } else return (get_tlb_readhandler(address)).readw_checked(address, val);
+            } else return (get_tlb_readhandler(a)).readw_checked(address, val);
         } else return Memory.mem_unalignedreadw_checked(address, val);
     }
 
     public static boolean mem_readd_checked(/*PhysPt*/long address, /*Bit32u*/LongRef val) {
-        if ((address & 0xfff)<0xffd) {
-            /*HostPt*/int tlb_addr=get_tlb_read(address);
+        int a = (int)address;
+        if ((a & 0xfff)<0xffd) {
+            /*HostPt*/int tlb_addr=get_tlb_read(a);
             if (tlb_addr!=Integer.MIN_VALUE) {
-                val.value=Memory.host_readd((int)((tlb_addr+address) & 0xFFFFFFFFl));
+                val.value=Memory.host_readd((int)(tlb_addr+address));
                 return false;
-            } else return (get_tlb_readhandler(address)).readd_checked(address, val);
+            } else return (get_tlb_readhandler(a)).readd_checked(address, val);
         } else return Memory.mem_unalignedreadd_checked(address, val);
     }
 
     public static boolean mem_writeb_checked(/*PhysPt*/long address,/*Bit8u*/short val) {
-        /*HostPt*/int tlb_addr=get_tlb_write(address);
+        int a = (int)address;
+        /*HostPt*/int tlb_addr=get_tlb_write(a);
         if (tlb_addr!=Integer.MIN_VALUE) {
-            Memory.host_writeb((int)((tlb_addr+address) & 0xFFFFFFFFl),val);
+            Memory.host_writeb((int)(tlb_addr+address),val);
             return false;
-        } else return (get_tlb_writehandler(address)).writeb_checked(address,val);
+        } else return (get_tlb_writehandler(a)).writeb_checked(address,val);
     }
 
     public static boolean mem_writew_checked(/*PhysPt*/long address,/*Bit16u*/int val) {
-        if ((address & 0xfff)<0xfff) {
-            /*HostPt*/int tlb_addr=get_tlb_write(address);
+        int a = (int)address;
+        if ((a & 0xfff)<0xfff) {
+            /*HostPt*/int tlb_addr=get_tlb_write(a);
             if (tlb_addr!=Integer.MIN_VALUE) {
-                Memory.host_writew((int)((tlb_addr+address) & 0xFFFFFFFFl),val);
+                Memory.host_writew((int)(tlb_addr+address),val);
                 return false;
-            } else return (get_tlb_writehandler(address)).writew_checked(address,val);
+            } else return (get_tlb_writehandler(a)).writew_checked(address,val);
         } else return Memory.mem_unalignedwritew_checked(address,val);
     }
 
     public static boolean mem_writed_checked(/*PhysPt*/long address,/*Bit32u*/long val) {
-        if ((address & 0xfff)<0xffd) {
-            /*HostPt*/int tlb_addr=get_tlb_write(address);
+        int a = (int)address;
+        if ((a & 0xfff)<0xffd) {
+            /*HostPt*/int tlb_addr=get_tlb_write(a);
             if (tlb_addr!=Integer.MIN_VALUE) {
-                Memory.host_writed((int)((tlb_addr+address) & 0xFFFFFFFFl),val);
+                Memory.host_writed((int)(tlb_addr+address),val);
                 return false;
-            } else return (get_tlb_writehandler(address)).writed_checked(address,(int)val);
+            } else return (get_tlb_writehandler(a)).writed_checked(address,(int)val);
 	} else return Memory.mem_unalignedwrited_checked(address,val);
 }
 
@@ -623,7 +643,8 @@ public class Paging extends Module_base {
                         PAGING_LinkPage(lin_page,phys_page);
                         if ((handler.flags & PFLAG_READABLE)==0) return 1;
                         if ((handler.flags & PFLAG_WRITEABLE)==0) return 1;
-                        if (get_tlb_read(lin_addr)!=get_tlb_write(lin_addr)) return 1;
+                        int a = (int)lin_addr;
+                        if (get_tlb_read(a)!=get_tlb_write(a)) return 1;
                         if (phys_page>1) return phys_page;
                         else return 1;
                     } else {
@@ -695,22 +716,22 @@ public class Paging extends Module_base {
         }
         public void writeb(/*PhysPt*/long addr,/*Bitu*/int val) {
             InitPage(addr,(val&0xff));
-            Memory.host_writeb((int)(get_tlb_read(addr)+addr),(short)(val&0xff));
+            Memory.host_writeb((int)(get_tlb_read((int)addr)+addr),(short)(val&0xff));
         }
         public void writew(/*PhysPt*/long addr,/*Bitu*/int val) {
             InitPage(addr,(val&0xffff));
-            Memory.host_writew((int)(get_tlb_read(addr)+addr),(val&0xffff));
+            Memory.host_writew((int)(get_tlb_read((int)addr)+addr),(val&0xffff));
         }
         public void writed(/*PhysPt*/long addr,/*Bitu*/int val) {
             InitPage(addr,val);
-            Memory.host_writed((int)(get_tlb_read(addr)+addr),val);
+            Memory.host_writed((int)(get_tlb_read((int)addr)+addr),val);
         }
         public boolean writeb_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
             /*Bitu*/int writecode=InitPageCheckOnly(addr,(val&0xff));
             if (writecode!=0) {
                 /*HostPt*/int tlb_addr;
-                if (writecode>1) tlb_addr=get_tlb_read(addr);
-                else tlb_addr=get_tlb_write(addr);
+                if (writecode>1) tlb_addr=get_tlb_read((int)addr);
+                else tlb_addr=get_tlb_write((int)addr);
                 Memory.host_writeb((int)(tlb_addr+addr),(short)(val&0xff));
                 return false;
             }
@@ -720,8 +741,8 @@ public class Paging extends Module_base {
             /*Bitu*/int writecode=InitPageCheckOnly(addr,(val&0xffff));
             if (writecode!=0) {
                 /*HostPt*/int tlb_addr;
-                if (writecode>1) tlb_addr=get_tlb_read(addr);
-                else tlb_addr=get_tlb_write(addr);
+                if (writecode>1) tlb_addr=get_tlb_read((int)addr);
+                else tlb_addr=get_tlb_write((int)addr);
                 Memory.host_writew((int)(tlb_addr+addr),(val&0xffff));
                 return false;
             }
@@ -731,8 +752,8 @@ public class Paging extends Module_base {
             /*Bitu*/int writecode=InitPageCheckOnly(addr,val);
             if (writecode!=0) {
                 /*HostPt*/int tlb_addr;
-                if (writecode>1) tlb_addr=get_tlb_read(addr);
-                else tlb_addr=get_tlb_write(addr);
+                if (writecode>1) tlb_addr=get_tlb_read((int)addr);
+                else tlb_addr=get_tlb_write((int)addr);
                 Memory.host_writed((int)(tlb_addr+addr),val);
                 return false;
             }
@@ -847,18 +868,18 @@ public class Paging extends Module_base {
         return paging.cr3;
     }
 
-    private static boolean PAGING_ForcePageInit(/*Bitu*/long lin_addr) {
-        PageHandler handler=get_tlb_readhandler(lin_addr);
-        if (handler==init_page_handler) {
-            init_page_handler.InitPageForced(lin_addr);
-            return true;
-        } else if (handler==init_page_handler_userro) {
-            PAGING_UnlinkPages((int)(lin_addr>>12),1);
-            init_page_handler_userro.InitPageForced(lin_addr);
-            return true;
-        }
-        return false;
-    }
+//    private static boolean PAGING_ForcePageInit(/*Bitu*/long lin_addr) {
+//        PageHandler handler=get_tlb_readhandler(lin_addr);
+//        if (handler==init_page_handler) {
+//            init_page_handler.InitPageForced(lin_addr);
+//            return true;
+//        } else if (handler==init_page_handler_userro) {
+//            PAGING_UnlinkPages((int)(lin_addr>>12),1);
+//            init_page_handler_userro.InitPageForced(lin_addr);
+//            return true;
+//        }
+//        return false;
+//    }
 
     private static void PAGING_InitTLB() {
         for (/*Bitu*/int i=0;i<TLB_SIZE;i++) {
@@ -974,7 +995,7 @@ public class Paging extends Module_base {
     }
 
     static private Paging test;
-    
+
     public Paging(Section configuration) {
         super(configuration);
         paging = new PagingBlock();
@@ -993,7 +1014,7 @@ public class Paging extends Module_base {
             paging = null;
         }
     };
-    
+
     public static Section.SectionFunction PAGING_Init = new Section.SectionFunction() {
         public void call(Section section) {
             test = new Paging(section);

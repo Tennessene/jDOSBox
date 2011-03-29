@@ -793,7 +793,7 @@ public class Dos_files {
             if (FCB_SEP.indexOf(string.charAt(0))>=0) string = string.substring(1);
         }
         /* strip leading spaces */
-        while((string.charAt(0)==' ')||(string.charAt(0)=='\t')) string=string.substring(1);
+        while(string.length()>0 && ((string.charAt(0)==' ')||(string.charAt(0)=='\t'))) string=string.substring(1);
         /* Check for a drive */
         if (string.length()>1 && string.charAt(1)==':') {
             drive = 0;

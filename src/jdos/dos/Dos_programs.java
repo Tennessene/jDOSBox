@@ -14,6 +14,7 @@ import jdos.misc.Cross;
 import jdos.misc.Log;
 import jdos.misc.Msg;
 import jdos.misc.Program;
+import jdos.misc.setup.Section;
 import jdos.shell.Dos_shell;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
@@ -343,197 +344,193 @@ public class Dos_programs {
 //    extern Bit32u floppytype;
 //
 //
-//    class BOOT : public Program {
-//    private:
-//
-//        FILE *getFSFile_mounted(char const* filename, Bit32u *ksize, Bit32u *bsize, Bit8u *error) {
-//            //if return NULL then put in error the errormessage code if an error was requested
-//            bool tryload = (*error)?true:false;
-//            *error = 0;
-//            Bit8u drive;
-//            FILE *tmpfile;
-//            char fullname[DOS_PATHLENGTH];
-//
-//            localDrive* ldp=0;
-//            if (!DOS_MakeName(const_cast<char*>(filename),fullname,&drive)) return NULL;
-//
-//            try {
-//                ldp=dynamic_cast<localDrive*>(Drives[drive]);
-//                if(!ldp) return NULL;
-//
-//                tmpfile = ldp->GetSystemFilePtr(fullname, "rb");
-//                if(tmpfile == NULL) {
-//                    if (!tryload) *error=1;
-//                    return NULL;
-//                }
-//
-//                // get file size
-//                fseek(tmpfile,0L, SEEK_END);
-//                *ksize = (ftell(tmpfile) / 1024);
-//                *bsize = ftell(tmpfile);
-//                fclose(tmpfile);
-//
-//                tmpfile = ldp->GetSystemFilePtr(fullname, "rb+");
-//                if(tmpfile == NULL) {
-////				if (!tryload) *error=2;
-////				return NULL;
-//                    WriteOut(Msg.get("PROGRAM_BOOT_WRITE_PROTECTED"));
-//                    tmpfile = ldp->GetSystemFilePtr(fullname, "rb");
-//                    if(tmpfile == NULL) {
-//                        if (!tryload) *error=1;
-//                        return NULL;
-//                    }
-//                }
-//
-//                return tmpfile;
-//            }
-//            catch(...) {
-//                return NULL;
-//            }
-//        }
-//
-//        FILE *getFSFile(char const * filename, Bit32u *ksize, Bit32u *bsize,bool tryload=false) {
-//            Bit8u error = tryload?1:0;
-//            FILE* tmpfile = getFSFile_mounted(filename,ksize,bsize,&error);
-//            if(tmpfile) return tmpfile;
-//            //File not found on mounted filesystem. Try regular filesystem
-//            std::string filename_s(filename);
-//            Cross::ResolveHomedir(filename_s);
-//            tmpfile = fopen(filename_s.c_str(),"rb+");
-//            if(!tmpfile) {
-//                if( (tmpfile = fopen(filename_s.c_str(),"rb")) ) {
-//                    //File exists; So can't be opened in correct mode => error 2
-////				fclose(tmpfile);
-////				if(tryload) error = 2;
-//                    WriteOut(Msg.get("PROGRAM_BOOT_WRITE_PROTECTED"));
-//                    fseek(tmpfile,0L, SEEK_END);
-//                    *ksize = (ftell(tmpfile) / 1024);
-//                    *bsize = ftell(tmpfile);
-//                    return tmpfile;
-//                }
-//                // Give the delayed errormessages from the mounted variant (or from above)
-//                if(error == 1) WriteOut(Msg.get("PROGRAM_BOOT_NOT_EXIST"));
-//                if(error == 2) WriteOut(Msg.get("PROGRAM_BOOT_NOT_OPEN"));
-//                return NULL;
-//            }
-//            fseek(tmpfile,0L, SEEK_END);
-//            *ksize = (ftell(tmpfile) / 1024);
-//            *bsize = ftell(tmpfile);
-//            return tmpfile;
-//        }
-//
-//        void printError(void) {
-//            WriteOut(Msg.get("PROGRAM_BOOT_PRINT_ERROR"));
-//        }
-//
-//        void disable_umb_ems_xms(void) {
-//            Section* dos_sec = control->GetSection("dos");
-//            dos_sec->ExecuteDestroy(false);
-//            char test[20];
-//            strcpy(test,"umb=false");
-//            dos_sec->HandleInputline(test);
-//            strcpy(test,"xms=false");
-//            dos_sec->HandleInputline(test);
-//            strcpy(test,"ems=false");
-//            dos_sec->HandleInputline(test);
-//            dos_sec->ExecuteInit(false);
-//         }
-//
-//    public:
-//
-//        void Run(void) {
-//            //Hack To allow long commandlines
-//            ChangeToLongCmd();
-//            /* In secure mode don't allow people to boot stuff.
-//             * They might try to corrupt the data on it */
-//            if(control->SecureMode()) {
-//                WriteOut(Msg.get("PROGRAM_CONFIG_SECURE_DISALLOW"));
-//                return;
-//            }
-//
-//            FILE *usefile_1=NULL;
-//            FILE *usefile_2=NULL;
-//            Bitu i=0;
-//            Bit32u floppysize;
-//            Bit32u rombytesize_1=0;
-//            Bit32u rombytesize_2=0;
-//            Bit8u drive = 'A';
-//            std::string cart_cmd="";
-//
-//            if(!cmd->GetCount()) {
-//                printError();
-//                return;
-//            }
-//            while(i<cmd->GetCount()) {
-//                if(cmd->FindCommand(i+1, temp_line)) {
-//                    if((temp_line == "-l") || (temp_line == "-L")) {
-//                        /* Specifying drive... next argument then is the drive */
-//                        i++;
-//                        if(cmd->FindCommand(i+1, temp_line)) {
-//                            drive=toupper(temp_line[0]);
-//                            if ((drive != 'A') && (drive != 'C') && (drive != 'D')) {
-//                                printError();
-//                                return;
-//                            }
-//
-//                        } else {
-//                            printError();
-//                            return;
-//                        }
-//                        i++;
-//                        continue;
-//                    }
-//
-//                    if((temp_line == "-e") || (temp_line == "-E")) {
-//                        /* Command mode for PCJr cartridges */
-//                        i++;
-//                        if(cmd->FindCommand(i + 1, temp_line)) {
-//                            for(size_t ct = 0;ct < temp_line.size();ct++) temp_line[ct] = toupper(temp_line[ct]);
-//                            cart_cmd = temp_line;
-//                        } else {
-//                            printError();
-//                            return;
-//                        }
-//                        i++;
-//                        continue;
-//                    }
-//
-//                    WriteOut(Msg.get("PROGRAM_BOOT_IMAGE_OPEN"), temp_line.c_str());
-//                    Bit32u rombytesize;
-//                    FILE *usefile = getFSFile(temp_line.c_str(), &floppysize, &rombytesize);
-//                    if(usefile != NULL) {
-//                        if(diskSwap[i] != NULL) delete diskSwap[i];
-//                        diskSwap[i] = new imageDisk(usefile, (Bit8u *)temp_line.c_str(), floppysize, false);
-//                        if (usefile_1==NULL) {
-//                            usefile_1=usefile;
-//                            rombytesize_1=rombytesize;
-//                        } else {
-//                            usefile_2=usefile;
-//                            rombytesize_2=rombytesize;
-//                        }
-//                    } else {
-//                        WriteOut(Msg.get("PROGRAM_BOOT_IMAGE_NOT_OPEN"), temp_line.c_str());
-//                        return;
-//                    }
-//
-//                }
-//                i++;
-//            }
-//
-//            swapPosition = 0;
-//
-//            swapInDisks();
-//
-//            if(imageDiskList[drive-65]==NULL) {
-//                WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), drive);
-//                return;
-//            }
-//
-//            bootSector bootarea;
-//            imageDiskList[drive-65]->Read_Sector(0,0,1,(Bit8u *)&bootarea);
-//            if ((bootarea.rawdata[0]==0x50) && (bootarea.rawdata[1]==0x43) && (bootarea.rawdata[2]==0x6a) && (bootarea.rawdata[3]==0x72)) {
-//                if (machine!=MCH_PCJR) WriteOut(Msg.get("PROGRAM_BOOT_CART_WO_PCJR"));
-//                else {
+    private static class BOOT extends Program {
+        private FileIO getFSFile_mounted(String filename, LongRef ksize, LongRef bsize, BooleanRef error) {
+            //if return NULL then put in error the errormessage code if an error was requested
+            boolean tryload = error.value;
+            error.value = false;
+            ShortRef drive = new ShortRef();
+            FileIO tmpfile;
+            StringRef fullname = new StringRef();
+
+            Drive_local ldp;
+            if (!Dos_files.DOS_MakeName(filename,fullname,drive)) return null;
+
+            try {
+                if (!(Dos_files.Drives[drive.value] instanceof Drive_local)) return null;
+                ldp = (Drive_local)Dos_files.Drives[drive.value];
+
+                tmpfile = ldp.GetSystemFilePtr(fullname.value, "rb");
+                if(tmpfile == null) {
+                    if (!tryload) error.value=true;
+                    return null;
+                }
+
+                // get file size
+                bsize.value = tmpfile.length();
+                ksize.value = bsize.value / 1024;
+                tmpfile.close();
+
+                tmpfile = ldp.GetSystemFilePtr(fullname.value, "rb+");
+                if(tmpfile == null) {
+//				if (!tryload) *error=2;
+//				return NULL;
+                    WriteOut(Msg.get("PROGRAM_BOOT_WRITE_PROTECTED"));
+                    tmpfile = ldp.GetSystemFilePtr(fullname.value, "rb");
+                    if(tmpfile == null) {
+                        if (!tryload) error.value=true;
+                        return null;
+                    }
+                }
+                return tmpfile;
+            } catch(Exception e) {
+                return null;
+            }
+        }
+
+        FileIO getFSFile(String filename, LongRef ksize, LongRef bsize) {
+            return getFSFile(filename, ksize, bsize, false);
+        }
+
+        FileIO getFSFile(String filename, LongRef ksize, LongRef bsize,boolean tryload/*=false*/) {
+            BooleanRef error = new BooleanRef(tryload);
+            FileIO tmpfile = getFSFile_mounted(filename,ksize,bsize,error);
+            if (tmpfile!=null) return tmpfile;
+            //File not found on mounted filesystem. Try regular filesystem
+            filename = FileHelper.resolve_path(filename);
+            try {
+                tmpfile = FileIOFactory.open(filename,FileIOFactory.MODE_READ|FileIOFactory.MODE_WRITE);
+            } catch (Exception e) {
+                try {
+                    tmpfile = FileIOFactory.open(filename,FileIOFactory.MODE_READ);
+                    WriteOut(Msg.get("PROGRAM_BOOT_WRITE_PROTECTED"));
+                } catch (Exception e1) {
+                    WriteOut(Msg.get("PROGRAM_BOOT_NOT_EXIST"));
+                    return null;
+                }
+            }
+            try {
+                bsize.value = tmpfile.length();
+                ksize.value = bsize.value / 1024;
+            } catch (Exception e) {
+            }
+            return tmpfile;
+        }
+
+        private void printError() {
+            WriteOut(Msg.get("PROGRAM_BOOT_PRINT_ERROR"));
+        }
+
+        private void disable_umb_ems_xms() {
+            Section dos_sec = Dosbox.control.GetSection("dos");
+            dos_sec.ExecuteDestroy(false);
+            dos_sec.HandleInputline("umb=false");
+            dos_sec.HandleInputline("xms=false");
+            dos_sec.HandleInputline("ems=false");
+            dos_sec.ExecuteInit(false);
+         }
+
+        static private class bootSector {
+//            struct entries {
+//                Bit8u jump[3];
+//                Bit8u oem_name[8];
+//                Bit16u bytesect;
+//                Bit8u sectclust;
+//                Bit16u reserve_sect;
+//                Bit8u misc[496];
+//            } bootdata;
+            byte[] rawdata = new byte[512];
+        }
+        public void Run() {
+            //Hack To allow long commandlines
+            ChangeToLongCmd();
+            /* In secure mode don't allow people to boot stuff.
+             * They might try to corrupt the data on it */
+            if(Dosbox.control.SecureMode()) {
+                WriteOut(Msg.get("PROGRAM_CONFIG_SECURE_DISALLOW"));
+                return;
+            }
+
+            FileIO usefile_1=null;
+            FileIO usefile_2=null;
+            int i=0;
+            LongRef floppysize = new LongRef(0);
+            LongRef rombytesize_1 = new LongRef(0);
+            LongRef rombytesize_2 = new LongRef(0);
+            char drive = 'A';
+            String cart_cmd="";
+
+            if(cmd.GetCount()==0) {
+                printError();
+                return;
+            }
+            while(i<cmd.GetCount()) {
+                if ((temp_line=cmd.FindCommand(i+1))!=null) {
+                    if (temp_line.equalsIgnoreCase("-l")) {
+                        /* Specifying drive... next argument then is the drive */
+                        i++;
+                        if ((temp_line=cmd.FindCommand(i+1))!=null) {
+                            drive=temp_line.toUpperCase().charAt(0);
+                            if ((drive != 'A') && (drive != 'C') && (drive != 'D')) {
+                                printError();
+                                return;
+                            }
+
+                        } else {
+                            printError();
+                            return;
+                        }
+                        i++;
+                        continue;
+                    }
+
+                    if(temp_line.equalsIgnoreCase("-e")) {
+                        /* Command mode for PCJr cartridges */
+                        i++;
+                        if((temp_line=cmd.FindCommand(i + 1))!=null) {
+                            cart_cmd = temp_line.toUpperCase();
+                        } else {
+                            printError();
+                            return;
+                        }
+                        i++;
+                        continue;
+                    }
+
+                    WriteOut(Msg.get("PROGRAM_BOOT_IMAGE_OPEN"), new Object[]{temp_line});
+                    LongRef rombytesize = new LongRef(0);
+                    FileIO usefile = getFSFile(temp_line, floppysize, rombytesize);
+                    if (usefile != null) {
+                        Bios_disk.diskSwap[i] = new Bios_disk.imageDisk(usefile, temp_line, floppysize.value, false);
+                        if (usefile_1==null) {
+                            usefile_1=usefile;
+                            rombytesize_1=rombytesize;
+                        } else {
+                            usefile_2=usefile;
+                            rombytesize_2=rombytesize;
+                        }
+                    } else {
+                        WriteOut(Msg.get("PROGRAM_BOOT_IMAGE_NOT_OPEN"), new Object[]{temp_line});
+                        return;
+                    }
+
+                }
+                i++;
+            }
+
+            Bios_disk.swapPosition = 0;
+            Bios_disk.swapInDisks();
+
+            if(Bios_disk.imageDiskList[drive-65]==null) {
+                WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
+                return;
+            }
+
+            bootSector bootarea = new bootSector();
+            Bios_disk.imageDiskList[drive-65].Read_Sector(0,0,1,bootarea.rawdata);
+            if ((bootarea.rawdata[0]==0x50) && (bootarea.rawdata[1]==0x43) && (bootarea.rawdata[2]==0x6a) && (bootarea.rawdata[3]==0x72)) {
+                if (Dosbox.machine!=MachineType.MCH_PCJR) WriteOut(Msg.get("PROGRAM_BOOT_CART_WO_PCJR"));
+                else {
 //                    Bit8u rombuf[65536];
 //                    Bits cfound_at=-1;
 //                    if (cart_cmd!="") {
@@ -681,39 +678,40 @@ public class Dos_programs {
 //                            CALLBACK_RunRealFar(romseg,cfound_at);
 //                        }
 //                    }
-//                }
-//            } else {
-//                disable_umb_ems_xms();
-//                void RemoveEMSPageFrame(void);
-//                RemoveEMSPageFrame();
-//                WriteOut(Msg.get("PROGRAM_BOOT_BOOT"), drive);
-//                for(i=0;i<512;i++) real_writeb(0, 0x7c00 + i, bootarea.rawdata[i]);
-//
-//                /* revector some dos-allocated interrupts */
-//                real_writed(0,0x01*4,0xf000ff53);
-//                real_writed(0,0x03*4,0xf000ff53);
-//
-//                SegSet16(cs, 0);
-//                reg_ip = 0x7c00;
-//                SegSet16(ds, 0);
-//                SegSet16(es, 0);
-//                /* set up stack at a safe place */
-//                SegSet16(ss, 0x7000);
-//                reg_esp = 0x100;
-//                reg_esi = 0;
-//                reg_ecx = 1;
-//                reg_ebp = 0;
-//                reg_eax = 0;
-//                reg_edx = 0; //Head 0 drive 0
-//                reg_ebx= 0x7c00; //Real code probably uses bx to load the image
-//            }
-//        }
-//    };
-//
-//    static void BOOT_ProgramStart(Program * * make) {
-//        *make=new BOOT;
-//    }
-//
+                }
+            } else {
+                disable_umb_ems_xms();
+                Memory.RemoveEMSPageFrame();
+                WriteOut(Msg.get("PROGRAM_BOOT_BOOT"), new Object[] {new Character(drive)});
+                for(i=0;i<512;i++) Memory.real_writeb(0, 0x7c00 + i, bootarea.rawdata[i]);
+
+                /* revector some dos-allocated interrupts */
+                Memory.real_writed(0,0x01*4,0xf000ff53);
+                Memory.real_writed(0,0x03*4,0xf000ff53);
+
+                CPU_Regs.SegSet16CS(0);
+                CPU_Regs.reg_eip = 0x7c00;
+                CPU_Regs.SegSet16DS(0);
+                CPU_Regs.SegSet16ES(0);
+                /* set up stack at a safe place */
+                CPU_Regs.SegSet16SS(0x7000);
+                CPU_Regs.reg_esp.dword(0x100);
+                CPU_Regs.reg_esi.dword(0);
+                CPU_Regs.reg_ecx.dword(1);
+                CPU_Regs.reg_ebp.dword(0);
+                CPU_Regs.reg_eax.dword(0);
+                CPU_Regs.reg_edx.dword(0); //Head 0 drive 0
+                CPU_Regs.reg_ebx.dword(0x7c00); //Real code probably uses bx to load the image
+            }
+        }
+    }
+
+    static private Program.PROGRAMS_Main BOOT_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new BOOT();
+        }
+    };
+
 //
 //    #if C_DEBUG
 //    class LDGFXROM : public Program {
@@ -1477,7 +1475,7 @@ public class Dos_programs {
         Program.PROGRAMS_MakeFile("LOADFIX.COM",LOADFIX_ProgramStart);
         Program.PROGRAMS_MakeFile("RESCAN.COM",RESCAN_ProgramStart);
         Program.PROGRAMS_MakeFile("INTRO.COM",INTRO_ProgramStart);
-//        PROGRAMS_MakeFile("BOOT.COM",BOOT_ProgramStart);
+        Program.PROGRAMS_MakeFile("BOOT.COM",BOOT_ProgramStart);
 //    #if C_DEBUG
 //        PROGRAMS_MakeFile("LDGFXROM.COM", LDGFXROM_ProgramStart);
 //    #endif

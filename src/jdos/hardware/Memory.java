@@ -709,7 +709,7 @@ public class Memory extends Module_base {
         }
     };
 
-    private static void RemoveEMSPageFrame() {
+    public static void RemoveEMSPageFrame() {
         /* Setup rom at 0xe0000-0xf0000 */
         for (/*Bitu*/int ct=0xe0;ct<0xf0;ct++) {
             memory.phandlers[ct] = rom_page_handler;

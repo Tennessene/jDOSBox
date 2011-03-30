@@ -424,14 +424,14 @@ public class Drive_local extends Dos_Drive {
 	    return 0;
     }
 
-	public RandomAccessFile GetSystemFilePtr(String name, String type) {
+	public FileIO GetSystemFilePtr(String name, String type) {
         StringRef newname=new StringRef(basedir+name);
         dirCache.ExpandName(newname);
-        String t="r";
+        int mode = FileIOFactory.MODE_READ;
         if (type.indexOf('+')>=0)
-            t+="w";
+            mode|= FileIOFactory.MODE_WRITE;
         try {
-            return new RandomAccessFile(newname.value,t);
+            return FileIOFactory.open(newname.value, mode);
         } catch (Exception e) {
             return null;
         }

@@ -244,7 +244,7 @@ public class Drive_local extends Dos_Drive {
         dirCache.ExpandName(newdir);
         // Skip directory test, if "\"
         File f = new File(newdir.value);
-        if (newdir.value.length()>0 && newdir.value.endsWith("\\")) {
+        if (!newdir.value.endsWith("\\")) {
             // It has to be a directory !
             return f.exists() && f.isDirectory();
         }

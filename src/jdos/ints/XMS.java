@@ -254,7 +254,7 @@ public class XMS extends Module_base {
             return "XMS.XMS_Handler";
         }
         public /*Bitu*/int call() {
-        	if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"XMS: CALL "+Integer.toString(CPU_Regs.reg_eax.high(),16));
+        	if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"XMS: CALL "+Integer.toString(CPU_Regs.reg_eax.high(),16));
             switch (CPU_Regs.reg_eax.high() & 0xFF) {
             case XMS_GET_VERSION:										/* 00 */
                 CPU_Regs.reg_eax.word(XMS_VERSION);

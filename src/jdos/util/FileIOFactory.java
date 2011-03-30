@@ -298,6 +298,15 @@ public class FileIOFactory {
             return buf;
         }
     }
+    static public boolean canOpen(String path, int mode) {
+        try {
+            FileIO f = open(path, mode);
+            f.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
     static public FileIO open(String path, int mode) throws FileNotFoundException {
         if (path.toLowerCase().startsWith("http://")) {
             try {

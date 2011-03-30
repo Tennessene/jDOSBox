@@ -134,7 +134,7 @@ public class Main {
     }
 
     static public boolean mouse_locked = false;
-    static private float mouse_sensitivity = 100.0f;
+    static public float mouse_sensitivity = 100.0f;
     static private boolean mouse_autoenable = false;
     static private boolean mouse_autolock = false;
     static private boolean mouse_requestlock = false;
@@ -817,27 +817,28 @@ public class Main {
             Log.log_msg("Copyright 2002-2010 DOSBox Team, published under GNU GPL.");
             Log.log_msg("---");
 
-            if (!Dosbox.applet) {
-                /* Parse configuration files */
-                boolean parsed_anyconfigfile = false;
-                //First Parse -userconf
-                if (Dosbox.control.cmdline.FindExist("-userconf", true)) {
-                    String path = Cross.CreatePlatformConfigDir() + Cross.GetPlatformConfigName();
-                    if (Dosbox.control.ParseConfigFile(path)) parsed_anyconfigfile = true;
-                    if (!parsed_anyconfigfile) {
-                        //Try to create the userlevel configfile.
-                        if (Dosbox.control.PrintConfig(path)) {
-                            Log.log_msg("CONFIG: Generating default configuration.\nWriting it to "+path);
-                            //Load them as well. Makes relative paths much easier
-                            if (Dosbox.control.ParseConfigFile(path)) parsed_anyconfigfile = true;
-                        }
+
+            /* Parse configuration files */
+            boolean parsed_anyconfigfile = false;
+            //First Parse -userconf
+            if (Dosbox.control.cmdline.FindExist("-userconf", true)) {
+                String path = Cross.CreatePlatformConfigDir() + Cross.GetPlatformConfigName();
+                if (Dosbox.control.ParseConfigFile(path)) parsed_anyconfigfile = true;
+                if (!parsed_anyconfigfile) {
+                    //Try to create the userlevel configfile.
+                    if (Dosbox.control.PrintConfig(path)) {
+                        Log.log_msg("CONFIG: Generating default configuration.\nWriting it to "+path);
+                        //Load them as well. Makes relative paths much easier
+                        if (Dosbox.control.ParseConfigFile(path)) parsed_anyconfigfile = true;
                     }
                 }
-                //Second parse -conf entries
-                String path;
-                while ((path=Dosbox.control.cmdline.FindString("-conf", true))!=null) {
-                    if (Dosbox.control.ParseConfigFile(path)) parsed_anyconfigfile = true;
-                }
+            }
+            //Second parse -conf entries
+            String path;
+            while ((path=Dosbox.control.cmdline.FindString("-conf", true))!=null) {
+                if (Dosbox.control.ParseConfigFile(path)) parsed_anyconfigfile = true;
+            }
+            if (!Dosbox.applet) {
                 //if none found => parse localdir conf
                 if (!parsed_anyconfigfile)
                     if (Dosbox.control.ParseConfigFile("dosbox.conf")) parsed_anyconfigfile = true;

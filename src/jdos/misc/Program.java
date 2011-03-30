@@ -9,9 +9,9 @@ import jdos.hardware.Memory;
 import jdos.misc.setup.CommandLine;
 import jdos.misc.setup.Section;
 import jdos.shell.Dos_shell;
-import jdos.util.IntRef;
-import jdos.util.StringHelper;
-import jdos.util.StringRef;
+import jdos.shell.Shell;
+import jdos.util.*;
+import jdos.Dosbox;
 
 import java.util.Vector;
 
@@ -223,142 +223,133 @@ public abstract class Program {
 
     static class CONFIG extends Program {
         public void Run() {
-//            FILE * f;
-//            if (cmd->FindString("-writeconf",temp_line,true)
-//                    || cmd->FindString("-wc",temp_line,true)) {
-//                /* In secure mode don't allow a new configfile to be created */
-//                if(control->SecureMode()) {
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_SECURE_DISALLOW"));
-//                    return;
-//                }
-//                f=fopen(temp_line.c_str(),"wb+");
-//                if (!f) {
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_FILE_ERROR"),temp_line.c_str());
-//                    return;
-//                }
-//                fclose(f);
-//                control->PrintConfig(temp_line.c_str());
-//                return;
-//            }
-//            if (cmd->FindString("-writelang",temp_line,true)
-//                    ||cmd->FindString("-wl",temp_line,true)) {
-//                /* In secure mode don't allow a new languagefile to be created
-//                 * Who knows which kind of file we would overwriting. */
-//                if(control->SecureMode()) {
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_SECURE_DISALLOW"));
-//                    return;
-//                }
-//                f=fopen(temp_line.c_str(),"wb+");
-//                if (!f) {
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_FILE_ERROR"),temp_line.c_str());
-//                    return;
-//                }
-//                fclose(f);
-//                MSG_Write(temp_line.c_str());
-//                return;
-//            }
-//
-//            /* Code for switching to secure mode */
-//            if(cmd->FindExist("-securemode",true)) {
-//                control->SwitchToSecureMode();
-//                WriteOut(MSG_Get("PROGRAM_CONFIG_SECURE_ON"));
-//                return;
-//            }
-//
-//            /* Code for getting the current configuration.           *
-//             * Official format: config -get "section property"       *
-//             * As a bonus it will set %CONFIG% to this value as well */
-//            if(cmd->FindString("-get",temp_line,true)) {
-//                std::string temp2 = "";
-//                cmd->GetStringRemain(temp2);//So -get n1 n2= can be used without quotes
-//                if(temp2 != "") temp_line = temp_line + " " + temp2;
-//
-//                std::string::size_type space = temp_line.find(" ");
-//                if(space == std::string::npos) {
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_GET_SYNTAX"));
-//                    return;
-//                }
-//                //Copy the found property to a new string and erase from templine (mind the space)
-//                std::string prop = temp_line.substr(space+1); temp_line.erase(space);
-//
-//                Section* sec = control->GetSection(temp_line.c_str());
-//                if(!sec) {
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_SECTION_ERROR"),temp_line.c_str());
-//                    return;
-//                }
-//                std::string val = sec->GetPropValue(prop.c_str());
-//                if(val == NO_SUCH_PROPERTY) {
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_NO_PROPERTY"),prop.c_str(),temp_line.c_str());
-//                    return;
-//                }
-//                WriteOut("%s",val.c_str());
-//                first_shell->SetEnv("CONFIG",val.c_str());
-//                return;
-//            }
-//
-//
-//
-//            /* Code for the configuration changes                                  *
-//             * Official format: config -set "section property=value"               *
-//             * Accepted: without quotes and/or without -set and/or without section *
-//             *           and/or the "=" replaced by a " "                          */
-//
-//            if (cmd->FindString("-set",temp_line,true)) { //get all arguments
-//                std::string temp2 = "";
-//                cmd->GetStringRemain(temp2);//So -set n1 n2=n3 can be used without quotes
-//                if(temp2!="") temp_line = temp_line + " " + temp2;
-//            } else 	if(!cmd->GetStringRemain(temp_line)) {//no set
-//                    WriteOut(MSG_Get("PROGRAM_CONFIG_USAGE")); //and no arguments specified
-//                    return;
-//            };
-//            //Wanted input: n1 n2=n3
-//            char copy[1024];
-//            strcpy(copy,temp_line.c_str());
-//            //seperate section from property
-//            const char* temp = strchr(copy,' ');
-//            if((temp && *temp) || (temp=strchr(copy,'=')) ) copy[temp++ - copy]= 0;
-//            else {
-//                WriteOut(MSG_Get("PROGRAM_CONFIG_USAGE"));
-//                return;
-//            }
-//            //if n1 n2 n3 then replace last space with =
-//            const char* sign = strchr(temp,'=');
-//            if(!sign) {
-//                sign = strchr(temp,' ');
-//                if(sign) {
-//                    copy[sign - copy] = '=';
-//                } else {
-//                    //2 items specified (no space nor = between n2 and n3
-//                    //assume that they posted: property value
-//                    //Try to determine the section.
-//                    Section* sec=control->GetSectionFromProperty(copy);
-//                    if(!sec){
-//                        if(control->GetSectionFromProperty(temp)) return; //Weird situation:ignore
-//                        WriteOut(MSG_Get("PROGRAM_CONFIG_PROPERTY_ERROR"),copy);
-//                        return;
-//                    } //Hack to allow config ems true
-//                    char buffer[1024];strcpy(buffer,copy);strcat(buffer,"=");strcat(buffer,temp);
-//                    sign = strchr(buffer,' ');
-//                    if(sign) buffer[sign - buffer] = '=';
-//                    strcpy(copy,sec->GetName());
-//                    temp = buffer;
-//                }
-//            }
-//
-//            /* Input processed. Now the real job starts
-//             * copy contains the likely "sectionname"
-//             * temp contains "property=value"
-//             * the section is destroyed and a new input line is given to
-//             * the configuration parser. Then the section is restarted.
-//             */
-//            char* inputline = const_cast<char*>(temp);
-//            Section* sec = 0;
-//            sec = control->GetSection(copy);
-//            if(!sec) { WriteOut(MSG_Get("PROGRAM_CONFIG_SECTION_ERROR"),copy);return;}
-//            sec->ExecuteDestroy(false);
-//            sec->HandleInputline(inputline);
-//            sec->ExecuteInit(false);
-//            return;
+            if ((temp_line=cmd.FindString("-writeconf",true))!=null || (temp_line=cmd.FindString("-wc",true))!=null) {
+                /* In secure mode don't allow a new configfile to be created */
+                if(Dosbox.control.SecureMode()) {
+                    WriteOut(Msg.get("PROGRAM_CONFIG_SECURE_DISALLOW"));
+                    return;
+                }
+                if (!FileIOFactory.canOpen(temp_line, FileIOFactory.MODE_WRITE)) {
+                    WriteOut(Msg.get("PROGRAM_CONFIG_FILE_ERROR"),new Object[] {temp_line});
+                    return;
+                }
+                Dosbox.control.PrintConfig(temp_line);
+                return;
+            }
+            if ((temp_line=cmd.FindString("-writelang",true))!=null || (temp_line=cmd.FindString("-wl",true))!=null) {
+                /* In secure mode don't allow a new languagefile to be created
+                 * Who knows which kind of file we would overwriting. */
+                if(Dosbox.control.SecureMode()) {
+                    WriteOut(Msg.get("PROGRAM_CONFIG_SECURE_DISALLOW"));
+                    return;
+                }
+                if (!FileIOFactory.canOpen(temp_line, FileIOFactory.MODE_WRITE)) {
+                    WriteOut(Msg.get("PROGRAM_CONFIG_FILE_ERROR"),new Object[] {temp_line});
+                    return;
+                }
+                Msg.write(temp_line);
+                return;
+            }
+
+            /* Code for switching to secure mode */
+            if(cmd.FindExist("-securemode",true)) {
+                Dosbox.control.SwitchToSecureMode();
+                WriteOut(Msg.get("PROGRAM_CONFIG_SECURE_ON"));
+                return;
+            }
+
+            /* Code for getting the current configuration.           *
+             * Official format: config -get "section property"       *
+             * As a bonus it will set %CONFIG% to this value as well */
+            if((temp_line=cmd.FindString("-get",true))!=null) {
+                String temp2 = cmd.GetStringRemain();//So -get n1 n2= can be used without quotes
+                if(temp2 != null && temp2.length()>0) temp_line = temp_line + " " + temp2;
+
+                int space = temp_line.indexOf(" ");
+                if(space<0) {
+                    WriteOut(Msg.get("PROGRAM_CONFIG_GET_SYNTAX"));
+                    return;
+                }
+                //Copy the found property to a new string and erase from templine (mind the space)
+                String prop = temp_line.substring(space+1); temp_line = temp_line.substring(0, space);
+
+                Section sec = Dosbox.control.GetSection(temp_line);
+                if(sec==null) {
+                    WriteOut(Msg.get("PROGRAM_CONFIG_SECTION_ERROR"),new Object[] {temp_line});
+                    return;
+                }
+                String val = sec.GetPropValue(prop);
+                if(val.equals(Section.NO_SUCH_PROPERTY)) {
+                    WriteOut(Msg.get("PROGRAM_CONFIG_NO_PROPERTY"), new Object[] {prop,temp_line});
+                    return;
+                }
+                WriteOut(val);
+                Shell.first_shell.SetEnv("CONFIG",val);
+                return;
+            }
+
+
+
+            /* Code for the configuration changes                                  *
+             * Official format: config -set "section property=value"               *
+             * Accepted: without quotes and/or without -set and/or without section *
+             *           and/or the "=" replaced by a " "                          */
+
+            if ((temp_line=cmd.FindString("-set",true))!=null) { //get all arguments
+                String temp2 = cmd.GetStringRemain();//So -set n1 n2=n3 can be used without quotes
+                if(temp2!=null && temp2.length()>0) temp_line = temp_line + " " + temp2;
+            } else 	if((temp_line=cmd.GetStringRemain())==null) {//no set
+                WriteOut(Msg.get("PROGRAM_CONFIG_USAGE")); //and no arguments specified
+                return;
+            }
+            //Wanted input: n1 n2=n3
+            //seperate section from property
+            int pos = temp_line.indexOf(' ');
+            if (pos<0)
+                pos = temp_line.indexOf('=');
+            String copy;
+            if (pos>=0) {
+                copy = temp_line.substring(0, pos);
+                temp_line=temp_line.substring(pos+1);
+            } else {
+                WriteOut(Msg.get("PROGRAM_CONFIG_USAGE"));
+                return;
+            }
+            //if n1 n2 n3 then replace last space with =
+            int sign = temp_line.indexOf('=');
+            if(sign<=0) {
+                sign = temp_line.indexOf(' ');
+                if(sign>=0) {
+                    temp_line = temp_line.substring(0, sign)+"="+temp_line.substring(sign+1);
+                } else {
+                    //2 items specified (no space nor = between n2 and n3
+                    //assume that they posted: property value
+                    //Try to determine the section.
+                    Section sec=Dosbox.control.GetSectionFromProperty(copy);
+                    if(sec==null){
+                        if(Dosbox.control.GetSectionFromProperty(temp_line)!=null) return; //Weird situation:ignore
+                        WriteOut(Msg.get("PROGRAM_CONFIG_PROPERTY_ERROR"),new Object[] {copy});
+                        return;
+                    } //Hack to allow config ems true
+                    temp_line = copy+"="+temp_line;
+                    copy = sec.GetName();
+                    sign = temp_line.indexOf(' ');
+                    if(sign>=0) 
+                        temp_line = temp_line.substring(0, sign)+"="+temp_line.substring(sign+1);
+                }
+            }
+
+            /* Input processed. Now the real job starts
+             * copy contains the likely "sectionname"
+             * temp contains "property=value"
+             * the section is destroyed and a new input line is given to
+             * the configuration parser. Then the section is restarted.
+             */
+            Section sec = Dosbox.control.GetSection(copy);
+            if(sec==null) { WriteOut(Msg.get("PROGRAM_CONFIG_SECTION_ERROR"),new Object[] {copy});return;}
+            sec.ExecuteDestroy(false);
+            sec.HandleInputline(temp_line);
+            sec.ExecuteInit(false);
         }
     }
 

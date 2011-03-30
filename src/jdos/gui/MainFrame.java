@@ -39,8 +39,8 @@ public class MainFrame implements GUI {
         else {
             int rel_x = e.getX() - last_x;
             int rel_y = e.getY() - last_y;
-            float abs_x = (Mouse.mouse.x+rel_x)/(Mouse.mouse.max_x);
-            float abs_y = (Mouse.mouse.y+rel_y)/(Mouse.mouse.max_y);
+            float abs_x = (Mouse.mouse.x+rel_x*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_x);
+            float abs_y = (Mouse.mouse.y+rel_y*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_y);
             Main.addEvent(new Main.MouseEvent2(e,rel_x, rel_y, abs_x, abs_y));
             robotCenter(rel);
         }

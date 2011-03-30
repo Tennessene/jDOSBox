@@ -299,7 +299,7 @@ public class DOS_Drive_Cache {
         StringRef expand = new StringRef();
 
         CFileInfo dir = FindDirInfo(path,expand);
-        int pos = path.indexOf(File.separatorChar);
+        int pos = path.lastIndexOf(File.separatorChar);
 
         if (pos>=0) {
             file.value = path.substring(pos+1);

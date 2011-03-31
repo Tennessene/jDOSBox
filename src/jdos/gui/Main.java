@@ -200,9 +200,9 @@ public class Main {
             if (event.getButton() == MouseEvent.BUTTON1) {
                 Mouse.Mouse_ButtonPressed(0);
             } else if (event.getButton() == MouseEvent.BUTTON2) {
-                Mouse.Mouse_ButtonPressed(1);
-            } else if (event.getButton() == MouseEvent.BUTTON3) {
                 Mouse.Mouse_ButtonPressed(2);
+            } else if (event.getButton() == MouseEvent.BUTTON3) {
+                Mouse.Mouse_ButtonPressed(1);
             }
         } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
             if (event.getButton() == MouseEvent.BUTTON1) {

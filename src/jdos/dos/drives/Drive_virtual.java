@@ -217,6 +217,7 @@ public class Drive_virtual extends Dos_Drive {
         return false;
     }
 	public /*Bits*/int UnMount() {
+        first_file = null;
         return 1;
     }
 	private VFILE_Block search_file;

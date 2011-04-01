@@ -130,6 +130,9 @@ public class FileIOFactory {
         // Necessary for the thrashing that happens when a zip (i.e. wad file, is inside the zipped jar)
         final private LRUCache cache = new LRUCache(32); // 256k
 
+        private byte[][] writeData = null;
+        private int writePageCount;
+        
         private InputStream getIS() {
             return Dosbox.class.getResourceAsStream(path);
         }
@@ -175,6 +178,9 @@ public class FileIOFactory {
         }
 
         private byte[] get(int offset) throws IOException {
+            if (writeData != null && writeData[offset>>cacheShift]!=null) {
+                return writeData[offset>>cacheShift];
+            }
             Integer i = new Integer(offset);
             byte[] b = (byte[])cache.get(i);
             if (b == null) {
@@ -235,10 +241,21 @@ public class FileIOFactory {
         }
 
         public void write(int b) throws IOException {
-            skipBytes(1);
-            int ii=0;
-//            if ((mode & MODE_WRITE)==0)
-//                throw new IOException("Read Only");
+            if ((mode & MODE_WRITE)==0)
+                throw new IOException("Read Only");
+            int offset = pos>>cacheShift;
+            if (writeData == null) {
+                writeData = new byte[(this.len>>cacheShift)+1][];
+            }
+            byte[] data = writeData[offset>>cacheShift];
+            if (data == null) {
+                data = get(offset);
+                writeData[offset>>cacheShift] = data;
+                writePageCount++;
+            }
+            int index = pos & cacheMask;
+            pos++;
+            data[index] = (byte)b;
         }
 
         public void write(byte[] b) throws IOException {
@@ -246,14 +263,38 @@ public class FileIOFactory {
         }
 
         public void write(byte[] b, int off, int len) throws IOException {
-            skipBytes(len);
-            int ii=0;
-//            if ((mode & MODE_WRITE)==0)
-//                throw new IOException("Read Only");
-//            if (pos+len>data.length)
-//                throw new IOException("EOF");
-//            System.arraycopy(b, off, data, pos, len);
-//            pos+=len;
+            if ((mode & MODE_WRITE)==0)
+                throw new IOException("Read Only");
+            if (b == null)
+                throw new NullPointerException();
+            if (off<0 || off+len>=this.len)
+                throw new IndexOutOfBoundsException();
+
+            if (pos>=this.len)
+                return;
+            if (pos+len>this.len)
+                len = this.len-pos;
+            while (len>0) {
+                int offset = pos & ~cacheMask;
+                int index = pos & cacheMask;
+                int todo = len;
+                if (todo > cachePageSize - index) {
+                    todo = cachePageSize - index;
+                }
+                if (writeData == null) {
+                    writeData = new byte[(this.len>>cacheShift)+1][];
+                    writePageCount++;
+                }
+                byte[] data = writeData[offset>>cacheShift];
+                if (data == null) {
+                    data = get(offset);
+                    writeData[offset>>cacheShift] = data;
+                }
+                System.arraycopy(b, off, data, index, todo);
+                pos+=todo;
+                len-=todo;
+                off+=todo;
+            }
         }
 
         public void seek(long p) throws IOException {
@@ -397,7 +438,6 @@ public class FileIOFactory {
             throw new FileNotFoundException(path);
         } else if (path.toLowerCase().startsWith("jar://")) {
             path = path.substring(6);
-            URL url = Dosbox.class.getResource(path);
 
             InputStream is = Dosbox.class.getResourceAsStream(path);
             if (is == null) {

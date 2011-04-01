@@ -7,6 +7,7 @@ import jdos.hardware.Memory;
 import jdos.ints.Bios;
 import jdos.ints.Int10;
 import jdos.ints.Int10_char;
+import jdos.ints.Bios_keyboard;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
@@ -452,18 +453,20 @@ public class Dos_devices {
             return true;
         }
         public /*Bit16u*/int GetInformation() {
-            /*Bit16u*/int head=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
-            /*Bit16u*/int tail=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
+            synchronized (Bios_keyboard.lock) {
+                /*Bit16u*/int head=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
+                /*Bit16u*/int tail=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
 
-            if ((head==tail) && readcache==0) return 0x80D3;	/* No Key Available */
-            if (readcache!=0 || Memory.real_readw(0x40,head)!=0) return 0x8093;		/* Key Available */
+                if ((head==tail) && readcache==0) return 0x80D3;	/* No Key Available */
+                if (readcache!=0 || Memory.real_readw(0x40,head)!=0) return 0x8093;		/* Key Available */
 
-            /* remove the zero from keyboard buffer */
-            /*Bit16u*/int start=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_START);
-            /*Bit16u*/int end	=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_END);
-            head+=2;
-            if (head>=end) head=start;
-            Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_HEAD,head);
+                /* remove the zero from keyboard buffer */
+                /*Bit16u*/int start=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_START);
+                /*Bit16u*/int end	=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_END);
+                head+=2;
+                if (head>=end) head=start;
+                Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_HEAD,head);
+            }
             return 0x80D3; /* No Key Available */
         }
         public boolean ReadFromControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {

@@ -121,28 +121,32 @@ public class Bios_keyboard {
           new Scan( 0x8600, 0x8800, 0x8a00, 0x8c00 )  /* F12 */
     };
 
-    private static boolean BIOS_AddKeyToBuffer(/*Bit16u*/int code) {
-        if ((Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS2)&8)!=0) return true;
-        /*Bit16u*/int start,end,head,tail,ttail;
-        if (Dosbox.machine== MachineType.MCH_PCJR) {
-            /* should be done for cga and others as well, to be tested */
-            start=0x1e;
-            end=0x3e;
-        } else {
-            start=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_START);
-            end	 =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_END);
+    // Dos_shell.CMD_CHOICE can call this on a different thread
+    final static public Object lock = new Object();
+    public static boolean BIOS_AddKeyToBuffer(/*Bit16u*/int code) {
+        synchronized (Bios_keyboard.lock) {
+            if ((Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS2)&8)!=0) return true;
+            /*Bit16u*/int start,end,head,tail,ttail;
+            if (Dosbox.machine== MachineType.MCH_PCJR) {
+                /* should be done for cga and others as well, to be tested */
+                start=0x1e;
+                end=0x3e;
+            } else {
+                start=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_START);
+                end	 =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_END);
+            }
+            head =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
+            tail =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
+            ttail=tail+2;
+            if (ttail>=end) {
+                ttail=start;
+            }
+            /* Check for buffer Full */
+            //TODO Maybe beeeeeeep or something although that should happend when internal buffer is full
+            if (ttail==head) return false;
+            Memory.real_writew(0x40,tail,code);
+            Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_TAIL,ttail);
         }
-        head =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
-        tail =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
-        ttail=tail+2;
-        if (ttail>=end) {
-            ttail=start;
-        }
-        /* Check for buffer Full */
-        //TODO Maybe beeeeeeep or something although that should happend when internal buffer is full
-        if (ttail==head) return false;
-        Memory.real_writew(0x40,tail,code);
-        Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_TAIL,ttail);
         return true;
     }
 
@@ -151,32 +155,36 @@ public class Bios_keyboard {
     }
 
     private static boolean get_key(/*Bit16u*/IntRef code) {
-        /*Bit16u*/int start,end,head,tail,thead;
-        if (Dosbox.machine==MachineType.MCH_PCJR) {
-            /* should be done for cga and others as well, to be tested */
-            start=0x1e;
-            end=0x3e;
-        } else {
-            start=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_START);
-            end	 =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_END);
-        }
-        head =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
-        tail =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
+        synchronized (Bios_keyboard.lock) {
+            /*Bit16u*/int start,end,head,tail,thead;
+            if (Dosbox.machine==MachineType.MCH_PCJR) {
+                /* should be done for cga and others as well, to be tested */
+                start=0x1e;
+                end=0x3e;
+            } else {
+                start=Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_START);
+                end	 =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_END);
+            }
+            head =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
+            tail =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
 
-        if (head==tail) return false;
-        thead=head+2;
-        if (thead>=end) thead=start;
-        Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_HEAD,thead);
-        code.value = Memory.real_readw(0x40,head);
+            if (head==tail) return false;
+            thead=head+2;
+            if (thead>=end) thead=start;
+            Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_HEAD,thead);
+            code.value = Memory.real_readw(0x40,head);
+        }
         return true;
     }
 
     static boolean check_key(/*Bit16u*/IntRef code) {
         /*Bit16u*/int head,tail;
-        head =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
-        tail =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
-        if (head==tail) return false;
-        code.value = Memory.real_readw(0x40,head);
+        synchronized (Bios_keyboard.lock) {
+            head =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_HEAD);
+            tail =Memory.mem_readw(Bios.BIOS_KEYBOARD_BUFFER_TAIL);
+            if (head==tail) return false;
+            code.value = Memory.real_readw(0x40,head);
+        }
         return true;
     }
 

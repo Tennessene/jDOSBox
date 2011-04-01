@@ -1,6 +1,7 @@
 package jdos.shell;
 
 import jdos.Dosbox;
+import jdos.ints.Bios_keyboard;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
@@ -1780,6 +1781,22 @@ public class Dos_shell extends Program {
         }
     };
 
+    static private class DefaultChoice extends Thread {
+        int timeout = 0;
+        byte[] choice;
+        Object mutex = new Object();
+
+        public void run() {
+            synchronized(mutex) {
+                try {
+                    mutex.wait(timeout*1000);
+                    Bios_keyboard.BIOS_AddKeyToBuffer(choice[0]);
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    }
+
     handler CMD_CHOICE = new handler() {
         public void call(String a) {
             StringRef args = new StringRef(a);
@@ -1788,7 +1805,29 @@ public class Dos_shell extends Program {
             String rem = null;
             boolean optN = ScanCMDBool(args,"N");
             boolean optS = ScanCMDBool(args,"S"); //Case-sensitive matching
-            ScanCMDBool(args,"T"); //Default Choice after timeout
+            boolean timeout = false;
+            String timeoutChoice="";
+            int timeoutTime = -1;
+
+            if (args.value.indexOf("/T")>=0) {
+                int pos1 = args.value.indexOf("/T");
+                int pos2 = args.value.indexOf(" ", pos1);
+                String command = args.value.substring(pos1+2, pos2);
+                args.value = args.value.substring(0, pos1)+args.value.substring(pos2+1);
+                if (command.startsWith(":")) {
+                    command = command.substring(1);
+                }
+                int pos3=command.indexOf(",");
+                if (pos3>=0) {
+                    timeoutChoice = command.substring(0,pos3);
+                    try {
+                        timeoutTime = Integer.parseInt(command.substring(pos3+1));
+                        timeout = true;
+                    } catch (Exception e) {
+                    }
+                }
+            }
+            //ScanCMDBool(args,"T"); //Default Choice after timeout
             if (args.value.length()>0) {
                 args.value = StripSpaces(args.value);
                 rem = ScanCMDRemain(args);
@@ -1825,7 +1864,18 @@ public class Dos_shell extends Program {
             byte[] c = new byte[1];
             int pos;
             do {
+                DefaultChoice defaultChoice = null;
+                if (timeout) {
+                    defaultChoice = new DefaultChoice();
+                    defaultChoice.choice = timeoutChoice.getBytes();
+                    defaultChoice.timeout = timeoutTime;
+                    defaultChoice.start();
+                }
                 Dos_files.DOS_ReadFile(Dos_files.STDIN,c,n);
+                if (defaultChoice != null) {
+                    defaultChoice.interrupt();
+                    try {defaultChoice.join(1000);} catch (Exception e) {}
+                }
                 if (optS)
                     pos = rem.indexOf((char)c[0]);
                 else

@@ -149,6 +149,10 @@ public abstract class Program {
     }
 
     public boolean GetEnvStr(String entry, StringRef result) {
+        if (entry.equalsIgnoreCase("errorlevel")) {
+            result.value = entry+"="+String.valueOf(Dos.dos.return_code);
+            return true;
+        }
     	/* Walk through the internal environment and see for a match */
     	/*PhysPt*/long env_read=Memory.PhysMake(psp.GetEnvironment(),0);
 

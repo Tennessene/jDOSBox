@@ -221,6 +221,26 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         addKeyListener(this);
         addMouseMotionListener(this);
         addMouseListener(this);
+
+        addFocusListener(new FocusListener() {
+            private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
+                public boolean dispatchKeyEvent(KeyEvent e) {
+                    if (e.getKeyCode() == 18) {
+                        Main.addEvent(e);
+                        return true;
+                    }
+                    return false;
+                }
+            };
+
+            public void focusGained(FocusEvent e) {
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(altDisabler);
+            }
+
+            public void focusLost(FocusEvent e) {
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(altDisabler);
+            }
+        });
     }
     public void destroy() {
         removeKeyListener(this);

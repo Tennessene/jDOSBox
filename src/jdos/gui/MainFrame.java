@@ -165,6 +165,26 @@ public class MainFrame implements GUI {
 
         frame = new MyFrame();
         frame.setFocusTraversalKeysEnabled(false);
+        frame.addFocusListener(new FocusListener() {
+                private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
+                    public boolean dispatchKeyEvent(KeyEvent e) {
+                        if (e.getKeyCode() == 18) {
+                            Main.addEvent(e);
+                            return true;
+                        }
+                        return false;
+                    }
+                };
+
+                public void focusGained(FocusEvent e) {
+                    KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(altDisabler);
+                }
+
+                public void focusLost(FocusEvent e) {
+                    KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(altDisabler);
+                }
+            });
+
         panel = new JPanel() {
             public void paint(Graphics g) {
                 if (Main.buffer != null) {

@@ -23,7 +23,7 @@ public abstract class DOS_File {
     public void	SetName(String _name)	{ name = _name;}
     public String GetName()				{ return name; }
     public boolean	IsOpen()					{ return open; }
-    public boolean	IsName(String _name)	{ if (name==null) return false; return name.compareToIgnoreCase(name)==0; }
+    public boolean	IsName(String _name)	{ if (name==null) return false; return name.compareToIgnoreCase(_name)==0; }
     public void	AddRef()					{ refCtr++; }
     public /*Bits*/int	RemoveRef()					{ return --refCtr; }
     public boolean	UpdateDateTimeFromHost()	{ return true; }

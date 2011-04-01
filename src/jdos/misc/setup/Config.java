@@ -4,7 +4,7 @@ import jdos.misc.Cross;
 import jdos.misc.Log;
 import jdos.misc.Msg;
 import jdos.util.StringHelper;
-import jdos.util.FileHelper;
+import jdos.util.FileIOFactory;
 import jdos.Dosbox;
 
 import java.io.*;
@@ -182,11 +182,11 @@ public class Config {
     public boolean ParseConfigFile(String configfilename) {
         BufferedReader in = null;
         try {
-            in = new BufferedReader(new FileReader(FileHelper.resolve_path(configfilename)));
+            in = new BufferedReader(new InputStreamReader(FileIOFactory.openStream(configfilename)));
             String settings_type = first_configfile?"primary":"additional";
             first_configfile = false;
             Log.log_msg("CONFIG:Loading "+settings_type+" settings from config file "+configfilename);
-            current_config_dir = new File(configfilename).getAbsoluteFile().getParentFile().getAbsolutePath();
+            current_config_dir = FileIOFactory.getFullPath(configfilename);
             String line;
             Section currentsection = null;
             while ((line=in.readLine()) != null) {

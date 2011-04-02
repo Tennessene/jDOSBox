@@ -151,6 +151,7 @@ public class Shell {
                 }
             }
             byte[] b = AutoexecObject.autoexec_data.toString().getBytes();
+            Drive_virtual.VFILE_Remove("AUTOEXEC.BAT");
             Drive_virtual.VFILE_Register("AUTOEXEC.BAT",b,b.length);
         }
     }

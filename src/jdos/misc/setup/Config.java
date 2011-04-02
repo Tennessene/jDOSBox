@@ -15,7 +15,7 @@ import java.util.Iterator;
 
 public class Config {
     static public final String MAJOR_VERSION = "0.74";
-    static public final String VERSION = "0.74.18";
+    static public final String VERSION = "0.74.19";
     static public final boolean C_DYNAMIC_X86 = false;
     static public final boolean C_DYNREC = false;
     static public final boolean C_FPU = true;

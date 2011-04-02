@@ -166,15 +166,16 @@ public class Drive_iso extends Dos_Drive {
             return false;
         }
         public boolean	Seek(/*Bit32u*/LongRef pos,/*Bit32u*/int type) {
+            int p = (int)(pos.value & 0xFFFFFFFFl);
             switch (type) {
                 case Dos_files.DOS_SEEK_SET:
-                    filePos = fileBegin + pos.value;
+                    filePos = fileBegin + p;
                     break;
                 case Dos_files.DOS_SEEK_CUR:
-                    filePos += pos.value;
+                    filePos += p;
                     break;
                 case Dos_files.DOS_SEEK_END:
-                    filePos = fileEnd + pos.value;
+                    filePos = fileEnd + p;
                     break;
                 default:
                     return false;

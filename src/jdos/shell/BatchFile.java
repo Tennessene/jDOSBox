@@ -144,7 +144,7 @@ public class BatchFile {
             } while (c[0]!='\n' && n.value!=0);
 
             String nospace = l.toString().trim();
-            if (nospace.charAt(0) == ':') {
+            if (nospace.length()>0 && nospace.charAt(0) == ':') {
                 nospace=nospace.substring(1); //Skip :
                 //Strip spaces and = from it.
                 while (nospace.length()>0 && StringHelper.isspace(nospace.charAt(0)) || nospace.charAt(0)=='=') {

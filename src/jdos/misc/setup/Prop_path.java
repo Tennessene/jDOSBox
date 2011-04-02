@@ -22,7 +22,11 @@ public class Prop_path extends Prop_string {
         //Prepend config directory in it exists. Check for absolute paths later
         if (Config.current_config_dir.length()==0) realpath = workcopy;
         else realpath = Config.current_config_dir + File.separator + workcopy;
-        if (new File(workcopy).getAbsolutePath().charAt(0) == workcopy.charAt(0))
-            realpath = workcopy;
+        try {
+            if (new File(workcopy).getAbsolutePath().charAt(0) == workcopy.charAt(0))
+                realpath = workcopy;
+        } catch (Exception e) {
+            // This will throw an exception for unsigned applets
+        }
     }
 }

@@ -146,7 +146,7 @@ public class StringHelper {
                             if (args[argIndex] instanceof Integer) {
                                 value = Integer.toString(((Integer)args[argIndex]).intValue(), 16);
                             } else if (args[argIndex] instanceof Long) {
-                                value = Long.toString(((Long)args[argIndex]).intValue(), 16);
+                                value = Long.toString(((Long)args[argIndex]).longValue(), 16);
                             } else {
                                 System.out.println("Invalid printf argument type for %x: "+args[argIndex].getClass());
                                 return buffer.toString();
@@ -165,7 +165,7 @@ public class StringHelper {
                             if (args[argIndex] instanceof Integer) {
                                 value = Integer.toString(((Integer)args[argIndex]).intValue(), 16);
                             } else if (args[argIndex] instanceof Long) {
-                                value = Long.toString(((Long)args[argIndex]).intValue(), 16);
+                                value = Long.toString(((Long)args[argIndex]).longValue(), 16);
                             } else {
                                 System.out.println("Invalid printf argument type for %X: "+args[argIndex].getClass());
                                 return buffer.toString();
@@ -190,7 +190,7 @@ public class StringHelper {
                             if (args[argIndex] instanceof Integer) {
                                 value = Integer.toString(((Integer)args[argIndex]).intValue());
                             } else if (args[argIndex] instanceof Long) {
-                                value = String.valueOf(((Long)args[argIndex]).intValue());
+                                value = String.valueOf(((Long)args[argIndex]).longValue());
                             } else {
                                 System.out.println("Invalid printf argument type for %d: "+args[argIndex].getClass());
                                 return buffer.toString();

@@ -509,7 +509,7 @@ public class Keyboard {
             keyb.repeat.rate=33;
             keyb.repeat.wait=0;
             KEYBOARD_ClrBuffer();
-            section.AddDestroyFunction(KEYBOARD_ShutDown,true);
+            section.AddDestroyFunction(KEYBOARD_ShutDown,false);
         }
     };
 }

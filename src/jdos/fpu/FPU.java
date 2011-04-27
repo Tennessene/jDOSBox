@@ -7,8 +7,26 @@ import jdos.misc.Log;
 import jdos.misc.setup.Section;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
+import jdos.debug.Debug;
 
 public class FPU {
+    static public void log() {
+        Debug.log_long(Debug.FPU_REG0, fpu.regs[0].ll());
+        Debug.log_long(Debug.FPU_REG1, fpu.regs[1].ll());
+        Debug.log_long(Debug.FPU_REG2, fpu.regs[2].ll());
+        Debug.log_long(Debug.FPU_REG3, fpu.regs[3].ll());
+        Debug.log_long(Debug.FPU_REG4, fpu.regs[4].ll());
+        Debug.log_long(Debug.FPU_REG5, fpu.regs[5].ll());
+        Debug.log_long(Debug.FPU_REG6, fpu.regs[6].ll());
+        Debug.log_long(Debug.FPU_REG7, fpu.regs[7].ll());
+        Debug.log_long(Debug.FPU_REG8, fpu.regs[8].ll());
+        Debug.log(Debug.FPU_CW, fpu.cw);
+        Debug.log(Debug.FPU_CW_MASK, fpu.cw_mask_all);
+        Debug.log(Debug.FPU_SW, fpu.sw);
+        Debug.log(Debug.FPU_TOP, fpu.top);
+        Debug.log(Debug.FPU_ROUND, fpu.round);
+    }
+    
     private static class FPU_Reg {
         // union
         public FPU_Reg() {

@@ -178,7 +178,7 @@ public class Paging extends Module_base {
     private static /*HostPt*/int get_tlb_write(/*PhysPt*/int address) {
         return paging.tlb.write[address>>>12];
     }
-    private static PageHandler get_tlb_readhandler(/*PhysPt*/int address) {
+    public static PageHandler get_tlb_readhandler(/*PhysPt*/int address) {
         return paging.tlb.readhandler[address>>>12];
     }
     private static PageHandler get_tlb_writehandler(/*PhysPt*/int address) {
@@ -842,7 +842,7 @@ public class Paging extends Module_base {
     }
 
 
-    static private boolean PAGING_MakePhysPage(/*Bitu*/IntRef page) {
+    static public boolean PAGING_MakePhysPage(/*Bitu*/IntRef page) {
         if (paging.enabled) {
             /*Bitu*/int d_index=page.value >> 10;
             /*Bitu*/int t_index=page.value & 0x3ff;
@@ -868,18 +868,18 @@ public class Paging extends Module_base {
         return paging.cr3;
     }
 
-//    private static boolean PAGING_ForcePageInit(/*Bitu*/long lin_addr) {
-//        PageHandler handler=get_tlb_readhandler(lin_addr);
-//        if (handler==init_page_handler) {
-//            init_page_handler.InitPageForced(lin_addr);
-//            return true;
-//        } else if (handler==init_page_handler_userro) {
-//            PAGING_UnlinkPages((int)(lin_addr>>12),1);
-//            init_page_handler_userro.InitPageForced(lin_addr);
-//            return true;
-//        }
-//        return false;
-//    }
+    public static boolean PAGING_ForcePageInit(/*Bitu*/long lin_addr) {
+        PageHandler handler=get_tlb_readhandler((int)lin_addr);
+        if (handler==init_page_handler) {
+            init_page_handler.InitPageForced(lin_addr);
+            return true;
+        } else if (handler==init_page_handler_userro) {
+            PAGING_UnlinkPages((int)(lin_addr>>12),1);
+            init_page_handler_userro.InitPageForced(lin_addr);
+            return true;
+        }
+        return false;
+    }
 
     private static void PAGING_InitTLB() {
         for (/*Bitu*/int i=0;i<TLB_SIZE;i++) {
@@ -902,7 +902,7 @@ public class Paging extends Module_base {
         paging.links.used=0;
     }
 
-    private static void PAGING_UnlinkPages(/*Bitu*/int lin_page,/*Bitu*/int pages) {
+    public static void PAGING_UnlinkPages(/*Bitu*/int lin_page,/*Bitu*/int pages) {
         for (;pages>0;pages--) {
             paging.tlb.read[lin_page]=Integer.MIN_VALUE;
             paging.tlb.write[lin_page]=Integer.MIN_VALUE;

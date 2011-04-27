@@ -15,7 +15,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x300] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                short rm=Fetchb.call();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/short rm=Fetchb.call();/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:	/* SLDT */
                 case 0x01:	/* STR */
@@ -24,15 +24,14 @@ public class Prefix_66_0f extends Prefix_66 {
                         if (which==0) saveval=CPU.CPU_SLDT();
                         else saveval=CPU.CPU_STR();
                         if (rm >= 0xc0) {Modrm.GetEArw[rm].word(saveval);}
-                        else {/*PhysPt*/long eaa = getEaa(rm);Memory.mem_writew(eaa,saveval);}
+                        else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writew(eaa,saveval);}
                     }
                     break;
                 case 0x02:case 0x03:case 0x04:case 0x05:
                     {
-                        /* Just use 16-bit loads since were only using selectors */
                         /*Bitu*/int loadval;
                         if (rm >= 0xc0 ) {loadval=Modrm.GetEArw[rm].word();}
-                        else {/*PhysPt*/long eaa = getEaa(rm);loadval=Memory.mem_readw(eaa);}
+                        else {/*PhysPt*/long eaa=getEaa(rm);loadval=Memory.mem_readw(eaa);}
                         switch (which) {
                         case 0x02:
                             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);

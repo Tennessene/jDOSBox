@@ -17,14 +17,15 @@ public class Config {
     static public final String MAJOR_VERSION = "0.74";
     static public final String VERSION = "0.74.19";
     static public final boolean C_DYNAMIC_X86 = false;
-    static public final boolean C_DYNREC = false;
+    static public final boolean C_DYNREC = true;
     static public final boolean C_FPU = true;
     static public final boolean C_IPX = true;
     static public final boolean C_DEBUG = false;
     static public final boolean C_HEAVY_DEBUG = false;
     static public final boolean USE_FULL_TLB = true;
     static public final boolean C_VGARAM_CHECKED = true;    
-    
+    static public final boolean DEBUG_LOG = false;
+
     static String current_config_dir; // Set by parseconfigfile so Prop_path can use it to construct the realpath
     static public interface StartFunction {
         public void call();

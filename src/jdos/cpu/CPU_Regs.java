@@ -115,6 +115,28 @@ public class CPU_Regs extends Flags {
     }
 
     public static final class Reg {
+        Reg parent;
+
+        public Reg() {
+        }
+
+        public Reg(Reg parent) {
+            this.parent = parent;
+        }
+
+        public void set8(short s) {
+            if (parent == null)
+                low(s);
+            else
+                parent.high(s);
+        }
+
+        public short get8() {
+            if (parent == null)
+                return low();
+            else
+                return parent.high();
+        }
         final public void dword(long l) {
             dword = l & 0xFFFFFFFFl;
         }
@@ -127,7 +149,6 @@ public class CPU_Regs extends Flags {
         final public void word(int value) {
             dword = (value & 0xFFFF) | (dword & 0xFFFF0000l);
         }
-
         final public short low() {
             return (short)(dword & 0xffl);
         }
@@ -151,6 +172,12 @@ public class CPU_Regs extends Flags {
     final static public Reg reg_esi = new Reg();
     final static public Reg reg_edi = new Reg();
     final static public Reg reg_esp = new Reg();
+
+    final static public Reg reg_ah = new Reg(reg_eax);
+    final static public Reg reg_bh = new Reg(reg_ebx);
+    final static public Reg reg_ch = new Reg(reg_ecx);
+    final static public Reg reg_dh = new Reg(reg_edx);
+
     final static public Reg reg_ebp = new Reg();
     static public long reg_eip;
 

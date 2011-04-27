@@ -2038,11 +2038,11 @@ public class CPU extends Module_base {
         return 0;
     }
 
-    public static boolean CPU_READ_CRX( /*Bitu*/int cr,LongRef retvalue) {
+    public static boolean CPU_READ_CRX( /*Bitu*/int cr, CPU_Regs.Reg retvalue) {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         if ((cr==1) || (cr>4)) return CPU_PrepareException(EXCEPTION_UD,0);
-        retvalue.value=CPU_GET_CRX(cr);
+        retvalue.dword(CPU_GET_CRX(cr));
         return false;
     }
 
@@ -2076,7 +2076,7 @@ public class CPU extends Module_base {
         return false;
     }
 
-    public static boolean CPU_READ_DRX( /*Bitu*/int dr, LongRef retvalue) {
+    public static boolean CPU_READ_DRX( /*Bitu*/int dr, CPU_Regs.Reg retvalue) {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         switch (dr) {
@@ -2086,23 +2086,23 @@ public class CPU extends Module_base {
         case 3:
         case 6:
         case 7:
-            retvalue.value=cpu.drx[dr];
+            retvalue.dword(cpu.drx[dr]);
             break;
         case 4:
-            retvalue.value=cpu.drx[6];
+            retvalue.dword(cpu.drx[6]);
             break;
         case 5:
-            retvalue.value=cpu.drx[7];
+            retvalue.dword(cpu.drx[7]);
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, DR"+dr);
-            retvalue.value=0;
+            retvalue.dword(0);
             break;
         }
         return false;
     }
 
-    public static boolean CPU_WRITE_TRX( /*Bitu*/int tr, /*Bitu*/int value) {
+    public static boolean CPU_WRITE_TRX( /*Bitu*/int tr, /*Bitu*/long value) {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         switch (tr) {
@@ -2112,20 +2112,20 @@ public class CPU extends Module_base {
             cpu.trx[tr]=value;
             return false;
         default:
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV TR"+tr+","+Integer.toString(value,16));
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV TR"+tr+","+Long.toString(value,16));
             break;
         }
         return CPU_PrepareException(EXCEPTION_UD,0);
     }
 
-    static public boolean CPU_READ_TRX( /*Bitu*/int tr,LongRef retvalue) {
+    static public boolean CPU_READ_TRX( /*Bitu*/int tr, CPU_Regs.Reg retvalue) {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         switch (tr) {
 //	case 3:
         case 6:
         case 7:
-            retvalue.value=cpu.trx[tr];
+            retvalue.dword(cpu.trx[tr]);
             return false;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, TR"+tr);
@@ -2729,7 +2729,7 @@ public class CPU extends Module_base {
         if (!use32) {
             sp_index-=2;
             Memory.mem_writew(Segs_SSphys+sp_index,CPU_Regs.reg_ebp.word());
-            CPU_Regs.reg_ebp.word((/*Bit16u*/short)(CPU_Regs.reg_esp.dword()-2));
+            CPU_Regs.reg_ebp.word((/*Bit16u*/int)(CPU_Regs.reg_esp.dword()-2));
             if (level!=0) {
                 for ( /*Bitu*/int i=1;i<level;i++) {
                     sp_index-=2;bp_index-=2;

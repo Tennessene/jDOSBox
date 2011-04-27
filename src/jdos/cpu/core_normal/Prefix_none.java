@@ -12,7 +12,7 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.IntRef;
 
-public class Prefix_none extends String {
+public class Prefix_none extends StringOp {
     static protected final boolean CPU_TRAP_CHECK = true;
     static protected final boolean CPU_PIC_CHECK = true;
     static protected int returnValue = 0;
@@ -2591,7 +2591,7 @@ public class Prefix_none extends String {
 
         /* AAM Ib */
         ops[0xd4] = new OP() {
-            final public int call() {
+          final public int call() {
                 Instructions.AAM(Fetchb.call());
                 return HANDLED;
             }
@@ -2620,9 +2620,9 @@ public class Prefix_none extends String {
         ops[0xd7] = new OP() {
             final public int call() {
                 if (TEST_PREFIX_ADDR()!=0) {
-                    reg_eax.low(Memory.mem_readb(base_ds+(reg_ebx.dword()+reg_eax.low())));
+                    reg_eax.low(Memory.mem_readb(base_ds+((reg_ebx.dword()+reg_eax.low()) & 0xFFFFFFFFl)));
                 } else {
-                    reg_eax.low(Memory.mem_readb(base_ds+(reg_ebx.word()+reg_eax.low())));
+                    reg_eax.low(Memory.mem_readb(base_ds+((reg_ebx.word()+reg_eax.low()) & 0xFFFF)));
                 }
                 return HANDLED;
             }

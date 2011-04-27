@@ -30,7 +30,7 @@ public abstract class Core extends CPU_Regs {
     static public interface Fetchds_interface {
         public int call();
     }
-    static void setupFetch(boolean full) {
+    public static void setupFetch(boolean full) {
         if (full) {
             Fetchb = new Fetchb_interface() {
                 final public short call() {

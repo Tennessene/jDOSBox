@@ -6,6 +6,7 @@ import jdos.misc.Log;
 import jdos.misc.setup.Config;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
+import jdos.debug.Debug;
 
 public class Core_normal extends Prefix_66_0f {
     public static boolean log = false;
@@ -112,7 +113,7 @@ public class Core_normal extends Prefix_66_0f {
                     }
 //                    } finally {
 //                        Debug.stop(Debug.TYPE_CPU, c);
-//                   }
+//                    }
 
                     // inlined
                     // SAVEIP();

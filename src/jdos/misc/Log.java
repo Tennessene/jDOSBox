@@ -1,6 +1,7 @@
 package jdos.misc;
 
 import jdos.Dosbox;
+import jdos.debug.Debug;
 
 public class Log {
     static public final int level = 1;
@@ -15,6 +16,7 @@ public class Log {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Debug.close();
         if (!Dosbox.applet)
             System.exit(0);
         else

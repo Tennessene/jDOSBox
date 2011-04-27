@@ -25,7 +25,7 @@ public class Table_ea extends Core {
                 case 0x01: return (base_ds+reg_ecx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
                 case 0x02: return (base_ds+reg_edx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
                 case 0x03: return (base_ds+reg_ebx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x04: return (Sib(1)+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x04: long temp = Sib(1); return (temp+Fetchbs.call()) & 0xFFFFFFFFl;
                 case 0x05: return (base_ss+reg_ebp.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
                 case 0x06: return (base_ds+reg_esi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
                 case 0x07: return (base_ds+reg_edi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
@@ -36,7 +36,7 @@ public class Table_ea extends Core {
                 case 0x01: return (base_ds+reg_ecx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
                 case 0x02: return (base_ds+reg_edx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
                 case 0x03: return (base_ds+reg_ebx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x04: return (Sib(2)+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x04: long temp = Sib(2); return (temp+Fetchds.call()) & 0xFFFFFFFFl;
                 case 0x05: return (base_ss+reg_ebp.dword()+Fetchds.call()) & 0xFFFFFFFFl;
                 case 0x06: return (base_ds+reg_esi.dword()+Fetchds.call()) & 0xFFFFFFFFl;
                 case 0x07: return (base_ds+reg_edi.dword()+Fetchds.call()) & 0xFFFFFFFFl;

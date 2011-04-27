@@ -1,43 +1,44 @@
-package jdos.cpu.core_normal;
+package jdos.cpu;
 
 import jdos.cpu.CPU;
 import jdos.cpu.Paging;
+import jdos.cpu.core_normal.Prefix_helpers;
 import jdos.hardware.IO;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 
-public class String extends Prefix_helpers {
-    static protected final int R_OUTSB=1;
-    static protected final int R_OUTSW=2;
-    static protected final int R_OUTSD=3;
-    static protected final int R_INSB=4;
-    static protected final int R_INSW=5;
-    static protected final int R_INSD=6;
-    static protected final int R_MOVSB=7;
-    static protected final int R_MOVSW=8;
-    static protected final int R_MOVSD=9;
-    static protected final int R_LODSB=10;
-    static protected final int R_LODSW=11;
-    static protected final int R_LODSD=12;
-    static protected final int R_STOSB=13;
-    static protected final int R_STOSW=14;
-    static protected final int R_STOSD=15;
-    static protected final int R_SCASB=16;
-    static protected final int R_SCASW=17;
-    static protected final int R_SCASD=18;
-    static protected final int R_CMPSB=19;
-    static protected final int R_CMPSW=20;
-    static protected final int R_CMPSD=21;
+public class StringOp extends Prefix_helpers {
+    static public final int R_OUTSB=1;
+    static public final int R_OUTSW=2;
+    static public final int R_OUTSD=3;
+    static public final int R_INSB=4;
+    static public final int R_INSW=5;
+    static public final int R_INSD=6;
+    static public final int R_MOVSB=7;
+    static public final int R_MOVSW=8;
+    static public final int R_MOVSD=9;
+    static public final int R_LODSB=10;
+    static public final int R_LODSW=11;
+    static public final int R_LODSD=12;
+    static public final int R_STOSB=13;
+    static public final int R_STOSW=14;
+    static public final int R_STOSD=15;
+    static public final int R_SCASB=16;
+    static public final int R_SCASW=17;
+    static public final int R_SCASD=18;
+    static public final int R_CMPSB=19;
+    static public final int R_CMPSW=20;
+    static public final int R_CMPSD=21;
 
     //#define LoadD(_BLAH) _BLAH
 
-    static private int TEST_PREFIX_REP() {
-        return (prefixes & PREFIX_REP);
-    }    
-
     static protected void DoString(int type) {
+        DoString(prefixes, type);
+    }
+
+    static public void DoString(int prefixes, int type) {
         /*PhysPt*/long  si_base,di_base;
         /*Bitu*/long	si_index,di_index;
         /*Bitu*/long	add_mask;
@@ -52,22 +53,22 @@ public class String extends Prefix_helpers {
         si_index=reg_esi.dword() & add_mask;
         di_index=reg_edi.dword() & add_mask;
         count=reg_ecx.dword() & add_mask;
-        if (TEST_PREFIX_REP()==0) {
+        if ((prefixes & PREFIX_REP)==0) {
             count=1;
         } else {
             CPU.CPU_Cycles++;
-            /* Calculate amount of ops to do before cycles run out */
-            if ((count>CPU.CPU_Cycles) && (type<R_SCASB)) {
-                count_left=count-CPU.CPU_Cycles;
-                count=CPU.CPU_Cycles;
-                CPU.CPU_Cycles=0;
-                LOADIP();		//RESET IP to the start
-            } else {
-                /* Won't interrupt scas and cmps instruction since they can interrupt themselves */
-                if ((count<=1) && (CPU.CPU_Cycles<=1)) CPU.CPU_Cycles--;
-                else if (type<R_SCASB) CPU.CPU_Cycles-=count;
-                count_left=0;
-            }
+//            /* Calculate amount of ops to do before cycles run out */
+//            if ((count>CPU.CPU_Cycles) && (type<R_SCASB)) {
+//                count_left=count-CPU.CPU_Cycles;
+//                count=CPU.CPU_Cycles;
+//                CPU.CPU_Cycles=0;
+//                LOADIP();		//RESET IP to the start
+//            } else {
+//                /* Won't interrupt scas and cmps instruction since they can interrupt themselves */
+//                if ((count<=1) && (CPU.CPU_Cycles<=1)) CPU.CPU_Cycles--;
+//                else if (type<R_SCASB) CPU.CPU_Cycles-=count;
+//                count_left=0;
+//            }
         }
         add_index=CPU.cpu.direction;
         if (count!=0) switch (type) {
@@ -269,7 +270,7 @@ public class String extends Prefix_helpers {
         reg_esi.dword(reg_esi.dword() | (si_index & add_mask));
         reg_edi.dword(reg_edi.dword() & not_add_mask);
         reg_edi.dword(reg_edi.dword() | (di_index & add_mask));
-        if (TEST_PREFIX_REP()!=0) {
+        if ((prefixes & PREFIX_REP)!=0) {
             count+=count_left;
             reg_ecx.dword(reg_ecx.dword() & not_add_mask);
             reg_ecx.dword(reg_ecx.dword() | (count & add_mask));

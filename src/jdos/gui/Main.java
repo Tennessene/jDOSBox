@@ -91,7 +91,8 @@ public class Main {
         }
 
         if(paused) title.append(" PAUSED");
-        gui.setTitle(title.toString());
+        if (gui != null)
+            gui.setTitle(title.toString());
     }
 
     static public class FocusChangeEvent {

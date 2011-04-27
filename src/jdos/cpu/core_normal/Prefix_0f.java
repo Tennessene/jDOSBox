@@ -58,7 +58,6 @@ public class Prefix_0f extends Prefix_none {
                 return HANDLED;
             }
         };
-
         /* Group 7 Ew */
         ops[0x101] = new OP() {
             final public int call() {
@@ -189,8 +188,7 @@ public class Prefix_0f extends Prefix_none {
                     rm |= 0xc0;
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"MOV XXX,CR"+which+" with non-register");
                 }
-                if (CPU.CPU_READ_CRX(which,long_ref_1)) return RUNEXCEPTION();
-                Modrm.GetEArd[rm].dword(long_ref_1.value);
+                if (CPU.CPU_READ_CRX(which,Modrm.GetEArd[rm])) return RUNEXCEPTION();
                 return HANDLED;
             }
         };
@@ -205,8 +203,7 @@ public class Prefix_0f extends Prefix_none {
                     rm |= 0xc0;
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,DR"+which+" with non-register");
                 }
-                if (CPU.CPU_READ_DRX(which,long_ref_1)) return RUNEXCEPTION();
-                Modrm.GetEArd[rm].dword(long_ref_1.value);
+                if (CPU.CPU_READ_DRX(which,Modrm.GetEArd[rm])) return RUNEXCEPTION();
                 return HANDLED;
             }
         };
@@ -251,8 +248,7 @@ public class Prefix_0f extends Prefix_none {
                     rm |= 0xc0;
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV XXX,TR"+which+" with non-register");
                 }
-                if (CPU.CPU_READ_TRX(which,long_ref_1)) return RUNEXCEPTION();
-                Modrm.GetEArd[rm].dword(long_ref_1.value);
+                if (CPU.CPU_READ_TRX(which,Modrm.GetEArd[rm])) return RUNEXCEPTION();
                 return HANDLED;
             }
         };
@@ -606,12 +602,12 @@ public class Prefix_0f extends Prefix_none {
                 if (rm >= 0xc0 ) {
                     r = rm;
                     int op3 = Fetchb.call();
-                    DSHLW.call(Modrm.Getrw[rm].word(),op3,earw_l,earw_s);
+                    DSHLW(Modrm.Getrw[rm].word(),op3,earw_l,earw_s);
                 }
                 else {
                     m = getEaa(rm);
                     int op3 = Fetchb.call();
-                    DSHLW.call(Modrm.Getrw[rm].word(),op3,w_l,w_s);
+                    DSHLW(Modrm.Getrw[rm].word(),op3,w_l,w_s);
                 }
                 return HANDLED;
             }
@@ -623,11 +619,11 @@ public class Prefix_0f extends Prefix_none {
                 /*Bit8u*/final short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {
                     r = rm;
-                    DSHLW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
+                    DSHLW(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
                 }
                 else {
                     m = getEaa(rm);
-                    DSHLW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),w_l,w_s);
+                    DSHLW(Modrm.Getrw[rm].word(),reg_ecx.low(),w_l,w_s);
                 }
                 return HANDLED;
             }
@@ -674,12 +670,12 @@ public class Prefix_0f extends Prefix_none {
                 if (rm >= 0xc0 ) {
                     r = rm;
                     int op3 = Fetchb.call();
-                    DSHRW.call(Modrm.Getrw[rm].word(),op3,earw_l,earw_s);
+                    DSHRW(Modrm.Getrw[rm].word(),op3,earw_l,earw_s);
                 }
                 else {
                     m = getEaa(rm);
                     int op3 = Fetchb.call();
-                    DSHRW.call(Modrm.Getrw[rm].word(),op3,w_l,w_s);
+                    DSHRW(Modrm.Getrw[rm].word(),op3,w_l,w_s);
                 }
                 return HANDLED;
             }
@@ -691,11 +687,11 @@ public class Prefix_0f extends Prefix_none {
                 /*Bit8u*/final short rm=Fetchb.call();
                 if (rm >= 0xc0 ) {
                     r = rm;
-                    DSHRW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
+                    DSHRW(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
                 }
                 else {
                     m = getEaa(rm);
-                    DSHRW.call(Modrm.Getrw[rm].word(),reg_ecx.low(),w_l,w_s);
+                    DSHRW(Modrm.Getrw[rm].word(),reg_ecx.low(),w_l,w_s);
                 }
                 return HANDLED;
             }
@@ -852,6 +848,7 @@ public class Prefix_0f extends Prefix_none {
                 return HANDLED;
             }
         };
+
         /* MOVSX Gw,Ew */
         ops[0x1bf] = ops[0x1b7];
 

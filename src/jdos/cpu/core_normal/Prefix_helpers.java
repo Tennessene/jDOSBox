@@ -165,8 +165,8 @@ public class Prefix_helpers extends Instructions {
             m = getEaa(rm);
             /*Bit8u*/short val=(short)(blah & 0x1f);
             switch (which) {
-            case 0x00:ROLB((short)m,val,b_l,b_s);break;
-            case 0x01:RORB((short)m,val,b_l,b_s);break;
+            case 0x00:ROLB(m,val,b_l,b_s);break;
+            case 0x01:RORB(m,val,b_l,b_s);break;
             case 0x02:RCLB(val,b_l,b_s);break;
             case 0x03:RCRB(val,b_l,b_s);break;
             case 0x04:/* SHL and SAL are the same */
@@ -199,8 +199,8 @@ public class Prefix_helpers extends Instructions {
             short blah = Fetchb.call();
             /*Bit8u*/short val=(short)(blah & 0x1f);
             switch (which) {
-            case 0x00:ROLB((short)m,val,b_l,b_s);break;
-            case 0x01:RORB((short)m,val,b_l,b_s);break;
+            case 0x00:ROLB(m,val,b_l,b_s);break;
+            case 0x01:RORB(m,val,b_l,b_s);break;
             case 0x02:RCLB(val,b_l,b_s);break;
             case 0x03:RCRB(val,b_l,b_s);break;
             case 0x04:/* SHL and SAL are the same */
@@ -232,8 +232,8 @@ public class Prefix_helpers extends Instructions {
             m = getEaa(rm);
             /*Bit8u*/int val=blah & 0x1f;
             switch (which) {
-            case 0x00:ROLW((int)m,val,w_l,w_s);break;
-            case 0x01:RORW((int)m,val,w_l,w_s);break;
+            case 0x00:ROLW(m,val,w_l,w_s);break;
+            case 0x01:RORW(m,val,w_l,w_s);break;
             case 0x02:RCLW(val,w_l,w_s);break;
             case 0x03:RCRW(val,w_l,w_s);break;
             case 0x04:/* SHL and SAL are the same */
@@ -267,8 +267,8 @@ public class Prefix_helpers extends Instructions {
             int blah = Fetchb.call();
             /*Bit8u*/int val=blah & 0x1f;
             switch (which) {
-            case 0x00:ROLW((int)m,val,w_l,w_s);break;
-            case 0x01:RORW((int)m,val,w_l,w_s);break;
+            case 0x00:ROLW(m,val,w_l,w_s);break;
+            case 0x01:RORW(m,val,w_l,w_s);break;
             case 0x02:RCLW(val,w_l,w_s);break;
             case 0x03:RCRW(val,w_l,w_s);break;
             case 0x04:/* SHL and SAL are the same */

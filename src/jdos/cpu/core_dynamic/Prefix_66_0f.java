@@ -247,12 +247,8 @@ public class Prefix_66_0f extends Helper {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
                 if (rm >= 0xc0 ) {
-                    Reg earw = Mod.ew(rm);
-                    int op3 = decode_fetchb();
                     prev.next = new Inst4.ShldEdGdIb_reg(rm);
                 } else {
-                    EaaBase get_eaa = Mod.getEaa(rm);
-                    int op3 = decode_fetchb();
                     prev.next = new Inst4.ShldEdGdIb_mem(rm);
                 }
                 return RESULT_HANDLED;

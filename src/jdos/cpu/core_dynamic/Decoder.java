@@ -27,6 +27,17 @@ public class Decoder extends Inst1 {
         }
     }
 
+    private static class ModifiedDecode extends Op {
+        long instructions;
+        public ModifiedDecode(long instructions) {
+            this.instructions = instructions;
+        }
+        public int call() {
+            CPU_Regs.reg_eip+=instructions;
+            return Core_dynrec.BR_Opcode;
+        }
+    }
+
     static private int count=0;
     private static class DecodeBlock extends DynamicClass {
         Op op;
@@ -116,13 +127,18 @@ public class Decoder extends Inst1 {
                 // some entries in the invalidation map, see if the next
                 // instruction is known to be modified a lot
                 if (decode.page.index<4096) {
-                    // :TODO:
-                    //if (decode.page.invmap.p[decode.page.index]>=4) {result = RESULT_ILLEGAL_INSTRUCTION;break;}
+                    if (decode.page.invmap.p[decode.page.index]>=4) {
+                        result = RESULT_ILLEGAL_INSTRUCTION;
+                        break;
+                    }
                     opcode=decode_fetchb();
                 } else {
                     // switch to the next page
                     opcode=decode_fetchb();
-                    //if (decode.page.invmap!=null && decode.page.invmap.p[decode.page.index-1]>=4) {result = RESULT_ILLEGAL_INSTRUCTION;break;}
+                    if (decode.page.invmap!=null && decode.page.invmap.p[decode.page.index-1]>=4) {
+                        result = RESULT_ILLEGAL_INSTRUCTION;
+                        break;
+                    }
                 }
             }
             opcode+=opcode_index;
@@ -175,6 +191,10 @@ public class Decoder extends Inst1 {
                 op = op.next;
                 break;
             case RESULT_JUMP:
+                break;
+            case RESULT_ILLEGAL_INSTRUCTION:
+                op.next = new ModifiedDecode(decode.code - decode.code_start);
+                op = op.next;
                 break;
         }
         decode.block.code = new DecodeBlock(start_op.next);

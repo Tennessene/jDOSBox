@@ -104,9 +104,6 @@ public class Core_dynrec {
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds=CPU_Regs.ds;
             while (CPU.CPU_Cycles>0) {
-                if (CPU_Regs.reg_eip == 1449845) {
-                    int ii=0;
-                }
                 // Determine the linear address of CS:EIP
                 /*PhysPt*/long ip_point=CPU.Segs_CSphys+CPU_Regs.reg_eip;
                 int page_ip_point = (int)ip_point&4095;

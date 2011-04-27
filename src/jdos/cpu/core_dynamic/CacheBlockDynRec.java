@@ -52,8 +52,8 @@ public class CacheBlockDynRec {
 //                    }
                 }
             }
-        } else
-            Cache.cache_addunusedblock(this);
+        }
+        Cache.cache_addunusedblock(this);
         if (crossblock!=null) {
             // clear out the crossblock (in the page before) as well
             crossblock.crossblock=null;

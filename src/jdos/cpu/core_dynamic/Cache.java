@@ -8,7 +8,6 @@ public class Cache {
 		public CacheBlockDynRec first;		// the first cache block in the list
 		public CacheBlockDynRec active;		// the current cache block
 		public CacheBlockDynRec free;		// pointer to the free list
-		public CacheBlockDynRec running;		// the last block that was entered for execution
 	}
     public Block block = new Block();
 	/*Bit8u*/int pos;		// position in the cache block
@@ -72,7 +71,6 @@ public class Cache {
                 cache.block.first=block;
                 cache.block.active=block;
                 //block.cache.start=cache_code[0];
-                block.cache.size=Core_dynrec.CACHE_TOTAL;
                 block.cache.next=null;						// last block in the list
             }
 //            // setup the default blocks for block linkage returns
@@ -109,28 +107,11 @@ public class Cache {
 
     public static CacheBlockDynRec cache_openblock() {
         CacheBlockDynRec block=cache.block.active;
-        // check for enough space in this block
-        /*Bitu*/int size=block.cache.size;
         CacheBlockDynRec nextblock=block.cache.next;
         if (block.page.handler!=null)
             block.Clear();
-        // block size must be at least CACHE_MAXSIZE
-        while (size< Core_dynrec.CACHE_MAXSIZE) {
-            if (nextblock==null)
-                break;
-            // merge blocks
-            size+=nextblock.cache.size;
-            CacheBlockDynRec tempblock=nextblock.cache.next;
-            if (nextblock.page.handler!=null)
-                nextblock.Clear();
-            // block is free now
-            cache_addunusedblock(nextblock);
-            nextblock=tempblock;
-        }
         // adjust parameters and open this block
-        block.cache.size=size;
         block.cache.next=nextblock;
-        cache.pos=block.cache.start;
         return block;
     }
 
@@ -146,33 +127,16 @@ public class Cache {
     public static void cache_closeblock() {
         CacheBlockDynRec block=cache.block.active;
         // links point to the default linking code
-        block.link[0].to=CacheBlockDynRec.link_blocks[0];
-        block.link[1].to=CacheBlockDynRec.link_blocks[1];
+        block.link[0].to=null;
+        block.link[1].to=null;
         block.link[0].from=null;
         block.link[1].from=null;
-        block.link[0].next=null;
-        block.link[1].next=null;
-        // close the block with correct alignment
-        /*Bitu*/int written=cache.pos-block.cache.start;
-        if (written>block.cache.size) {
-            if (block.cache.next==null) {
-                if (written>block.cache.size+Core_dynrec.CACHE_MAXSIZE) Log.exit("CacheBlock overrun 1 "+(written-block.cache.size));
-            } else Log.exit("CacheBlock overrun 2 written "+written+" size "+block.cache.size);
-        } else {
-            /*Bitu*/int new_size;
-            /*Bitu*/int left=block.cache.size-written;
-            // smaller than cache align then don't bother to resize
-            if (left>Core_dynrec.CACHE_ALIGN) {
-                new_size=((written-1)|(Core_dynrec.CACHE_ALIGN-1))+1;
-                CacheBlockDynRec newblock=cache_getblock();
-                // align block now to CACHE_ALIGN
-                newblock.cache.start=block.cache.start+new_size;
-                newblock.cache.size=block.cache.size-new_size;
-                newblock.cache.next=block.cache.next;
-                block.cache.next=newblock;
-                block.cache.size=new_size;
-            }
-        }
+
+        if (block.cache.next == null) {
+            CacheBlockDynRec newblock=cache_getblock();
+            newblock.cache.next=block.cache.next;
+            block.cache.next=newblock;
+        }        
         // advance the active block pointer
 //        if (block.cache.next==null || (block.cache.next.cache.start>(cache_code_start_ptr + Core_dynrec.CACHE_TOTAL - Core_dynrec.CACHE_MAXSIZE))) {
 //    //		LOG_MSG("Cache full restarting");

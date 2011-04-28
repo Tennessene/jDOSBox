@@ -870,113 +870,97 @@ public class Inst3 extends Helper {
 
     static public class JumpCond32_b_o extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_O(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_O(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_no extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NO(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NO(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_b extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_B(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_B(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_nb extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NB(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NB(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_z extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_Z(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_Z(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_nz extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NZ(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NZ(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_be extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_BE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_BE(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_nbe extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NBE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NBE(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_s extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_S(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_S(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_ns extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NS(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NS(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_p extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_P(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_P(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_np extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NP(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NP(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_l extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_L(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_L(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_nl extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NL(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NL(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_le extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_LE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_LE(), eip, offset);
         }
     }
 
     static public class JumpCond32_b_nle extends JumpCond32_b {
         public int call() {
-            JumpCond32_b(Flags.TFLG_NLE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_b(Flags.TFLG_NLE(), eip, offset);
         }
     }
 
@@ -1824,48 +1808,42 @@ public class Inst3 extends Helper {
     static public class Loopnz32 extends JumpCond32_b {
         public int call() {
             reg_ecx.dword(reg_ecx.dword()-1);
-            JumpCond32_b(reg_ecx.dword()!=0 && !Flags.get_ZF(), eip, offset);
-            return Core_dynrec.BR_Jump;
+            return JumpCond32_b(reg_ecx.dword()!=0 && !Flags.get_ZF(), eip, offset);
         }
     }
 
     static public class Loopnz16 extends JumpCond32_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            JumpCond32_b(reg_ecx.word()!=0 && !Flags.get_ZF(), eip, offset);
-            return Core_dynrec.BR_Jump;
+            return JumpCond32_b(reg_ecx.word()!=0 && !Flags.get_ZF(), eip, offset);
         }
     }
 
     static public class Loopz32 extends JumpCond32_b {
         public int call() {
             reg_ecx.dword(reg_ecx.dword()-1);
-            JumpCond32_b(reg_ecx.dword()!=0 && Flags.get_ZF(), eip, offset);
-            return Core_dynrec.BR_Jump;
+            return JumpCond32_b(reg_ecx.dword()!=0 && Flags.get_ZF(), eip, offset);
         }
     }
 
     static public class Loopz16 extends JumpCond32_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            JumpCond32_b(reg_ecx.word()!=0 && Flags.get_ZF(), eip, offset);
-            return Core_dynrec.BR_Jump;
+            return JumpCond32_b(reg_ecx.word()!=0 && Flags.get_ZF(), eip, offset);
         }
     }
 
     static public class Loop32 extends JumpCond32_b {
         public int call() {
             reg_ecx.dword(reg_ecx.dword()-1);
-            JumpCond32_b(reg_ecx.dword()!=0, eip, offset);
-            return Core_dynrec.BR_Jump;
+            return JumpCond32_b(reg_ecx.dword()!=0, eip, offset);
         }
     }
 
     static public class Loop16 extends JumpCond32_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            JumpCond32_b(reg_ecx.word()!=0, eip, offset);
-            return Core_dynrec.BR_Jump;
+            return JumpCond32_b(reg_ecx.word()!=0, eip, offset);
         }
     }
 
@@ -1875,8 +1853,7 @@ public class Inst3 extends Helper {
             this.mask = mask;
         }
         public int call() {
-            JumpCond32_b((reg_ecx.dword() & mask)==0, eip, offset);
-            return Core_dynrec.BR_Jump;
+            return JumpCond32_b((reg_ecx.dword() & mask)==0, eip, offset);
         }
     }
 

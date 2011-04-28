@@ -45,27 +45,43 @@ public class Helper extends CPU_Regs {
         Flags.FillFlags();
         return Core_dynrec.BR_CBRet_None;
     }
-    protected static void JumpCond16_b(boolean COND, long eip, int off) {
+    protected static int JumpCond16_b(boolean COND, long eip, int off) {
         reg_eip = eip;
-        if (COND) reg_ip(reg_ip()+off);
+        if (COND) {
+            reg_ip(reg_ip()+off+1);
+            return Core_dynrec.BR_Link1;
+        }
         reg_ip(reg_ip()+1);
+        return Core_dynrec.BR_Link2;
     }
-    protected static void JumpCond16_w(boolean COND, long eip, int off) {
+    protected static int JumpCond16_w(boolean COND, long eip, int off) {
         reg_eip = eip;
-        if (COND) reg_ip(reg_ip()+off);
+        if (COND) {
+            reg_ip(reg_ip()+off+2);
+            return Core_dynrec.BR_Link1;
+        }
         reg_ip(reg_ip()+2);
+        return Core_dynrec.BR_Link2;
     }
 
-    protected static void JumpCond32_b(boolean COND, long eip, int off) {
+    protected static int JumpCond32_b(boolean COND, long eip, int off) {
         reg_eip = eip;
-        if (COND) reg_eip(reg_eip()+off);
+        if (COND) {
+            reg_eip(reg_eip()+off+1);
+            return Core_dynrec.BR_Link1;
+        }
         reg_eip(reg_eip()+1);
+        return Core_dynrec.BR_Link2;
     }
 
-    protected static void JumpCond32_d(boolean COND, long eip, long off) {
+    protected static int JumpCond32_d(boolean COND, long eip, long off) {
         reg_eip = eip;
-        if (COND) reg_eip(reg_eip()+off);
+        if (COND) {
+            reg_eip(reg_eip()+off+4);
+            return Core_dynrec.BR_Link1;
+        }
         reg_eip(reg_eip()+4);
+        return Core_dynrec.BR_Link2;
     }
 
     static void decode_advancepage() {
@@ -97,6 +113,9 @@ public class Helper extends CPU_Regs {
         if (decode.page.index>=4096) {
             decode_advancepage();
         }
+        if (decode.page.invmap!=null && decode.page.invmap.p[decode.page.index]>=4) {
+            decode.modifiedAlot = true;
+        }
         decode.page.wmap.p[decode.page.index]+=0x01;
         decode.page.index++;
         decode.code+=1;
@@ -111,6 +130,9 @@ public class Helper extends CPU_Regs {
             /*Bit16u*/int val=decode_fetchb();
             val|=decode_fetchb() << 8;
             return val;
+        }
+        if (decode.page.invmap!=null && (decode.page.invmap.p[decode.page.index]>=4 || decode.page.invmap.p[decode.page.index+1]>=4)) {
+            decode.modifiedAlot = true;
         }
         decode.page.wmap.p[decode.page.index]+=0x01;
         decode.page.wmap.p[decode.page.index+1]+=0x01;
@@ -129,6 +151,9 @@ public class Helper extends CPU_Regs {
             val|=decode_fetchb() << 24;
             return val;
             /* Advance to the next page */
+        }
+        if (decode.page.invmap!=null && (decode.page.invmap.p[decode.page.index]>=4 || decode.page.invmap.p[decode.page.index+1]>=4 || decode.page.invmap.p[decode.page.index+2]>=4 || decode.page.invmap.p[decode.page.index+3]>=4)) {
+            decode.modifiedAlot = true;
         }
         decode.page.wmap.p[decode.page.index]+=0x01;
         decode.page.wmap.p[decode.page.index+1]+=0x01;

@@ -523,113 +523,97 @@ public class Inst2 extends Helper {
 
     static public class JumpCond16_w_o extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_O(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_O(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_no extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NO(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NO(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_b extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_B(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_B(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_nb extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NB(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NB(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_z extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_Z(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_Z(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_nz extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NZ(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NZ(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_be extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_BE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_BE(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_nbe extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NBE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NBE(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_s extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_S(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_S(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_ns extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NS(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NS(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_p extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_P(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_P(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_np extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NP(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NP(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_l extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_L(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_L(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_nl extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NL(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NL(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_le extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_LE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_LE(), eip, offset);
         }
     }
 
     static public class JumpCond16_w_nle extends JumpCond16_w {
         public int call() {
-            JumpCond16_w(Flags.TFLG_NLE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond16_w(Flags.TFLG_NLE(), eip, offset);
         }
     }
 
@@ -2020,12 +2004,14 @@ public class Inst2 extends Helper {
         public int call() {
             long eaa=get_eaa.call();
             int oldrmrb=rw.word();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0) {
-                int val = Memory.host_readw(index);
-                rw.word(val);
-                Memory.host_writew(index,val+oldrmrb);
-                return Core_dynrec.BR_Normal;
+            if ((eaa & 0xFFF)<0xFFF) {
+                int index = Paging.getDirectIndex(eaa);
+                if (index>=0) {
+                    int val = Memory.host_readw(index);
+                    rw.word(val);
+                    Memory.host_writew(index,val+oldrmrb);
+                    return Core_dynrec.BR_Normal;
+                }
             }
             int val = Memory.mem_readw(eaa);
             rw.word(val);
@@ -2035,15 +2021,15 @@ public class Inst2 extends Helper {
     }
 
     static public class Bswapw extends Op {
-           Reg reg;
+        Reg reg;
 
-           public Bswapw(Reg reg) {
-               this.reg = reg;
-           }
+        public Bswapw(Reg reg) {
+        this.reg = reg;
+        }
 
-           public int call() {
-               reg.word(Instructions.BSWAPW(reg.word()));
-               return Core_dynrec.BR_Normal;
-           }
-       }
+        public int call() {
+            reg.word(Instructions.BSWAPW(reg.word()));
+            return Core_dynrec.BR_Normal;
+        }
+    }
 }

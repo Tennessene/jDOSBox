@@ -15,7 +15,7 @@ import jdos.util.IntRef;
 public class Prefix_none extends StringOp {
     static protected final boolean CPU_TRAP_CHECK = true;
     static protected final boolean CPU_PIC_CHECK = true;
-    static protected int returnValue = 0;
+    static public int returnValue = 0;
 
     static public OP[] ops = new OP[0x400];
 

@@ -104,6 +104,33 @@ public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS+2, 0);
     }
 
+    protected void runRegwix(byte op, int rm, int eb, byte value, int result) {
+        rm+=0xC1;
+        int flags = CPU_Regs.flags;
+        newInstruction(op);
+        pushIb((byte)rm);
+        pushIb(value);
+        Mod.ew(rm).word(eb);
+        decoder.call();
+        assertTrue((short) Mod.ew(rm).word()==(short)result);
+
+        CPU_Regs.flags = flags;
+        rm-=0xC1;
+        newInstruction(op);
+        pushIb((byte)rm);
+        pushIb(value);
+        Memory.mem_writew(MEM_BASE_DS, eb);
+        Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
+        Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
+        decoder.call();
+        assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)result);
+        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
+        Memory.mem_writew(MEM_BASE_DS-2, 0);
+        Memory.mem_writew(MEM_BASE_DS, 0);
+        Memory.mem_writew(MEM_BASE_DS+2, 0);
+    }
+
     protected void runRegw(byte op, int ed, int gd, boolean gdResult, int result) {
         int rm = 0xC1;
         int flags = CPU_Regs.flags;
@@ -164,6 +191,33 @@ public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS+2, 0);
     }
 
+    protected void runRegwFlagsix(byte op, int rm, int eb, byte value, int state) {
+        rm += 0xC1;
+        int flags = CPU_Regs.flags;
+        newInstruction(op);
+        pushIb((byte)rm);
+        pushIb(value);
+        Mod.ew(rm).word(eb);
+        decoder.call();
+        assertFlags(state);
+        CPU_Regs.flags = flags;
+        rm-=0xC1;
+        newInstruction(op);
+        pushIb((byte)rm);
+        pushIw((short)value);
+        Memory.mem_writew(MEM_BASE_DS, eb);
+        Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
+        Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
+        decoder.call();
+        assertFlags(state);
+        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+        assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)eb);
+        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
+        Memory.mem_writew(MEM_BASE_DS-2, 0);
+        Memory.mem_writew(MEM_BASE_DS, 0);
+        Memory.mem_writew(MEM_BASE_DS+2, 0);
+    }
+
     protected void runRegwFlags(byte op, int ed, int gd, int state) {
         int rm = 0xC1;
         int flags = CPU_Regs.flags;
@@ -202,6 +256,17 @@ public class InstructionsTestCase extends TestCase {
         }
     }
 
+    protected void runRegswix(byte op, int rm, int eb, byte value, int result) {
+        for (int i=0;i<8;i++) {
+            newInstruction(op);
+            pushIb((byte)(0xc0+rm+i));
+            pushIb(value);
+            Mod.ew(rm+i).word(eb);
+            decoder.call();
+            assertTrue("rm = "+(0xC0+rm+i), (short) Mod.ew(rm+i).word()==(short)result);
+        }
+    }
+
     protected void runRegsw(byte op, int ew, int gw, boolean gbResult, int result, int result2) {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
@@ -228,6 +293,17 @@ public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xC0+rm+i));
             pushIw((short)value);
+            Mod.ew(rm).word(eb);
+            decoder.call();
+            assertTrue("rm = "+rm, Flags.TFLG_L());
+        }
+    }
+
+    protected void runRegswFlagsLessix(byte op, int rm, int eb, byte value) {
+        for (int i=0;i<8;i++) {
+            newInstruction(op);
+            pushIb((byte)(0xC0+rm+i));
+            pushIb(value);
             Mod.ew(rm).word(eb);
             decoder.call();
             assertTrue("rm = "+rm, Flags.TFLG_L());

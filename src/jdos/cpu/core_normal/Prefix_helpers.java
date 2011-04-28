@@ -4,7 +4,7 @@ import jdos.cpu.*;
 import jdos.hardware.Memory;
 
 public class Prefix_helpers extends Instructions {
-    static protected interface OP {
+    static public interface OP {
         public int call();
     }
     static protected final long[] AddrMaskTable={0x0000ffffl,0xffffffffl};
@@ -42,7 +42,7 @@ public class Prefix_helpers extends Instructions {
         return (cseip- CPU.Segs_CSphys);
     }
 
-    static protected void SAVEIP() {
+    static public void SAVEIP() {
         CPU_Regs.reg_eip(GETIP());
         //System.out.println("SAVEIP: "+CPU_Regs.reg_eip);
     }

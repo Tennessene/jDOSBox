@@ -2187,4 +2187,74 @@ public class testPrefix_none extends InstructionsTestCase{
         runRegwFlagsi((byte)0x81, 7<<3, 0x8000, 0x8000, 0);
         assertTrue(!Flags.get_CF());
     }
+
+    // 0x83
+    //Grpl Ew,Ix
+    public void testGroup1EwIx() {
+        // ADD
+        runRegswix((byte)0x83, (byte)0, 1001, (byte)2, 1003);
+        runRegwix((byte)0x83, (byte)0, 1, (byte)-2, -1);
+        assertTrue(!Flags.get_CF());
+        runRegwix((byte)0x83, (byte)0, 0x80, (byte)0x80, 0);
+        assertTrue(Flags.get_CF());
+        runRegwix((byte)0x83, (byte)0, 0x80, (byte)0x80, 0);
+
+        // OR
+        runRegswix((byte)0x83, 1<<3, 1, (byte)2, 3);
+        runRegwix((byte)0x83, 1<<3, 0, (byte)0,  0);
+        runRegwix((byte)0x83, 1<<3, 0xFFFF, (byte)0, 0xFFFF);
+        runRegwix((byte)0x83, 1<<3, 0, (byte)0xFF, 0xFFFF);
+        runRegwix((byte)0x83, 1<<3, 0xFF00, (byte)0xFF, 0xFFFF);
+
+        // ADC
+        runRegswix((byte)0x83, 2<<3, 1, (byte)2, 3);
+        assertTrue(!Flags.get_CF());
+        runRegwix((byte)0x83, 2<<3, 0x00C0, (byte)0x80, 0x0040); // 0x00C0+0xFF80
+        assertTrue(Flags.get_CF());
+        runRegwix((byte)0x83, 2<<3, 0x00C0, (byte)0x80, 0x0041);  // test the +1 carry
+        assertTrue(Flags.get_CF());
+        CPU_Regs.flags = 0;
+
+        // SBB
+        runRegswix((byte)0x83, 3<<3, 3, (byte)2, 1);
+        assertTrue(!Flags.get_CF());
+        runRegwix((byte)0x83, 3<<3, 0xFFC0, (byte)0x80, 0x0040);
+        assertTrue(!Flags.get_CF());
+        runRegwix((byte)0x83, 3<<3, 0x0080, (byte)0xC0, 0x00C0);
+        assertTrue(Flags.get_CF());
+        runRegwix((byte)0x83, 3<<3, 0x0080, (byte)0xC0, 0x00BF);  // test the -1 carry
+        assertTrue(Flags.get_CF());
+
+        // AND
+        runRegswix((byte)0x83, 4<<3, 1, (byte)2, 0);
+        runRegwix((byte)0x83, 4<<3, 1, (byte)-1, 1);
+        runRegwix((byte)0x83, 4<<3, 0x0000, (byte)0x00, 0);
+        runRegwix((byte)0x83, 4<<3, 0x0000, (byte)0xFF, 0);
+        runRegwix((byte)0x83, 4<<3, 0xFFFF, (byte)0xFF, 0xFFFF);
+
+        // SUB
+        runRegswix((byte)0x83, 5<<3, 3, (byte)2, 1);
+        assertTrue(!Flags.get_CF());
+        runRegwix((byte)0x83, 5<<3, 0xC000, (byte)0x70, 0xBF90);
+        assertTrue(!Flags.get_CF());
+        runRegwix((byte)0x83, 5<<3, 0x8000, (byte)0xC0, 0x8040);
+        assertTrue(Flags.get_CF());
+        runRegwix((byte)0x83, 5<<3, 0x8000, (byte)0xC0, 0x8040); // test no carry
+        assertTrue(Flags.get_CF());
+
+        // XOR
+        runRegswix((byte)0x83, 6<<3, 1, (byte)2, 3);
+        runRegwix((byte)0x83, 6<<3, 1, (byte)-1, 0xFFFE);
+        runRegwix((byte)0x83, 6<<3, 0xFF80, (byte)0x80, 0);
+        runRegwix((byte)0x83, 6<<3, 0xFF00, (byte)0xFF, 0x00FF);
+
+        // CMP
+        runRegswFlagsLessix((byte)0x83, 7<<3, 2, (byte)3);
+        runRegwFlagsix((byte)0x83, 7<<3, 0x8000, (byte)0xC0, -1);
+        assertTrue(Flags.get_CF());
+        runRegwFlagsix((byte)0x83, 7<<3, 0x7F00, (byte)0x7F, 1);
+        assertTrue(!Flags.get_CF());
+        runRegwFlagsix((byte)0x83, 7<<3, 0xFF80, (byte)0x80, 0);
+        assertTrue(!Flags.get_CF());
+    }
 }

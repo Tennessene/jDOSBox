@@ -1320,7 +1320,7 @@ public class Prefix_66 extends Helper {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst3.MovId(Mod.eb(rm));
+                    prev.next = new Inst3.MovId(Mod.ed(rm));
                 } else {
                     prev.next = new Inst3.MovId_mem(rm);
                 }

@@ -4,6 +4,7 @@ import jdos.util.Ptr;
 
 // decoding information used during translation of a code block
 public final class DynDecode {
+    public boolean modifiedAlot;
     /*PhysPt*/long code;			// pointer to next byte in the instruction stream
     /*PhysPt*/long code_start;		// pointer to the start of the current code block
     /*PhysPt*/long op_start;		// pointer to the start of the current instruction
@@ -28,13 +29,4 @@ public final class DynDecode {
         /*Bitu*/int first;		// page number
     }
     public final Page page = new Page();
-
-    // modrm state of the current instruction (if used)
-    static public final class Modrm {
-        /*Bitu*/int val;
-        /*Bitu*/int mod;
-        /*Bitu*/int rm;
-        /*Bitu*/int reg;
-    }
-    final public Modrm modrm = new Modrm();
 }

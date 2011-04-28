@@ -539,5 +539,127 @@ public class Prefix_66_0f extends Helper {
                 return RESULT_HANDLED;
             }
         };
+
+        /* XADD Gd,Ed */
+        ops[0x3c1] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    int rm=decode_fetchb();
+                    if (rm >= 0xc0 ) {
+                        prev.next = new Inst4.XaddGdEd_reg(rm);
+                    } else {
+                        prev.next = new Inst4.XaddGdEd_mem(rm);
+                    }
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP EAX */
+        ops[0x3c8] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_eax);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP ECX */
+        ops[0x3c9] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_ecx);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP EDX */
+        ops[0x3ca] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_edx);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP EBX */
+        ops[0x3cb] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_ebx);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP ESP */
+        ops[0x3cc] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_esp);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP EBP */
+        ops[0x3cd] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_ebp);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP ESI */
+        ops[0x3ce] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_esi);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        /* BSWAP EDI */
+        ops[0x3cf] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    prev.next = new Inst4.Bswapd(reg_edi);
+                    return RESULT_HANDLED;
+                }
+            }
+        };
     }
 }

@@ -9,20 +9,17 @@ import jdos.hardware.Pic;
 public class Core_dynrec {
     //enum BlockReturn {
 	public final static int BR_Normal=0;
-    public final static int BR_Continue=1;
-	public final static int BR_Link1=2;
-    public final static int BR_Link2=3;
-	public final static int BR_Opcode=4;
+    public final static int BR_Jump = 1;
+    public final static int BR_Continue=2;
+	public final static int BR_Link1=3;
+    public final static int BR_Link2=4;
 	public final static int BR_Iret=5;
 	public final static int BR_CallBack=6;
-	public final static int BR_SMCBlock=7;
-    public final static int BR_CBRet_None = 8;
-    public final static int BR_Illegal = 9;
-    public final static int BR_Jump = 10;
+    public final static int BR_CBRet_None = 7;
+    public final static int BR_Illegal = 8;    
     //};
 
     static public final int CACHE_MAXSIZE = 4096*2;
-    static public final int CACHE_TOTAL = 1024*1024*8;
     static public final int CACHE_PAGES	= 512;
     static public final int CACHE_BLOCKS = 128*1024;
     static public final int CACHE_ALIGN = 16;
@@ -37,7 +34,7 @@ public class Core_dynrec {
 
     static final public class _core_dynrec {
         /*BlockReturn*/int runcode(CacheBlockDynRec block){
-            return block.code.call();
+            return block.code.call2();
         }
         public /*Bitu*/int callback;				// the occurred callback
         /*Bitu*/int readdata;				// spare space used when reading from memory
@@ -81,19 +78,22 @@ public class Core_dynrec {
         }
     };
 
-    private static CacheBlockDynRec LinkBlocks(/*BlockReturn*/int ret) {
+    private static CacheBlockDynRec LinkBlocks(CacheBlockDynRec running, /*BlockReturn*/int ret) {
         CacheBlockDynRec block=null;
         // the last instruction was a control flow modifying instruction
         /*Bitu*/long temp_ip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
-        CodePageHandlerDynRec temp_handler=(CodePageHandlerDynRec)Paging.get_tlb_readhandler((int)temp_ip);
-        if ((temp_handler.flags & Paging.PFLAG_HASCODE)!=0) {
-            // see if the target is an already translated block
-            block=temp_handler.FindCacheBlock((int)(temp_ip & 4095));
-            if (block!=null) return null;
+        Paging.PageHandler handler = Paging.get_tlb_readhandler((int)temp_ip);
+        if (handler instanceof CodePageHandlerDynRec) {
+            CodePageHandlerDynRec temp_handler=(CodePageHandlerDynRec)handler;
+            if ((temp_handler.flags & Paging.PFLAG_HASCODE)!=0) {
+                // see if the target is an already translated block
+                block=temp_handler.FindCacheBlock((int)(temp_ip & 4095));
+                if (block==null) return null;
 
-            // found it, link the current block to
-            Cache.cache.block.running.LinkTo(ret==BR_Link2?1:0,block);
-            return block;
+                // found it, link the current block to
+                running.LinkTo(ret==BR_Link2?1:0,block);
+                return block;
+            }
         }
         return null;
     }
@@ -145,7 +145,6 @@ public class Core_dynrec {
 
         //run_block:
                 while (true) {
-                    Cache.cache.block.running = null;
                     // now we're ready to run the dynamic code block
             //		BlockReturn ret=((BlockReturn (*)(void))(block->cache.start))();
                     /*BlockReturn*/int ret=core_dynrec.runcode(block);
@@ -180,24 +179,17 @@ public class Core_dynrec {
                         // the callback code is executed in dosbox.conf, return the callback number
                         Flags.FillFlags();
                         return core_dynrec.callback;
-
-                    case BR_SMCBlock:
-            //			LOG_MSG("selfmodification of running block at %x:%x",SegValue(cs),reg_eip);
-                        CPU.cpu.exception.which=0;
-                        // fallthrough, let the normal core handle the block-modifying instruction
-                    case BR_Opcode:
-                        // some instruction has been encountered that could not be translated
-                        // (thus it is not part of the code block), the normal core will
-                        // handle this instruction
-                        CPU.CPU_CycleLeft+=CPU.CPU_Cycles;
-                        CPU.CPU_Cycles=1;
-                        return Core_normal.CPU_Core_Normal_Run.call();
-
                     case BR_Link1:
                     case BR_Link2:
-                        block=LinkBlocks(ret);
-                        if (block!=null) continue;
+                    {
+                        CacheBlockDynRec next = block.link[ret==BR_Link2?1:0].to;
+                        if (next == null)
+                            block=LinkBlocks(block, ret);
+                        else
+                            block = next;
+                        if (block!=null && CPU.CPU_Cycles>0) continue;
                         break;
+                    }
                     case BR_Illegal:
                         CPU.CPU_Exception(6,0);
                         break;

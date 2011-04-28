@@ -1,11 +1,9 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.CPU;
-import jdos.cpu.CPU_Regs;
-import jdos.cpu.Core_dynrec;
-import jdos.cpu.Core;
-import jdos.debug.Debug;
+import jdos.cpu.*;
+import jdos.cpu.core_normal.Prefix_helpers;
 import jdos.misc.setup.Config;
+import jdos.misc.Log;
 
 public class Decoder extends Inst1 {
     public static final Decode[] ops = new Decode[1024];
@@ -29,49 +27,65 @@ public class Decoder extends Inst1 {
 
     private static class ModifiedDecode extends Op {
         long instructions;
-        public ModifiedDecode(long instructions) {
+        public int prefixes;
+        public boolean EA16;
+        public int opcode_index;
+        public ModifiedDecode(int opcode_index, int prefixes, boolean EA16, long instructions) {
             this.instructions = instructions;
+            this.prefixes = prefixes;
+            this.EA16 = EA16;
+            this.opcode_index = opcode_index;
         }
         public int call() {
-            CPU_Regs.reg_eip+=instructions;
-            return Core_dynrec.BR_Opcode;
+            CPU_Regs.reg_eip += instructions;
+            Core.cseip = CPU.Segs_CSphys + CPU_Regs.reg_eip;
+            Core.prefixes = prefixes;
+            Table_ea.EA16 = EA16;
+            while (true) {
+                int c = opcode_index + Core.Fetchb.call();
+//                    last = c;
+//                    Debug.start(Debug.TYPE_CPU, c);
+//                    try {
+                try {
+                    int result = jdos.cpu.core_normal.Prefix_none.ops[c].call();
+                    if (result != Prefix_helpers.HANDLED) {
+                        if (result == Prefix_helpers.CONTINUE) {
+                            break;
+                        } else if (result == Prefix_helpers.RETURN) {
+                            Core_dynrec.core_dynrec.callback = jdos.cpu.core_normal.Prefix_none.returnValue;
+                            return Core_dynrec.BR_CallBack;
+                        } else if (result == Prefix_helpers.RESTART) {
+                            continue;
+                        } else if (result == Prefix_helpers.CBRET_NONE) {
+                            return Core_dynrec.BR_CBRet_None;
+                        } else if (result == Prefix_helpers.DECODE_END) {
+                            Prefix_helpers.SAVEIP();
+                            Flags.FillFlags();
+                            return Core_dynrec.BR_CBRet_None;
+                        } else if (result == Prefix_helpers.NOT_HANDLED || result == Prefix_helpers.ILLEGAL_OPCODE) {
+                            CPU.CPU_Exception(6, 0);
+                            break;
+                        }
+                    }
+                    // necessary for Prefix_helpers.EXCEPTION
+                } catch (Prefix_helpers.ContinueException e) {
+                    break;
+                }
+//                    } finally {
+//                        Debug.stop(Debug.TYPE_CPU, c);
+//                    }
+
+                // inlined
+                // SAVEIP();
+                CPU_Regs.reg_eip = Core.cseip - CPU.Segs_CSphys;
+                break;
+            }
+            return Core_dynrec.BR_Normal;
         }
     }
 
     static private int count=0;
-    private static class DecodeBlock extends DynamicClass {
-        Op op;
 
-        public DecodeBlock(Op op) {
-            this.op = op;
-        }
-        public int call2() {
-            Op o = op;
-            int result = Core_dynrec.BR_Normal;
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
-            Core.base_val_ds=ds;
-            while (o != null && result == Core_dynrec.BR_Normal) {
-                if (Config.DEBUG_LOG) {
-                    if (o.c>=0) Debug.start(Debug.TYPE_CPU, o.c);
-                    //System.out.println(count+":"+o.c);
-                }
-                result = o.call();
-                CPU.CPU_Cycles--;
-                if (Config.DEBUG_LOG)
-                    if (o.c>=0) Debug.stop(Debug.TYPE_CPU, o.c);
-                o = o.next;
-                if (result == Core_dynrec.BR_Continue) {
-                    result = Core_dynrec.BR_Normal;
-                    continue;
-                }
-                Core.base_ds=CPU.Segs_DSphys;
-                Core.base_ss=CPU.Segs_SSphys;
-                Core.base_val_ds=ds;
-            }
-            return result;
-        }
-    }
     static {
         Prefix_none.init(ops);
         Prefix_0f.init(ops);
@@ -120,36 +134,14 @@ public class Decoder extends Inst1 {
             decode.rep=Decoder_basic.REP_NONE;
             decode.cycles++;
             decode.op_start=decode.code;
+            decode.modifiedAlot = false;
 
-            /*Bitu*/int opcode;
-            if (decode.page.invmap==null) opcode=decode_fetchb();
-            else {
-                // some entries in the invalidation map, see if the next
-                // instruction is known to be modified a lot
-                if (decode.page.index<4096) {
-                    if (decode.page.invmap.p[decode.page.index]>=4) {
-                        result = RESULT_ILLEGAL_INSTRUCTION;
-                        break;
-                    }
-                    opcode=decode_fetchb();
-                } else {
-                    // switch to the next page
-                    opcode=decode_fetchb();
-                    if (decode.page.invmap!=null && decode.page.invmap.p[decode.page.index-1]>=4) {
-                        result = RESULT_ILLEGAL_INSTRUCTION;
-                        break;
-                    }
-                }
-            }
-            opcode+=opcode_index;
-            if (ops[opcode] == null) { // :TODO: after all codes are done then remove this
-                System.out.println("Unknown op: "+opcode);
-                System.exit(1);
-                decode.cycles--;
-                decode.code--;
+            int opcode=opcode_index+decode_fetchb();
+            result = ops[opcode].call(op);
+            if (decode.modifiedAlot) {
+                result = RESULT_ILLEGAL_INSTRUCTION;
                 break;
             }
-            result = ops[opcode].call(op);
             if (op.next != null) {
                 op = op.next;
                 op.c = opcode;
@@ -193,12 +185,16 @@ public class Decoder extends Inst1 {
             case RESULT_JUMP:
                 break;
             case RESULT_ILLEGAL_INSTRUCTION:
-                op.next = new ModifiedDecode(decode.code - decode.code_start);
+                decode.page.index-= decode.code - decode.op_start;
+                // :TODO: handle page change
+                if (decode.page.index<0) {
+                    Log.exit("Dynamic Core:  Self modifying code across page boundries not implemented yet");
+                }
+                op.next = new ModifiedDecode(opcode_index, prefixes, EA16, decode.op_start - decode.code_start);
                 op = op.next;
                 break;
         }
         decode.block.code = new DecodeBlock(start_op.next);
-        decode.block.code.decode = decode;
         decode.active_block.page.end=--decode.page.index;
         return decode.block;
     }

@@ -1,13 +1,10 @@
 package jdos.cpu.core_dynamic;
 
-public class CacheBlockDynRec {
-    static CacheBlockDynRec[] link_blocks=new CacheBlockDynRec[2];		// default linking (specially marked)
+import jdos.misc.Log;
 
-    static {
-        for (int i=0;i<link_blocks.length;i++) {
-            link_blocks[i] = new CacheBlockDynRec();
-        }
-    }
+import java.util.Vector;
+
+public class CacheBlockDynRec {
     public CacheBlockDynRec() {
         for (int i=0;i<link.length;i++)
             link[i] = new _Link();
@@ -17,39 +14,23 @@ public class CacheBlockDynRec {
         // check if this is not a cross page block
         if (hash.index!=0) {
             for (ind=0;ind<2;ind++) {
-                CacheBlockDynRec fromlink=link[ind].from;
-                link[ind].from=null;
-                while (fromlink!=null) {
-                    CacheBlockDynRec nextlink=fromlink.link[ind].next;
-                    // clear the next-link and let the block point to the standard linkcode
-                    fromlink.link[ind].next=null;
-                    fromlink.link[ind].to=link_blocks[ind];
-
-                    fromlink=nextlink;
-                }
-                if (link[ind].to!=link_blocks[ind]) {
-                    // not linked to the standard linkcode, find the block that links to this block
-                    if (link[ind].to.link[ind].from == this) {
-                        link[ind].to.link[ind].from = link[ind].to.link[ind].from.link[ind].next;
-                    } else {
-                        CacheBlockDynRec parent = link[ind].to.link[ind].from;
-                        CacheBlockDynRec wherelink = parent.link[ind].next;
-                        while (wherelink!=this) {
-                            parent = wherelink;
-                            wherelink = parent.link[ind].next;
+                Vector fromlink=link[ind].from;
+                if (link[ind].from != null) {
+                    for (int i=0;i<link[ind].from.size();i++) {
+                        CacheBlockDynRec from = (CacheBlockDynRec)link[ind].from.elementAt(i);
+                        if (from.link[ind].to != this) {
+                            Log.exit("Bad Dynamic cache");
                         }
-                        parent.link[ind].next = wherelink.link[ind].next;
+                        from.link[ind].to = null;
                     }
-//                    CacheBlockDynRec * * wherelink=&link[ind].to->link[ind].from;
-//                    while (*wherelink != this && *wherelink) {
-//                        wherelink = &(*wherelink)->link[ind].next;
-//                    }
-//                    // now remove the link
-//                    if(*wherelink)
-//                        *wherelink = (*wherelink)->link[ind].next;
-//                    else {
-//                        LOG(LOG_CPU,LOG_ERROR)("Cache anomaly. please investigate");
-//                    }
+                    link[ind].from = null;
+                }
+                if (link[ind].to!=null && link[ind].to!=this) {
+                    link[ind].to.link[ind].from.remove(this);
+                    if (link[ind].to.link[ind].from.size()==0) {
+                        link[ind].to.link[ind].from = null;
+                    }
+                    link[ind].to = null;
                 }
             }
         }
@@ -71,9 +52,13 @@ public class CacheBlockDynRec {
 	// path (always zero for unconditional links, 0/1 for conditional ones
 	public void LinkTo(/*Bitu*/int index, CacheBlockDynRec toblock) {
 		if (toblock == null) throw new NullPointerException();
+        if (link[index].to != null) {
+            Log.exit("Dynamic cache failure");
+        }
 		link[index].to=toblock;
-		link[index].next=toblock.link[index].from;	// set target block
-		toblock.link[index].from=this;				// remember who links me
+        if (toblock.link[index].from == null)
+            toblock.link[index].from = new Vector();
+		toblock.link[index].from.add(this);				// remember who links me
 	}
 	public class Page {
 		/*Bit16u*/int start,end;		// where in the page is the original code
@@ -82,8 +67,6 @@ public class CacheBlockDynRec {
     public Page page = new Page();
 
 	static public class _Cache {
-		public /*Bit8u * */int start;			// where in the cache are we
-		public/*Bitu*/int size;
 		public CacheBlockDynRec next;
 		// writemap masking maskpointer/start/length
 		// to allow holes in the writemap
@@ -99,12 +82,11 @@ public class CacheBlockDynRec {
 	}
     public _Hash hash = new _Hash();
 	static public class _Link {
-		CacheBlockDynRec to;		// this block can transfer control to the to-block
-		CacheBlockDynRec next;
-		CacheBlockDynRec from;	// the from-block can transfer control to this block
+		public CacheBlockDynRec to;		// this block can transfer control to the to-block
+		public Vector from = new Vector();	// the from-block can transfer control to this block
 	}
     public _Link[] link = new _Link[2];
 	CacheBlockDynRec crossblock;
-    public DynamicClass code;
+    public DecodeBlock code;
 }
 

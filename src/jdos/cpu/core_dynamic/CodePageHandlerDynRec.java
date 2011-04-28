@@ -9,6 +9,7 @@ import jdos.util.Ptr;
 
 final public class CodePageHandlerDynRec extends Paging.PageHandler {
     static public int activeCount = 0;
+    static public int usedCount = 0;
 
 	public CodePageHandlerDynRec() {
 		invalidation_map=null;
@@ -189,6 +190,10 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		block.page.handler=this;
 		active_blocks++;
         activeCount++;
+        usedCount++;
+        if ((usedCount % 1000)==0) {
+            System.out.println("Dynamic code cache: active="+activeCount+" compiled="+usedCount);
+        }
 	}
 	// there's a block whose code started in a different page
     void AddCrossBlock(CacheBlockDynRec block) {

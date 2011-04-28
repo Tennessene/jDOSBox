@@ -75,7 +75,7 @@ public class Inst4 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Core_dynrec.BR_Illegal;
-            IntRef value=new IntRef(rw.word());
+            IntRef value=new IntRef((int)rw.dword());
             CPU.CPU_LAR(earw.word(),value);
             rw.dword(value.value);
             return Core_dynrec.BR_Normal;
@@ -94,7 +94,7 @@ public class Inst4 extends Helper {
         public int call() {
             long eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Core_dynrec.BR_Illegal;
-            IntRef value=new IntRef(rw.word());
+            IntRef value=new IntRef((int)rw.dword());
             CPU.CPU_LAR(Memory.mem_readw(eaa),value);
             rw.dword(value.value);
             return Core_dynrec.BR_Normal;
@@ -148,113 +148,97 @@ static abstract public class JumpCond32_d extends Op {
 
     static public class JumpCond32_d_o extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_O(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_O(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_no extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NO(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NO(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_b extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_B(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_B(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_nb extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NB(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NB(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_z extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_Z(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_Z(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_nz extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NZ(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NZ(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_be extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_BE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_BE(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_nbe extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NBE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NBE(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_s extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_S(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_S(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_ns extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NS(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NS(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_p extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_P(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_P(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_np extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NP(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NP(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_l extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_L(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_L(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_nl extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NL(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NL(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_le extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_LE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_LE(), eip, offset);
         }
     }
 
     static public class JumpCond32_d_nle extends JumpCond32_d {
         public int call() {
-            JumpCond32_d(Flags.TFLG_NLE(), eip, offset);
-            return Core_dynrec.BR_Normal;
+            return JumpCond32_d(Flags.TFLG_NLE(), eip, offset);
         }
     }
 
@@ -1131,6 +1115,64 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             long eaa=get_eaa.call();
             rd.dword((short)Memory.mem_readw(eaa));
+            return Core_dynrec.BR_Normal;
+        }
+    }
+
+    static public class XaddGdEd_reg extends Op {
+        Reg eard;
+        Reg rd;
+
+        public XaddGdEd_reg(int rm) {
+            eard = Mod.ed(rm);
+            rd = Mod.gd(rm);
+        }
+
+        public int call() {
+            long oldrmrd=rd.dword();
+            rd.dword(eard.dword());
+            eard.dword(eard.dword()+oldrmrd);
+            return Core_dynrec.BR_Normal;
+        }
+    }
+
+    static public class XaddGdEd_mem extends Op {
+        EaaBase get_eaa;
+        Reg rd;
+
+        public XaddGdEd_mem(int rm) {
+            get_eaa =  Mod.getEaa(rm);
+            rd = Mod.gd(rm);
+        }
+
+        public int call() {
+            long eaa=get_eaa.call();
+            long oldrmrd=rd.dword();
+            if ((eaa & 0xFFF)<0xFFD) {
+                int index = Paging.getDirectIndex(eaa);
+                if (index>=0) {
+                    long val = Memory.host_readd(index);
+                    rd.dword(val);
+                    Memory.host_writed(index,val+oldrmrd);
+                    return Core_dynrec.BR_Normal;
+                }
+            }
+            long val = Memory.mem_readd(eaa);
+            rd.dword(val);
+            Memory.mem_writed(eaa,val+oldrmrd);
+            return Core_dynrec.BR_Normal;
+        }
+    }
+
+    static public class Bswapd extends Op {
+        Reg reg;
+
+        public Bswapd(Reg reg) {
+            this.reg = reg;
+        }
+
+        public int call() {
+            reg.dword(Instructions.BSWAPD(reg.dword()));
             return Core_dynrec.BR_Normal;
         }
     }

@@ -1,7 +1,16 @@
 package jdos.cpu.core_dynrec2;
 
+import jdos.Dosbox;
 import jdos.cpu.Core_dynrec2;
+import jdos.hardware.Memory;
 import jdos.misc.Log;
+
+import java.io.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class Cache {
     public static class Block {
@@ -25,6 +34,7 @@ public class Cache {
         if (enable) {
             // see if cache is already initialized
             if (cache_initialized) return;
+            cache_load_index();
             cache_initialized = true;
             if (Cache.cache_blocks == null) {
                 // allocate the cache blocks memory
@@ -144,5 +154,72 @@ public class Cache {
 //        } else {
             cache.block.active=block.cache.next;
 //        }
+    }
+
+    static Vector instruction_cache = new Vector();
+    private static class Instructions {
+        byte[] byteCode;
+        String name;
+        String md5;
+    }
+    public static void cache_save(String name, String md5, byte[] byteCode) {
+        Instructions i = new Instructions();
+        i.byteCode = byteCode;
+        i.md5 = md5;
+        i.name = name;
+        instruction_cache.add(i);
+    }
+
+    static Hashtable instruction_index = new Hashtable();
+    static int countHit;
+    public static DynamicClass getCode(String md5) {
+        String name = (String)instruction_index.get(md5);
+        if (name!=null) {
+            try {
+                return (DynamicClass)Class.forName(name).newInstance();
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
+    public static void cache_load_index() {
+        InputStream is = Dosbox.class.getResourceAsStream("Cache.index");
+        if (is != null) {
+            DataInputStream dis = new DataInputStream(is);
+            try {
+                int count = dis.readInt();
+                for (int i=0;i<count;i++) {
+                    String name = dis.readUTF();
+                    String md5 = dis.readUTF();
+                    instruction_index.put(md5, name);
+                }
+                jdos.cpu.core_dynrec2.Decoder.count = count;
+            } catch (Exception e) {
+            }
+        }
+
+    }
+    public static void cache_write(String fileName) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(bos);
+            dos.writeInt(instruction_cache.size());
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
+            for (int i=0;i<instruction_cache.size();i++) {
+                Instructions inst = (Instructions)instruction_cache.elementAt(i);
+                out.putNextEntry(new ZipEntry(inst.name + ".class"));
+                out.write(inst.byteCode);
+                dos.writeUTF(inst.name);
+                dos.writeUTF(inst.md5);
+            }
+            out.putNextEntry(new ZipEntry("jdos/Cache.index"));
+            dos.flush();
+            out.write(bos.toByteArray());
+            out.flush();
+            out.close();
+            System.out.println("Cache: Saved "+instruction_cache.size()+" methods");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

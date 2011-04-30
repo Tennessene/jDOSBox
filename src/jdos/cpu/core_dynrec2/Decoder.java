@@ -29,7 +29,7 @@ final public class Decoder extends Decoder_instructions {
     public static int count=0;
 
     static private ClassPool pool = ClassPool.getDefault();
-
+    static java.security.MessageDigest md;
     static {
         pool.importPackage("jdos.cpu.core_dynrec2");
         pool.importPackage("jdos.cpu");
@@ -39,6 +39,11 @@ final public class Decoder extends Decoder_instructions {
         pool.importPackage("jdos.util");
         pool.importPackage("jdos.cpu.core_normal");
         pool.importPackage("jdos.cpu.core_share");
+        try {
+            md = java.security.MessageDigest.getInstance("MD5");
+        } catch (Exception e) {
+
+        }
     }
 
     public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/long start,/*Bitu*/int max_opcodes) {
@@ -56,10 +61,8 @@ final public class Decoder extends Decoder_instructions {
 
         Decoder_basic.InitFlagsOptimization();
 
-        CtClass cacheBlock = pool.makeClass("CacheBlock"+(count++));
         StringBuffer method = new StringBuffer();
         try {
-            cacheBlock.setSuperclass(pool.getCtClass("jdos.cpu.core_dynrec2.DynamicClass"));
             method.append("public int call2() {");
             decode.cycles = 0;
             int result = 0;
@@ -4038,16 +4041,25 @@ final public class Decoder extends Decoder_instructions {
                     dyn_closeblock();
                     break;
             }
-            CtMethod m = CtNewMethod.make(method.toString(), cacheBlock);
-            cacheBlock.addMethod(m);
-            // Make the dynamic class belong to its own class loader so that when we
-            // release the decoder block the class and class loader will be unloaded
-            URLClassLoader cl = (URLClassLoader)cacheBlock.getClass().getClassLoader();
-            cl = URLClassLoader.newInstance(cl.getURLs(), cl);
-            Class clazz = cacheBlock.toClass(cl);
-            decode.block.code = (DynamicClass)clazz.newInstance();
+            String thedigest = toHexString(md.digest(method.toString().getBytes()));
+
+            DynamicClass compiledCode = Cache.getCode(thedigest);
+            if (compiledCode == null) {
+                CtClass cacheBlock = pool.makeClass("CacheBlock"+(count++));
+                cacheBlock.setSuperclass(pool.getCtClass("jdos.cpu.core_dynrec2.DynamicClass"));
+                CtMethod m = CtNewMethod.make(method.toString(), cacheBlock);
+                cacheBlock.addMethod(m);
+                // Make the dynamic class belong to its own class loader so that when we
+                // release the decoder block the class and class loader will be unloaded
+                URLClassLoader cl = (URLClassLoader)cacheBlock.getClass().getClassLoader();
+                cl = URLClassLoader.newInstance(cl.getURLs(), cl);
+                Class clazz = cacheBlock.toClass(cl);
+                compiledCode = (DynamicClass)clazz.newInstance();
+                cacheBlock.detach();
+                Cache.cache_save(cacheBlock.getName(), thedigest, cacheBlock.toBytecode());
+            }
+            decode.block.code = compiledCode;
             decode.block.code.decode = decode;
-            cacheBlock.detach();
 //            System.out.println(count+":"+method.toString());
         } catch (Exception e) {
             e.printStackTrace();
@@ -4056,4 +4068,17 @@ final public class Decoder extends Decoder_instructions {
         decode.active_block.page.end=--decode.page.index;
         return decode.block;
     }
+
+    public static String toHexString(byte[] bytes) {
+        char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        char[] hexChars = new char[bytes.length * 2];
+        int v;
+        for ( int j = 0; j < bytes.length; j++ ) {
+            v = bytes[j] & 0xFF;
+            hexChars[j*2] = hexArray[v/16];
+            hexChars[j*2 + 1] = hexArray[v%16];
+        }
+        return new String(hexChars);
+    }
+
 }

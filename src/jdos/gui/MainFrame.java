@@ -1,5 +1,6 @@
 package jdos.gui;
 
+import jdos.misc.setup.Config;
 import jdos.sdl.GUI;
 import jdos.Dosbox;
 import jdos.ints.Mouse;
@@ -205,8 +206,11 @@ public class MainFrame implements GUI {
         panel.addMouseListener((MyFrame)frame);
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                if (!Dosbox.applet)
+                if (!Dosbox.applet) {
+                    if (Config.C_DYNREC)
+                        jdos.cpu.core_dynrec2.Cache.cache_write("classes.jar");
                     System.exit(0);
+                }
             }
         });
         Container contentPane = frame.getContentPane();

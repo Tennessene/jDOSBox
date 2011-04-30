@@ -1,6 +1,6 @@
-package jdos.cpu.core_dynamic;
+package jdos.cpu.core_dynrec2;
 
-import jdos.cpu.Core_dynamic;
+import jdos.cpu.Core_dynrec2;
 import jdos.misc.Log;
 
 public class Cache {
@@ -19,7 +19,7 @@ public class Cache {
 
     public static boolean cache_initialized = false;
     private static CacheBlockDynRec[] cache_blocks=null;
-    
+
     public static void cache_init(boolean enable) {
         /*Bits*/int i;
         if (enable) {
@@ -29,7 +29,7 @@ public class Cache {
             if (Cache.cache_blocks == null) {
                 // allocate the cache blocks memory
                 try {
-                    cache_blocks=new CacheBlockDynRec[Core_dynamic.CACHE_BLOCKS];
+                    cache_blocks=new CacheBlockDynRec[Core_dynrec2.CACHE_BLOCKS];
                     for (i=0;i<cache_blocks.length;i++) {
                         cache_blocks[i] = new CacheBlockDynRec();
                     }
@@ -38,7 +38,7 @@ public class Cache {
                 }
                 cache.block.free=cache_blocks[0];
                 // initialize the cache blocks
-                for (i=0;i< Core_dynamic.CACHE_BLOCKS-1;i++) {
+                for (i=0;i< Core_dynrec2.CACHE_BLOCKS-1;i++) {
                     //cache_blocks[i].link[0].to=(CacheBlockDynRec *)1;
                     //cache_blocks[i].link[1].to=(CacheBlockDynRec *)1;
                     cache_blocks[i].cache.next=cache_blocks[i+1];
@@ -92,7 +92,7 @@ public class Cache {
             cache.last_page=null;
             cache.used_pages=null;
             // setup the code pages
-            for (i=0;i< Core_dynamic.CACHE_PAGES;i++) {
+            for (i=0;i< Core_dynrec2.CACHE_PAGES;i++) {
                 CodePageHandlerDynRec newpage=new CodePageHandlerDynRec();
                 newpage.next=cache.free_pages;
                 cache.free_pages=newpage;
@@ -136,7 +136,7 @@ public class Cache {
             CacheBlockDynRec newblock=cache_getblock();
             newblock.cache.next=block.cache.next;
             block.cache.next=newblock;
-        }        
+        }
         // advance the active block pointer
 //        if (block.cache.next==null || (block.cache.next.cache.start>(cache_code_start_ptr + Core_dynrec.CACHE_TOTAL - Core_dynrec.CACHE_MAXSIZE))) {
 //    //		LOG_MSG("Cache full restarting");

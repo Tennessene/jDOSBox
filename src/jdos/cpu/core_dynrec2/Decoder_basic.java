@@ -1,7 +1,7 @@
-package jdos.cpu.core_dynamic;
+package jdos.cpu.core_dynrec2;
 
-import jdos.cpu.Core_dynamic;
 import jdos.cpu.Paging;
+import jdos.cpu.Core_dynrec2;
 import jdos.util.ShortRef;
 import jdos.util.IntRef;
 import jdos.util.Ptr;
@@ -32,7 +32,7 @@ public class Decoder_basic {
     public static void InitFlagsOptimization() {
         mf_functions_num=0;
     }
-    public static boolean MakeCodePage(/*Bitu*/long lin_addr, Core_dynamic.CodePageHandlerDynRecRef cph) {
+    public static boolean MakeCodePage(/*Bitu*/long lin_addr, Core_dynrec2.CodePageHandlerDynRecRef cph) {
         int i_line_addr = (int)lin_addr;
 
         //Ensure page contains memory:
@@ -68,10 +68,10 @@ public class Decoder_basic {
         }
         // find a free CodePage
         if (Cache.cache.free_pages==null) {
-            if (Cache.cache.used_pages!= Decoder.decode.page.code) Cache.cache.used_pages.ClearRelease();
+            if (Cache.cache.used_pages!=Decoder.decode.page.code) Cache.cache.used_pages.ClearRelease();
             else {
                 // try another page to avoid clearing our source-crosspage
-                if ((Cache.cache.used_pages.next!=null) && (Cache.cache.used_pages.next!= Decoder.decode.page.code))
+                if ((Cache.cache.used_pages.next!=null) && (Cache.cache.used_pages.next!=Decoder.decode.page.code))
                     Cache.cache.used_pages.next.ClearRelease();
                 else {
                     Log.log_msg("DYNREC:Invalid cache links");

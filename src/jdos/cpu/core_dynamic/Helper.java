@@ -1,10 +1,11 @@
 package jdos.cpu.core_dynamic;
 
+import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 import jdos.cpu.*;
 
 public class Helper extends CPU_Regs {
-    static private Core_dynrec.CodePageHandlerDynRecRef codeRef = new Core_dynrec.CodePageHandlerDynRecRef();
+    static private Core_dynamic.CodePageHandlerDynRecRef codeRef = new Core_dynamic.CodePageHandlerDynRecRef();
     public static final DynDecode decode = new DynDecode();
     static protected boolean EA16 = false;
     static protected int prefixes = 0;
@@ -32,56 +33,56 @@ public class Helper extends CPU_Regs {
     }
     public static int RUNEXCEPTION() {
         CPU.CPU_Exception(CPU.cpu.exception.which,CPU.cpu.exception.error);
-        return Core_dynrec.BR_Jump;
+        return Constants.BR_Jump;
     }
 
     public static int EXCEPTION(int blah) {
         CPU.CPU_Exception(blah);
-        return Core_dynrec.BR_Jump;
+        return Constants.BR_Jump;
     }
 
     public static int DECODE_END() {
         reg_eip = reg_eip + (decode.code - decode.code_start);
         Flags.FillFlags();
-        return Core_dynrec.BR_CBRet_None;
+        return Constants.BR_CBRet_None;
     }
     protected static int JumpCond16_b(boolean COND, long eip, int off) {
         reg_eip = eip;
         if (COND) {
             reg_ip(reg_ip()+off+1);
-            return Core_dynrec.BR_Link1;
+            return Constants.BR_Link1;
         }
         reg_ip(reg_ip()+1);
-        return Core_dynrec.BR_Link2;
+        return Constants.BR_Link2;
     }
     protected static int JumpCond16_w(boolean COND, long eip, int off) {
         reg_eip = eip;
         if (COND) {
             reg_ip(reg_ip()+off+2);
-            return Core_dynrec.BR_Link1;
+            return Constants.BR_Link1;
         }
         reg_ip(reg_ip()+2);
-        return Core_dynrec.BR_Link2;
+        return Constants.BR_Link2;
     }
 
     protected static int JumpCond32_b(boolean COND, long eip, int off) {
         reg_eip = eip;
         if (COND) {
             reg_eip(reg_eip()+off+1);
-            return Core_dynrec.BR_Link1;
+            return Constants.BR_Link1;
         }
         reg_eip(reg_eip()+1);
-        return Core_dynrec.BR_Link2;
+        return Constants.BR_Link2;
     }
 
     protected static int JumpCond32_d(boolean COND, long eip, long off) {
         reg_eip = eip;
         if (COND) {
             reg_eip(reg_eip()+off+4);
-            return Core_dynrec.BR_Link1;
+            return Constants.BR_Link1;
         }
         reg_eip(reg_eip()+4);
-        return Core_dynrec.BR_Link2;
+        return Constants.BR_Link2;
     }
 
     static void decode_advancepage() {

@@ -1,6 +1,7 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.cpu.*;
+import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 
 public class Grp3 extends Helper {
@@ -15,7 +16,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.TESTB(val,earb.get8());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -33,7 +34,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.TESTB(val,Memory.mem_readb(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -45,7 +46,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             earb.set8((byte)~earb.get8());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -62,7 +63,7 @@ public class Grp3 extends Helper {
                 Memory.host_writeb(index,(byte)~Memory.host_readb(index));
             else
                 Memory.mem_writeb(eaa,~Memory.mem_readb(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -77,7 +78,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1b(earb.get8());
             Flags.lf_resb(0-Flags.lf_var1b());
             earb.set8(Flags.lf_resb());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -93,7 +94,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1b(Memory.mem_readb(eaa));
             Flags.lf_resb(0-Flags.lf_var1b());
             Memory.mem_writeb(eaa,Flags.lf_resb());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -105,7 +106,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.MULB(earb.get8());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -118,7 +119,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.MULB(Memory.mem_readb(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -130,7 +131,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.IMULB(earb.get8());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -143,7 +144,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.IMULB(Memory.mem_readb(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -155,7 +156,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.DIVB(earb.get8());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -168,7 +169,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.DIVB(Memory.mem_readb(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -180,7 +181,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.IDIVB(earb.get8());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -193,7 +194,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.IDIVB(Memory.mem_readb(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -208,7 +209,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.TESTW(val,earw.word());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -224,7 +225,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.TESTW(val,Memory.mem_readw(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -236,7 +237,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             earw.word(~earw.word());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -252,11 +253,11 @@ public class Grp3 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writew(index,~Memory.host_readw(index));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writew(eaa,~Memory.mem_readw(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -271,7 +272,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1w(earw.word());
             Flags.lf_resw(0-Flags.lf_var1w());
             earw.word(Flags.lf_resw());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -290,13 +291,13 @@ public class Grp3 extends Helper {
                     Flags.lf_var1w(Memory.host_readw(index));
                     Flags.lf_resw(0-Flags.lf_var1w());
                     Memory.host_writew(index,Flags.lf_resw());
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Flags.lf_var1w(Memory.mem_readw(eaa));
             Flags.lf_resw(0-Flags.lf_var1w());
             Memory.mem_writew(eaa,Flags.lf_resw());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -308,7 +309,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.MULW(earw.word());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -321,7 +322,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.MULW(Memory.mem_readw(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -333,7 +334,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.IMULW(earw.word());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -346,7 +347,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.IMULW(Memory.mem_readw(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -358,7 +359,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.DIVW(earw.word());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -371,7 +372,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.DIVW(Memory.mem_readw(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -383,7 +384,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.IDIVW(earw.word());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -396,7 +397,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.IDIVW(Memory.mem_readw(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -411,7 +412,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.TESTD(val,eard.dword());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -427,7 +428,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.TESTD(val,Memory.mem_readd(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -439,7 +440,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             eard.dword(~eard.dword());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -455,11 +456,11 @@ public class Grp3 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index,~Memory.host_readd(index));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa,~Memory.mem_readd(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -474,7 +475,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1d(eard.dword());
             Flags.lf_resd(0-Flags.lf_var1d());
             eard.dword(Flags.lf_resd());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -493,13 +494,13 @@ public class Grp3 extends Helper {
                     Flags.lf_var1d(Memory.host_readd(index));
                     Flags.lf_resd(0-Flags.lf_var1d());
                     Memory.host_writed(index,Flags.lf_resd());
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Flags.lf_var1d(Memory.mem_readd(eaa));
             Flags.lf_resd(0-Flags.lf_var1d());
             Memory.mem_writed(eaa,Flags.lf_resd());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -511,7 +512,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.MULD(eard.dword());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -524,7 +525,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.MULD(Memory.mem_readd(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -536,7 +537,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.IMULD(eard.dword());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -549,7 +550,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.IMULD(Memory.mem_readd(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -561,7 +562,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.DIVD(eard.dword());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -574,7 +575,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.DIVD(Memory.mem_readd(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -586,7 +587,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Instructions.IDIVD(eard.dword());
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -599,7 +600,7 @@ public class Grp3 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             Instructions.IDIVD(Memory.mem_readd(eaa));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 }

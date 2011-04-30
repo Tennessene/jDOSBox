@@ -7,8 +7,9 @@ import jdos.hardware.Memory;
 import jdos.misc.setup.*;
 
 public class InstructionsTestCase extends TestCase {
-    static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
-    //static CPU.CPU_Decoder decoder = Core_dynrec.CPU_Core_Dynrec_Run;
+    //static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
+    //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
+    static CPU.CPU_Decoder decoder = Core_dynrec2.CPU_Core_Dynrec_Run;
     protected int cseip = 0x10000;
     protected final static int MEM_BASE_DS = 0x2000;
     protected final static int MEM_BASE_SS = 0x3000;
@@ -521,8 +522,11 @@ public class InstructionsTestCase extends TestCase {
     protected void setUp() throws java.lang.Exception  {
         super.setUp();
 
-        Core_dynrec.instruction_count = 1;
-        Core_dynrec.CPU_Core_Dynrec_Cache_Init(true);
+        Core_dynamic.instruction_count = 1;
+        Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
+
+        Core_dynrec2.instruction_count = 1;
+        Core_dynrec2.CPU_Core_Dynrec_Cache_Init(true);
 
         String[] cores = new String[] { "auto", "dynamic", "normal", "simple"};
         Prop_string Pstring = cpu_prop.Add_string("core", Property.Changeable.WhenIdle,"auto");

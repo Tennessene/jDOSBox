@@ -152,7 +152,7 @@ public class Dos_execute {
         } else {
             Main.GFX_SetTitle(-1,-1,false);
         }
-        if (Config.C_DYNAMIC_X86 || (Config.C_DYNREC)) {
+        if (Config.C_DYNAMIC || (Config.C_DYNREC)) {
             if ((CPU.CPU_AutoDetermineMode&CPU.CPU_AUTODETERMINE_CORE)!=0) {
                 CPU.cpudecoder= Core_normal.CPU_Core_Normal_Run;
                 CPU.CPU_CycleLeft=0;

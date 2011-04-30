@@ -1,25 +1,16 @@
 package jdos.cpu;
 
-import jdos.cpu.core_dynamic.*;
+import jdos.cpu.core_dynrec2.*;
+import jdos.cpu.core_share.Constants;
+import jdos.cpu.core_share.Data;
 import jdos.misc.setup.Config;
 import jdos.misc.Log;
 import jdos.debug.Debug;
 import jdos.hardware.Pic;
 
-public class Core_dynrec {
-    //enum BlockReturn {
-	public final static int BR_Normal=0;
-    public final static int BR_Jump = 1;
-    public final static int BR_Continue=2;
-	public final static int BR_Link1=3;
-    public final static int BR_Link2=4;
-	public final static int BR_Iret=5;
-	public final static int BR_CallBack=6;
-    public final static int BR_CBRet_None = 7;
-    public final static int BR_Illegal = 8;    
-    //};
-
+public class Core_dynrec2 {
     static public final int CACHE_MAXSIZE = 4096*2;
+    static public final int CACHE_TOTAL = 1024*1024*8;
     static public final int CACHE_PAGES	= 512;
     static public final int CACHE_BLOCKS = 128*1024;
     static public final int CACHE_ALIGN = 16;
@@ -34,9 +25,8 @@ public class Core_dynrec {
 
     static final public class _core_dynrec {
         /*BlockReturn*/int runcode(CacheBlockDynRec block){
-            return block.code.call2();
+            return block.code.call();
         }
-        public /*Bitu*/int callback;				// the occurred callback
         /*Bitu*/int readdata;				// spare space used when reading from memory
         /*Bit32u*/long[] protected_regs=new long[8];	// space to save/restore register values
     }
@@ -91,7 +81,7 @@ public class Core_dynrec {
                 if (block==null) return null;
 
                 // found it, link the current block to
-                running.LinkTo(ret==BR_Link2?1:0,block);
+                running.LinkTo(ret==Constants.BR_Link2?1:0,block);
                 return block;
             }
         }
@@ -118,29 +108,12 @@ public class Core_dynrec {
                 }
                 chandler = chandlerRef.value;
                 // page doesn't contain code or is special
-                if (chandler==null)
-                    return Core_normal.CPU_Core_Normal_Run.call();
+                if (chandler==null) return Core_normal.CPU_Core_Normal_Run.call();
 
                 // find correct Dynamic Block to run
                 CacheBlockDynRec block=chandler.FindCacheBlock(page_ip_point);
                 if (block==null) {
-                    // no block found, thus translate the instruction stream
-                    // unless the instruction is known to be modified
-                    if (chandler.invalidation_map==null || (chandler.invalidation_map.p[page_ip_point]<4)) {
-                        // translate up to 32 instructions
-                        block= Decoder.CreateCacheBlock(chandler,ip_point,instruction_count);
-                    } else {
-                        // let the normal core handle this instruction to avoid zero-sized blocks
-                        /*Bitu*/int old_cycles=CPU.CPU_Cycles;
-                        CPU.CPU_Cycles=1;
-                        /*Bits*/int nc_retcode=Core_normal.CPU_Core_Normal_Run.call();
-                        if (nc_retcode==0) {
-                            CPU.CPU_Cycles=old_cycles-1;
-                            continue;
-                        }
-                        CPU.CPU_CycleLeft+=old_cycles;
-                        return nc_retcode;
-                    }
+                    block= Decoder.CreateCacheBlock(chandler,ip_point,instruction_count);
                 }
 
         //run_block:
@@ -150,9 +123,12 @@ public class Core_dynrec {
                     /*BlockReturn*/int ret=core_dynrec.runcode(block);
 
                     switch (ret) {
-                    case BR_CBRet_None:
+                    case Constants.BR_CallBack:
+                        Flags.FillFlags();
+                        return Data.callback;
+                    case Constants.BR_CBRet_None:
                         return Callback.CBRET_NONE;
-                    case BR_Iret:
+                    case Constants.BR_Iret:
                         if (Config.C_HEAVY_DEBUG)
                             if (Debug.DEBUG_HeavyIsBreakpoint()) return Debug.debugCallback;
 
@@ -164,9 +140,7 @@ public class Core_dynrec {
                         CPU.cpudecoder=CPU_Core_Dynrec_Trap_Run;
                         return Callback.CBRET_NONE;
 
-                    case BR_Normal:
-                    case BR_Continue:
-                    case BR_Jump:
+                    case Constants.BR_Normal:
                         // the block was exited due to a non-predictable control flow
                         // modifying instruction (like ret) or some nontrivial cpu state
                         // changing instruction (for example switch to/from pmode),
@@ -175,22 +149,19 @@ public class Core_dynrec {
                             if (Debug.DEBUG_HeavyIsBreakpoint()) return Debug.debugCallback;
                         break;
 
-                    case BR_CallBack:
-                        // the callback code is executed in dosbox.conf, return the callback number
-                        Flags.FillFlags();
-                        return core_dynrec.callback;
-                    case BR_Link1:
-                    case BR_Link2:
+                    case Constants.BR_Link1:
+                    case Constants.BR_Link2:
                     {
-                        CacheBlockDynRec next = block.link[ret==BR_Link2?1:0].to;
+                        CacheBlockDynRec next = block.link[ret==Constants.BR_Link2?1:0].to;
                         if (next == null)
                             block=LinkBlocks(block, ret);
                         else
                             block = next;
-                        if (block!=null && CPU.CPU_Cycles>0) continue;
+                        if (block!=null && CPU.CPU_Cycles>0)
+                            continue;
                         break;
                     }
-                    case BR_Illegal:
+                    case Constants.BR_Illegal:
                         CPU.CPU_Exception(6,0);
                         break;
                     default:

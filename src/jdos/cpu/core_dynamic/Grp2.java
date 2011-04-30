@@ -1,9 +1,10 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU_Regs;
+import jdos.cpu.Core_dynamic;
 import jdos.cpu.Instructions;
-import jdos.cpu.Core_dynrec;
 import jdos.cpu.Paging;
+import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 
 public class Grp2 extends Helper {
@@ -19,7 +20,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_ROLB(earb.get8(), val))
                 earb.set8(Instructions.do_ROLB(val, earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -35,7 +36,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RORB(earb.get8(), val))
                 earb.set8(Instructions.do_RORB(val, earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -51,7 +52,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCLB(val))
                 earb.set8(Instructions.do_RCLB(val, earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -67,7 +68,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCRB(val))
                 earb.set8(Instructions.do_RCRB(val, earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -83,7 +84,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHLB(val))
                 earb.set8(Instructions.do_SHLB(val, earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -99,7 +100,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHRB(val))
                 earb.set8(Instructions.do_SHRB(val, earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -115,7 +116,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SARB(val))
                 earb.set8(Instructions.do_SARB(val, earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -136,7 +137,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_ROLB(val, Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -158,7 +159,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_RORB(val, Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -180,7 +181,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_RCLB(val, Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -202,7 +203,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_RCRB(val, Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -224,7 +225,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_SHLB(val, Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -245,7 +246,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_SHRB(val, Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -266,7 +267,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_SARB(val, Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -282,7 +283,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_ROLW(earw.word(), val))
                 earw.word(Instructions.do_ROLW(val, earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -298,7 +299,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RORW(earw.word(), val))
                 earw.word(Instructions.do_RORW(val, earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -314,7 +315,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCLW(val))
                 earw.word(Instructions.do_RCLW(val, earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -330,7 +331,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCRW(val))
                 earw.word(Instructions.do_RCRW(val, earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -346,7 +347,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHLW(val))
                 earw.word(Instructions.do_SHLW(val, earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -362,7 +363,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHRW(val))
                 earw.word(Instructions.do_SHRW(val, earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -378,7 +379,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SARW(val))
                 earw.word(Instructions.do_SARW(val, earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -397,12 +398,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_ROLW(val, Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_ROLW(val, Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -421,12 +422,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_RORW(val, Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_RORW(val, Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -445,12 +446,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_RCLW(val, Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_RCLW(val, Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -469,12 +470,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_RCRW(val, Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_RCRW(val, Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -493,12 +494,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_SHLW(val, Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_SHLW(val, Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -517,12 +518,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_SHRW(val, Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_SHRW(val, Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -541,12 +542,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_SARW(val, Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_SARW(val, Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -559,7 +560,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_ROLB(earb.get8(), reg_ecx.low()))
                 earb.set8(Instructions.do_ROLB(reg_ecx.low(), earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -572,7 +573,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RORB(earb.get8(), reg_ecx.low()))
                 earb.set8(Instructions.do_RORB(reg_ecx.low(), earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -585,7 +586,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCLB(reg_ecx.low()))
                 earb.set8(Instructions.do_RCLB(reg_ecx.low(), earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -598,7 +599,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCRB(reg_ecx.low()))
                 earb.set8(Instructions.do_RCRB(reg_ecx.low(), earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -611,7 +612,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHLB(reg_ecx.low()))
                 earb.set8(Instructions.do_SHLB(reg_ecx.low(), earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -624,7 +625,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHRB(reg_ecx.low()))
                 earb.set8(Instructions.do_SHRB(reg_ecx.low(), earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -637,7 +638,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SARB(reg_ecx.low()))
                 earb.set8(Instructions.do_SARB(reg_ecx.low(), earb.get8()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -656,7 +657,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_ROLB(reg_ecx.low(), Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -675,7 +676,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_RORB(reg_ecx.low(), Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -694,7 +695,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_RCLB(reg_ecx.low(), Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -713,7 +714,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_RCRB(reg_ecx.low(), Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -732,7 +733,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_SHLB(reg_ecx.low(), Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -751,7 +752,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_SHRB(reg_ecx.low(), Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -770,7 +771,7 @@ public class Grp2 extends Helper {
                 else
                     Memory.mem_writeb(eaa, Instructions.do_SARB(reg_ecx.low(), Memory.mem_readb(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -783,7 +784,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_ROLW(earw.word(), reg_ecx.low()))
                 earw.word(Instructions.do_ROLW(reg_ecx.low(), earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -796,7 +797,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RORW(earw.word(), reg_ecx.low()))
                 earw.word(Instructions.do_RORW(reg_ecx.low(), earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -809,7 +810,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCLW(reg_ecx.low()))
                 earw.word(Instructions.do_RCLW(reg_ecx.low(), earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -823,7 +824,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_RCRW(reg_ecx.low()))
                 earw.word(Instructions.do_RCRW(reg_ecx.low(), earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -837,7 +838,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHLW(reg_ecx.low()))
                 earw.word(Instructions.do_SHLW(reg_ecx.low(), earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -851,7 +852,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SHRW(reg_ecx.low()))
                 earw.word(Instructions.do_SHRW(reg_ecx.low(), earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -864,7 +865,7 @@ public class Grp2 extends Helper {
         public int call() {
             if (Instructions.valid_SARW(reg_ecx.low()))
                 earw.word(Instructions.do_SARW(reg_ecx.low(), earw.word()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -881,12 +882,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_ROLW(reg_ecx.low(), Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_ROLW(reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -903,12 +904,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_RORW(reg_ecx.low(), Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_RORW(reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -925,12 +926,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_RCLW(reg_ecx.low(), Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_RCLW(reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -947,12 +948,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_RCRW(reg_ecx.low(), Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_RCRW(reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -969,12 +970,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_SHLW(reg_ecx.low(), Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_SHLW(reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -991,12 +992,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_SHRW(reg_ecx.low(), Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_SHRW(reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1013,12 +1014,12 @@ public class Grp2 extends Helper {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
                         Memory.host_writew(index, Instructions.do_SARW(reg_ecx.low(), Memory.host_readw(index)));
-                        return Core_dynrec.BR_Normal;
+                        return Constants.BR_Normal;
                     }
                 }
                 Memory.mem_writew(eaa, Instructions.do_SARW(reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1033,7 +1034,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.ROLD(val, eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1048,7 +1049,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.RORD(val, eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1063,7 +1064,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.RCLD(val, eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1078,7 +1079,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.RCRD(val, eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1093,7 +1094,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.SHLD(val, eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1108,7 +1109,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.SHRD(val, eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1123,7 +1124,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.SARD(val, eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1141,11 +1142,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.ROLD(val, Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.ROLD(val, Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1163,11 +1164,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.RORD(val, Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.RORD(val, Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1185,11 +1186,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.RCLD(val, Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.RCLD(val, Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1207,11 +1208,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.RCRD(val, Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.RCRD(val, Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1229,11 +1230,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.SHLD(val, Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.SHLD(val, Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1251,11 +1252,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.SHRD(val, Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.SHRD(val, Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1273,11 +1274,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.SARD(val, Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.SARD(val, Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1289,7 +1290,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.ROLD(reg_ecx.low(), eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1301,7 +1302,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.RORD(reg_ecx.low(), eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1313,7 +1314,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.RCLD(reg_ecx.low(), eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1326,7 +1327,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.RCRD(reg_ecx.low(), eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1339,7 +1340,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.SHLD(reg_ecx.low(), eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1352,7 +1353,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.SHRD(reg_ecx.low(), eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1364,7 +1365,7 @@ public class Grp2 extends Helper {
         }
         public int call() {
             eard.dword(Instructions.SARD(reg_ecx.low(), eard.dword()));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1380,11 +1381,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.ROLD(reg_ecx.low(), Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.ROLD(reg_ecx.low(), Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1400,11 +1401,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.RORD(reg_ecx.low(), Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.RORD(reg_ecx.low(), Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1420,11 +1421,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.RCLD(reg_ecx.low(), Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.RCLD(reg_ecx.low(), Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1440,11 +1441,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.RCRD(reg_ecx.low(), Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.RCRD(reg_ecx.low(), Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1460,11 +1461,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.SHLD(reg_ecx.low(), Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.SHLD(reg_ecx.low(), Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1480,11 +1481,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.SHRD(reg_ecx.low(), Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.SHRD(reg_ecx.low(), Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 
@@ -1500,11 +1501,11 @@ public class Grp2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     Memory.host_writed(index, Instructions.SARD(reg_ecx.low(), Memory.host_readd(index)));
-                    return Core_dynrec.BR_Normal;
+                    return Constants.BR_Normal;
                 }
             }
             Memory.mem_writed(eaa, Instructions.SARD(reg_ecx.low(), Memory.mem_readd(eaa)));
-            return Core_dynrec.BR_Normal;
+            return Constants.BR_Normal;
         }
     }
 

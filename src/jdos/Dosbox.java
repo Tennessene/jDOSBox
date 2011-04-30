@@ -338,7 +338,7 @@ public class Dosbox {
 
         secprop=control.AddSection_prop("cpu", CPU.CPU_Init,true);//done
         String[] cores;
-        if (Config.C_DYNAMIC_X86 || Config.C_DYNREC)
+        if (Config.C_DYNAMIC || Config.C_DYNREC)
             cores = new String[] { "auto", "dynamic", "normal", "simple"};
         else
             cores = new String[] { "auto", "normal", "simple"};

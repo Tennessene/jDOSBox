@@ -4,8 +4,13 @@ public class Ptr {
     public byte[] p;
     public int off;
     protected int start;
-    protected int size;
-
+    public int size;
+    public Ptr() {
+        this.p = null;
+        this.off = 0;
+        this.start = 0;
+        this.size = 0;
+    }
     public Ptr(int size) {
         this.p = new byte[size];
         this.off = 0;

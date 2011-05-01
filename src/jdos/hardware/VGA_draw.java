@@ -165,13 +165,17 @@ public class VGA_draw {
     };
 
     private static VGA_Line_Handler VGA_Draw_Linear_Line = new VGA_Line_Handler() {
+        private Ptr p = new Ptr();
         public Ptr call(/*Bitu*/int vidstart, /*Bitu*/int line) {
         // There is guaranteed extra memory past the wrap boundary. So, instead of using temporary
         // storage just copy appropriate chunk from the beginning to the wrap boundary when needed.
             /*Bitu*/int offset = vidstart & VGA.vga.draw.linear_mask;
             if (VGA.vga.draw.linear_mask-offset < VGA.vga.draw.line_length)
                 Ptr.memcpy(new Ptr(VGA.vga.draw.linear_base,VGA.vga.draw.linear_mask+1), VGA.vga.draw.linear_base, VGA.vga.draw.line_length);
-            return new Ptr(VGA.vga.draw.linear_base, offset);
+            p.p = VGA.vga.draw.linear_base.p;
+            p.off = offset+VGA.vga.draw.linear_base.off;
+            p.size = p.p.length;
+            return p;
         }
     };
 

@@ -42,7 +42,7 @@ public class Decoder_instructions {
     protected static void JumpCond16_b(StringBuffer method, String COND) {
         SAVEIP(method);
         byte b = decode_fetchbs();
-        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_ip(CPU_Regs.reg_ip()+1+");method.append(b);method.append(");");
+        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(1+b);method.append(");");
         returnLink1(method);
         method.append("} CPU_Regs.reg_ip(CPU_Regs.reg_ip()+1);");
         returnLink2(method);
@@ -51,7 +51,7 @@ public class Decoder_instructions {
     protected static void JumpCond16_w(StringBuffer method, String COND) {
         SAVEIP(method);
         short b = decode_fetchws();
-        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_ip(CPU_Regs.reg_ip()+2+");method.append(b);method.append(");");
+        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(2+b);method.append(");");
         returnLink1(method);
         method.append("} CPU_Regs.reg_ip(CPU_Regs.reg_ip()+2);");
         returnLink2(method);
@@ -59,7 +59,7 @@ public class Decoder_instructions {
     protected static void JumpCond32_d(StringBuffer method, String COND) {
         SAVEIP(method);
         int b = decode_fetchds();
-        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_eip(CPU_Regs.reg_eip()+4+");method.append(b);method.append(");");
+        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_eip(CPU_Regs.reg_eip()+");method.append(4+b);method.append(");");
         returnLink1(method);
         method.append("} CPU_Regs.reg_eip(CPU_Regs.reg_eip()+4);");
         returnLink2(method);
@@ -67,7 +67,7 @@ public class Decoder_instructions {
      protected static void JumpCond32_b(StringBuffer method, String COND) {
         SAVEIP(method);
         int b = decode_fetchbs();
-        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_eip(CPU_Regs.reg_eip()+1+");method.append(b);method.append(");");
+        method.append("if (");method.append(COND);method.append(") { CPU_Regs.reg_eip(CPU_Regs.reg_eip()+");method.append(1+b);method.append(");");
         returnLink1(method);
         method.append("} CPU_Regs.reg_eip(CPU_Regs.reg_eip()+1);");
         returnLink2(method);
@@ -1233,6 +1233,21 @@ public class Decoder_instructions {
 
         } else {
             method.append("long eaa = "); getEaa(method, rm);
+            method.append("int index=Paging.getDirectIndex(eaa);");
+            method.append("if (index>=0) {");
+            l = "Memory.host_readb(index)";
+            s = "Memory.host_writeb(index, (short)Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLB(method, val,l, s);break;
+            case 0x01:RORB(method, val,l, s);break;
+            case 0x02:RCLB(method, val,l, s);break;
+            case 0x03:RCRB(method, val,l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLB(method, val,l, s);break;
+            case 0x05:SHRB(method, val,l, s);break;
+            case 0x07:SARB(method, val,l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readb(eaa)";
             s = "Memory.mem_writeb(eaa, (short)Flags.lflags.res);";
         }
@@ -1246,6 +1261,8 @@ public class Decoder_instructions {
         case 0x05:SHRB(method, val,l, s);break;
         case 0x07:SARB(method, val,l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1261,6 +1278,21 @@ public class Decoder_instructions {
         } else {
             method.append("{long eaa = "); getEaa(method, rm);
             method.append("short val=(short)(");method.append(blah);method.append(" & 0x1f);");
+            method.append("int index=Paging.getDirectIndex(eaa);");
+            method.append("if (index>=0) {");
+            l = "Memory.host_readb(index)";
+            s = "Memory.host_writeb(index, (short)Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLB(method, "val",l, s);break;
+            case 0x01:RORB(method, "val",l, s);break;
+            case 0x02:RCLB(method, "val",l, s);break;
+            case 0x03:RCRB(method, "val",l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLB(method, "val",l, s);break;
+            case 0x05:SHRB(method, "val",l, s);break;
+            case 0x07:SARB(method, "val",l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readb(eaa)";
             s = "Memory.mem_writeb(eaa, (short)Flags.lflags.res);";
         }
@@ -1274,6 +1306,8 @@ public class Decoder_instructions {
         case 0x05:SHRB(method, "val",l, s);break;
         case 0x07:SARB(method, "val",l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1293,6 +1327,21 @@ public class Decoder_instructions {
             method.append("long eaa = "); getEaa(method, rm);
             short blah = decode_fetchb();
             val=(short)(blah & 0x1f);
+            method.append("int index=Paging.getDirectIndex(eaa);");
+            method.append("if (index>=0) {");
+            l = "Memory.host_readb(index)";
+            s = "Memory.host_writeb(index, (short)Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLB(method, val,l, s);break;
+            case 0x01:RORB(method, val,l, s);break;
+            case 0x02:RCLB(method, val,l, s);break;
+            case 0x03:RCRB(method, val,l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLB(method, val,l, s);break;
+            case 0x05:SHRB(method, val,l, s);break;
+            case 0x07:SARB(method, val,l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readb(eaa)";
             s = "Memory.mem_writeb(eaa, (short)Flags.lflags.res);";
         }
@@ -1306,6 +1355,8 @@ public class Decoder_instructions {
         case 0x05:SHRB(method, val,l, s);break;
         case 0x07:SARB(method, val,l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1321,6 +1372,21 @@ public class Decoder_instructions {
         } else {
             method.append("{long eaa = "); getEaa(method, rm);
             method.append("int val=");method.append(blah);method.append(" & 0x1f;");
+            method.append("int index;");
+            method.append("if ((eaa & 0xFFF)<0xFFF && (index=Paging.getDirectIndex(eaa))>=0) {");
+            l = "Memory.host_readw(index)";
+            s = "Memory.host_writew(index, (int)Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLW(method, "val",l, s);break;
+            case 0x01:RORW(method, "val",l, s);break;
+            case 0x02:RCLW(method, "val",l, s);break;
+            case 0x03:RCRW(method, "val",l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLW(method, "val",l, s);break;
+            case 0x05:SHRW(method, "val",l, s);break;
+            case 0x07:SARW(method, "val",l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readw(eaa)";
             s = "Memory.mem_writew(eaa, (int)Flags.lflags.res);";
         }
@@ -1334,6 +1400,8 @@ public class Decoder_instructions {
         case 0x05:SHRW(method, "val",l, s);break;
         case 0x07:SARW(method, "val",l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1350,6 +1418,21 @@ public class Decoder_instructions {
 
         } else {
             method.append("long eaa = "); getEaa(method, rm);
+            method.append("int index;");
+            method.append("if ((eaa & 0xFFF)<0xFFF && (index=Paging.getDirectIndex(eaa))>=0) {");
+            l = "Memory.host_readw(index)";
+            s = "Memory.host_writew(index, (int)Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLW(method, val,l, s);break;
+            case 0x01:RORW(method, val,l, s);break;
+            case 0x02:RCLW(method, val,l, s);break;
+            case 0x03:RCRW(method, val,l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLW(method, val,l, s);break;
+            case 0x05:SHRW(method, val,l, s);break;
+            case 0x07:SARW(method, val,l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readw(eaa)";
             s = "Memory.mem_writew(eaa, (int)Flags.lflags.res);";
         }
@@ -1363,6 +1446,8 @@ public class Decoder_instructions {
         case 0x05:SHRW(method, val,l, s);break;
         case 0x07:SARW(method, val,l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1382,6 +1467,21 @@ public class Decoder_instructions {
             method.append("long eaa = "); getEaa(method, rm);
             short blah = decode_fetchb();
             val=blah & 0x1f;
+            method.append("int index;");
+            method.append("if ((eaa & 0xFFF)<0xFFF && (index=Paging.getDirectIndex(eaa))>=0) {");
+            l = "Memory.host_readw(index)";
+            s = "Memory.host_writew(index, (int)Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLW(method, val,l, s);break;
+            case 0x01:RORW(method, val,l, s);break;
+            case 0x02:RCLW(method, val,l, s);break;
+            case 0x03:RCRW(method, val,l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLW(method, val,l, s);break;
+            case 0x05:SHRW(method, val,l, s);break;
+            case 0x07:SARW(method, val,l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readw(eaa)";
             s = "Memory.mem_writew(eaa, (int)Flags.lflags.res);";
         }
@@ -1395,6 +1495,8 @@ public class Decoder_instructions {
         case 0x05:SHRW(method, val,l, s);break;
         case 0x07:SARW(method, val,l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1410,6 +1512,21 @@ public class Decoder_instructions {
         } else {
             method.append("{long eaa = "); getEaa(method, rm);
             method.append("int val=");method.append(blah);method.append(" & 0x1f;");
+            method.append("int index;");
+            method.append("if ((eaa & 0xFFF)<0xFFD && (index=Paging.getDirectIndex(eaa))>=0) {");
+            l = "Memory.host_readd(index)";
+            s = "Memory.host_writed(index, Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLD(method, "val",l, s);break;
+            case 0x01:RORD(method, "val",l, s);break;
+            case 0x02:RCLD(method, "val",l, s);break;
+            case 0x03:RCRD(method, "val",l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLD(method, "val",l, s);break;
+            case 0x05:SHRD(method, "val",l, s);break;
+            case 0x07:SARD(method, "val",l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readd(eaa)";
             s = "Memory.mem_writed(eaa, Flags.lflags.res);";
         }
@@ -1423,6 +1540,8 @@ public class Decoder_instructions {
         case 0x05:SHRD(method, "val",l, s);break;
         case 0x07:SARD(method, "val",l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1439,6 +1558,21 @@ public class Decoder_instructions {
 
         } else {
             method.append("long eaa = "); getEaa(method, rm);
+            method.append("int index;");
+            method.append("if ((eaa & 0xFFF)<0xFFD && (index=Paging.getDirectIndex(eaa))>=0) {");
+            l = "Memory.host_readd(index)";
+            s = "Memory.host_writed(index, Flags.lflags.res);";
+            switch (which)	{
+            case 0x00:ROLD(method, val,l, s);break;
+            case 0x01:RORD(method, val,l, s);break;
+            case 0x02:RCLD(method, val,l, s);break;
+            case 0x03:RCRD(method, val,l, s);break;
+            case 0x04:/* SHL and SAL are the same */
+            case 0x06:SHLD(method, val,l, s);break;
+            case 0x05:SHRD(method, val,l, s);break;
+            case 0x07:SARD(method, val,l, s);break;
+            }
+            method.append("} else {");
             l = "Memory.mem_readd(eaa)";
             s = "Memory.mem_writed(eaa, Flags.lflags.res);";
         }
@@ -1452,6 +1586,8 @@ public class Decoder_instructions {
         case 0x05:SHRD(method, val,l, s);break;
         case 0x07:SARD(method, val,l, s);break;
         }
+        if (rm < 0xc0)
+            method.append("}");
         method.append("}");
     }
 
@@ -1552,7 +1688,7 @@ public class Decoder_instructions {
             else
                 ib=decode_fetchw();
             method.append("int index = Paging.getDirectIndex(eaa);");
-            method.append("if (index>=0) {");
+            method.append("if ((eaa & 0xFFF)<0xFFF && index>=0) {");
             if (which != 7) {
                 method.append("Memory.host_writew(index, ");
             }

@@ -3,6 +3,7 @@ package jdos.cpu.core_dynrec2;
 import javassist.*;
 
 import java.net.URLClassLoader;
+import java.util.Hashtable;
 
 import jdos.cpu.*;
 import jdos.misc.Log;
@@ -3991,12 +3992,12 @@ final public class Decoder extends Decoder_instructions {
                     EA16 = true;
                 }
                 if (result != RESULT_RETURN) {
-                //if (segChanged) {
-                    method.append("Core.base_ds=CPU.Segs_DSphys;");
-                    method.append("Core.base_ss=CPU.Segs_SSphys;");
-                    method.append("Core.base_val_ds=CPU_Regs.ds;");
-                    segChanged = false;
-                //}
+                    if (segChanged) {
+                        method.append("Core.base_ds=CPU.Segs_DSphys;");
+                        method.append("Core.base_ss=CPU.Segs_SSphys;");
+                        method.append("Core.base_val_ds=CPU_Regs.ds;");
+                        segChanged = false;
+                    }
                 }
             }
             if (result != RESULT_RETURN)
@@ -4045,6 +4046,9 @@ final public class Decoder extends Decoder_instructions {
 
             DynamicClass compiledCode = Cache.getCode(thedigest);
             if (compiledCode == null) {
+                compiledCode = (DynamicClass)codeCache.get(thedigest);
+            }
+            if (compiledCode == null) {
                 CtClass cacheBlock = pool.makeClass("CacheBlock"+(count++));
                 cacheBlock.setSuperclass(pool.getCtClass("jdos.cpu.core_dynrec2.DynamicClass"));
                 CtMethod m = CtNewMethod.make(method.toString(), cacheBlock);
@@ -4057,10 +4061,16 @@ final public class Decoder extends Decoder_instructions {
                 compiledCode = (DynamicClass)clazz.newInstance();
                 cacheBlock.detach();
                 Cache.cache_save(cacheBlock.getName(), thedigest, cacheBlock.toBytecode());
+                codeCache.put(thedigest, compiledCode);
+                compiled++;
+                if (compiled % 1000 == 0)
+                    System.out.println("Compiled: "+compiled);
             }
+            evaluated++;
+            if (evaluated % 1000 == 0)
+                System.out.println("Evaluated: "+evaluated);
             decode.block.code = compiledCode;
             decode.block.code.decode = decode;
-//            System.out.println(count+":"+method.toString());
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(method.toString());
@@ -4068,7 +4078,10 @@ final public class Decoder extends Decoder_instructions {
         decode.active_block.page.end=--decode.page.index;
         return decode.block;
     }
+    static public int compiled = 0;
+    static public int evaluated = 0;
 
+    static Hashtable codeCache = new Hashtable();
     public static String toHexString(byte[] bytes) {
         char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
         char[] hexChars = new char[bytes.length * 2];

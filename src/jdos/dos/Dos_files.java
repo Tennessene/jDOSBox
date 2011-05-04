@@ -787,7 +787,7 @@ public class Dos_files {
         System.arraycopy(b, 0, name, 0, b.length);
         byte[] ext = new byte[3];
         b = fcb_name.value.substring(fcb_name.value.lastIndexOf('.')+1).getBytes();
-        System.arraycopy(b, 0, ext, 0, b.length);
+        System.arraycopy(b, 0, ext, 0, Math.min(b.length, ext.length));
         /* Strip of the leading sepetaror */
         if((parser & PARSE_SEP_STOP)!=0 && string.length()>0)  {       //ignore leading seperator
             if (FCB_SEP.indexOf(string.charAt(0))>=0) string = string.substring(1);

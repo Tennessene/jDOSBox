@@ -1455,6 +1455,7 @@ public class Inst2 extends Helper {
             long eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
+            Core.base_ss=CPU.Segs_SSphys;
             return Constants.BR_Normal;
         }
     }

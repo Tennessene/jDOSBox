@@ -433,7 +433,7 @@ public class Prefix_none extends Helper {
         ops[0x26] = new Decode() {
             final public int call(Op prev) {
                 prev.next = new Inst1.SegES();
-                return RESULT_CONTINUE;
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x226] = ops[0x26];
@@ -522,7 +522,7 @@ public class Prefix_none extends Helper {
         ops[0x2e] = new Decode() {
             final public int call(Op prev) {
                 prev.next = new Inst1.SegCS();
-                return RESULT_CONTINUE;
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x22e] = ops[0x2e];
@@ -612,7 +612,7 @@ public class Prefix_none extends Helper {
         ops[0x36] = new Decode() {
             final public int call(Op prev) {
                 prev.next = new Inst1.SegSS();
-                return RESULT_CONTINUE;
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x236] = ops[0x36];
@@ -701,7 +701,7 @@ public class Prefix_none extends Helper {
         ops[0x3e] = new Decode() {
             final public int call(Op prev) {
                 prev.next = new Inst1.SegDS();
-                return RESULT_CONTINUE;
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x23e] = ops[0x3e];
@@ -1012,7 +1012,7 @@ public class Prefix_none extends Helper {
         ops[0x64] = new Decode() {
             final public int call(Op prev) {
                 prev.next = new Inst1.SegFS();
-                return RESULT_CONTINUE;
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x264] = ops[0x64];
@@ -1021,7 +1021,7 @@ public class Prefix_none extends Helper {
         ops[0x65] = new Decode() {
             final public int call(Op prev) {
                 prev.next = new Inst1.SegGS();
-                return RESULT_CONTINUE;
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x265] = ops[0x65];

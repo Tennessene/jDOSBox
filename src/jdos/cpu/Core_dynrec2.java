@@ -128,18 +128,6 @@ public class Core_dynrec2 {
                         return Data.callback;
                     case Constants.BR_CBRet_None:
                         return Callback.CBRET_NONE;
-                    case Constants.BR_Iret:
-                        if (Config.C_HEAVY_DEBUG)
-                            if (Debug.DEBUG_HeavyIsBreakpoint()) return Debug.debugCallback;
-
-                        if (CPU_Regs.GETFLAG(CPU_Regs.TF)==0) {
-                            if (CPU_Regs.GETFLAG(CPU_Regs.IF)!=0 && Pic.PIC_IRQCheck!=0) return Callback.CBRET_NONE;
-                            break;
-                        }
-                        // trapflag is set, switch to the trap-aware decoder
-                        CPU.cpudecoder=CPU_Core_Dynrec_Trap_Run;
-                        return Callback.CBRET_NONE;
-
                     case Constants.BR_Normal:
                         // the block was exited due to a non-predictable control flow
                         // modifying instruction (like ret) or some nontrivial cpu state

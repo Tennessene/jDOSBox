@@ -22,15 +22,6 @@ public class Core_dynamic {
 
     static public int instruction_count = 128;
 
-    static final public class _core_dynrec {
-        /*BlockReturn*/int runcode(CacheBlockDynRec block){
-            return block.code.call2();
-        }
-        /*Bitu*/int readdata;				// spare space used when reading from memory
-        /*Bit32u*/long[] protected_regs=new long[8];	// space to save/restore register values
-    }
-
-    public static final _core_dynrec core_dynrec = new _core_dynrec();
     public static void CPU_Core_Dynamic_Init() {
     }
 
@@ -95,17 +86,22 @@ public class Core_dynamic {
             while (CPU.CPU_Cycles>0) {
                 // Determine the linear address of CS:EIP
                 /*PhysPt*/long ip_point=CPU.Segs_CSphys+CPU_Regs.reg_eip;
+
+                Paging.PageHandler handler=Paging.get_tlb_readhandler((int)ip_point);
+                CodePageHandlerDynRec chandler=null;
                 int page_ip_point = (int)ip_point&4095;
 
-                CodePageHandlerDynRec chandler=null;
-
-                // see if the current page is present and contains code
-                if (Decoder_basic.MakeCodePage(ip_point, chandlerRef)) {
-                    // page not present, throw the exception
-                    CPU.CPU_Exception(CPU.cpu.exception.which,CPU.cpu.exception.error);
-                    continue;
+                if (handler != null && handler instanceof CodePageHandlerDynRec)
+                    chandler = (CodePageHandlerDynRec)handler;
+                if (chandler == null) {
+                    // see if the current page is present and contains code
+                    if (Decoder_basic.MakeCodePage(ip_point, chandlerRef)) {
+                        // page not present, throw the exception
+                        CPU.CPU_Exception(CPU.cpu.exception.which,CPU.cpu.exception.error);
+                        continue;
+                    }
+                    chandler = chandlerRef.value;
                 }
-                chandler = chandlerRef.value;
                 // page doesn't contain code or is special
                 if (chandler==null)
                     return Core_normal.CPU_Core_Normal_Run.call();
@@ -136,25 +132,13 @@ public class Core_dynamic {
                 while (true) {
                     // now we're ready to run the dynamic code block
             //		BlockReturn ret=((BlockReturn (*)(void))(block->cache.start))();
-                    /*BlockReturn*/int ret=core_dynrec.runcode(block);
+                    /*BlockReturn*/int ret=block.code.call2();
 
                     switch (ret) {
                     case Constants.BR_CBRet_None:
                         return Callback.CBRET_NONE;
-                    case Constants.BR_Iret:
-                        if (Config.C_HEAVY_DEBUG)
-                            if (Debug.DEBUG_HeavyIsBreakpoint()) return Debug.debugCallback;
-
-                        if (CPU_Regs.GETFLAG(CPU_Regs.TF)==0) {
-                            if (CPU_Regs.GETFLAG(CPU_Regs.IF)!=0 && Pic.PIC_IRQCheck!=0) return Callback.CBRET_NONE;
-                            break;
-                        }
-                        // trapflag is set, switch to the trap-aware decoder
-                        CPU.cpudecoder=CPU_Core_Dynrec_Trap_Run;
-                        return Callback.CBRET_NONE;
 
                     case Constants.BR_Normal:
-                    case Constants.BR_Continue:
                     case Constants.BR_Jump:
                         // the block was exited due to a non-predictable control flow
                         // modifying instruction (like ret) or some nontrivial cpu state

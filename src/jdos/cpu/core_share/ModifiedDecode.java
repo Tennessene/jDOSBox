@@ -48,6 +48,6 @@ public class ModifiedDecode {
             CPU_Regs.reg_eip = Core.cseip - CPU.Segs_CSphys;
             break;
         }
-        return Constants.BR_Normal;
+        return Constants.BR_Jump;
     }
 }

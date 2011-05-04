@@ -849,9 +849,9 @@ final public class Decoder extends Decoder_instructions {
                         case 0x01:					/* MOV Ew,CS */
                             val="CPU.Segs_CSval";break;
                         case 0x02:					/* MOV Ew,SS */
-                            val="CPU.Segs_SSval";segChanged = true;break;
+                            val="CPU.Segs_SSval";break;
                         case 0x03:					/* MOV Ew,DS */
-                            val="CPU.Segs_DSval";segChanged = true;break;
+                            val="CPU.Segs_DSval";break;
                         case 0x04:					/* MOV Ew,FS */
                             val="CPU.Segs_FSval";break;
                         case 0x05:					/* MOV Ew,GS */
@@ -989,8 +989,8 @@ final public class Decoder extends Decoder_instructions {
                             returnTrap(method);
                             method.append("}");
                         }
-                        method.append("}");
-                        result = RESULT_CONTINUE;
+                        method.append("} return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* WAIT */
@@ -1560,7 +1560,8 @@ final public class Decoder extends Decoder_instructions {
                         SAVEIP(method);
                         method.append("CPU.CPU_Push16((int)(CPU_Regs.reg_eip() & 0xFFFFl));");
                         method.append("CPU_Regs.reg_eip((CPU_Regs.reg_eip()+");method.append(addip);method.append(") & 0xFFFFl);");
-                        result = RESULT_CONTINUE;
+                        method.append("return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* JMP Jw */
@@ -1569,7 +1570,8 @@ final public class Decoder extends Decoder_instructions {
                         int addip=decode_fetchws();
                         SAVEIP(method);
                         method.append("CPU_Regs.reg_eip((CPU_Regs.reg_eip()+");method.append(addip);method.append(") & 0xFFFFl);");
-                        result = RESULT_CONTINUE;
+                        method.append("return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* JMP Ap */
@@ -1585,8 +1587,8 @@ final public class Decoder extends Decoder_instructions {
                             returnTrap(method);
                             method.append("}");
                         }
-                        method.append("}");
-                        result = RESULT_CONTINUE;
+                        method.append("} return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* JMP Jb */
@@ -1595,7 +1597,8 @@ final public class Decoder extends Decoder_instructions {
                         short addip=decode_fetchbs();
                         SAVEIP(method);
                         method.append("CPU_Regs.reg_eip((CPU_Regs.reg_eip()+");method.append(addip);method.append(") & 0xFFFF);");
-                        result = RESULT_CONTINUE;
+                        method.append("return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* IN AL,DX */
@@ -3026,9 +3029,9 @@ final public class Decoder extends Decoder_instructions {
                         case 0x01:					/* MOV Ew,CS */
                             val="CPU.Segs_CSval";break;
                         case 0x02:					/* MOV Ew,SS */
-                            val="CPU.Segs_SSval";segChanged = true;break;
+                            val="CPU.Segs_SSval";break;
                         case 0x03:					/* MOV Ew,DS */
-                            val="CPU.Segs_DSval";segChanged = true;break;
+                            val="CPU.Segs_DSval";break;
                         case 0x04:					/* MOV Ew,FS */
                             val="CPU.Segs_FSval";break;
                         case 0x05:					/* MOV Ew,GS */
@@ -3124,8 +3127,8 @@ final public class Decoder extends Decoder_instructions {
                             returnTrap(method);
                             method.append("}");
                         }
-                        method.append("}");
-                        result = RESULT_CONTINUE;
+                        method.append("} return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* PUSHFD */
@@ -3384,7 +3387,8 @@ final public class Decoder extends Decoder_instructions {
                         SAVEIP(method);
                         method.append("CPU.CPU_Push32(CPU_Regs.reg_eip());");
                         method.append("CPU_Regs.reg_eip(CPU_Regs.reg_eip()+");method.append(addip);method.append(");");
-                        result = RESULT_CONTINUE;
+                        method.append("return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* JMP Jd */
@@ -3393,7 +3397,8 @@ final public class Decoder extends Decoder_instructions {
                         int addip=decode_fetchds();
                         SAVEIP(method);
                         method.append("CPU_Regs.reg_eip(CPU_Regs.reg_eip()+");method.append(addip);method.append(");");
-                        result = RESULT_CONTINUE;
+                        method.append("return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* JMP Ad */
@@ -3409,8 +3414,8 @@ final public class Decoder extends Decoder_instructions {
                             returnTrap(method);
                             method.append("}");
                         }
-                        result = RESULT_CONTINUE;
-                        method.append("}");
+                        method.append("} return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* JMP Jb */
@@ -3419,7 +3424,8 @@ final public class Decoder extends Decoder_instructions {
                         int addip=decode_fetchbs();
                         SAVEIP(method);
                         method.append("CPU_Regs.reg_eip(CPU_Regs.reg_eip()+");method.append(addip);method.append(");");
-                        result = RESULT_CONTINUE;
+                        method.append("return Constants.BR_Link1;");
+                        result = RESULT_RETURN;
                         break;
                     }
                     /* IN EAX,DX */
@@ -3766,7 +3772,6 @@ final public class Decoder extends Decoder_instructions {
                             method.append("{long eaa = ");getEaa(method, rm);
                             method.append("if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+4)))");RUNEXCEPTION(method);
                             method.append(getrd(rm));method.append("(Memory.mem_readd(eaa));}");
-                            segChanged = true;
                         }
                         break;
                     }
@@ -3779,7 +3784,6 @@ final public class Decoder extends Decoder_instructions {
                             method.append("{long eaa = ");getEaa(method, rm);
                             method.append("if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+4)))");RUNEXCEPTION(method);
                             method.append(getrd(rm));method.append("(Memory.mem_readd(eaa));}");
-                            segChanged = true;
                         }
                         break;
                     }

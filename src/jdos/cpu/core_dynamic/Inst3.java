@@ -240,6 +240,7 @@ public class Inst3 extends Helper {
     final static public class Pop32SS extends Op {
         public int call() {
             if (CPU.CPU_PopSegSS(true)) return RUNEXCEPTION();
+            Core.base_ss=CPU.Segs_SSphys;
             return Constants.BR_Normal;
         }
     }
@@ -321,6 +322,8 @@ public class Inst3 extends Helper {
     final static public class Pop32DS extends Op {
         public int call() {
             if (CPU.CPU_PopSegDS(true)) return RUNEXCEPTION();
+            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;
         }
     }
@@ -1515,6 +1518,9 @@ public class Inst3 extends Helper {
             Core.base_ds=Core.base_ss=0;
             long eaa = get_eaa.call();
             rd.dword(eaa);
+            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;
         }
     }
@@ -1532,6 +1538,9 @@ public class Inst3 extends Helper {
             Core.base_ds=Core.base_ss=0;
             long eaa = get_eaa.call();
             rd.dword(eaa);
+            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;
         }
     }
@@ -1609,7 +1618,7 @@ public class Inst3 extends Helper {
                     return Constants.BR_CBRet_None;
                 }
             }
-            return Constants.BR_Jump;
+            return Constants.BR_Link1;
         }
     }
 
@@ -1698,14 +1707,14 @@ public class Inst3 extends Helper {
         public int call() {
             reg_eip(CPU.CPU_Pop32());
             reg_esp.dword(reg_esp.dword()+offset);
-            return Constants.BR_Normal;
+            return Constants.BR_Jump;
         }
     }
 
     final static public class Retn32 extends Op {
         public int call() {
             reg_eip(CPU.CPU_Pop32());
-            return Constants.BR_Normal;
+            return Constants.BR_Jump;
         }
     }
 
@@ -1735,6 +1744,9 @@ public class Inst3 extends Helper {
             long eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
             rd.dword(Memory.mem_readd(eaa));
+            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;
         }
     }
@@ -1893,7 +1905,7 @@ public class Inst3 extends Helper {
             reg_eip(eip);
             CPU.CPU_Push32(reg_eip());
             reg_eip(reg_eip()+addip);
-            return Constants.BR_Jump;
+            return Constants.BR_Link1;
         }
     }
 
@@ -1907,7 +1919,7 @@ public class Inst3 extends Helper {
         public int call() {
             reg_eip(eip);
             reg_eip(reg_eip()+addip);
-            return Constants.BR_Jump;
+            return Constants.BR_Link1;
         }
     }
 
@@ -1929,7 +1941,7 @@ public class Inst3 extends Helper {
                     return Constants.BR_CBRet_None;
                 }
             }
-            return Constants.BR_Jump;
+            return Constants.BR_Link1;
         }
     }
 
@@ -1943,7 +1955,7 @@ public class Inst3 extends Helper {
         public int call() {
             reg_eip(eip);
             reg_eip(reg_eip()+addip);
-            return Constants.BR_Jump;
+            return Constants.BR_Link1;
         }
     }
 

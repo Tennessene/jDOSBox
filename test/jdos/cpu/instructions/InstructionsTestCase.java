@@ -8,8 +8,8 @@ import jdos.misc.setup.*;
 
 public class InstructionsTestCase extends TestCase {
     //static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
-    //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
-    static CPU.CPU_Decoder decoder = Core_dynrec2.CPU_Core_Dynrec_Run;
+    static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
+    //static CPU.CPU_Decoder decoder = Core_dynrec2.CPU_Core_Dynrec_Run;
     protected int cseip = 0x10000;
     protected final static int MEM_BASE_DS = 0x2000;
     protected final static int MEM_BASE_SS = 0x3000;
@@ -84,6 +84,7 @@ public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIw((short)value);
+        Mod.ed(rm).dword(0xABCDEF12);
         Mod.ew(rm).word(eb);
         decoder.call();
         assertTrue((short) Mod.ew(rm).word()==(short)result);
@@ -111,6 +112,7 @@ public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb(value);
+        Mod.ed(rm).dword(0xABCDEF12);
         Mod.ew(rm).word(eb);
         decoder.call();
         assertTrue((short) Mod.ew(rm).word()==(short)result);
@@ -137,6 +139,8 @@ public class InstructionsTestCase extends TestCase {
         int flags = CPU_Regs.flags;
         newInstruction(op);
         pushIb((byte)rm);
+        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.gd(rm).dword(0xABCDEF12);
         Mod.gd(rm).word(gd);
         Mod.ed(rm).word(ed);
         decoder.call();
@@ -171,6 +175,7 @@ public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIw((short)value);
+        Mod.ed(rm).dword(0xABCDEF12);
         Mod.ew(rm).word(eb);
         decoder.call();
         assertFlags(state);
@@ -198,6 +203,7 @@ public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb(value);
+        Mod.ed(rm).dword(0xABCDEF12);
         Mod.ew(rm).word(eb);
         decoder.call();
         assertFlags(state);
@@ -224,6 +230,8 @@ public class InstructionsTestCase extends TestCase {
         int flags = CPU_Regs.flags;
         newInstruction(op);
         pushIb((byte)rm);
+        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.gd(rm).dword(0xABCDEF12);
         Mod.gd(rm).word(gd);
         Mod.ed(rm).word(ed);
         decoder.call();
@@ -251,6 +259,7 @@ public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xc0+rm+i));
             pushIw((short)value);
+            Mod.ed(rm+i).dword(0xABCDEF12);
             Mod.ew(rm+i).word(eb);
             decoder.call();
             assertTrue("rm = "+(0xC0+rm+i), (short) Mod.ew(rm+i).word()==(short)result);
@@ -262,6 +271,7 @@ public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xc0+rm+i));
             pushIb(value);
+            Mod.ed(rm+i).dword(0xABCDEF12);
             Mod.ew(rm+i).word(eb);
             decoder.call();
             assertTrue("rm = "+(0xC0+rm+i), (short) Mod.ew(rm+i).word()==(short)result);
@@ -272,6 +282,8 @@ public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
+            Mod.ed(rm).dword(0xABCDEF12);
+            Mod.gd(rm).dword(0xABCDEF12);
             Mod.gw(rm).word(gw);
             Mod.ew(rm).word(ew);
             decoder.call();
@@ -294,6 +306,7 @@ public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xC0+rm+i));
             pushIw((short)value);
+            Mod.ed(rm).dword(0xABCDEF12);
             Mod.ew(rm).word(eb);
             decoder.call();
             assertTrue("rm = "+rm, Flags.TFLG_L());
@@ -305,6 +318,7 @@ public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xC0+rm+i));
             pushIb(value);
+            Mod.ed(rm).dword(0xABCDEF12);
             Mod.ew(rm).word(eb);
             decoder.call();
             assertTrue("rm = "+rm, Flags.TFLG_L());
@@ -315,6 +329,8 @@ public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
+            Mod.ed(rm).dword(0xABCDEF12);
+            Mod.gd(rm).dword(0xABCDEF12);
             Mod.gw(rm).word(gw);
             Mod.ew(rm).word(ew);
             decoder.call();
@@ -331,6 +347,8 @@ public class InstructionsTestCase extends TestCase {
         int flags = CPU_Regs.flags;
         newInstruction(op);
         pushIb((byte)rm);
+        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.gd(rm).dword(0xABCDEF12);
         Mod.gb(rm).set8((short)gb);
         Mod.eb(rm).set8((short)eb);
         decoder.call();
@@ -365,6 +383,7 @@ public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb((byte)value);
+        Mod.ed(rm).dword(0xABCDEF12);
         Mod.eb(rm).set8((short)eb);
         decoder.call();
         assertTrue((byte) Mod.eb(rm).get8()==(byte)result);
@@ -407,6 +426,7 @@ public class InstructionsTestCase extends TestCase {
 
         newInstruction(op);
         pushIb((byte)0x00);
+        Mod.gd(rm).dword(0xABCDEF12);
         Mod.gb(rm).set8((short)gb);
         Memory.mem_writeb(MEM_BASE_DS, eb);
         Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
@@ -427,6 +447,7 @@ public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb((byte)value);
+        Mod.ed(rm).dword(0xABCDEF12);
         Mod.eb(rm).set8((short)eb);
         decoder.call();
         assertFlags(state);
@@ -452,6 +473,8 @@ public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
+            Mod.ed(rm).dword(0xABCDEF12);
+            Mod.gd(rm).dword(0xABCDEF12);
             Mod.gb(rm).set8((short)gb);
             Mod.eb(rm).set8((short)eb);
             decoder.call();
@@ -474,6 +497,7 @@ public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xc0+rm+i));
             pushIb(value);
+            Mod.ed(rm+i).dword(0xABCDEF12);
             Mod.eb(rm+i).set8((short)eb);
             decoder.call();
             assertTrue("rm = "+(0xC0+rm+i), (byte) Mod.eb(rm+i).get8()==(byte)result);
@@ -484,6 +508,8 @@ public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
+            Mod.ed(rm).dword(0xABCDEF12);
+            Mod.gd(rm).dword(0xABCDEF12);
             Mod.gb(rm).set8((short)gb);
             Mod.eb(rm).set8((short)eb);
             decoder.call();
@@ -500,6 +526,7 @@ public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xC0+rm+i));
             pushIb((byte)value);
+            Mod.ed(rm).dword(0xABCDEF12);
             Mod.eb(rm).set8((short)eb);
             decoder.call();
             assertTrue("rm = "+rm, Flags.TFLG_L());

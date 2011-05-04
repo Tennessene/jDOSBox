@@ -22,6 +22,15 @@ public class Decoder extends Inst1 {
         }
         public int call() {
             CPU_Regs.reg_eip+=instructions;
+            return Constants.BR_Jump;
+        }
+    }
+
+    private static class HandledSegChange extends Op {
+        public int call() {
+            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_val_ds=ds;
             return Constants.BR_Normal;
         }
     }
@@ -66,7 +75,8 @@ public class Decoder extends Inst1 {
 
         Op op = new StartDecode();
         Op start_op = op;
-
+        boolean seg_changed = false;
+        int opcode = 0;
         while (max_opcodes-->0 && result==0) {
             // Init prefixes
             decode.big_addr=CPU.cpu.code.big;
@@ -78,7 +88,7 @@ public class Decoder extends Inst1 {
             decode.op_start=decode.code;
             decode.modifiedAlot = false;
 
-            int opcode=opcode_index+decode_fetchb();
+            opcode=opcode_index+decode_fetchb();
             result = ops[opcode].call(op);
             if (decode.modifiedAlot) {
                 result = RESULT_ILLEGAL_INSTRUCTION;
@@ -103,6 +113,11 @@ public class Decoder extends Inst1 {
                 result = RESULT_HANDLED;
                 max_opcodes++;
                 continue;
+            } if (result == RESULT_CONTINUE_SEG) {
+                result = RESULT_HANDLED;
+                max_opcodes++;
+                seg_changed = true;
+                continue;
             } else if (result == RESULT_ANOTHER) {
                 result = RESULT_HANDLED;
                 max_opcodes++;
@@ -115,6 +130,12 @@ public class Decoder extends Inst1 {
                 opcode_index=0;
                 prefixes=0;
                 EA16 = true;
+            }
+            if (seg_changed && result==0) {
+                seg_changed = false;
+                op.next = new HandledSegChange();
+                op = op.next;
+                op.c = -1;
             }
         }
         Cache.cache_closeblock();

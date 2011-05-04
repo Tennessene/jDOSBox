@@ -610,6 +610,9 @@ static abstract public class JumpCond32_d extends Op {
             long eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
             rd.dword(Memory.mem_readd(eaa));
+            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;
         }
     }

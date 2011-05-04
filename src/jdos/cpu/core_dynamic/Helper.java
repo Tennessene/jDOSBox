@@ -27,6 +27,7 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_RETURN = 4;
     public final static int RESULT_ANOTHER = 5;
     public final static int RESULT_JUMP = 6;
+    public final static int RESULT_CONTINUE_SEG = 7;
 
     public static long iGETIP() {
         return CPU_Regs.reg_eip + (decode.code - decode.code_start);

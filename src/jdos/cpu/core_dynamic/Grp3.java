@@ -23,10 +23,8 @@ public class Grp3 extends Helper {
     static public class Testb_mem extends Op {
         short val;
         EaaBase get_eaa;
-        boolean ea16;
 
         public Testb_mem(int rm) {
-            this.ea16 = EA16;
             this.get_eaa = Mod.getEaa(rm);
             this.val=decode_fetchb();
         }

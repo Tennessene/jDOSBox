@@ -29,13 +29,4 @@ public final class DynDecode {
         /*Bitu*/int first;		// page number
     }
     public final Page page = new Page();
-
-    // modrm state of the current instruction (if used)
-    static public final class Modrm {
-        /*Bitu*/int val;
-        /*Bitu*/int mod;
-        /*Bitu*/int rm;
-        /*Bitu*/int reg;
-    }
-    final public Modrm modrm = new Modrm();
 }

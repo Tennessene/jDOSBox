@@ -159,16 +159,70 @@ public class Eaa extends Helper {
         public /*PhysPt*/long call() { return (Core.base_ds+reg_ebx.dword()) & 0xFFFFFFFFl; }
     }
     final static public class EA_32_04_n implements EaaBase {
+        boolean ds;
+        Reg reg;
+        Reg reg2;
         int sib;
-        long inst=0;
 
         public EA_32_04_n() {
             sib = decode_fetchb();
-            if ((sib & 7)==5) {
-                inst = decode_fetchd();
+            ds = true;
+            switch (sib&7) {
+            case 0:	/* EAX Base */
+                reg = reg_eax;break;
+            case 1:	/* ECX Base */
+                reg = reg_ecx;break;
+            case 2:	/* EDX Base */
+                reg = reg_edx;break;
+            case 3:	/* EBX Base */
+                reg = reg_ebx;break;
+            case 4:	/* ESP Base */
+                ds = false;
+                reg = reg_esp;break;
+            case 5:	/* #1 Base */
+                reg = new Reg();
+                reg.dword(decode_fetchd());
+                break;
+            case 6:	/* ESI Base */
+                reg = reg_esi;break;
+            case 7:	/* EDI Base */
+                reg = reg_edi;break;
             }
+            int index =(sib >> 3) & 7;
+            switch (index) {
+                case 0:
+                    reg2 = reg_eax;
+                    break;
+                case 1:
+                    reg2 = reg_ecx;
+                    break;
+                case 2:
+                    reg2 = reg_edx;
+                    break;
+                case 3:
+                    reg2 = reg_ebx;
+                    break;
+                case 4:
+                    reg2 = new Reg();
+                    reg2.dword(0);
+                    break;
+                case 5:
+                    reg2 = reg_ebp;
+                    break;
+                case 6:
+                    reg2 = reg_esi;
+                    break;
+                case 7:
+                    reg2 = reg_edi;
+                    break;
+            }
+            sib = sib >> 6;
         }
-        public /*PhysPt*/long call() { return Sib0(sib, inst);}
+        public /*PhysPt*/long call() {
+            if (ds)
+                return (Core.base_ds+reg.dword()+(reg2.dword() << sib)) & 0xFFFFFFFFl;
+            return (Core.base_ss+reg.dword()+(reg2.dword() << sib)) & 0xFFFFFFFFl;
+        }
     }
     final static public class EA_32_05_n implements EaaBase {
         long i;
@@ -214,12 +268,71 @@ public class Eaa extends Helper {
     }
     final static public class EA_32_44_n implements EaaBase {
         int i;
+
+        boolean ds;
+        Reg reg;
+        Reg reg2;
         int sib;
+
         public EA_32_44_n() {
             sib = decode_fetchb();
             i = decode_fetchbs();
+            ds = true;
+            switch (sib&7) {
+            case 0:	/* EAX Base */
+                reg = reg_eax;break;
+            case 1:	/* ECX Base */
+                reg = reg_ecx;break;
+            case 2:	/* EDX Base */
+                reg = reg_edx;break;
+            case 3:	/* EBX Base */
+                reg = reg_ebx;break;
+            case 4:	/* ESP Base */
+                ds = false;
+                reg = reg_esp;break;
+            case 5:	/* #1 Base */
+                ds = false;
+                reg = reg_ebp;break;
+            case 6:	/* ESI Base */
+                reg = reg_esi;break;
+            case 7:	/* EDI Base */
+                reg = reg_edi;break;
+            }
+            int index =(sib >> 3) & 7;
+            switch (index) {
+                case 0:
+                    reg2 = reg_eax;
+                    break;
+                case 1:
+                    reg2 = reg_ecx;
+                    break;
+                case 2:
+                    reg2 = reg_edx;
+                    break;
+                case 3:
+                    reg2 = reg_ebx;
+                    break;
+                case 4:
+                    reg2 = new Reg();
+                    reg2.dword(0);
+                    break;
+                case 5:
+                    reg2 = reg_ebp;
+                    break;
+                case 6:
+                    reg2 = reg_esi;
+                    break;
+                case 7:
+                    reg2 = reg_edi;
+                    break;
+            }
+            sib = sib >> 6;
         }
-        public /*PhysPt*/long call() { return (Sib(sib)+i) & 0xFFFFFFFFl;}
+        public /*PhysPt*/long call() {
+            if (ds)
+                return (Core.base_ds+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
+            return (Core.base_ss+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
+        }
     }
     final static public class EA_32_45_n implements EaaBase {
         int i;
@@ -273,12 +386,71 @@ public class Eaa extends Helper {
     }
     final static public class EA_32_84_n implements EaaBase {
         long i;
+
+        boolean ds;
+        Reg reg;
+        Reg reg2;
         int sib;
+
         public EA_32_84_n() {
             sib = decode_fetchb();
             i = decode_fetchds();
+            ds = true;
+            switch (sib&7) {
+            case 0:	/* EAX Base */
+                reg = reg_eax;break;
+            case 1:	/* ECX Base */
+                reg = reg_ecx;break;
+            case 2:	/* EDX Base */
+                reg = reg_edx;break;
+            case 3:	/* EBX Base */
+                reg = reg_ebx;break;
+            case 4:	/* ESP Base */
+                ds = false;
+                reg = reg_esp;break;
+            case 5:	/* #1 Base */
+                ds = false;
+                reg = reg_ebp;break;
+            case 6:	/* ESI Base */
+                reg = reg_esi;break;
+            case 7:	/* EDI Base */
+                reg = reg_edi;break;
+            }
+            int index =(sib >> 3) & 7;
+            switch (index) {
+                case 0:
+                    reg2 = reg_eax;
+                    break;
+                case 1:
+                    reg2 = reg_ecx;
+                    break;
+                case 2:
+                    reg2 = reg_edx;
+                    break;
+                case 3:
+                    reg2 = reg_ebx;
+                    break;
+                case 4:
+                    reg2 = new Reg();
+                    reg2.dword(0);
+                    break;
+                case 5:
+                    reg2 = reg_ebp;
+                    break;
+                case 6:
+                    reg2 = reg_esi;
+                    break;
+                case 7:
+                    reg2 = reg_edi;
+                    break;
+            }
+            sib = sib >> 6;
         }
-        public /*PhysPt*/long call() { return (Sib(sib)+i) & 0xFFFFFFFFl;}
+        public /*PhysPt*/long call() {
+            if (ds)
+                return (Core.base_ds+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
+            return (Core.base_ss+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
+        }
     }
     final static public class EA_32_85_n implements EaaBase {
         long i;
@@ -300,105 +472,5 @@ public class Eaa extends Helper {
             i = decode_fetchds();
         }
         public /*PhysPt*/long call() { return (Core.base_ds+reg_edi.dword()+i) & 0xFFFFFFFFl; }
-    }
-
-    static private /*PhysPt*/long Sib0(int sib, long inst) {
-        /*PhysPt*/long base=0;
-        switch (sib&7) {
-        case 0:	/* EAX Base */
-            base=Core.base_ds+reg_eax.dword();break;
-        case 1:	/* ECX Base */
-            base=Core.base_ds+reg_ecx.dword();break;
-        case 2:	/* EDX Base */
-            base=Core.base_ds+reg_edx.dword();break;
-        case 3:	/* EBX Base */
-            base=Core.base_ds+reg_ebx.dword();break;
-        case 4:	/* ESP Base */
-            base=Core.base_ss+reg_esp.dword();break;
-        case 5:	/* #1 Base */
-            base=Core.base_ds+inst;break;
-        case 6:	/* ESI Base */
-            base=Core.base_ds+reg_esi.dword();break;
-        case 7:	/* EDI Base */
-            base=Core.base_ds+reg_edi.dword();break;
-        }
-        int index =(sib >> 3) & 7;
-        switch (index) {
-            case 0:
-                base+=reg_eax.dword() << (sib >> 6);
-                break;
-            case 1:
-                base+=reg_ecx.dword() << (sib >> 6);
-                break;
-            case 2:
-                base+=reg_edx.dword() << (sib >> 6);
-                break;
-            case 3:
-                base+=reg_ebx.dword() << (sib >> 6);
-                break;
-            case 4:
-                //base+=SIBZero << (sib >> 6);
-                break;
-            case 5:
-                base+=reg_ebp.dword() << (sib >> 6);
-                break;
-            case 6:
-                base+=reg_esi.dword() << (sib >> 6);
-                break;
-            case 7:
-                base+=reg_edi.dword() << (sib >> 6);
-                break;
-        }
-        return base & 0xFFFFFFFFl;
-    }
-
-    static private /*PhysPt*/long Sib(/*Bitu*/int sib) {
-        /*PhysPt*/long base=0;
-        switch (sib&7) {
-        case 0:	/* EAX Base */
-            base=Core.base_ds+reg_eax.dword();break;
-        case 1:	/* ECX Base */
-            base=Core.base_ds+reg_ecx.dword();break;
-        case 2:	/* EDX Base */
-            base=Core.base_ds+reg_edx.dword();break;
-        case 3:	/* EBX Base */
-            base=Core.base_ds+reg_ebx.dword();break;
-        case 4:	/* ESP Base */
-            base=Core.base_ss+reg_esp.dword();break;
-        case 5:	/* #1 Base */
-            base=Core.base_ss+reg_ebp.dword();break;
-        case 6:	/* ESI Base */
-            base=Core.base_ds+reg_esi.dword();break;
-        case 7:	/* EDI Base */
-            base=Core.base_ds+reg_edi.dword();break;
-        }
-        int index =(sib >> 3) & 7;
-        switch (index) {
-            case 0:
-                base+=reg_eax.dword() << (sib >> 6);
-                break;
-            case 1:
-                base+=reg_ecx.dword() << (sib >> 6);
-                break;
-            case 2:
-                base+=reg_edx.dword() << (sib >> 6);
-                break;
-            case 3:
-                base+=reg_ebx.dword() << (sib >> 6);
-                break;
-            case 4:
-                //base+=SIBZero << (sib >> 6);
-                break;
-            case 5:
-                base+=reg_ebp.dword() << (sib >> 6);
-                break;
-            case 6:
-                base+=reg_esi.dword() << (sib >> 6);
-                break;
-            case 7:
-                base+=reg_edi.dword() << (sib >> 6);
-                break;
-        }
-        return base & 0xFFFFFFFFl;
     }
 }

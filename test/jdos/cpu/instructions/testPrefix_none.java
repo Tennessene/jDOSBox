@@ -2407,7 +2407,7 @@ public class testPrefix_none extends InstructionsTestCase{
     //MOV Ew,Gw
     public void testMovEwGw() {
         runRegsw((byte)0x89, 0x00, 0x0FFF, false, 0x0FFF, 0x00);
-        runRegw((byte)0x89, 0x1AB, 0x2CD, false, 0x2CD);
+        runRegw((byte)0x89, 0x1AB, 0x2CE, false, 0x2CE);
     }
 
     // 0x8A
@@ -2422,5 +2422,76 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testMovGwEw() {
         runRegsw((byte)0x8b, 0x0FFF, 0x00, true, 0x0FFF, 0x0FFF);
         runRegw((byte)0x8b, 0x1AB, 0x2CD, true, 0x1AB);
+    }
+
+    // 0x8c
+    //Mov Ew,Sw
+    public void testMovEwSw() {
+        newInstruction((byte)0x8c);
+        pushIb((byte)0xC0);
+        CPU.Segs_ESval = 0x1234;
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0x1234);
+
+//        newInstruction((byte)0x8c);
+//        pushIb((byte)(0xC0 + (1<<3) + 1));
+//        decoder.call();
+//        assertTrue(CPU_Regs.reg_ecx.dword()==0x1234);
+
+        newInstruction((byte)0x8c);
+        pushIb((byte)(0xC0 + (2<<3) + 2));
+        CPU.Segs_SSval = 0x1234;
+        decoder.call();
+        assertTrue(CPU_Regs.reg_edx.dword()==0x1234);
+
+        newInstruction((byte)0x8c);
+        pushIb((byte)(0xC0 + (3<<3) + 3));
+        CPU.Segs_DSval = 0x1234;
+        decoder.call();
+        assertTrue(CPU_Regs.reg_ebx.dword()==0x1234);
+
+        newInstruction((byte)0x8c);
+        pushIb((byte)(0xC0 + (4<<3) + 4));
+        CPU.Segs_FSval = 0x1234;
+        decoder.call();
+        assertTrue(CPU_Regs.reg_esp.dword()==0x1234);
+
+        newInstruction((byte)0x8c);
+        pushIb((byte)(0xC0 + (5<<3) + 5));
+        CPU.Segs_GSval = 0x1234;
+        decoder.call();
+        assertTrue(CPU_Regs.reg_ebp.dword()==0x1234);
+
+        newInstruction((byte)0x8c);
+        pushIb((byte)0x0);
+        Memory.mem_writew(MEM_BASE_DS-2, 0xCDCD);
+        Memory.mem_writew(MEM_BASE_DS, 0);
+        Memory.mem_writew(MEM_BASE_DS+2, 0xCDCD);
+        CPU.Segs_ESval = 0x1234;
+        decoder.call();
+        assertTrue(Memory.mem_readw(MEM_BASE_DS)==0x1234);
+        Memory.mem_writew(MEM_BASE_DS-2, 0);
+        Memory.mem_writew(MEM_BASE_DS, 0);
+        Memory.mem_writew(MEM_BASE_DS+2, 0);
+    }
+
+    // 0x8d
+    //LEA Gw
+    public void testLeaGw() {
+        newInstruction((byte)0x8d);
+        CPU_Regs.reg_ebx.dword(0xFF);
+        CPU_Regs.reg_esi.dword(0xFFF0);
+        pushIb((byte)0x0);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xEF);
+
+        newInstruction((byte)0x67);
+        pushIb((byte)0x8d);
+        CPU_Regs.reg_ebx.dword(0xFF);
+        CPU_Regs.reg_esi.dword(0xFFF0);
+        CPU_Regs.reg_ecx.dword(0xABCDEF01);
+        pushIb((byte)0x1);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xEF01);
     }
 }

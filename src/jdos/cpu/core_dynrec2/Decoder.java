@@ -64,7 +64,7 @@ final public class Decoder extends Decoder_instructions {
 
         StringBuffer method = new StringBuffer();
         try {
-            method.append("public int call2() {");
+            method.append("public int call() {");
             decode.cycles = 0;
             int result = 0;
             int callback = 0;
@@ -4054,7 +4054,7 @@ final public class Decoder extends Decoder_instructions {
             }
             if (compiledCode == null) {
                 CtClass cacheBlock = pool.makeClass("CacheBlock"+(count++));
-                cacheBlock.setSuperclass(pool.getCtClass("jdos.cpu.core_dynrec2.DynamicClass"));
+                cacheBlock.setInterfaces(new CtClass[]{pool.getCtClass("jdos.cpu.core_dynrec2.DynamicClass")});
                 CtMethod m = CtNewMethod.make(method.toString(), cacheBlock);
                 cacheBlock.addMethod(m);
                 // Make the dynamic class belong to its own class loader so that when we
@@ -4074,7 +4074,6 @@ final public class Decoder extends Decoder_instructions {
             if (evaluated % 1000 == 0)
                 System.out.println("Evaluated: "+evaluated);
             decode.block.code = compiledCode;
-            decode.block.code.decode = decode;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(method.toString());

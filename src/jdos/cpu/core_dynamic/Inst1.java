@@ -3789,10 +3789,9 @@ public class Inst1 extends Helper {
 
     final static public class JmpEv_reg extends Op {
         Reg earw;
-        int eip;
+
         public JmpEv_reg(int rm) {
             earw = Mod.ew(rm);
-            eip = (int)(iGETIP() & 0xFFFFl);
         }
         public int call() {
             reg_eip(earw.word());
@@ -3802,10 +3801,9 @@ public class Inst1 extends Helper {
 
     final static public class JmpEv_mem extends Op {
         EaaBase get_eaa;
-        int eip;
+
         public JmpEv_mem(int rm) {
             this.get_eaa = Mod.getEaa(rm);
-            eip = (int)(iGETIP() & 0xFFFFl);
         }
         public int call() {
             long eaa = get_eaa.call();

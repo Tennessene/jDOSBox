@@ -6,9 +6,9 @@ import jdos.cpu.core_dynamic.Mod;
 import jdos.hardware.Memory;
 import jdos.misc.setup.*;
 
-public class InstructionsTestCase extends TestCase {
-    //static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
-    static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
+abstract public class InstructionsTestCase extends TestCase {
+    static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
+    //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
     //static CPU.CPU_Decoder decoder = Core_dynrec2.CPU_Core_Dynrec_Run;
     protected int cseip = 0x10000;
     protected final static int MEM_BASE_DS = 0x2000;
@@ -583,6 +583,7 @@ public class InstructionsTestCase extends TestCase {
         CPU.CPU_Init.call(cpu_prop);
         clearReg();
         CPU.cpu.code.big = false;
+        CPU.cpu.pmode = false;
         CPU_Regs.flags = 0;
     }
     protected void tearDown() throws java.lang.Exception {

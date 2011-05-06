@@ -2494,4 +2494,177 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.dword()==0xEF01);
     }
+
+    // 0x8e
+    //MOV Sw,Ew
+    public void testMovSwEw() {
+        newInstruction((byte)0x8e);
+        pushIb((byte)0xC1);
+        CPU_Regs.reg_ecx.dword(0xFFABCD);
+        decoder.call();
+        assertTrue(CPU.Segs_ESval == 0xABCD);
+
+        newInstruction((byte)0x8e);
+        pushIb((byte)(0xC2 + (2<<3)));
+        CPU_Regs.reg_edx.dword(0xFFABCD);
+        decoder.call();
+        assertTrue(CPU.Segs_SSval == 0xABCD);
+
+        newInstruction((byte)0x8e);
+        pushIb((byte)(0xC3 + (3<<3)));
+        CPU_Regs.reg_ebx.dword(0xFFABCD);
+        decoder.call();
+        assertTrue(CPU.Segs_DSval == 0xABCD);
+
+        newInstruction((byte)0x8e);
+        pushIb((byte)(0xC4 + (4<<3)));
+        CPU_Regs.reg_esp.dword(0xFFABCD);
+        decoder.call();
+        assertTrue(CPU.Segs_FSval == 0xABCD);
+
+        newInstruction((byte)0x8e);
+        pushIb((byte)(0xC5 + (5<<3)));
+        CPU_Regs.reg_ebp.dword(0xFFABCD);
+        decoder.call();
+        assertTrue(CPU.Segs_GSval == 0xABCD);
+
+        newInstruction((byte)0x8e);
+        pushIb((byte)0x0);
+        Memory.mem_writew(MEM_BASE_DS-2, 0xCDCD);
+        Memory.mem_writew(MEM_BASE_DS, 0xABCD);
+        Memory.mem_writew(MEM_BASE_DS+2, 0xCDCD);
+        decoder.call();
+        assertTrue(CPU.Segs_ESval == 0xABCD);
+        Memory.mem_writew(MEM_BASE_DS-2, 0);
+        Memory.mem_writew(MEM_BASE_DS, 0);
+        Memory.mem_writew(MEM_BASE_DS+2, 0);
+    }
+
+    // 0x8f
+    //POP Ew
+    public void testPopEw() {
+        newInstruction((byte)0x8f);
+        pushIb((byte)0xC3);
+        CPU_Regs.reg_esp.dword(0xFE);
+        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword())).writew(0, 0x89EF);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_esp.dword()==0x100);
+        assertTrue(CPU_Regs.reg_ebx.dword()==0x89EF);
+
+        newInstruction((byte)0x8f);
+        pushIb((byte)0x0);
+        CPU_Regs.reg_esp.dword(0xFE);
+        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword())).writew(0, 0x89EF);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_esp.dword()==0x100);
+        assertTrue(Memory.mem_readw(MEM_BASE_DS)==0x89EF);
+    }
+
+    // 0x90
+    //NOP
+
+    // 0x91
+    //XCHG CX,AX
+    public void testXchgCxAx() {
+        newInstruction((byte)0x91);
+        CPU_Regs.reg_eax.dword(0xAAAA1234);
+        CPU_Regs.reg_ecx.dword(0xBBBB5678);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xAAAA5678l);
+        assertTrue(CPU_Regs.reg_ecx.dword()==0xBBBB1234l);
+    }
+
+    // 0x92
+    //XCHG DX,AX
+    public void testXchgDxAx() {
+        newInstruction((byte)0x92);
+        CPU_Regs.reg_eax.dword(0xAAAA1234);
+        CPU_Regs.reg_edx.dword(0xBBBB5678);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xAAAA5678l);
+        assertTrue(CPU_Regs.reg_edx.dword()==0xBBBB1234l);
+    }
+
+    // 0x93
+    //XCHG BX,AX
+    public void testXchgBxAx() {
+        newInstruction((byte)0x93);
+        CPU_Regs.reg_eax.dword(0xAAAA1234);
+        CPU_Regs.reg_ebx.dword(0xBBBB5678);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xAAAA5678l);
+        assertTrue(CPU_Regs.reg_ebx.dword()==0xBBBB1234l);
+    }
+
+    // 0x94
+    //XCHG SP,AX
+    public void testXchgSpAx() {
+        newInstruction((byte)0x94);
+        CPU_Regs.reg_eax.dword(0xAAAA1234);
+        CPU_Regs.reg_esp.dword(0xBBBB5678);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xAAAA5678l);
+        assertTrue(CPU_Regs.reg_esp.dword()==0xBBBB1234l);
+    }
+
+    // 0x95
+    //XCHG BP,AX
+    public void testXchgBpAx() {
+        newInstruction((byte)0x95);
+        CPU_Regs.reg_eax.dword(0xAAAA1234);
+        CPU_Regs.reg_ebp.dword(0xBBBB5678);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xAAAA5678l);
+        assertTrue(CPU_Regs.reg_ebp.dword()==0xBBBB1234l);
+    }
+
+    // 0x96
+    //XCHG SI,AX
+    public void testXchgSiAx() {
+        newInstruction((byte)0x96);
+        CPU_Regs.reg_eax.dword(0xAAAA1234);
+        CPU_Regs.reg_esi.dword(0xBBBB5678);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xAAAA5678l);
+        assertTrue(CPU_Regs.reg_esi.dword()==0xBBBB1234l);
+    }
+
+    // 0x97
+    //XCHG DI,AX
+    public void testXchgDiAx() {
+        newInstruction((byte)0x97);
+        CPU_Regs.reg_eax.dword(0xAAAA1234);
+        CPU_Regs.reg_edi.dword(0xBBBB5678);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0xAAAA5678l);
+        assertTrue(CPU_Regs.reg_edi.dword()==0xBBBB1234l);
+    }
+
+    // 0x98
+    //CBW
+    public void testCbw() {
+        newInstruction((byte)0x98);
+        CPU_Regs.reg_eax.dword(0x4444AB01);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0x44440001l);
+
+        newInstruction((byte)0x98);
+        CPU_Regs.reg_eax.dword(0x4444ABFE);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_eax.dword()==0x4444FFFEl);
+    }
+
+    // 0x99
+    //CWD
+    public void testCwd() {
+        newInstruction((byte)0x99);
+        CPU_Regs.reg_eax.dword(0xFFF);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_edx.dword()==0);
+
+        newInstruction((byte)0x99);
+        CPU_Regs.reg_eax.dword(0xF000);
+        decoder.call();
+        assertTrue(CPU_Regs.reg_edx.dword()==0xFFFFl);
+    }
 }

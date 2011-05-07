@@ -1474,7 +1474,7 @@ public class Prefix_66 extends Helper {
         /* JCXZ */
         ops[0x2e3] = new Decode() {
             final public int call(Op prev) {
-                prev.next = new Inst1.Jcxz(AddrMaskTable[prefixes & Core.PREFIX_ADDR]);
+                prev.next = new Inst3.Jcxz(AddrMaskTable[prefixes & Core.PREFIX_ADDR]);
                 return RESULT_JUMP;
             }
         };

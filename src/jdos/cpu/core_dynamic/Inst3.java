@@ -975,7 +975,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_add(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -992,7 +992,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_or(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1009,7 +1009,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_adc(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1026,7 +1026,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_sbb(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1043,7 +1043,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_and(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1060,7 +1060,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_sub(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1077,7 +1077,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_xor(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1094,7 +1094,7 @@ public class Inst3 extends Helper {
         public GrplEdId_reg_cmp(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1111,7 +1111,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_add(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1136,7 +1136,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_or(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1161,7 +1161,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_adc(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1186,7 +1186,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_sbb(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1211,7 +1211,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_and(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1236,7 +1236,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_sub(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1261,7 +1261,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_xor(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }
@@ -1286,7 +1286,7 @@ public class Inst3 extends Helper {
         public GrplEdId_mem_cmp(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = (((short)decode_fetchbs()) & 0xFFFFFFFFl);
+                ib = decode_fetchbs() & 0xFFFFFFFFl;
             else
                 ib = decode_fetchd();
         }

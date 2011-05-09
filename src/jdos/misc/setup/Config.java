@@ -25,6 +25,7 @@ public class Config {
     static public final boolean USE_FULL_TLB = true;
     static public final boolean C_VGARAM_CHECKED = true;    
     static public final boolean DEBUG_LOG = false;
+    static public final boolean DEBUG_DEDERMINISTIC = false;
 
     static String current_config_dir; // Set by parseconfigfile so Prop_path can use it to construct the realpath
     static public interface StartFunction {

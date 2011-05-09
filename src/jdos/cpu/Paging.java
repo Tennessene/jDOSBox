@@ -68,30 +68,6 @@ public class Paging extends Module_base {
         public /*HostPt*/long GetHostWritePt(/*Bitu*/int phys_page) {
             return 0;
         }
-        public boolean readb_checked(/*PhysPt*/long addr,/*Bit8u*/ShortRef val) {
-            val.value=(short)readb(addr);
-            return false;
-        }
-        public boolean readw_checked(/*PhysPt*/long addr,/*Bit16u*/IntRef val) {
-            val.value=readw(addr);
-            return false;
-        }
-        public boolean readd_checked(/*PhysPt*/long addr,/*Bit32u*/LongRef val) {
-            val.value=readd(addr);
-            return false;
-        }
-        public boolean writeb_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            writeb(addr,val);
-            return false;
-        }
-        public boolean writew_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            writew(addr,val);
-            return false;
-        }
-        public boolean writed_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            writed(addr,val);
-            return false;
-        }
         public /*Bitu*/int flags;
     }
 
@@ -266,69 +242,6 @@ public class Paging extends Module_base {
             else (get_tlb_writehandler(a)).writed(address,(int)val);
         } else Memory.mem_unalignedwrited(address,val);
     }
-
-
-    public static boolean mem_readb_checked(/*PhysPt*/long address, /*Bit8u*/ShortRef val) {
-        int a = (int)address;
-        /*HostPt*/int tlb_addr=get_tlb_read(a);
-        if (tlb_addr!=Integer.MIN_VALUE) {
-            val.value=Memory.host_readb((int)(tlb_addr+address));
-            return false;
-        } else return (get_tlb_readhandler(a)).readb_checked(address, val);
-    }
-
-    public static boolean mem_readw_checked(/*PhysPt*/long address, /*Bit16u*/IntRef val) {
-        int a = (int)address;
-        if ((a & 0xfff)<0xfff) {
-            /*HostPt*/int tlb_addr=get_tlb_read(a);
-            if (tlb_addr!=Integer.MIN_VALUE) {
-                val.value=Memory.host_readw((int)(tlb_addr+address));
-                return false;
-            } else return (get_tlb_readhandler(a)).readw_checked(address, val);
-        } else return Memory.mem_unalignedreadw_checked(address, val);
-    }
-
-    public static boolean mem_readd_checked(/*PhysPt*/long address, /*Bit32u*/LongRef val) {
-        int a = (int)address;
-        if ((a & 0xfff)<0xffd) {
-            /*HostPt*/int tlb_addr=get_tlb_read(a);
-            if (tlb_addr!=Integer.MIN_VALUE) {
-                val.value=Memory.host_readd((int)(tlb_addr+address));
-                return false;
-            } else return (get_tlb_readhandler(a)).readd_checked(address, val);
-        } else return Memory.mem_unalignedreadd_checked(address, val);
-    }
-
-    public static boolean mem_writeb_checked(/*PhysPt*/long address,/*Bit8u*/short val) {
-        int a = (int)address;
-        /*HostPt*/int tlb_addr=get_tlb_write(a);
-        if (tlb_addr!=Integer.MIN_VALUE) {
-            Memory.host_writeb((int)(tlb_addr+address),val);
-            return false;
-        } else return (get_tlb_writehandler(a)).writeb_checked(address,val);
-    }
-
-    public static boolean mem_writew_checked(/*PhysPt*/long address,/*Bit16u*/int val) {
-        int a = (int)address;
-        if ((a & 0xfff)<0xfff) {
-            /*HostPt*/int tlb_addr=get_tlb_write(a);
-            if (tlb_addr!=Integer.MIN_VALUE) {
-                Memory.host_writew((int)(tlb_addr+address),val);
-                return false;
-            } else return (get_tlb_writehandler(a)).writew_checked(address,val);
-        } else return Memory.mem_unalignedwritew_checked(address,val);
-    }
-
-    public static boolean mem_writed_checked(/*PhysPt*/long address,/*Bit32u*/long val) {
-        int a = (int)address;
-        if ((a & 0xfff)<0xffd) {
-            /*HostPt*/int tlb_addr=get_tlb_write(a);
-            if (tlb_addr!=Integer.MIN_VALUE) {
-                Memory.host_writed((int)(tlb_addr+address),val);
-                return false;
-            } else return (get_tlb_writehandler(a)).writed_checked(address,(int)val);
-	} else return Memory.mem_unalignedwrited_checked(address,val);
-}
 
     private static final int LINK_TOTAL = (64*1024);
 
@@ -523,42 +436,6 @@ public class Paging extends Module_base {
             Memory.mem_writed(addr,val);
             InitPageUpdateLink(needs_reset,addr);
         }
-        public boolean readb_checked(/*PhysPt*/long addr, ShortRef val) {
-            if (InitPageCheckOnly(addr,false)) {
-                val.value=Memory.mem_readb(addr);
-                return false;
-            } else return true;
-        }
-        public boolean readw_checked(/*PhysPt*/long addr, IntRef val) {
-            if (InitPageCheckOnly(addr,false)){
-                val.value=Memory.mem_readw(addr);
-                return false;
-            } else return true;
-        }
-        public boolean readd_checked(/*PhysPt*/long addr, LongRef val) {
-            if (InitPageCheckOnly(addr,false)) {
-                val.value=Memory.mem_readd(addr);
-                return false;
-            } else return true;
-        }
-        public boolean writeb_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            if (InitPageCheckOnly(addr,true)) {
-                Memory.mem_writeb(addr,val);
-                return false;
-            } else return true;
-        }
-        public boolean writew_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            if (InitPageCheckOnly(addr,true)) {
-                Memory.mem_writew(addr,val);
-                return false;
-            } else return true;
-        }
-        public boolean writed_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            if (InitPageCheckOnly(addr,true)) {
-                Memory.mem_writed(addr,val);
-                return false;
-            } else return true;
-        }
         public /*Bitu*/int InitPage(/*Bitu*/long lin_addr,boolean writing) {
             /*Bitu*/int lin_page=(int)(lin_addr >>> 12);
             /*Bitu*/int phys_page;
@@ -730,39 +607,6 @@ public class Paging extends Module_base {
         public void writed(/*PhysPt*/long addr,/*Bitu*/int val) {
             InitPage(addr,val);
             Memory.host_writed((int)(get_tlb_read((int)addr)+addr),val);
-        }
-        public boolean writeb_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            /*Bitu*/int writecode=InitPageCheckOnly(addr,(val&0xff));
-            if (writecode!=0) {
-                /*HostPt*/int tlb_addr;
-                if (writecode>1) tlb_addr=get_tlb_read((int)addr);
-                else tlb_addr=get_tlb_write((int)addr);
-                Memory.host_writeb((int)(tlb_addr+addr),(short)(val&0xff));
-                return false;
-            }
-            return true;
-        }
-        public boolean writew_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            /*Bitu*/int writecode=InitPageCheckOnly(addr,(val&0xffff));
-            if (writecode!=0) {
-                /*HostPt*/int tlb_addr;
-                if (writecode>1) tlb_addr=get_tlb_read((int)addr);
-                else tlb_addr=get_tlb_write((int)addr);
-                Memory.host_writew((int)(tlb_addr+addr),(val&0xffff));
-                return false;
-            }
-            return true;
-        }
-        public boolean writed_checked(/*PhysPt*/long addr,/*Bitu*/int val) {
-            /*Bitu*/int writecode=InitPageCheckOnly(addr,val);
-            if (writecode!=0) {
-                /*HostPt*/int tlb_addr;
-                if (writecode>1) tlb_addr=get_tlb_read((int)addr);
-                else tlb_addr=get_tlb_write((int)addr);
-                Memory.host_writed((int)(tlb_addr+addr),val);
-                return false;
-            }
-            return true;
         }
         public void InitPage(/*Bitu*/long lin_addr,/*Bitu*/int val) {
             /*Bitu*/int lin_page=(int)(lin_addr >> 12);

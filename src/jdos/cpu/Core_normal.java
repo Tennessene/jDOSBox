@@ -74,8 +74,9 @@ public class Core_normal extends Prefix_66_0f {
                 while (true) {
                     int c = opcode_index+Fetchb.call();
 //                    last = c;
-//                    Debug.start(Debug.TYPE_CPU, c);
-//                    try {
+                    if (Config.DEBUG_LOG)
+                        Debug.start(Debug.TYPE_CPU, c);
+                    try {
                     try {
                         int result = ops[c].call();
                         if (result != HANDLED) {
@@ -111,9 +112,10 @@ public class Core_normal extends Prefix_66_0f {
                     } catch (ContinueException e) {
                         break;
                     }
-//                    } finally {
-//                        Debug.stop(Debug.TYPE_CPU, c);
-//                    }
+                    } finally {
+                        if (Config.DEBUG_LOG)
+                            Debug.stop(Debug.TYPE_CPU, c);
+                    }
 
                     // inlined
                     // SAVEIP();

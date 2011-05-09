@@ -129,6 +129,7 @@ public class Core_dynrec2 {
                     case Constants.BR_CBRet_None:
                         return Callback.CBRET_NONE;
                     case Constants.BR_Normal:
+                    case Constants.BR_Jump:
                         // the block was exited due to a non-predictable control flow
                         // modifying instruction (like ret) or some nontrivial cpu state
                         // changing instruction (for example switch to/from pmode),

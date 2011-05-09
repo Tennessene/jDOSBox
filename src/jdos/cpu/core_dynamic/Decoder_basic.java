@@ -35,9 +35,6 @@ public class Decoder_basic {
     public static boolean MakeCodePage(/*Bitu*/long lin_addr, Core_dynamic.CodePageHandlerDynRecRef cph) {
         int i_line_addr = (int)lin_addr;
 
-        //Ensure page contains memory:
-        if (Paging.mem_readb_checked(lin_addr,rdval)) return true;
-
         Paging.PageHandler handler=Paging.get_tlb_readhandler(i_line_addr);
         if ((handler.flags & Paging.PFLAG_HASCODE)!=0) {
             // this is a codepage handler, and the one that we're looking for

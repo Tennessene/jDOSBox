@@ -4,6 +4,7 @@ import jdos.cpu.Core_dynamic;
 import jdos.cpu.Paging;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
+import jdos.cpu.core_share.SMC_Exception;
 import jdos.hardware.Memory;
 import jdos.util.Ptr;
 
@@ -34,7 +35,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	}
 
 	// clear out blocks that contain code which has been modified
-	boolean InvalidateRange(/*Bitu*/int start,/*Bitu*/int end) {
+	void InvalidateRange(/*Bitu*/int start,/*Bitu*/int end) {
 		/*Bits*/int index=1+(end>> Core_dynamic.DYN_HASH_SHIFT);
 		boolean is_current_block=false;	// if the current block is modified, it has to be exited as soon as possible
 
@@ -44,7 +45,10 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 			/*Bitu*/int map=0;
 			// see if there is still some code in the range
 			for (/*Bitu*/int count=start;count<=end;count++) map+=write_map.p[count];
-			if (map==0) return is_current_block;	// no more code, finished
+			if (map==0) { // no more code, finished
+                if (is_current_block)
+                    throw new SMC_Exception();
+            }
 
 			CacheBlockDynRec block=hash_map[index];
 			while (block!=null) {
@@ -59,7 +63,8 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 			}
 			index--;
 		}
-		return is_current_block;
+		if (is_current_block)
+            throw new SMC_Exception();
 	}
 
 	// the following functions will clean all cache blocks that are invalid now due to the write
@@ -110,75 +115,6 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		}
         invalidation_map.writed(addr, invalidation_map.readd(addr)+0x1010101);
 		InvalidateRange(addr,addr+3);
-	}
-	public boolean writeb_checked(/*PhysPt*/long address,/*Bitu*/int val) {
-		int addr = (int)(address & 4095);
-		if (Memory.host_readb(hostmem+addr)==(val & 0xFF)) return false;
-		// see if there's code where we are writing to
-		if (write_map.readb(addr)==0) {
-			if (active_blocks==0) {
-				// no blocks left in this page, still delay the page releasing a bit
-				active_count--;
-				if (active_count==0) Release();
-			}
-		} else {
-			if (invalidation_map==null) {
-				invalidation_map=new Ptr(4096);
-			}
-			invalidation_map.p[addr]++;
-			if (InvalidateRange(addr,addr)) {
-				CPU.cpu.exception.which= Core_dynamic.SMC_CURRENT_BLOCK;
-				return true;
-			}
-		}
-		Memory.host_writeb(hostmem+addr,(short)val);
-		return false;
-	}
-	public boolean writew_checked(/*PhysPt*/long address,/*Bitu*/int val) {
-		int addr = (int)(address & 4095);
-		if (Memory.host_readw(hostmem+addr)==(val & 0xFFFF)) return false;
-		// see if there's code where we are writing to
-		if (write_map.readw(addr)==0) {
-			if (active_blocks==0) {
-				// no blocks left in this page, still delay the page releasing a bit
-				active_count--;
-				if (active_count==0) Release();
-			}
-		} else {
-			if (invalidation_map==null) {
-				invalidation_map=new Ptr(4096);
-			}
-            invalidation_map.writew(addr, invalidation_map.readw(addr)+0x101);
-			if (InvalidateRange(addr,addr+1)) {
-				CPU.cpu.exception.which= Core_dynamic.SMC_CURRENT_BLOCK;
-				return true;
-			}
-		}
-		Memory.host_writew(hostmem+addr,val);
-		return false;
-	}
-	public boolean writed_checked(/*PhysPt*/long address,/*Bitu*/int val) {
-		int addr = (int)(address & 4095);
-		if (Memory.host_readd(hostmem+addr)==(val & 0xFFFFFFFFl)) return false;
-		// see if there's code where we are writing to
-		if (write_map.readd(addr)==0) {
-			if (active_blocks==0) {
-				// no blocks left in this page, still delay the page releasing a bit
-				active_count--;
-				if (active_count==0) Release();
-			}
-		} else {
-			if (invalidation_map == null) {
-				invalidation_map=new Ptr(4096);
-			}
-            invalidation_map.writed(addr, invalidation_map.readd(addr)+0x1010101);
-			if (InvalidateRange(addr,addr+3)) {
-				CPU.cpu.exception.which= Core_dynamic.SMC_CURRENT_BLOCK;
-				return true;
-			}
-		}
-		Memory.host_writed(hostmem+addr,val);
-		return false;
 	}
 
     // add a cache block to this page and note it in the hash map

@@ -97,6 +97,7 @@ public class Decoder extends Inst1 {
             if (op.next != null) {
                 op = op.next;
                 op.c = opcode;
+                op.eip = decode.code - CPU.Segs_CSphys;
                 //System.out.println(Integer.toHexString(opcode));
             } else {
                 if (Config.DEBUG_LOG) {

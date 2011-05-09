@@ -102,7 +102,7 @@ public class Decoder extends Inst1 {
                 if (Config.DEBUG_LOG) {
                     op.next = new Op() {
                         final public int call() {
-                            return Constants.BR_Continue;
+                            return Constants.BR_Normal;
                         }
                     };
                     op = op.next;

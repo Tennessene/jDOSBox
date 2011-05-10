@@ -33,7 +33,7 @@ final public class DecodeBlock {
                     if (o.c>=0) Debug.stop(Debug.TYPE_CPU, o.c);
                 o = o.next;
             }
-            if (result == Constants.BR_Illegal) {
+            if (o!=null && result == Constants.BR_Illegal) {
                 CPU_Regs.reg_eip=o.eip;
             }
         } catch (SMC_Exception e) {

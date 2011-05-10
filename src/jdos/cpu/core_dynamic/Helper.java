@@ -91,7 +91,7 @@ public class Helper extends CPU_Regs {
         decode.active_block.page.end=4095;
         // trigger possible page fault here
         decode.page.first++;
-        /*Bitu*/long faddr=decode.page.first << 12;
+        /*Bitu*/long faddr=(long)decode.page.first << 12;
         Memory.mem_readb(faddr);
         codeRef.value = decode.page.code;
         Decoder_basic.MakeCodePage(faddr,codeRef);

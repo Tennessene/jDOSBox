@@ -1,8 +1,9 @@
 package jdos.misc.setup;
 
+import jdos.util.StringHelper;
+
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Scanner;
 import java.util.Vector;
 
 public class Section_prop extends Section {
@@ -128,16 +129,11 @@ public class Section_prop extends Section {
         return null;
     }
 	public void HandleInputline(String aLine) {
-        Scanner scanner = new Scanner(aLine);
-        scanner.useDelimiter("=");
-        if ( scanner.hasNext() ){
-            String name = scanner.next();
-            String value="";
-            if (scanner.hasNext())
-                value = scanner.next();
-            Property prop = byname(name);
+        String[] parts = StringHelper.split(aLine, "=");
+        if (parts.length==2) {
+            Property prop = byname(parts[0]);
             if (prop != null)
-                prop.SetValue(value);
+                prop.SetValue(parts[1]);
         }        
     }
 	public void PrintData(OutputStream os) throws IOException {

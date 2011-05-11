@@ -34,7 +34,7 @@ final public class DecodeBlock {
                 o = o.next;
             }
             if (o!=null && result == Constants.BR_Illegal) {
-                CPU_Regs.reg_eip=o.eip;
+                CPU_Regs.reg_eip=o.eip_start;
             }
         } catch (SMC_Exception e) {
             System.out.println("SMC");

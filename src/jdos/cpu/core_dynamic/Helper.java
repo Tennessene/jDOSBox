@@ -30,23 +30,9 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_CONTINUE_SEG = 7;
 
     public static long iGETIP() {
-        return CPU_Regs.reg_eip + (decode.code - decode.code_start);
-    }
-    public static int RUNEXCEPTION() {
-        CPU.CPU_Exception(CPU.cpu.exception.which,CPU.cpu.exception.error);
-        return Constants.BR_Jump;
+        return decode.code - CPU.Segs_CSphys;
     }
 
-    public static int EXCEPTION(int blah) {
-        CPU.CPU_Exception(blah);
-        return Constants.BR_Jump;
-    }
-
-    public static int DECODE_END() {
-        reg_eip = reg_eip + (decode.code - decode.code_start);
-        Flags.FillFlags();
-        return Constants.BR_CBRet_None;
-    }
     protected static int JumpCond16_b(boolean COND, long eip, int off) {
         reg_eip = eip;
         if (COND) {

@@ -98,6 +98,7 @@ public class Decoder extends Inst1 {
                 op = op.next;
                 op.c = opcode;
                 op.eip = decode.code - CPU.Segs_CSphys;
+                op.eip_start = decode.op_start - CPU.Segs_CSphys;
                 //System.out.println(Integer.toHexString(opcode));
             } else {
                 if (Config.DEBUG_LOG) {
@@ -141,11 +142,11 @@ public class Decoder extends Inst1 {
         }
         Cache.cache_closeblock();
         switch (result) {
-            case RESULT_CALLBACK:
             case RESULT_HANDLED:
                 op.next = new HandledDecode(decode.code - decode.code_start);
                 op = op.next;
                 break;
+            case RESULT_CALLBACK:
             case RESULT_JUMP:
                 break;
             case RESULT_ILLEGAL_INSTRUCTION:

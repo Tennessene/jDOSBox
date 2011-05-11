@@ -173,6 +173,8 @@ public class Paging extends Module_base {
     /* Special inlined memory reading/writing */
 
     public static int getDirectIndex(long address) {
+        if (Config.DEBUG_DEDERMINISTIC)
+            return -1;
         address&=0xFFFFFFFFl;
         int a = (int)address;
         /*HostPt*/int tlb_addr=get_tlb_read(a);

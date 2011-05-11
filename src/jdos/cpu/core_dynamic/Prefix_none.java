@@ -1417,7 +1417,8 @@ public class Prefix_none extends Helper {
                 } else {
                     if (rm == 5)
                         prev.next = new Inst1.MovEbGb_mem_5(rm);
-                    prev.next = new Inst1.MovEbGb_mem(rm);
+                    else
+                        prev.next = new Inst1.MovEbGb_mem(rm);
                 }
                 return RESULT_HANDLED;
             }

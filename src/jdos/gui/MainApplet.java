@@ -303,7 +303,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
 
     private void draw(Graphics g) {
-        if (Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
+        if (Render.render!=null && Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
             BufferedImage resized = MainFrame.resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             g.drawImage(resized, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.screen_width, Main.screen_height, null);
         } else {

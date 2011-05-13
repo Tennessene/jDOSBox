@@ -77,6 +77,7 @@ public class Decoder extends Inst1 {
         Op start_op = op;
         boolean seg_changed = false;
         int opcode = 0;
+        int count = 0;
         while (max_opcodes-->0 && result==0) {
             // Init prefixes
             decode.big_addr=CPU.cpu.code.big;
@@ -94,11 +95,12 @@ public class Decoder extends Inst1 {
                 result = RESULT_ILLEGAL_INSTRUCTION;
                 break;
             }
+            count+=(decode.code - decode.op_start);
             if (op.next != null) {
                 op = op.next;
+                op.eip_running_count = count;
+                op.eip_count = decode.code - decode.op_start;
                 op.c = opcode;
-                op.eip = decode.code - CPU.Segs_CSphys;
-                op.eip_start = decode.op_start - CPU.Segs_CSphys;
                 //System.out.println(Integer.toHexString(opcode));
             } else {
                 if (Config.DEBUG_LOG) {

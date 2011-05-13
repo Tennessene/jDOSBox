@@ -22,7 +22,7 @@ final public class DecodeBlock {
         Core.base_val_ds= CPU_Regs.ds;
         int cycles=0;
         try {
-            while (result == Constants.BR_Normal) {
+            while (true) {
                 if (Config.DEBUG_LOG) {
                     if (o.c>=0) Debug.start(Debug.TYPE_CPU, o.c);
                     //System.out.println(count+":"+o.c);
@@ -31,14 +31,17 @@ final public class DecodeBlock {
                 cycles++;
                 if (Config.DEBUG_LOG)
                     if (o.c>=0) Debug.stop(Debug.TYPE_CPU, o.c);
-                o = o.next;
+                if (result == Constants.BR_Normal)
+                    o = o.next;
+                else
+                    break;
             }
             if (o!=null && result == Constants.BR_Illegal) {
-                CPU_Regs.reg_eip=o.eip_start;
+                CPU_Regs.reg_eip+=o.eip_running_count-o.eip_count;
             }
         } catch (SMC_Exception e) {
             System.out.println("SMC");
-            CPU_Regs.reg_eip(o.eip);
+            CPU_Regs.reg_eip+=o.eip_running_count;
         }
         CPU.CPU_Cycles-=cycles;
         return result;

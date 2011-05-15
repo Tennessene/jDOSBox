@@ -598,7 +598,10 @@ public class DOS_Drive_Cache {
         //	LOG_DEBUG("DIR: Find %s",path);
 
         // Remove base dir path
-        start = path.substring(basePath.length());
+        if (basePath.length()>=path.length())
+            start = "";
+        else
+            start = path.substring(basePath.length());
         expandedPath.value = basePath;
 
         // hehe, baseDir should be cached in...

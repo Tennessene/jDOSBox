@@ -51,7 +51,7 @@ public class Dos_files {
 
     static public void DOS_SetDefaultDrive(/*Bit8u*/short drive) {
     //	if (drive<=DOS_DRIVES && ((drive<2) || Drives[drive])) DOS_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).SetDrive(drive);
-        if (drive<=DOS_DRIVES && ((drive<2) || Drives[drive]!=null)) {Dos.dos.current_drive = (byte)drive; new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).SetDrive(drive);}
+        if (drive<DOS_DRIVES && ((drive<2) || Drives[drive]!=null)) {Dos.dos.current_drive = (byte)drive; new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).SetDrive(drive);}
     }
 
     public static boolean DOS_MakeName(String name, StringRef fullname,/*Bit8u*/ShortRef drive) {

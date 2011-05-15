@@ -57,18 +57,21 @@ public class StringOp extends Prefix_helpers {
             count=1;
         } else {
             CPU.CPU_Cycles++;
-//            /* Calculate amount of ops to do before cycles run out */
-//            if ((count>CPU.CPU_Cycles) && (type<R_SCASB)) {
-//                count_left=count-CPU.CPU_Cycles;
-//                count=CPU.CPU_Cycles;
-//                CPU.CPU_Cycles=0;
-//                LOADIP();		//RESET IP to the start
-//            } else {
-//                /* Won't interrupt scas and cmps instruction since they can interrupt themselves */
-//                if ((count<=1) && (CPU.CPU_Cycles<=1)) CPU.CPU_Cycles--;
-//                else if (type<R_SCASB) CPU.CPU_Cycles-=count;
-//                count_left=0;
-//            }
+            /* Calculate amount of ops to do before cycles run out */
+            if (CPU.cpudecoder == Core_normal.CPU_Core_Normal_Run) {
+                // Some games, like the intro to Falcon 3, really need this
+                if ((count>CPU.CPU_Cycles) && (type<R_SCASB)) {
+                    count_left=count-CPU.CPU_Cycles;
+                    count=CPU.CPU_Cycles;
+                    CPU.CPU_Cycles=0;
+                    LOADIP();		//RESET IP to the start
+                } else {
+                    /* Won't interrupt scas and cmps instruction since they can interrupt themselves */
+                    if ((count<=1) && (CPU.CPU_Cycles<=1)) CPU.CPU_Cycles--;
+                    else if (type<R_SCASB) CPU.CPU_Cycles-=count;
+                    count_left=0;
+                }
+            }
         }
         add_index=CPU.cpu.direction;
         if (count!=0) switch (type) {

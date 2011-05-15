@@ -637,39 +637,6 @@ public class Memory extends Module_base {
         Paging.mem_writeb_inline(address+3,(short)val);
     }
 
-
-    public static boolean mem_unalignedreadw_checked(/*PhysPt*/long address, /*Bit16u*/IntRef val) {
-        /*Bit8u*/ShortRef rval1=new ShortRef((short)0);ShortRef rval2=new ShortRef((short)0);
-        if (Paging.mem_readb_checked(address+0, rval1)) return true;
-        if (Paging.mem_readb_checked(address+1, rval2)) return true;
-        val.value=(int)((rval1.value & 0xFF) | ((rval2.value & 0xFF) << 8));
-        return false;
-    }
-
-    public static boolean mem_unalignedreadd_checked(/*PhysPt*/long address, /*Bit32u*/LongRef val) {
-        /*Bit8u*/ShortRef rval1=new ShortRef((short)0);ShortRef rval2=new ShortRef((short)0);ShortRef rval3=new ShortRef((short)0);ShortRef rval4=new ShortRef((short)0);
-        if (Paging.mem_readb_checked(address+0, rval1)) return true;
-        if (Paging.mem_readb_checked(address+1, rval2)) return true;
-        if (Paging.mem_readb_checked(address+2, rval3)) return true;
-        if (Paging.mem_readb_checked(address+3, rval4)) return true;
-        val.value=(rval1.value) | ((rval2.value) << 8) | ((rval3.value) << 16) | ((rval4.value) << 24);
-        return false;
-    }
-
-    public static boolean mem_unalignedwritew_checked(/*PhysPt*/long address,/*Bit16u*/int val) {
-        if (Paging.mem_writeb_checked(address,(short)(val & 0xff))) return true;val>>=8;
-        if (Paging.mem_writeb_checked(address+1,(short)(val & 0xff))) return true;
-        return false;
-    }
-
-    public static boolean mem_unalignedwrited_checked(/*PhysPt*/long address,/*Bit32u*/long val) {
-        if (Paging.mem_writeb_checked(address,(short)(val & 0xff))) return true;val>>=8;
-        if (Paging.mem_writeb_checked(address+1,(short)(val & 0xff))) return true;val>>=8;
-        if (Paging.mem_writeb_checked(address+2,(short)(val & 0xff))) return true;val>>=8;
-        if (Paging.mem_writeb_checked(address+3,(short)(val & 0xff))) return true;
-        return false;
-    }
-
     public static /*Bit8u*/short mem_readb(/*PhysPt*/long address) {
         return Paging.mem_readb_inline(address);
     }

@@ -153,8 +153,7 @@ public class Grp3 extends Helper {
             earb = Mod.eb(rm);
         }
         public int call() {
-            Instructions.DIVB(earb.get8());
-            return Constants.BR_Normal;
+            return Instructions.DIVBr(earb.get8());
         }
     }
 
@@ -166,8 +165,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             long eaa = get_eaa.call();
-            Instructions.DIVB(Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            return Instructions.DIVBr(Memory.mem_readb(eaa));
         }
     }
 
@@ -178,8 +176,7 @@ public class Grp3 extends Helper {
             earb = Mod.eb(rm);
         }
         public int call() {
-            Instructions.IDIVB(earb.get8());
-            return Constants.BR_Normal;
+            return Instructions.IDIVBr(earb.get8());
         }
     }
 
@@ -191,8 +188,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             long eaa = get_eaa.call();
-            Instructions.IDIVB(Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            return Instructions.IDIVBr(Memory.mem_readb(eaa));
         }
     }
 
@@ -356,8 +352,7 @@ public class Grp3 extends Helper {
             earw = Mod.ew(rm);
         }
         public int call() {
-            Instructions.DIVW(earw.word());
-            return Constants.BR_Normal;
+            return Instructions.DIVWr(earw.word());
         }
     }
 
@@ -369,8 +364,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             long eaa = get_eaa.call();
-            Instructions.DIVW(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            return Instructions.DIVWr(Memory.mem_readw(eaa));
         }
     }
 
@@ -381,8 +375,7 @@ public class Grp3 extends Helper {
             earw = Mod.ew(rm);
         }
         public int call() {
-            Instructions.IDIVW(earw.word());
-            return Constants.BR_Normal;
+            return Instructions.IDIVWr(earw.word());
         }
     }
 
@@ -394,8 +387,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             long eaa = get_eaa.call();
-            Instructions.IDIVW(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            return Instructions.IDIVWr(Memory.mem_readw(eaa));
         }
     }
 
@@ -559,8 +551,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            Instructions.DIVD(eard.dword());
-            return Constants.BR_Normal;
+            return Instructions.DIVDr(eard.dword());
         }
     }
 
@@ -572,8 +563,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             long eaa = get_eaa.call();
-            Instructions.DIVD(Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            return Instructions.DIVDr(Memory.mem_readd(eaa));
         }
     }
 
@@ -584,8 +574,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            Instructions.IDIVD(eard.dword());
-            return Constants.BR_Normal;
+            return Instructions.IDIVDr(eard.dword());
         }
     }
 
@@ -597,8 +586,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             long eaa = get_eaa.call();
-            Instructions.IDIVD(Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            return Instructions.IDIVDr(Memory.mem_readd(eaa));
         }
     }
 }

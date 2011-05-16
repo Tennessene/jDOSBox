@@ -140,106 +140,106 @@ public class Inst4 extends Helper {
 
 static abstract public class JumpCond32_d extends Op {
         long offset;
-        long eip;
+        long cseip;
         public JumpCond32_d() {
-            eip = iGETIP();
+            cseip = GETCSEIP();
             offset = decode_fetchds();
         }
     }
 
     final static public class JumpCond32_d_o extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_O(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_O(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_no extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NO(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NO(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_b extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_B(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_B(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_nb extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NB(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NB(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_z extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_Z(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_Z(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_nz extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NZ(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NZ(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_be extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_BE(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_BE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_nbe extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NBE(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NBE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_s extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_S(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_S(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_ns extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NS(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NS(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_p extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_P(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_P(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_np extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NP(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NP(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_l extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_L(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_L(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_nl extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NL(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NL(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_le extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_LE(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_LE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_d_nle extends JumpCond32_d {
         public int call() {
-            return JumpCond32_d(Flags.TFLG_NLE(), eip, offset);
+            return JumpCond32_d(Flags.TFLG_NLE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 

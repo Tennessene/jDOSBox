@@ -29,8 +29,8 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_JUMP = 6;
     public final static int RESULT_CONTINUE_SEG = 7;
 
-    public static long iGETIP() {
-        return decode.code - CPU.Segs_CSphys;
+    public static long GETCSEIP() {
+        return decode.code;
     }
 
     protected static int JumpCond16_b(boolean COND, long eip, int off) {

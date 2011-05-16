@@ -865,106 +865,106 @@ public class Inst3 extends Helper {
 
     static abstract public class JumpCond32_b extends Op {
         int offset;
-        long eip;
+        long cseip;
         public JumpCond32_b() {
-            eip = iGETIP();
+            cseip = GETCSEIP();
             offset = decode_fetchbs();
         }
     }
 
     final static public class JumpCond32_b_o extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_O(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_O(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_no extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NO(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NO(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_b extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_B(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_B(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_nb extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NB(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NB(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_z extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_Z(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_Z(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_nz extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NZ(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NZ(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_be extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_BE(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_BE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_nbe extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NBE(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NBE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_s extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_S(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_S(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_ns extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NS(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NS(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_p extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_P(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_P(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_np extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NP(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NP(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_l extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_L(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_L(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_nl extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NL(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NL(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_le extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_LE(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_LE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class JumpCond32_b_nle extends JumpCond32_b {
         public int call() {
-            return JumpCond32_b(Flags.TFLG_NLE(), eip, offset);
+            return JumpCond32_b(Flags.TFLG_NLE(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
@@ -1562,8 +1562,9 @@ public class Inst3 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
+            long val = CPU.CPU_Pop32();
             long eaa = get_eaa.call();
-            Memory.mem_writed(eaa, CPU.CPU_Pop32());
+            Memory.mem_writed(eaa, val);
             return Constants.BR_Normal;
         }
     }
@@ -1601,17 +1602,17 @@ public class Inst3 extends Helper {
     final static public class CallFarAp extends Op {
         int newcs;
         long newip;
-        long eip;
+        long cseip;
 
         public CallFarAp(int newcs, long newip) {
-            eip = iGETIP();
+            cseip = GETCSEIP();
             this.newcs = newcs;
             this.newip = newip;
         }
 
         public int call() {
             Flags.FillFlags();
-            CPU.CPU_CALL(true,newcs,newip,eip);
+            CPU.CPU_CALL(true,newcs,newip,cseip-CPU.Segs_CSphys);
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
@@ -1713,6 +1714,9 @@ public class Inst3 extends Helper {
 
     final static public class Retn32 extends Op {
         public int call() {
+            if (reg_eax.dword() == 14932) {
+                int ii=0;
+            }
             reg_eip(CPU.CPU_Pop32());
             return Constants.BR_Jump;
         }
@@ -1775,37 +1779,37 @@ public class Inst3 extends Helper {
 
     final static public class Retf32Iw extends Op {
         int words;
-        long eip;
+        long cseip;
         public Retf32Iw() {
             words = decode_fetchw();
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
             Flags.FillFlags();
-            CPU.CPU_RET(true,words,eip);
+            CPU.CPU_RET(true,words,cseip-CPU.Segs_CSphys);
             return Constants.BR_Jump;
         }
     }
 
     final static public class Retf32 extends Op {
-        long eip;
+        long cseip;
         public Retf32() {
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
             Flags.FillFlags();
-            CPU.CPU_RET(true,0,eip);
+            CPU.CPU_RET(true,0,cseip-CPU.Segs_CSphys);
             return Constants.BR_Jump;
         }
     }
 
     final static public class IRet32 extends Op {
-        long eip;
+        long cseip;
         public IRet32() {
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
-            CPU.CPU_IRET(true, eip);
+            CPU.CPU_IRET(true, cseip-CPU.Segs_CSphys);
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
@@ -1821,42 +1825,42 @@ public class Inst3 extends Helper {
     final static public class Loopnz32 extends JumpCond32_b {
         public int call() {
             reg_ecx.dword(reg_ecx.dword()-1);
-            return JumpCond32_b(reg_ecx.dword()!=0 && !Flags.get_ZF(), eip, offset);
+            return JumpCond32_b(reg_ecx.dword()!=0 && !Flags.get_ZF(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class Loopnz16 extends JumpCond32_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            return JumpCond32_b(reg_ecx.word()!=0 && !Flags.get_ZF(), eip, offset);
+            return JumpCond32_b(reg_ecx.word()!=0 && !Flags.get_ZF(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class Loopz32 extends JumpCond32_b {
         public int call() {
             reg_ecx.dword(reg_ecx.dword()-1);
-            return JumpCond32_b(reg_ecx.dword()!=0 && Flags.get_ZF(), eip, offset);
+            return JumpCond32_b(reg_ecx.dword()!=0 && Flags.get_ZF(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class Loopz16 extends JumpCond32_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            return JumpCond32_b(reg_ecx.word()!=0 && Flags.get_ZF(), eip, offset);
+            return JumpCond32_b(reg_ecx.word()!=0 && Flags.get_ZF(), cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class Loop32 extends JumpCond32_b {
         public int call() {
             reg_ecx.dword(reg_ecx.dword()-1);
-            return JumpCond32_b(reg_ecx.dword()!=0, eip, offset);
+            return JumpCond32_b(reg_ecx.dword()!=0, cseip-CPU.Segs_CSphys, offset);
         }
     }
 
     final static public class Loop16 extends JumpCond32_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            return JumpCond32_b(reg_ecx.word()!=0, eip, offset);
+            return JumpCond32_b(reg_ecx.word()!=0, cseip-CPU.Segs_CSphys, offset);
         }
     }
 
@@ -1866,7 +1870,7 @@ public class Inst3 extends Helper {
             this.mask = mask;
         }
         public int call() {
-            return JumpCond32_b((reg_ecx.dword() & mask)==0, eip, offset);
+            return JumpCond32_b((reg_ecx.dword() & mask)==0, cseip-CPU.Segs_CSphys, offset);
         }
     }
 
@@ -1896,13 +1900,13 @@ public class Inst3 extends Helper {
 
     final static public class CallJd extends Op {
         long addip;
-        long eip;
+        long cseip;
         public CallJd() {
             addip=decode_fetchds();
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
-            reg_eip(eip);
+            reg_eip(cseip-CPU.Segs_CSphys);
             CPU.CPU_Push32(reg_eip());
             reg_eip(reg_eip()+addip);
             return Constants.BR_Link1;
@@ -1911,13 +1915,13 @@ public class Inst3 extends Helper {
 
     final static public class JmpJd extends Op {
         long addip;
-        long eip;
+        long cseip;
         public JmpJd() {
             addip=decode_fetchds();
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
-            reg_eip(eip);
+            reg_eip(cseip-CPU.Segs_CSphys);
             reg_eip(reg_eip()+addip);
             return Constants.BR_Link1;
         }
@@ -1926,15 +1930,15 @@ public class Inst3 extends Helper {
     final static public class JmpAd extends Op {
         long newip;
         int newcs;
-        long eip;
+        long cseip;
         public JmpAd() {
             newip=decode_fetchd();
             newcs=decode_fetchw();
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
             Flags.FillFlags();
-            CPU.CPU_JMP(true,newcs,(int)newip,eip);
+            CPU.CPU_JMP(true,newcs,(int)newip,cseip-CPU.Segs_CSphys);
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
@@ -1947,13 +1951,13 @@ public class Inst3 extends Helper {
 
     final static public class JmpJb extends Op {
         int addip;
-        long eip;
+        long cseip;
         public JmpJb() {
             addip=decode_fetchbs();
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
-            reg_eip(eip);
+            reg_eip(cseip-CPU.Segs_CSphys);
             reg_eip(reg_eip()+addip);
             return Constants.BR_Link1;
         }
@@ -1975,50 +1979,50 @@ public class Inst3 extends Helper {
 
     final static public class CallNearEd_reg extends Op {
         Reg eard;
-        long eip;
+        long cseip;
 
         public CallNearEd_reg(int rm) {
             eard = Mod.ed(rm);
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
 
         public int call() {
             reg_eip(eard.dword());
-            CPU.CPU_Push32(eip);
+            CPU.CPU_Push32(cseip-CPU.Segs_CSphys);
             return Constants.BR_Jump;
         }
     }
 
     final static public class CallNearEd_mem extends Op {
         EaaBase get_eaa;
-        long eip;
+        long cseip;
 
         public CallNearEd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
             long eaa=get_eaa.call();
             reg_eip(Memory.mem_readd(eaa));
-            CPU.CPU_Push32(eip);
+            CPU.CPU_Push32(cseip-CPU.Segs_CSphys);
             return Constants.BR_Jump;
         }
     }
 
     final static public class CallFarEd_mem extends Op {
         EaaBase get_eaa;
-        long eip;
+        long cseip;
 
         public CallFarEd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
             long eaa=get_eaa.call();
             long newip=Memory.mem_readd(eaa);
             int newcs=Memory.mem_readw(eaa+4);
             FillFlags();
-            CPU.CPU_CALL(true,newcs,newip,eip);
+            CPU.CPU_CALL(true,newcs,newip,cseip-CPU.Segs_CSphys);
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
@@ -2057,18 +2061,18 @@ public class Inst3 extends Helper {
 
     final static public class JmpFarEd_mem extends Op {
         EaaBase get_eaa;
-        long eip;
+        long cseip;
 
         public JmpFarEd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
-            eip = iGETIP();
+            cseip = GETCSEIP();
         }
         public int call() {
             long eaa=get_eaa.call();
             long newip=Memory.mem_readd(eaa);
             int newcs=Memory.mem_readw(eaa+4);
             FillFlags();
-            CPU.CPU_JMP(true,newcs,(int)newip,eip);
+            CPU.CPU_JMP(true,newcs,(int)newip,cseip-CPU.Segs_CSphys);
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;

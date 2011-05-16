@@ -1714,9 +1714,6 @@ public class Inst3 extends Helper {
 
     final static public class Retn32 extends Op {
         public int call() {
-            if (reg_eax.dword() == 14932) {
-                int ii=0;
-            }
             reg_eip(CPU.CPU_Pop32());
             return Constants.BR_Jump;
         }

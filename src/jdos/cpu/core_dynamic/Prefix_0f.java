@@ -864,9 +864,9 @@ public class Prefix_0f extends Helper {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
                 if (rm >= 0xc0 ) {
-                    prev.next = new Inst2.MovzxGwEb_reg(rm);
+                    prev.next = new Inst2.MovzxGwEw_reg(rm);
                 } else {
-                    prev.next = new Inst2.MovzxGwEb_mem(rm);
+                    prev.next = new Inst2.MovzxGwEw_mem(rm);
                 }
                 return RESULT_HANDLED;
             }

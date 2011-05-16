@@ -345,9 +345,9 @@ public class Prefix_66_0f extends Helper {
                 } else {
                     int rm=decode_fetchb();
                     if (rm >= 0xc0 ) {
-                        prev.next = new Inst2.CmpxchgEwGw_reg(rm);
+                        prev.next = new Inst4.CmpxchgEdGd_reg(rm);
                     } else {
-                        prev.next = new Inst2.CmpxchgEwGw_mem(rm);
+                        prev.next = new Inst4.CmpxchgEdGd_mem(rm);
                     }
                     return RESULT_HANDLED;
                 }

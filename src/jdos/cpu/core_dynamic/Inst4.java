@@ -302,7 +302,7 @@ static abstract public class JumpCond32_d extends Op {
         public ShldEdGdIb_reg(int rm) {
             rd = Mod.gd(rm);
             eard = Mod.ed(rm);
-            op3 = decode_fetchb();
+            op3 = decode_fetchb() & 0x1F;
         }
         public int call() {
             eard.dword(Instructions.DSHLD(rd.dword(), op3, eard.dword()));
@@ -318,7 +318,7 @@ static abstract public class JumpCond32_d extends Op {
         public ShldEdGdIb_mem(int rm) {
             rd = Mod.gd(rm);
             get_eaa = Mod.getEaa(rm);
-            op3 = decode_fetchb();
+            op3 = decode_fetchb() & 0x1F;
         }
         public int call() {
             long eaa = get_eaa.call();
@@ -343,7 +343,7 @@ static abstract public class JumpCond32_d extends Op {
             eard = Mod.ed(rm);
         }
         public int call() {
-            eard.dword(Instructions.DSHLD(rd.dword(), CPU_Regs.reg_ecx.low(), eard.dword()));
+            eard.dword(Instructions.DSHLD(rd.dword(), CPU_Regs.reg_ecx.low() & 0x1F, eard.dword()));
             return Constants.BR_Normal;
         }
     }
@@ -361,7 +361,7 @@ static abstract public class JumpCond32_d extends Op {
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
-                    Memory.host_writed(index, Instructions.DSHLD(rd.dword(), CPU_Regs.reg_ecx.low(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.DSHLD(rd.dword(), CPU_Regs.reg_ecx.low() & 0x1F, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
@@ -441,7 +441,7 @@ static abstract public class JumpCond32_d extends Op {
         public ShrdEdGdIb_reg(int rm) {
             rd = Mod.gd(rm);
             eard = Mod.ed(rm);
-            op3 = decode_fetchb();
+            op3 = decode_fetchb() & 0x1F;
         }
         public int call() {
             eard.dword(Instructions.DSHRD(rd.dword(), op3, eard.dword()));
@@ -457,7 +457,7 @@ static abstract public class JumpCond32_d extends Op {
         public ShrdEdGdIb_mem(int rm) {
             rd = Mod.gd(rm);
             get_eaa = Mod.getEaa(rm);
-            op3 = decode_fetchb();
+            op3 = decode_fetchb() & 0x1F;
         }
         public int call() {
             long eaa = get_eaa.call();
@@ -482,7 +482,7 @@ static abstract public class JumpCond32_d extends Op {
             eard = Mod.ed(rm);
         }
         public int call() {
-            eard.dword(Instructions.DSHRD(rd.dword(), CPU_Regs.reg_ecx.low(), eard.dword()));
+            eard.dword(Instructions.DSHRD(rd.dword(), CPU_Regs.reg_ecx.low() & 0x1F, eard.dword()));
             return Constants.BR_Normal;
         }
     }
@@ -500,7 +500,7 @@ static abstract public class JumpCond32_d extends Op {
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
-                    Memory.host_writed(index, Instructions.DSHRD(rd.dword(), CPU_Regs.reg_ecx.low(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.DSHRD(rd.dword(), CPU_Regs.reg_ecx.low() & 0x1F, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }

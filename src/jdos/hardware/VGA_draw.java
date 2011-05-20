@@ -680,8 +680,6 @@ public class VGA_draw {
 
     private static Pic.PIC_EventHandler VGA_DrawPart = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
-            long s = System.currentTimeMillis();
-            int v = val;
             while (val--!=0) {
                 Ptr data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
                 System.arraycopy(data.p, data.off, Render.render.src.outWrite, Render.render.src.outWriteOff, Render.render.src.outPitch);

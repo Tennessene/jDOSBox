@@ -207,8 +207,6 @@ public class MainFrame implements GUI {
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 if (!Dosbox.applet) {
-                    if (Config.C_DYNREC)
-                        jdos.cpu.core_dynrec2.Cache.cache_write("classes.jar");
                     System.exit(0);
                 }
             }

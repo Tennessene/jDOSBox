@@ -1983,12 +1983,6 @@ public class CPU extends Module_base {
                             cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
                         }
                     }
-                    else if (Config.C_DYNREC) {
-                        if ((CPU_AutoDetermineMode & CPU_AUTODETERMINE_CORE) != 0) {
-                            Core_dynrec2.CPU_Core_Dynrec_Cache_Init(true);
-                            cpudecoder= Core_dynrec2.CPU_Core_Dynrec_Run;
-                        }
-                    }
                     CPU_AutoDetermineMode<<=CPU_AUTODETERMINE_SHIFT;
                 } else {
                     cpu.pmode=false;
@@ -2878,8 +2872,6 @@ public class CPU extends Module_base {
         Core_full.CPU_Core_Full_Init();
         if (Config.C_DYNAMIC)
             Core_dynamic.CPU_Core_Dynamic_Init();
-        else if (Config.C_DYNREC)
-            Core_dynrec2.CPU_Core_Dynrec_Init();
         Mapper.MAPPER_AddHandler(CPU_CycleDecrease,Mapper.MapKeys.MK_f11,Mapper.MMOD1,"cycledown","Dec Cycles");
         Mapper.MAPPER_AddHandler(CPU_CycleIncrease,Mapper.MapKeys.MK_f12,Mapper.MMOD1,"cycleup"  ,"Inc Cycles");
         Change_Config(configuration);
@@ -2986,16 +2978,10 @@ public class CPU extends Module_base {
             if (core.equals("dynamic")) {
                 cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
             }
-        } else if (Config.C_DYNREC) {
-            if (core.equals("dynamic")) {
-                cpudecoder= Core_dynrec2.CPU_Core_Dynrec_Run;
-            }
         }
 
         if (Config.C_DYNAMIC)
             Core_dynamic.CPU_Core_Dynamic_Cache_Init(core.equals("dynamic"));
-        else if (Config.C_DYNREC)
-            Core_dynrec2.CPU_Core_Dynrec_Cache_Init(core.equals("dynamic"));
 
         CPU_ArchitectureType = CPU_ARCHTYPE_MIXED;
         String cputype = section.Get_string("cputype");
@@ -3053,8 +3039,6 @@ public class CPU extends Module_base {
         public void call (Section sec) {
             if (Config.C_DYNAMIC)
                 Core_dynamic.CPU_Core_Dynamic_Cache_Close();
-            else if (Config.C_DYNREC)
-                Core_dynrec2.CPU_Core_Dynrec_Cache_Close();
             test = null;
         }
     };

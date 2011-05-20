@@ -288,7 +288,7 @@ public class Instructions extends Table_ea {
         return lflags.res;
     }
 
-    static public boolean valid_ROLB(long op1, short op2) {
+    static public boolean valid_ROLB(long op1, int op2) {
         if ((op2&0x7)==0) {
             if ((op2&0x18)!=0) {
                 FillFlagsNoCFOF();
@@ -299,7 +299,7 @@ public class Instructions extends Table_ea {
         }
         return true;
     }
-    static public short do_ROLB(short op2, short l) {
+    static public short do_ROLB(int op2, short l) {
         FillFlagsNoCFOF();
         lf_var1b(l);
         lf_var2b(op2&0x07);
@@ -351,7 +351,7 @@ public class Instructions extends Table_ea {
         return lflags.res;
     }
 
-    static public boolean valid_RORB(long op1, short op2) {
+    static public boolean valid_RORB(long op1, int op2) {
         if ((op2&0x7)==0) {
             if ((op2&0x18)!=0) {
                 FillFlagsNoCFOF();
@@ -362,7 +362,7 @@ public class Instructions extends Table_ea {
         }
         return true;
     }
-    static public short do_RORB(short op2, short l) {
+    static public short do_RORB(int op2, short l) {
 
         FillFlagsNoCFOF();
         lf_var1b(l);
@@ -415,11 +415,11 @@ public class Instructions extends Table_ea {
         return lflags.res;
     }
 
-    static public boolean valid_RCLB(short op2) {
+    static public boolean valid_RCLB(int op2) {
         return (op2%9)!=0;
     }
 
-    static public short do_RCLB(short op2, short l) {
+    static public short do_RCLB(int op2, short l) {
         /*Bit8u*/int cf=(/*Bit8u*/int)FillFlags()&0x1;
         lf_var1b(l);
         lf_var2b(op2%9);
@@ -470,10 +470,10 @@ public class Instructions extends Table_ea {
         return lflags.res;
     }
 
-    static public boolean valid_RCRB(short op2) {
+    static public boolean valid_RCRB(int op2) {
         return (op2%9)!=0;
     }
-    static public short do_RCRB(short op2, short l) {
+    static public short do_RCRB(int op2, short l) {
         /*Bit8u*/int cf=FillFlags()&0x1;
         lf_var1b(l);
         lf_var2b(op2%9);
@@ -522,11 +522,11 @@ public class Instructions extends Table_ea {
         return lflags.res;
     }
 
-    static public boolean valid_SHLB(short op2) {
+    static public boolean valid_SHLB(int op2) {
         return op2!=0;
     }
 
-    static public short do_SHLB(short op2, short l) {
+    static public short do_SHLB(int op2, short l) {
         lf_var1b(l);lf_var2b(op2);
         lf_resb(lf_var1b() << lf_var2b());
         lflags.type=t_SHLb;
@@ -558,11 +558,11 @@ public class Instructions extends Table_ea {
         return lflags.res;
     }
 
-    static public boolean valid_SHRB(short op2) {
+    static public boolean valid_SHRB(int op2) {
         return op2!=0;
     }
 
-    static public short do_SHRB(short op2, short l) {
+    static public short do_SHRB(int op2, short l) {
         lf_var1b(l);lf_var2b(op2);
         lf_resb(lf_var1b() >> lf_var2b());
         lflags.type=t_SHRb;
@@ -594,11 +594,11 @@ public class Instructions extends Table_ea {
         return lflags.res;
     }
 
-    static public boolean valid_SARB(short op2) {
+    static public boolean valid_SARB(int op2) {
         return op2!=0;
     }
 
-    static public short do_SARB(short op2, short l) {
+    static public short do_SARB(int op2, short l) {
         lf_var1b(l);lf_var2b(op2);
         if (lf_var2b()>8) lf_var2b(8);
         if ((lf_var1b() & 0x80)!=0) {

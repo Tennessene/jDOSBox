@@ -13,13 +13,13 @@ abstract public class Op {
     abstract public int call();
 
     public int RUNEXCEPTION() {
-        CPU_Regs.reg_eip += eip_running_count;
+        CPU_Regs.reg_eip += eip_running_count-eip_count;
         CPU.CPU_Exception(CPU.cpu.exception.which, CPU.cpu.exception.error);
         return Constants.BR_Jump;
     }
 
     public int EXCEPTION(int blah) {
-        CPU_Regs.reg_eip += eip_running_count;
+        CPU_Regs.reg_eip += eip_running_count-eip_count;
         CPU.CPU_Exception(blah);
         return Constants.BR_Jump;
     }

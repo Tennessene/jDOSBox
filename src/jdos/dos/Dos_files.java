@@ -784,7 +784,7 @@ public class Dos_files {
         byte[] name = new byte[8];
 
         byte[] b = fcb_name.value.substring(2, fcb_name.value.lastIndexOf('.')).getBytes();
-        System.arraycopy(b, 0, name, 0, b.length);
+        System.arraycopy(b, 0, name, 0, Math.min(b.length, 8));
         byte[] ext = new byte[3];
         b = fcb_name.value.substring(fcb_name.value.lastIndexOf('.')+1).getBytes();
         System.arraycopy(b, 0, ext, 0, Math.min(b.length, ext.length));

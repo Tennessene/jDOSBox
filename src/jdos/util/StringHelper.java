@@ -286,7 +286,7 @@ public class StringHelper {
         } else {
             if (places == 0) {
                 result = result.substring(0, pos);
-            } else {
+            } else if (pos+places+1<result.length()) {
                 result = result.substring(0, pos+places+1);
             }
         }

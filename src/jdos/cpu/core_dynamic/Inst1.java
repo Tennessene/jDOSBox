@@ -3071,8 +3071,7 @@ public class Inst1 extends Helper {
             ib=decode_fetchb();
         }
         public int call() {
-            Instructions.AAM(ib);
-            return Constants.BR_Normal;
+            return Instructions.AAMr(this, ib);
         }
     }
 

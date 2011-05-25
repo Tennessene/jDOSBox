@@ -1,9 +1,11 @@
 package jdos.cpu;
 
+import jdos.cpu.core_dynamic.Op;
 import jdos.cpu.core_normal.Prefix_helpers;
 import jdos.cpu.core_share.Constants;
 import jdos.util.LongHelper;
 import jdos.hardware.Memory;
+import jdos.util.OverflowException;
 
 public class Instructions extends Table_ea {
     static public interface loadb {
@@ -762,6 +764,22 @@ public class Instructions extends Table_ea {
         }
     }
 
+    static public int AAMr(Op op, int op1) {
+        if (op1!=0) {
+            CPU_Regs.reg_eax.high(CPU_Regs.reg_eax.low() / op1);
+            CPU_Regs.reg_eax.low(CPU_Regs.reg_eax.low() % op1);
+            CPU_Regs.SETFLAGBIT(CPU_Regs.SF,(CPU_Regs.reg_eax.low() & 0x80)!=0);
+            CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,(CPU_Regs.reg_eax.low() == 0));
+            CPU_Regs.SETFLAGBIT(CPU_Regs.PF,parity_lookup[CPU_Regs.reg_eax.low()]!=0);
+            CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);
+            CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
+            CPU_Regs.SETFLAGBIT(CPU_Regs.AF,false);
+            lflags.type=t_UNKNOWN;
+            return Constants.BR_Normal;
+        } else {
+            return op.EXCEPTION(0);
+        }
+    }
 
     //Took this from bochs, i seriously hate these weird bcd opcodes
     static public void AAD(int op1) {
@@ -855,9 +873,14 @@ public class Instructions extends Table_ea {
             throw new Prefix_helpers.ContinueException();
         }
         /*Bit64u*/long num=((CPU_Regs.reg_edx.dword())<<32)|CPU_Regs.reg_eax.dword();
-        /*Bit64u*/long quo= LongHelper.divideLongByInt(num,(int)val);
-        CPU_Regs.reg_edx.dword(((quo >> 32) & 0xFFFFFFFFl));
-        CPU_Regs.reg_eax.dword((quo & 0xFFFFFFFFl));
+        try {
+            /*Bit64u*/long quo= LongHelper.divideLongByInt(num,(int)val);
+            CPU_Regs.reg_edx.dword(((quo >> 32) & 0xFFFFFFFFl));
+            CPU_Regs.reg_eax.dword((quo & 0xFFFFFFFFl));
+        } catch (OverflowException e) {
+            Prefix_helpers.EXCEPTION(0);
+            throw new Prefix_helpers.ContinueException();
+        }
     }
 
     static public void IDIVB(short l) {
@@ -913,104 +936,97 @@ public class Instructions extends Table_ea {
         CPU_Regs.reg_eax.dword(quo32s);
     }
 
-    static public int DIVBr(short l) {
+    static public int DIVBr(Op op, short l) {
         /*Bitu*/int val=l;
         if (val==0)	{
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         /*Bitu*/int quo=CPU_Regs.reg_eax.word() / val;
         /*Bit8u*/int rem=(CPU_Regs.reg_eax.word() % val);
         /*Bit8u*/int quo8=(quo&0xff);
         if (quo>0xff) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         CPU_Regs.reg_eax.high(rem);
         CPU_Regs.reg_eax.low(quo8);
         return Constants.BR_Normal;
     }
 
-    static public int DIVWr(int val) {
+    static public int DIVWr(Op op, int val) {
         if (val==0)	{
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         /*Bitu*/long num=((/*Bit32u*/long)CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word();
         /*Bitu*/long quo=num/val;
         /*intBit16u*/int rem=(int)((num % val));
         /*intBit16u*/int quo16=(int)(quo&0xffff);
         if (quo!=quo16) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         CPU_Regs.reg_edx.word(rem);
         CPU_Regs.reg_eax.word(quo16);
         return Constants.BR_Normal;
     }
 
-    static public int DIVDr(long val) {
+    static public int DIVDr(Op op, long val) {
         if (val==0) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         /*Bit64u*/long num=((CPU_Regs.reg_edx.dword())<<32)|CPU_Regs.reg_eax.dword();
-        /*Bit64u*/long quo= LongHelper.divideLongByInt(num,(int)val);
-        CPU_Regs.reg_edx.dword(((quo >> 32) & 0xFFFFFFFFl));
-        CPU_Regs.reg_eax.dword((quo & 0xFFFFFFFFl));
+        try {
+            /*Bit64u*/long quo= LongHelper.divideLongByInt(num,(int)val);
+            CPU_Regs.reg_edx.dword(((quo >> 32) & 0xFFFFFFFFl));
+            CPU_Regs.reg_eax.dword((quo & 0xFFFFFFFFl));
+        } catch (OverflowException e) {
+            return op.EXCEPTION(0);
+        }
         return Constants.BR_Normal;
     }
 
-    static public int IDIVBr(short l) {
+    static public int IDIVBr(Op op, short l) {
         /*Bits*/int val=(/*Bit8s*/byte)(l);
         if (val==0)	{
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         /*Bits*/int quo=((/*Bit16s*/short)CPU_Regs.reg_eax.word()) / val;
         /*Bit8s*/byte rem=(/*Bit8s*/byte)((/*Bit16s*/short)CPU_Regs.reg_eax.word() % val);
         /*Bit8s*/byte quo8s=(/*Bit8s*/byte)(quo&0xff);
         if (quo!=(/*Bit16s*/short)quo8s) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         CPU_Regs.reg_eax.high(rem);
         CPU_Regs.reg_eax.low(quo8s);
         return Constants.BR_Normal;
     }
 
-    static public int IDIVWr(int l) {
+    static public int IDIVWr(Op op, int l) {
         /*Bits*/int val=(/*Bit16s*/short)(l);
         if (val==0) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         /*Bits*/int num=((CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word());
         /*Bits*/int quo=num/val;
         /*Bit16s*/short rem=(/*Bit16s*/short)(num % val);
         /*Bit16s*/short quo16s=(/*Bit16s*/short)quo;
         if (quo!=(/*Bit32s*/int)quo16s) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         CPU_Regs.reg_edx.word(rem);
         CPU_Regs.reg_eax.word(quo16s);
         return Constants.BR_Normal;
     }
 
-    static public int IDIVDr(long l) {
+    static public int IDIVDr(Op op, long l) {
         /*Bits*/int val=(/*Bit32s*/int)(l);
         if (val==0) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         /*Bit64s*/long num=((CPU_Regs.reg_edx.dword())<<32)|CPU_Regs.reg_eax.dword();
         /*Bit64s*/long quo=num/val;
         /*Bit32s*/int rem=(/*Bit32s*/int)(num % val);
         /*Bit32s*/int quo32s=(/*Bit32s*/int)(quo&0xffffffffl);
         if (quo!=(/*Bit64s*/long)quo32s) {
-            Prefix_helpers.EXCEPTION(0);
-            return Constants.BR_Jump;
+            return op.EXCEPTION(0);
         }
         CPU_Regs.reg_edx.dword(rem);
         CPU_Regs.reg_eax.dword(quo32s);

@@ -3,12 +3,26 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
-import jdos.misc.setup.Config;
 import jdos.misc.Log;
 
 public class Decoder extends Inst1 {
     public static final Decode[] ops = new Decode[1024];
 
+    static {
+        Decode not_handled = new Decode() {
+            public int call(Op prev) {
+                prev.next = new Op() {
+                    public int call() {
+                        CPU.CPU_Exception(6,0);
+                        return Constants.BR_Jump;
+                    }
+                };
+                return Constants.BR_Jump;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+        };
+        for (int i=0;i<ops.length;i++)
+            ops[i] = not_handled;
+    }
     private static class StartDecode extends Op {
         public int call() {
             return Constants.BR_Normal;
@@ -16,12 +30,7 @@ public class Decoder extends Inst1 {
     }
 
     private static class HandledDecode extends Op {
-        long instructions;
-        public HandledDecode(long instructions) {
-            this.instructions = instructions;
-        }
         public int call() {
-            CPU_Regs.reg_eip+=instructions;
             return Constants.BR_Jump;
         }
     }
@@ -78,6 +87,7 @@ public class Decoder extends Inst1 {
         boolean seg_changed = false;
         int opcode = 0;
         int count = 0;
+
         while (max_opcodes-->0 && result==0) {
             // Init prefixes
             decode.big_addr=CPU.cpu.code.big;
@@ -96,23 +106,16 @@ public class Decoder extends Inst1 {
                 break;
             }
             count+=(decode.code - decode.op_start);
-            if (op.next != null) {
-                op = op.next;
-                op.eip_running_count = count;
-                op.eip_count = decode.code - decode.op_start;
-                op.c = opcode;
-                //System.out.println(Integer.toHexString(opcode));
-            } else {
-                if (Config.DEBUG_LOG) {
-                    op.next = new Op() {
-                        final public int call() {
-                            return Constants.BR_Normal;
-                        }
-                    };
-                    op = op.next;
-                    op.c = opcode;
-                }
+            if (op.next == null) {
+                op.next = new Op() {
+                    final public int call() {
+                        return Constants.BR_Normal;
+                    }
+                };
             }
+            op = op.next;
+            op.eip_count = decode.code - decode.op_start;
+            op.c = opcode;
             if (result == RESULT_CONTINUE) {
                 result = RESULT_HANDLED;
                 max_opcodes++;
@@ -145,7 +148,7 @@ public class Decoder extends Inst1 {
         Cache.cache_closeblock();
         switch (result) {
             case RESULT_HANDLED:
-                op.next = new HandledDecode(decode.code - decode.code_start);
+                op.next = new HandledDecode();
                 op = op.next;
                 break;
             case RESULT_CALLBACK:
@@ -157,7 +160,7 @@ public class Decoder extends Inst1 {
                 if (decode.page.index<0) {
                     Log.exit("Dynamic Core:  Self modifying code across page boundries not implemented yet");
                 }
-                op.next = new ModifiedDecodeOp(opcode_index, prefixes, EA16, decode.op_start - decode.code_start);
+                op.next = new ModifiedDecodeOp(opcode_index, prefixes, EA16, 0);
                 op = op.next;
                 break;
         }

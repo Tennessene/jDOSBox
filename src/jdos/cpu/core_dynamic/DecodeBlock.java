@@ -31,17 +31,15 @@ final public class DecodeBlock {
                 cycles++;
                 if (Config.DEBUG_LOG)
                     if (o.c>=0) Debug.stop(Debug.TYPE_CPU, o.c);
-                if (result == Constants.BR_Normal)
+                if (result == Constants.BR_Normal) {
+                    CPU_Regs.reg_eip+=o.eip_count;
                     o = o.next;
-                else
+                } else
                     break;
-            }
-            if (o!=null && result == Constants.BR_Illegal) {
-                CPU_Regs.reg_eip+=o.eip_running_count-o.eip_count;
             }
         } catch (SMC_Exception e) {
             System.out.println("SMC");
-            CPU_Regs.reg_eip+=o.eip_running_count;
+            CPU_Regs.reg_eip+=o.eip_count;
         }
         CPU.CPU_Cycles-=cycles;
         return result;

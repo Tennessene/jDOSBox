@@ -84,6 +84,7 @@ public class Decoder extends Inst1 {
 
         Op op = new StartDecode();
         Op start_op = op;
+        Op begin_op = start_op;
         boolean seg_changed = false;
         int opcode = 0;
         int count = 0;
@@ -125,6 +126,7 @@ public class Decoder extends Inst1 {
                 seg_changed = true;
                 continue;
             }
+            begin_op = op;
             op.eip_count = count;
             count = 0;
             if (result == RESULT_ANOTHER) {
@@ -157,12 +159,13 @@ public class Decoder extends Inst1 {
             case RESULT_JUMP:
                 break;
             case RESULT_ILLEGAL_INSTRUCTION:
-                decode.page.index-= decode.code - decode.op_start;
+                decode.page.index-= decode.code - decode.op_start - count;
                 // :TODO: handle page change
                 if (decode.page.index<0) {
                     Log.exit("Dynamic Core:  Self modifying code across page boundries not implemented yet");
                 }
-                op.next = new ModifiedDecodeOp(opcode_index, prefixes, EA16, count);
+                op = begin_op;
+                op.next = new ModifiedDecodeOp();
                 op = op.next;
                 break;
         }
@@ -172,19 +175,8 @@ public class Decoder extends Inst1 {
     }
 
     static private class ModifiedDecodeOp extends Op {
-        int instructions;
-        public int prefixes;
-        public boolean EA16;
-        public int opcode_index;
-        public ModifiedDecodeOp(int opcode_index, int prefixes, boolean EA16, int instructions) {
-            this.instructions = instructions;
-            this.prefixes = prefixes;
-            this.EA16 = EA16;
-            this.opcode_index = opcode_index;
-        }
-
         public int call() {
-            return ModifiedDecode.call(opcode_index, prefixes, EA16, instructions);
+            return ModifiedDecode.call();
         }
     }
 }

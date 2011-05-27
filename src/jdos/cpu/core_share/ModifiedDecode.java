@@ -5,11 +5,17 @@ import jdos.cpu.core_dynamic.Op;
 import jdos.cpu.core_normal.Prefix_helpers;
 
 public class ModifiedDecode {
-    static public int call(int opcode_index, int prefixes, boolean EA16, int offset) {
-        Core.cseip = CPU.Segs_CSphys + CPU_Regs.reg_eip+offset;
-        Core.prefixes = prefixes;
-        Core.opcode_index = opcode_index;
-        Table_ea.EA16 = EA16;
+    static public int call() {
+        Core.cseip = CPU.Segs_CSphys + CPU_Regs.reg_eip;
+        if (CPU.cpu.code.big) {
+            Core.opcode_index=0x200;
+            Core.prefixes=1;
+            Table_ea.EA16 = false;
+        } else {
+            Core.opcode_index=0;
+            Core.prefixes=0;
+            Table_ea.EA16 = true;
+        }
         while (true) {
             int c = Core.opcode_index  + Core.Fetchb.call();
 //                    last = c;

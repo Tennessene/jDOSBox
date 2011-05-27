@@ -29,49 +29,6 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_JUMP = 6;
     public final static int RESULT_CONTINUE_SEG = 7;
 
-    public static long GETCSEIP() {
-        return decode.code;
-    }
-
-    protected static int JumpCond16_b(boolean COND, long eip, int off) {
-        reg_eip = eip;
-        if (COND) {
-            reg_ip(reg_ip()+off+1);
-            return Constants.BR_Link1;
-        }
-        reg_ip(reg_ip()+1);
-        return Constants.BR_Link2;
-    }
-    protected static int JumpCond16_w(boolean COND, long eip, int off) {
-        reg_eip = eip;
-        if (COND) {
-            reg_ip(reg_ip()+off+2);
-            return Constants.BR_Link1;
-        }
-        reg_ip(reg_ip()+2);
-        return Constants.BR_Link2;
-    }
-
-    protected static int JumpCond32_b(boolean COND, long eip, int off) {
-        reg_eip = eip;
-        if (COND) {
-            reg_eip(reg_eip()+off+1);
-            return Constants.BR_Link1;
-        }
-        reg_eip(reg_eip()+1);
-        return Constants.BR_Link2;
-    }
-
-    protected static int JumpCond32_d(boolean COND, long eip, long off) {
-        reg_eip = eip;
-        if (COND) {
-            reg_eip(reg_eip()+off+4);
-            return Constants.BR_Link1;
-        }
-        reg_eip(reg_eip()+4);
-        return Constants.BR_Link2;
-    }
-
     static void decode_advancepage() {
         // Advance to the next page
         decode.active_block.page.end=4095;

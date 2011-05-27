@@ -515,106 +515,112 @@ public class Inst2 extends Helper {
 
     static abstract public class JumpCond16_w extends Op {
         int offset;
-        long cseip;
         public JumpCond16_w() {
-            cseip = GETCSEIP();
             offset = decode_fetchws();
+        }
+        final protected int jump(boolean COND, int off) {
+            if (COND) {
+                reg_ip(reg_ip()+off+(int)eip_count);
+                return Constants.BR_Link1;
+            }
+            reg_ip(reg_ip()+(int)eip_count);
+            return Constants.BR_Link2;
         }
     }
 
     final static public class JumpCond16_w_o extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_O(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_O(), offset);
         }
     }
 
     final static public class JumpCond16_w_no extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NO(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NO(), offset);
         }
     }
 
     final static public class JumpCond16_w_b extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_B(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_B(), offset);
         }
     }
 
     final static public class JumpCond16_w_nb extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NB(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NB(), offset);
         }
     }
 
     final static public class JumpCond16_w_z extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_Z(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_Z(), offset);
         }
     }
 
     final static public class JumpCond16_w_nz extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NZ(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NZ(), offset);
         }
     }
 
     final static public class JumpCond16_w_be extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_BE(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_BE(), offset);
         }
     }
 
     final static public class JumpCond16_w_nbe extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NBE(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NBE(), offset);
         }
     }
 
     final static public class JumpCond16_w_s extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_S(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_S(), offset);
         }
     }
 
     final static public class JumpCond16_w_ns extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NS(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NS(), offset);
         }
     }
 
     final static public class JumpCond16_w_p extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_P(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_P(), offset);
         }
     }
 
     final static public class JumpCond16_w_np extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NP(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NP(), offset);
         }
     }
 
     final static public class JumpCond16_w_l extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_L(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_L(), offset);
         }
     }
 
     final static public class JumpCond16_w_nl extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NL(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NL(), offset);
         }
     }
 
     final static public class JumpCond16_w_le extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_LE(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_LE(), offset);
         }
     }
 
     final static public class JumpCond16_w_nle extends JumpCond16_w {
         public int call() {
-            return JumpCond16_w(Flags.TFLG_NLE(), cseip-CPU.Segs_CSphys, offset);
+            return jump(Flags.TFLG_NLE(), offset);
         }
     }
 

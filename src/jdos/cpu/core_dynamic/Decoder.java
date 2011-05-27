@@ -114,7 +114,6 @@ public class Decoder extends Inst1 {
                 };
             }
             op = op.next;
-            op.eip_count = decode.code - decode.op_start;
             op.c = opcode;
             if (result == RESULT_CONTINUE) {
                 result = RESULT_HANDLED;
@@ -125,7 +124,10 @@ public class Decoder extends Inst1 {
                 max_opcodes++;
                 seg_changed = true;
                 continue;
-            } else if (result == RESULT_ANOTHER) {
+            }
+            op.eip_count = count;
+            count = 0;
+            if (result == RESULT_ANOTHER) {
                 result = RESULT_HANDLED;
                 max_opcodes++;
             }
@@ -160,7 +162,7 @@ public class Decoder extends Inst1 {
                 if (decode.page.index<0) {
                     Log.exit("Dynamic Core:  Self modifying code across page boundries not implemented yet");
                 }
-                op.next = new ModifiedDecodeOp(opcode_index, prefixes, EA16, 0);
+                op.next = new ModifiedDecodeOp(opcode_index, prefixes, EA16, count);
                 op = op.next;
                 break;
         }
@@ -170,11 +172,11 @@ public class Decoder extends Inst1 {
     }
 
     static private class ModifiedDecodeOp extends Op {
-        long instructions;
+        int instructions;
         public int prefixes;
         public boolean EA16;
         public int opcode_index;
-        public ModifiedDecodeOp(int opcode_index, int prefixes, boolean EA16, long instructions) {
+        public ModifiedDecodeOp(int opcode_index, int prefixes, boolean EA16, int instructions) {
             this.instructions = instructions;
             this.prefixes = prefixes;
             this.EA16 = EA16;
@@ -182,8 +184,7 @@ public class Decoder extends Inst1 {
         }
 
         public int call() {
-            CPU_Regs.reg_eip += instructions;
-            return ModifiedDecode.call(opcode_index, prefixes, EA16);
+            return ModifiedDecode.call(opcode_index, prefixes, EA16, instructions);
         }
     }
 }

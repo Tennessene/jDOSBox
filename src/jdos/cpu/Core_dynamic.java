@@ -85,7 +85,7 @@ public class Core_dynamic {
             Core.base_val_ds=CPU_Regs.ds;
             while (CPU.CPU_Cycles>0) {
                 // Determine the linear address of CS:EIP
-                /*PhysPt*/long ip_point=CPU.Segs_CSphys+CPU_Regs.reg_eip;
+                /*PhysPt*/long ip_point=(CPU.Segs_CSphys+ CPU_Regs.reg_eip()) & 0xFFFFFFFFl;
 
                 Paging.PageHandler handler=Paging.get_tlb_readhandler((int)ip_point);
                 CodePageHandlerDynRec chandler=null;

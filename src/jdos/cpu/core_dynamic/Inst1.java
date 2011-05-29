@@ -2560,7 +2560,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            CPU.CPU_SetSegGeneralES(earw.word());
+            if (CPU.CPU_SetSegGeneralES(earw.word())) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -2573,7 +2573,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             long eaa = get_eaa.call();
-            CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa));
+            if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -2585,7 +2585,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            CPU.CPU_SetSegGeneralSS(earw.word());
+            if (CPU.CPU_SetSegGeneralSS(earw.word())) return RUNEXCEPTION();
             Core.base_ss=CPU.Segs_SSphys;
             return Constants.BR_Normal;
         }
@@ -2599,7 +2599,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             long eaa = get_eaa.call();
-            CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa));
+            if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             Core.base_ss=CPU.Segs_SSphys;
             return Constants.BR_Normal;
         }
@@ -2612,7 +2612,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            CPU.CPU_SetSegGeneralDS(earw.word());
+            if (CPU.CPU_SetSegGeneralDS(earw.word())) return RUNEXCEPTION();
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;
@@ -2627,7 +2627,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             long eaa = get_eaa.call();
-            CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa));
+            if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;
@@ -2641,7 +2641,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            CPU.CPU_SetSegGeneralFS(earw.word());
+            if (CPU.CPU_SetSegGeneralFS(earw.word())) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -2654,7 +2654,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             long eaa = get_eaa.call();
-            CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa));
+            if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -2666,7 +2666,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            CPU.CPU_SetSegGeneralGS(earw.word());
+            if (CPU.CPU_SetSegGeneralGS(earw.word())) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -2679,7 +2679,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             long eaa = get_eaa.call();
-            CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa));
+            if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }

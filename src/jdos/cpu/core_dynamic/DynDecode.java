@@ -8,12 +8,7 @@ public final class DynDecode {
     /*PhysPt*/long code;			// pointer to next byte in the instruction stream
     /*PhysPt*/long code_start;		// pointer to the start of the current code block
     /*PhysPt*/long op_start;		// pointer to the start of the current instruction
-    boolean big_op;			// operand modifier
-    boolean big_addr;			// address modifier
-    int rep;			// current repeat prefix
     /*Bitu*/int cycles;			// number cycles used by currently translated code
-    boolean seg_prefix_used;	// segment overridden
-    /*Bit8u*/int seg_prefix;		// segment prefix (if seg_prefix_used==true)
 
     // block that contains the first instruction translated
     public CacheBlockDynRec block;

@@ -3,6 +3,7 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 import jdos.cpu.*;
+import jdos.misc.Log;
 
 public class Helper extends CPU_Regs {
     static private Core_dynamic.CodePageHandlerDynRecRef codeRef = new Core_dynamic.CodePageHandlerDynRecRef();
@@ -65,6 +66,16 @@ public class Helper extends CPU_Regs {
         decode.page.index++;
         decode.code+=1;
         return Memory.mem_readb(decode.code-1);
+    }
+    static void decode_putback(int count) {
+        for (int i=0;i<count;i++) {
+            decode.page.index--;
+            // :TODO: handle page change
+            if (decode.page.index<0) {
+                Log.exit("Dynamic Core:  Self modifying code across page boundries not implemented yet");
+            }
+            decode.page.wmap.p[decode.page.index]-=0x01;
+        }
     }
     static short decode_fetchws() {
         return (short)decode_fetchw();

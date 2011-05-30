@@ -90,12 +90,6 @@ public class Decoder extends Inst1 {
         int count = 0;
 
         while (max_opcodes-->0 && result==0) {
-            // Init prefixes
-            decode.big_addr=CPU.cpu.code.big;
-            decode.big_op=CPU.cpu.code.big;
-            decode.seg_prefix=0;
-            decode.seg_prefix_used=false;
-            decode.rep=Decoder_basic.REP_NONE;
             decode.cycles++;
             decode.op_start=decode.code;
             decode.modifiedAlot = false;
@@ -159,11 +153,7 @@ public class Decoder extends Inst1 {
             case RESULT_JUMP:
                 break;
             case RESULT_ILLEGAL_INSTRUCTION:
-                decode.page.index-= decode.code - decode.op_start - count;
-                // :TODO: handle page change
-                if (decode.page.index<0) {
-                    Log.exit("Dynamic Core:  Self modifying code across page boundries not implemented yet");
-                }
+                decode_putback((int)(decode.code -decode.op_start + count));
                 op = begin_op;
                 op.next = new ModifiedDecodeOp();
                 op = op.next;

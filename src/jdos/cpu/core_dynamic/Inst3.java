@@ -754,6 +754,7 @@ public class Inst3 extends Helper {
             rd = Mod.gd(rm);
         }
         public int call() {
+            if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             long eaa=get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);

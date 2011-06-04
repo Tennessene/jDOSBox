@@ -3,6 +3,7 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.StringOp;
 import jdos.cpu.CPU;
 import jdos.cpu.Core;
+import jdos.cpu.core_share.Constants;
 
 public class Prefix_none extends Helper {
     static public void init(Decode[] ops) {
@@ -1697,6 +1698,11 @@ public class Prefix_none extends Helper {
         ops[0x9b] = new Decode() {
             final public int call(Op prev) {
                 /* No waiting here */
+                prev.next = new Op() {
+                    final public int call() {
+                        return Constants.BR_Normal;
+                    }
+                };
                 return RESULT_HANDLED;
             }
         };
@@ -2669,7 +2675,7 @@ public class Prefix_none extends Helper {
         ops[0xf2] = new Decode() {
             final public int call(Op prev) {
                 prefixes|=Core.PREFIX_REP;
-                prev.next = new Inst1.Repnz();
+                Core.rep_zero = false;
                 return RESULT_CONTINUE;
             }
         };
@@ -2679,7 +2685,7 @@ public class Prefix_none extends Helper {
         ops[0xf3] = new Decode() {
             final public int call(Op prev) {
                 prefixes|=Core.PREFIX_REP;
-                prev.next = new Inst1.Repz();
+                Core.rep_zero = true;
                 return RESULT_CONTINUE;
             }
         };

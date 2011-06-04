@@ -1174,14 +1174,18 @@ public class Inst1 extends Helper {
         int type;
         int width;
         int prefixes;
+        boolean rep_zero;
+
         public DoStringException(int type, int width) {
             this.type = type;
             this.width = width;
             this.prefixes = Helper.prefixes;
+            rep_zero = Core.rep_zero;
         }
 
         public int call() {
             if (CPU.CPU_IO_Exception(reg_edx.word(),width)) return RUNEXCEPTION();
+            Core.rep_zero = rep_zero;
             StringOp.DoString(prefixes, type);
             return Constants.BR_Normal;
         }
@@ -1190,11 +1194,15 @@ public class Inst1 extends Helper {
     final static public class DoString extends Op {
         int type;
         int prefixes;
+        boolean rep_zero;
+
         public DoString(int type) {
             this.prefixes = Helper.prefixes;
             this.type = type;
+            this.rep_zero = Core.rep_zero;
         }
         public int call() {
+            Core.rep_zero = rep_zero;
             StringOp.DoString(prefixes, type);
             return Constants.BR_Normal;
         }

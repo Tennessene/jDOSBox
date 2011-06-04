@@ -17,7 +17,7 @@ public class Decoder extends Inst1 {
                         return Constants.BR_Jump;
                     }
                 };
-                return Constants.BR_Jump;  //To change body of implemented methods use File | Settings | File Templates.
+                return RESULT_JUMP;  //To change body of implemented methods use File | Settings | File Templates.
             }
         };
         for (int i=0;i<ops.length;i++)
@@ -101,20 +101,14 @@ public class Decoder extends Inst1 {
                 break;
             }
             count+=(decode.code - decode.op_start);
-            if (op.next == null) {
-                op.next = new Op() {
-                    final public int call() {
-                        return Constants.BR_Normal;
-                    }
-                };
-            }
-            op = op.next;
-            op.c = opcode;
             if (result == RESULT_CONTINUE) {
                 result = RESULT_HANDLED;
                 max_opcodes++;
                 continue;
-            } if (result == RESULT_CONTINUE_SEG) {
+            }
+            op = op.next;
+            op.c = opcode;
+            if (result == RESULT_CONTINUE_SEG) {
                 result = RESULT_HANDLED;
                 max_opcodes++;
                 seg_changed = true;

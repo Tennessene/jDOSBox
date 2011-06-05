@@ -499,7 +499,7 @@ public class Dosbox {
         Pint.Set_values(rates);
         Pint.Set_help("Sample rate of the PC-Speaker sound generation.");
 
-        // :TODO: :ADD: secprop.AddInitFunction(TandySound.TANDYSOUND_Init,true);//done
+        secprop.AddInitFunction(TandySound.TANDYSOUND_Init,true);
         String[] tandys = { "auto", "on", "off"};
         Pstring = secprop.Add_string("tandy",Property.Changeable.WhenIdle,"auto");
         Pstring.Set_values(tandys);

@@ -402,7 +402,7 @@ public class DMA extends Module_base {
     }
 
     /* remove the second DMA controller (ports are removed automatically) */
-    private static void CloseSecondDMAController() {
+    public static void CloseSecondDMAController() {
         if (DmaControllers[1]!=null) {
             DmaControllers[1]=null;
         }

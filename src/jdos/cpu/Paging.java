@@ -186,6 +186,8 @@ public class Paging extends Module_base {
         if (tlb_addr!=Long.MIN_VALUE) return (int)(tlb_addr+address);
         get_tlb_readhandler(a).readb(address);
         tlb_addr=get_tlb_read(a);
+        if (tlb_addr==Long.MIN_VALUE)
+            return -1;
         return (int)(tlb_addr+address);
     }
 

@@ -789,11 +789,11 @@ public class Mixer extends Program {
 
     static private Thread audioThread;
 
-    private static boolean open(AudioFormat format, int bufferSize) {
+    private static boolean open(AudioFormat format) {
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             line = (SourceDataLine)AudioSystem.getLine(info);
-            line.open(format, bufferSize*10);
+            line.open(format);
             line.start();
             audioThreadExit = false;
             audioThread = new Thread() {
@@ -806,12 +806,12 @@ public class Mixer extends Program {
                         if (result)
                             line.write(audioBuffer, 0, audioBuffer.length);
                         else {
-                            try {Thread.sleep(100);} catch (Exception e){}
+                            try {Thread.sleep(20);} catch (Exception e){}
                         }
                     }
                 }
             };
-            audioBuffer = new byte[bufferSize*4]; // this needs to be smaller than buffer size passed into open other line.write will block
+            audioBuffer = new byte[512]; // this needs to be smaller than buffer size passed into open other line.write will block
             audioThread.start();
             return true;
         } catch (Exception e) {
@@ -855,7 +855,7 @@ public class Mixer extends Program {
                 mixer.tick_add=((mixer.freq) << MIXER_SHIFT)/1000;
                 Timer.TIMER_AddTickHandler(MIXER_Mix_NoSound);
             }
-            else if (!open(new AudioFormat(mixer.freq, 16, 2, true, false), mixer.blocksize)) {
+            else if (!open(new AudioFormat(mixer.freq, 16, 2, true, false))) {
 //            else if (SDL_OpenAudio(&spec, &obtained) <0 ) {
 //                mixer.nosound = true;
 //                Log.log_msg("MIXER:Can't open audio: %s , running in nosound mode.",SDL_GetError());

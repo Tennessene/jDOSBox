@@ -440,8 +440,8 @@ public class IPX extends Module_base {
         for(i=0;i<socketCount-1;i++) {
             if (opensockets[i] == sockNum) {
                 // Realign list of open sockets
-                for (int j=i;j< SOCKETTABLESIZE -1;i++)
-                    opensockets[i] = opensockets[i+1];
+                for (int j=i;j< SOCKETTABLESIZE -1;j++)
+                    opensockets[j] = opensockets[j+1];
                 break;
             }
         }

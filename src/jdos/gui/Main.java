@@ -178,13 +178,13 @@ public class Main {
                               (float)(event2.rel_y)*mouse_sensitivity/100.0f,
                               event2.abs_x,
                               event2.abs_y,
-                              false);
+                              mouse_locked);
                 } else {
                     Mouse.Mouse_CursorMoved((float)(event.getPoint().x-lastMouse.x)*mouse_sensitivity/100.0f,
                               (float)(event.getPoint().y-lastMouse.y)*mouse_sensitivity/100.0f,
                               (float)event.getPoint().x/(screen_width-1)*mouse_sensitivity/100.0f,
                               (float)event.getPoint().y/(screen_height-1)*mouse_sensitivity/100.0f,
-                              false);
+                              mouse_locked);
                     lastMouse = event.getPoint();
                 }
             }

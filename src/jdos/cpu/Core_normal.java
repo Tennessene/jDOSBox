@@ -72,7 +72,7 @@ public class Core_normal extends Prefix_66_0f {
 //                }
         //restart_opcode:
                 while (true) {
-                    int c = opcode_index+Fetchb.call();
+                    int c = opcode_index+Fetchb();
 //                    last = c;
                     if (Config.DEBUG_LOG)
                         Debug.start(Debug.TYPE_CPU, c);

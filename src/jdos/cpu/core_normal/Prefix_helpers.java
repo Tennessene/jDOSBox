@@ -54,30 +54,30 @@ public class Prefix_helpers extends Instructions {
 
     protected static void JumpCond16_b(boolean COND) {
         SAVEIP();
-        if (COND) reg_ip(reg_ip()+Fetchbs.call());
+        if (COND) reg_ip(reg_ip()+Fetchbs());
         reg_ip(reg_ip()+1);
     }
 
     protected static void JumpCond16_w(boolean COND) {
         SAVEIP();
-        if (COND) reg_ip(reg_ip()+Fetchws.call());
+        if (COND) reg_ip(reg_ip()+Fetchws());
         reg_ip(reg_ip()+2);
     }
 
     protected static void JumpCond32_b(boolean COND) {
         SAVEIP();
-        if (COND) reg_eip(reg_eip()+Fetchbs.call());
+        if (COND) reg_eip(reg_eip()+Fetchbs());
         reg_eip(reg_eip()+1);
     }
 
     protected static void JumpCond32_d(boolean COND) {
         SAVEIP();
-        if (COND) reg_eip(reg_eip()+Fetchds.call());
+        if (COND) reg_eip(reg_eip()+Fetchds());
         reg_eip(reg_eip()+4);
     }
 
     protected static void SETcc(boolean cc) {
-        /*Bit8u*/short rm=Fetchb.call();
+        /*Bit8u*/short rm=Fetchb();
         if (rm >= 0xc0 ) {
             Modrm.GetEArb[rm].set((short)((cc) ? 1 : 0));}
         else {Memory.mem_writeb(getEaa(rm),(cc) ? 1 : 0);}
@@ -180,7 +180,7 @@ public class Prefix_helpers extends Instructions {
     static protected void GRP2B_fetchb(final short rm) {
         /*Bitu*/int which=(rm>>3)&7;
         if (rm >= 0xc0) {
-            short blah = Fetchb.call();
+            short blah = Fetchb();
             /*Bit8u*/short val=(short)(blah & 0x1f);
             r = rm;
             short earb = Modrm.GetEArb[rm].get();
@@ -196,7 +196,7 @@ public class Prefix_helpers extends Instructions {
             }
         } else {
             m = getEaa(rm);
-            short blah = Fetchb.call();
+            short blah = Fetchb();
             /*Bit8u*/short val=(short)(blah & 0x1f);
             switch (which) {
             case 0x00:ROLB(m,val,b_l,b_s);break;
@@ -247,7 +247,7 @@ public class Prefix_helpers extends Instructions {
     static protected void GRP2W_fetchb(final short rm) {
         /*Bitu*/int which=(rm>>3)&7;
         if (rm >= 0xc0) {
-            int blah = Fetchb.call();
+            int blah = Fetchb();
             /*Bit8u*/int val=blah & 0x1f;
 
             r = rm;
@@ -264,7 +264,7 @@ public class Prefix_helpers extends Instructions {
             }
         } else {
             m = getEaa(rm);
-            int blah = Fetchb.call();
+            int blah = Fetchb();
             /*Bit8u*/int val=blah & 0x1f;
             switch (which) {
             case 0x00:ROLW(m,val,w_l,w_s);break;

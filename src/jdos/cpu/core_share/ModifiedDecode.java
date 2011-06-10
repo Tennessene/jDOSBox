@@ -17,7 +17,7 @@ public class ModifiedDecode {
             Table_ea.EA16 = true;
         }
         while (true) {
-            int c = Core.opcode_index  + Core.Fetchb.call();
+            int c = Core.opcode_index  + Core.Fetchb();
 //                    last = c;
 //                    Debug.start(Debug.TYPE_CPU, c);
 //                    try {

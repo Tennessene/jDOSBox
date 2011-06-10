@@ -836,7 +836,6 @@ public class Paging extends Module_base {
         if (paging.enabled==enabled) return;
         paging.enabled=enabled;
         if (enabled) {
-            Core.setupFetch(true);
 //		Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"Enabled");
             PAGING_SetDirBase(paging.cr3);
         }
@@ -853,7 +852,6 @@ public class Paging extends Module_base {
         super(configuration);
         paging = new PagingBlock();
         paging.enabled=false;
-        Core.setupFetch(false);
         PAGING_InitTLB();
         /*Bitu*/int i;
         for (i=0;i<LINK_START;i++) {

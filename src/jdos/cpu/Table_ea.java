@@ -15,31 +15,31 @@ public class Table_ea extends Core {
                 case 0x02: return (base_ds+reg_edx.dword()) & 0xFFFFFFFFl;
                 case 0x03: return (base_ds+reg_ebx.dword()) & 0xFFFFFFFFl;
                 case 0x04: return Sib(0);
-                case 0x05: return (base_ds+Fetchd.call()) & 0xFFFFFFFFl;
+                case 0x05: return (base_ds+Fetchd()) & 0xFFFFFFFFl;
                 case 0x06: return (base_ds+reg_esi.dword()) & 0xFFFFFFFFl;
                 case 0x07: return (base_ds+reg_edi.dword()) & 0xFFFFFFFFl;
             }
         } else if (rm<0x80) {
             switch (rm & 7) {
-                case 0x00: return (base_ds+reg_eax.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x01: return (base_ds+reg_ecx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x02: return (base_ds+reg_edx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x03: return (base_ds+reg_ebx.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x04: long temp = Sib(1); return (temp+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x05: return (base_ss+reg_ebp.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x06: return (base_ds+reg_esi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
-                case 0x07: return (base_ds+reg_edi.dword()+Fetchbs.call()) & 0xFFFFFFFFl;
+                case 0x00: return (base_ds+reg_eax.dword()+Fetchbs()) & 0xFFFFFFFFl;
+                case 0x01: return (base_ds+reg_ecx.dword()+Fetchbs()) & 0xFFFFFFFFl;
+                case 0x02: return (base_ds+reg_edx.dword()+Fetchbs()) & 0xFFFFFFFFl;
+                case 0x03: return (base_ds+reg_ebx.dword()+Fetchbs()) & 0xFFFFFFFFl;
+                case 0x04: long temp = Sib(1); return (temp+Fetchbs()) & 0xFFFFFFFFl;
+                case 0x05: return (base_ss+reg_ebp.dword()+Fetchbs()) & 0xFFFFFFFFl;
+                case 0x06: return (base_ds+reg_esi.dword()+Fetchbs()) & 0xFFFFFFFFl;
+                case 0x07: return (base_ds+reg_edi.dword()+Fetchbs()) & 0xFFFFFFFFl;
             }
         } else {
             switch (rm & 7) {
-                case 0x00: return (base_ds+reg_eax.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x01: return (base_ds+reg_ecx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x02: return (base_ds+reg_edx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x03: return (base_ds+reg_ebx.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x04: long temp = Sib(2); return (temp+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x05: return (base_ss+reg_ebp.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x06: return (base_ds+reg_esi.dword()+Fetchds.call()) & 0xFFFFFFFFl;
-                case 0x07: return (base_ds+reg_edi.dword()+Fetchds.call()) & 0xFFFFFFFFl;
+                case 0x00: return (base_ds+reg_eax.dword()+Fetchds()) & 0xFFFFFFFFl;
+                case 0x01: return (base_ds+reg_ecx.dword()+Fetchds()) & 0xFFFFFFFFl;
+                case 0x02: return (base_ds+reg_edx.dword()+Fetchds()) & 0xFFFFFFFFl;
+                case 0x03: return (base_ds+reg_ebx.dword()+Fetchds()) & 0xFFFFFFFFl;
+                case 0x04: long temp = Sib(2); return (temp+Fetchds()) & 0xFFFFFFFFl;
+                case 0x05: return (base_ss+reg_ebp.dword()+Fetchds()) & 0xFFFFFFFFl;
+                case 0x06: return (base_ds+reg_esi.dword()+Fetchds()) & 0xFFFFFFFFl;
+                case 0x07: return (base_ds+reg_edi.dword()+Fetchds()) & 0xFFFFFFFFl;
             }
         }
         return 0;
@@ -54,30 +54,30 @@ public class Table_ea extends Core {
                 case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF);
                 case 0x04: return base_ds+(reg_esi.word());
                 case 0x05: return base_ds+(reg_edi.word());
-                case 0x06: return base_ds+(Fetchw.call());
+                case 0x06: return base_ds+(Fetchw());
                 case 0x07: return base_ds+(reg_ebx.word());
             }
         } else if (rm<0x80) {
             switch (rm & 7) {
-                case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs.call()) & 0xFFFF);
-                case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs.call()) & 0xFFFF);
-                case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs.call()) & 0xFFFF);
-                case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs.call()) & 0xFFFF);
-                case 0x04: return base_ds+((reg_esi.word()+Fetchbs.call()) & 0xFFFF);
-                case 0x05: return base_ds+((reg_edi.word()+Fetchbs.call()) & 0xFFFF);
-                case 0x06: return base_ss+((reg_ebp.word()+Fetchbs.call()) & 0xFFFF);
-                case 0x07: return base_ds+((reg_ebx.word()+Fetchbs.call()) & 0xFFFF);
+                case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs()) & 0xFFFF);
+                case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs()) & 0xFFFF);
+                case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchbs()) & 0xFFFF);
+                case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchbs()) & 0xFFFF);
+                case 0x04: return base_ds+((reg_esi.word()+Fetchbs()) & 0xFFFF);
+                case 0x05: return base_ds+((reg_edi.word()+Fetchbs()) & 0xFFFF);
+                case 0x06: return base_ss+((reg_ebp.word()+Fetchbs()) & 0xFFFF);
+                case 0x07: return base_ds+((reg_ebx.word()+Fetchbs()) & 0xFFFF);
             }
         } else {
             switch (rm & 7) {
-                case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws.call()) & 0xFFFF);
-                case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws.call()) & 0xFFFF);
-                case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws.call()) & 0xFFFF);
-                case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws.call()) & 0xFFFF);
-                case 0x04: return base_ds+((reg_esi.word()+Fetchws.call()) & 0xFFFF);
-                case 0x05: return base_ds+((reg_edi.word()+Fetchws.call()) & 0xFFFF);
-                case 0x06: return base_ss+((reg_ebp.word()+Fetchws.call()) & 0xFFFF);
-                case 0x07: return base_ds+((reg_ebx.word()+Fetchws.call()) & 0xFFFF);
+                case 0x00: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws()) & 0xFFFF);
+                case 0x01: return base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws()) & 0xFFFF);
+                case 0x02: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+Fetchws()) & 0xFFFF);
+                case 0x03: return base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+Fetchws()) & 0xFFFF);
+                case 0x04: return base_ds+((reg_esi.word()+Fetchws()) & 0xFFFF);
+                case 0x05: return base_ds+((reg_edi.word()+Fetchws()) & 0xFFFF);
+                case 0x06: return base_ss+((reg_ebp.word()+Fetchws()) & 0xFFFF);
+                case 0x07: return base_ds+((reg_ebx.word()+Fetchws()) & 0xFFFF);
             }
         }
         return 0;
@@ -91,7 +91,7 @@ public class Table_ea extends Core {
     static final /*Bit32u*/long SIBZero=0;
 
     static private /*PhysPt*/long Sib(/*Bitu*/int mode) {
-        /*Bit8u*/short sib=Fetchb.call();
+        /*Bit8u*/short sib=Fetchb();
         /*PhysPt*/long base=0;
         switch (sib&7) {
         case 0:	/* EAX Base */
@@ -106,7 +106,7 @@ public class Table_ea extends Core {
             base=base_ss+reg_esp.dword();break;
         case 5:	/* #1 Base */
             if (mode==0) {
-                base=base_ds+Fetchd.call();break;
+                base=base_ds+Fetchd();break;
             } else {
                 base=base_ss+reg_ebp.dword();break;
             }
@@ -147,9 +147,9 @@ public class Table_ea extends Core {
 
     protected static long GetEADirect() {
         if ((prefixes & PREFIX_ADDR)!=0) {
-            return (base_ds+Fetchd.call() & 0xFFFFFFFFl);
+            return (base_ds+Fetchd() & 0xFFFFFFFFl);
         } else {
-            return (base_ds+Fetchw.call() & 0xFFFFFFFFl);
+            return (base_ds+Fetchw() & 0xFFFFFFFFl);
         }
     }
 }

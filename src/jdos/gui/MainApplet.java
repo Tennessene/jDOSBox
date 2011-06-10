@@ -312,10 +312,12 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
     public void update( Graphics g ) {
         if (Main.buffer != null) {
-            if (progressMsg != null) {
-                drawProgress(Main.buffer.getGraphics(), Main.screen_width, Main.screen_height);
+            synchronized (Main.paintMutex) {
+                if (progressMsg != null) {
+                    drawProgress(Main.buffer.getGraphics(), Main.screen_width, Main.screen_height);
+                }
+                draw(g);
             }
-            draw(g);
         } else if (progressMsg != null) {
             if (bufferGraphics == null) {
                 Rectangle r = g.getClipBounds();

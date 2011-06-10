@@ -60,6 +60,7 @@ public class Render {
             public /*Bitu*/int count;
             public /*Bitu*/int max;
             public /*Bitu*/int index;
+            public boolean auto;
             public /*Bit8u*/boolean[] hadSkip = new boolean[RENDER_SKIP_CACHE];
         }
         public Frameskip frameskip = new Frameskip();
@@ -298,6 +299,10 @@ public class Render {
             render.pal.last=0;
             render.aspect=section.Get_bool("aspect");
             render.frameskip.max=section.Get_int("frameskip");
+            if (render.frameskip.max<0) {
+                render.frameskip.max = 0;
+                render.frameskip.auto = true;
+            }
             render.frameskip.count=0;
 
             if(!running) render.updating=true;

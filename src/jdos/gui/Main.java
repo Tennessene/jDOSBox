@@ -379,28 +379,52 @@ public class Main {
         }
         Keyboard.KEYBOARD_AddKey(result, key.getID()==KeyEvent.KEY_PRESSED);
     }
+
+    final static public Object paintMutex = new Object();
+    static private int skipCount = 0;
+
     static public void GFX_EndUpdate() {
         if (pixelBuffer != null) {
             if (startupTime != 0) {
                 System.out.println("Startup time: "+String.valueOf(System.currentTimeMillis()-startupTime)+"ms");
                 startupTime = 0;
             }
-            int type = buffer.getRaster().getTransferType();
-            switch (type) {
-                case DataBuffer.TYPE_BYTE:
-                    System.arraycopy(pixelBuffer, 0, byte_rawImageData, 0, pixelBuffer.length);
-                    break;
-                case DataBuffer.TYPE_SHORT:
-                case DataBuffer.TYPE_USHORT:
-                    for (int i=0,j=0;i<short_rawImageData.length;i++,j+=2) {
-                        short_rawImageData[i] = (short)((pixelBuffer[j] & 0xFF) | ((pixelBuffer[j+1] & 0xFF) << 8));
+            long startTime=0;
+            if (Render.render.frameskip.auto)
+                startTime = System.currentTimeMillis();
+            synchronized (paintMutex) {
+                if (Render.render.frameskip.auto) {
+                    long diff = System.currentTimeMillis()-startTime;
+                    if (diff>5) {
+                        skipCount=0;
+                        Render.render.frameskip.max++;
+                        Main.GFX_SetTitle(-1, Render.render.frameskip.max, false);
+                    } else if (diff<2 && Render.render.frameskip.max>0) {
+                        skipCount++;
+                        if (skipCount>100) {
+                            skipCount=0;
+                            Render.render.frameskip.max--;
+                            Main.GFX_SetTitle(-1, Render.render.frameskip.max, false);
+                        }
                     }
-                    break;
-                case DataBuffer.TYPE_INT:
-                    for (int i=0,j=0;i<int_rawImageData.length;i++,j+=4) {
-                        int_rawImageData[i] = ((pixelBuffer[j] & 0xFF) | ((pixelBuffer[j+1] & 0xFF) << 8) | ((pixelBuffer[j+2] & 0xFF) << 16) | ((pixelBuffer[j+3] & 0xFF) << 24));
-                    }
-                    break;
+                }
+                int type = buffer.getRaster().getTransferType();
+                switch (type) {
+                    case DataBuffer.TYPE_BYTE:
+                        System.arraycopy(pixelBuffer, 0, byte_rawImageData, 0, pixelBuffer.length);
+                        break;
+                    case DataBuffer.TYPE_SHORT:
+                    case DataBuffer.TYPE_USHORT:
+                        for (int i=0,j=0;i<short_rawImageData.length;i++,j+=2) {
+                            short_rawImageData[i] = (short)((pixelBuffer[j] & 0xFF) | ((pixelBuffer[j+1] & 0xFF) << 8));
+                        }
+                        break;
+                    case DataBuffer.TYPE_INT:
+                        for (int i=0,j=0;i<int_rawImageData.length;i++,j+=4) {
+                            int_rawImageData[i] = ((pixelBuffer[j] & 0xFF) | ((pixelBuffer[j+1] & 0xFF) << 8) | ((pixelBuffer[j+2] & 0xFF) << 16) | ((pixelBuffer[j+3] & 0xFF) << 24));
+                        }
+                        break;
+                }
             }
             gui.dopaint();
         }

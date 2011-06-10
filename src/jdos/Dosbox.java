@@ -303,9 +303,9 @@ public class Dosbox {
         secprop.AddInitFunction(Cmos.CMOS_Init);//done
 
         secprop=control.AddSection_prop("render", Render.RENDER_Init,true);
-        Pint = secprop.Add_int("frameskip",Property.Changeable.Always,0);
+        Pint = secprop.Add_int("frameskip",Property.Changeable.Always,-1);
         Pint.SetMinMax(0,10);
-        Pint.Set_help("How many frames DOSBox skips before drawing one.");
+        Pint.Set_help("How many frames DOSBox skips before drawing one. Use -1 for auto");
 
         Pbool = secprop.Add_bool("aspect",Property.Changeable.Always,false);
         Pbool.Set_help("Do aspect correction, if your output method doesn't support scaling this can slow things down!.");

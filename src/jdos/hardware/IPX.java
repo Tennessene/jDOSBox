@@ -164,9 +164,9 @@ public class IPX extends Module_base {
 
         public void netnum(int num) {
             netnum[3] = (byte)(num & 0xFF);
-            netnum[2] = (byte)((num << 8)& 0xFF);
-            netnum[1] = (byte)((num << 16)& 0xFF);
-            netnum[0] = (byte)((num << 24)& 0xFF);
+            netnum[2] = (byte)((num >> 8)& 0xFF);
+            netnum[1] = (byte)((num >> 16)& 0xFF);
+            netnum[0] = (byte)((num >> 24)& 0xFF);
         }
     }
 

@@ -587,9 +587,9 @@ public class IPX extends Module_base {
             case 0x0009:		// Get internetwork address
             {
                 Log.log_msg(StringHelper.sprintf("IPX: Get internetwork address %2x:%2x:%2x:%2x:%2x:%2x", new Object[] {
-                    new Integer(localIpxAddr.netnode[5]), new Integer(localIpxAddr.netnode[4]),
-                    new Integer(localIpxAddr.netnode[3]), new Integer(localIpxAddr.netnode[2]),
-                    new Integer(localIpxAddr.netnode[1]), new Integer(localIpxAddr.netnode[0])}));
+                    new Integer(localIpxAddr.netnode[5] & 0xFF), new Integer(localIpxAddr.netnode[4] & 0xFF),
+                    new Integer(localIpxAddr.netnode[3] & 0xFF), new Integer(localIpxAddr.netnode[2] & 0xFF),
+                    new Integer(localIpxAddr.netnode[1] & 0xFF), new Integer(localIpxAddr.netnode[0] & 0xFF)}));
 
                 //Bit8u * addrptr = (Bit8u *)&localIpxAddr;
                 byte[] addrptr = localIpxAddr.toByteArray();
@@ -984,7 +984,7 @@ public class IPX extends Module_base {
                 }
             }
 
-            Log.log_msg(StringHelper.sprintf("IPX: Connected to server.  IPX address is %d:%d:%d:%d:%d:%d", new Object[]{new Integer(localIpxAddr.netnode[0]), new Integer(localIpxAddr.netnode[1]), new Integer(localIpxAddr.netnode[2]), new Integer(localIpxAddr.netnode[3]), new Integer(localIpxAddr.netnode[4]), new Integer(localIpxAddr.netnode[5]) } ));
+            Log.log_msg(StringHelper.sprintf("IPX: Connected to server.  IPX address is %d:%d:%d:%d:%d:%d", new Object[]{new Integer(localIpxAddr.netnode[0] & 0xFF), new Integer(localIpxAddr.netnode[1] & 0xFF), new Integer(localIpxAddr.netnode[2] & 0xFF), new Integer(localIpxAddr.netnode[3] & 0xFF), new Integer(localIpxAddr.netnode[4] & 0xFF), new Integer(localIpxAddr.netnode[5] & 0xFF) } ));
 
             incomingPacket.connected = true;
             Timer.TIMER_AddTickHandler(IPX_ClientLoop);

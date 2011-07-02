@@ -889,7 +889,7 @@ public class IPX extends Module_base {
         }
         for(/*Bitu*/int m=0;m<6;m++) {
             if(localIpxAddr.netnode[m]!=outbuffer[m+0xa])isloopback=false;
-            if(immedAddr[m]!=0xff) islocalbroadcast=false;
+            if(immedAddr[m]!=(byte)0xff) islocalbroadcast=false;
         }
         //LOG_IPX("SEND crc:%2x",packetCRC(&outbuffer[0], packetsize));
         if(!isloopback) {

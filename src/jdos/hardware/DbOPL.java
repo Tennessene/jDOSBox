@@ -3,6 +3,10 @@ package jdos.hardware;
 public class DbOPL {
     // :TODO: look for ~ and make sure they generate the mask of the right size
 
+    // Java 1.4 does not have Math.log10
+    static private double log10(double d) {
+        return Math.log(d) / Math.log(10);
+    }
     //Use 8 handlers based on a small logatirmic wavetabe and an exponential table for volume
     static private final int WAVE_HANDLER = 10;
     //Use a logarithmic wavetable with an exponential table for volume
@@ -1551,7 +1555,7 @@ public class DbOPL {
             //Add 0.5 for the trunc rounding of the integer cast
             //Do a PI sinetable instead of the original 0.5 PI
             for ( int i = 0; i < 512; i++ ) {
-                SinTable[i] = (/*Bit16s*/short)( 0.5 - Math.log10( Math.sin( (i + 0.5) * (PI / 512.0) ) ) / Math.log10(2.0)*256 );
+                SinTable[i] = (/*Bit16s*/short)( 0.5 - log10( Math.sin( (i + 0.5) * (PI / 512.0) ) ) / log10(2.0)*256 );
             }
         }
         if ( DBOPL_WAVE == WAVE_TABLEMUL ) {
@@ -1577,7 +1581,7 @@ public class DbOPL {
         if ( DBOPL_WAVE == WAVE_TABLELOG ) {
             //Sine Wave Base
             for ( int i = 0; i < 512; i++ ) {
-                WaveTable[ 0x0200 + i ] = (/*Bit16s*/short)( 0.5 - Math.log10( Math.sin( (i + 0.5) * (PI / 512.0) ) ) / Math.log10(2.0)*256 );
+                WaveTable[ 0x0200 + i ] = (/*Bit16s*/short)( 0.5 - log10( Math.sin( (i + 0.5) * (PI / 512.0) ) ) / log10(2.0)*256 );
                 WaveTable[ 0x0000 + i ] = (short)(((/*Bit16s*/short)0x8000) | WaveTable[ 0x200 + i]);
             }
             //Exponential wave

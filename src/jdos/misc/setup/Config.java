@@ -224,26 +224,26 @@ public class Config {
         return false;
     }
     public void ParseEnv() {
-        if (!Dosbox.applet) {
-            Map env = System.getenv();
-            Set keyset = env.keySet();
-            Iterator it = keyset.iterator();
-            while (it.hasNext()) {
-                String envName = (String)it.next();
-                if (envName.startsWith("DOSBOX_")) {
-                    String sec_name = envName.substring(7);
-                    int pos = sec_name.indexOf("_");
-                    if (pos>0) {
-                        String prop_name = sec_name.substring(pos+1);
-                        sec_name = sec_name.substring(0, pos);
-                        Section sect = GetSection(sec_name);
-                        if (sect != null) {
-                            sect.HandleInputline(prop_name+"="+env.get(envName));
-                        }
-                    }
-                }
-            }
-        }
+//        if (!Dosbox.applet) {
+//            Map env = System.getenv();
+//            Set keyset = env.keySet();
+//            Iterator it = keyset.iterator();
+//            while (it.hasNext()) {
+//                String envName = (String)it.next();
+//                if (envName.startsWith("DOSBOX_")) {
+//                    String sec_name = envName.substring(7);
+//                    int pos = sec_name.indexOf("_");
+//                    if (pos>0) {
+//                        String prop_name = sec_name.substring(pos+1);
+//                        sec_name = sec_name.substring(0, pos);
+//                        Section sect = GetSection(sec_name);
+//                        if (sect != null) {
+//                            sect.HandleInputline(prop_name+"="+env.get(envName));
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
     public boolean SecureMode() {
         return secure_mode;

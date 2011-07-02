@@ -215,7 +215,7 @@ public class MainFrame implements GUI {
         });
         Container contentPane = frame.getContentPane();
         contentPane.setLayout(new BorderLayout());
-        frame.add(panel, BorderLayout.PAGE_START);
+        frame.getContentPane().add(panel, BorderLayout.PAGE_START);
         Main.main(new MainFrame(), args);
     }
 

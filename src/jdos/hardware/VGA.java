@@ -105,7 +105,7 @@ public class VGA {
     static final class Drawmode {
         static final public int PART = 0;
         static final public int LINE = 1;
-        //EGALINE
+        static final public int EGALINE = 2;
     }
 
     public static class VGA_Draw {

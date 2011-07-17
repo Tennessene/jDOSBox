@@ -529,8 +529,7 @@ public class VGA_draw {
 
 
     private static void VGA_ProcessSplit() {
-        // On the EGA the address is always reset to 0.
-        if ((VGA.vga.attr.mode_control&0x20)!=0 || (Dosbox.machine== MachineType.MCH_EGA)) {
+        if ((VGA.vga.attr.mode_control & 0x20)!=0) {
             VGA.vga.draw.address=0;
             // reset panning to 0 here so we don't have to check for
 		    // it in the character draw functions. It will be set back
@@ -540,7 +539,7 @@ public class VGA_draw {
             // In text mode only the characters are shifted by panning, not the address;
             // this is done in the text line draw function.
             VGA.vga.draw.address = VGA.vga.draw.byte_panning_shift*VGA.vga.draw.bytes_skip;
-            if (!(VGA.vga.mode==VGA.M_TEXT)) VGA.vga.draw.address += VGA.vga.draw.panning;
+            if (VGA.vga.mode!=VGA.M_TEXT && Dosbox.machine!=MachineType.MCH_EGA) VGA.vga.draw.address += VGA.vga.draw.panning;
         }
         VGA.vga.draw.address_line=0;
     }
@@ -569,6 +568,34 @@ public class VGA_draw {
         }
         public String toString() {
             return "VGA_DrawSingleLine";
+        }
+    };
+
+    private static Pic.PIC_EventHandler VGA_DrawEGASingleLine = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            if (VGA.vga.attr.disabled!=0) {
+                TempLine.clear();
+                System.arraycopy(TempLine.p, 0, Render.render.src.outWrite, Render.render.src.outWriteOff, Render.render.src.outPitch);
+            } else {
+                /*Bitu*/int address = VGA.vga.draw.address;
+                if (VGA.vga.mode!=VGA.M_TEXT) address += VGA.vga.draw.panning;
+                Ptr data=VGA_DrawLine.call(address, VGA.vga.draw.address_line);
+                System.arraycopy(data.p, data.off, Render.render.src.outWrite, Render.render.src.outWriteOff, Render.render.src.outPitch);
+            }
+            Render.render.src.outWriteOff+=Render.render.src.outPitch;
+            VGA.vga.draw.address_line++;
+            if (VGA.vga.draw.address_line>=VGA.vga.draw.address_line_total) {
+                VGA.vga.draw.address_line=0;
+                VGA.vga.draw.address+=VGA.vga.draw.address_add;
+            }
+            VGA.vga.draw.lines_done++;
+            if (VGA.vga.draw.split_line==VGA.vga.draw.lines_done) VGA_ProcessSplit();
+            if (VGA.vga.draw.lines_done < VGA.vga.draw.lines_total) {
+                Pic.PIC_AddEvent(VGA_DrawEGASingleLine,(float)VGA.vga.draw.delay.htotal);
+            } else Render.RENDER_EndUpdate(false);
+        }
+        public String toString() {
+            return "VGA_DrawEGASingleLine";
         }
     };
 
@@ -708,7 +735,6 @@ public class VGA_draw {
                 VGA_DisplayStartLatch.call(0);
                 break;
             case MachineType.MCH_VGA:
-            case MachineType.MCH_EGA:
                 Pic.PIC_AddEvent(VGA_DisplayStartLatch, (float)VGA.vga.draw.delay.vrstart);
                 Pic.PIC_AddEvent(VGA_PanningLatch, (float)VGA.vga.draw.delay.vrend);
                 // EGA: 82c435 datasheet: interrupt happens at display end
@@ -716,6 +742,10 @@ public class VGA_draw {
                 // add a little amount of time to make sure the last drawpart has already fired
                 Pic.PIC_AddEvent(VGA_VertInterrupt,(float)(VGA.vga.draw.delay.vdend + 0.005));
                 break;
+            case MachineType.MCH_EGA:
+                Pic.PIC_AddEvent(VGA_DisplayStartLatch, (float)VGA.vga.draw.delay.vrend);
+		        Pic.PIC_AddEvent(VGA_VertInterrupt,(float)(VGA.vga.draw.delay.vdend + 0.005));
+		        break;
             default:
                 Log.exit("This new machine needs implementation in VGA_VerticalTimer too.");
                 break;
@@ -735,7 +765,11 @@ public class VGA_draw {
             VGA.vga.draw.address = VGA.vga.config.real_start;
             VGA.vga.draw.byte_panning_shift = 0;
             // go figure...
-            if (Dosbox.machine==MachineType.MCH_EGA) VGA.vga.draw.split_line*=2;
+            if (Dosbox.machine==MachineType.MCH_EGA) {
+                if (VGA.vga.draw.doubleheight) // Spacepigs EGA Megademo
+                    VGA.vga.draw.split_line*=2;
+                VGA.vga.draw.split_line++; // EGA adds one buggy scanline
+            }
         //	if (Dosbox.machine==MachineType.MCH_EGA) VGA.vga.draw.split_line = ((((VGA.vga.config.line_compare&0x5ff)+1)*2-1)/VGA.vga.draw.lines_scaled);
         //#ifdef VGA_KEEP_CHANGES
             boolean startaddr_changed=false;
@@ -748,13 +782,13 @@ public class VGA_draw {
                 VGA.vga.draw.byte_panning_shift = 8;
                 VGA.vga.draw.address += VGA.vga.draw.bytes_skip;
                 VGA.vga.draw.address *= VGA.vga.draw.byte_panning_shift;
-                VGA.vga.draw.address += VGA.vga.draw.panning;
+                if (Dosbox.machine!=MachineType.MCH_EGA) VGA.vga.draw.address += VGA.vga.draw.panning;
         //#ifdef VGA_KEEP_CHANGES
                 startaddr_changed=true;
         //#endif
                 break;
             case VGA.M_VGA:
-                if(VGA.vga.config.compatible_chain4 && (VGA.vga.crtc.underline_location & 0x40)!=0) {
+                if (VGA.vga.config.compatible_chain4 && (VGA.vga.crtc.underline_location & 0x40)!=0) {
                     VGA.vga.draw.linear_base = VGA.vga.fastmem;
                     VGA.vga.draw.linear_mask = 0xffff;
                 } else {
@@ -827,13 +861,17 @@ public class VGA_draw {
                 Pic.PIC_AddEvent(VGA_DrawPart,(float)VGA.vga.draw.delay.parts + draw_skip,VGA.vga.draw.parts_lines);
                 break;
             case VGA.Drawmode.LINE:
+            case VGA.Drawmode.EGALINE:
                 if (VGA.vga.draw.lines_done < VGA.vga.draw.lines_total) {
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL, "Lines left: %d"+(VGA.vga.draw.lines_total-VGA.vga.draw.lines_done));
-                    Pic.PIC_RemoveEvents(VGA_DrawSingleLine);
+                    if (VGA.vga.draw.mode==VGA.Drawmode.EGALINE) Pic.PIC_RemoveEvents(VGA_DrawEGASingleLine);
+			        else Pic.PIC_RemoveEvents(VGA_DrawSingleLine);
                     Render.RENDER_EndUpdate(true);
                 }
                 VGA.vga.draw.lines_done = 0;
-                Pic.PIC_AddEvent(VGA_DrawSingleLine,(float)(VGA.vga.draw.delay.htotal/4.0 + draw_skip));
+                if (VGA.vga.draw.mode==VGA.Drawmode.EGALINE)
+                    Pic.PIC_AddEvent(VGA_DrawEGASingleLine,(float)(VGA.vga.draw.delay.htotal/4.0 + draw_skip));
+                else Pic.PIC_AddEvent(VGA_DrawSingleLine,(float)(VGA.vga.draw.delay.htotal/4.0 + draw_skip));
                 break;
             //case EGALINE:
             }
@@ -924,6 +962,10 @@ public class VGA_draw {
             case MachineType.MCH_PCJR:
                 VGA.vga.draw.mode = VGA.Drawmode.LINE;
                 break;
+            case MachineType.MCH_EGA:
+		        // Note: The Paradise SVGA uses the same panning mechanism as EGA
+		        VGA.vga.draw.mode = VGA.Drawmode.EGALINE;
+		        break;
             case MachineType.MCH_VGA:
                 if (Dosbox.svgaCard==SVGACards.SVGA_None) {
                     VGA.vga.draw.mode = VGA.Drawmode.LINE;
@@ -1019,13 +1061,13 @@ public class VGA_draw {
                     htotal*=2;
                 }
                 VGA.vga.draw.address_line_total=(VGA.vga.crtc.maximum_scan_line&0x1f)+1;
-                if(Dosbox.IS_VGA_ARCH() && (Dosbox.svgaCard==SVGACards.SVGA_None) && (VGA.vga.mode==VGA.M_EGA || VGA.vga.mode==VGA.M_VGA)) {
+                if (Dosbox.IS_VGA_ARCH() && (Dosbox.svgaCard==SVGACards.SVGA_None) && (VGA.vga.mode==VGA.M_EGA || VGA.vga.mode==VGA.M_VGA)) {
                     // vgaonly; can't use with CGA because these use address_line for their
                     // own purposes.
                     // Set the low resolution modes to have as many lines as are scanned -
                     // Quite a few demos change the max_scanline register at display time
                     // to get SFX: Majic12 show, Magic circle, Copper, GBU, Party91
-                    if((VGA.vga.crtc.maximum_scan_line&0x80)!=0) VGA.vga.draw.address_line_total*=2;
+                    if ((VGA.vga.crtc.maximum_scan_line&0x80)!=0) VGA.vga.draw.address_line_total*=2;
                     VGA.vga.draw.double_scan=false;
                 }
                 else if (Dosbox.IS_VGA_ARCH()) VGA.vga.draw.double_scan=(VGA.vga.crtc.maximum_scan_line&0x80)>0;
@@ -1096,10 +1138,10 @@ public class VGA_draw {
 
                         // on blanking wrap to 0, the first line is not blanked
                         // this is used by the S3 BIOS and other S3 drivers in some SVGA modes
-                        if((vbend&0x7f)==1) vblank_skip = 0;
+                        if ((vbend&0x7f)==1) vblank_skip = 0;
 
                         // it might also cut some lines off the bottom
-                        if(vbstart < vdend) {
+                        if (vbstart < vdend) {
                             vdend = vbstart;
                         }
                     if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Blanking wrap to line "+vblank_skip);
@@ -1108,7 +1150,7 @@ public class VGA_draw {
                         vblank_skip = vbend;
                     if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Upper "+vblank_skip+" lines of the screen blanked");
                     } else if (vbstart < vdend) {
-                        if(vbend < vdend) {
+                        if (vbend < vdend) {
                             // the game wants a black bar somewhere on the screen
                         if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Unsupported blanking: line "+vbstart+"-"+vbend);
                         } else {
@@ -1207,7 +1249,7 @@ public class VGA_draw {
             case VGA.M_LIN8:
                 if ((VGA.vga.crtc.mode_control & 0x8)!=0)
                     width >>=1;
-                else if(Dosbox.svgaCard == SVGACards.SVGA_S3Trio && (VGA.vga.s3.reg_3a&0x10)==0) {
+                else if (Dosbox.svgaCard == SVGACards.SVGA_S3Trio && (VGA.vga.s3.reg_3a&0x10)==0) {
                     doublewidth=true;
                     width >>=1;
                 }
@@ -1241,6 +1283,7 @@ public class VGA_draw {
                 VGA.vga.draw.blocks = width;
                 width<<=3;
                 if ((Dosbox.IS_VGA_ARCH()) && (Dosbox.svgaCard==SVGACards.SVGA_None)) {
+                    // This would also be required for EGA in Spacepigs Megademo
                     bpp=16;
                     VGA_DrawLine = VGA_Draw_Xlat16_Linear_Line;
                 } else VGA_DrawLine=VGA_Draw_Linear_Line;
@@ -1272,7 +1315,7 @@ public class VGA_draw {
                 doublewidth=(VGA.vga.seq.clocking_mode & 0x8) > 0;
                 if ((Dosbox.IS_VGA_ARCH()) && (Dosbox.svgaCard==SVGACards.SVGA_None)) {
                     // vgaonly: allow 9-pixel wide fonts
-                    if((VGA.vga.seq.clocking_mode & 0x01)!=0) {
+                    if ((VGA.vga.seq.clocking_mode & 0x01)!=0) {
                         VGA.vga.draw.char9dot = false;
                         width*=8;
                     } else {
@@ -1363,7 +1406,7 @@ public class VGA_draw {
             }
             VGA.vga.draw.vblank_skip = vblank_skip;
 
-            if(!(Dosbox.IS_VGA_ARCH() && (Dosbox.svgaCard==SVGACards.SVGA_None) && (VGA.vga.mode==VGA.M_EGA || VGA.vga.mode==VGA.M_VGA))) {
+            if (!(Dosbox.IS_VGA_ARCH() && (Dosbox.svgaCard==SVGACards.SVGA_None) && (VGA.vga.mode==VGA.M_EGA || VGA.vga.mode==VGA.M_VGA))) {
                 //Only check for extra double height in vga modes
                 //(line multiplying by address_line_total)
                 if (!doubleheight && (VGA.vga.mode<VGA.M_TEXT) && (VGA.vga.draw.address_line_total & 1)==0) {
@@ -1440,6 +1483,7 @@ public class VGA_draw {
     private static void VGA_KillDrawing() {
         Pic.PIC_RemoveEvents(VGA_DrawPart);
         Pic.PIC_RemoveEvents(VGA_DrawSingleLine);
+        Pic.PIC_RemoveEvents(VGA_DrawEGASingleLine);
         VGA.vga.draw.parts_left = 0;
         VGA.vga.draw.lines_done = ~0;
         Render.RENDER_EndUpdate(true);

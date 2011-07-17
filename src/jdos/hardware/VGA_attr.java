@@ -142,6 +142,10 @@ public class VGA_attr {
                     default:
                         VGA.vga.config.pel_panning=(short)((val & 0x7));
                     }
+                    if (Dosbox.machine==MachineType.MCH_EGA) {
+				        // On the EGA panning can be programmed for every scanline:
+				        VGA.vga.draw.panning = VGA.vga.config.pel_panning;
+                    }
                     /*
                         0-3	Indicates number of pixels to shift the display left
                             Value  9bit textmode   256color mode   Other modes

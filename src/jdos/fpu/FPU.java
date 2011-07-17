@@ -238,6 +238,11 @@ public class FPU {
         /*Bit64s*/long sign = (test.begin&0x8000)!=0?1:0;
         FPU_Reg result=new FPU_Reg();
         result.ll((sign <<63)|(exp64final << 52)| mant64);
+
+        if(test.eind.ll() == 0x8000000000000000l && (test.begin & 0x7fff) == 0x7fff) {
+		    //Detect INF and -INF (score 3.11 when drawing a slur.)
+		    result.d = sign!=0?Double.NEGATIVE_INFINITY:Double.POSITIVE_INFINITY;
+	    }
         return result.d;
 
         //mant64= test.mant80/2***64    * 2 **53

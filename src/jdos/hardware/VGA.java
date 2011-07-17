@@ -149,6 +149,8 @@ public class VGA {
         public /*Bit8u*/byte[] font = new byte[64*1024];
         public /*Bit8u*/Ptr[] font_tables = new Ptr[2];
         public /*Bitu*/boolean blinking;
+        public boolean blink;
+	    public boolean char9dot;
         public static class Cursor {
             /*Bitu*/int address;
             /*Bit8u*/short sline,eline;

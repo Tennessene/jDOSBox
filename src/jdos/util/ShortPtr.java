@@ -1,7 +1,6 @@
 package jdos.util;
 
 public class ShortPtr  extends Ptr {
-    short[] data;
     // :TODO: maybe change Ptr so that ShortPtr can use short[] directly?
     public ShortPtr(short[] data) {
         super(new byte[data.length*2],0);

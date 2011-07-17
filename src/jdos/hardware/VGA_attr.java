@@ -63,24 +63,32 @@ public class VGA_attr {
                         10h and 14h.
                     */
                     break;
-                case 0x10: /* Mode Control Register */
+                case 0x10: { /* Mode Control Register */
                     if (!Dosbox.IS_VGA_ARCH()) val&=0x1f;	// not really correct, but should do it
-                    if (((VGA.vga.attr.mode_control ^ val) & 0x80)!=0) {
-                        VGA.vga.attr.mode_control^=0x80;
-                        for (/*Bit8u*/short i=0;i<0x10;i++) {
+                    /*Bitu*/int difference = VGA.vga.attr.mode_control^val;
+                    VGA.vga.attr.mode_control=(short)val;
+
+                    if ((difference & 0x80)!=0) {
+                        for (/*Bit8u*/int i=0;i<0x10;i++)
                             VGA_ATTR_SetPalette(i,VGA.vga.attr.palette[i]);
-                        }
                     }
-                    if (((VGA.vga.attr.mode_control ^ val) & 0x08)!=0) {
+                    if ((difference & 0x08)!=0)
                         VGA_draw.VGA_SetBlinking(val & 0x8);
-                    }
-                    if (((VGA.vga.attr.mode_control ^ val) & 0x04)!=0) {
-                        VGA.vga.attr.mode_control=(/*Bit8u*/short)val;
+
+                    if ((difference & 0x41)!=0)
                         VGA.VGA_DetermineMode();
-                        if ((Dosbox.IS_VGA_ARCH()) && (Dosbox.svgaCard== SVGACards.SVGA_None)) VGA.VGA_StartResize();
-                    } else {
-                        VGA.vga.attr.mode_control=(/*Bit8u*/short)val;
-                        VGA.VGA_DetermineMode();
+
+                    if ((difference & 0x04)!=0) {
+                        // recompute the panning value
+                        if(VGA.vga.mode==VGA.M_TEXT) {
+                            /*Bit8u*/int pan_reg = VGA.vga.attr.horizontal_pel_panning;
+                            if (pan_reg > 7)
+                                VGA.vga.config.pel_panning=0;
+                            else if ((val & 0x4)!=0) // 9-dot wide characters
+                                VGA.vga.config.pel_panning=(short)(pan_reg+1);
+                            else // 8-dot characters
+                                VGA.vga.config.pel_panning=(short)pan_reg;
+                        }
                     }
 
                     /*
@@ -100,6 +108,7 @@ public class VGA_attr {
                             used.
                     */
                     break;
+                }
                 case 0x11:	/* Overscan Color Register */
                     VGA.vga.attr.overscan_color=(/*Bit8u*/short)val;
                     /* 0-5  Color of screen border. Color is defined as in the palette registers. */

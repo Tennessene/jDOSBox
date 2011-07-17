@@ -1193,33 +1193,35 @@ public class VGA_draw {
             // Vertical blanking tricks
             vblank_skip = 0;
             if (Dosbox.IS_VGA_ARCH()) { // others need more investigation
-                if (vbend > vtotal) {
-                    // blanking wraps to the start of the screen
-                    vblank_skip = vbend&0x7f;
+                if (vbstart < vtotal) { // There will be no blanking at all otherwise
+                    if (vbend > vtotal) {
+                        // blanking wraps to the start of the screen
+                        vblank_skip = vbend&0x7f;
 
-                    // on blanking wrap to 0, the first line is not blanked
-                    // this is used by the S3 BIOS and other S3 drivers in some SVGA modes
-                    if((vbend&0x7f)==1) vblank_skip = 0;
+                        // on blanking wrap to 0, the first line is not blanked
+                        // this is used by the S3 BIOS and other S3 drivers in some SVGA modes
+                        if((vbend&0x7f)==1) vblank_skip = 0;
 
-                    // it might also cut some lines off the bottom
-                    if(vbstart < vdend) {
-                        vdend = vbstart;
-                    }
+                        // it might also cut some lines off the bottom
+                        if(vbstart < vdend) {
+                            vdend = vbstart;
+                        }
                     if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Blanking wrap to line "+vblank_skip);
-                } else if (vbstart==1) {
-                    // blanking is used to cut lines at the start of the screen
-                    vblank_skip = vbend;
+                    } else if (vbstart==1) {
+                        // blanking is used to cut lines at the start of the screen
+                        vblank_skip = vbend;
                     if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Upper "+vblank_skip+" lines of the screen blanked");
-                } else if (vbstart < vdend) {
-                    if(vbend < vdend) {
-                        // the game wants a black bar somewhere on the screen
+                    } else if (vbstart < vdend) {
+                        if(vbend < vdend) {
+                            // the game wants a black bar somewhere on the screen
                         if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_WARN,"Unsupported blanking: line "+vbstart+"-"+vbend);
-                    } else {
-                        // blanking is used to cut off some lines from the bottom
-                        vdend = vbstart;
+                        } else {
+                            // blanking is used to cut off some lines from the bottom
+                            vdend = vbstart;
+                        }
                     }
+                    vdend -= vblank_skip;
                 }
-                vdend -= vblank_skip;
             }
             // Display end
             VGA.vga.draw.delay.vdend = vdend * VGA.vga.draw.delay.htotal;

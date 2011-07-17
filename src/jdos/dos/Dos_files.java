@@ -207,6 +207,12 @@ public class Dos_files {
 
     public static boolean DOS_ChangeDir(String dir) {
         /*Bit8u*/ShortRef drive=new ShortRef();StringRef fulldir = new StringRef();
+        String testdir=dir;
+	    if (testdir.length()>1 && testdir.charAt(1)==':') testdir = testdir.substring(2);
+        if (testdir.length()==0 || (testdir.length()>1 && testdir.charAt(testdir.length()-1)=='\\')) {
+            Dos.DOS_SetError(Dos.DOSERR_PATH_NOT_FOUND);
+            return false;
+        }
         if (!DOS_MakeName(dir,fulldir,drive)) return false;
 
         if (Drives[drive.value].TestDir(fulldir.value)) {

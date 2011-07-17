@@ -518,7 +518,12 @@ public class VGA_other {
                 break;
                 }
             case 0x3bf:
-                VGA.vga.herc.enable_bits=(/*Bit8u*/short)val;
+                if ((VGA.vga.herc.enable_bits ^ val)!=0) {
+                    VGA.vga.herc.enable_bits=(short)val;
+                    // Bit 1 enables the upper 32k of video memory,
+                    // so update the handlers
+                    VGA_memory.VGA_SetupHandlers();
+                }
                 break;
             }
         }

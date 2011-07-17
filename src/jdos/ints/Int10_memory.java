@@ -3,6 +3,7 @@ package jdos.ints;
 import jdos.Dosbox;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
+import jdos.types.MachineType;
 
 public class Int10_memory {
     static private final short[] static_functionality = new short[]
@@ -48,8 +49,20 @@ public class Int10_memory {
             IoHandler.IO_Write(base,0x9);
             IoHandler.IO_Write(base+1,((IoHandler.IO_Read(base+1) & 0xe0)|(height-1)));
             //Vertical display end bios says, but should stay the same?
+            // Not on EGA.
+            /*Bitu*/int rows = Int10_modes.CurMode.sheight/height;
+            if (Dosbox.machine== MachineType.MCH_EGA) {
+                /*Bitu*/int displayend = rows*height - 1;
+                IoHandler.IO_Write(base,0x12);
+                IoHandler.IO_Write(base+1,(short)(displayend & 0xff));
+                IoHandler.IO_Write(base,0x7);
+                // Note: IBM EGA registers can't be read
+                /*Bitu*/int v_overflow = IoHandler.IO_Read(base+1) & ~0x2;
+                if ((displayend & 0x100)!=0) v_overflow |= 0x2;
+                IoHandler.IO_Write(base+1,(short)v_overflow);
+            }
             //Rows setting in bios segment
-            Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_ROWS,((Int10_modes.CurMode.sheight/height)-1));
+            Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_ROWS,rows-1);
             Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT,height);
             //TODO Reprogram cursor size?
         }

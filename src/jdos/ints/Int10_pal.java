@@ -3,6 +3,7 @@ package jdos.ints;
 import jdos.Dosbox;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
+import jdos.hardware.VGA;
 import jdos.types.MachineType;
 import jdos.types.SVGACards;
 import jdos.util.ShortRef;
@@ -92,27 +93,44 @@ public class Int10_pal {
     }
 
     static public void INT10_ToggleBlinkingBit(/*Bit8u*/short state) {
-        /*Bit8u*/short value;
-    //	state&=0x01;
-        if ((state>1) && (Dosbox.svgaCard== SVGACards.SVGA_S3Trio)) return;
-        ResetACTL();
+        if(Dosbox.IS_VGA_ARCH()) {
+            /*Bit8u*/short value;
+        //	state&=0x01;
+            if ((state>1) && (Dosbox.svgaCard== SVGACards.SVGA_S3Trio)) return;
+            ResetACTL();
 
-        IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,(byte)0x10);
-        value=IoHandler.IO_Read(Int10.VGAREG_ACTL_READ_DATA);
-        if (state<=1) {
-            value&=0xf7;
-            value|=state<<3;
-        }
+            IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,0x10);
+            value=IoHandler.IO_Read(Int10.VGAREG_ACTL_READ_DATA);
+            if (state<=1) {
+                value&=0xf7;
+                value|=state<<3;
+            }
 
-        ResetACTL();
-        IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,(byte)0x10);
-        IoHandler.IO_Write(Int10.VGAREG_ACTL_WRITE_DATA,(byte)value);
-        IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,(byte)32);		//Enable output and protect palette
+            ResetACTL();
+            IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,0x10);
+            IoHandler.IO_Write(Int10.VGAREG_ACTL_WRITE_DATA,value);
+            IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,32);		//Enable output and protect palette
 
-        if (state<=1) {
-            /*Bit8u*/short msrval=(short)(Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MSR)&0xdf);
+            if (state<=1) {
+                /*Bit8u*/short msrval=(short)(Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MSR) & 0xdf);
+                if (state!=0) msrval|=0x20;
+                Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MSR,msrval);
+            }
+        } else { // EGA
+            // Usually it reads this from the mode list in ROM
+            if (Int10_modes.CurMode.type!= VGA.M_TEXT) return;
+
+            /*Bit8u*/short value = (short)((Int10_modes.CurMode.cwidth==9)? 0x4:0x0);
+            if (state!=0) value |= 0x8;
+
+            ResetACTL();
+            IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,0x10);
+            IoHandler.IO_Write(Int10.VGAREG_ACTL_WRITE_DATA,value);
+            IoHandler.IO_Write(Int10.VGAREG_ACTL_ADDRESS,0x20);
+
+            /*Bit8u*/short msrval=(short)(Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_MSR) & ~0x20);
             if (state!=0) msrval|=0x20;
-            Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MSR,msrval);
+            Memory.real_writeb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_MSR, msrval);
         }
     }
 

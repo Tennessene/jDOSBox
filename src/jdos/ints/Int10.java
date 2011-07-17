@@ -289,8 +289,7 @@ public class Int10 {
             CPU_Regs.reg_eax.high((Memory.real_readw(BIOSMEM_SEG,BIOSMEM_NB_COLS) & 0xFF));
             break;
         case 0x10:								/* Palette functions */
-            if ((Dosbox.machine==MachineType.MCH_CGA) || ((!Dosbox.IS_VGA_ARCH()) && (CPU_Regs.reg_eax.low()>0x02))) break;
-            //TODO: subfunction 0x03 for ega
+            if ((Dosbox.machine==MachineType.MCH_CGA) || ((!Dosbox.IS_VGA_ARCH()) && (CPU_Regs.reg_eax.low()>0x03))) break;
             switch (CPU_Regs.reg_eax.low()) {
             case 0x00:							/* SET SINGLE PALETTE REGISTER */
                 Int10_pal.INT10_SetSinglePaletteRegister(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high());
@@ -462,13 +461,8 @@ public class Int10 {
                     break;
                 }
                 if ((CPU_Regs.reg_ebx.high()<=7) || (Dosbox.svgaCard== SVGACards.SVGA_TsengET4K)) {
-                    if (Dosbox.machine==MachineType.MCH_EGA) {
-                        CPU_Regs.reg_ecx.word(0x0e);
-                        CPU_Regs.reg_edx.low(0x18);
-                    } else {
-                        CPU_Regs.reg_ecx.word(Memory.real_readw(BIOSMEM_SEG,BIOSMEM_CHAR_HEIGHT));
-                        CPU_Regs.reg_edx.low(Memory.real_readb(BIOSMEM_SEG,BIOSMEM_NB_ROWS));
-                    }
+                    CPU_Regs.reg_ecx.word(Memory.real_readw(BIOSMEM_SEG,BIOSMEM_CHAR_HEIGHT));
+                    CPU_Regs.reg_edx.low(Memory.real_readb(BIOSMEM_SEG,BIOSMEM_NB_ROWS));
                 }
                 break;
             default:

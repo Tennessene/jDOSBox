@@ -303,6 +303,9 @@ public class Paging extends Module_base {
         old_cpudecoder=CPU.cpudecoder;
         CPU.cpudecoder=PageFaultCore;
         paging.cr2=lin_addr;
+        if (pf_queue.used>=pf_queue.entries.length) {
+            System.out.println("Ran out of page fault queues at "+Long.toString(lin_addr, 16)+" type ["+Integer.toString(faultcode,16)+"]");
+        }
         PF_Entry entry=pf_queue.entries[pf_queue.used++];
         if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PAGING, LogSeverities.LOG_NORMAL,"PageFault at "+Long.toString(lin_addr, 16)+" type ["+Integer.toString(faultcode,16)+"] queue "+pf_queue.used);
 //	LOG_MSG("EAX:%04X ECX:%04X EDX:%04X EBX:%04X",reg_eax,reg_ecx,reg_edx,reg_ebx);

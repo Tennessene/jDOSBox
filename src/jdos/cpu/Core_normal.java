@@ -20,6 +20,7 @@ public class Core_normal extends Prefix_66_0f {
         public long s_base_ds;
         public long s_base_ss;
         public int s_base_val_ds;
+        public boolean rep_zero;
     }
 
     public static void saveState(State state) {
@@ -30,6 +31,7 @@ public class Core_normal extends Prefix_66_0f {
         state.s_base_ds = base_ds;
         state.s_base_ss = base_ss;
         state.s_base_val_ds = base_val_ds;
+        state.rep_zero = rep_zero;
     }
 
     public static void loadState(State state) {
@@ -40,8 +42,9 @@ public class Core_normal extends Prefix_66_0f {
         base_ds = state.s_base_ds;
         base_ss = state.s_base_ss;
         base_val_ds = state.s_base_val_ds;
+        rep_zero = state.rep_zero;
     }
-    
+
     public static CPU.CPU_Decoder CPU_Core_Normal_Run = new CPU.CPU_Decoder() {
         public /*Bits*/int call() {
             //System.out.println("CPU_Core_Normal_Run");

@@ -401,12 +401,16 @@ public class Callback {
                 Memory.phys_writew(physAddress+0x02,callback);		//The immediate word
                 physAddress+=4;
             }
-            Memory.phys_writeb(physAddress,0x50);		// push ax
-            Memory.phys_writew(physAddress+0x01,0x0eb4);	// mov ah, 0x0e
-            Memory.phys_writew(physAddress+0x03,0x10cd);	// int 10
-            Memory.phys_writeb(physAddress+0x05,0x58);		// pop ax
-            Memory.phys_writeb(physAddress+0x06,0xcf);		//An IRET Instruction
-            return (use_cb?0x0b:0x07);
+            Memory.phys_writeb(physAddress,0x50);	// push ax
+            Memory.phys_writeb(physAddress+0x01,0x53);	// push bx
+            Memory.phys_writew(physAddress+0x02,0x0eb4);	// mov ah, 0x0e
+            Memory.phys_writeb(physAddress+0x04,0xbb);	// mov bx,
+            Memory.phys_writew(physAddress+0x05,0x0007);	// 0x0007
+            Memory.phys_writew(physAddress+0x07,0x10cd);	// int 10
+            Memory.phys_writeb(physAddress+0x09,0x5b);	// pop bx
+            Memory.phys_writeb(physAddress+0x0a,0x58);	// pop ax
+            Memory.phys_writeb(physAddress+0x0b,0xcf);	//An IRET Instruction
+            return (use_cb?0x10:0x0c);
         case CB_HOOKABLE:
             Memory.phys_writeb(physAddress,0xEB);		//jump near
             Memory.phys_writeb(physAddress+0x01,0x03);		//offset
@@ -506,7 +510,7 @@ public class Callback {
     }
 
     public static void CALLBACK_RemoveSetup(/*Bitu*/int callback) {
-        for (/*Bitu*/int i = 0;i < 16;i++) {
+        for (/*Bitu*/int i = 0;i < CB_SIZE;i++) {
             Memory.phys_writeb((int)(CALLBACK_PhysPointer(callback)+i),0x00);
         }
     }

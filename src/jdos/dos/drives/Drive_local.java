@@ -101,7 +101,21 @@ public class Drive_local extends Dos_Drive {
             date = CalendarHelper.Dos_date(dt);
             return true;
         }
-            
+
+        public void Flush() {
+            if (last_action==Last_action.WRITE) {
+                // :TODO: not sure if flushing is necessary in Java
+                // Betrayal In Antara only work with Dosbox with the dynamic
+                // core.  jDosbox with normal core gives the same error as
+                // Dosbox with the normal core so I was unable to test this
+                // game.  The jDosbox dynamic core is not related to the
+                // Dosbox dynamic core.  The jDosbox dynamic core is just
+                // an instruction cache for the normal core.
+                //fseek(fhandle,ftell(fhandle),SEEK_SET);
+                last_action=Last_action.NONE;
+            }
+        }
+
         public void FlagReadOnlyMedium() {
             read_only_medium = true;
         }
@@ -146,6 +160,23 @@ public class Drive_local extends Dos_Drive {
         }
         StringRef newname = new StringRef(basedir+name);
         dirCache.ExpandName(newname);
+
+        //Flush the buffer of handles for the same file. (Betrayal in Antara)
+        /*Bit8u*/int i,drive=Dos_files.DOS_DRIVES;
+        localFile lfp;
+        for (i=0;i<Dos_files.DOS_DRIVES;i++) {
+            if (Dos_files.Drives[i]==this) {
+                drive=i;
+                break;
+            }
+        }
+        for (i=0;i<Dos_files.DOS_FILES;i++) {
+            if (Dos_files.Files[i]!=null && Dos_files.Files[i].IsOpen() && Dos_files.Files[i].GetDrive()==drive && Dos_files.Files[i].IsName(name)) {
+                if (Dos_files.Files[i] instanceof localFile) {
+                    ((localFile)Dos_files.Files[i]).Flush();
+                }
+            }
+        }
 
         try {
             FileIO raf = FileIOFactory.open(newname.value, type);

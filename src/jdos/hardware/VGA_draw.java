@@ -1431,8 +1431,10 @@ public class VGA_draw {
             }
         //	LOG_MSG("ht %d vt %d ratio %f", htotal, vtotal, aspect_ratio );
 
+            boolean fps_changed = false;
             // need to change the vertical timing?
             if (Math.abs(VGA.vga.draw.delay.vtotal - 1000.0 / fps) > 0.0001) {
+                fps_changed = true;
                 VGA.vga.draw.delay.vtotal = 1000.0 / fps;
                 VGA_KillDrawing();
                 Pic.PIC_RemoveEvents(VGA_Other_VertInterrupt);
@@ -1459,7 +1461,7 @@ public class VGA_draw {
                 (VGA.vga.draw.doublewidth != doublewidth) ||
                 (VGA.vga.draw.doubleheight != doubleheight) ||
                 (Math.abs(aspect_ratio - VGA.vga.draw.aspect_ratio) > 0.0001) ||
-                (VGA.vga.draw.bpp != bpp)) {
+                (VGA.vga.draw.bpp != bpp)|| fps_changed) {
 
                 VGA_KillDrawing();
 

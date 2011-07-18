@@ -1004,7 +1004,7 @@ public class Bios extends Module_base {
         if (Dosbox.IS_TANDY_ARCH()) {
             /* reduce reported memory size for the Tandy (32k graphics memory
                at the end of the conventional 640k) */
-            if (Dosbox.machine==MachineType.MCH_TANDY) Memory.mem_writew(BIOS_MEMORY_SIZE,608);
+            if (Dosbox.machine==MachineType.MCH_TANDY) Memory.mem_writew(BIOS_MEMORY_SIZE,624);
             else Memory.mem_writew(BIOS_MEMORY_SIZE,640);
             Memory.mem_writew(BIOS_TRUE_MEMORY_SIZE,640);
         } else Memory.mem_writew(BIOS_MEMORY_SIZE,640);

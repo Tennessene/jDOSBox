@@ -432,7 +432,7 @@ public class Dos_memory {
         if (Dosbox.machine==MachineType.MCH_TANDY) {
             /* memory up to 608k available, the rest (to 640k) is used by
                 the tandy graphics system's variable mapping of 0xb800 */
-            mcb.SetSize(0x97FF - Dos.DOS_MEM_START - mcb_sizes);
+            mcb.SetSize(0x9BFF - Dos.DOS_MEM_START - mcb_sizes);
         } else if (Dosbox.machine==MachineType.MCH_PCJR) {
             /* memory from 128k to 640k is available */
             mcb_devicedummy.SetPt((/*Bit16u*/int)0x2000);

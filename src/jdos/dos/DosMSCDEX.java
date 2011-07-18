@@ -280,23 +280,27 @@ public class DosMSCDEX {
                 devHeader.SetInterrupt(off+5);
             }
 
-            subUnit.value = (/*Bit8u*/short)numDrives;
             // Set drive
             DOS_DeviceHeader devHeader = new DOS_DeviceHeader(Memory.PhysMake(rootDriverHeaderSeg,0));
             devHeader.SetNumSubUnits((short)(devHeader.GetNumSubUnits()+1));
 
             if (dinfo[0].drive-1==_drive) {
                 Dos_cdrom.CDROM_Interface _cdrom = cdrom[numDrives];
+                CDROM_Interface_Image _cdimg = CDROM_Interface_Image.images[numDrives];
                 for (/*Bit16u*/int i=GetNumDrives(); i>0; i--) {
                     dinfo[i] = dinfo[i-1];
                     cdrom[i] = cdrom[i-1];
+                    CDROM_Interface_Image.images[i] = CDROM_Interface_Image.images[i-1];
                 }
                 cdrom[0] = _cdrom;
+                CDROM_Interface_Image.images[0] = _cdimg;
                 dinfo[0].drive		= (/*Bit8u*/short)_drive;
                 dinfo[0].physDrive	= (/*Bit8u*/short)physicalPath.toUpperCase().charAt(0);
+                subUnit.value = 0;
             } else {
                 dinfo[numDrives].drive		= (/*Bit8u*/short)_drive;
                 dinfo[numDrives].physDrive	= (/*Bit8u*/short)physicalPath.toUpperCase().charAt(0);
+                subUnit.value = (/*Bit8u*/short)numDrives;
             }
             numDrives++;
             // stop audio

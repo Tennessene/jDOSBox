@@ -211,7 +211,7 @@ public class Shell {
             Msg.add("SHELL_CMD_PAUSE_HELP","Waits for 1 keystroke to continue.\n");
             Msg.add("SHELL_CMD_COPY_FAILURE","Copy failure : %s.\n");
             Msg.add("SHELL_CMD_COPY_SUCCESS","   %d File(s) copied.\n");
-            Msg.add("SHELL_CMD_SUBST_NO_REMOVE","Removing drive not supported. Doing nothing.\n");
+            Msg.add("SHELL_CMD_SUBST_NO_REMOVE","Unable to remove, drive not in use.\n");
             Msg.add("SHELL_CMD_SUBST_FAILURE","SUBST failed. You either made an error in your commandline or the target drive is already used.\nIt's only possible to use SUBST on Local drives");
 
             Msg.add("SHELL_STARTUP_BEGIN",

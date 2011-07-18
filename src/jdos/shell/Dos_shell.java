@@ -1719,19 +1719,24 @@ public class Dos_shell extends Program {
                 WriteOut(Msg.get("SHELL_CMD_SUBST_FAILURE"));
                 return;
             }
-            arg = command.FindCommand(2);
-            if (arg.toUpperCase().equals("/D" )) {
-                //No removal (one day)
-                WriteOut(Msg.get("SHELL_CMD_SUBST_NO_REMOVE"));
-                return;
-            }
 
             arg = command.FindCommand(1);
             if( (arg.length()>1) && arg.charAt(1) !=':')  {
                 WriteOut(Msg.get("SHELL_CMD_SUBST_FAILURE"));
                 return;
             }
+            arg = command.FindCommand(2);
             String temp_str=args.value.substring(0,1).toUpperCase();
+            if (arg.toUpperCase().equals("/D" )) {
+                if(Dos_files.Drives[temp_str.charAt(0)-'A']==null ) {
+                    WriteOut(Msg.get("SHELL_CMD_SUBST_NO_REMOVE"));
+                    return;
+                }
+                mountstring+="-u ";
+                mountstring+=temp_str;
+                ParseLine(mountstring);
+                return;
+            }
             if(Dos_files.Drives[temp_str.charAt(0)-'A']!=null ) {
                 //targetdrive in use
                 WriteOut(Msg.get("SHELL_CMD_SUBST_FAILURE"));
@@ -1740,7 +1745,6 @@ public class Dos_shell extends Program {
             mountstring+=temp_str;
             mountstring+=" ";
 
-            arg = command.FindCommand(2);
             /*Bit8u*/ShortRef drive=new ShortRef(0);StringRef fulldir = new StringRef();
             if (!Dos_files.DOS_MakeName(arg,fulldir,drive)) {
                 WriteOut(Msg.get("SHELL_CMD_SUBST_FAILURE"));

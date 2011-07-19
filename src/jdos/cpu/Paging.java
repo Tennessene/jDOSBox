@@ -341,13 +341,15 @@ public class Paging extends Module_base {
                 return -1;
             } else if (CPU.iret) {
                 CPU.iret = false;
-                CPU.cpu.mpl = pf_queue.entries[0].mpl;
-                while (pf_queue.used>0) {
-                    Core_full.removeState();
-                    pf_queue.used--;
+                if (!Callback.inHandler) {
+                    CPU.cpu.mpl = pf_queue.entries[0].mpl;
+                    while (pf_queue.used>0) {
+                        Core_full.removeState();
+                        pf_queue.used--;
+                    }
+                    CPU.cpudecoder = Core_normal.CPU_Core_Normal_Run;
+                    throw new PageFaultException();
                 }
-                CPU.cpudecoder = Core_normal.CPU_Core_Normal_Run;
-                throw new PageFaultException();
             }
             return 0;
         }

@@ -8,6 +8,7 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 
 public class Callback {
+    static public boolean inHandler=false;
     static public interface Handler {
         public /*Bitu*/int call();
         public String getName();

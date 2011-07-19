@@ -967,7 +967,7 @@ public class EMS extends Module_base {
                         break;
                     case 0x0c: {	/* VCPI Switch from V86 to Protected Mode */
                         CPU_Regs.flags&=(~CPU_Regs.IF);
-                        CPU.cpu.cpl=0;
+                        CPU.CPU_SetCPL(0);
 
                         /* Read data from ESI (linear address) */
                         /*Bit32u*/long new_cr3=Memory.mem_readd(CPU_Regs.reg_esi.dword());
@@ -1417,7 +1417,7 @@ public class EMS extends Module_base {
             CPU.CPU_Push32(CPU.Segs_CSval);
             CPU.CPU_Push32(CPU_Regs.reg_eip&0xffff);
             /* Switch to V86-mode */
-            CPU.cpu.cpl=0;
+            CPU.CPU_SetCPL(0);
             CPU.CPU_IRET(true,0);
         }
     }
@@ -1455,7 +1455,7 @@ public class EMS extends Module_base {
             CPU.CPU_SET_CRX(3, 0);
             CPU_Regs.flags&=(~(CPU_Regs.IOPL|CPU_Regs.VM));
             CPU.CPU_LIDT(0x3ff, 0);
-            CPU.cpu.cpl=0;
+            CPU.CPU_SetCPL(0);
         }
     }
 

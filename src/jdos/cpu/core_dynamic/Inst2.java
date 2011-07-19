@@ -505,7 +505,7 @@ public class Inst2 extends Helper {
 
     final static public class Rdtsc extends Op {
         public int call() {
-            if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUMSLOW) return Constants.BR_Illegal;
+            if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return Constants.BR_Illegal;
             /*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double)CPU.CPU_CycleMax);
             reg_edx.dword((tsc>>>32));
             reg_eax.dword((tsc&0xffffffffl));

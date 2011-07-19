@@ -465,7 +465,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* CMPXCHG Ed,Gd */
         ops[0x3b1] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486NEWSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486NEW) return ILLEGAL_OPCODE;
                 FillFlags();
                 short rm=Fetchb();
                 if (rm >= 0xc0) {
@@ -701,7 +701,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* XADD Gd,Ed */
         ops[0x3c1] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 short rm=Fetchb();/*Bit32u*/long oldrmrd=Modrm.Getrd[rm].dword();
                 if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword(Modrm.GetEArd[rm].dword());Modrm.GetEArd[rm].dword(Modrm.GetEArd[rm].dword()+oldrmrd);}
                 else {/*PhysPt*/long eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readd(eaa));Memory.mem_writed(eaa,Memory.mem_readd(eaa)+oldrmrd);}
@@ -712,7 +712,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP EAX */
         ops[0x3c8] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_eax.dword(BSWAPD(reg_eax.dword()));
                 return HANDLED;
             }
@@ -721,7 +721,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP ECX */
         ops[0x3c9] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_ecx.dword(BSWAPD(reg_ecx.dword()));
                 return HANDLED;
             }
@@ -730,7 +730,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP EDX */
         ops[0x3ca] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_edx.dword(BSWAPD(reg_edx.dword()));
                 return HANDLED;
             }
@@ -739,7 +739,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP EBX */
         ops[0x3cb] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_ebx.dword(BSWAPD(reg_ebx.dword()));
                 return HANDLED;
             }
@@ -748,7 +748,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP ESP */
         ops[0x3cc] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_esp.dword(BSWAPD(reg_esp.dword()));
                 return HANDLED;
             }
@@ -757,7 +757,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP EBP */
         ops[0x3cd] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_ebp.dword(BSWAPD(reg_ebp.dword()));
                 return HANDLED;
             }
@@ -766,7 +766,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP ESI */
         ops[0x3ce] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_esi.dword(BSWAPD(reg_esi.dword()));
                 return HANDLED;
             }
@@ -775,7 +775,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* BSWAP EDI */
         ops[0x3cf] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
 		        reg_edi.dword(BSWAPD(reg_edi.dword()));
                 return HANDLED;
             }

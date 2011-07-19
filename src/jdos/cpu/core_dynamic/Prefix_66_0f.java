@@ -339,7 +339,7 @@ public class Prefix_66_0f extends Helper {
         /* CMPXCHG Ed,Gd */
         ops[0x3b1] = new Decode() {
             final public int call(Op prev) {
-                 if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                 if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -543,7 +543,7 @@ public class Prefix_66_0f extends Helper {
         /* XADD Gd,Ed */
         ops[0x3c1] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -561,7 +561,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP EAX */
         ops[0x3c8] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -574,7 +574,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP ECX */
         ops[0x3c9] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -587,7 +587,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP EDX */
         ops[0x3ca] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -600,7 +600,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP EBX */
         ops[0x3cb] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -613,7 +613,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP ESP */
         ops[0x3cc] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -626,7 +626,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP EBP */
         ops[0x3cd] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -639,7 +639,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP ESI */
         ops[0x3ce] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -652,7 +652,7 @@ public class Prefix_66_0f extends Helper {
         /* BSWAP EDI */
         ops[0x3cf] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {

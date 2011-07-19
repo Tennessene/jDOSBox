@@ -3,20 +3,16 @@ package jdos.misc.setup;
 import jdos.misc.Cross;
 import jdos.misc.Log;
 import jdos.misc.Msg;
-import jdos.util.StringHelper;
 import jdos.util.FileIOFactory;
-import jdos.Dosbox;
+import jdos.util.StringHelper;
 
 import java.io.*;
-import java.util.Map;
 import java.util.Vector;
-import java.util.Set;
-import java.util.Iterator;
 
 public class Config {
     static public final String MAJOR_VERSION = "0.74";
     static public final String VERSION = "0.74.24";
-    static public final boolean C_DYNAMIC = true;
+    static public final boolean C_DYNAMIC = false;
     static public final boolean C_DYNREC = false;
     static public final boolean C_FPU = true;
     static public final boolean C_IPX = true;

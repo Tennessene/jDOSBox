@@ -168,7 +168,7 @@ public class Prefix_0f extends Prefix_none {
         /* INVD */
         ops[0x108] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
                 return HANDLED;
             }
@@ -272,7 +272,7 @@ public class Prefix_0f extends Prefix_none {
         /* RDTSC */
         ops[0x131] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUMSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return ILLEGAL_OPCODE;
                 /*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double)CPU.CPU_CycleMax);
                 reg_edx.dword((tsc>>>32));
                 reg_eax.dword((tsc&0xffffffffl));
@@ -716,7 +716,7 @@ public class Prefix_0f extends Prefix_none {
         /* cmpxchg Eb,Gb */
         ops[0x1b0] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 Flags.FillFlags();
                 /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0 ) {
@@ -748,7 +748,7 @@ public class Prefix_0f extends Prefix_none {
         /* cmpxchg Ew,Gw */
         ops[0x1b1] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 Flags.FillFlags();
                 /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0 ) {
@@ -969,7 +969,7 @@ public class Prefix_0f extends Prefix_none {
         /* XADD Gb,Eb */
         ops[0x1c0] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 /*Bit8u*/short rm=Fetchb();/*Bit8u*/short oldrmrb=Modrm.Getrb[rm].get();
                 if (rm >= 0xc0 ) {Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());Modrm.GetEArb[rm].set((short)(Modrm.GetEArb[rm].get()+oldrmrb));}
                 else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrb[rm].set(Memory.mem_readb(eaa));Memory.mem_writeb(eaa,Memory.mem_readb(eaa)+oldrmrb);}
@@ -981,7 +981,7 @@ public class Prefix_0f extends Prefix_none {
         /* XADD Gw,Ew */
         ops[0x1c1] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 /*Bit8u*/short rm=Fetchb();/*Bit16u*/int oldrmrw=Modrm.Getrw[rm].word();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());Modrm.GetEArw[rm].word(Modrm.GetEArw[rm].word()+oldrmrw);}
                 else {/*PhysPt*/long eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readw(eaa));Memory.mem_writew(eaa,Memory.mem_readw(eaa)+oldrmrw);}
@@ -992,7 +992,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP AX */
         ops[0x1c8] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_eax.word(Instructions.BSWAPW(reg_eax.word()));
                 return HANDLED;
             }
@@ -1001,7 +1001,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP CX */
         ops[0x1c9] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_ecx.word(Instructions.BSWAPW(reg_ecx.word()));
                 return HANDLED;
             }
@@ -1010,7 +1010,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP DX */
         ops[0x1ca] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_edx.word(Instructions.BSWAPW(reg_edx.word()));
                 return HANDLED;
             }
@@ -1019,7 +1019,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP BX */
         ops[0x1cb] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_ebx.word(Instructions.BSWAPW(reg_ebx.word()));
                 return HANDLED;
             }
@@ -1028,7 +1028,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP SP */
         ops[0x1cc] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_esp.word(Instructions.BSWAPW(reg_esp.word()));
                 return HANDLED;
             }
@@ -1037,7 +1037,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP BP */
         ops[0x1cd] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_ebp.word(Instructions.BSWAPW(reg_ebp.word()));
                 return HANDLED;
             }
@@ -1046,7 +1046,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP SI */
         ops[0x1ce] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_esi.word(Instructions.BSWAPW(reg_esi.word()));
                 return HANDLED;
             }
@@ -1055,7 +1055,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSWAP DI */
         ops[0x1ce] = new OP() {
             final public int call() {
-                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLDSLOW) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 reg_edi.word(Instructions.BSWAPW(reg_edi.word()));
                 return HANDLED;
             }

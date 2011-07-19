@@ -2,11 +2,11 @@ package jdos.cpu.core_dynamic;
 
 import jdos.cpu.Core_dynamic;
 import jdos.cpu.Paging;
-import jdos.util.ShortRef;
+import jdos.hardware.Memory;
+import jdos.misc.Log;
 import jdos.util.IntRef;
 import jdos.util.Ptr;
-import jdos.misc.Log;
-import jdos.hardware.Memory;
+import jdos.util.ShortRef;
 
 public class Decoder_basic {
     static public final int REP_NONE=0;
@@ -42,24 +42,15 @@ public class Decoder_basic {
             return false;
         }
         if ((handler.flags & Paging.PFLAG_NOCODE)!=0) {
-            if (Paging.PAGING_ForcePageInit(lin_addr)) {
-                handler=Paging.get_tlb_readhandler(i_line_addr);
-                if ((handler.flags & Paging.PFLAG_HASCODE)!=0) {
-                    cph.value=(CodePageHandlerDynRec)handler;
-                    return false;
-                }
-            }
-            if ((handler.flags & Paging.PFLAG_NOCODE)!=0) {
-                Log.log_msg("DYNREC:Can't run code in this page");
-                cph.value=null;
-                return false;
-            }
+            Log.log_msg("DYNREC:Can't run code in this page");
+            cph.value=null;
+            return false;
         }
         /*Bitu*/int lin_page=(int)(lin_addr>>12);
         phys_page.value=lin_page;
         // find the physical page that the linear page is mapped to
         if (!Paging.PAGING_MakePhysPage(phys_page)) {
-            Log.log_msg("DYNREC:Can't find physpage");
+            Log.log_msg("DYNREC:Can't find physpage for lin addr "+Long.toString(lin_addr, 16));;
             cph.value=null;
             return false;
         }

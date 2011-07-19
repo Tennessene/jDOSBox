@@ -23,11 +23,10 @@ public class CPU extends Module_base {
     public static final int CPU_CYCLES_LOWER_LIMIT=100;
 
     public static final int CPU_ARCHTYPE_MIXED=0xff;
-    public static final int CPU_ARCHTYPE_386SLOW=0x30;
-    public static final int CPU_ARCHTYPE_386FAST=0x35;
-    public static final int CPU_ARCHTYPE_486OLDSLOW=0x40;
-    public static final int CPU_ARCHTYPE_486NEWSLOW=0x45;
-    public static final int CPU_ARCHTYPE_PENTIUMSLOW=0x50;
+    public static final int CPU_ARCHTYPE_386=0x35;
+    public static final int CPU_ARCHTYPE_486OLD=0x40;
+    public static final int CPU_ARCHTYPE_486NEW=0x45;
+    public static final int CPU_ARCHTYPE_PENTIUM=0x50;
 
     public static interface CPU_Decoder {
         public /*Bits*/int call();
@@ -60,6 +59,7 @@ public class CPU extends Module_base {
     public static final int CR0_FPUEMULATION=0x00000004;
     public static final int CR0_TASKSWITCH=0x00000008;
     public static final int CR0_FPUPRESENT=0x00000010;
+    public static final int CR0_WRITEPROTECT=0x00010000;
     public static final long CR0_PAGING=0x80000000l;
 
     // *********************************************************************
@@ -877,7 +877,11 @@ public class CPU extends Module_base {
         } else {
 
             /* Setup the new cr3 */
-            Paging.PAGING_SetDirBase(new_cr3);
+            if (Paging.paging.cr3 != new_cr3) {
+			    // if they are the same it is not flushed
+			    // according to the 386 manual
+			    Paging.PAGING_SetDirBase(new_cr3);
+            }
 
             /* Load new context */
             if (new_tss_temp.is386 != 0) {
@@ -901,13 +905,13 @@ public class CPU extends Module_base {
         if ((CPU_Regs.flags & CPU_Regs.VM) != 0) {
             CPU_Regs.SegSet16CS((int)new_cs);
             cpu.code.big=false;
-            cpu.cpl=3;			//We don't have segment caches so this will do
+            CPU_SetCPL(3);			//We don't have segment caches so this will do
         } else {
             /* Protected mode task */
             if (new_ldt!=0) CPU_LLDT(new_ldt);
             /* Load the new CS*/
 
-            cpu.cpl=new_cs & 3;
+            CPU_SetCPL((int)(new_cs & 3));
             if (!cpu.gdt.GetDescriptor((int)new_cs,cs_desc_temp))
                 Log.exit("Task switch with CS beyond limits");
             if (cs_desc_temp.saved.seg.p()==0)
@@ -1108,7 +1112,7 @@ public class CPU extends Module_base {
                                 CPU_Regs.reg_esp.word((int)(n_esp_1.value & 0xffffl));
                             }
 
-                            cpu.cpl=cs_dpl;
+                            CPU_SetCPL(cs_dpl);
                             if ((gate_temp_1.Type() & 0x8)!=0) {	/* 32-bit Gate */
                                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0) {
                                     CPU_Push32(Segs_GSval);CPU_Regs.SegSet16GS(0x0);
@@ -1198,8 +1202,10 @@ public class CPU extends Module_base {
 
     static private final Descriptor n_cs_desc_2 = new Descriptor();
     static private final Descriptor n_ss_desc_2 = new Descriptor();
+    static public boolean iret = false;
 
     static public void CPU_IRET(boolean use32, /*Bitu*/long oldeip) {
+        iret = true;
         if (!cpu.pmode) {					/* RealMode IRET */
             if (use32) {
                 CPU_Regs.reg_eip(CPU_Pop32());
@@ -1285,7 +1291,7 @@ public class CPU extends Module_base {
 
                     CPU_SetFlags(n_flags,CPU_Regs.FMASK_ALL | CPU_Regs.VM);
                     Flags.DestroyConditionFlags();
-                    cpu.cpl=3;
+                    CPU_SetCPL(3);
 
                     CPU_SetSegGeneralSS((int)n_ss);
                     CPU_SetSegGeneralES((int)n_es);
@@ -1387,7 +1393,7 @@ public class CPU extends Module_base {
                 CPU_SetFlags(n_flags,mask);
                 Flags.DestroyConditionFlags();
 
-                cpu.cpl=n_cs_rpl;
+                CPU_SetCPL(n_cs_rpl);
                 CPU_Regs.reg_eip(n_eip);
 
                 Segs_SSval=n_ss;
@@ -1626,7 +1632,7 @@ public class CPU extends Module_base {
                                 CPU_Regs.reg_esp.word((int)(n_esp_4.value & 0xffffl));
                             }
 
-                            cpu.cpl = n_cs_desc_4.DPL();
+                            CPU_SetCPL(n_cs_desc_4.DPL());
                             /*Bit16u*/long oldcs    = Segs_CSval;
                             /* Switch to new CS:EIP */
                             Segs_CSphys	= n_cs_desc_4.GetBase();
@@ -1846,7 +1852,7 @@ public class CPU extends Module_base {
                 }
                 if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_5.saved.seg.p()==0, "RET:Stack segment not present", EXCEPTION_SS,n_ss & 0xfffc);
 
-                cpu.cpl = rpl;
+                CPU_SetCPL(rpl);
                 Segs_CSphys=desc_5.GetBase();
                 cpu.code.big=desc_5.Big()>0;
                 Segs_CSval=(selector&0xfffc) | cpu.cpl;
@@ -1880,6 +1886,16 @@ public class CPU extends Module_base {
 
     static public/*Bitu*/int CPU_SLDT() {
         return cpu.gdt.SLDT();
+    }
+
+    static public void CPU_SetCPL(/*Bitu*/int newcpl) {
+        if (newcpl != cpu.cpl) {
+            if (Paging.paging.enabled) {
+                if ( ((cpu.cpl < 3) && (newcpl == 3)) || ((cpu.cpl == 3) && (newcpl < 3)) )
+                Paging.PAGING_SwitchCPL(newcpl == 3);
+            }
+            cpu.cpl = newcpl;
+        }
     }
 
     static public boolean CPU_LLDT( /*Bitu*/int selector) {
@@ -1954,13 +1970,18 @@ public class CPU extends Module_base {
         switch (cr) {
         case 0:
             {
+                value|=CR0_FPUPRESENT;
                 /*Bitu*/long changed=cpu.cr0 ^ value;
                 if (changed==0) return;
+                if ((changed & CR0_WRITEPROTECT)!=0) {
+			    	if (CPU_ArchitectureType >= CPU_ARCHTYPE_486OLD)
+				    	Paging.PAGING_SetWP((value & CR0_WRITEPROTECT) != 0);
+    			}
                 cpu.cr0=value;
                 if ((value & CR0_PROTECTION)!=0) {
                     cpu.pmode=true;
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"Protected mode");
-                    Paging.PAGING_Enable((value & CR0_PAGING)>0);
+                    Paging.PAGING_Enable((value & CR0_PAGING)!=0);
 
                     if ((CPU_AutoDetermineMode & CPU_AUTODETERMINE_MASK)==0) break;
 
@@ -2008,7 +2029,7 @@ public class CPU extends Module_base {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         if ((cr==1) || (cr>4)) return CPU_PrepareException(EXCEPTION_UD,0);
-        if (CPU_ArchitectureType<CPU_ARCHTYPE_486OLDSLOW) {
+        if (CPU_ArchitectureType<CPU_ARCHTYPE_486OLD) {
             if (cr==4) return CPU_PrepareException(EXCEPTION_UD,0);
         }
         CPU_SET_CRX(cr,value);
@@ -2018,8 +2039,8 @@ public class CPU extends Module_base {
      public static /*Bitu*/long CPU_GET_CRX( /*Bitu*/int cr) {
         switch (cr) {
         case 0:
-            if (CPU_ArchitectureType>=CPU_ARCHTYPE_PENTIUMSLOW) return cpu.cr0;
-            else if (CPU_ArchitectureType>=CPU_ARCHTYPE_486OLDSLOW) return (cpu.cr0 & 0xe005003fl);
+            if (CPU_ArchitectureType>=CPU_ARCHTYPE_PENTIUM) return cpu.cr0;
+            else if (CPU_ArchitectureType>=CPU_ARCHTYPE_486OLD) return (cpu.cr0 & 0xe005003fl);
             else return (cpu.cr0 | 0x7ffffff0l);
         case 2:
             return Paging.paging.cr2;
@@ -2057,7 +2078,7 @@ public class CPU extends Module_base {
             break;
         case 5:
         case 7:
-            if (CPU_ArchitectureType<CPU_ARCHTYPE_PENTIUMSLOW) {
+            if (CPU_ArchitectureType<CPU_ARCHTYPE_PENTIUM) {
                 cpu.drx[7]=(value|0x400) & 0xffff2fff;
             } else {
                 cpu.drx[7]=(value|0x400);
@@ -2659,7 +2680,7 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_CPUID() {
-        if (CPU_ArchitectureType<CPU_ARCHTYPE_486NEWSLOW) return false;
+        if (CPU_ArchitectureType<CPU_ARCHTYPE_486NEW) return false;
         switch ((int)CPU_Regs.reg_eax.dword()) {
         case 0:	/* Vendor ID String and maximum level? */
             CPU_Regs.reg_eax.dword(1);  /* Maximum level */
@@ -2668,13 +2689,13 @@ public class CPU extends Module_base {
             CPU_Regs.reg_ecx.dword('n' | ('t' << 8) | ('e' << 16) | ('l'<< 24));
             break;
         case 1:	/* get processor type/family/model/stepping and feature flags */
-            if ((CPU_ArchitectureType==CPU_ARCHTYPE_486NEWSLOW) ||
+            if ((CPU_ArchitectureType==CPU_ARCHTYPE_486NEW) ||
                 (CPU_ArchitectureType==CPU_ARCHTYPE_MIXED)) {
                 CPU_Regs.reg_eax.dword(0x402);		/* intel 486dx */
                 CPU_Regs.reg_ebx.dword(0);			/* Not Supported */
                 CPU_Regs.reg_ecx.dword(0);			/* No features */
                 CPU_Regs.reg_edx.dword(0x00000001);	/* FPU */
-            } else if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUMSLOW) {
+            } else if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUM) {
                 CPU_Regs.reg_eax.dword(0x513);		/* intel pentium */
                 CPU_Regs.reg_ebx.dword(0);			/* Not Supported */
                 CPU_Regs.reg_ecx.dword(0);			/* No features */
@@ -2860,7 +2881,7 @@ public class CPU extends Module_base {
             cpu.drx[i]=0;
             cpu.trx[i]=0;
         }
-        if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUMSLOW) {
+        if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUM) {
             cpu.drx[6]=0xffff0ff0l;
         } else {
             cpu.drx[6]=0xffff1ff0l;
@@ -2988,9 +3009,9 @@ public class CPU extends Module_base {
         if (cputype.equals("auto")) {
             CPU_ArchitectureType = CPU_ARCHTYPE_MIXED;
         } else if (cputype.equals("386")) {
-            CPU_ArchitectureType = CPU_ARCHTYPE_386FAST;
+            CPU_ArchitectureType = CPU_ARCHTYPE_386;
         } else if (cputype.equals("386_prefetch")) {
-            CPU_ArchitectureType = CPU_ARCHTYPE_386FAST;
+            CPU_ArchitectureType = CPU_ARCHTYPE_386;
             if (core.equals("normal")) {
                 cpudecoder=Core_prefetch.CPU_Core_Prefetch_Run;
                 CPU_PrefetchQueueSize = 16;
@@ -3001,12 +3022,10 @@ public class CPU extends Module_base {
             } else {
                 Log.exit("prefetch queue emulation requires the normal core setting.");
             }
-        } else if (cputype.equals("386_slow")) {
-            CPU_ArchitectureType = CPU_ARCHTYPE_386SLOW;
-        } else if (cputype.equals("486_slow")) {
-            CPU_ArchitectureType = CPU_ARCHTYPE_486NEWSLOW;
+        } else if (cputype.equals("486")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_486NEW;
         } else if (cputype.equals("486_prefetch")) {
-            CPU_ArchitectureType = CPU_ARCHTYPE_486NEWSLOW;
+            CPU_ArchitectureType = CPU_ARCHTYPE_486NEW;
             if (core.equals("normal")) {
                 cpudecoder=Core_prefetch.CPU_Core_Prefetch_Run;
                 CPU_PrefetchQueueSize = 32;
@@ -3018,11 +3037,12 @@ public class CPU extends Module_base {
                 Log.exit("prefetch queue emulation requires the normal core setting.");
             }
         } else if (cputype.equals("pentium_slow")) {
-            CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUMSLOW;
+            CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM;
         }
 
-        if (CPU_ArchitectureType>=CPU_ARCHTYPE_486NEWSLOW) CPU_flag_id_toggle=CPU_Regs.ID;
-        else CPU_flag_id_toggle=0;
+        if (CPU_ArchitectureType>=CPU_ARCHTYPE_486NEW) CPU_flag_id_toggle=CPU_Regs.ID|CPU_Regs.AC;
+
+        else CPU_flag_id_toggle=CPU_Regs.AC;
 
 
         if(CPU_CycleMax <= 0) CPU_CycleMax = 3000;

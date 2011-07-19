@@ -1,10 +1,10 @@
 package jdos.cpu.core_dynamic;
 
+import jdos.cpu.CPU;
+import jdos.cpu.Instructions;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.cpu.Instructions;
-import jdos.cpu.CPU;
 
 public class Prefix_0f extends Helper {
     static public void init(Decode[] ops) {
@@ -147,7 +147,7 @@ public class Prefix_0f extends Helper {
         /* INVD */
         ops[0x108] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -760,7 +760,7 @@ public class Prefix_0f extends Helper {
         /* cmpxchg Eb,Gb */
         ops[0x1b0] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -779,7 +779,7 @@ public class Prefix_0f extends Helper {
         /* cmpxchg Ew,Gw */
         ops[0x1b1] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -973,7 +973,7 @@ public class Prefix_0f extends Helper {
         /* XADD Gb,Eb */
         ops[0x1c0] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -992,7 +992,7 @@ public class Prefix_0f extends Helper {
         /* XADD Gw,Ew */
         ops[0x1c1] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1010,7 +1010,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP AX */
         ops[0x1c8] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1023,7 +1023,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP CX */
         ops[0x1c9] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1036,7 +1036,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP DX */
         ops[0x1ca] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1049,7 +1049,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP BX */
         ops[0x1cb] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1062,7 +1062,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP SP */
         ops[0x1cc] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1075,7 +1075,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP BP */
         ops[0x1cd] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1088,7 +1088,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP SI */
         ops[0x1ce] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {
@@ -1101,7 +1101,7 @@ public class Prefix_0f extends Helper {
         /* BSWAP DI */
         ops[0x1cf] = new Decode() {
             final public int call(Op prev) {
-                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLDSLOW) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_486OLD) {
                     prev.next = new Inst1.Illegal("");
                     return RESULT_JUMP;
                 } else {

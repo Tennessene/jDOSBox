@@ -60,8 +60,12 @@ public class Dosbox {
                     ret=CPU.cpudecoder.call();
                     if (ret<0) return 1;
                     if (ret>0) {
-                        /*Bitu*/int blah=Callback.CallBack_Handlers[ret].call();
-                        if (blah!=0) return blah;
+                        try {
+                            /*Bitu*/int blah=Callback.CallBack_Handlers[ret].call();
+                            if (blah!=0) return blah;
+                        } catch (Paging.PageFaultException e) {
+                            Log.exit("This should not happen");
+                        }
                     }
                     if (Config.C_DEBUG)
                         if (Debug.DEBUG_ExitLoop()) return 0;
@@ -169,10 +173,21 @@ public class Dosbox {
         loop=Normal_Loop;
     }
 
-    static public void DOSBOX_RunMachine(){
+    static public void DOSBOX_RunMachinePF(){
         /*Bitu*/int ret;
         do {
             ret=loop.call();
+        } while (ret==0);
+    }
+
+    static public void DOSBOX_RunMachine(){
+        /*Bitu*/int ret;
+        do {
+            try {
+                ret=loop.call();
+            } catch (Paging.PageFaultException e) {
+                ret = 0;
+            }
         } while (ret==0);
     }
 

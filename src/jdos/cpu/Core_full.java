@@ -11,6 +11,9 @@ public class Core_full {
         state.addElement(s);
     }
 
+    public static void removeState() {
+        state.remove(state.size()-1);
+    }
     public static void popState() {
         Core_normal.State s = (Core_normal.State)state.remove(state.size()-1);
         Core_normal.loadState(s);

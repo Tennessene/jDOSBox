@@ -339,6 +339,15 @@ public class Paging extends Module_base {
             if (pentry.block.p != 0 && entry.cs == CPU.Segs_CSval && entry.eip == CPU_Regs.reg_eip()) {
                 CPU.cpu.mpl = entry.mpl;
                 return -1;
+            } else if (CPU.iret) {
+                CPU.iret = false;
+                CPU.cpu.mpl = pf_queue.entries[0].mpl;
+                while (pf_queue.used>0) {
+                    Core_full.removeState();
+                    pf_queue.used--;
+                }
+                CPU.cpudecoder = Core_normal.CPU_Core_Normal_Run;
+                throw new PageFaultException();
             }
             return 0;
         }
@@ -497,6 +506,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             CPU.cpu.exception.which = CPU.EXCEPTION_PF;
             CPU.cpu.exception.error = faultcode;
         } else {
+            CPU.iret = false;
             // Save the state of the cpu cores
             LazyFlags old_lflags = new LazyFlags(Flags.lflags);
             CPU.CPU_Decoder old_cpudecoder;
@@ -514,7 +524,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             CPU.CPU_Exception(CPU.EXCEPTION_PF, faultcode);
 
             Core_full.pushState();
-            Dosbox.DOSBOX_RunMachine();
+            Dosbox.DOSBOX_RunMachinePF();
             Core_full.popState();
 
             pf_queue.used--;

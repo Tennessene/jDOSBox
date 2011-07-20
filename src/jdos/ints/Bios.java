@@ -4,8 +4,8 @@ import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
-import jdos.dos.Dos_tables;
 import jdos.dos.Dos_programs;
+import jdos.dos.Dos_tables;
 import jdos.hardware.*;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
@@ -687,6 +687,7 @@ public class Bios extends Module_base {
     };
 
     private static /*Bit16u*/int biosConfigSeg=0;
+    private static boolean apm_realmode_connected = false;
 
     private static Callback.Handler INT15_Handler = new Callback.Handler() {
         public String getName() {
@@ -922,6 +923,118 @@ public class Bios extends Module_base {
             case 0xc4:	/* BIOS POS Programm option Select */
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT15:Function "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" called, bios mouse not supported");
                 Callback.CALLBACK_SCF(true);
+                break;
+            case 0x53: // APM BIOS
+                switch(CPU_Regs.reg_eax.low()) {
+                case 0x00: // installation check
+                    CPU_Regs.reg_eax.high(1);			// APM 1.2
+                    CPU_Regs.reg_eax.low(2);
+                    CPU_Regs.reg_ebx.word(0x504d);	// 'PM'
+                    CPU_Regs.reg_ecx.word(0);			// about no capabilities
+                    // 32-bit interface seems to be needed for standby in win95
+                    break;
+                case 0x01: // connect real mode interface
+                    if(CPU_Regs.reg_ebx.word() != 0x0) {
+                        CPU_Regs.reg_eax.high(0x09);	// unrecognized device ID
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    if(!apm_realmode_connected) { // not yet connected
+                        Callback.CALLBACK_SCF(false);
+                        apm_realmode_connected=true;
+                    } else {
+                        CPU_Regs.reg_eax.high(0x02);	// interface connection already in effect
+                        Callback.CALLBACK_SCF(true);
+                    }
+                    break;
+                case 0x04: // DISCONNECT INTERFACE
+                    if(CPU_Regs.reg_ebx.word() != 0x0) {
+                        CPU_Regs.reg_eax.high(0x09);	// unrecognized device ID
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    if(apm_realmode_connected) {
+                        Callback.CALLBACK_SCF(false);
+                        apm_realmode_connected=false;
+                    } else {
+                        CPU_Regs.reg_eax.high(0x03);	// interface not connected
+                        Callback.CALLBACK_SCF(true);
+                    }
+                    break;
+                case 0x07:
+                    if(CPU_Regs.reg_ebx.word() != 0x1) {
+                        CPU_Regs.reg_eax.high(0x09);	// wrong device ID
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    if(!apm_realmode_connected) {
+                        CPU_Regs.reg_eax.high(0x03);
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    switch(CPU_Regs.reg_ecx.word()) {
+                    case 0x3: // power off
+                        Log.exit("Power Off");
+                        break;
+                    default:
+                        CPU_Regs.reg_eax.high(0x0A); // invalid parameter value in CX
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    break;
+                case 0x08: // ENABLE/DISABLE POWER MANAGEMENT
+                    if(CPU_Regs.reg_ebx.word() != 0x0 && CPU_Regs.reg_ebx.word() != 0x1) {
+                        CPU_Regs.reg_eax.high(0x09);	// unrecognized device ID
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    } else if(!apm_realmode_connected) {
+                        CPU_Regs.reg_eax.high(0x03);
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    if(CPU_Regs.reg_ecx.word()==0x0) Log.log_msg("disable APM for device "+Integer.toString(CPU_Regs.reg_ebx.word(),16));
+                    else if(CPU_Regs.reg_ecx.word()==0x1) Log.log_msg("enable APM for device "+Integer.toString(CPU_Regs.reg_ebx.word(),16));
+                    else {
+                        CPU_Regs.reg_eax.high(0x0A); // invalid parameter value in CX
+                        Callback.CALLBACK_SCF(true);
+                    }
+                    break;
+                case 0x0e:
+                    if(CPU_Regs.reg_ebx.word() != 0x0) {
+                        CPU_Regs.reg_eax.high(0x09);	// unrecognized device ID
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    } else if(!apm_realmode_connected) {
+                        CPU_Regs.reg_eax.high(0x03);	// interface not connected
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    if(CPU_Regs.reg_eax.high() < 1) CPU_Regs.reg_eax.high(1);
+                    if(CPU_Regs.reg_eax.low() < 2) CPU_Regs.reg_eax.low(2);
+                    Callback.CALLBACK_SCF(false);
+                    break;
+                case 0x0f:
+                    if(CPU_Regs.reg_ebx.word() != 0x0 && CPU_Regs.reg_ebx.word() != 0x1) {
+                        CPU_Regs.reg_eax.high(0x09);	// unrecognized device ID
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    } else if(!apm_realmode_connected) {
+                        CPU_Regs.reg_eax.high(0x03);
+                        Callback.CALLBACK_SCF(true);
+                        break;
+                    }
+                    if(CPU_Regs.reg_ecx.word()==0x0) Log.log_msg("disengage APM for device "+Integer.toString(CPU_Regs.reg_ebx.word(),16));
+                    else if(CPU_Regs.reg_ecx.word()==0x1) Log.log_msg("engage APM for device "+Integer.toString(CPU_Regs.reg_ebx.word(),16));
+                    else {
+                        CPU_Regs.reg_eax.high(0x0A); // invalid parameter value in CX
+                        Callback.CALLBACK_SCF(true);
+                    }
+                    break;
+                default:
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"unknown APM BIOS call "+Integer.toString(CPU_Regs.reg_eax.word(),16));
+                    break;
+                }
+                Callback.CALLBACK_SCF(false);
                 break;
             default:
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT15:Unknown call "+Integer.toString(CPU_Regs.reg_eax.word(),16));

@@ -57,7 +57,6 @@ public class DOS_Drive_Cache {
         dirBase			= new CFileInfo();
         srchNr			= 0;
         nextFreeFindFirst	= 0;
-        for (/*Bit32u*/int i=0; i<MAX_OPENDIRS; i++) { free[i] = true;}
         SetDirSort(TDirSort.DIRALPHABETICAL);
         updatelabel = true;
     }
@@ -66,7 +65,6 @@ public class DOS_Drive_Cache {
         dirBase			= new CFileInfo();
         srchNr			= 0;
         nextFreeFindFirst	= 0;
-        for (/*Bit32u*/int i=0; i<MAX_OPENDIRS; i++) {free[i] = true;}
         SetDirSort(TDirSort.DIRALPHABETICAL);
         SetBaseDir(path);
         updatelabel = true;
@@ -113,7 +111,10 @@ public class DOS_Drive_Cache {
             // Try to open directory
             Cross.dir_information dirp = Cross.open_directory(dirPath);
             if (dirp == null) {
-                free[id] = true;
+                if (dirSearch[id]!=null) {
+                    dirSearch[id].id = MAX_OPENDIRS;
+                    dirSearch[id] = null;
+                }
                 return false;
             }
             // Read complete directory
@@ -140,7 +141,10 @@ public class DOS_Drive_Cache {
             }*/
         }
         if (SetResult(dirSearch[id], result, dirSearch[id].nextEntry)) return true;
-        free[id] = true;
+        if (dirSearch[id]!=null) {
+            dirSearch[id].id = MAX_OPENDIRS;
+            dirSearch[id] = null;
+        }
         return false;
     }
 
@@ -222,6 +226,7 @@ public class DOS_Drive_Cache {
             this.nextFreeFindFirst = 1; //the next free one after this search
             for(/*Bitu*/int n=0; n<MAX_OPENDIRS;n++) {
             // Clear and reuse slot
+                DeleteFileInfo(dirFindFirst[n]);
                 dirFindFirst[n]=null;
             }
         }
@@ -255,10 +260,28 @@ public class DOS_Drive_Cache {
         }
         if (!SetResult(dirFindFirst[id], result, dirFindFirst[id].nextEntry)) {
             // free slot
+            DeleteFileInfo(dirFindFirst[id]);
             dirFindFirst[id] = null;
             return false;
         }
         return true;
+    }
+
+    void ClearFileInfo(CFileInfo dir) {
+        for(/*Bit32u*/int i=0; i<dir.fileList.size(); i++) {
+            CFileInfo info = (CFileInfo)dir.fileList.elementAt(i);
+            if (info!=null)
+                ClearFileInfo(info);
+        }
+        if (dir.id != MAX_OPENDIRS) {
+            dirSearch[dir.id] = null;
+            dir.id = MAX_OPENDIRS;
+        }
+    }
+
+    void DeleteFileInfo(CFileInfo dir) {
+        if (dir!=null)
+            ClearFileInfo(dir);
     }
 
     public void CacheOut(String path) {
@@ -285,6 +308,7 @@ public class DOS_Drive_Cache {
         // delete file objects...
         for(/*Bit32u*/int i=0; i<dir.fileList.size(); i++) {
             if (dirSearch[srchNr]==dir.fileList.elementAt(i)) dirSearch[srchNr] = null;
+            DeleteFileInfo((CFileInfo)dir.fileList.elementAt(i));
             dir.fileList.setElementAt(null, i);
         }
         // clear lists
@@ -350,7 +374,6 @@ public class DOS_Drive_Cache {
         dirBase		= new CFileInfo();
         save_dir	= null;
         srchNr		= 0;
-        for (/*Bit32u*/int i=0; i<MAX_OPENDIRS; i++) free[i] = true;
         SetBaseDir(basePath);
     }
 
@@ -376,12 +399,14 @@ public class DOS_Drive_Cache {
         public CFileInfo() {
             nextEntry = shortNr = 0;
             isDir = false;
+			id = MAX_OPENDIRS;
         }
         String  	orgname;
         String		shortname;
         boolean		isDir;
-        /*Bitu*/int	nextEntry;
-        /*Bitu*/int	shortNr;
+        /*Bit16u*/int   id;
+        /*Bitu*/int	    nextEntry;
+        /*Bitu*/int	    shortNr;
         // contents
         Vector	fileList = new Vector();
         Vector	longNameList = new Vector();
@@ -613,7 +638,10 @@ public class DOS_Drive_Cache {
                 buffer = dirPath;
                 ReadDir(id.value,result);
                 dirPath = buffer;
-                free[id.value] = true;
+                if (dirSearch[id.value]!=null) {
+				    dirSearch[id.value].id = MAX_OPENDIRS;
+				    dirSearch[id.value] = null;
+			    }
             }
         }
 
@@ -642,7 +670,10 @@ public class DOS_Drive_Cache {
                         StringRef result = new StringRef();
                         ReadDir(id.value,result);
                         dirPath = buffer;
-                        free[id.value] = true;
+                        if (dirSearch[id.value]!=null) {
+						    dirSearch[id.value].id = MAX_OPENDIRS;
+						    dirSearch[id.value] = null;
+					    }
                     }
                 }
             }
@@ -674,9 +705,12 @@ public class DOS_Drive_Cache {
                 // Reset it..
                 Cross.close_directory(dirp);
                 dirPath=expandcopy;
-                free[id.value] = false;
                 return true;
             }
+        }
+        if (dirSearch[id.value]!=null) {
+            dirSearch[id.value].id = MAX_OPENDIRS;
+            dirSearch[id.value] = null;
         }
         return false;
     }
@@ -728,12 +762,21 @@ public class DOS_Drive_Cache {
     }
 
     /*Bit16u*/int GetFreeID(CFileInfo dir) {
-        for (/*Bit16u*/int i=0; i<MAX_OPENDIRS; i++) if (free[i] || (dir==dirSearch[i])) return i;
+        if (dir.id != MAX_OPENDIRS)
+            return dir.id;
+        for (/*Bit16u*/int i=0; i<MAX_OPENDIRS; i++) {
+            if (dirSearch[i]==null) {
+                dir.id = i;
+                return i;
+            }
+        }
         Log.log(LogTypes.LOG_FILES, LogSeverities.LOG_NORMAL,"DIRCACHE: Too many open directories!");
+        dir.id=0;
         return 0;
     }
 
     void Clear() {
+        DeleteFileInfo(dirBase);
         dirBase = null;
         nextFreeFindFirst	= 0;
         for (/*Bit32u*/int i=0; i<MAX_OPENDIRS; i++) dirSearch[i] = null;
@@ -751,7 +794,6 @@ public class DOS_Drive_Cache {
     private /*Bit16u*/int	srchNr;
     private CFileInfo[]	dirSearch = new CFileInfo[MAX_OPENDIRS];
     //private String[] dirSearchName = new String[MAX_OPENDIRS];
-    private boolean[] free = new boolean[MAX_OPENDIRS];
     private CFileInfo[] dirFindFirst = new CFileInfo[MAX_OPENDIRS];
     private /*Bit16u*/int nextFreeFindFirst;
 

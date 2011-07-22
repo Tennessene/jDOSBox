@@ -1728,8 +1728,8 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x2e8] = new OP() {
             final public int call() {
                 /*Bit32s*/int addip=Fetchds();
+                CPU.CPU_Push32(GETIP());
                 SAVEIP();
-                CPU.CPU_Push32(reg_eip());
                 reg_eip(reg_eip()+addip);
                 return CONTINUE;
             }

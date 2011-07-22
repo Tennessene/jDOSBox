@@ -2901,8 +2901,8 @@ public class Prefix_none extends StringOp {
         ops[0xe8] = new OP() {
             final public int call() {
                 /*Bit16u*/int addip=Fetchws();
+                CPU.CPU_Push16((int)(GETIP() & 0xFFFFl));
                 SAVEIP();
-                CPU.CPU_Push16((int)(reg_eip() & 0xFFFFl));
                 reg_eip((reg_eip()+addip) & 0xFFFFl);
                 return CONTINUE;
             }

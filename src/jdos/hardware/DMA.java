@@ -341,7 +341,9 @@ public class DMA extends Module_base {
         /*Bit32u*/long dma_wrap = ((0xffff<<dma16)+dma16) | dma_wrapping;
         boolean left = true;
         for ( ; size!=0 ; size--, offset++) {
-            if (offset>(dma_wrapping<<dma16)) Log.exit("DMA segbound wrapping (read)");
+            if (offset>(dma_wrapping<<dma16)) {
+			    Log.log_msg("DMA segbound wrapping (read): "+Long.toString(spage, 16)+":"+Integer.toString(offset,16)+" size "+Integer.toString(size, 16)+" [1] wrap "+Long.toString(dma_wrapping,16));
+		    }
             offset &= dma_wrap;
             /*Bitu*/int page = highpart_addr_page+(offset >> 12);
             /* care for EMS pageframe etc. */
@@ -361,7 +363,9 @@ public class DMA extends Module_base {
         /*Bitu*/int highpart_addr_page = (int)(spage>>12);
         /*Bit32u*/long dma_wrap = 0xffff;
         for ( ; size!=0 ; size--, offset++) {
-            if (offset>dma_wrapping) Log.exit("DMA segbound wrapping (read)");
+            if (offset>(dma_wrapping)) {
+			    Log.log_msg("DMA segbound wrapping (read): "+Long.toString(spage, 16)+":"+Integer.toString(offset,16)+" size "+Integer.toString(size, 16)+" [0] wrap "+Long.toString(dma_wrapping,16));
+		    }
             offset &= dma_wrap;
             /*Bitu*/int page = (int)(highpart_addr_page+(offset >> 12));
             /* care for EMS pageframe etc. */
@@ -379,7 +383,9 @@ public class DMA extends Module_base {
         offset <<= dma16;
         /*Bit32u*/long dma_wrap = ((0xffff<<dma16)+dma16) | dma_wrapping;
         for (int i=0; size!=0 ; size--, offset++, i++) {
-            if (offset>(dma_wrapping<<dma16)) Log.exit("DMA segbound wrapping (write)");
+            if (offset>(dma_wrapping<<dma16)) {
+			    Log.log_msg("DMA segbound wrapping (write): "+Long.toString(spage, 16)+":"+Long.toString(offset,16)+" size "+Integer.toString(size, 16)+" ["+dma16+"] wrap "+Long.toString(dma_wrapping,16));
+		    }
             offset &= dma_wrap;
             /*Bitu*/int page = (int)(highpart_addr_page+(offset >> 12));
             /* care for EMS pageframe etc. */

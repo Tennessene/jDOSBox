@@ -239,19 +239,23 @@ public class Dos extends Module_base {
                     Memory.mem_writeb(data+1,read);
                     break;
                 }
-            case 0x0b:		/* Get Dos_files.STDIN Status */
+            case 0x0b:		/* Get STDIN Status */
                 if (!Dos_ioctl.DOS_GetSTDINStatus()) {CPU_Regs.reg_eax.low(0x00);}
                 else {CPU_Regs.reg_eax.low(0xFF);}
                 //Simulate some overhead for timing issues
                 //Tankwar menu (needs maybe even more)
                 overhead();
                 break;
-            case 0x0c:		/* Flush Buffer and read Dos_files.STDIN call */
+            case 0x0c:		/* Flush Buffer and read STDIN call */
                 {
-                    /* flush Dos_files.STDIN-buffer */
-                    /*Bit8u*/byte[] c=new byte[1];/*Bit16u*/IntRef n=new IntRef(1);
-                    while (Dos_ioctl.DOS_GetSTDINStatus()) {
-                        n.value=1;	Dos_files.DOS_ReadFile(Dos_files.STDIN,c,n);
+                    /* flush buffer if STDIN is CON */
+                    /*Bit8u*/int handle=RealHandle(Dos_files.STDIN);
+                    if (handle!=0xFF && Dos_files.Files[handle]!=null && Dos_files.Files[handle].IsName("CON")) {
+                        /*Bit8u*/byte[] c=new byte[1];IntRef n = new IntRef(0);
+                        while (Dos_ioctl.DOS_GetSTDINStatus()) {
+                            n.value=1;
+                            Dos_files.DOS_ReadFile(Dos_files.STDIN,c,n);
+                        }
                     }
                     switch (CPU_Regs.reg_eax.low()) {
                     case 0x1:
@@ -267,7 +271,7 @@ public class Dos extends Module_base {
                         }
                         break;
                     default:
-    //				LOG_ERROR("DOS:0C:Illegal Flush Dos_files.STDIN Buffer call %d",CPU_Regs.reg_eax.low());
+    //				LOG_ERROR("DOS:0C:Illegal Flush STDIN Buffer call %d",CPU_Regs.reg_eax.low());
                         CPU_Regs.reg_eax.low(0);
                         break;
                     }

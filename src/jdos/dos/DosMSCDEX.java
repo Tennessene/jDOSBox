@@ -585,6 +585,7 @@ public class DosMSCDEX {
             String entryName;
             boolean	foundComplete = false;
             boolean	foundName;
+            boolean	nextPart = true;
             String useName="";
             /*Bitu*/int entryLength,nameLength;
             // clear error
@@ -614,18 +615,19 @@ public class DosMSCDEX {
                 if (!ReadSectors(GetSubUnit(drive),false,dirEntrySector,1,defBuffer)) return false;
                 // Get string part
                 foundName	= false;
-                if (searchPos.length()>0) {
-                    useName = searchPos;
-                    int pos = searchPos.indexOf("\\");
-                    if (pos>=0)
-                        searchPos = searchPos.substring(pos+1);
-                    else
-                        searchPos="";
+                if (nextPart) {
+                    if (searchPos.length()>0) {
+                        useName = searchPos;
+                        int pos = searchPos.indexOf("\\");
+                        if (pos>=0)
+                            searchPos = searchPos.substring(pos+1);
+                        else
+                            searchPos="";
+                    }
+
+                    if (searchPos.length() == 0)
+                        foundComplete = true;
                 }
-
-                if (searchPos.length() == 0)
-                    foundComplete = true;
-
                 do {
                     entryLength = Memory.mem_readb(defBuffer+index);
                     if (entryLength==0) break;
@@ -681,10 +683,12 @@ public class DosMSCDEX {
                     // change directory
                     dirEntrySector = (int)Memory.mem_readd(defBuffer+index+2);
                     dirSize	= (int)Memory.mem_readd(defBuffer+index+10);
+                    nextPart = true;
                 } else {
                     // continue search in next sector
                     dirSize -= 2048;
                     dirEntrySector++;
+                    nextPart = false;
                 }
             }
             error.value = 2; // file not found

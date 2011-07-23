@@ -373,11 +373,11 @@ public class Int10 {
                 break;
             case 0x01:			/* Load 8x14 font */
             case 0x11:
-                Int10_memory.INT10_LoadFont(Memory.Real2Phys(int10.rom.font_14),CPU_Regs.reg_eax.low()==0x11,256,0,0,14);
+                Int10_memory.INT10_LoadFont(Memory.Real2Phys(int10.rom.font_14),CPU_Regs.reg_eax.low()==0x11,256,0,CPU_Regs.reg_ebx.low(),14);
                 break;
             case 0x02:			/* Load 8x8 font */
             case 0x12:
-                Int10_memory.INT10_LoadFont(Memory.Real2Phys(int10.rom.font_8_first),CPU_Regs.reg_eax.low()==0x12,256,0,0,8);
+                Int10_memory.INT10_LoadFont(Memory.Real2Phys(int10.rom.font_8_first),CPU_Regs.reg_eax.low()==0x12,256,0,CPU_Regs.reg_ebx.low(),8);
                 break;
             case 0x03:			/* Set Block Specifier */
                 IoHandler.IO_Write(0x3c4,0x3);IoHandler.IO_Write(0x3c5,CPU_Regs.reg_ebx.low());
@@ -385,7 +385,7 @@ public class Int10 {
             case 0x04:			/* Load 8x16 font */
             case 0x14:
                 if (!Dosbox.IS_VGA_ARCH()) break;
-                Int10_memory.INT10_LoadFont(Memory.Real2Phys(int10.rom.font_16),CPU_Regs.reg_eax.low()==0x14,256,0,0,16);
+                Int10_memory.INT10_LoadFont(Memory.Real2Phys(int10.rom.font_16),CPU_Regs.reg_eax.low()==0x14,256,0,CPU_Regs.reg_ebx.low(),16);
                 break;
     /* Graphics mode calls */
             case 0x20:			/* Set User 8x8 Graphics characters */

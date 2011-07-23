@@ -313,7 +313,7 @@ public class Int10 {
                 Int10_pal.INT10_GetAllPaletteRegisters(CPU.Segs_ESphys+CPU_Regs.reg_edx.word());
                 break;
             case 0x10:							/* SET INDIVIDUAL DAC REGISTER */
-                Int10_pal.INT10_SetSingleDacRegister(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_edx.high(),CPU_Regs.reg_ecx.high(),CPU_Regs.reg_ecx.low());
+                Int10_pal.INT10_SetSingleDACRegister(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx.high(), CPU_Regs.reg_ecx.high(), CPU_Regs.reg_ecx.low());
                 break;
             case 0x12:							/* SET BLOCK OF DAC REGISTERS */
                 Int10_pal.INT10_SetDACBlock(CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word(),CPU.Segs_ESphys+CPU_Regs.reg_edx.word());
@@ -326,7 +326,7 @@ public class Int10 {
                 ShortRef dh = new ShortRef();
                 ShortRef ch = new ShortRef();
                 ShortRef cl = new ShortRef();
-                Int10_pal.INT10_GetSingleDacRegister(CPU_Regs.reg_ebx.low(),dh,ch,cl);
+                Int10_pal.INT10_GetSingleDACRegister(CPU_Regs.reg_ebx.low(), dh, ch, cl);
                 CPU_Regs.reg_edx.high((dh.value & 0xFF));
                 CPU_Regs.reg_ecx.high((ch.value & 0xFF));
                 CPU_Regs.reg_ecx.low((cl.value & 0xFF));

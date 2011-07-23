@@ -167,14 +167,28 @@ public class Int10_pal {
         ResetACTL();
     }
 
-    public static void INT10_SetSingleDacRegister(/*Bit8u*/short index,/*Bit8u*/short red,/*Bit8u*/short green,/*Bit8u*/short blue) {
+    public static void INT10_SetSingleDACRegister(/*Bit8u*/short index,/*Bit8u*/short red,/*Bit8u*/short green,/*Bit8u*/short blue) {
+        IoHandler.IO_Write(Int10.VGAREG_DAC_WRITE_ADDRESS,index);
+        if ((Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_MODESET_CTL)&0x06)==0) {
+            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,red);
+            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,green);
+            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,blue);
+        } else {
+            /* calculate clamped intensity, taken from VGABIOS */
+            /*Bit32u*/int i=(( 77*red + 151*green + 28*blue ) + 0x80) >> 8;
+            /*Bit8u*/short ic=(i>0x3f) ? 0x3f : ((/*Bit8u*/short)(i & 0xff));
+            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,ic);
+            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,ic);
+            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,ic);
+        }
+
         IoHandler.IO_Write(Int10.VGAREG_DAC_WRITE_ADDRESS,index);
         IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,red);
         IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,green);
         IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,blue);
     }
 
-    public static void INT10_GetSingleDacRegister(/*Bit8u*/short index,/*Bit8u*/ShortRef red,/*Bit8u*/ShortRef green,/*Bit8u*/ShortRef blue) {
+    public static void INT10_GetSingleDACRegister(/*Bit8u*/short index,/*Bit8u*/ShortRef red,/*Bit8u*/ShortRef green,/*Bit8u*/ShortRef blue) {
         IoHandler.IO_Write(Int10.VGAREG_DAC_READ_ADDRESS,index);
         red.value=IoHandler.IO_Read(Int10.VGAREG_DAC_DATA);
         green.value=IoHandler.IO_Read(Int10.VGAREG_DAC_DATA);
@@ -183,10 +197,25 @@ public class Int10_pal {
 
     public static void INT10_SetDACBlock(/*Bit16u*/int index,/*Bit16u*/int count,/*PhysPt*/long data) {
         IoHandler.IO_Write(Int10.VGAREG_DAC_WRITE_ADDRESS,index);
-        for (;count>0;count--) {
-            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,Memory.mem_readb(data++));
-            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,Memory.mem_readb(data++));
-            IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,Memory.mem_readb(data++));
+        if ((Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_MODESET_CTL)&0x06)==0) {
+            for (;count>0;count--) {
+                IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,Memory.mem_readb(data++));
+                IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,Memory.mem_readb(data++));
+                IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,Memory.mem_readb(data++));
+            }
+        } else {
+            for (;count>0;count--) {
+                /*Bit8u*/short red=Memory.mem_readb(data++);
+                /*Bit8u*/short green=Memory.mem_readb(data++);
+                /*Bit8u*/short blue=Memory.mem_readb(data++);
+
+                /* calculate clamped intensity, taken from VGABIOS */
+                /*Bit32u*/int i=(( 77*red + 151*green + 28*blue ) + 0x80) >> 8;
+                /*Bit8u*/short ic=(i>0x3f) ? 0x3f : ((/*Bit8u*/short)(i & 0xff));
+                IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,ic);
+                IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,ic);
+                IoHandler.IO_Write(Int10.VGAREG_DAC_DATA,ic);
+            }
         }
     }
 
@@ -295,7 +324,7 @@ public class Int10_pal {
             /* calculate clamped intensity, taken from VGABIOS */
             /*Bit32u*/int i=(( 77*red + 151*green + 28*blue ) + 0x80) >> 8;
             /*Bit8u*/short ic=(short)((i>0x3f) ? 0x3f : ((i & 0xff)));
-            INT10_SetSingleDacRegister((short)(start_reg+ct),ic,ic,ic);
+            INT10_SetSingleDACRegister((short) (start_reg + ct), ic, ic, ic);
         }
     }
 }

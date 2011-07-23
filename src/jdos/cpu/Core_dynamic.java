@@ -3,10 +3,9 @@ package jdos.cpu;
 import jdos.cpu.core_dynamic.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.Data;
-import jdos.misc.setup.Config;
-import jdos.misc.Log;
 import jdos.debug.Debug;
-import jdos.hardware.Pic;
+import jdos.misc.Log;
+import jdos.misc.setup.Config;
 
 public class Core_dynamic {
     static public final int CACHE_MAXSIZE = 4096*2;
@@ -108,12 +107,13 @@ public class Core_dynamic {
 
                 // find correct Dynamic Block to run
                 CacheBlockDynRec block=chandler.FindCacheBlock(page_ip_point);
+                int ret = 0;
                 if (block==null) {
                     // no block found, thus translate the instruction stream
                     // unless the instruction is known to be modified
                     if (chandler.invalidation_map==null || (chandler.invalidation_map.p[page_ip_point]<4)) {
                         // translate up to 32 instructions
-                        block= Decoder.CreateCacheBlock(chandler,ip_point,instruction_count);
+                        ret = Decoder.CreateCacheBlock(chandler,ip_point,instruction_count);
                     } else {
                         // let the normal core handle this instruction to avoid zero-sized blocks
                         /*Bitu*/int old_cycles=CPU.CPU_Cycles;
@@ -132,7 +132,8 @@ public class Core_dynamic {
                 while (true) {
                     // now we're ready to run the dynamic code block
             //		BlockReturn ret=((BlockReturn (*)(void))(block->cache.start))();
-                    /*BlockReturn*/int ret=block.code.call2();
+                    if (block != null)
+                        ret=block.code.call2();
 
                     switch (ret) {
                     case Constants.BR_CBRet_None:
@@ -155,12 +156,14 @@ public class Core_dynamic {
                     case Constants.BR_Link1:
                     case Constants.BR_Link2:
                     {
-                        CacheBlockDynRec next = block.link[ret==Constants.BR_Link2?1:0].to;
-                        if (next == null)
-                            block=LinkBlocks(block, ret);
-                        else
-                            block = next;
-                        if (block!=null && CPU.CPU_Cycles>0) continue;
+                        if (block != null) {
+                            CacheBlockDynRec next = block.link[ret==Constants.BR_Link2?1:0].to;
+                            if (next == null)
+                                block=LinkBlocks(block, ret);
+                            else
+                                block = next;
+                            if (block!=null && CPU.CPU_Cycles>0) continue;
+                        }
                         break;
                     }
                     case Constants.BR_Illegal:

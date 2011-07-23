@@ -1,9 +1,10 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.*;
+import jdos.cpu.CPU;
+import jdos.cpu.CPU_Regs;
+import jdos.cpu.Core;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
-import jdos.misc.Log;
 
 public class Decoder extends Inst1 {
     public static final Decode[] ops = new Decode[1024];
@@ -53,7 +54,7 @@ public class Decoder extends Inst1 {
         Prefix_66_0f.init(ops);
     }
 
-    public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/long start,/*Bitu*/int max_opcodes) {
+    public static int CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/long start,/*Bitu*/int max_opcodes) {
         // initialize a load of variables
         decode.code_start=start;
         decode.code=start;
@@ -88,60 +89,82 @@ public class Decoder extends Inst1 {
         boolean seg_changed = false;
         int opcode = 0;
         int count = 0;
+        int op_result = 0;
 
-        while (max_opcodes-->0 && result==0) {
-            decode.cycles++;
-            decode.op_start=decode.code;
-            decode.modifiedAlot = false;
+        Core.base_ds= CPU.Segs_DSphys;
+        Core.base_ss=CPU.Segs_SSphys;
+        Core.base_val_ds= CPU_Regs.ds;
 
-            opcode=opcode_index+decode_fetchb();
-            result = ops[opcode].call(op);
-            if (decode.modifiedAlot) {
-                result = RESULT_ILLEGAL_INSTRUCTION;
-                break;
-            }
-            count+=(decode.code - decode.op_start);
-            if (result == RESULT_CONTINUE) {
-                result = RESULT_HANDLED;
-                max_opcodes++;
-                continue;
-            }
-            op = op.next;
-            op.c = opcode;
-            if (result == RESULT_CONTINUE_SEG) {
-                result = RESULT_HANDLED;
-                max_opcodes++;
-                seg_changed = true;
-                continue;
-            }
-            begin_op = op;
-            op.eip_count = count;
-            count = 0;
-            if (result == RESULT_ANOTHER) {
-                result = RESULT_HANDLED;
-                max_opcodes++;
-            }
-            if (CPU.cpu.code.big) {
-                opcode_index=0x200;
-                prefixes=1;
-                EA16 = false;
-            } else {
-                opcode_index=0;
-                prefixes=0;
-                EA16 = true;
-            }
-            if (seg_changed && result==0) {
-                seg_changed = false;
-                op.next = new HandledSegChange();
+        try {
+            while (max_opcodes-->0 && result==0) {
+                decode.cycles++;
+                decode.op_start=decode.code;
+                decode.modifiedAlot = false;
+
+                opcode=opcode_index+decode_fetchb();
+                result = ops[opcode].call(op);
+                if (decode.modifiedAlot) {
+                    result = RESULT_ILLEGAL_INSTRUCTION;
+                    break;
+                }
+                count+=(decode.code - decode.op_start);
+                if (result == RESULT_CONTINUE) {
+                    result = RESULT_HANDLED;
+                    max_opcodes++;
+                    continue;
+                }
                 op = op.next;
-                op.c = -1;
+                op.c = opcode;
+                if (result == RESULT_CONTINUE_SEG) {
+                    op_result = op.call();
+                    result = RESULT_HANDLED;
+                    max_opcodes++;
+                    seg_changed = true;
+                    continue;
+                }
+                begin_op = op;
+                op.eip_count = count;
+                op_result = op.call();
+                if (op_result == Constants.BR_Normal)
+                    CPU_Regs.reg_eip+=count;
+                count = 0;
+                if (result == RESULT_ANOTHER) {
+                    result = RESULT_HANDLED;
+                    max_opcodes++;
+                }
+                if (CPU.cpu.code.big) {
+                    opcode_index=0x200;
+                    prefixes=1;
+                    EA16 = false;
+                } else {
+                    opcode_index=0;
+                    prefixes=0;
+                    EA16 = true;
+                }
+                if (seg_changed && result==0) {
+                    seg_changed = false;
+                    op.next = new HandledSegChange();
+                    op = op.next;
+                    op.c = -1;
+                    op_result = op.call();
+                }
             }
+        } catch (RuntimeException e) {
+            Cache.cache_closeblock();
+            decode_putback((int)(decode.code -decode.op_start + count));
+            op = begin_op;
+            op.next = new ModifiedDecodeOp(); // run the instruction that caused a page fault
+            op = op.next;
+            decode.block.code = new DecodeBlock(start_op.next);
+            decode.active_block.page.end=--decode.page.index;
+            throw e;
         }
         Cache.cache_closeblock();
         switch (result) {
             case RESULT_HANDLED:
                 op.next = new HandledDecode();
                 op = op.next;
+                op_result = op.call();
                 break;
             case RESULT_CALLBACK:
             case RESULT_JUMP:
@@ -151,11 +174,12 @@ public class Decoder extends Inst1 {
                 op = begin_op;
                 op.next = new ModifiedDecodeOp();
                 op = op.next;
+                op_result = op.call();
                 break;
         }
         decode.block.code = new DecodeBlock(start_op.next);
         decode.active_block.page.end=--decode.page.index;
-        return decode.block;
+        return op_result;
     }
 
     static private class ModifiedDecodeOp extends Op {

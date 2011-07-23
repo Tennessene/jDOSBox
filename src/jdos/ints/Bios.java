@@ -557,18 +557,16 @@ public class Bios extends Module_base {
         }
     };
 
-    private static /*Bit8u*/short INT14_Wait(/*Bit16u*/int port, /*Bit8u*/short mask, /*Bit8u*/short timeout) {
+    private static boolean INT14_Wait(/*Bit16u*/int port, /*Bit8u*/short mask, /*Bit8u*/short timeout, IntRef retval) {
         double starttime = Pic.PIC_FullIndex();
         double timeout_f = timeout * 1000.0;
-        /*Bit8u*/int retval;
-        while (((retval = IO.IO_ReadB(port)) & mask) != mask) {
+        while (((retval.value = IO.IO_ReadB(port)) & mask) != mask) {
             if (starttime < (Pic.PIC_FullIndex() - timeout_f)) {
-                retval |= 0x80;
-                break;
+                return false;
             }
             Callback.CALLBACK_Idle();
         }
-        return (short)retval;
+        return true;
     }
 
     private static Callback.Handler INT14_Handler = new Callback.Handler() {
@@ -639,15 +637,19 @@ public class Bios extends Module_base {
                 IO.IO_WriteB(port+4,0x3);
 
                 // wait for DSR & CTS
-                CPU_Regs.reg_eax.high(INT14_Wait(port+6, (short)0x30, timeout));
-                if ((CPU_Regs.reg_eax.high() & 0x80)==0) {
+                IntRef result = new IntRef(CPU_Regs.reg_eax.high());
+                if (INT14_Wait(port+6, (short)0x30, timeout, result)) {
                     // wait for TX buffer empty
-                    CPU_Regs.reg_eax.high(INT14_Wait(port+5, (short)0x20, timeout));
-                    if ((CPU_Regs.reg_eax.high() & 0x80)==0) {
+                    if (INT14_Wait(port+5, (short)0x20, timeout, result)) {
+                        CPU_Regs.reg_eax.high(result.value);
                         // fianlly send the character
                         IO.IO_WriteB(port,CPU_Regs.reg_eax.low());
+                    } else {
+                        CPU_Regs.reg_eax.high(result.value |= 0x80);
                     }
-                } // else timed out
+                } else { // timed out
+                    CPU_Regs.reg_eax.high(result.value |= 0x80);
+                }
                 Callback.CALLBACK_SCF(false);
                 break;
             }
@@ -664,14 +666,17 @@ public class Bios extends Module_base {
                 IO.IO_WriteB(port+4,0x1);
 
                 // wait for DSR
-                CPU_Regs.reg_eax.high(INT14_Wait(port+6, (short)0x20, timeout));
-                if ((CPU_Regs.reg_eax.high() & 0x80)==0) {
+                IntRef result = new IntRef(CPU_Regs.reg_eax.high());
+                if (INT14_Wait(port+6, (short)0x20, timeout, result)) {
                     // wait for character to arrive
-                    CPU_Regs.reg_eax.high(INT14_Wait(port+5, (short)0x01, timeout));
-                    if ((CPU_Regs.reg_eax.high() & 0x80)==0) {
-                        CPU_Regs.reg_eax.high(CPU_Regs.reg_eax.high() & 0x1E);
+                    if (INT14_Wait(port+5, (short)0x01, timeout, result)) {
+                        CPU_Regs.reg_eax.high(result.value & 0x1E);
                         CPU_Regs.reg_eax.low(IO.IO_ReadB(port));
+                    } else {
+                        CPU_Regs.reg_eax.high(result.value |= 0x80);
                     }
+                } else {
+                    CPU_Regs.reg_eax.high(result.value |= 0x80);
                 }
                 Callback.CALLBACK_SCF(false);
                 break;

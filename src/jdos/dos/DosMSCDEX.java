@@ -73,6 +73,7 @@ public class DosMSCDEX {
             boolean	locked;			// drive locked ?
             boolean	lastResult;		// last operation success ?
             /*Bit32u*/long	volumeSize;		// for media change
+            Dos_cdrom.TCtrl audioCtrl = new Dos_cdrom.TCtrl();	// audio channel control
         }
 
         /*Bit16u*/int				defaultBufSeg;
@@ -303,6 +304,11 @@ public class DosMSCDEX {
                 subUnit.value = (/*Bit8u*/short)numDrives;
             }
             numDrives++;
+            // init channel control
+            for (/*Bit8u*/int chan=0;chan<4;chan++) {
+                dinfo[subUnit.value].audioCtrl.out[chan]=chan;
+                dinfo[subUnit.value].audioCtrl.vol[chan]=0xff;
+            }
             // stop audio
             StopAudio(subUnit.value);
             return result;
@@ -375,7 +381,7 @@ public class DosMSCDEX {
             if (subUnit>=numDrives) return false;
             // If value from last stop is used, this is meant as a resume
             // better start using resume command
-            if (dinfo[subUnit].audioPaused && (sector==dinfo[subUnit].audioStart)) {
+            if (dinfo[subUnit].audioPaused && (sector==dinfo[subUnit].audioStart) && (dinfo[subUnit].audioEnd!=0)) {
                 dinfo[subUnit].lastResult = cdrom[subUnit].PauseAudio(true);
             } else
                 dinfo[subUnit].lastResult = cdrom[subUnit].PlayAudioSector(sector,length);
@@ -712,6 +718,7 @@ public class DosMSCDEX {
                             ((dinfo[subUnit].locked?1:0) << 1)	|	// Drive is locked ?
                             (1<<2)							|	// raw + cooked sectors
                             (1<<4)							|	// Can read sudio
+                            (1<<8)							|	// Can control audio
                             (1<<9)							|	// Red book & HSG
                             (((!media.value)?1:0) << 11);					// Drive is empty ?
             return status;
@@ -775,6 +782,22 @@ public class DosMSCDEX {
                 cdrom[subUnit].InitNewMedia();
             }
         }
+
+        boolean ChannelControl(/*Bit8u*/int subUnit, Dos_cdrom.TCtrl ctrl) {
+            if (subUnit>=numDrives) return false;
+            // adjust strange channel mapping
+            if (ctrl.out[0]>1) ctrl.out[0]=0;
+            if (ctrl.out[1]>1) ctrl.out[1]=1;
+            dinfo[subUnit].audioCtrl=ctrl;
+            cdrom[subUnit].ChannelControl(ctrl);
+            return true;
+        }
+
+        boolean GetChannelControl(/*Bit8u*/int subUnit, Dos_cdrom.TCtrl ctrl) {
+            if (subUnit>=numDrives) return false;
+            ctrl.copy(dinfo[subUnit].audioCtrl);
+            return true;
+        }
     }
 
     private static CMscdex mscdex = null;
@@ -806,6 +829,14 @@ public class DosMSCDEX {
                             return 0x03;		// invalid function
                         }
                        }break;
+            case 0x04 : /* Audio Channel control */
+					Dos_cdrom.TCtrl ctrl = new Dos_cdrom.TCtrl();
+					if (!mscdex.GetChannelControl(drive_unit,ctrl)) return 0x01;
+					for (/*Bit8u*/int chan=0;chan<4;chan++) {
+						Memory.mem_writeb(buffer + chan * 2 + 1, ctrl.out[chan]);
+						Memory.mem_writeb(buffer + chan * 2 + 2, ctrl.vol[chan]);
+					}
+					break;
             case 0x06 : /* Get Device status */
                         Memory.mem_writed(buffer+1,mscdex.GetDeviceStatus(drive_unit));
                         break;
@@ -897,7 +928,13 @@ public class DosMSCDEX {
                         if (!mscdex.LoadUnloadMedia(drive_unit,true)) return 0x02;
                         break;
             case 0x03: //Audio Channel control
-                        Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Audio Channel Control used. Not handled. Faking succes!");
+                        Dos_cdrom.TCtrl ctrl = new Dos_cdrom.TCtrl();
+                        for (/*Bit8u*/int chan=0;chan<4;chan++) {
+                            ctrl.out[chan]=Memory.mem_readb(buffer+chan*2+1);
+                            ctrl.vol[chan]=Memory.mem_readb(buffer+chan*2+2);
+                        }
+                        if (!mscdex.ChannelControl(drive_unit,ctrl)) return 0x01;
+                        break;
             case 0x01 : // (un)Lock door
                         // do nothing . report as success
                         break;

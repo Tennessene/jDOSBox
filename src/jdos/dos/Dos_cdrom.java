@@ -57,6 +57,17 @@ public class Dos_cdrom {
         }
     }
 
+    static public class TCtrl {
+        public void copy(TCtrl t) {
+            for (int i=0;i<out.length;i++)
+                out[i] = t.out[i];
+            for (int i=0;i<vol.length;i++)
+                vol[i] = t.vol[i];
+        }
+	    /*Bit8u*/int[] out = new int[4]; // output channel
+	    /*Bit8u*/int[] vol = new int[4]; // channel volume
+    }
+
     static public interface CDROM_Interface {
     //	CDROM_Interface						(void);
         public void close();
@@ -73,6 +84,7 @@ public class Dos_cdrom {
         public boolean PlayAudioSector(long start,long len);
         public boolean PauseAudio(boolean resume);
         public boolean StopAudio();
+        public void ChannelControl(TCtrl ctrl);
 
         public boolean ReadSectors(/*PhysPt*/long buffer, boolean raw, long sector, long num);
 

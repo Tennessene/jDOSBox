@@ -245,6 +245,8 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 		int     targetFrame;
 		boolean    isPlaying;
 		boolean    isPaused;
+        boolean    ctrlUsed;
+		Dos_cdrom.TCtrl ctrlData = new Dos_cdrom.TCtrl();
 	}
     private static imagePlayer player = new imagePlayer();
     private static int refCount;
@@ -381,6 +383,11 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         player.isPaused = false;
         return true;
     }
+    public void ChannelControl(Dos_cdrom.TCtrl ctrl) {
+	    player.ctrlUsed = (ctrl.out[0]!=0 || ctrl.out[1]!=1 || ctrl.vol[0]<0xfe || ctrl.vol[1]<0xfe);
+	    player.ctrlData.copy(ctrl);
+    }
+
 	public boolean ReadSectors(/*PhysPt*/long buffer, boolean raw, long sector, long num) {
         int sectorSize = raw ? Dos_cdrom.RAW_SECTOR_SIZE : Dos_cdrom.COOKED_SECTOR_SIZE;
         /*Bitu*/int buflen = (int)(num * sectorSize);
@@ -450,8 +457,13 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
             int tIndex = 0;
             int pIndex = 0;
             for (int i=0;i<len/4;i++) {
-                Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8));
-                Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8));
+                if (player.ctrlUsed) {
+                    Mixer.MixTemp16[tIndex++] = (short)(((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8))*player.ctrlData.vol[0]/255);
+                    Mixer.MixTemp16[tIndex++] = (short)(((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8))*player.ctrlData.vol[0]/255);
+                } else {
+                    Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8));
+                    Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8));
+                }
                 pIndex+=4;
             }
             player.channel.AddSamples_s16(len/4,Mixer.MixTemp16);

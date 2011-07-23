@@ -7,11 +7,13 @@ public class Drive_iso extends Dos_Drive {
     static private final int ISO_MAX_HASH_TABLE_SIZE = 100;
     static private final int ISO_FRAMESIZE = 2048;
 
+    static final private int ISO_ASSOCIATED	= 4;
     static final private int ISO_DIRECTORY = 2;
     static final private int ISO_HIDDEN = 1;
     static final private int ISO_MAX_FILENAME_LENGTH = 37;
     static final private int ISO_MAXPATHNAME = 256;
     static final private int ISO_FIRST_VD = 16;
+    static private boolean IS_ASSOC(int fileFlags) {return (fileFlags & ISO_ASSOCIATED)!=0;}
     static private boolean IS_DIR(int fileFlags) {return (fileFlags & ISO_DIRECTORY)!=0;}
     static private boolean IS_HIDDEN(int fileFlags) {return (fileFlags & ISO_HIDDEN)!=0;}
 
@@ -359,7 +361,7 @@ public class Drive_iso extends Dos_Drive {
             if (IS_HIDDEN(de.fileFlags)) findAttr |= Dos_system.DOS_ATTR_HIDDEN;
 
             String deident = StringHelper.toString(de.ident);
-            if (!(isRoot && de.ident[0]=='.') && Drives.WildFileCmp(deident, pattern.value)
+            if (!IS_ASSOC(de.fileFlags) && !(isRoot && de.ident[0]=='.') && Drives.WildFileCmp(deident, pattern.value)
                 && (~attr.value & findAttr & (Dos_system.DOS_ATTR_DIRECTORY | Dos_system.DOS_ATTR_HIDDEN | Dos_system.DOS_ATTR_SYSTEM))==0) {
 
                 /* file is okay, setup everything to be copied in DTA Block */
@@ -637,7 +639,7 @@ public class Drive_iso extends Dos_Drive {
                 // look for the current path element
                 int dirIterator = GetDirIterator(de);
                 while (!found && GetNextDirEntry(dirIterator, de)) {
-                    if (name.compareToIgnoreCase(StringHelper.toString(de.ident)) == 0) {
+                    if (!IS_ASSOC(de.fileFlags) && name.compareToIgnoreCase(StringHelper.toString(de.ident)) == 0) {
                         found = true;
                     }
                 }

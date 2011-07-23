@@ -1533,8 +1533,9 @@ public class Prefix_66 extends Prefix_0f {
         /* RETN Iw */
         ops[0x2c2] = new OP() {
             final public int call() {
+                int offset = Fetchw();
                 reg_eip(CPU.CPU_Pop32());
-                reg_esp.dword(reg_esp.dword() +Fetchw());
+                reg_esp.dword(reg_esp.dword() + offset);
                 return CONTINUE;
             }
         };
@@ -1927,10 +1928,14 @@ public class Prefix_66 extends Prefix_0f {
                     }
                     break;
                 case 0x02:											/* CALL NEAR Ed */
-                    if (rm >= 0xc0 ) {reg_eip(Modrm.GetEArd[rm].dword());}
-                    else {/*PhysPt*/long eaa=getEaa(rm);reg_eip(Memory.mem_readd(eaa));}
+                {
+                    long eip;
+                    if (rm >= 0xc0 ) {eip=Modrm.GetEArd[rm].dword();}
+                    else {/*PhysPt*/long eaa=getEaa(rm);eip=Memory.mem_readd(eaa);}
                     CPU.CPU_Push32(GETIP());
+                    reg_eip = eip;
                     return CONTINUE;
+                }
                 case 0x03:											/* CALL FAR Ed */
                     {
                         if (rm >= 0xc0) return ILLEGAL_OPCODE;

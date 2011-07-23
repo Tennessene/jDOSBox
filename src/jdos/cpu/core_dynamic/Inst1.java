@@ -3,14 +3,14 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.Data;
+import jdos.fpu.FPU;
+import jdos.hardware.IO;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
-import jdos.hardware.IO;
-import jdos.util.IntRef;
 import jdos.misc.Log;
-import jdos.types.LogTypes;
 import jdos.types.LogSeverities;
-import jdos.fpu.FPU;
+import jdos.types.LogTypes;
+import jdos.util.IntRef;
 
 public class Inst1 extends Helper {
     final static public class Addb_reg extends Op {
@@ -3718,8 +3718,8 @@ public class Inst1 extends Helper {
         }
         public int call() {
             long old = reg_eip+eip_count;
-            reg_eip(earw.word());
             CPU.CPU_Push16((int)(old) & 0xFFFF);
+            reg_eip(earw.word());
             return Constants.BR_Jump;
         }
     }
@@ -3732,8 +3732,9 @@ public class Inst1 extends Helper {
         public int call() {
             long eaa = get_eaa.call();
             long old = reg_eip+eip_count;
-            reg_eip(Memory.mem_readw(eaa));
+            long eip = Memory.mem_readw(eaa);
             CPU.CPU_Push16((int)(old) & 0xFFFF);
+            reg_eip = eip;
             return Constants.BR_Jump;
         }
     }

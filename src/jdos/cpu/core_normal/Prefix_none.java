@@ -2388,8 +2388,9 @@ public class Prefix_none extends StringOp {
         /* RETN Iw */
         ops[0xc2] = new OP() {
             final public int call() {
+                int offset = Fetchw();
                 reg_eip(CPU.CPU_Pop16());
-                reg_esp.dword(reg_esp.dword()+Fetchw());
+                reg_esp.dword(reg_esp.dword()+offset);
                 return CONTINUE;
             }
         };
@@ -3401,10 +3402,14 @@ public class Prefix_none extends StringOp {
                     }
                     break;
                 case 0x02:										/* CALL Ev */
-                    if (rm >= 0xc0 ) {reg_eip(Modrm.GetEArw[rm].word());}
-                    else {/*PhysPt*/long eaa=getEaa(rm);reg_eip(Memory.mem_readw(eaa));}
+                {
+                    long eip;
+                    if (rm >= 0xc0 ) {eip=Modrm.GetEArw[rm].word();}
+                    else {/*PhysPt*/long eaa=getEaa(rm);eip=Memory.mem_readw(eaa);}
                     CPU.CPU_Push16((int)(GETIP() & 0xFFFFl));
+                    reg_eip = eip;
                     return CONTINUE;
+                }
                 case 0x03:										/* CALL Ep */
                     {
                         if (rm >= 0xc0) return ILLEGAL_OPCODE;

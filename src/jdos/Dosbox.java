@@ -61,13 +61,13 @@ public class Dosbox {
                     if (ret<0) return 1;
                     if (ret>0) {
                         try {
-                            Callback.inHandler = true;
+                            Callback.inHandler++;
                             /*Bitu*/int blah=Callback.CallBack_Handlers[ret].call();
                             if (blah!=0) return blah;
                         } catch(Paging.PageFaultException e) {
                             Log.exit("This should not happen");
                         } finally {
-                            Callback.inHandler = false;
+                            Callback.inHandler--;
                         }
                     }
                     if (Config.C_DEBUG)

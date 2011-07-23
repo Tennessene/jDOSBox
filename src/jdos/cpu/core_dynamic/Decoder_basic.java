@@ -42,7 +42,7 @@ public class Decoder_basic {
             return false;
         }
         if ((handler.flags & Paging.PFLAG_NOCODE)!=0) {
-            Log.log_msg("DYNREC:Can't run code in this page");
+            //Log.log_msg("DYNREC:Can't run code in this page");
             cph.value=null;
             return false;
         }

@@ -1202,10 +1202,8 @@ public class CPU extends Module_base {
 
     static private final Descriptor n_cs_desc_2 = new Descriptor();
     static private final Descriptor n_ss_desc_2 = new Descriptor();
-    static public boolean iret = false;
 
     static public void CPU_IRET(boolean use32, /*Bitu*/long oldeip) {
-        iret = true;
         if (!cpu.pmode) {					/* RealMode IRET */
             if (use32) {
                 CPU_Regs.reg_eip(CPU_Pop32());

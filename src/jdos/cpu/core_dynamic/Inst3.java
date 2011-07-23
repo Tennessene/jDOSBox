@@ -2,9 +2,9 @@ package jdos.cpu.core_dynamic;
 
 import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
+import jdos.hardware.IO;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
-import jdos.hardware.IO;
 import jdos.util.IntRef;
 
 public class Inst3 extends Helper {
@@ -1971,8 +1971,8 @@ public class Inst3 extends Helper {
 
         public int call() {
             long old = reg_eip+eip_count;
-            reg_eip(eard.dword());
             CPU.CPU_Push32(old);
+            reg_eip(eard.dword());
             return Constants.BR_Jump;
         }
     }
@@ -1986,8 +1986,9 @@ public class Inst3 extends Helper {
         public int call() {
             long eaa=get_eaa.call();
             long old = reg_eip+eip_count;
-            reg_eip(Memory.mem_readd(eaa));
+            long eip = Memory.mem_readd(eaa);
             CPU.CPU_Push32(old);
+            reg_eip = eip;
             return Constants.BR_Jump;
         }
     }

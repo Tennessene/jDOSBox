@@ -258,7 +258,11 @@ public class Int10 {
             CPU_Regs.reg_eax.word(Int10_char.INT10_ReadCharAttr(CPU_Regs.reg_ebx.high()));
             break;
         case 0x09:								/* Write Character & Attribute at cursor CX times */
-            Int10_char.INT10_WriteChar(CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),true);
+            if (Memory.real_readb(BIOSMEM_SEG,BIOSMEM_CURRENT_MODE)==0x11) {
+                Int10_char.INT10_WriteChar(CPU_Regs.reg_eax.low(),(short)((CPU_Regs.reg_ebx.low() & 0x80)|0x3f),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),true);
+            } else {
+                Int10_char.INT10_WriteChar(CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),true);
+            }
             break;
         case 0x0A:								/* Write Character at cursor CX times */
             Int10_char.INT10_WriteChar(CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),false);

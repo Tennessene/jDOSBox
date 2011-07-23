@@ -458,7 +458,8 @@ public class XMS extends Module_base {
 
         /* Set up UMB chain */
         umb_available=section.Get_bool("umb");
-        Dos_memory.DOS_BuildUMBChain(section.Get_bool("umb"),section.Get_bool("ems"));
+        boolean ems_available = EMS.GetEMSType(section)>0;
+        Dos_memory.DOS_BuildUMBChain(section.Get_bool("umb"),ems_available);
     }
 
     void ShutDown(){

@@ -611,6 +611,14 @@ public class Dosbox {
         Pbool.Set_help("Enable XMS support.");
 
         secprop.AddInitFunction(EMS.EMS_Init,true);//done
+        String[] ems_settings = new String[]{ "true", "emsboard", "emm386", "false"};
+	    Pstring = secprop.Add_string("ems",Property.Changeable.WhenIdle,"true");
+	    Pstring.Set_values(ems_settings);
+	    Pstring.Set_help("Enable EMS support. The default (=true) provides the best\n" +
+		"compatibility but certain applications may run better with\n" +
+		"other choices, or require EMS support to be disabled (=false)\n" +
+		"to work at all.");
+
         Pbool = secprop.Add_bool("ems",Property.Changeable.WhenIdle,true);
         Pbool.Set_help("Enable EMS support.");
 

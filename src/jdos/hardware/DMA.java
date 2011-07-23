@@ -464,7 +464,7 @@ public class DMA extends Module_base {
         }
     };
 
-    static private void DMA_SetWrapping(/*Bitu*/int wrap) {
+    static public void DMA_SetWrapping(/*Bitu*/int wrap) {
         dma_wrapping = wrap;
     }
 

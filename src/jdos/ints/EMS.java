@@ -8,6 +8,7 @@ import jdos.cpu.Paging;
 import jdos.dos.DOS_Device;
 import jdos.dos.Dos_devices;
 import jdos.dos.Dos_tables;
+import jdos.hardware.DMA;
 import jdos.hardware.IO;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
@@ -101,7 +102,8 @@ public class EMS extends Module_base {
     private static /*Bit16u*/int GEMMIS_seg;
 
     private static class device_EMM extends DOS_Device {
-        public device_EMM() {
+        public device_EMM(boolean is_emm386_avail) {
+            is_emm386=is_emm386_avail;
             SetName("EMMXXXX0");
             GEMMIS_seg=0;
         }
@@ -131,6 +133,7 @@ public class EMS extends Module_base {
                     retcode.value=6;
                     return true;
                 case 0x01: {
+                    if (!is_emm386) return false;
                     if (size!=6) return false;
                     if (GEMMIS_seg==0) GEMMIS_seg= Dos_tables.DOS_GetMemory(0x20);
                     /*PhysPt*/long GEMMIS_addr=Memory.PhysMake(GEMMIS_seg,0);
@@ -187,12 +190,14 @@ public class EMS extends Module_base {
                     return true;
                     }
                 case 0x02:
+                    if (!is_emm386) return false;
                     if (size!=2) return false;
                     Memory.mem_writeb(bufptr+0x00,EMM_VERSION>>4);		// version 4
                     Memory.mem_writeb(bufptr+0x01,EMM_MINOR_VERSION);
                     retcode.value=2;
                     return true;
                 case 0x03:
+                    if (!is_emm386) return false;
                     if (EMM_MINOR_VERSION < 0x2d) return false;
                     if (size!=4) return false;
                     Memory.mem_writew(bufptr+0x00,(/*Bit16u*/int)(Memory.MEM_TotalPages()*4));	// max size (kb)
@@ -206,6 +211,7 @@ public class EMS extends Module_base {
             return true;
         }
         private /*Bit8u*/short cache;
+        private boolean is_emm386;
     }
 
     static private class Vcpi {
@@ -1317,15 +1323,34 @@ public class EMS extends Module_base {
         }
     };
 
+    private DOS_Device emm_device;
     /* location in protected unfreeable memory where the ems name and callback are
      * stored  32 bytes.*/
     private static /*Bit16u*/int ems_baseseg;
     private /*RealPt*/long old4b_pointer,old67_pointer;
     private Callback call_vdma=new Callback(),call_vcpi=new Callback(),call_v86mon=new Callback();
     /*Bitu*/int call_int67;
+    /*Bitu*/int ems_type;
+
+    static /*Bitu*/int GetEMSType(Section_prop section) {
+        /*Bitu*/int rtype = 0;
+        String emstypestr = section.Get_string("ems");
+        if (emstypestr.equalsIgnoreCase("true")) {
+            rtype = 1;	// mixed mode
+        } else if (emstypestr.equalsIgnoreCase("emsboard")) {
+            rtype = 2;
+        } else if (emstypestr.equalsIgnoreCase("emm386")) {
+            rtype = 3;
+        } else {
+            rtype = 0;
+        }
+        return rtype;
+    }
 
     EMS(Section configuration) {
         super(configuration);
+        emm_device=null;
+		ems_type=0;
 
         /* Virtual DMA interrupt callback */
         call_vdma.Install(INT4B_Handler,Callback.CB_IRET,"Int 4b vdma");
@@ -1335,8 +1360,10 @@ public class EMS extends Module_base {
         GEMMIS_seg=0;
 
         Section_prop section=(Section_prop)configuration;
-        if (!section.Get_bool("ems")) return;
+        ems_type=GetEMSType(section);
+		if (ems_type<=0) return;
         if (Dosbox.machine== MachineType.MCH_PCJR) {
+            ems_type=0;
             Log.log_msg("EMS disabled for PCJr machine");
             return;
         }
@@ -1356,8 +1383,8 @@ public class EMS extends Module_base {
 
         /* Register the ems device */
         //TODO MAYBE put it in the class.
-        DOS_Device newdev = new device_EMM();
-        Dos_devices.DOS_AddDevice(newdev);
+        emm_device = new device_EMM(ems_type!=2);
+		Dos_devices.DOS_AddDevice(emm_device);
 
         /* Clear handle and page tables */
         /*Bitu*/int i;
@@ -1377,61 +1404,67 @@ public class EMS extends Module_base {
 
         EMM_AllocateSystemHandle(8);	// allocate OS-dedicated handle (ems handle zero, 128kb)
 
+        if (ems_type==3) {
+            DMA.DMA_SetWrapping(0xffffffff);	// emm386-bug that disables dma wrapping
+		}
 
         if (ENABLE_VCPI==0) return;
 
-        /* Install a callback that handles VCPI-requests in protected mode requests */
-        call_vcpi.Install(VCPI_PM_Handler,Callback.CB_IRETD,"VCPI PM");
-        vcpi.pm_interface=(call_vcpi.Get_callback())*Callback.CB_SIZE;
+        if (ems_type!=2) {
+            /* Install a callback that handles VCPI-requests in protected mode requests */
+            call_vcpi.Install(VCPI_PM_Handler,Callback.CB_IRETD,"VCPI PM");
+            vcpi.pm_interface=(call_vcpi.Get_callback())*Callback.CB_SIZE;
 
-        /* Initialize private data area and set up descriptor tables */
-        SetupVCPI();
+            /* Initialize private data area and set up descriptor tables */
+            SetupVCPI();
 
-        if (!vcpi.enabled) return;
+            if (!vcpi.enabled) return;
 
-        /* Install v86-callback that handles interrupts occuring
-           in v86 mode, including protection fault exceptions */
-        call_v86mon.Install(V86_Monitor,Callback.CB_IRET,"V86 Monitor");
+            /* Install v86-callback that handles interrupts occuring
+               in v86 mode, including protection fault exceptions */
+            call_v86mon.Install(V86_Monitor,Callback.CB_IRET,"V86 Monitor");
 
-        Memory.mem_writeb(vcpi.private_area+0x2e00,(/*Bit8u*/short)0xFE);       //GRP 4
-        Memory.mem_writeb(vcpi.private_area+0x2e01,(/*Bit8u*/short)0x38);       //Extra Callback instruction
-        Memory.mem_writew(vcpi.private_area+0x2e02,call_v86mon.Get_callback());		//The immediate word
-        Memory.mem_writeb(vcpi.private_area+0x2e04,(/*Bit8u*/short)0x66);
-        Memory.mem_writeb(vcpi.private_area+0x2e05,(/*Bit8u*/short)0xCF);       //A IRETD Instruction
+            Memory.mem_writeb(vcpi.private_area+0x2e00,(/*Bit8u*/short)0xFE);       //GRP 4
+            Memory.mem_writeb(vcpi.private_area+0x2e01,(/*Bit8u*/short)0x38);       //Extra Callback instruction
+            Memory.mem_writew(vcpi.private_area+0x2e02,call_v86mon.Get_callback());		//The immediate word
+            Memory.mem_writeb(vcpi.private_area+0x2e04,(/*Bit8u*/short)0x66);
+            Memory.mem_writeb(vcpi.private_area+0x2e05,(/*Bit8u*/short)0xCF);       //A IRETD Instruction
 
-        /* Testcode only, starts up dosbox in v86-mode */
-        if (ENABLE_V86_STARTUP!=0) {
-            /* Prepare V86-task */
-            CPU.CPU_SET_CRX(0, 1);
-            CPU.CPU_LGDT(0xff, vcpi.private_area+0x0000);
-            CPU.CPU_LIDT(0x7ff, vcpi.private_area+0x2000);
-            if (CPU.CPU_LLDT(0x08)) Log.log_msg("VCPI:Could not load LDT");
-            if (CPU.CPU_LTR(0x10)) Log.log_msg("VCPI:Could not load TR");
+            /* Testcode only, starts up dosbox in v86-mode */
+            if (ENABLE_V86_STARTUP!=0) {
+                /* Prepare V86-task */
+                CPU.CPU_SET_CRX(0, 1);
+                CPU.CPU_LGDT(0xff, vcpi.private_area+0x0000);
+                CPU.CPU_LIDT(0x7ff, vcpi.private_area+0x2000);
+                if (CPU.CPU_LLDT(0x08)) Log.log_msg("VCPI:Could not load LDT");
+                if (CPU.CPU_LTR(0x10)) Log.log_msg("VCPI:Could not load TR");
 
-            CPU.CPU_Push32(CPU.Segs_GSval);
-            CPU.CPU_Push32(CPU.Segs_FSval);
-            CPU.CPU_Push32(CPU.Segs_DSval);
-            CPU.CPU_Push32(CPU.Segs_ESval);
-            CPU.CPU_Push32(CPU.Segs_SSval);
-            CPU.CPU_Push32(0x23002);
-            CPU.CPU_Push32(CPU.Segs_CSval);
-            CPU.CPU_Push32(CPU_Regs.reg_eip&0xffff);
-            /* Switch to V86-mode */
-            CPU.CPU_SetCPL(0);
-            CPU.CPU_IRET(true,0);
+                CPU.CPU_Push32(CPU.Segs_GSval);
+                CPU.CPU_Push32(CPU.Segs_FSval);
+                CPU.CPU_Push32(CPU.Segs_DSval);
+                CPU.CPU_Push32(CPU.Segs_ESval);
+                CPU.CPU_Push32(CPU.Segs_SSval);
+                CPU.CPU_Push32(0x23002);
+                CPU.CPU_Push32(CPU.Segs_CSval);
+                CPU.CPU_Push32(CPU_Regs.reg_eip&0xffff);
+                /* Switch to V86-mode */
+                CPU.CPU_SetCPL(0);
+                CPU.CPU_IRET(true,0);
+            }
         }
     }
 
     void close() {
-        Section_prop section=(Section_prop)m_configuration;
-        if (!section.Get_bool("ems")) return;
+        if (ems_type<=0) return;
 
         /* Undo Biosclearing */
         Bios.BIOS_ZeroExtendedSize(false);
 
         /* Remove ems device */
-        device_EMM newdev = new device_EMM();
-        Dos_devices.DOS_DelDevice(newdev);
+        if (emm_device!=null) {
+			Dos_devices.DOS_DelDevice(emm_device);
+			emm_device=null;
+		}
         GEMMIS_seg=0;
 
         /* Remove the emsname and callback hack */

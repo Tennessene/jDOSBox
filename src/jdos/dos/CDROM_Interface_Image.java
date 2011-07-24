@@ -1,5 +1,6 @@
 package jdos.dos;
 
+import javazoom.jl.decoder.*;
 import jdos.dos.drives.Drive_local;
 import jdos.hardware.Memory;
 import jdos.hardware.Mixer;
@@ -11,11 +12,9 @@ import jdos.util.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.util.Vector;
-
-import javazoom.jl.decoder.*;
 
 public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 	private static interface TrackFile {
@@ -142,7 +141,6 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
                 }
                 return true;
             } catch (Exception e) {
-                e.printStackTrace();
                 return false;
             }
         }

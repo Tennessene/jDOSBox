@@ -1078,13 +1078,57 @@ public class Dos_programs {
                                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_GEOMETRY"));
                                 return;
                             }
-                            /*Bitu*/int sectors=(/*Bitu*/int)(fcsize/(16*63));
-                            if (sectors*16*63!=fcsize) {
+
+                            // check MBR partition entry 1
+                            /*Bitu*/int starthead = buf[0x1bf] & 0xFF;
+                            /*Bitu*/int startsect = buf[0x1c0] & 0x3f - 1;
+                            /*Bitu*/int startcyl = buf[0x1c1]|((buf[0x1c0]&0xc0)<<2);
+                            /*Bitu*/int endcyl = buf[0x1c5]|((buf[0x1c4]&0xc0)<<2);
+
+                            /*Bitu*/int heads = (buf[0x1c3] & 0xFF) +1;
+                            /*Bitu*/int sectors = buf[0x1c4] & 0x3f;
+
+                            /*Bitu*/long pe1_size = new IntPtr(buf, 0x1ca).readd(0);
+                            boolean yet_detected = false;
+                            if(pe1_size!=0) {
+                                /*Bitu*/int  part_start = startsect + sectors*starthead + startcyl*sectors*heads;
+                                /*Bitu*/int  part_end = heads*sectors*endcyl;
+                                /*Bitu*/int  part_len = part_end - part_start;
+                                // partition start/end sanity check
+                                // partition length should not exceed file length
+                                // real partition size can be a few cylinders less than pe1_size
+                                // if more than 1023 cylinders see if first partition fits
+                                // into 1023, else bail.
+                                if((part_len<0)||(part_len > pe1_size)||(pe1_size > fcsize)||
+                                    ((pe1_size-part_len)/(sectors*heads)>2)||
+                                    ((pe1_size/(heads*sectors))>1023)) {
+                                    //LOG_MSG("start(c,h,s) %u,%u,%u",startcyl,starthead,startsect);
+                                    //LOG_MSG("endcyl %u heads %u sectors %u",endcyl,heads,sectors);
+                                    //LOG_MSG("psize %u start %u end %u",pe1_size,part_start,part_end);
+                                } else {
+                                    sizes[0]=512; sizes[1]=sectors;
+                                    sizes[2]=heads; sizes[3]=(int)(fcsize/(heads*sectors));
+                                    if(sizes[3]>1023) sizes[3]=1023;
+                                    yet_detected = true;
+                                }
+                            }
+                            if(!yet_detected) {
+                                // Try bximage disk geometry
+                                /*Bitu*/int cylinders=(int)(fcsize/(16*63));
+                                // Int13 only supports up to 1023 cylinders
+                                // For mounting unknown images we could go up with the heads to 255
+                                if ((cylinders*16*63==fcsize)&&(cylinders<1024)) {
+                                    yet_detected=true;
+                                    sizes[0]=512; sizes[1]=63; sizes[2]=16; sizes[3]=cylinders;
+                                }
+                            }
+
+                            if(yet_detected)
+                                WriteOut(StringHelper.sprintf(Msg.get("PROGRAM_IMGMOUNT_AUTODET_VALUES"),new Object[] {new Integer(sizes[0]),new Integer(sizes[1]),new Integer(sizes[2]),new Integer(sizes[3])}));
+                            else {
                                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_GEOMETRY"));
                                 return;
                             }
-                            sizes[0]=512;	sizes[1]=63;	sizes[2]=16;	sizes[3]=sectors;
-                            Log.log_msg("autosized image file: "+sizes[0]+":"+sizes[1]+":"+sizes[2]+":"+sizes[3]);
                         } catch (Exception e) {
                             WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_IMAGE"));
                             return;
@@ -1443,6 +1487,7 @@ public class Dos_programs {
             "Check that the path is correct and the image is accessible.\n");
         Msg.add("PROGRAM_IMGMOUNT_INVALID_GEOMETRY","Could not extract drive geometry from image.\n" +
             "Use parameter -size bps,spc,hpc,cyl to specify the geometry.\n");
+        Msg.add("PROGRAM_IMGMOUNT_AUTODET_VALUES","Image geometry auto detection: -size %d,%d,%d,%d\n");
         Msg.add("PROGRAM_IMGMOUNT_TYPE_UNSUPPORTED","Type \"%s\" is unsupported. Specify \"hdd\" or \"floppy\" or\"iso\".\n");
         Msg.add("PROGRAM_IMGMOUNT_FORMAT_UNSUPPORTED","Format \"%s\" is unsupported. Specify \"fat\" or \"iso\" or \"none\".\n");
         Msg.add("PROGRAM_IMGMOUNT_SPECIFY_FILE","Must specify file-image to mount.\n");

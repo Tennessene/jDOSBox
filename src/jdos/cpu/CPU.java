@@ -333,9 +333,10 @@ public class CPU extends Module_base {
         final public /*PhysPt*/long GetBase() {
             return ((long)saved.seg.base_24_31()<<24) | (saved.seg.base_16_23()<<16) | saved.seg.base_0_15();
         }
-        final public /*Bitu*/int GetLimit () {
-            /*Bitu*/int limit = (saved.seg.limit_16_19()<<16) | saved.seg.limit_0_15();
-            if (saved.seg.g() != 0)	return (limit<<12) | 0xFFF;
+        final public /*Bitu*/long GetLimit () {
+            /*Bitu*/long limit = (saved.seg.limit_16_19()<<16) | saved.seg.limit_0_15();
+            if (saved.seg.g() != 0)	{
+                limit = (limit<<12) | 0xFFF;            }
             return limit;
         }
         final public /*Bitu*/long GetOffset() {
@@ -429,7 +430,7 @@ public class CPU extends Module_base {
             return true;
         }
         private /*PhysPt*/long ldt_base;
-        private /*Bitu*/int ldt_limit;
+        private /*Bitu*/long ldt_limit;
         private /*Bitu*/int ldt_value;
     }
 
@@ -752,7 +753,7 @@ public class CPU extends Module_base {
         TSS_Descriptor desc = new TSS_Descriptor();
         /*Bitu*/int selector;
         /*PhysPt*/long base;
-        /*Bitu*/int limit;
+        /*Bitu*/long limit;
         /*Bitu*/int is386;
         boolean valid;
     }
@@ -2226,7 +2227,7 @@ public class CPU extends Module_base {
     }
 
     private static final Descriptor desc_7 = new Descriptor();
-    public static void CPU_LSL( /*Bitu*/int selector, /*Bitu*/IntRef limit) {
+    public static void CPU_LSL( /*Bitu*/int selector, /*Bitu*/LongRef limit) {
         Flags.FillFlags();
         if (selector == 0) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);

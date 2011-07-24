@@ -6,9 +6,11 @@ import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.IntRef;
+import jdos.util.LongRef;
 
 public class Prefix_66_0f extends Prefix_66 {
     static final private /*Bitu*/IntRef int_ref_1=new IntRef(0);
+    static final private /*Bitu*/LongRef long_ref_1=new LongRef(0);
 
     static {
         /* GRP 6 Exxx */
@@ -137,14 +139,14 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x303] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                short rm=Fetchb();int_ref_1.value = (int)Modrm.Getrd[rm].dword();
+                short rm=Fetchb();long_ref_1.value = (int)Modrm.Getrd[rm].dword();
                 /* Just load 16-bit values for selectors */
                 if (rm >= 0xc0) {
-                    CPU.CPU_LSL(Modrm.GetEArw[rm].word(),int_ref_1);
+                    CPU.CPU_LSL(Modrm.GetEArw[rm].word(),long_ref_1);
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),int_ref_1);
+                    /*PhysPt*/long eaa = getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),long_ref_1);
                 }
-                Modrm.Getrd[rm].dword(int_ref_1.value);
+                Modrm.Getrd[rm].dword(long_ref_1.value);
                 return HANDLED;
             }
         };

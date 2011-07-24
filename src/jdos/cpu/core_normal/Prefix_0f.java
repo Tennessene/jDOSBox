@@ -144,13 +144,13 @@ public class Prefix_0f extends Prefix_none {
         ops[0x103] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();int_ref_1.value=Modrm.Getrw[rm].word();
+                /*Bit8u*/short rm=Fetchb();long_ref_1.value=Modrm.Getrw[rm].word();
                 if (rm >= 0xc0) {
-                    CPU.CPU_LSL(Modrm.GetEArw[rm].word(),int_ref_1);
+                    CPU.CPU_LSL(Modrm.GetEArw[rm].word(),long_ref_1);
                 } else {
-                    /*PhysPt*/long eaa=getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),int_ref_1);
+                    /*PhysPt*/long eaa=getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),long_ref_1);
                 }
-                Modrm.Getrw[rm].word(int_ref_1.value);
+                Modrm.Getrw[rm].word((int)long_ref_1.value);
                 return HANDLED;
             }
         };

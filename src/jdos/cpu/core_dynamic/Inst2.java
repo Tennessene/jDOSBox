@@ -5,6 +5,7 @@ import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.util.IntRef;
+import jdos.util.LongRef;
 
 public class Inst2 extends Helper {
     final static public class Sldt_reg extends Op {
@@ -372,9 +373,9 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef(rw.word());
+            LongRef value=new LongRef(rw.word());
             CPU.CPU_LSL(earw.word(),value);
-            rw.word(value.value);
+            rw.word((int)value.value);
             return Constants.BR_Normal;
         }
     }
@@ -391,9 +392,9 @@ public class Inst2 extends Helper {
         public int call() {
             long eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef(rw.word());
+            LongRef value=new LongRef(rw.word());
             CPU.CPU_LSL(Memory.mem_readw(eaa),value);
-            rw.word(value.value);
+            rw.word((int)value.value);
             return Constants.BR_Normal;
         }
     }

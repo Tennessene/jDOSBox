@@ -2031,6 +2031,9 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 Flags.FillFlags();
                 /*Bit16u*/int newip=Fetchw();/*Bit16u*/int newcs=Fetchw();
+                if (CPU_Regs.reg_eip == 48332) {
+                    int ii=0;
+                }
                 CPU.CPU_CALL(false,newcs,newip,GETIP());
                 if (CPU_TRAP_CHECK) {
                     if (GETFLAG(TF)!=0) {

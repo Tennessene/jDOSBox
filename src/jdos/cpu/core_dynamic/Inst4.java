@@ -4,6 +4,7 @@ import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 import jdos.util.IntRef;
+import jdos.util.LongRef;
 
 public class Inst4 extends Helper {
     final static public class Lgdt_mem extends Op {
@@ -112,7 +113,7 @@ public class Inst4 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef((int)rd.dword());
+            LongRef value=new LongRef(rd.dword());
             CPU.CPU_LSL(earw.word(),value);
             rd.dword(value.value);
             return Constants.BR_Normal;
@@ -131,7 +132,7 @@ public class Inst4 extends Helper {
         public int call() {
             long eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef((int)rd.dword());
+            LongRef value=new LongRef(rd.dword());
             CPU.CPU_LSL(Memory.mem_readw(eaa),value);
             rd.dword(value.value);
             return Constants.BR_Normal;

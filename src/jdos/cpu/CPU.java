@@ -338,8 +338,8 @@ public class CPU extends Module_base {
             if (saved.seg.g() != 0)	return (limit<<12) | 0xFFF;
             return limit;
         }
-        final public /*Bitu*/int GetOffset() {
-            return (saved.gate.offset_16_31() << 16) | saved.gate.offset_0_15();
+        final public /*Bitu*/long GetOffset() {
+            return ((long)saved.gate.offset_16_31() << 16) | saved.gate.offset_0_15();
         }
         final public /*Bitu*/int GetSelector() {
             return saved.gate.selector();
@@ -1062,7 +1062,7 @@ public class CPU extends Module_base {
 
 
                      /*Bitu*/int gate_sel= gate_temp_1.GetSelector();
-                     /*Bitu*/int gate_off= gate_temp_1.GetOffset();
+                     /*Bitu*/long gate_off= gate_temp_1.GetOffset();
                     if (Config.C_DEBUG) CPU_CHECK_COND((gate_sel & 0xfffc)==0, "INT:Gate with CS zero selector", EXCEPTION_GP,((type&CPU_INT_SOFTWARE)!=0)?0:1);
                     boolean success = cpu.gdt.GetDescriptor(gate_sel,cs_desc_temp_1);
                     if (Config.C_DEBUG) CPU_CHECK_COND(!success, "INT:Gate with CS beyond limit", EXCEPTION_GP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
@@ -1180,7 +1180,7 @@ public class CPU extends Module_base {
                     CPU_Regs.SETFLAGBIT(CPU_Regs.TF,false);
                     CPU_Regs.SETFLAGBIT(CPU_Regs.NT,false);
                     CPU_Regs.SETFLAGBIT(CPU_Regs.VM,false);
-                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"INT:Gate to "+Integer.toString(gate_sel, 16)+":"+Integer.toString(gate_off, 16)+" big "+cs_desc_temp_1.Big()+" "+((gate_temp_1.Type() & 0x8) != 0 ? "386" : "286"));
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"INT:Gate to "+Integer.toString(gate_sel, 16)+":"+Long.toString(gate_off, 16)+" big "+cs_desc_temp_1.Big()+" "+((gate_temp_1.Type() & 0x8) != 0 ? "386" : "286"));
                     return;
                 }
             case DESC_TASK_GATE:
@@ -1575,7 +1575,7 @@ public class CPU extends Module_base {
                     if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_dpl>cpu.cpl, "CALL:Gate:CS DPL>CPL", EXCEPTION_GP,n_cs_sel & 0xfffc);
                     if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_desc_4.saved.seg.p()==0, "CALL:Gate:CS not present", EXCEPTION_NP,n_cs_sel & 0xfffc);
 
-                     /*Bitu*/int n_eip		= call_4.GetOffset();
+                     /*Bitu*/long n_eip		= call_4.GetOffset();
                     switch (n_cs_desc_4.Type()) {
                     case DESC_CODE_N_NC_A:case DESC_CODE_N_NC_NA:
                     case DESC_CODE_R_NC_A:case DESC_CODE_R_NC_NA:

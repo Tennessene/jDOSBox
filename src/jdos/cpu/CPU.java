@@ -2072,12 +2072,12 @@ public class CPU extends Module_base {
             break;
         case 4:
         case 6:
-            cpu.drx[6]=(value|0xffff0ff0) & 0xffffefff;
+            cpu.drx[6]=(value|0xffff0ff0l) & 0xffffefffl;
             break;
         case 5:
         case 7:
             if (CPU_ArchitectureType<CPU_ARCHTYPE_PENTIUM) {
-                cpu.drx[7]=(value|0x400) & 0xffff2fff;
+                cpu.drx[7]=(value|0x400) & 0xffff2fffl;
             } else {
                 cpu.drx[7]=(value|0x400);
             }

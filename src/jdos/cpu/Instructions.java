@@ -4,7 +4,6 @@ import jdos.cpu.core_dynamic.Op;
 import jdos.cpu.core_normal.Prefix_helpers;
 import jdos.cpu.core_share.Constants;
 import jdos.util.LongHelper;
-import jdos.hardware.Memory;
 import jdos.util.OverflowException;
 
 public class Instructions extends Table_ea {
@@ -520,7 +519,7 @@ public class Instructions extends Table_ea {
             lflags.res = ((l >> op2) | (cf << (32-op2)) | (l << (33-op2))) & 0xFFFFFFFFl;
         }
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF,((l >> (op2 - 1)) & 1)!=0);
-        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res ^ (lflags.res<<1)) & 0x80000000)!=0);
+        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res ^ (lflags.res<<1)) & 0x80000000l)!=0);
         return lflags.res;
     }
 

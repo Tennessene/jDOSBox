@@ -430,7 +430,7 @@ public class Flags {
             return (((lf_var1w() ^ lf_var2w() ^ 0x8000) & (lf_resw() ^ lf_var2w())) & 0x8000) != 0;
         case t_ADDd:
         case t_ADCd:
-            return (((lf_var1d() ^ lf_var2d() ^ 0x80000000) & (lf_resd() ^ lf_var2d())) & 0x80000000l) != 0;
+            return (((lf_var1d() ^ lf_var2d() ^ 0x80000000l) & (lf_resd() ^ lf_var2d())) & 0x80000000l) != 0;
         case t_SBBb:
         case t_SUBb:
         case t_CMPb:
@@ -724,7 +724,7 @@ public class Flags {
             DOFLAG_AF();
             DOFLAG_ZFd();
             DOFLAG_SFd();
-            SET_FLAG(CPU_Regs.OF,(((lf_var1d() ^ lf_var2d() ^ 0x80000000) & (lf_resd() ^ lf_var1d())) & 0x80000000l)!=0);
+            SET_FLAG(CPU_Regs.OF,(((lf_var1d() ^ lf_var2d() ^ 0x80000000l) & (lf_resd() ^ lf_var1d())) & 0x80000000l)!=0);
             DOFLAG_PF();
             break;
         case t_ADCb:
@@ -748,7 +748,7 @@ public class Flags {
             DOFLAG_AF();
             DOFLAG_ZFd();
             DOFLAG_SFd();
-            SET_FLAG(CPU_Regs.OF,(((lf_var1d() ^ lf_var2d() ^ 0x80000000) & (lf_resd() ^ lf_var1d())) & 0x80000000l)!=0);
+            SET_FLAG(CPU_Regs.OF,(((lf_var1d() ^ lf_var2d() ^ 0x80000000l) & (lf_resd() ^ lf_var1d())) & 0x80000000l)!=0);
             DOFLAG_PF();
             break;
 

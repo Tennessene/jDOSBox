@@ -2870,7 +2870,7 @@ public class CPU extends Module_base {
         CPU_SET_CRX(0,0);						//Initialize
         cpu.code.big=false;
         cpu.stack.mask=0xffff;
-        cpu.stack.notmask=0xffff0000;
+        cpu.stack.notmask=0xffff0000l;
         cpu.stack.big=false;
         cpu.trap_skip=false;
         cpu.idt.SetBase(0);

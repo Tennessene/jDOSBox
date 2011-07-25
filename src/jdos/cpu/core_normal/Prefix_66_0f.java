@@ -96,7 +96,6 @@ public class Prefix_66_0f extends Prefix_66 {
                         break;
                     }
                 } else {
-                    Modrm.GetEArd[rm].dword();
                     switch (which) {
                     case 0x02:										/* LGDT */
                         if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
@@ -139,7 +138,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x303] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                short rm=Fetchb();long_ref_1.value = (int)Modrm.Getrd[rm].dword();
+                short rm=Fetchb();long_ref_1.value = Modrm.Getrd[rm].dword();
                 /* Just load 16-bit values for selectors */
                 if (rm >= 0xc0) {
                     CPU.CPU_LSL(Modrm.GetEArw[rm].word(),long_ref_1);

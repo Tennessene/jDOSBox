@@ -704,8 +704,15 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 short rm=Fetchb();/*Bit32u*/long oldrmrd=Modrm.Getrd[rm].dword();
-                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword(Modrm.GetEArd[rm].dword());Modrm.GetEArd[rm].dword(Modrm.GetEArd[rm].dword()+oldrmrd);}
-                else {/*PhysPt*/long eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readd(eaa));Memory.mem_writed(eaa,Memory.mem_readd(eaa)+oldrmrd);}
+                if (rm >= 0xc0 ) {
+                    Modrm.Getrd[rm].dword(Modrm.GetEArd[rm].dword());
+                    Modrm.GetEArd[rm].dword(Modrm.GetEArd[rm].dword()+oldrmrd);
+                } else {
+                    /*PhysPt*/long eaa = getEaa(rm);
+                    long value = Memory.mem_readd(eaa);
+                    Memory.mem_writed(eaa,value+oldrmrd);
+                    Modrm.Getrd[rm].dword(value);
+                }
                 return HANDLED;
             }
         };

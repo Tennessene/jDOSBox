@@ -1709,13 +1709,15 @@ public class Prefix_none extends StringOp {
                 else {
                     /*PhysPt*/long eaa=getEaa(rm);
                     int index = Paging.getDirectIndex(eaa);
+                    short val;
                     if (index>=0) {
-                        Modrm.Getrb[rm].set(Memory.host_readb(index));
+                        val = Memory.host_readb(index);
                         Memory.host_writeb(index,oldrmrb);
                     } else {
-                        Modrm.Getrb[rm].set(Memory.mem_readb(eaa));
+                        val = Memory.mem_readb(eaa);
                         Memory.mem_writeb(eaa,oldrmrb);
                     }
+                    Modrm.Getrb[rm].set(val);
                 }
                 return HANDLED;
             }
@@ -1734,16 +1736,19 @@ public class Prefix_none extends StringOp {
                 } else {
                     /*Bit16u*/int oldrmrw=Modrm.Getrw[rm].word();
                     /*PhysPt*/long eaa=getEaa(rm);
+                    int val;
                     if ((eaa & 0xFFF)<0xFFF) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
-                            Modrm.Getrw[rm].word(Memory.host_readw(index));
+                            val = Memory.host_readw(index);
                             Memory.host_writew(index,oldrmrw);
+                            Modrm.Getrw[rm].word(val);
                             return HANDLED;
                         }
                     }
-                    Modrm.Getrw[rm].word(Memory.mem_readw(eaa));
+                    val = Memory.mem_readw(eaa);
                     Memory.mem_writew(eaa,oldrmrw);
+                    Modrm.Getrw[rm].word(val);
                 }
                 return HANDLED;
             }

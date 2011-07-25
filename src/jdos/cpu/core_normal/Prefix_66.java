@@ -1116,16 +1116,19 @@ public class Prefix_66 extends Prefix_0f {
                     eard.dword(oldrmrd);
                 } else {
                     /*PhysPt*/long eaa=getEaa(rm);
+                    long val;
                     if ((eaa & 0xFFF)<0xFFD) {
                         int index = Paging.getDirectIndex(eaa);
                         if (index>=0) {
-                            rd.dword(Memory.host_readd(index));
+                            val = Memory.host_readd(index);
                             Memory.host_writed(index,oldrmrd);
+                            rd.dword(val);
                             return HANDLED;
                         }
                     }
-                    rd.dword(Memory.mem_readd(eaa));
+                    val = Memory.mem_readd(eaa);
                     Memory.mem_writed(eaa,oldrmrd);
+                    rd.dword(val);
                 }
                 return HANDLED;
             }

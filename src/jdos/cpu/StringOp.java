@@ -122,6 +122,13 @@ public class StringOp extends Prefix_helpers {
                     di_index=(di_index+add_index) & add_mask;
                 }
                 break;
+            case R_INSD:
+                add_index<<=2;
+                for (;count>0;count--) {
+                    Memory.mem_writed(di_base+di_index,IO.IO_ReadD(reg_edx.word()));
+                    di_index=(di_index+add_index) & add_mask;
+                }
+                break;
             case R_STOSB:
                 for (;count>0;count--) {
                     Memory.mem_writeb(di_base+di_index,reg_eax.low());
@@ -281,6 +288,7 @@ public class StringOp extends Prefix_helpers {
                 break;
             default:
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Unhandled string op "+type);
+                Log.exit("Unhandled string op "+type);
             }
             /* Clean up after certain amount of instructions */
             reg_esi.dword(reg_esi.dword() & not_add_mask);
@@ -359,6 +367,14 @@ public class StringOp extends Prefix_helpers {
             add_index<<=1;
             for (;count>0;count--) {
                 Memory.mem_writew(di_base+reg_edi.word(),IO.IO_ReadW(reg_edx.word()));
+                reg_edi.word(reg_edi.word()+add_index);
+                if ((prefixes & PREFIX_REP)!=0) reg_ecx.word_dec();
+            }
+            break;
+        case R_INSD:
+            add_index<<=2;
+            for (;count>0;count--) {
+                Memory.mem_writed(di_base+reg_edi.word(),IO.IO_ReadD(reg_edx.word()));
                 reg_edi.word(reg_edi.word()+add_index);
                 if ((prefixes & PREFIX_REP)!=0) reg_ecx.word_dec();
             }
@@ -537,6 +553,7 @@ public class StringOp extends Prefix_helpers {
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Unhandled string op "+type);
+            Log.exit("Unhandled string op "+type);
         }
     }
 
@@ -602,6 +619,14 @@ public class StringOp extends Prefix_helpers {
             add_index<<=1;
             for (;count>0;count--) {
                 Memory.mem_writew(di_base+reg_edi.dword(),IO.IO_ReadW(reg_edx.word()));
+                reg_edi.dword(reg_edi.dword()+add_index);
+                if ((prefixes & PREFIX_REP)!=0) reg_ecx.dword_dec();
+            }
+            break;
+        case R_INSD:
+            add_index<<=1;
+            for (;count>0;count--) {
+                Memory.mem_writed(di_base+reg_edi.dword(),IO.IO_ReadD(reg_edx.word()));
                 reg_edi.dword(reg_edi.dword()+add_index);
                 if ((prefixes & PREFIX_REP)!=0) reg_ecx.dword_dec();
             }
@@ -780,6 +805,7 @@ public class StringOp extends Prefix_helpers {
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Unhandled string op "+type);
+            Log.exit("Unhandled string op "+type);
         }
     }
 }

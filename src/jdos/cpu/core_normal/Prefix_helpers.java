@@ -53,27 +53,47 @@ public class Prefix_helpers extends Instructions {
     }
 
     protected static void JumpCond16_b(boolean COND) {
-        SAVEIP();
-        if (COND) reg_ip(reg_ip()+Fetchbs());
-        reg_ip(reg_ip()+1);
+        if (COND) {
+            byte offset = Fetchbs();
+            SAVEIP();
+            reg_ip(reg_ip()+offset);
+        } else {
+            SAVEIP();
+            reg_ip(reg_ip()+1);
+        }
     }
 
     protected static void JumpCond16_w(boolean COND) {
-        SAVEIP();
-        if (COND) reg_ip(reg_ip()+Fetchws());
-        reg_ip(reg_ip()+2);
+        if (COND) {
+            short offset = Fetchws();
+            SAVEIP();
+            reg_ip(reg_ip()+offset);
+        } else {
+            SAVEIP();
+            reg_ip(reg_ip()+2);
+        }
     }
 
     protected static void JumpCond32_b(boolean COND) {
-        SAVEIP();
-        if (COND) reg_eip(reg_eip()+Fetchbs());
-        reg_eip(reg_eip()+1);
+        if (COND) {
+            byte offset = Fetchbs();
+            SAVEIP();
+            reg_eip(reg_eip()+offset);
+        } else {
+            SAVEIP();
+            reg_eip(reg_eip()+1);
+        }
     }
 
     protected static void JumpCond32_d(boolean COND) {
-        SAVEIP();
-        if (COND) reg_eip(reg_eip()+Fetchds());
-        reg_eip(reg_eip()+4);
+        if (COND) {
+            int offset = Fetchds();
+            SAVEIP();
+            reg_eip(reg_eip()+offset);
+        } else {
+            SAVEIP();
+            reg_eip(reg_eip()+4);
+        }
     }
 
     protected static void SETcc(boolean cc) {

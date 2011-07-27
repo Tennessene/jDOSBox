@@ -380,8 +380,8 @@ public class Prefix_66_0f extends Prefix_66 {
                 } else {
                     /*PhysPt*/long eaa = getEaa(rm);eaa+=(((/*Bit32s*/int)rd.dword())>>5)*4;
                     /*Bit32u*/long old=Memory.mem_readd(eaa);
-                    SETFLAGBIT(CF,(old & mask)!=0);
                     Memory.mem_writed(eaa,old | mask);
+                    SETFLAGBIT(CF,(old & mask)!=0);
                 }
                 return HANDLED;
             }
@@ -519,8 +519,8 @@ public class Prefix_66_0f extends Prefix_66 {
                 } else {
                     /*PhysPt*/long eaa = getEaa(rm);eaa+=(((/*Bit32s*/int)rd.dword())>>5)*4;
                     /*Bit32u*/long old=Memory.mem_readd(eaa);
-                    SETFLAGBIT(CF,(old & mask)!=0);
                     Memory.mem_writed(eaa,old & ~mask);
+                    SETFLAGBIT(CF,(old & mask)!=0);
                 }
                 return HANDLED;
             }
@@ -597,7 +597,6 @@ public class Prefix_66_0f extends Prefix_66 {
                 } else {
                     /*PhysPt*/long eaa = getEaa(rm);/*Bit32u*/long old=Memory.mem_readd(eaa);
                     /*Bit32u*/long mask=1 << (Fetchb() & 31);
-                    SETFLAGBIT(CF,(old & mask)!=0);
                     switch (rm & 0x38) {
                     case 0x20:											/* BT */
                         break;
@@ -615,6 +614,7 @@ public class Prefix_66_0f extends Prefix_66 {
                     default:
                         Log.exit("CPU:66:0F:BA:Illegal subfunction "+Integer.toString(rm & 0x38,16));
                     }
+                    SETFLAGBIT(CF,(old & mask)!=0);
                 }
                 return HANDLED;
             }
@@ -632,8 +632,8 @@ public class Prefix_66_0f extends Prefix_66 {
                 } else {
                     /*PhysPt*/long eaa = getEaa(rm);eaa+=(((/*Bit32s*/int)Modrm.Getrd[rm].dword())>>5)*4;
                     /*Bit32u*/long old=Memory.mem_readd(eaa);
-                    SETFLAGBIT(CF,(old & mask)!=0);
                     Memory.mem_writed(eaa,old ^ mask);
+                    SETFLAGBIT(CF,(old & mask)!=0);
                 }
                 return HANDLED;
             }

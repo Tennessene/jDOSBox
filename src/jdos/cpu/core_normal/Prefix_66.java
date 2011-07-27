@@ -1662,11 +1662,11 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x2e0] = new OP() {
             final public int call() {
                 if (TEST_PREFIX_ADDR()!=0) {
-                    reg_ecx.dword(reg_ecx.dword() -1);
-                    JumpCond32_b(reg_ecx.dword() !=0 && !get_ZF());
+                    JumpCond32_b(reg_ecx.dword()-1 !=0 && !get_ZF());
+                    reg_ecx.dword(reg_ecx.dword()-1);
                 } else {
+                    JumpCond32_b(reg_ecx.word()-1 !=0 && !get_ZF());
                     reg_ecx.word(reg_ecx.word()-1);
-                    JumpCond32_b(reg_ecx.word()!=0 && !get_ZF());
                 }
                 return CONTINUE;
             }
@@ -1676,11 +1676,11 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x2e1] = new OP() {
             final public int call() {
                 if (TEST_PREFIX_ADDR()!=0) {
-                    reg_ecx.dword(reg_ecx.dword() -1);
-                    JumpCond32_b(reg_ecx.dword() !=0 && get_ZF());
+                    JumpCond32_b(reg_ecx.dword()-1!=0 && get_ZF());
+                    reg_ecx.dword(reg_ecx.dword()-1);
                 } else {
+                    JumpCond32_b(reg_ecx.word()-1!=0 && get_ZF());
                     reg_ecx.word(reg_ecx.word()-1);
-                    JumpCond32_b(reg_ecx.word()!=0 && get_ZF());
                 }
                 return CONTINUE;
             }
@@ -1690,11 +1690,11 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x2e2] = new OP() {
             final public int call() {
                 if (TEST_PREFIX_ADDR()!=0) {
+                    JumpCond32_b(reg_ecx.dword()-1!=0);
                     reg_ecx.dword(reg_ecx.dword() -1);
-                    JumpCond32_b(reg_ecx.dword() !=0);
                 } else {
+                    JumpCond32_b(reg_ecx.word()-1!=0);
                     reg_ecx.word(reg_ecx.word()-1);
-                    JumpCond32_b(reg_ecx.word()!=0);
                 }
                 return CONTINUE;
             }

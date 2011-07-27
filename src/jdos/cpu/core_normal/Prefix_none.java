@@ -3349,7 +3349,8 @@ public class Prefix_none extends StringOp {
                 case 0x07:										/* CallBack */
                     {
                         returnValue=Fetchw();
-                        Flags.FillFlags();SAVEIP();
+                        Flags.FillFlags();
+                        SAVEIP();
                         return RETURN;
                     }
                 default:

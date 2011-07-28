@@ -1,9 +1,9 @@
 package jdos.hardware;
 
 import jdos.Dosbox;
-import jdos.util.StringHelper;
 import jdos.cpu.CPU;
 import jdos.misc.Log;
+import jdos.util.StringHelper;
 
 public class VGA_xga {
     static private int XGA_SCREEN_WIDTH() {
@@ -135,15 +135,15 @@ public class VGA_xga {
                 break;
             case VGA.M_LIN15:
                 if ((memaddr*2 >= VGA.vga.vmemsize)) break;
-                VGA.vga.mem.linear.writew((int)memaddr,c&0x7fff);
+                VGA.vga.mem.linear.writew(memaddr*2,c&0x7fff);
                 break;
             case VGA.M_LIN16:
                 if ((memaddr*2 >= VGA.vga.vmemsize)) break;
-                VGA.vga.mem.linear.writew((int)memaddr,c&0xffff);
+                VGA.vga.mem.linear.writew(memaddr*2,c&0xffff);
                 break;
             case VGA.M_LIN32:
                 if ((memaddr*4 >= VGA.vga.vmemsize)) break;
-                VGA.vga.mem.linear.writed((int)memaddr,c);
+                VGA.vga.mem.linear.writed(memaddr*4,c);
                 break;
             default:
                 break;
@@ -161,10 +161,10 @@ public class VGA_xga {
         case VGA.M_LIN15:
         case VGA.M_LIN16:
             if ((memaddr*2 >= VGA.vga.vmemsize)) break;
-            return VGA.vga.mem.linear.readw((int)memaddr);
+            return VGA.vga.mem.linear.readw(memaddr*2);
         case VGA.M_LIN32:
             if ((memaddr*4 >= VGA.vga.vmemsize)) break;
-            return (int)VGA.vga.mem.linear.readd((int)memaddr);
+            return (int)VGA.vga.mem.linear.readd(memaddr*4);
         default:
             break;
         }

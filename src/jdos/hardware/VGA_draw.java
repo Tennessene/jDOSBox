@@ -274,7 +274,7 @@ public class VGA_draw {
                 /*Bitu*/int cursorStartBit = sourceStartBit & 0x7;
                 if ((cursorMemStart & 0x2)!=0) cursorMemStart--;
                 /*Bitu*/int cursorMemEnd = cursorMemStart + ((64-VGA.vga.s3.hgc.posx) >> 2);
-                ShortPtr xat = new ShortPtr(TempLine,VGA.vga.s3.hgc.originx);
+                ShortPtr xat = new ShortPtr(TempLine,VGA.vga.s3.hgc.originx*2);
                 for (/*Bitu*/int m = cursorMemStart; m < cursorMemEnd;) {
                     // for each byte of cursor data
                     /*Bit8u*/int bitsA = VGA.vga.mem.linear.get(m);
@@ -322,7 +322,7 @@ public class VGA_draw {
                 /*Bitu*/int cursorStartBit = sourceStartBit & 0x7;
                 if ((cursorMemStart & 0x2)!=0) cursorMemStart--;
                 /*Bitu*/int cursorMemEnd = cursorMemStart + ((64-VGA.vga.s3.hgc.posx) >> 2);
-                IntPtr xat = new IntPtr(TempLine,VGA.vga.s3.hgc.originx);
+                IntPtr xat = new IntPtr(TempLine,VGA.vga.s3.hgc.originx*4);
                 for (/*Bitu*/int m = cursorMemStart; m < cursorMemEnd;) {
                     // for each byte of cursor data
                     /*Bit8u*/int bitsA = VGA.vga.mem.linear.get(m);

@@ -2023,8 +2023,8 @@ public class Inst2 extends Helper {
                 }
             }
             int val = Memory.mem_readw(eaa);
-            rw.word(val);
             Memory.mem_writew(eaa,val+oldrmrb);
+            rw.word(val);
             return Constants.BR_Normal;
         }
     }

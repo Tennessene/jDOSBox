@@ -1897,9 +1897,8 @@ public class Inst3 extends Helper {
             addip=decode_fetchds();
         }
         public int call() {
-            reg_eip(reg_eip+eip_count);
-            CPU.CPU_Push32(reg_eip());
-            reg_eip(reg_eip()+addip);
+            CPU.CPU_Push32(reg_eip()+eip_count);
+            reg_eip(reg_eip()+addip+eip_count);
             return Constants.BR_Link1;
         }
     }

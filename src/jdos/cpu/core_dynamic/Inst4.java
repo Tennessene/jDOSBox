@@ -1169,14 +1169,14 @@ static abstract public class JumpCond32_d extends Op {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     long val = Memory.host_readd(index);
-                    rd.dword(val);
                     Memory.host_writed(index,val+oldrmrd);
+                    rd.dword(val);
                     return Constants.BR_Normal;
                 }
             }
             long val = Memory.mem_readd(eaa);
-            rd.dword(val);
             Memory.mem_writed(eaa,val+oldrmrd);
+            rd.dword(val);
             return Constants.BR_Normal;
         }
     }

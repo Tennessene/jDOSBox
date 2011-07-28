@@ -2164,11 +2164,13 @@ public class Inst1 extends Helper {
             long eaa = get_eaa.call();
             int index = Paging.getDirectIndex(eaa);
             if (index>=0) {
-                rb.set8(Memory.host_readb(index));
+                short newrb = Memory.host_readb(index);
                 Memory.host_writeb(index,oldrmrb);
+                rb.set8(newrb);
             } else {
-                rb.set8(Memory.mem_readb(eaa));
+                short newrb = Memory.mem_readb(eaa);
                 Memory.mem_writeb(eaa,oldrmrb);
+                rb.set8(newrb);
             }
             return Constants.BR_Normal;
         }
@@ -2205,13 +2207,15 @@ public class Inst1 extends Helper {
             if ((eaa & 0xFFF) < 0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
-                    rw.word(Memory.host_readw(index));
+                    int newrw = Memory.host_readw(index);
                     Memory.host_writew(index,oldrmrw);
+                    rw.word(newrw);
                     return Constants.BR_Normal;
                 }
             }
-            rw.word(Memory.mem_readw(eaa));
+            int newrw = Memory.mem_readw(eaa);
             Memory.mem_writew(eaa,oldrmrw);
+            rw.word(newrw);
             return Constants.BR_Normal;
         }
     }
@@ -3407,9 +3411,8 @@ public class Inst1 extends Helper {
             addip=decode_fetchws();
         }
         public int call() {
-            reg_eip(reg_eip+eip_count);
-            CPU.CPU_Push16((int)(reg_eip() & 0xFFFFl));
-            reg_eip((reg_eip()+addip) & 0xFFFFl);
+            CPU.CPU_Push16((int)((reg_eip()+eip_count) & 0xFFFFl));
+            reg_eip((reg_eip()+eip_count+addip) & 0xFFFFl);
             return Constants.BR_Link1;
         }
     }
@@ -3503,20 +3506,6 @@ public class Inst1 extends Helper {
             if (CPU_TRAP_CHECK)
                 CPU.cpu.trap_skip=true;
             return Constants.BR_Jump;
-        }
-    }
-
-    final static public class Repnz extends Op {
-        public int call() {
-            Core.rep_zero = false;
-            return Constants.BR_Normal;
-        }
-    }
-
-    final static public class Repz extends Op {
-        public int call() {
-            Core.rep_zero = true;
-            return Constants.BR_Normal;
         }
     }
 

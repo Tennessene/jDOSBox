@@ -544,9 +544,12 @@ public class VGA_s3 {
         } else if (VGA.vga.vmemsize < 4096*1024)	{
             VGA.vga.vmemsize = 3072*1024;
             VGA.vga.s3.reg_36 = 0x5a;		// 3mb fast page mode
-        } else {	// Trio64 supported only up to 4M
+        } else if (VGA.vga.vmemsize < 8192*1024) {	// Trio64 supported only up to 4M
             VGA.vga.vmemsize = 4096*1024;
             VGA.vga.s3.reg_36 = 0x1a;		// 4mb fast page mode
+        } else {	// 8M
+            VGA.vga.vmemsize = 8192*1024;
+            VGA.vga.s3.reg_36 = 0x7a;		// 8mb fast page mode
         }
 
         // S3 ROM signature

@@ -12,11 +12,14 @@ import jdos.misc.setup.Section_prop;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.types.MachineType;
-import jdos.util.*;
+import jdos.util.IntRef;
+import jdos.util.LongRef;
+import jdos.util.Ptr;
+import jdos.util.StringHelper;
 
 public class Memory extends Module_base {
     public static final int MEM_PAGESIZE = 4096;
-    static final int EXTRA_MEM = 6*1024*1024 +8196;
+    static final int EXTRA_MEM = 8196;
 
     //private static final int MEMBASE = 1; // can't use zero
     static int highwaterMark;
@@ -715,9 +718,12 @@ public class Memory extends Module_base {
             }
             try {
                 Runtime.getRuntime().gc();
-                highwaterMark = memsize*1024*1024+1;
-                System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
-                direct = new byte[highwaterMark+EXTRA_MEM];
+                highwaterMark = memsize*1024*1024;
+                int videosize = section.Get_int("vmemsize");
+                if (videosize==0) videosize=2;
+                videosize*=3*1024*1024;
+                System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM+videosize)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
+                direct = new byte[highwaterMark+EXTRA_MEM+videosize];
                 host_memory = new Ptr(direct, 0);
                 MemBase = new Ptr(host_memory, 0, highwaterMark);
             } catch (java.lang.OutOfMemoryError e) {

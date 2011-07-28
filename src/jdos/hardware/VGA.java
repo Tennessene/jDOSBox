@@ -1,9 +1,10 @@
 package jdos.hardware;
 
 import jdos.Dosbox;
-import jdos.types.SVGACards;
 import jdos.cpu.Paging;
 import jdos.misc.setup.Section;
+import jdos.misc.setup.Section_prop;
+import jdos.types.SVGACards;
 import jdos.util.Ptr;
 
 public class VGA {
@@ -645,10 +646,11 @@ public class VGA {
     }
 
     public static Section.SectionFunction VGA_Init = new Section.SectionFunction() {
-        public void call(Section section) {
-//	Section_prop * section=static_cast<Section_prop *>(sec);
+        public void call(Section sec) {
+            Section_prop section=(Section_prop)sec;
             vga.draw.resizing=false;
             vga.mode=M_ERROR;			//For first init
+            vga.vmemsize=section.Get_int("vmemsize")*1024*1024;
             SVGA_Setup_Driver();
             VGA_memory.VGA_SetupMemory.call(section);
             VGA_misc.VGA_SetupMisc();

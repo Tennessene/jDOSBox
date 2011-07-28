@@ -297,6 +297,21 @@ public class Dosbox {
         Pstring.Set_values(machines);
         Pstring.Set_help("The type of machine tries to emulate.");
 
+        Pint = secprop.Add_int("vmemsize", Property.Changeable.WhenIdle,2);
+	    Pint.SetMinMax(0,8);
+	    Pint.Set_help(
+		"Amount of video memory in megabytes.\n" +
+		"  The maximum resolution and color depth the svga_s3 will be able to display\n" +
+		"  is determined by this value.\n " +
+		"  0: 512k (800x600  at 256 colors)\n" +
+		"  1: 1024x768  at 256 colors or 800x600  at 64k colors\n" +
+		"  2: 1600x1200 at 256 colors or 1024x768 at 64k colors or 640x480 at 16M colors\n" +
+		"  4: 1600x1200 at 64k colors or 1024x768 at 16M colors\n" +
+		"  8: up to 1600x1200 at 16M colors\n" +
+		"For build engine games, use more memory than in the list above so it can\n" +
+		"use triple buffering and thus won't flicker.\n"
+		);
+
         Pstring = secprop.Add_path("captures",Property.Changeable.Always,"capture");
         Pstring.Set_help("Directory where things like wave, midi, screenshot get captured.");
 
@@ -319,6 +334,7 @@ public class Dosbox {
         secprop.AddInitFunction(Program.PROGRAMS_Init);
         secprop.AddInitFunction(Timer.TIMER_Init);//done
         secprop.AddInitFunction(Cmos.CMOS_Init);//done
+        secprop.AddInitFunction(VGA.VGA_Init);
 
         secprop=control.AddSection_prop("render", Render.RENDER_Init,true);
         Pint = secprop.Add_int("frameskip",Property.Changeable.Always,-1);
@@ -400,7 +416,6 @@ public class Dosbox {
             secprop.AddInitFunction(FPU.FPU_Init);
 
         secprop.AddInitFunction(DMA.DMA_Init);//done
-        secprop.AddInitFunction(VGA.VGA_Init);
         secprop.AddInitFunction(Keyboard.KEYBOARD_Init);
 
         secprop=control.AddSection_prop("mixer",Mixer.MIXER_Init);

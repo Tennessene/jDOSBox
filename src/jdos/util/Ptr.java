@@ -75,6 +75,21 @@ public class Ptr {
     static public void memcpy(Ptr dest, Ptr source, int len) {
         System.arraycopy(source.p, source.off, dest.p, dest.off, len);
     }
+    static public void memcpy(Ptr dest, byte[] source, int len) {
+        System.arraycopy(source, 0, dest.p, dest.off, len);
+    }
+    static public void memcpy(byte[] dest, byte[] source, int len) {
+        System.arraycopy(source, 0, dest, 0, len);
+    }
+    static public int memcmp(Ptr b1, byte[] b2, int len) {
+        for (int i=0;i<len;i++) {
+            if (b1.p[i+b1.off]>b2[i])
+                return 1;
+            if (b1.p[i+b1.off]<b2[i])
+                return -1;
+        }
+        return 0;
+    }
     public void clear(int len) {
         java.util.Arrays.fill(p, off, off+len*dataWidth(), (byte)0);
     }

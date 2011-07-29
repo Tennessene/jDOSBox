@@ -653,7 +653,50 @@ public class Dosbox {
             Pbool = secprop.Add_bool("ipx",Property.Changeable.WhenIdle, false);
             Pbool.Set_help("Enable ipx over UDP/IP emulation.");
         }
+        if (Config.C_NE2000) {
+            secprop=control.AddSection_prop("ne2000",NE2000.NE2000_Init,true);
+            Msg.add("NE2000_CONFIGFILE_HELP",
+                "macaddr -- The physical address the emulator will use on your network.\n" +
+                "           If you have multiple DOSBoxes running on your network,\n" +
+                "           this has to be changed. Modify the last three number blocks.\n" +
+                "           I.e. AC:DE:48:88:99:AB.\n" +
+                "realnic -- Specifies which of your network interfaces is used.\n" +
+                "           Write \'list\' here to see the list of devices in the\n" +
+                "           Status Window. Then make your choice and put either the\n" +
+                "           interface number (2 or something) or a part of your adapters\n" +
+                "           name, e.g. VIA here.\n"
+            );
 
+            Pbool = secprop.Add_bool("ne2000", Property.Changeable.WhenIdle, true);
+            Pbool.Set_help("Enable Ethernet passthrough. Requires [Win]Pcap.");
+
+            Pbool = secprop.Add_bool("pcap", Property.Changeable.WhenIdle, false);
+            Pbool.Set_help("Use pcap to access the host ethernet card.  This requires\n" +
+                    "jnetpcap.jar, the appropriate native jnetpcap libaries and [Win]Pcap\n" +
+                    "installed on the host computer.  If false then only java sockets\n"+
+                    "will be used.  PING won't work and neither will connecting to the guest OS,"+
+                    "but most other things should work fine, like browsing the internet.");
+
+            Phex = secprop.Add_hex("nicbase", Property.Changeable.WhenIdle, new Hex(0x300));
+            Phex.Set_help("The base address of the NE2000 board.");
+
+            Pint = secprop.Add_int("nicirq", Property.Changeable.WhenIdle, 3);
+            Pint.Set_help("The interrupt it uses. Note serial2 uses IRQ3 as default.");
+
+            Pstring = secprop.Add_string("macaddr", Property.Changeable.WhenIdle,"AC:DE:48:88:99:AA");
+            Pstring.Set_help("The physical address the emulator will use on your network.\n" +
+                "If you have multiple DOSBoxes running on your network,\n" +
+                "this has to be changed for each. AC:DE:48 is an address range reserved for\n" +
+                "private use, so modify the last three number blocks.\n" +
+                "I.e. AC:DE:48:88:99:AB.");
+
+            Pstring = secprop.Add_string("realnic", Property.Changeable.WhenIdle,"list");
+            Pstring.Set_help("Specifies which of your network interfaces is used.\n" +
+                "Write \'list\' here to see the list of devices in the\n" +
+                "Status Window. Then make your choice and put either the\n" +
+                "interface number (2 or something) or a part of your adapters\n" +
+                "name, e.g. VIA here.");
+        }
         //	secprop.AddInitFunction(&CREDITS_Init);
 
         //TODO ?

@@ -16,6 +16,7 @@ public class Config {
     static public final boolean C_DYNREC = false;
     static public final boolean C_FPU = true;
     static public final boolean C_IPX = true;
+    static public final boolean C_NE2000 = true;
     static public final boolean C_DEBUG = false;
     static public final boolean C_HEAVY_DEBUG = false;
     static public final boolean USE_FULL_TLB = true;

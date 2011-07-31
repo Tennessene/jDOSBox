@@ -673,10 +673,20 @@ public class Dosbox {
             Pbool = secprop.Add_bool("pcap", Property.Changeable.WhenIdle, false);
             Pbool.Set_help("Use pcap to access the host ethernet card.  This requires\n" +
                     "jnetpcap.jar, the appropriate native jnetpcap libaries and [Win]Pcap\n" +
-                    "installed on the host computer.  If false then only java sockets\n"+
-                    "will be used.  PING won't work and neither will connecting to the guest OS,"+
-                    "but most other things should work fine, like browsing the internet.");
+                    "installed on the host computer.");
 
+            Pstring = secprop.Add_string("pcaphost", Property.Changeable.WhenIdle, "");
+            Pstring.Set_help("When set, pcap passthrough requests will be fowarded.  This is a good option"+
+                            "to use when you want an unsigned applet to work with ne2000 or you just " +
+                            "don't want to bother a client to install pcap.  With an unsigned applet, the" +
+                            "pcaphost must be set to the same server that is hosting the applet.  Also keep" +
+                            "in mind that pcap is bound to the server and the network will be visible to" +
+                            "jdosbox, you may want to set up a virtual network.  To run jDosbox in pcap" +
+                            "forward mode, just start it with a -pcap <device> -pcapport <port> where <device>"+
+                            "is the index from the pcap list or a partial name for the device.  You can pass"+
+                            "in -pcap list to see all the devices");
+            Pint = secprop.Add_int("pcapport", Property.Changeable.WhenIdle, 15654);
+            Pint.Set_help("Port to connect to when forwarding pcap requests");
             Phex = secprop.Add_hex("nicbase", Property.Changeable.WhenIdle, new Hex(0x300));
             Phex.Set_help("The base address of the NE2000 board.");
 

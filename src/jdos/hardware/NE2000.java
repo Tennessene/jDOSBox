@@ -30,6 +30,7 @@ package jdos.hardware;
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import jdos.host.Ethernet;
+import jdos.host.FowardPCapEthernet;
 import jdos.host.PCapEthernet;
 import jdos.host.RxFrame;
 import jdos.misc.Log;
@@ -50,10 +51,10 @@ public class NE2000 extends Module_base {
     // hit the unclear completely full buffer condition.
     static private final int BX_NE2K_NEVER_FULL_RING = 1;
 
-    static private final boolean BX_DEBUG = false;
-    static private final boolean BX_INFO = false;
-    static private final boolean BX_PANIC = true;
-    static private final boolean BX_ERROR = true;
+    static final public boolean BX_DEBUG = false;
+    static final public boolean BX_INFO = true;
+    static final public boolean BX_PANIC = true;
+    static final public boolean BX_ERROR = true;
 
     static private final int BX_RESET_HARDWARE = 0;
     static private final int BX_RESET_SOFTWARE = 1;
@@ -1488,10 +1489,21 @@ public class NE2000 extends Module_base {
 
         if (section.Get_bool("pcap")) {
             ethernet = new PCapEthernet();
-            if (!ethernet.open(section)) {
+            if (!ethernet.open(section, mac)) {
                 ethernet = null;
             }
         }
+        if (ethernet == null && section.Get_string("pcaphost").length()>0) {
+            ethernet = new FowardPCapEthernet();
+            if (!ethernet.open(section, mac))
+                ethernet = null;
+        }
+//        if (ethernet == null) {
+//            ethernet = new UserEthernet();
+//            if (!ethernet.open(section, mac)) {
+//                ethernet = null;
+//            }
+//        }
         if (ethernet == null) {
             Log.log_msg("Network card disabled");
             load_success = false;

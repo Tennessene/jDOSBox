@@ -1,18 +1,16 @@
 package jdos.gui;
 
-import jdos.misc.setup.Config;
-import jdos.sdl.GUI;
 import jdos.Dosbox;
+import jdos.host.FowardPCapEthernet;
 import jdos.ints.Mouse;
-import jdos.ints.Int10_modes;
+import jdos.sdl.GUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.event.*;
-import java.awt.image.MemoryImageSource;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.security.AccessControlException;
+import java.awt.image.MemoryImageSource;
 
 public class MainFrame implements GUI {
     int[] pixels = new int[16 * 16];
@@ -162,6 +160,18 @@ public class MainFrame implements GUI {
     }
 
     public static void main(String[] args) {
+        if (args.length>1 && args[0].equalsIgnoreCase("-pcap")) {
+            String nic = args[1];
+            int port = 15654;
+            if (args.length>3 && args[2].equalsIgnoreCase("-pcapport")) {
+                try {
+                    port = Integer.parseInt(args[3]);
+                } catch (Exception e) {
+                }
+            }
+            FowardPCapEthernet.startServer(nic, port);
+            return;
+        }
         try {robot = new Robot();} catch (Throwable e) {System.out.println("Applet is not signed, mouse capture will not work");}
 
         frame = new MyFrame();

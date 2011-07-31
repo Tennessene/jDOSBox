@@ -1,12 +1,9 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU;
-import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core;
-import jdos.cpu.Paging;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
-import jdos.misc.Log;
 
 public class Decoder extends Inst1 {
     public static final Decode[] ops = new Decode[1024];
@@ -56,7 +53,7 @@ public class Decoder extends Inst1 {
         Prefix_66_0f.init(ops);
     }
 
-    public static int CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/long start,/*Bitu*/int max_opcodes) {
+    public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/long start,/*Bitu*/int max_opcodes) {
         // initialize a load of variables
         decode.code_start=start;
         decode.code=start;
@@ -74,9 +71,6 @@ public class Decoder extends Inst1 {
         decode.cycles = 0;
         int result = 0;
 
-        Core.base_ds= CPU.Segs_DSphys;
-        Core.base_ss=CPU.Segs_SSphys;
-        Core.base_val_ds= CPU_Regs.ds;
         if (CPU.cpu.code.big) {
             opcode_index=0x200;
             prefixes=1;
@@ -93,10 +87,7 @@ public class Decoder extends Inst1 {
         boolean seg_changed = false;
         int opcode = 0;
         int count = 0;
-        int op_result = 0;
-        long begin_cseip = start;
 
-        long eip = CPU_Regs.reg_eip();
         try {
             while (max_opcodes-->0 && result==0) {
                 decode.cycles++;
@@ -105,7 +96,6 @@ public class Decoder extends Inst1 {
 
                 opcode=opcode_index+decode_fetchb();
                 result = ops[opcode].call(op);
-                decode.active_block.page.end=decode.page.index-1;
                 if (decode.modifiedAlot) {
                     result = RESULT_ILLEGAL_INSTRUCTION;
                     break;
@@ -119,7 +109,6 @@ public class Decoder extends Inst1 {
                 op = op.next;
                 op.c = opcode;
                 if (result == RESULT_CONTINUE_SEG) {
-                    op_result = op.call();
                     result = RESULT_HANDLED;
                     max_opcodes++;
                     seg_changed = true;
@@ -127,20 +116,6 @@ public class Decoder extends Inst1 {
                 }
                 begin_op = op;
                 op.eip_count = count;
-                begin_cseip+=count;
-                op_result = op.call();
-
-                if (op_result == Constants.BR_Normal) {
-                    CPU_Regs.reg_eip+=count;
-                    eip+=count;
-                } else if (result == 0) {
-                    if (op_result != Constants.BR_Illegal && op_result != Constants.BR_Jump)
-                        Log.exit("Oop, programming mistake in dynamic core");
-                    result = RESULT_JUMP;
-                    op.next = new HandledDecode();
-                    op = op.next;
-                    break;
-                }
                 count = 0;
                 if (result == RESULT_ANOTHER) {
                     result = RESULT_HANDLED;
@@ -160,28 +135,20 @@ public class Decoder extends Inst1 {
                     op.next = new HandledSegChange();
                     op = op.next;
                     op.c = -1;
-                    op_result = op.call();
                 }
             }
-        } catch (Paging.PageFaultException e) {
-            Cache.cache_closeblock();
-            decode_putback((int)(decode.code-begin_cseip));
-            op = begin_op;
-            op.next = new HandledDecode();
-            op = op.next;
-            decode.block.code = new DecodeBlock(start_op.next);
-            decode.active_block.page.end=--decode.page.index;
-            //System.out.println(CodePageHandlerDynRec.usedCount+" "+eip);
-            throw e;
-        } catch (RuntimeException e) {
-            Log.exit("Oops, programming error in dynamic core");
+        } catch (ChangePageException e) {
+            if (decode.code -decode.op_start + count == 0) {
+                result = RESULT_HANDLED; // begining of op code started on next page
+            } else {
+                result = RESULT_ILLEGAL_INSTRUCTION; // op code spanned two pages, run with normal core in case of page fault
+            }
         }
         Cache.cache_closeblock();
         switch (result) {
             case RESULT_HANDLED:
                 op.next = new HandledDecode();
                 op = op.next;
-                op_result = op.call();
                 break;
             case RESULT_CALLBACK:
             case RESULT_JUMP:
@@ -191,12 +158,11 @@ public class Decoder extends Inst1 {
                 op = begin_op;
                 op.next = new ModifiedDecodeOp();
                 op = op.next;
-                op_result = op.call();
                 break;
         }
         decode.block.code = new DecodeBlock(start_op.next);
         decode.active_block.page.end=--decode.page.index;
-        return op_result;
+        return decode.block;
     }
 
     static private class ModifiedDecodeOp extends Op {

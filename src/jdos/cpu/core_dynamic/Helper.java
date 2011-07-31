@@ -1,8 +1,8 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.core_share.Constants;
+import jdos.cpu.CPU_Regs;
+import jdos.cpu.Core_dynamic;
 import jdos.hardware.Memory;
-import jdos.cpu.*;
 import jdos.misc.Log;
 
 public class Helper extends CPU_Regs {
@@ -55,9 +55,13 @@ public class Helper extends CPU_Regs {
     static /*Bit8u*/byte decode_fetchbs() {
         return (byte)decode_fetchb();
     }
+    static class ChangePageException extends RuntimeException {
+    }
+
     static /*Bit8u*/short decode_fetchb() {
         if (decode.page.index>=4096) {
-            decode_advancepage();
+            throw new ChangePageException();
+            //decode_advancepage();
         }
         if (decode.page.invmap!=null && decode.page.invmap.p[decode.page.index]>=4) {
             decode.modifiedAlot = true;

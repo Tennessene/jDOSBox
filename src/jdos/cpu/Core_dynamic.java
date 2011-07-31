@@ -113,7 +113,7 @@ public class Core_dynamic {
                     // unless the instruction is known to be modified
                     if (chandler.invalidation_map==null || (chandler.invalidation_map.p[page_ip_point]<4)) {
                         // translate up to 32 instructions
-                        ret = Decoder.CreateCacheBlock(chandler,ip_point,instruction_count);
+                        block = Decoder.CreateCacheBlock(chandler,ip_point,instruction_count);
                     } else {
                         // let the normal core handle this instruction to avoid zero-sized blocks
                         /*Bitu*/int old_cycles=CPU.CPU_Cycles;

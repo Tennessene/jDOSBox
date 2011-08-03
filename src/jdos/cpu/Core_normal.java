@@ -1,12 +1,12 @@
 package jdos.cpu;
 
 import jdos.cpu.core_normal.Prefix_66_0f;
+import jdos.debug.Debug;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.debug.Debug;
 
 public class Core_normal extends Prefix_66_0f {
     public static boolean log = false;
@@ -51,7 +51,7 @@ public class Core_normal extends Prefix_66_0f {
             while (CPU.CPU_Cycles-->0) {
                 // inlined
                 //LOADIP();
-                cseip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
+                cseip=(CPU.Segs_CSphys+CPU_Regs.reg_eip) & 0xFFFFFFFFl;
                 if (CPU.cpu.code.big) {
                     opcode_index=0x200;
                     prefixes=1;

@@ -135,6 +135,7 @@ public class Decoder extends Inst1 {
                     op.next = new HandledSegChange();
                     op = op.next;
                     op.c = -1;
+                    begin_op = op;
                 }
             }
         } catch (ChangePageException e) {

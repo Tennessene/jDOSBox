@@ -1,16 +1,17 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.Core;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
+import jdos.cpu.Core;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.SMC_Exception;
-import jdos.misc.setup.Config;
 import jdos.debug.Debug;
+import jdos.misc.setup.Config;
 
 final public class DecodeBlock {
     Op op;
 
+    public static boolean smc = false;
     public DecodeBlock(Op op) {
         this.op = op;
     }
@@ -36,6 +37,14 @@ final public class DecodeBlock {
                     o = o.next;
                 } else
                     break;
+                // :TODO: this is a temporary solution, the right solution would
+                // be when this is detected to changed the current running block
+                // so that the next op will return BR_Jump
+                if (smc) {
+                    smc = false;
+                    System.out.println("SMC");
+                    break;
+                }
             }
         } catch (SMC_Exception e) {
             System.out.println("SMC");

@@ -339,6 +339,18 @@ public class Paging extends Module_base {
             if (pentry.block.p != 0 && entry.cs == CPU.Segs_CSval && entry.eip == CPU_Regs.reg_eip()) {
                 CPU.cpu.mpl = entry.mpl;
                 return -1;
+            } else if (CPU.iret) {
+                CPU.iret = false;
+                if (Callback.inHandler==0) {
+                    CPU.cpu.mpl = pf_queue.entries[0].mpl;
+                    while (pf_queue.used>0) {
+                        Core_full.removeState();
+                        pf_queue.used--;
+                    }
+                    CPU.cpudecoder = Core_dynamic.CPU_Core_Dynamic_Run;
+                    System.out.println("Forcing PF exit");
+                    throw new PageFaultException();
+                }
             }
             return 0;
         }
@@ -484,6 +496,8 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
     static public class PageFaultException extends RuntimeException {}
 
+    static public boolean pageFault = false;
+
     // PAGING_NewPageFault
     // lin_addr, page_addr: the linear and page address the fault happened at
     // prepare_only: true in case the calling core handles the fault, else the PageFaultCore does
@@ -493,13 +507,19 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
         //LOG_MSG("FAULT q%d, code %x",  pf_queue.used, faultcode);
         //PrintPageInfo("FA+",lin_addr,faultcode, prepare_only);
 
+        if (pageFault) {
+            Log.exit("Double PageFault");
+        }
         if (prepare_only) {
             CPU.cpu.exception.which = CPU.EXCEPTION_PF;
             CPU.cpu.exception.error = faultcode;
         } else {
+            CPU.iret = false;
             if (Callback.inHandler==0) {
                 CPU_Regs.FillFlags();
+                pageFault = true;
                 CPU.CPU_Exception(CPU.EXCEPTION_PF, faultcode);
+                pageFault = false;
                 throw new PageFaultException();
             }
             // Save the state of the cpu cores
@@ -516,7 +536,9 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             entry.mpl = CPU.cpu.mpl;
             CPU.cpu.mpl = 3;
 
+            pageFault = true;
             CPU.CPU_Exception(CPU.EXCEPTION_PF, faultcode);
+            pageFault = false;
 
             Core_full.pushState();
             Dosbox.DOSBOX_RunMachinePF();

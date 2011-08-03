@@ -60,7 +60,7 @@ public class Core_dynamic {
     private static CacheBlockDynRec LinkBlocks(CacheBlockDynRec running, /*BlockReturn*/int ret) {
         CacheBlockDynRec block=null;
         // the last instruction was a control flow modifying instruction
-        /*Bitu*/long temp_ip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
+        /*Bitu*/long temp_ip=(CPU.Segs_CSphys+CPU_Regs.reg_eip) & 0xFFFFFFFFl;
         Paging.PageHandler handler = Paging.get_tlb_readhandler((int)temp_ip);
         if (handler instanceof CodePageHandlerDynRec) {
             CodePageHandlerDynRec temp_handler=(CodePageHandlerDynRec)handler;

@@ -48,7 +48,7 @@ public class Prefix_helpers extends Instructions {
     }
 
     static protected void LOADIP() {
-        cseip=CPU.Segs_CSphys+CPU_Regs.reg_eip();
+        cseip=(CPU.Segs_CSphys+CPU_Regs.reg_eip()) & 0xFFFFFFFFl;
         //System.out.println("LOADIP: "+cseip);
     }
 

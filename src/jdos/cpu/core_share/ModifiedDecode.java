@@ -1,12 +1,11 @@
 package jdos.cpu.core_share;
 
 import jdos.cpu.*;
-import jdos.cpu.core_dynamic.Op;
 import jdos.cpu.core_normal.Prefix_helpers;
 
 public class ModifiedDecode {
     static public int call() {
-        Core.cseip = CPU.Segs_CSphys + CPU_Regs.reg_eip;
+        Core.cseip = (CPU.Segs_CSphys + CPU_Regs.reg_eip) & 0xFFFFFFFFl;
         if (CPU.cpu.code.big) {
             Core.opcode_index=0x200;
             Core.prefixes=1;

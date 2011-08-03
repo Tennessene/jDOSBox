@@ -1,10 +1,9 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.Core_dynamic;
-import jdos.cpu.Paging;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
-import jdos.cpu.core_share.SMC_Exception;
+import jdos.cpu.Core_dynamic;
+import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 import jdos.util.Ptr;
 
@@ -39,15 +38,17 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		/*Bits*/int index=1+(end>> Core_dynamic.DYN_HASH_SHIFT);
 		boolean is_current_block=false;	// if the current block is modified, it has to be exited as soon as possible
 
-		/*Bit32u*/long ip_point=CPU.Segs_CSphys + CPU_Regs.reg_eip;
-		ip_point=(Paging.PAGING_GetPhysicalPage(ip_point)-(phys_page<<12))+(ip_point&0xfff);
+		/*Bit32u*/long ip_point=(CPU.Segs_CSphys + CPU_Regs.reg_eip) & 0xFFFFFFFFl;
+		ip_point=(Paging.PAGING_GetPhysicalPage(ip_point)-((long)phys_page<<12))+(ip_point&0xfff);
 		while (index>=0) {
 			/*Bitu*/int map=0;
 			// see if there is still some code in the range
 			for (/*Bitu*/int count=start;count<=end;count++) map+=write_map.p[count];
 			if (map==0) { // no more code, finished
-                if (is_current_block)
-                    throw new SMC_Exception();
+                if (is_current_block) {
+                    DecodeBlock.smc = true;
+                    return;
+                }
             }
 
 			CacheBlockDynRec block=hash_map[index];
@@ -64,7 +65,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 			index--;
 		}
 		if (is_current_block)
-            throw new SMC_Exception();
+            DecodeBlock.smc = true;
 	}
 
 	// the following functions will clean all cache blocks that are invalid now due to the write

@@ -1973,13 +1973,13 @@ public class Inst2 extends Helper {
             int index = Paging.getDirectIndex(eaa);
             if (index>=0) {
                 short val = Memory.host_readb(index);
-                rb.set8(val);
                 Memory.host_writeb(index,(short)(val+oldrmrb));
+                rb.set8(val);
                 return Constants.BR_Normal;
             }
             short val = Memory.mem_readb(eaa);
-            rb.set8(val);
             Memory.mem_writeb(eaa,val+oldrmrb);
+            rb.set8(val);
             return Constants.BR_Normal;
         }
     }
@@ -2017,8 +2017,8 @@ public class Inst2 extends Helper {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
                     int val = Memory.host_readw(index);
-                    rw.word(val);
                     Memory.host_writew(index,val+oldrmrb);
+                    rw.word(val);
                     return Constants.BR_Normal;
                 }
             }

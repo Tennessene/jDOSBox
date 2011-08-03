@@ -1368,13 +1368,15 @@ public class Inst3 extends Helper {
              if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
-                    rd.dword(Memory.host_readd(index));
+                    long tmp = Memory.host_readd(index);
                     Memory.host_writed(index,oldrmrd);
+                    rd.dword(tmp);
                     return Constants.BR_Normal;
                 }
             }
-            rd.dword(Memory.mem_readd(eaa));
+            long tmp = Memory.mem_readd(eaa);
             Memory.mem_writed(eaa,oldrmrd);
+            rd.dword(tmp);
             return Constants.BR_Normal;
         }
     }

@@ -49,7 +49,7 @@ public class Paging extends Module_base {
         }
 
         public /*Bitu*/long readd(/*PhysPt*/long addr) {
-            return readb(addr + 0) | (readb(addr + 1) << 8) | (readb(addr + 2) << 16) | (readb(addr + 3) << 24);
+            return readb(addr + 0) | (readb(addr + 1) << 8) | (readb(addr + 2) << 16) | ((long)readb(addr + 3) << 24);
         }
 
         public void writeb(/*PhysPt*/long addr,/*Bitu*/int val) {

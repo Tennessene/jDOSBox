@@ -108,7 +108,7 @@ public class Helper extends CPU_Regs {
             /*Bit32u*/long val=decode_fetchb();
             val|=decode_fetchb() << 8;
             val|=decode_fetchb() << 16;
-            val|=decode_fetchb() << 24;
+            val|=(long)decode_fetchb() << 24;
             return val;
             /* Advance to the next page */
         }

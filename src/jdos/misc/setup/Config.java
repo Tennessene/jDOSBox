@@ -12,7 +12,7 @@ import java.util.Vector;
 public class Config {
     static public final String MAJOR_VERSION = "0.74";
     static public final String VERSION = "0.74.25a";
-    static public final boolean C_DYNAMIC = false;
+    static public final boolean C_DYNAMIC = true;
     static public final boolean C_DYNREC = false;
     static public final boolean C_FPU = true;
     static public final boolean C_IPX = true;
@@ -24,6 +24,7 @@ public class Config {
     static public boolean DEBUG_LOG = false;
     static public final boolean DEBUG_DEDERMINISTIC = false;
     static public final boolean IPX_DEBUGMSG = false;
+    static public final boolean DYNAMIC_CORE_VERIFY = false;
 
     static String current_config_dir; // Set by parseconfigfile so Prop_path can use it to construct the realpath
     static public interface StartFunction {

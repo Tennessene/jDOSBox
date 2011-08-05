@@ -4,6 +4,7 @@ import jdos.cpu.core_dynamic.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.Data;
 import jdos.debug.Debug;
+import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 
@@ -132,8 +133,17 @@ public class Core_dynamic {
                 while (true) {
                     // now we're ready to run the dynamic code block
             //		BlockReturn ret=((BlockReturn (*)(void))(block->cache.start))();
-                    if (block != null)
+                    if (block != null) {
+                        if (Config.DYNAMIC_CORE_VERIFY) {
+                            int offset = Paging.getDirectIndexRO((CPU.Segs_CSphys+ CPU_Regs.reg_eip()) & 0xFFFFFFFFl);
+                            for (int i=0;i<block.originalByteCode.length;i++) {
+                                if (block.originalByteCode[i]!=Memory.direct[i+offset]) {
+                                    Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+CPU.Segs_CSphys + ":" + CPU_Regs.reg_eip()+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(Memory.direct[i+offset] & 0xFF,16)+" memory value @ "+offset+"\n    block="+block);
+                                }
+                            }
+                        }
                         ret=block.code.call2();
+                    }
 
                     switch (ret) {
                     case Constants.BR_CBRet_None:

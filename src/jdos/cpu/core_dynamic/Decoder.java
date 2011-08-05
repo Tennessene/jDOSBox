@@ -2,8 +2,12 @@ package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU;
 import jdos.cpu.Core;
+import jdos.cpu.Paging;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
+import jdos.hardware.Memory;
+import jdos.misc.Log;
+import jdos.misc.setup.Config;
 
 public class Decoder extends Inst1 {
     public static final Decode[] ops = new Decode[1024];
@@ -144,6 +148,8 @@ public class Decoder extends Inst1 {
             } else {
                 result = RESULT_ILLEGAL_INSTRUCTION; // op code spanned two pages, run with normal core in case of page fault
             }
+        } catch (Paging.PageFaultException e) {
+            Log.exit("Oops");
         }
         Cache.cache_closeblock();
         switch (result) {
@@ -161,8 +167,12 @@ public class Decoder extends Inst1 {
                 op = op.next;
                 break;
         }
-        decode.block.code = new DecodeBlock(start_op.next);
         decode.active_block.page.end=--decode.page.index;
+        if (Config.DYNAMIC_CORE_VERIFY) {
+            decode.block.originalByteCode = new byte[decode.block.page.end - decode.block.page.start + 1];
+            System.arraycopy(Memory.direct, Paging.getDirectIndexRO(start), decode.block.originalByteCode, 0, decode.block.originalByteCode.length);
+        }
+        decode.block.code = new DecodeBlock(start_op.next);
         return decode.block;
     }
 

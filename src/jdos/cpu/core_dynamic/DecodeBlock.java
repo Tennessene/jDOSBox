@@ -43,7 +43,7 @@ final public class DecodeBlock {
                 if (smc) {
                     smc = false;
                     System.out.println("SMC");
-                    break;
+                    return Constants.BR_Jump;
                 }
             }
         } catch (SMC_Exception e) {

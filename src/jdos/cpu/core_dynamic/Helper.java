@@ -19,7 +19,7 @@ public class Helper extends CPU_Regs {
     protected static final int OPCODE_SIZE=0x200;
     
     static final protected boolean CPU_TRAP_CHECK = true;
-    static protected final boolean CPU_PIC_CHECK = false;
+    static protected final boolean CPU_PIC_CHECK = true;
 
     public final static int RESULT_HANDLED = 0;
     public final static int RESULT_ILLEGAL_INSTRUCTION = 1;

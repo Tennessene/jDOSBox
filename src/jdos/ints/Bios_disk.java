@@ -528,7 +528,7 @@ public class Bios_disk {
 
     /* TODO Start the time correctly */
         call_int13=Callback.CALLBACK_Allocate();
-        Callback.CALLBACK_Setup(call_int13,INT13_DiskHandler,Callback.CB_IRET,"Int 13 Bios disk");
+        Callback.CALLBACK_Setup(call_int13,INT13_DiskHandler,Callback.CB_IRET_STI,"Int 13 Bios disk");
         Memory.RealSetVec(0x13,Callback.CALLBACK_RealPointer(call_int13));
         int i;
         for(i=0;i<4;i++) {

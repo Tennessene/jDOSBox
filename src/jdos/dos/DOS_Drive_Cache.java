@@ -153,6 +153,9 @@ public class DOS_Drive_Cache {
     }
     
     public String GetExpandName(String path) {
+        if (!File.separator.equals("\\"))
+            path=StringHelper.replace(path, "\\", File.separator);
+
         StringRef work = new StringRef();
         String dir = path;
         int pos = path.lastIndexOf(File.separatorChar);

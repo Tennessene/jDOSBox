@@ -1035,9 +1035,8 @@ public class Dos_programs {
                             StringRef t = new StringRef(tmp);
                             ldp.GetSystemFilename(t, fullname.value);
                             temp_line = t.value;
-
                             if (!new File(temp_line).exists()) {
-                                WriteOut(Msg.get("PROGRAM_IMGMOUNT_FILE_NOT_FOUND"));
+                                WriteOut(Msg.get("PROGRAM_IMGMOUNT_FILE_NOT_FOUND")+"    "+temp_line);
                                 return;
                             }
                         }

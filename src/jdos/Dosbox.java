@@ -297,7 +297,7 @@ public class Dosbox {
         Pstring.Set_values(machines);
         Pstring.Set_help("The type of machine tries to emulate.");
 
-        Pint = secprop.Add_int("vmemsize", Property.Changeable.WhenIdle,2);
+        Pint = secprop.Add_int("vmemsize", Property.Changeable.WhenIdle,Dosbox.applet?1:2);
 	    Pint.SetMinMax(0,8);
 	    Pint.Set_help(
 		"Amount of video memory in megabytes.\n" +
@@ -322,7 +322,7 @@ public class Dosbox {
         secprop.AddInitFunction(Paging.PAGING_Init);//done
         secprop.AddInitFunction(Memory.MEM_Init);//done
         secprop.AddInitFunction(Hardware.HARDWARE_Init);//done
-        Pint = secprop.Add_int("memsize", Property.Changeable.WhenIdle,16);
+        Pint = secprop.Add_int("memsize", Property.Changeable.WhenIdle,Dosbox.applet?8:16);
         Pint.SetMinMax(1,63);
         Pint.Set_help(
             "Amount of memory DOSBox has in megabytes.\n" +

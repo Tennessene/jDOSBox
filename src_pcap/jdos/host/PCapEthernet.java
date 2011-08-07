@@ -11,7 +11,6 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PCapEthernet implements Ethernet{
     Pcap pcap;
@@ -42,7 +41,7 @@ public class PCapEthernet implements Ethernet{
     }
     static public Pcap open(String realnicstring, boolean async) {
         try {
-            List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
+            ArrayList alldevs = new ArrayList(); // Will be filled with NICs
             StringBuilder errbuf = new StringBuilder(); // For any error msgs
 
             /***************************************************************************
@@ -57,7 +56,8 @@ public class PCapEthernet implements Ethernet{
             if (realnicstring.equalsIgnoreCase("list")) {
                 int i = 0;
                 Log.log_msg("\nNetwork Interface List \n-----------------------------------");
-                for (PcapIf currentdev : alldevs) {
+                for (i=0;i<alldevs.size();i++) {
+                    PcapIf currentdev = (PcapIf)alldevs.get(i);
                     String desc = currentdev.getDescription();
                     if (desc == null || desc.length()==0)
                         desc = "no description";
@@ -71,10 +71,11 @@ public class PCapEthernet implements Ethernet{
             try {
                 int index = Integer.parseInt(realnicstring);
                 if (index>=0 && index<=alldevs.size()) {
-                    dev = alldevs.get(index);
+                    dev = (PcapIf)alldevs.get(index);
                 }
             } catch (Exception e) {
-                for (PcapIf currentdev : alldevs) {
+                for (int i=0;i<alldevs.size();i++) {
+                    PcapIf currentdev = (PcapIf)alldevs.get(i);
                     if (currentdev.getName().contains(realnicstring)) {
                         dev = currentdev;
                         break;

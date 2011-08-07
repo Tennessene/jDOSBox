@@ -1,7 +1,6 @@
 package jdos.gui;
 
 import jdos.Dosbox;
-import jdos.host.FowardPCapEthernet;
 import jdos.ints.Mouse;
 import jdos.sdl.GUI;
 
@@ -11,6 +10,7 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
+import java.lang.reflect.Method;
 
 public class MainFrame implements GUI {
     int[] pixels = new int[16 * 16];
@@ -169,7 +169,13 @@ public class MainFrame implements GUI {
                 } catch (Exception e) {
                 }
             }
-            FowardPCapEthernet.startServer(nic, port);
+            try {
+                Class c = Class.forName("jdos.host.FowardPCapEthernet");
+                Method method = c.getDeclaredMethod("startServer", new Class[] {String.class, Integer.TYPE});
+                method.invoke(null, new Object[]{nic, new Integer(port)});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return;
         }
         try {robot = new Robot();} catch (Throwable e) {System.out.println("Applet is not signed, mouse capture will not work");}

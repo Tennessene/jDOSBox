@@ -25,6 +25,7 @@ public class Config {
     static public final boolean DEBUG_DEDERMINISTIC = false;
     static public final boolean IPX_DEBUGMSG = false;
     static public final boolean DYNAMIC_CORE_VERIFY = false;
+    static public final boolean FAST_STRINGS = true;
 
     static String current_config_dir; // Set by parseconfigfile so Prop_path can use it to construct the realpath
     static public interface StartFunction {

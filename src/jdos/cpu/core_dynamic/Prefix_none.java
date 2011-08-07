@@ -1,8 +1,8 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.StringOp;
 import jdos.cpu.CPU;
 import jdos.cpu.Core;
+import jdos.cpu.StringOp;
 import jdos.cpu.core_share.Constants;
 
 public class Prefix_none extends Helper {
@@ -1779,7 +1779,19 @@ public class Prefix_none extends Helper {
         /* MOVSB */
         ops[0xa4] = new Decode() {
             final public int call(Op prev) {
-                prev.next = new Inst1.DoString(StringOp.R_MOVSB);
+                 if ((prefixes & Core.PREFIX_ADDR)==0) {
+                    if ((prefixes & Core.PREFIX_REP)==0) {
+                        prev.next = new Strings.Movsb16();
+                    } else {
+                        prev.next = new Strings.Movsb16r();
+                    }
+                } else {
+                    if ((prefixes & Core.PREFIX_REP)==0) {
+                        prev.next = new Strings.Movsb32();
+                    } else {
+                        prev.next = new Strings.Movsb32r();
+                    }
+                }
                 return RESULT_HANDLED;
             }
         };
@@ -1788,7 +1800,19 @@ public class Prefix_none extends Helper {
         /* MOVSW */
         ops[0xa5] = new Decode() {
             final public int call(Op prev) {
-                prev.next = new Inst1.DoString(StringOp.R_MOVSW);
+                if ((prefixes & Core.PREFIX_ADDR)==0) {
+                    if ((prefixes & Core.PREFIX_REP)==0) {
+                        prev.next = new Strings.Movsw16();
+                    } else {
+                        prev.next = new Strings.Movsw16r();
+                    }
+                } else {
+                    if ((prefixes & Core.PREFIX_REP)==0) {
+                        prev.next = new Strings.Movsw32();
+                    } else {
+                        prev.next = new Strings.Movsw32r();
+                    }
+                }
                 return RESULT_HANDLED;
             }
         };

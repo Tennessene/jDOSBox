@@ -1,7 +1,7 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.StringOp;
 import jdos.cpu.Core;
+import jdos.cpu.StringOp;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
@@ -1129,7 +1129,19 @@ public class Prefix_66 extends Helper {
         /* MOVSD */
         ops[0x2a5] = new Decode() {
             final public int call(Op prev) {
-                prev.next = new Inst1.DoString(StringOp.R_MOVSD);
+                if ((prefixes & Core.PREFIX_ADDR)==0) {
+                    if ((prefixes & Core.PREFIX_REP)==0) {
+                        prev.next = new Strings.Movsd16();
+                    } else {
+                        prev.next = new Strings.Movsd16r();
+                    }
+                } else {
+                    if ((prefixes & Core.PREFIX_REP)==0) {
+                        prev.next = new Strings.Movsd32();
+                    } else {
+                        prev.next = new Strings.Movsd32r();
+                    }
+                }
                 return RESULT_HANDLED;
             }
         };

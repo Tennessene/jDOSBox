@@ -229,6 +229,11 @@ public class Paging extends Module_base {
         tlb_addr = get_tlb_read(a);
         if (tlb_addr == Long.MIN_VALUE)
             return -1;
+        tlb_addr = get_tlb_write(a);
+        if (tlb_addr == Long.MIN_VALUE)
+            return -1;
+        if ((get_tlb_writehandler(a).flags & PFLAG_HASCODE)!=0)
+            return -1;
         return (int) (tlb_addr + address);
     }
 

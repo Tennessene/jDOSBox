@@ -91,6 +91,7 @@ public class Decoder extends Inst1 {
         boolean seg_changed = false;
         int opcode = 0;
         int count = 0;
+        int cycles = 0;
 
         try {
             while (max_opcodes-->0 && result==0) {
@@ -112,6 +113,7 @@ public class Decoder extends Inst1 {
                 }
                 op = op.next;
                 op.c = opcode;
+                op.cycle = ++cycles;
                 if (result == RESULT_CONTINUE_SEG) {
                     result = RESULT_HANDLED;
                     max_opcodes++;
@@ -139,6 +141,7 @@ public class Decoder extends Inst1 {
                     op.next = new HandledSegChange();
                     op = op.next;
                     op.c = -1;
+                    op.cycle = cycles;
                     begin_op = op;
                 }
             }
@@ -155,6 +158,7 @@ public class Decoder extends Inst1 {
         switch (result) {
             case RESULT_HANDLED:
                 op.next = new HandledDecode();
+                op.cycle = cycles;
                 op = op.next;
                 break;
             case RESULT_CALLBACK:
@@ -164,6 +168,7 @@ public class Decoder extends Inst1 {
                 decode_putback((int)(decode.code -decode.op_start + count));
                 op = begin_op;
                 op.next = new ModifiedDecodeOp();
+                op.cycle = ++cycles;
                 op = op.next;
                 break;
         }

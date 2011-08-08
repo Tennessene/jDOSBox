@@ -221,12 +221,12 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		return null;	// none found
 	}
 
-	public /*HostPt*/long GetHostReadPt(/*Bitu*/int phys_page) {
-		hostmem=(int)old_pagehandler.GetHostReadPt(phys_page);
+	public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
+		hostmem=old_pagehandler.GetHostReadPt(phys_page);
 		return hostmem;
 	}
 
-	public /*HostPt*/long GetHostWritePt(/*Bitu*/int phys_page) {
+	public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
 		return GetHostReadPt( phys_page );
 	}
 

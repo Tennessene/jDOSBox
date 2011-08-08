@@ -3,7 +3,6 @@ package jdos.hardware;
 import jdos.Dosbox;
 import jdos.cpu.Paging;
 import jdos.misc.Log;
-import jdos.misc.setup.Config;
 import jdos.misc.setup.Section;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
@@ -409,11 +408,11 @@ public class VGA_memory {
         public VGA_Map_Handler() {
             flags=Paging.PFLAG_READABLE|Paging.PFLAG_WRITEABLE|Paging.PFLAG_NOCODE;
         }
-        public /*HostPt*/long GetHostReadPt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
             phys_page-=vgapages.base;
             return VGA.vga.mem.linear.off()+VGA.vga.svga.bank_read_full+phys_page*4096;
         }
-        public /*HostPt*/long GetHostWritePt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             phys_page-=vgapages.base;
             return VGA.vga.mem.linear.off()+VGA.vga.svga.bank_write_full+phys_page*4096;
         }
@@ -556,11 +555,11 @@ public class VGA_memory {
         public VGA_LFB_Handler() {
             flags=Paging.PFLAG_READABLE|Paging.PFLAG_WRITEABLE|Paging.PFLAG_NOCODE;
         }
-        public /*HostPt*/long GetHostReadPt( /*Bitu*/int phys_page ) {
+        public /*HostPt*/int GetHostReadPt( /*Bitu*/int phys_page ) {
             phys_page -= VGA.vga.lfb.page;
             return VGA.vga.mem.linear.off + phys_page * 4096;
         }
-        public /*HostPt*/long GetHostWritePt( /*Bitu*/int phys_page ) {
+        public /*HostPt*/int GetHostWritePt( /*Bitu*/int phys_page ) {
             return GetHostReadPt( phys_page );
         }
     }
@@ -601,14 +600,14 @@ public class VGA_memory {
             flags=Paging.PFLAG_READABLE|Paging.PFLAG_WRITEABLE;
     //			|Paging.PFLAG_NOCODE;
         }
-        public /*HostPt*/long GetHostReadPt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
             if ((VGA.vga.tandy.mem_bank & 1)!=0)
                 phys_page&=0x03;
             else
                 phys_page&=0x07;
             return VGA.vga.mem.linear.off + (phys_page * 4096);
         }
-        public /*HostPt*/long GetHostWritePt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             return GetHostReadPt( phys_page );
         }
     }
@@ -618,14 +617,14 @@ public class VGA_memory {
         public VGA_PCJR_Handler() {
             flags=Paging.PFLAG_READABLE|Paging.PFLAG_WRITEABLE;
         }
-        public /*HostPt*/long GetHostReadPt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
             phys_page-=0xb8;
             //test for a unaliged bank, then replicate 2x16kb
             if ((VGA.vga.tandy.mem_bank & 1)!=0)
                 phys_page&=0x03;
             return VGA.vga.mem.linear.off + (phys_page * 4096);
         }
-        public /*HostPt*/long GetHostWritePt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             return GetHostReadPt( phys_page );
         }
     }

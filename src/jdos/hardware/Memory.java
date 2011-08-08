@@ -231,10 +231,10 @@ public class Memory extends Module_base {
         public RAMPageHandler() {
             flags=Paging.PFLAG_READABLE|Paging.PFLAG_WRITEABLE;
         }
-        public /*HostPt*/long GetHostReadPt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
             return phys_page*MEM_PAGESIZE;
         }
-        public /*HostPt*/long GetHostWritePt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             return phys_page*MEM_PAGESIZE;
         }
     }

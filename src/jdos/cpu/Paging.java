@@ -68,11 +68,11 @@ public class Paging extends Module_base {
             writeb(addr + 3, (val >> 24));
         }
 
-        public /*HostPt*/long GetHostReadPt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
             return 0;
         }
 
-        public /*HostPt*/long GetHostWritePt(/*Bitu*/int phys_page) {
+        public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             return 0;
         }
 
@@ -146,8 +146,8 @@ public class Paging extends Module_base {
         public Base base = new Base();
 
         public class Tlb {
-            public /*HostPt*/ long[] read = new long[TLB_SIZE];
-            public /*HostPt*/ long[] write = new long[TLB_SIZE];
+            public /*HostPt*/ int[] read = new int[TLB_SIZE];
+            public /*HostPt*/ int[] write = new int[TLB_SIZE];
             public PageHandler[] readhandler = new PageHandler[TLB_SIZE];
             public PageHandler[] writehandler = new PageHandler[TLB_SIZE];
             public /*Bit32u*/ int[] phys_page = new int[TLB_SIZE];
@@ -183,11 +183,11 @@ public class Paging extends Module_base {
         public boolean enabled;
     }
 
-    private static /*HostPt*/long get_tlb_read(/*PhysPt*/int address) {
+    private static /*HostPt*/int get_tlb_read(/*PhysPt*/int address) {
         return paging.tlb.read[address >>> 12];
     }
 
-    private static /*HostPt*/long get_tlb_write(/*PhysPt*/int address) {
+    private static /*HostPt*/int get_tlb_write(/*PhysPt*/int address) {
         return paging.tlb.write[address >>> 12];
     }
 
@@ -217,20 +217,20 @@ public class Paging extends Module_base {
         int a = (int) address;
         /*HostPt*/
         long tlb_addr = get_tlb_read(a);
-        if (tlb_addr != Long.MIN_VALUE) {
+        if (tlb_addr != Integer.MIN_VALUE) {
             tlb_addr = get_tlb_write(a);
-            if (tlb_addr == Long.MIN_VALUE)
+            if (tlb_addr == Integer.MIN_VALUE)
                 return -1;
             if ((get_tlb_writehandler(a).flags & PFLAG_HASCODE)!=0)
                 return -1;
         }
-        if (tlb_addr != Long.MIN_VALUE) return (int) (tlb_addr + address);
+        if (tlb_addr != Integer.MIN_VALUE) return (int) (tlb_addr + address);
         get_tlb_readhandler(a).readb(address);
         tlb_addr = get_tlb_read(a);
-        if (tlb_addr == Long.MIN_VALUE)
+        if (tlb_addr == Integer.MIN_VALUE)
             return -1;
         tlb_addr = get_tlb_write(a);
-        if (tlb_addr == Long.MIN_VALUE)
+        if (tlb_addr == Integer.MIN_VALUE)
             return -1;
         if ((get_tlb_writehandler(a).flags & PFLAG_HASCODE)!=0)
             return -1;
@@ -244,10 +244,10 @@ public class Paging extends Module_base {
         int a = (int) address;
         /*HostPt*/
         long tlb_addr = get_tlb_read(a);
-        if (tlb_addr != Long.MIN_VALUE) return (int) (tlb_addr + address);
+        if (tlb_addr != Integer.MIN_VALUE) return (int) (tlb_addr + address);
         get_tlb_readhandler(a).readb(address);
         tlb_addr = get_tlb_read(a);
-        if (tlb_addr == Long.MIN_VALUE)
+        if (tlb_addr == Integer.MIN_VALUE)
             return -1;
         return (int) (tlb_addr + address);
     }
@@ -257,7 +257,7 @@ public class Paging extends Module_base {
         int a = (int) address;
         /*HostPt*/
         long tlb_addr = get_tlb_read(a);
-        if (tlb_addr != Long.MIN_VALUE)
+        if (tlb_addr != Integer.MIN_VALUE)
             return Memory.host_readb((int) (tlb_addr + address)); // a might be negative when paging so use original long value
         else return (short) (get_tlb_readhandler(a)).readb(address);
     }
@@ -268,7 +268,7 @@ public class Paging extends Module_base {
         if ((a & 0xfff) < 0xfff) {
             /*HostPt*/
             long tlb_addr = get_tlb_read(a);
-            if (tlb_addr != Long.MIN_VALUE) return Memory.host_readw((int) (tlb_addr + address));
+            if (tlb_addr != Integer.MIN_VALUE) return Memory.host_readw((int) (tlb_addr + address));
             else return (get_tlb_readhandler(a)).readw(address);
         } else return Memory.mem_unalignedreadw(address);
     }
@@ -279,7 +279,7 @@ public class Paging extends Module_base {
         if ((a & 0xfff) < 0xffd) {
             /*HostPt*/
             long tlb_addr = get_tlb_read(a);
-            if (tlb_addr != Long.MIN_VALUE) return Memory.host_readd((int) (tlb_addr + address));
+            if (tlb_addr != Integer.MIN_VALUE) return Memory.host_readd((int) (tlb_addr + address));
             else return (get_tlb_readhandler(a)).readd(address);
         } else return Memory.mem_unalignedreadd(address);
     }
@@ -289,7 +289,7 @@ public class Paging extends Module_base {
         int a = (int) address;
         /*HostPt*/
         long tlb_addr = get_tlb_write(a);
-        if (tlb_addr != Long.MIN_VALUE) Memory.host_writeb((int) (tlb_addr + address), val);
+        if (tlb_addr != Integer.MIN_VALUE) Memory.host_writeb((int) (tlb_addr + address), val);
         else (get_tlb_writehandler(a)).writeb(address, val);
     }
 
@@ -299,7 +299,7 @@ public class Paging extends Module_base {
         if ((a & 0xfff) < 0xfff) {
             /*HostPt*/
             long tlb_addr = get_tlb_write(a);
-            if (tlb_addr != Long.MIN_VALUE) Memory.host_writew((int) (tlb_addr + address), val);
+            if (tlb_addr != Integer.MIN_VALUE) Memory.host_writew((int) (tlb_addr + address), val);
             else (get_tlb_writehandler(a)).writew(address, val);
         } else Memory.mem_unalignedwritew(address, val);
     }
@@ -310,7 +310,7 @@ public class Paging extends Module_base {
         if ((a & 0xfff) < 0xffd) {
             /*HostPt*/
             long tlb_addr = get_tlb_write(a);
-            if (tlb_addr != Long.MIN_VALUE) Memory.host_writed((int) (tlb_addr + address), val);
+            if (tlb_addr != Integer.MIN_VALUE) Memory.host_writed((int) (tlb_addr + address), val);
             else (get_tlb_writehandler(a)).writed(address, (int) val);
         } else Memory.mem_unalignedwrited(address, val);
     }
@@ -620,11 +620,9 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
             // replace this handler with the real thing
             if ((handler.flags & PFLAG_WRITEABLE) != 0)
-                paging.tlb.write[lin_page] = handler.GetHostWritePt(phys_page) - ((long)lin_page << 12);
-            else paging.tlb.write[lin_page] = Long.MIN_VALUE;
+                paging.tlb.write[lin_page] = handler.GetHostWritePt(phys_page) - (lin_page << 12);
+            else paging.tlb.write[lin_page] = Integer.MIN_VALUE;
             paging.tlb.writehandler[lin_page] = handler;
-
-            return;
         }
 
         private void read() {
@@ -730,7 +728,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int phys_page = paging.tlb.phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(phys_page);
             if ((handler.flags & PFLAG_READABLE) != 0) {
-                return Memory.host_readb((int) handler.GetHostReadPt(phys_page) + (int) (addr & 0xfff));
+                return Memory.host_readb(handler.GetHostReadPt(phys_page) + (int) (addr & 0xfff));
             } else {
                 return handler.readb(addr);
             }
@@ -1024,8 +1022,8 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
     private static void PAGING_InitTLB() {
         for (/*Bitu*/int i = 0; i < TLB_SIZE; i++) {
-            paging.tlb.read[i] = Long.MIN_VALUE;
-            paging.tlb.write[i] = Long.MIN_VALUE;
+            paging.tlb.read[i] = Integer.MIN_VALUE;
+            paging.tlb.write[i] = Integer.MIN_VALUE;
             paging.tlb.readhandler[i] = init_page_handler;
             paging.tlb.writehandler[i] = init_page_handler;
         }
@@ -1039,8 +1037,8 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
         for (int i = 0; paging.links.used > 0; paging.links.used--, i++) {
             /*Bitu*/
             int page = paging.links.entries[i];
-            paging.tlb.read[page] = Long.MIN_VALUE;
-            paging.tlb.write[page] = Long.MIN_VALUE;
+            paging.tlb.read[page] = Integer.MIN_VALUE;
+            paging.tlb.write[page] = Integer.MIN_VALUE;
             paging.tlb.readhandler[page] = init_page_handler;
             paging.tlb.writehandler[page] = init_page_handler;
         }
@@ -1052,8 +1050,8 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
     public static void PAGING_UnlinkPages(/*Bitu*/int lin_page,/*Bitu*/int pages) {
         for (; pages > 0; pages--) {
-            paging.tlb.read[lin_page] = Long.MIN_VALUE;
-            paging.tlb.write[lin_page] = Long.MIN_VALUE;
+            paging.tlb.read[lin_page] = Integer.MIN_VALUE;
+            paging.tlb.write[lin_page] = Integer.MIN_VALUE;
             paging.tlb.readhandler[lin_page] = init_page_handler;
             paging.tlb.writehandler[lin_page] = init_page_handler;
             lin_page++;
@@ -1063,8 +1061,8 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
     public static void PAGING_MapPage(/*Bitu*/int lin_page,/*Bitu*/int phys_page) {
         if (lin_page < LINK_START) {
             paging.firstmb[lin_page] = phys_page;
-            paging.tlb.read[lin_page] = Long.MIN_VALUE;
-            paging.tlb.write[lin_page] = Long.MIN_VALUE;
+            paging.tlb.read[lin_page] = Integer.MIN_VALUE;
+            paging.tlb.write[lin_page] = Integer.MIN_VALUE;
             paging.tlb.readhandler[lin_page] = init_page_handler;
             paging.tlb.writehandler[lin_page] = init_page_handler;
         } else {
@@ -1078,7 +1076,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
         // get the physpage handler we are going to map
         PageHandler handler=Memory.MEM_GetPageHandler(phys_page);
-        /*Bitu*/long lin_base=(long)lin_page << 12;
+        /*Bitu*/int lin_base=lin_page << 12;
 
     //	LOG_MSG("MAPPG %s",lnm[outcome]);
 
@@ -1100,7 +1098,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             if ((handler.flags & PFLAG_READABLE)!=0)
                 paging.tlb.read[lin_page] = handler.GetHostReadPt(phys_page)-lin_base;
             else
-                paging.tlb.read[lin_page]=Long.MIN_VALUE;
+                paging.tlb.read[lin_page]=Integer.MIN_VALUE;
             paging.tlb.readhandler[lin_page]=handler;
 
             // write
@@ -1108,11 +1106,11 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                 if ((handler.flags & PFLAG_WRITEABLE)!=0)
                     paging.tlb.write[lin_page] = handler.GetHostWritePt(phys_page)-lin_base;
                 else
-                    paging.tlb.write[lin_page]=Long.MIN_VALUE;
+                    paging.tlb.write[lin_page]=Integer.MIN_VALUE;
                 paging.tlb.writehandler[lin_page]=handler;
             } else {
                 paging.tlb.writehandler[lin_page]= foiling_handler;
-                paging.tlb.write[lin_page]=Long.MIN_VALUE;
+                paging.tlb.write[lin_page]=Integer.MIN_VALUE;
             }
             break;
         case ACMAP_RE:
@@ -1120,17 +1118,17 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             if ((handler.flags & PFLAG_READABLE)!=0)
                 paging.tlb.read[lin_page] = handler.GetHostReadPt(phys_page)-lin_base;
             else
-                paging.tlb.read[lin_page]=Long.MIN_VALUE;
+                paging.tlb.read[lin_page]=Integer.MIN_VALUE;
             paging.tlb.readhandler[lin_page]=handler;
             // exception
             paging.tlb.writehandler[lin_page]= exception_handler;
-            paging.tlb.write[lin_page]=Long.MIN_VALUE;
+            paging.tlb.write[lin_page]=Integer.MIN_VALUE;
             break;
         case ACMAP_EE:
             paging.tlb.readhandler[lin_page]= exception_handler;
             paging.tlb.writehandler[lin_page]= exception_handler;
-            paging.tlb.read[lin_page]=Long.MIN_VALUE;
-            paging.tlb.write[lin_page]=Long.MIN_VALUE;
+            paging.tlb.read[lin_page]=Integer.MIN_VALUE;
+            paging.tlb.write[lin_page]=Integer.MIN_VALUE;
             break;
         }
 
@@ -1154,7 +1152,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
     static private void PAGING_LinkPage(/*Bitu*/int lin_page,/*Bitu*/int phys_page) {
         PageHandler handler = Memory.MEM_GetPageHandler(phys_page);
         /*Bitu*/
-        long lin_base = (long) lin_page << 12;
+        int lin_base = lin_page << 12;
         if (lin_page >= TLB_SIZE || phys_page >= TLB_SIZE)
             Log.exit("Illegal page");
 
@@ -1166,14 +1164,11 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
         paging.tlb.phys_page[lin_page] = phys_page;
         if ((handler.flags & PFLAG_READABLE) != 0)
             paging.tlb.read[lin_page] = handler.GetHostReadPt(phys_page) - lin_base;
-        else paging.tlb.read[lin_page] = Long.MIN_VALUE;
+        else paging.tlb.read[lin_page] = Integer.MIN_VALUE;
         if ((handler.flags & PFLAG_WRITEABLE) != 0) {
-            if (lin_base>16*1024*1024) {
-                int ii=0;
-            }
             paging.tlb.write[lin_page] = handler.GetHostWritePt(phys_page) - lin_base;
         }
-        else paging.tlb.write[lin_page] = Long.MIN_VALUE;
+        else paging.tlb.write[lin_page] = Integer.MIN_VALUE;
 
         paging.links.entries[paging.links.used++] = lin_page;
         paging.tlb.readhandler[lin_page] = handler;
@@ -1195,15 +1190,15 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                 /*Bitu*/int tlb_index = paging.krw_links.entries[i];
                 paging.tlb.readhandler[tlb_index] = exception_handler;
                 paging.tlb.writehandler[tlb_index] = exception_handler;
-                paging.tlb.read[tlb_index] = Long.MIN_VALUE;
-                paging.tlb.write[tlb_index] = Long.MIN_VALUE;
+                paging.tlb.read[tlb_index] = Integer.MIN_VALUE;
+                paging.tlb.write[tlb_index] = Integer.MIN_VALUE;
             }
         } else {
             // us -> sv: ee -> rw
             for(/*Bitu*/int i = 0; i < paging.krw_links.used; i++) {
                 /*Bitu*/int tlb_index = paging.krw_links.entries[i];
                 /*Bitu*/int phys_page = paging.tlb.phys_page[tlb_index];
-                /*Bitu*/long lin_base = (long)tlb_index << 12;
+                /*Bitu*/int lin_base = tlb_index << 12;
                 boolean dirty = (phys_page & PHYSPAGE_DITRY)!=0;
                 phys_page &= PHYSPAGE_ADDR;
                 PageHandler handler = Memory.MEM_GetPageHandler(phys_page);
@@ -1212,17 +1207,17 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                 paging.tlb.readhandler[tlb_index] = handler;
                 if ((handler.flags & PFLAG_READABLE)!=0)
                     paging.tlb.read[tlb_index] = handler.GetHostReadPt(phys_page)-lin_base;
-                else paging.tlb.read[tlb_index] = Long.MIN_VALUE;
+                else paging.tlb.read[tlb_index] = Integer.MIN_VALUE;
 
                 // map write handler
                 if (dirty) {
                     paging.tlb.writehandler[tlb_index] = handler;
                     if ((handler.flags & PFLAG_WRITEABLE)!=0)
                         paging.tlb.write[tlb_index] = handler.GetHostWritePt(phys_page)-lin_base;
-                    else paging.tlb.write[tlb_index] = Long.MIN_VALUE;
+                    else paging.tlb.write[tlb_index] = Integer.MIN_VALUE;
                 } else {
                     paging.tlb.writehandler[tlb_index] = foiling_handler;
-                    paging.tlb.write[tlb_index] = Long.MIN_VALUE;
+                    paging.tlb.write[tlb_index] = Integer.MIN_VALUE;
                 }
             }
         }
@@ -1235,19 +1230,19 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                 for(/*Bitu*/int i = 0; i < paging.kr_links.used; i++) {
                     /*Bitu*/int tlb_index = paging.kr_links.entries[i];
                     paging.tlb.readhandler[tlb_index] = exception_handler;
-                    paging.tlb.read[tlb_index] = Long.MIN_VALUE;
+                    paging.tlb.read[tlb_index] = Integer.MIN_VALUE;
                 }
             } else {
                 // us -> sv: ee -> re
                 for(/*Bitu*/int i = 0; i < paging.kr_links.used; i++) {
                     /*Bitu*/int tlb_index = paging.kr_links.entries[i];
-                    /*Bitu*/long lin_base = (long)tlb_index << 12;
+                    /*Bitu*/int lin_base = tlb_index << 12;
                     /*Bitu*/int phys_page = paging.tlb.phys_page[tlb_index] & PHYSPAGE_ADDR;
                     PageHandler handler = Memory.MEM_GetPageHandler(phys_page);
                     paging.tlb.readhandler[tlb_index] = handler;
                     if ((handler.flags & PFLAG_READABLE)!=0)
                         paging.tlb.read[tlb_index] = handler.GetHostReadPt(phys_page)-lin_base;
-                    else paging.tlb.read[tlb_index] = Long.MIN_VALUE;
+                    else paging.tlb.read[tlb_index] = Integer.MIN_VALUE;
                 }
             }
         } else { // WP=0
@@ -1257,7 +1252,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                 for(/*Bitu*/int i = 0; i < paging.ur_links.used; i++) {
                     /*Bitu*/int tlb_index = paging.ur_links.entries[i];
                     paging.tlb.writehandler[tlb_index] = exception_handler;
-                    paging.tlb.write[tlb_index] = Long.MIN_VALUE;
+                    paging.tlb.write[tlb_index] = Integer.MIN_VALUE;
                 }
             } else {
                 // us -> sv: re -> rw
@@ -1268,14 +1263,14 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                     phys_page &= PHYSPAGE_ADDR;
                     PageHandler handler = Memory.MEM_GetPageHandler(phys_page);
                     if (dirty) {
-                        /*Bitu*/long lin_base = (long)tlb_index << 12;
+                        /*Bitu*/int lin_base = tlb_index << 12;
                         paging.tlb.writehandler[tlb_index] = handler;
                         if ((handler.flags & PFLAG_WRITEABLE)!=0)
                             paging.tlb.write[tlb_index] = handler.GetHostWritePt(phys_page)-lin_base;
-                        else paging.tlb.write[tlb_index] = Long.MIN_VALUE;
+                        else paging.tlb.write[tlb_index] = Integer.MIN_VALUE;
                     } else {
                         paging.tlb.writehandler[tlb_index] = foiling_handler;
-                        paging.tlb.write[tlb_index] = Long.MIN_VALUE;
+                        paging.tlb.write[tlb_index] = Integer.MIN_VALUE;
                     }
                 }
             }

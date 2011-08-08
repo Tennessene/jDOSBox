@@ -21,7 +21,7 @@ public class Config {
     static public final boolean C_HEAVY_DEBUG = false;
     static public final boolean USE_FULL_TLB = true;
     static public final boolean C_VGARAM_CHECKED = true;    
-    static public boolean DEBUG_LOG = false;
+    static public final boolean DEBUG_LOG = false;
     static public final boolean DEBUG_DEDERMINISTIC = false;
     static public final boolean IPX_DEBUGMSG = false;
     static public final boolean DYNAMIC_CORE_VERIFY = false;

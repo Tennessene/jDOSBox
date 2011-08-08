@@ -8,6 +8,8 @@ public class CacheBlockDynRec {
     public CacheBlockDynRec() {
         for (int i=0;i<link.length;i++)
             link[i] = new _Link();
+        link1 = link[0];
+        link2 = link[1];
     }
 	public void Clear() {
         /*Bitu*/int ind;
@@ -86,6 +88,8 @@ public class CacheBlockDynRec {
 		public Vector from = new Vector();	// the from-block can transfer control to this block
 	}
     public _Link[] link = new _Link[2];
+    public _Link link1;
+    public _Link link2;
 	CacheBlockDynRec crossblock;
     public DecodeBlock code;
     public byte[] originalByteCode = null; //used for dynamic core cache verification

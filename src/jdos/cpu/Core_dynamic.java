@@ -146,9 +146,30 @@ public class Core_dynamic {
                     }
 
                     switch (ret) {
-                    case Constants.BR_CBRet_None:
-                        return Callback.CBRET_NONE;
-
+                    case Constants.BR_Link1:
+                    {
+                        if (block != null) {
+                            CacheBlockDynRec next = block.link1.to;
+                            if (next == null)
+                                block=LinkBlocks(block, ret);
+                            else
+                                block = next;
+                            if (block!=null && CPU.CPU_Cycles>0) continue;
+                        }
+                        break;
+                    }
+                    case Constants.BR_Link2:
+                    {
+                        if (block != null) {
+                            CacheBlockDynRec next = block.link2.to;
+                            if (next == null)
+                                block=LinkBlocks(block, ret);
+                            else
+                                block = next;
+                            if (block!=null && CPU.CPU_Cycles>0) continue;
+                        }
+                        break;
+                    }
                     case Constants.BR_Normal:
                     case Constants.BR_Jump:
                         // the block was exited due to a non-predictable control flow
@@ -163,19 +184,7 @@ public class Core_dynamic {
                         // the callback code is executed in dosbox.conf, return the callback number
                         Flags.FillFlags();
                         return Data.callback;
-                    case Constants.BR_Link1:
-                    case Constants.BR_Link2:
-                    {
-                        if (block != null) {
-                            CacheBlockDynRec next = block.link[ret==Constants.BR_Link2?1:0].to;
-                            if (next == null)
-                                block=LinkBlocks(block, ret);
-                            else
-                                block = next;
-                            if (block!=null && CPU.CPU_Cycles>0) continue;
-                        }
-                        break;
-                    }
+
                     case Constants.BR_Illegal:
                         CPU.CPU_Exception(6,0);
                         break;

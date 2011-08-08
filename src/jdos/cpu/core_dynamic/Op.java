@@ -2,8 +2,10 @@ package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
+import jdos.cpu.Callback;
 import jdos.cpu.Flags;
 import jdos.cpu.core_share.Constants;
+import jdos.cpu.core_share.Data;
 
 abstract public class Op {
     public int c=-1;
@@ -25,6 +27,11 @@ abstract public class Op {
     public int DECODE_END() {
         CPU_Regs.reg_eip += eip_count;
         Flags.FillFlags();
-        return Constants.BR_CBRet_None;
+        return CB_NONE();
+    }
+
+    public int CB_NONE() {
+        Data.callback = Callback.CBRET_NONE;
+        return Constants.BR_CallBack;
     }
 }

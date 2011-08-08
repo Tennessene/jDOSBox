@@ -1624,7 +1624,7 @@ public class Inst3 extends Helper {
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
-                    return Constants.BR_CBRet_None;
+                    return CB_NONE();
                 }
             }
             return Constants.BR_Jump;
@@ -1808,11 +1808,11 @@ public class Inst3 extends Helper {
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
-                    return Constants.BR_CBRet_None;
+                    return CB_NONE();
                 }
             }
             if (CPU_PIC_CHECK)
-                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return Constants.BR_CBRet_None;
+                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return CB_NONE();
             return Constants.BR_Jump;
         }
     }
@@ -1930,7 +1930,7 @@ public class Inst3 extends Helper {
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
-                    return Constants.BR_CBRet_None;
+                    return CB_NONE();
                 }
             }
             return Constants.BR_Jump;
@@ -2009,7 +2009,7 @@ public class Inst3 extends Helper {
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
-                    return Constants.BR_CBRet_None;
+                    return CB_NONE();
                 }
             }
             return Constants.BR_Jump;
@@ -2057,7 +2057,7 @@ public class Inst3 extends Helper {
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
-                    return Constants.BR_CBRet_None;
+                    return CB_NONE();
                 }
             }
             return Constants.BR_Jump;

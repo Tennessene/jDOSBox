@@ -31,11 +31,13 @@ public class ModifiedDecode {
                     } else if (result == Prefix_helpers.RESTART) {
                         continue;
                     } else if (result == Prefix_helpers.CBRET_NONE) {
-                        return Constants.BR_CBRet_None;
+                        Data.callback = Callback.CBRET_NONE;
+                        return Constants.BR_CallBack;
                     } else if (result == Prefix_helpers.DECODE_END) {
                         Prefix_helpers.SAVEIP();
                         Flags.FillFlags();
-                        return Constants.BR_CBRet_None;
+                        Data.callback = Callback.CBRET_NONE;
+                        return Constants.BR_CallBack;
                     } else if (result == Prefix_helpers.NOT_HANDLED || result == Prefix_helpers.ILLEGAL_OPCODE) {
                         CPU.CPU_Exception(6, 0);
                         break;

@@ -551,7 +551,7 @@ public class VGA_draw {
         public void call(/*Bitu*/int val) {
             if (VGA.vga.attr.disabled!=0) {
                 // draw blanked line (DoWhackaDo, Alien Carnage, TV sports Football)
-                Memory.host_memset(TempLine, 0, TEMPLINE_SIZE);
+                Memory.host_zeroset(TempLine, TEMPLINE_SIZE);
                 Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
             } else {
                 int data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
@@ -577,7 +577,7 @@ public class VGA_draw {
     private static Pic.PIC_EventHandler VGA_DrawEGASingleLine = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             if (VGA.vga.attr.disabled!=0) {
-                Memory.host_memset(TempLine, 0, TEMPLINE_SIZE);
+                Memory.host_zeroset(TempLine, TEMPLINE_SIZE);
                 Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
             } else {
                 /*Bitu*/int address = VGA.vga.draw.address;

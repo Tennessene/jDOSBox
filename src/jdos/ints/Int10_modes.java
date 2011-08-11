@@ -380,9 +380,8 @@ public class Int10_modes {
             case VGA.M_LIN15:
             case VGA.M_LIN16:
             case VGA.M_LIN32:
-                /* Hack we just acess the memory directly */
-                Memory.host_memset(VGA.vga.mem.linear, 0, VGA.vga.vmemsize);
-                Memory.host_memset(VGA.vga.fastmem, 0, VGA.vga.vmemsize<<1);
+                Memory.host_zeroset(VGA.vga.mem.linear, VGA.vga.vmemsize);
+                Memory.host_zeroset(VGA.vga.fastmem, VGA.vga.vmemsize<<1);
             }
         }
         /* Setup the BIOS */

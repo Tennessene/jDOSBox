@@ -447,8 +447,8 @@ public class VGA_other {
                 VGA.vga.tandy.line_mask = (/*Bit8u*/short)(val >> 6);
                 VGA.vga.tandy.draw_bank = (short)(val & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
                 VGA.vga.tandy.mem_bank = (short)((val >> 3) & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
-                VGA.vga.tandy.draw_base = new Ptr(Memory.MemBase, VGA.vga.tandy.draw_bank * 16 * 1024);
-                VGA.vga.tandy.mem_base =new Ptr(Memory.MemBase, VGA.vga.tandy.mem_bank * 16 * 1024);
+                VGA.vga.tandy.draw_base = VGA.vga.tandy.draw_bank * 16 * 1024;
+                VGA.vga.tandy.mem_base = VGA.vga.tandy.mem_bank * 16 * 1024;
                 TandyCheckLineMask();
                 VGA_memory.VGA_SetupHandlers();
                 break;
@@ -509,7 +509,7 @@ public class VGA_other {
                 } else {
                     if ((val & 0x80)!=0 && (VGA.vga.herc.enable_bits & 0x2)!=0) {
                         VGA.vga.herc.mode_control |= 0x80;
-                        VGA.vga.tandy.draw_base = new Ptr(VGA.vga.mem.linear, 32*1024);
+                        VGA.vga.tandy.draw_base = VGA.vga.mem.linear+ 32*1024;
                     }
                 }
                 VGA.vga.draw.blinking = (val&0x20)!=0;

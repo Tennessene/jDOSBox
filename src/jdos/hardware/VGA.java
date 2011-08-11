@@ -117,7 +117,7 @@ public class VGA {
         public /*Bitu*/int address;
         public /*Bitu*/int panning;
         public /*Bitu*/int bytes_skip;
-        public /*Bit8u*/Ptr linear_base;
+        public /*Bit8u*/int linear_base;
         public /*Bitu*/int linear_mask;
         public /*Bitu*/int address_add;
         public /*Bitu*/int line_length;
@@ -254,7 +254,7 @@ public class VGA {
         public /*Bit8u*/short border_color;
         public /*Bit8u*/short line_mask, line_shift;
         public /*Bit8u*/short draw_bank, mem_bank;
-        public /*Bit8u*/Ptr draw_base, mem_base;
+        public /*Bit8u*/int draw_base, mem_base;
         public /*Bitu*/int addr_mask;
     }
 
@@ -361,7 +361,7 @@ public class VGA {
     }
 
     public static class VGA_Latch {
-        public /*Bit32u*/long d;
+        public /*Bit32u*/int d;
         public /*Bit8u*/short b(int index) {
             switch (index) {
                 case 0:
@@ -378,8 +378,8 @@ public class VGA {
     }
 
     public static class VGA_Memory {
-        public /*Bit8u*/ Ptr linear;
-        public /*Bit8u*/Ptr linear_orgptr;
+        public /*Bit8u*/ int linear;
+        public /*Bit8u*/int linear_orgptr;
     }
 
     public static class VGA_Changes {
@@ -419,8 +419,8 @@ public class VGA {
         public VGA_OTHER other = new VGA_OTHER();
         public VGA_Memory mem = new VGA_Memory();
         public /*Bit32u*/int vmemwrap; /* this is assumed to be power of 2 */
-        public /*Bit8u*/Ptr fastmem;  /* memory for fast (usually 16-color) rendering, always twice as big as vmemsize */
-        public /*Bit8u*/Ptr fastmem_orgptr;
+        public /*Bit8u*/int fastmem;  /* memory for fast (usually 16-color) rendering, always twice as big as vmemsize */
+        public /*Bit8u*/int fastmem_orgptr;
         public /*Bit32u*/int vmemsize;
         public VGA_Changes changes;
         public VGA_LFB lfb = new VGA_LFB();

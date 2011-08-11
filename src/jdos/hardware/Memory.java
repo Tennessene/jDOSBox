@@ -1,5 +1,6 @@
 package jdos.hardware;
 
+import javazoom.jl.decoder.JavaLayerError;
 import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
@@ -25,10 +26,10 @@ public class Memory extends Module_base {
     static Ptr host_memory;
     static private byte[] direct;
     
-    public static Ptr allocate(int size) {
-        Ptr p = new Ptr(host_memory, highwaterMark, size);
+    public static int allocate(int size) {
+        int result = highwaterMark;
         highwaterMark+=size;
-        return p;
+        return result;
     }
     public static byte host_readbs(/*HostPt*/int off) {
         return direct[off];
@@ -64,11 +65,14 @@ public class Memory extends Module_base {
         direct[off+3]=(byte)(val >> 24);
     }
 
-    static public void host_memcpy(byte[] dest,/*PhysPt*/int src,/*Bitu*/int size) {
-        System.arraycopy(Memory.direct, src, dest, 0, size);
+    static public void host_memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
+        System.arraycopy(Memory.direct, src, dest, dest_offset, size);
     }
     static public void host_memcpy(/*PhysPt*/int dest,/*PhysPt*/int src,/*Bitu*/int size) {
         System.arraycopy(Memory.direct, src, Memory.direct, dest, size);
+    }
+    static public void host_memset(int dest, int value, int size) {
+        java.util.Arrays.fill(direct, dest, dest+size-1, (byte)value);
     }
     /*
     public static void var_write(Bit8u * var, Bit8u val) {
@@ -704,8 +708,6 @@ public class Memory extends Module_base {
         }
     }
 
-    private static /*HostPt*/int GetMemBase() { return 1; }
-
     private IoHandler.IO_ReadHandleObject ReadHandler = new IoHandler.IO_ReadHandleObject();
     private IoHandler.IO_WriteHandleObject WriteHandler = new IoHandler.IO_WriteHandleObject();
 
@@ -733,8 +735,8 @@ public class Memory extends Module_base {
                 int videosize = section.Get_int("vmemsize");
                 if (videosize==0) videosize=2;
                 videosize*=3*1024*1024;
-                System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM+videosize)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
-                direct = new byte[highwaterMark+EXTRA_MEM+videosize];
+                System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM+VGA_draw.TEMPLINE_SIZE+videosize)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
+                direct = new byte[highwaterMark+EXTRA_MEM+videosize+VGA_draw.TEMPLINE_SIZE];
                 host_memory = new Ptr(direct, 0);
                 MemBase = new Ptr(host_memory, 0, highwaterMark);
             } catch (java.lang.OutOfMemoryError e) {

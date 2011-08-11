@@ -134,12 +134,6 @@ public class CPU_Regs extends Flags {
         final public void dword(long l) {
             dword = (int)l;
         }
-        final public void dword_dec() {
-            dword--;
-        }
-        final public long dword() {
-            return dword & 0xFFFFFFFFl;
-        }
         final public void word_dec() {
             word(word()-1);
         }

@@ -92,7 +92,7 @@ public class Prefix_0f extends Prefix_none {
                     }
                         break;
                     case 0x04:										/* SMSW */
-                        Memory.mem_writew(eaa,(int)(CPU.CPU_SMSW() & 0xFFFFl));
+                        Memory.mem_writew(eaa,CPU.CPU_SMSW() & 0xFFFF);
                         break;
                     case 0x06:										/* LMSW */
                         limit=Memory.mem_readw(eaa);
@@ -112,7 +112,7 @@ public class Prefix_0f extends Prefix_none {
                         if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
                         return ILLEGAL_OPCODE;
                     case 0x04:										/* SMSW */
-                        Modrm.GetEArw[rm].word((int)(CPU.CPU_SMSW() & 0xFFFF));
+                        Modrm.GetEArw[rm].word(CPU.CPU_SMSW() & 0xFFFF);
                         break;
                     case 0x06:										/* LMSW */
                         if (CPU.CPU_LMSW(Modrm.GetEArw[rm].word())) return RUNEXCEPTION();
@@ -274,8 +274,8 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return ILLEGAL_OPCODE;
                 /*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double)CPU.CPU_CycleMax);
-                reg_edx.dword((tsc>>>32));
-                reg_eax.dword((tsc&0xffffffffl));
+                reg_edx.dword=(int)((tsc>>>32));
+                reg_eax.dword=(int)((tsc&0xffffffffl));
                 return HANDLED;
             }
         };

@@ -204,7 +204,7 @@ public class Eaa extends Helper {
                     break;
                 case 4:
                     reg2 = new Reg();
-                    reg2.dword(0);
+                    reg2.dword=0;
                     break;
                 case 5:
                     reg2 = reg_ebp;
@@ -314,7 +314,7 @@ public class Eaa extends Helper {
                     break;
                 case 4:
                     reg2 = new Reg();
-                    reg2.dword(0);
+                    reg2.dword=0;
                     break;
                 case 5:
                     reg2 = reg_ebp;
@@ -432,7 +432,7 @@ public class Eaa extends Helper {
                     break;
                 case 4:
                     reg2 = new Reg();
-                    reg2.dword(0);
+                    reg2.dword=0;
                     break;
                 case 5:
                     reg2 = reg_ebp;

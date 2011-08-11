@@ -695,13 +695,13 @@ public class Dos_programs {
                 CPU_Regs.SegSet16ES(0);
                 /* set up stack at a safe place */
                 CPU_Regs.SegSet16SS(0x7000);
-                CPU_Regs.reg_esp.dword(0x100);
-                CPU_Regs.reg_esi.dword(0);
-                CPU_Regs.reg_ecx.dword(1);
-                CPU_Regs.reg_ebp.dword(0);
-                CPU_Regs.reg_eax.dword(0);
-                CPU_Regs.reg_edx.dword(0); //Head 0 drive 0
-                CPU_Regs.reg_ebx.dword(0x7c00); //Real code probably uses bx to load the image
+                CPU_Regs.reg_esp.dword=0x100;
+                CPU_Regs.reg_esi.dword=0;
+                CPU_Regs.reg_ecx.dword=1;
+                CPU_Regs.reg_ebp.dword=0;
+                CPU_Regs.reg_eax.dword=0;
+                CPU_Regs.reg_edx.dword=0; //Head 0 drive 0
+                CPU_Regs.reg_ebx.dword=0x7c00; //Real code probably uses bx to load the image
             }
         }
     }

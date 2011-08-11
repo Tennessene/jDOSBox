@@ -12,7 +12,7 @@ public class Strings extends Core {
     final static public class Movsw32r extends Op {
         public int call() {
             int add_index= CPU.cpu.direction<<1;
-            int count = (int) CPU_Regs.reg_ecx.dword();
+            int count = CPU_Regs.reg_ecx.dword;
             int si_base = base_ds;
             int di_base = CPU.Segs_ESphys;
             if (Config.FAST_STRINGS) {
@@ -86,7 +86,7 @@ public class Strings extends Core {
                 Memory.mem_writew(di_base + reg_edi.dword, Memory.mem_readw(si_base + reg_esi.dword));
                 reg_edi.dword+=add_index;
                 reg_esi.dword+=add_index;
-                reg_ecx.dword_dec();
+                reg_ecx.dword--;
             }
             return Constants.BR_Normal;
         }
@@ -402,7 +402,7 @@ public class Strings extends Core {
     final static public class Movsb32r extends Op {
         public int call() {
             int add_index= CPU.cpu.direction;
-            int count = (int) CPU_Regs.reg_ecx.dword();
+            int count = CPU_Regs.reg_ecx.dword;
             int si_base = base_ds;
             int di_base = CPU.Segs_ESphys;
             if (Config.FAST_STRINGS) {

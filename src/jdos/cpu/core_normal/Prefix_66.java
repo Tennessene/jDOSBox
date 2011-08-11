@@ -1117,7 +1117,7 @@ public class Prefix_66 extends Prefix_0f {
         /* Mov Ew,Sw */
         ops[0x28c] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bit16u*/long val;/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/short rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:					/* MOV Ew,ES */
                     val=CPU.Segs_ESval;break;
@@ -1136,8 +1136,8 @@ public class Prefix_66 extends Prefix_0f {
                     return ILLEGAL_OPCODE;
                 }
                 if (rm >= 0xc0 ) {
-                    Modrm.GetEArd[rm].dword(val);}
-                else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,(int)val);}
+                    Modrm.GetEArd[rm].dword=val;}
+                else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,val);}
                 return HANDLED;
             }
         };
@@ -1149,9 +1149,9 @@ public class Prefix_66 extends Prefix_0f {
                 /*Bit8u*/short rm=Fetchb();
                 base_ds=base_ss=0;
                 if (TEST_PREFIX_ADDR()!=0) {
-                    Modrm.Getrd[rm].dword(getEaa32(rm));
+                    Modrm.Getrd[rm].dword=getEaa32(rm);
                 } else {
-                    Modrm.Getrd[rm].dword(getEaa16(rm));
+                    Modrm.Getrd[rm].dword=getEaa16(rm);
                 }
                 return HANDLED;
             }

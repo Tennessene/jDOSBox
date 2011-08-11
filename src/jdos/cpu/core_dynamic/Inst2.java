@@ -258,7 +258,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writew(eaa,(int)(CPU.CPU_SMSW() & 0xFFFFl));
+            Memory.mem_writew(eaa,CPU.CPU_SMSW() & 0xFFFF);
             return Constants.BR_Normal;
         }
     }
@@ -308,7 +308,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earw.word((int)(CPU.CPU_SMSW() & 0xFFFF));
+            earw.word(CPU.CPU_SMSW() & 0xFFFF);
             return Constants.BR_Normal;
         }
     }
@@ -510,8 +510,8 @@ public class Inst2 extends Helper {
         public int call() {
             if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return Constants.BR_Illegal;
             /*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double)CPU.CPU_CycleMax);
-            reg_edx.dword((tsc>>>32));
-            reg_eax.dword((tsc&0xffffffffl));
+            reg_edx.dword=(int)(tsc>>>32);
+            reg_eax.dword=(int)(tsc&0xffffffffl);
             return Constants.BR_Normal;
         }
     }

@@ -887,14 +887,14 @@ public class CPU extends Module_base {
             if (new_tss_temp.is386 != 0) {
                 CPU_Regs.reg_eip=new_eip;
                 CPU_SetFlags(new_eflags,CPU_Regs.FMASK_ALL | CPU_Regs.VM);
-                CPU_Regs.reg_eax.dword(new_eax);
-                CPU_Regs.reg_ecx.dword(new_ecx);
-                CPU_Regs.reg_edx.dword(new_edx);
-                CPU_Regs.reg_ebx.dword(new_ebx);
-                CPU_Regs.reg_esp.dword(new_esp);
-                CPU_Regs.reg_ebp.dword(new_ebp);
-                CPU_Regs.reg_edi.dword(new_edi);
-                CPU_Regs.reg_esi.dword(new_esi);
+                CPU_Regs.reg_eax.dword=new_eax;
+                CPU_Regs.reg_ecx.dword=new_ecx;
+                CPU_Regs.reg_edx.dword=new_edx;
+                CPU_Regs.reg_ebx.dword=new_ebx;
+                CPU_Regs.reg_esp.dword=new_esp;
+                CPU_Regs.reg_ebp.dword=new_ebp;
+                CPU_Regs.reg_edi.dword=new_edi;
+                CPU_Regs.reg_esi.dword=new_esi;
 
 //			new_cs=mem_readw(new_tss.base+TSS_32_cs));
             } else {
@@ -1103,12 +1103,12 @@ public class CPU extends Module_base {
                                 cpu.stack.big=true;
                                 cpu.stack.mask=0xffffffff;
                                 cpu.stack.notmask=0;
-                                CPU_Regs.reg_esp.dword(n_esp_1.value);
+                                CPU_Regs.reg_esp.dword=n_esp_1.value;
                             } else {
                                 cpu.stack.big=false;
                                 cpu.stack.mask=0xffff;
                                 cpu.stack.notmask=0xffff0000;
-                                CPU_Regs.reg_esp.word((int)(n_esp_1.value & 0xffffl));
+                                CPU_Regs.reg_esp.word((int)(n_esp_1.value & 0xffff));
                             }
 
                             CPU_SetCPL(cs_dpl);
@@ -1229,7 +1229,7 @@ public class CPU extends Module_base {
                         /*Bit32u*/int new_cs=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
                         tempesp=(tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask);
                         /*Bit32u*/int new_flags=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
-                        CPU_Regs.reg_esp.dword((tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask));
+                        CPU_Regs.reg_esp.dword=(tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask);
 
                         CPU_Regs.reg_eip=new_eip;
                         CPU_Regs.SegSet16CS((new_cs&0xffff));
@@ -1241,7 +1241,7 @@ public class CPU extends Module_base {
                         /*Bit16u*/int new_cs=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
                         tempesp=(tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask);
                         /*Bit16u*/int new_flags=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
-                        CPU_Regs.reg_esp.dword((tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask));
+                        CPU_Regs.reg_esp.dword=(tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask);
 
                         CPU_Regs.reg_eip=new_eip;
                         CPU_Regs.SegSet16CS(new_cs);
@@ -1277,7 +1277,7 @@ public class CPU extends Module_base {
 
                 if ((n_flags & CPU_Regs.VM) != 0 && (cpu.cpl==0)) {
                     // commit point
-                    CPU_Regs.reg_esp.dword(tempesp);
+                    CPU_Regs.reg_esp.dword=tempesp;
                     CPU_Regs.reg_eip=n_eip & 0xffff;
                      /*Bitu*/int n_ss,n_esp,n_es,n_ds,n_fs,n_gs;
                     n_esp=CPU_Pop32();
@@ -1296,7 +1296,7 @@ public class CPU extends Module_base {
                     CPU_SetSegGeneralDS(n_ds);
                     CPU_SetSegGeneralFS(n_fs);
                     CPU_SetSegGeneralGS(n_gs);
-                    CPU_Regs.reg_esp.dword(n_esp);
+                    CPU_Regs.reg_esp.dword=n_esp;
                     cpu.code.big=false;
                     CPU_Regs.SegSet16CS(n_cs_sel);
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IRET:Back to V86: CS:"+Integer.toString(Segs_CSval, 16)+" IP "+Integer.toString(CPU_Regs.reg_eip, 16)+" SS:"+Integer.toString(Segs_SSval, 16)+" SP "+Integer.toString(CPU_Regs.reg_esp.dword, 16)+" FLAGS:%X"+Integer.toString(CPU_Regs.flags,16));
@@ -1400,7 +1400,7 @@ public class CPU extends Module_base {
                     cpu.stack.big=true;
                     cpu.stack.mask=0xffffffff;
                     cpu.stack.notmask=0;
-                    CPU_Regs.reg_esp.dword(n_esp);
+                    CPU_Regs.reg_esp.dword=n_esp;
                 } else {
                     cpu.stack.big=false;
                     cpu.stack.mask=0xffff;
@@ -1620,7 +1620,7 @@ public class CPU extends Module_base {
                                 cpu.stack.big=true;
                                 cpu.stack.mask=0xffffffff;
                                 cpu.stack.notmask=0;
-                                CPU_Regs.reg_esp.dword(n_esp_4.value);
+                                CPU_Regs.reg_esp.dword=n_esp_4.value;
                             } else {
                                 cpu.stack.big=false;
                                 cpu.stack.mask=0xffff;
@@ -1818,7 +1818,7 @@ public class CPU extends Module_base {
 
                 // commit point
                  /*Bitu*/int n_ss;
-                long n_esp;
+                int n_esp;
                 if (use32) {
                     offset=CPU_Pop32();
                     selector=CPU_Pop32() & 0xffff;
@@ -1855,17 +1855,17 @@ public class CPU extends Module_base {
                 CPU_Regs.reg_eip=offset;
 
                 Segs_SSval=n_ss;
-                Segs_SSphys=(int)n_ss_desc_5.GetBase();
+                Segs_SSphys=n_ss_desc_5.GetBase();
                 if (n_ss_desc_5.Big()!=0) {
                     cpu.stack.big=true;
                     cpu.stack.mask=0xffffffff;
                     cpu.stack.notmask=0;
-                    CPU_Regs.reg_esp.dword(n_esp+bytes);
+                    CPU_Regs.reg_esp.dword=n_esp+bytes;
                 } else {
                     cpu.stack.big=false;
                     cpu.stack.mask=0xffff;
                     cpu.stack.notmask=0xffff0000;
-                    CPU_Regs.reg_esp.word((int)((n_esp & 0xffffl)+bytes));
+                    CPU_Regs.reg_esp.word((n_esp & 0xffff)+bytes);
                 }
 
                 CPU_CheckSegments();
@@ -2053,7 +2053,7 @@ public class CPU extends Module_base {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         if ((cr==1) || (cr>4)) return CPU_PrepareException(EXCEPTION_UD,0);
-        retvalue.dword(CPU_GET_CRX(cr));
+        retvalue.dword=CPU_GET_CRX(cr);
         return false;
     }
 
@@ -2107,7 +2107,7 @@ public class CPU extends Module_base {
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, DR"+dr);
-            retvalue.dword(0);
+            retvalue.dword=0;
             break;
         }
         return false;
@@ -2136,7 +2136,7 @@ public class CPU extends Module_base {
 //	case 3:
         case 6:
         case 7:
-            retvalue.dword(cpu.trx[tr]);
+            retvalue.dword=cpu.trx[tr];
             return false;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, TR"+tr);
@@ -2146,7 +2146,7 @@ public class CPU extends Module_base {
     }
 
 
-    public static /*Bitu*/long CPU_SMSW() {
+    public static /*Bitu*/int CPU_SMSW() {
         return cpu.cr0;
     }
 
@@ -2679,33 +2679,33 @@ public class CPU extends Module_base {
         if (CPU_ArchitectureType<CPU_ARCHTYPE_486NEW) return false;
         switch (CPU_Regs.reg_eax.dword) {
         case 0:	/* Vendor ID String and maximum level? */
-            CPU_Regs.reg_eax.dword(1);  /* Maximum level */
-            CPU_Regs.reg_ebx.dword('G' | ('e' << 8) | ('n' << 16) | ('u'<< 24));
-            CPU_Regs.reg_edx.dword('i' | ('n' << 8) | ('e' << 16) | ('I'<< 24));
-            CPU_Regs.reg_ecx.dword('n' | ('t' << 8) | ('e' << 16) | ('l'<< 24));
+            CPU_Regs.reg_eax.dword=1;  /* Maximum level */
+            CPU_Regs.reg_ebx.dword='G' | ('e' << 8) | ('n' << 16) | ('u'<< 24);
+            CPU_Regs.reg_edx.dword='i' | ('n' << 8) | ('e' << 16) | ('I'<< 24);
+            CPU_Regs.reg_ecx.dword='n' | ('t' << 8) | ('e' << 16) | ('l'<< 24);
             break;
         case 1:	/* get processor type/family/model/stepping and feature flags */
             if ((CPU_ArchitectureType==CPU_ARCHTYPE_486NEW) ||
                 (CPU_ArchitectureType==CPU_ARCHTYPE_MIXED)) {
-                CPU_Regs.reg_eax.dword(0x402);		/* intel 486dx */
-                CPU_Regs.reg_ebx.dword(0);			/* Not Supported */
-                CPU_Regs.reg_ecx.dword(0);			/* No features */
-                CPU_Regs.reg_edx.dword(0x00000001);	/* FPU */
+                CPU_Regs.reg_eax.dword=0x402;		/* intel 486dx */
+                CPU_Regs.reg_ebx.dword=0;			/* Not Supported */
+                CPU_Regs.reg_ecx.dword=0;			/* No features */
+                CPU_Regs.reg_edx.dword=0x00000001;	/* FPU */
             } else if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUM) {
-                CPU_Regs.reg_eax.dword(0x513);		/* intel pentium */
-                CPU_Regs.reg_ebx.dword(0);			/* Not Supported */
-                CPU_Regs.reg_ecx.dword(0);			/* No features */
-                CPU_Regs.reg_edx.dword(0x00000011);	/* FPU+TimeStamp/RDTSC */
+                CPU_Regs.reg_eax.dword=0x513;		/* intel pentium */
+                CPU_Regs.reg_ebx.dword=0;			/* Not Supported */
+                CPU_Regs.reg_ecx.dword=0;			/* No features */
+                CPU_Regs.reg_edx.dword=0x00000011;	/* FPU+TimeStamp/RDTSC */
             } else {
                 return false;
             }
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled CPUID Function "+Integer.toString(CPU_Regs.reg_eax.dword,16));
-            CPU_Regs.reg_eax.dword(0);
-            CPU_Regs.reg_ebx.dword(0);
-            CPU_Regs.reg_ecx.dword(0);
-            CPU_Regs.reg_edx.dword(0);
+            CPU_Regs.reg_eax.dword=0;
+            CPU_Regs.reg_ebx.dword=0;
+            CPU_Regs.reg_ecx.dword=0;
+            CPU_Regs.reg_edx.dword=0;
             break;
         }
         return true;
@@ -2846,14 +2846,14 @@ public class CPU extends Module_base {
         }
 //		Section_prop * section=static_cast<Section_prop *>(configuration);
         inited=true;
-        CPU_Regs.reg_eax.dword(0);
-        CPU_Regs.reg_ebx.dword(0);
-        CPU_Regs.reg_ecx.dword(0);
-        CPU_Regs.reg_edx.dword(0);
-        CPU_Regs.reg_edi.dword(0);
-        CPU_Regs.reg_esi.dword(0);
-        CPU_Regs.reg_ebp.dword(0);
-        CPU_Regs.reg_esp.dword(0);
+        CPU_Regs.reg_eax.dword=0;
+        CPU_Regs.reg_ebx.dword=0;
+        CPU_Regs.reg_ecx.dword=0;
+        CPU_Regs.reg_edx.dword=0;
+        CPU_Regs.reg_edi.dword=0;
+        CPU_Regs.reg_esi.dword=0;
+        CPU_Regs.reg_ebp.dword=0;
+        CPU_Regs.reg_esp.dword=0;
 
         CPU_Regs.SegSet16CS(0);
         CPU_Regs.SegSet16DS(0);

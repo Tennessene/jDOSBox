@@ -84,7 +84,7 @@ public class Prefix_66_0f extends Prefix_66 {
                         CPU.CPU_LIDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa + 2));
                         break;
                     case 0x04:										/* SMSW */
-                        Memory.mem_writew(eaa,(int)(CPU.CPU_SMSW() & 0xFFFFl));
+                        Memory.mem_writew(eaa,CPU.CPU_SMSW() & 0xFFFF);
                         break;
                     case 0x06:										/* LMSW */
                         limit=Memory.mem_readw(eaa);
@@ -104,7 +104,7 @@ public class Prefix_66_0f extends Prefix_66 {
                         if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
                         return ILLEGAL_OPCODE;
                     case 0x04:										/* SMSW */
-                        Modrm.GetEArd[rm].dword(CPU.CPU_SMSW());
+                        Modrm.GetEArd[rm].dword=CPU.CPU_SMSW();
                         break;
                     case 0x06:										/* LMSW */
                         if (CPU.CPU_LMSW(Modrm.GetEArd[rm].dword)) return RUNEXCEPTION();
@@ -129,7 +129,7 @@ public class Prefix_66_0f extends Prefix_66 {
                 } else {
                     /*PhysPt*/int eaa = getEaa(rm);CPU.CPU_LAR(Memory.mem_readw(eaa),int_ref_1);
                 }
-                Modrm.Getrd[rm].dword(int_ref_1.value);
+                Modrm.Getrd[rm].dword=int_ref_1.value;
                 return HANDLED;
             }
         };
@@ -376,7 +376,7 @@ public class Prefix_66_0f extends Prefix_66 {
                 if (rm >= 0xc0 ) {
                     Reg eard = Modrm.GetEArd[rm];
                     SETFLAGBIT(CF,(eard.dword & mask)!=0);
-                    eard.dword(eard.dword|mask);
+                    eard.dword|=mask;
                 } else {
                     /*PhysPt*/int eaa = getEaa(rm);eaa+=(rd.dword>>5)*4; // intentional signed shift
                     /*Bit32u*/int old=Memory.mem_readd(eaa);
@@ -515,7 +515,7 @@ public class Prefix_66_0f extends Prefix_66 {
                 if (rm >= 0xc0 ) {
                     Reg eard = Modrm.GetEArd[rm];
                     SETFLAGBIT(CF,(eard.dword & mask)!=0);
-                    eard.dword(eard.dword & ~mask);
+                    eard.dword&=~mask;
                 } else {
                     /*PhysPt*/int eaa = getEaa(rm);eaa+=(rd.dword>>5)*4; // intentional signed shift
                     /*Bit32u*/int old=Memory.mem_readd(eaa);
@@ -554,8 +554,8 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b6] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword(Modrm.GetEArb[rm].get());}
-                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readb(eaa));}
+                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword=Modrm.GetEArb[rm].get();}
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword=Memory.mem_readb(eaa);}
                 return HANDLED;
             }
         };
@@ -564,8 +564,8 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b7] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword(Modrm.GetEArw[rm].word());}
-                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readw(eaa));}
+                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword=Modrm.GetEArw[rm].word();}
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword=Memory.mem_readw(eaa);}
                 return HANDLED;
             }
         };
@@ -683,8 +683,8 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3be] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword((byte)(Modrm.GetEArb[rm].get()));}
-                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword( (byte)Memory.mem_readb(eaa));}
+                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword=(byte)(Modrm.GetEArb[rm].get());}
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword=(byte)Memory.mem_readb(eaa);}
                 return HANDLED;
             }
         };
@@ -693,8 +693,8 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3bf] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword((short)(Modrm.GetEArw[rm].word()));}
-                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword( (short)Memory.mem_readw(eaa));} // Yes that short signed cast is intentional
+                if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword=(short)(Modrm.GetEArw[rm].word());}
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword=(short)Memory.mem_readw(eaa);} // Yes that short signed cast is intentional
                 return HANDLED;
             }
         };

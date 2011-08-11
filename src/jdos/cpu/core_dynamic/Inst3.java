@@ -294,7 +294,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             int eaa = g.call();
-            e.dword(Instructions.SBBD(Memory.mem_readd(eaa), e.dword));
+            e.dword=Instructions.SBBD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -1444,7 +1444,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword(CPU.Segs_ESval & 0xFFFF); // this dword assignment is intentional
+            eard.dword=CPU.Segs_ESval & 0xFFFF; // this dword assignment is intentional
             return Constants.BR_Normal;
         }
     }
@@ -1456,7 +1456,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword(CPU.Segs_CSval & 0xFFFF); // this dword assignment is intentional
+            eard.dword=CPU.Segs_CSval & 0xFFFF; // this dword assignment is intentional
             return Constants.BR_Normal;
         }
     }
@@ -1468,7 +1468,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword(CPU.Segs_SSval & 0xFFFF); // this dword assignment is intentional
+            eard.dword=CPU.Segs_SSval & 0xFFFF; // this dword assignment is intentional
             return Constants.BR_Normal;
         }
     }
@@ -1480,7 +1480,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword(CPU.Segs_DSval & 0xFFFF); // this dword assignment is intentional
+            eard.dword=CPU.Segs_DSval & 0xFFFF; // this dword assignment is intentional
             return Constants.BR_Normal;
         }
     }
@@ -1492,7 +1492,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword(CPU.Segs_FSval & 0xFFFF); // this dword assignment is intentional
+            eard.dword=CPU.Segs_FSval & 0xFFFF; // this dword assignment is intentional
             return Constants.BR_Normal;
         }
     }
@@ -1504,7 +1504,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword(CPU.Segs_GSval & 0xFFFF); // this dword assignment is intentional
+            eard.dword=CPU.Segs_GSval & 0xFFFF; // this dword assignment is intentional
             return Constants.BR_Normal;
         }
     }
@@ -1520,8 +1520,7 @@ public class Inst3 extends Helper {
         public int call() {
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
-            int eaa = get_eaa.call();
-            rd.dword(eaa);
+            rd.dword = get_eaa.call();
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
@@ -1540,8 +1539,7 @@ public class Inst3 extends Helper {
         public int call() {
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
-            int eaa = get_eaa.call();
-            rd.dword(eaa);
+            rd.dword = get_eaa.call();
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
@@ -1682,7 +1680,7 @@ public class Inst3 extends Helper {
             this.reg = reg;
         }
         public int call() {
-            reg.dword(id);
+            reg.dword=id;
             return Constants.BR_Normal;
         }
     }

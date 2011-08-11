@@ -48,7 +48,7 @@ public class Inst4 extends Helper {
         }
 
         public int call() {
-            eard.dword(CPU.CPU_SMSW());
+            eard.dword=CPU.CPU_SMSW();
             return Constants.BR_Normal;
         }
     }
@@ -653,9 +653,9 @@ static abstract public class JumpCond32_d extends Op {
         }
         public int call() {
             Flags.FillFlags();
-            int mask=1 << (rd.dword() & 31);
-            SETFLAGBIT(CF,(eard.dword() & mask)!=0);
-            eard.dword(eard.dword() & ~mask);
+            int mask=1 << (rd.dword & 31);
+            SETFLAGBIT(CF,(eard.dword & mask)!=0);
+            eard.dword&=~mask;
             return Constants.BR_Normal;
         }
     }
@@ -731,7 +731,7 @@ static abstract public class JumpCond32_d extends Op {
             earb = Mod.eb(rm);
         }
         public int call() {
-            rd.dword(earb.get8());
+            rd.dword=earb.get8();
             return Constants.BR_Normal;
         }
     }
@@ -746,7 +746,7 @@ static abstract public class JumpCond32_d extends Op {
         }
         public int call() {
             int eaa=get_eaa.call();
-            rd.dword(Memory.mem_readb(eaa));
+            rd.dword=Memory.mem_readb(eaa);
             return Constants.BR_Normal;
         }
     }
@@ -760,7 +760,7 @@ static abstract public class JumpCond32_d extends Op {
             earw = Mod.ew(rm);
         }
         public int call() {
-            rd.dword(earw.word());
+            rd.dword=earw.word();
             return Constants.BR_Normal;
         }
     }
@@ -775,7 +775,7 @@ static abstract public class JumpCond32_d extends Op {
         }
         public int call() {
             int eaa=get_eaa.call();
-            rd.dword(Memory.mem_readw(eaa));
+            rd.dword=Memory.mem_readw(eaa);
             return Constants.BR_Normal;
         }
     }
@@ -959,7 +959,7 @@ static abstract public class JumpCond32_d extends Op {
             Flags.FillFlags();
             int mask=1 << (rd.dword & 31);
             SETFLAGBIT(CF,(eard.dword & mask)!=0);
-            eard.dword(eard.dword^mask);
+            eard.dword^=mask;
             return Constants.BR_Normal;
         }
     }
@@ -1011,7 +1011,7 @@ static abstract public class JumpCond32_d extends Op {
                 int result = 0;
                 while ((value & 0x01)==0) { result++; value>>>=1; }
                 SETFLAGBIT(ZF,false);
-                rd.dword(result);
+                rd.dword=result;
             }
             Flags.lflags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
@@ -1102,7 +1102,7 @@ static abstract public class JumpCond32_d extends Op {
         }
 
         public int call() {
-            rd.dword((byte)earb.get8());
+            rd.dword=(byte)earb.get8();
             return Constants.BR_Normal;
         }
     }
@@ -1118,7 +1118,7 @@ static abstract public class JumpCond32_d extends Op {
 
         public int call() {
             int eaa=get_eaa.call();
-            rd.dword((byte)Memory.mem_readb(eaa));
+            rd.dword=(byte)Memory.mem_readb(eaa);
             return Constants.BR_Normal;
         }
     }
@@ -1133,7 +1133,7 @@ static abstract public class JumpCond32_d extends Op {
         }
 
         public int call() {
-            rd.dword((short)earw.word());
+            rd.dword=(short)earw.word();
             return Constants.BR_Normal;
         }
     }
@@ -1149,7 +1149,7 @@ static abstract public class JumpCond32_d extends Op {
 
         public int call() {
             int eaa=get_eaa.call();
-            rd.dword((short)Memory.mem_readw(eaa));
+            rd.dword=(short)Memory.mem_readw(eaa);
             return Constants.BR_Normal;
         }
     }

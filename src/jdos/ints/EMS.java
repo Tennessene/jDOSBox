@@ -907,22 +907,22 @@ public class EMS extends Module_base {
                         Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x10,0x0000ffff);
                         Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x14,0x00009200);
 
-                        CPU_Regs.reg_ebx.dword(vcpi.pm_interface&0xffff);
+                        CPU_Regs.reg_ebx.dword=vcpi.pm_interface&0xffff;
                         CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                         break;
                         }
                     case 0x02:		/* VCPI Maximum Physical Address */
-                        CPU_Regs.reg_edx.dword(((Memory.MEM_TotalPages()*Memory.MEM_PAGESIZE)-1)&0xfffff000l);
+                        CPU_Regs.reg_edx.dword=((Memory.MEM_TotalPages()*Memory.MEM_PAGESIZE)-1)&0xfffff000;
                         CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                         break;
                     case 0x03:		/* VCPI Get Number of Free Pages */
-                        CPU_Regs.reg_edx.dword(Memory.MEM_FreeTotal());
+                        CPU_Regs.reg_edx.dword=Memory.MEM_FreeTotal();
                         CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                         break;
                     case 0x04: {	/* VCPI Allocate one Page */
                         /*MemHandle*/int mem = Memory.MEM_AllocatePages(1,false);
                         if (mem!=0) {
-                            CPU_Regs.reg_edx.dword(mem<<12);
+                            CPU_Regs.reg_edx.dword=mem<<12;
                             CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                         } else {
                             CPU_Regs.reg_eax.high(EMM_OUT_OF_LOG);
@@ -951,11 +951,11 @@ public class EMS extends Module_base {
                                 /*MemHandle*/int memh=Memory.MEM_NextHandleAt(
                                     emm_handles[handle].mem,
                                     emm_mappings[phys_page].page()*4);
-                                CPU_Regs.reg_edx.dword((memh+(CPU_Regs.reg_ecx.word()&3))<<12);
+                                CPU_Regs.reg_edx.dword=(memh+(CPU_Regs.reg_ecx.word()&3))<<12;
                             }
                         } else {
                             /* Page not in Pageframe, so just translate into physical address */
-                            CPU_Regs.reg_edx.dword(CPU_Regs.reg_ecx.word()<<12);
+                            CPU_Regs.reg_edx.dword=CPU_Regs.reg_ecx.word()<<12;
                         }
 
                         CPU_Regs.reg_eax.high(EMM_NO_ERROR);
@@ -1044,13 +1044,13 @@ public class EMS extends Module_base {
         //	LOG_MSG("VCPI PMODE handler, function %x",reg_ax);
             switch (CPU_Regs.reg_eax.word()) {
             case 0xDE03:		/* VCPI Get Number of Free Pages */
-                CPU_Regs.reg_edx.dword(Memory.MEM_FreeTotal());
+                CPU_Regs.reg_edx.dword=Memory.MEM_FreeTotal();
                 CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                 break;
             case 0xDE04: {		/* VCPI Allocate one Page */
                 /*MemHandle*/int mem = Memory.MEM_AllocatePages(1,false);
                 if (mem!=0) {
-                    CPU_Regs.reg_edx.dword(mem<<12);
+                    CPU_Regs.reg_edx.dword=mem<<12;
                     CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                 } else {
                     CPU_Regs.reg_eax.high(EMM_OUT_OF_LOG);
@@ -1126,16 +1126,16 @@ public class EMS extends Module_base {
                                 /*Bitu*/int which=(rm_val >> 3) & 7;
                                 if ((rm_val<0xc0) || (rm_val>=0xe8))
                                     Log.exit("Invalid opcode 0x0f 0x20 "+Integer.toString(rm_val, 16)+" caused a protection fault!");
-                                /*Bit32u*/long crx=CPU.CPU_GET_CRX(which);
+                                /*Bit32u*/int crx=CPU.CPU_GET_CRX(which);
                                 switch (rm_val&7) {
-                                    case 0:	CPU_Regs.reg_eax.dword(crx);	break;
-                                    case 1:	CPU_Regs.reg_ecx.dword(crx);	break;
-                                    case 2:	CPU_Regs.reg_edx.dword(crx);	break;
-                                    case 3:	CPU_Regs.reg_ebx.dword(crx);	break;
-                                    case 4:	CPU_Regs.reg_esp.dword(crx);	break;
-                                    case 5:	CPU_Regs.reg_ebp.dword(crx);	break;
-                                    case 6:	CPU_Regs.reg_esi.dword(crx);	break;
-                                    case 7:	CPU_Regs.reg_edi.dword(crx);	break;
+                                    case 0:	CPU_Regs.reg_eax.dword=crx;	break;
+                                    case 1:	CPU_Regs.reg_ecx.dword=crx;	break;
+                                    case 2:	CPU_Regs.reg_edx.dword=crx;	break;
+                                    case 3:	CPU_Regs.reg_ebx.dword=crx;	break;
+                                    case 4:	CPU_Regs.reg_esp.dword=crx;	break;
+                                    case 5:	CPU_Regs.reg_ebp.dword=crx;	break;
+                                    case 6:	CPU_Regs.reg_esi.dword=crx;	break;
+                                    case 7:	CPU_Regs.reg_edi.dword=crx;	break;
                                 }
                                 Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+3);
                                 }

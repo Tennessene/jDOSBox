@@ -58,7 +58,7 @@ public class testGrp3 extends InstructionsTestCase {
         pushIb((byte) (0xc3+(2<<3)));
         CPU_Regs.reg_ebx.dword(0xFFF0);
         decoder.call();
-        assertTrue(CPU_Regs.reg_ebx.dword()==0xFF0F);
+        assertTrue(CPU_Regs.reg_ebx.dword==0xFF0F);
 
         newInstruction(0xf6);
         pushIb((byte)(2<<3));
@@ -79,7 +79,7 @@ public class testGrp3 extends InstructionsTestCase {
         pushIb((byte) (0xc3+(3<<3)));
         CPU_Regs.reg_ebx.dword(0xFFF0);
         decoder.call();
-        assertTrue(CPU_Regs.reg_ebx.dword()==0xFF10);
+        assertTrue(CPU_Regs.reg_ebx.dword==0xFF10);
 
         newInstruction(0xf6);
         pushIb((byte)(3<<3));
@@ -101,7 +101,7 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0xFF03);
         CPU_Regs.reg_ebx.dword(0xFF02);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0x0006);
+        assertTrue(CPU_Regs.reg_eax.dword==0x0006);
         assertTrue(!Flags.get_OF());
 
         newInstruction(0xf6);
@@ -111,7 +111,7 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writeb(MEM_BASE_DS - 1, 0xCD);
         Memory.mem_writeb(MEM_BASE_DS + 1, 0xCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0x0100);
+        assertTrue(CPU_Regs.reg_eax.dword==0x0100);
         assertTrue(Flags.get_OF());
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
@@ -124,7 +124,7 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0x44FA); // -6 x 2
         CPU_Regs.reg_ebx.dword(0xFF02);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xFFF4);
+        assertTrue(CPU_Regs.reg_eax.dword==0xFFF4);
         assertTrue(!Flags.get_OF());
 
         newInstruction(0xf6);
@@ -134,7 +134,7 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writeb(MEM_BASE_DS - 1, 0xCD);
         Memory.mem_writeb(MEM_BASE_DS + 1, 0xCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xFE00);
+        assertTrue(CPU_Regs.reg_eax.dword==0xFE00);
         assertTrue(Flags.get_OF());
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
@@ -147,7 +147,7 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0xFFFF0031); // 49/5
         CPU_Regs.reg_ebx.dword(0xFF05);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xFFFF0409l);
+        assertTrue(CPU_Regs.reg_eax.dword==0xFFFF0409);
 
         newInstruction(0xf6);
         pushIb((byte)(6<<3));
@@ -156,7 +156,7 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writeb(MEM_BASE_DS - 1, 0xCD);
         Memory.mem_writeb(MEM_BASE_DS + 1, 0xCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xFFFF05B8l);
+        assertTrue(CPU_Regs.reg_eax.dword==0xFFFF05B8);
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
         Memory.mem_writeb(MEM_BASE_DS + 1, 0);
@@ -168,7 +168,7 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0xFFFF0031); // 49 / -6
         CPU_Regs.reg_ebx.dword(0xFFFA);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xFFFF01F8l); // -8 rem 1
+        assertTrue(CPU_Regs.reg_eax.dword==0xFFFF01F8); // -8 rem 1
 
         newInstruction(0xf6);
         pushIb((byte)(7<<3));
@@ -177,7 +177,7 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writeb(MEM_BASE_DS - 1, 0xCD);
         Memory.mem_writeb(MEM_BASE_DS + 1, 0xCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xFFFF0081l);
+        assertTrue(CPU_Regs.reg_eax.dword==0xFFFF0081);
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
         Memory.mem_writeb(MEM_BASE_DS + 1, 0);
@@ -225,7 +225,7 @@ public class testGrp3 extends InstructionsTestCase {
         pushIb((byte) (0xc3+(2<<3)));
         CPU_Regs.reg_ebx.dword(0xF0F0);
         decoder.call();
-        assertTrue(CPU_Regs.reg_ebx.dword()==0x0F0F);
+        assertTrue(CPU_Regs.reg_ebx.dword==0x0F0F);
 
         newInstruction(0xf7);
         pushIb((byte)(2<<3));
@@ -246,7 +246,7 @@ public class testGrp3 extends InstructionsTestCase {
         pushIb((byte) (0xc3+(3<<3)));
         CPU_Regs.reg_ebx.dword(0xF000);
         decoder.call();
-        assertTrue(CPU_Regs.reg_ebx.dword()==0x1000);
+        assertTrue(CPU_Regs.reg_ebx.dword==0x1000);
 
         newInstruction(0xf7);
         pushIb((byte)(3<<3));
@@ -268,7 +268,7 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0x0300);
         CPU_Regs.reg_ebx.dword(0x0003);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0x0900);
+        assertTrue(CPU_Regs.reg_eax.dword==0x0900);
         assertTrue(!Flags.get_OF());
 
         newInstruction(0xf7);
@@ -278,8 +278,8 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writew(MEM_BASE_DS - 2, 0xCDCD);
         Memory.mem_writew(MEM_BASE_DS + 2, 0xCDCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword() == 0x0000);
-        assertTrue(CPU_Regs.reg_edx.dword()==0x0001);
+        assertTrue(CPU_Regs.reg_eax.dword == 0x0000);
+        assertTrue(CPU_Regs.reg_edx.dword==0x0001);
         assertTrue(Flags.get_OF());
         Memory.mem_writew(MEM_BASE_DS - 2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
@@ -292,7 +292,7 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0xFA00); // -1536 x 2
         CPU_Regs.reg_ebx.dword(0x2);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xF400);
+        assertTrue(CPU_Regs.reg_eax.dword==0xF400);
         assertTrue(!Flags.get_OF());
 
         newInstruction(0xf7);
@@ -302,8 +302,8 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writew(MEM_BASE_DS - 2, 0xCDCD);
         Memory.mem_writew(MEM_BASE_DS + 2, 0xCDCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword() == 0x0000);
-        assertTrue(CPU_Regs.reg_edx.dword()==0xFF2E);
+        assertTrue(CPU_Regs.reg_eax.dword == 0x0000);
+        assertTrue(CPU_Regs.reg_edx.dword==0xFF2E);
         assertTrue(Flags.get_OF());
         Memory.mem_writew(MEM_BASE_DS - 2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
@@ -316,8 +316,8 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0x3100); // 12544/5
         CPU_Regs.reg_ebx.dword(0x05);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0x09CC);
-        assertTrue(CPU_Regs.reg_edx.dword()==4);
+        assertTrue(CPU_Regs.reg_eax.dword==0x09CC);
+        assertTrue(CPU_Regs.reg_edx.dword==4);
 
         newInstruction(0xf7);
         pushIb((byte)(6<<3));
@@ -327,8 +327,8 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writew(MEM_BASE_DS - 2, 0xCD);
         Memory.mem_writew(MEM_BASE_DS + 2, 0xCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword() == 0x22CF);
-        assertTrue(CPU_Regs.reg_edx.dword()==0xBF);
+        assertTrue(CPU_Regs.reg_eax.dword == 0x22CF);
+        assertTrue(CPU_Regs.reg_edx.dword==0xBF);
         Memory.mem_writew(MEM_BASE_DS - 2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS + 2, 0);
@@ -340,8 +340,8 @@ public class testGrp3 extends InstructionsTestCase {
         CPU_Regs.reg_eax.dword(0x3100); // 12544 / -6
         CPU_Regs.reg_ebx.dword(0xFFFA);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0xF7D6);
-        assertTrue(CPU_Regs.reg_edx.dword()==0x04);
+        assertTrue(CPU_Regs.reg_eax.dword==0xF7D6);
+        assertTrue(CPU_Regs.reg_edx.dword==0x04);
 
         newInstruction(0xf7);
         pushIb((byte)(7<<3));
@@ -351,8 +351,8 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writew(MEM_BASE_DS - 2, 0xCD);
         Memory.mem_writew(MEM_BASE_DS + 2, 0xCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword() == 0x3FE0);
-        assertTrue(CPU_Regs.reg_edx.dword()==0xFFFF);
+        assertTrue(CPU_Regs.reg_eax.dword == 0x3FE0);
+        assertTrue(CPU_Regs.reg_edx.dword==0xFFFF);
         Memory.mem_writew(MEM_BASE_DS - 2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS + 2, 0);
@@ -502,8 +502,8 @@ public class testGrp3 extends InstructionsTestCase {
         Memory.mem_writed(MEM_BASE_DS - 4, 0xCDCDCDCD);
         Memory.mem_writed(MEM_BASE_DS + 4, 0xCDCDCDCD);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword()==0x22CFC);
-        assertTrue(CPU_Regs.reg_edx.dword()==0xBC000);
+        assertTrue(CPU_Regs.reg_eax.dword==0x22CFC);
+        assertTrue(CPU_Regs.reg_edx.dword==0xBC000);
         Memory.mem_writed(MEM_BASE_DS - 4, 0);
         Memory.mem_writed(MEM_BASE_DS, 0);
         Memory.mem_writed(MEM_BASE_DS + 4, 0);

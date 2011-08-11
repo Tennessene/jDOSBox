@@ -398,7 +398,7 @@ public class XMS extends Module_base {
                 CPU_Regs.reg_edx.word(dx.value);
                 CPU_Regs.reg_eax.dword&=0xffff;
                 CPU_Regs.reg_edx.dword&=0xffff;
-                CPU_Regs.reg_ecx.dword((Memory.MEM_TotalPages()*Memory.MEM_PAGESIZE)-1);			// highest known physical memory address
+                CPU_Regs.reg_ecx.dword=(Memory.MEM_TotalPages()*Memory.MEM_PAGESIZE)-1;			// highest known physical memory address
                 break;
             }
             case XMS_GET_EMB_HANDLE_INFORMATION_EXT: {					/* 8e */

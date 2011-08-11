@@ -804,25 +804,25 @@ public class Int10 {
                 }
                 switch (CPU_Regs.reg_ebx.low()) {
                 case 0x00:
-                    CPU_Regs.reg_edi.dword(Memory.RealOff(int10.rom.pmode_interface));
+                    CPU_Regs.reg_edi.dword=Memory.RealOff(int10.rom.pmode_interface);
                     CPU_Regs.SegSet16ES(Memory.RealSeg(int10.rom.pmode_interface));
                     CPU_Regs.reg_ecx.word(int10.rom.pmode_interface_size);
                     CPU_Regs.reg_eax.word(0x004f);
                     break;
                 case 0x01:						/* Get code for "set window" */
-                    CPU_Regs.reg_edi.dword(Memory.RealOff(int10.rom.pmode_interface)+int10.rom.pmode_interface_window);
+                    CPU_Regs.reg_edi.dword=Memory.RealOff(int10.rom.pmode_interface)+int10.rom.pmode_interface_window;
                     CPU_Regs.SegSet16ES(Memory.RealSeg(int10.rom.pmode_interface));
                     CPU_Regs.reg_ecx.word(0x10);		//0x10 should be enough for the callbacks
                     CPU_Regs.reg_eax.word(0x004f);
                     break;
                 case 0x02:						/* Get code for "set display start" */
-                    CPU_Regs.reg_edi.dword(Memory.RealOff(int10.rom.pmode_interface)+int10.rom.pmode_interface_start);
+                    CPU_Regs.reg_edi.dword=Memory.RealOff(int10.rom.pmode_interface)+int10.rom.pmode_interface_start;
                     CPU_Regs.SegSet16ES(Memory.RealSeg(int10.rom.pmode_interface));
                     CPU_Regs.reg_ecx.word(0x10);		//0x10 should be enough for the callbacks
                     CPU_Regs.reg_eax.word(0x004f);
                     break;
                 case 0x03:						/* Get code for "set palette" */
-                    CPU_Regs.reg_edi.dword(Memory.RealOff(int10.rom.pmode_interface)+int10.rom.pmode_interface_palette);
+                    CPU_Regs.reg_edi.dword=Memory.RealOff(int10.rom.pmode_interface)+int10.rom.pmode_interface_palette;
                     CPU_Regs.SegSet16ES(Memory.RealSeg(int10.rom.pmode_interface));
                     CPU_Regs.reg_ecx.word(0x10);		//0x10 should be enough for the callbacks
                     CPU_Regs.reg_eax.word(0x004f);

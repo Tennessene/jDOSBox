@@ -61,9 +61,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Mod.ed(rm).dword(ed);
         decoder.call();
         if (gdResult)
-            assertTrue((int) Mod.gd(rm).dword()==(int)result);
+            assertTrue(Mod.gd(rm).dword==(int)result);
         else
-            assertTrue((int) Mod.ed(rm).dword()==(int)result);
+            assertTrue(Mod.ed(rm).dword==(int)result);
     }
 
     protected void runRegs(byte op, long ed, long gd, boolean gbResult, long result, long result2) {
@@ -75,14 +75,14 @@ abstract public class InstructionsTestCase extends TestCase {
             decoder.call();
             if (Mod.gd(rm) == Mod.ed(rm)) {
                 if (gbResult)
-                    assertTrue("rm = "+rm, (int) Mod.gd(rm).dword()==(int)result2);
+                    assertTrue("rm = "+rm, Mod.gd(rm).dword==(int)result2);
                 else
-                    assertTrue("rm = "+rm, (int) Mod.ed(rm).dword()==(int)result2);
+                    assertTrue("rm = "+rm, Mod.ed(rm).dword==(int)result2);
             } else {
                 if (gbResult)
-                    assertTrue("rm = "+rm, (int) Mod.gd(rm).dword()==(int)result);
+                    assertTrue("rm = "+rm, Mod.gd(rm).dword==(int)result);
                 else
-                    assertTrue("rm = "+rm, (int) Mod.ed(rm).dword()==(int)result);
+                    assertTrue("rm = "+rm, Mod.ed(rm).dword==(int)result);
             }
         }
     }

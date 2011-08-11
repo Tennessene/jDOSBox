@@ -52,7 +52,7 @@ public class Render {
             public double ratio;
             public float fps;
             public /*Bitu*/int outPitch;
-            public /*Bit8u*/byte[] outWrite;
+            public /*Bit8u*/int[] outWrite;
             public int outWriteOff;
         }
         public SRC src = new SRC();
@@ -142,7 +142,7 @@ public class Render {
             Check_Palette();
         }
 
-        byte[][] outWrite = new byte[1][];
+        int[][] outWrite = new int[1][];
         IntRef outPitch = new IntRef(render.src.outPitch);
         Main.GFX_StartUpdate(outWrite, outPitch);
         render.src.outPitch = outPitch.value;

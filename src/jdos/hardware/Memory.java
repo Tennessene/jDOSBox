@@ -130,6 +130,10 @@ public class Memory extends Module_base {
             dest[i+dest_offset] = host_readbs(src + i);
     }
 
+    static public void host_memcpy(int[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
+        System.arraycopy(direct, src>>2, dest, dest_offset>>2, size>>2);
+    }
+
     static public void host_memcpy(/*PhysPt*/int dst,/*PhysPt*/int src,/*Bitu*/int amount) {
         int src_align = src & 0x3;
         int dst_align = dst & 0x3;

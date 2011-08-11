@@ -411,18 +411,30 @@ public class Main {
                 int type = buffer.getRaster().getTransferType();
                 switch (type) {
                     case DataBuffer.TYPE_BYTE:
-                        System.arraycopy(pixelBuffer, 0, byte_rawImageData, 0, pixelBuffer.length);
+                    {
+                        int pos = 0;
+                        for (int i=0;i<pixelBuffer.length;i++) {
+                            int p = pixelBuffer[i];
+                            byte_rawImageData[pos++] = (byte)p;
+                            byte_rawImageData[pos++] = (byte)(p >> 8);
+                            byte_rawImageData[pos++] = (byte)(p >> 16);
+                            byte_rawImageData[pos++] = (byte)(p >> 24);
+                        }
                         break;
+                    }
                     case DataBuffer.TYPE_SHORT:
                     case DataBuffer.TYPE_USHORT:
-                        for (int i=0,j=0;i<short_rawImageData.length;i++,j+=2) {
-                            short_rawImageData[i] = (short)((pixelBuffer[j] & 0xFF) | ((pixelBuffer[j+1] & 0xFF) << 8));
+                    {
+                        int pos = 0;
+                        for (int i=0;i<pixelBuffer.length;i++) {
+                            int p = pixelBuffer[i];
+                            short_rawImageData[pos++] = (short)(p);
+                            short_rawImageData[pos++] = (short)(p >> 16);
                         }
                         break;
+                    }
                     case DataBuffer.TYPE_INT:
-                        for (int i=0,j=0;i<int_rawImageData.length;i++,j+=4) {
-                            int_rawImageData[i] = ((pixelBuffer[j] & 0xFF) | ((pixelBuffer[j+1] & 0xFF) << 8) | ((pixelBuffer[j+2] & 0xFF) << 16) | ((pixelBuffer[j+3] & 0xFF) << 24));
-                        }
+                        System.arraycopy(pixelBuffer, 0, int_rawImageData, 0, pixelBuffer.length);
                         break;
                 }
             }
@@ -432,10 +444,10 @@ public class Main {
     static byte[] byte_rawImageData;
     static short[] short_rawImageData;
     static int[] int_rawImageData;
-    static byte[] pixelBuffer;
+    static int[] pixelBuffer;
     static int pitch;
 
-    static public boolean GFX_StartUpdate(byte[][] pixels,/*Bitu*/IntRef pitch) {
+    static public boolean GFX_StartUpdate(int[][] pixels,/*Bitu*/IntRef pitch) {
         pixels[0] = pixelBuffer;
         pitch.value = Main.pitch;
         return true;
@@ -490,7 +502,7 @@ public class Main {
                 buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
                 DataBufferByte buf = (DataBufferByte) buffer.getRaster().getDataBuffer();
                 byte_rawImageData = buf.getData();
-                pixelBuffer = new byte[byte_rawImageData.length];
+                pixelBuffer = new int[byte_rawImageData.length>>2];
                 pitch = buffer_width;
             }
                 break;
@@ -499,7 +511,7 @@ public class Main {
                 buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_555_RGB);
                 DataBufferUShort buf = (DataBufferUShort) buffer.getRaster().getDataBuffer();
                 short_rawImageData = buf.getData();
-                pixelBuffer = new byte[short_rawImageData.length*2];
+                pixelBuffer = new int[short_rawImageData.length>>1];
                 pitch = buffer_width*2;
             }
                 break;
@@ -508,7 +520,7 @@ public class Main {
                 buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_565_RGB);
                 DataBufferUShort buf = (DataBufferUShort) buffer.getRaster().getDataBuffer();
                 short_rawImageData = buf.getData();
-                pixelBuffer = new byte[short_rawImageData.length*2];
+                pixelBuffer = new int[short_rawImageData.length>>1];
                 pitch = buffer_width*2;
             }
                 break;
@@ -517,7 +529,7 @@ public class Main {
                 buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_INT_RGB);
                 DataBufferInt buf = (DataBufferInt) buffer.getRaster().getDataBuffer();
                 int_rawImageData = buf.getData();
-                pixelBuffer = new byte[int_rawImageData.length*4];
+                pixelBuffer = new int[int_rawImageData.length];
                 pitch = buffer_width*4;
             }
                 break;

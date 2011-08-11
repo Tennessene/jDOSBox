@@ -23,7 +23,7 @@ public class Hardware extends Module_base {
 
     static public int CaptureState = 0;
 
-    static public void CAPTURE_AddImage(/*Bitu*/int width, /*Bitu*/int height, /*Bitu*/int bpp, /*Bitu*/int pitch, /*Bitu*/int flags, float fps, byte[] data, Render.RenderPal_t.RGB[] pal) {
+    static public void CAPTURE_AddImage(/*Bitu*/int width, /*Bitu*/int height, /*Bitu*/int bpp, /*Bitu*/int pitch, /*Bitu*/int flags, float fps, int[] data, Render.RenderPal_t.RGB[] pal) {
     }
     static public void CAPTURE_AddWave(/*Bit32u*/long freq, /*Bit32u*/long len, short[] data) {
 

@@ -3074,7 +3074,7 @@ public class Prefix_none extends StringOp {
                             /*PhysPt*/int eaa=getEaa(rm);
                             int index = Paging.getDirectIndex(eaa);
                             if (index>=0)
-                                Memory.direct[index]=(byte)~Memory.direct[index];
+                                Memory.host_writebs(index,(byte)~Memory.host_readbs(index));
                             else
                                 Memory.mem_writeb(eaa, ~Memory.mem_readb(eaa));
                         }

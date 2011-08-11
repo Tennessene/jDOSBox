@@ -372,7 +372,7 @@ public class DMA extends Module_base {
             if (page < EMM_PAGEFRAME4K) page = (int)Paging.paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];
             else if (page < Paging.LINK_START) page = (int)Paging.paging.firstmb[page];
-            data[dataOffset++]=Memory.direct[page*4096 + (offset & 4095)];
+            data[dataOffset++]=Memory.host_readbs(page*4096 + (offset & 4095));
         }
     }
 

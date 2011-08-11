@@ -68,7 +68,7 @@ public class Strings extends Core {
                                 src_index-=len-2;
                                 dst_index-=len-2;
                             }
-                            System.arraycopy(Memory.direct, src_index, Memory.direct, dst_index, len);
+                            Memory.host_memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.dword-=len;
@@ -171,7 +171,7 @@ public class Strings extends Core {
                                 src_index-=len-2;
                                 dst_index-=len-2;
                             }
-                            System.arraycopy(Memory.direct, src_index, Memory.direct, dst_index, len);
+                            Memory.host_memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.word(reg_edi.word()-len);
@@ -260,7 +260,7 @@ public class Strings extends Core {
                                 src_index-=len-4;
                                 dst_index-=len-4;
                             }
-                            System.arraycopy(Memory.direct, src_index, Memory.direct, dst_index, len);
+                            Memory.host_memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.dword-=len;
@@ -363,7 +363,7 @@ public class Strings extends Core {
                                 src_index-=len-4;
                                 dst_index-=len-4;
                             }
-                            System.arraycopy(Memory.direct, src_index, Memory.direct, dst_index, len);
+                            Memory.host_memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.word(reg_edi.word()-len);
@@ -442,7 +442,7 @@ public class Strings extends Core {
                             src_index-=len-1;
                             dst_index-=len-1;
                         }
-                        System.arraycopy(Memory.direct, src_index, Memory.direct, dst_index, len);
+                        Memory.host_memcpy(dst_index, src_index, len);
                     }
                     if (add_index<0) {
                         reg_edi.dword-=len;
@@ -535,7 +535,7 @@ public class Strings extends Core {
                             src_index-=len-1;
                             dst_index-=len-1;
                         }
-                        System.arraycopy(Memory.direct, src_index, Memory.direct, dst_index, len);
+                        Memory.host_memcpy(dst_index, src_index, len);
                     }
                     if (add_index<0) {
                         reg_edi.word(reg_edi.word()-len);

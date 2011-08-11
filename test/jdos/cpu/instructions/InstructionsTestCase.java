@@ -20,9 +20,9 @@ abstract public class InstructionsTestCase extends TestCase {
         CPU_Regs.reg_eip = cseip-0x10000;
         CPU.CPU_Cycles = 1;
         if (op>0x200) {
-            Memory.direct[cseip++] = 0x66;
+            Memory.host_writebs(cseip++, (byte)0x66);
         }
-        Memory.direct[cseip++] = (byte)op;
+        Memory.host_writebs(cseip++, (byte)op);
         CPU.Segs_ESphys=0;
         CPU.Segs_CSphys=0x10000;
         CPU.Segs_SSphys=MEM_BASE_SS;
@@ -41,17 +41,17 @@ abstract public class InstructionsTestCase extends TestCase {
         pushIb((byte)0x90);
     }
     protected void pushIb(byte ib) {
-        Memory.direct[cseip++] = ib;
+        Memory.host_writebs(cseip++, ib);
     }
     protected void pushIw(short iw) {
-        Memory.direct[cseip++]=(byte)(iw);
-	    Memory.direct[cseip++]=(byte)(iw >> 8);
+        Memory.host_writebs(cseip++, (byte)(iw));
+	    Memory.host_writebs(cseip++, (byte)(iw >> 8));
     }
     protected void pushId(int id) {
-        Memory.direct[cseip++]=(byte)(id);
-	    Memory.direct[cseip++]=(byte)(id >> 8);
-        Memory.direct[cseip++]=(byte)(id >> 16);
-        Memory.direct[cseip++]=(byte)(id >> 24);
+        Memory.host_writebs(cseip++, (byte)id);
+	    Memory.host_writebs(cseip++, (byte)(id >> 8));
+        Memory.host_writebs(cseip++, (byte)(id >> 16));
+        Memory.host_writebs(cseip++, (byte)(id >> 24));
     }
     protected void runReg(byte op, long ed, long gd, boolean gdResult, long result) {
         int rm = 0xC0;

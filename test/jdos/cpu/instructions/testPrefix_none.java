@@ -124,7 +124,7 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU.Segs_ESval = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==0xABCD);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x07
@@ -132,7 +132,7 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopES() {
         newInstruction(0x07);
         CPU_Regs.reg_esp.dword(0xFE);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0x89EF);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(CPU.Segs_ESval==0x89EF);
@@ -232,8 +232,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU.Segs_CSval = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==0xABCD);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readd(0)==0xABCD);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x0F
@@ -359,8 +359,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU.Segs_SSval = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==0xABCD);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readd(0)==0xABCD);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(Memory.host_readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x17
@@ -369,7 +369,7 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x17);
         nop();
         CPU_Regs.reg_esp.dword(0xFE);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0x89EF);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(CPU.Segs_SSval==0x89EF);
@@ -504,8 +504,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU.Segs_DSval = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==0xABCD);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readd(0)==0xABCD);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(Memory.host_readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x1F
@@ -513,7 +513,7 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopDS() {
         newInstruction(0x1F);
         CPU_Regs.reg_esp.dword(0xFE);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0x89EF);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(CPU.Segs_DSval==0x89EF);
@@ -634,13 +634,13 @@ public class testPrefix_none extends InstructionsTestCase{
     //0x26
     //SEG ES
     public void testSegES() {
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
         newInstruction(0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_DS]=0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_DS,(byte)0);
 
         newInstruction(0x26);
         pushIb((byte)0x88);
@@ -648,9 +648,9 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_eax.dword(0xAB);
         CPU.Segs_ESphys = MEM_BASE_SS;
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
-        assertTrue(Memory.direct[MEM_BASE_SS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_SS] = 0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_SS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_SS, (byte)0);
     }
 
     //0x27
@@ -810,13 +810,13 @@ public class testPrefix_none extends InstructionsTestCase{
     //0x2e
     //SEG CS
     public void testSegCS() {
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
         newInstruction(0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_DS]=0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_DS,(byte)0);
 
         newInstruction(0x2e);
         pushIb((byte)0x88);
@@ -825,9 +825,9 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_ebx.word(100);
         //CPU.Segs_CSphys = MEM_BASE_SS;
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
-        assertTrue(Memory.direct[(int)CPU.Segs_CSphys+100]==(byte)0xAB);
-        Memory.direct[(int)CPU.Segs_CSphys+100] = 0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
+        assertTrue(Memory.host_readbs(CPU.Segs_CSphys+100)==(byte)0xAB);
+        Memory.host_writebs(CPU.Segs_CSphys+100, (byte)0);
     }
 
     // 0x2f
@@ -957,13 +957,13 @@ public class testPrefix_none extends InstructionsTestCase{
     //SEG SS
     public void testSegSS() {
         // base_ds point to DS
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
         newInstruction(0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_DS]=0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_DS,(byte)0);
 
         // base_ds changed to ss
         newInstruction(0x36);
@@ -971,8 +971,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_SS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_SS] = 0;
+        assertTrue(Memory.host_readbs(MEM_BASE_SS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_SS, (byte)0);
     }
 
     // 0x37
@@ -1116,23 +1116,23 @@ public class testPrefix_none extends InstructionsTestCase{
     //SEG DS
     public void testSegDS() {
         // base_ds point to DS
-        assertTrue(Memory.direct[MEM_BASE_SS]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_SS)==0);
         newInstruction(0x88);
         pushIb((byte)3);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_SS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_SS]=0;
+        assertTrue(Memory.host_readbs(MEM_BASE_SS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_SS, (byte)0);
 
         // base_ss changed to ds
         newInstruction(0x3E);
         pushIb((byte)0x88);
         pushIb((byte)3);
         CPU_Regs.reg_eax.dword(0xAB);
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_DS] = 0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_DS, (byte)0);
     }
 
     // 0x3F
@@ -1292,9 +1292,9 @@ public class testPrefix_none extends InstructionsTestCase{
         reg.dword(0x1ABCD);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==0xABCD);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readd(0)==0xABCD);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(Memory.host_readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x50
@@ -1328,9 +1328,9 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_esp.dword(0x100);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==0x100);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readd(0)==0x100);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0x100);
+        assertTrue(Memory.host_readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0x100);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x55
@@ -1354,12 +1354,12 @@ public class testPrefix_none extends InstructionsTestCase{
     private void popWord(int instruction, CPU_Regs.Reg reg) {
         newInstruction(instruction);
         CPU_Regs.reg_esp.dword(0xFE);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0x89EF);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(reg.word()==0x89EF);
         assertTrue(reg.dword==0x89EF);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword-2).writew(0, 0);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword-2, 0);
     }
 
     // 0x58
@@ -1391,10 +1391,10 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopSp() {
         newInstruction(0x5c);
         CPU_Regs.reg_esp.dword(0xFE);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0x102);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x102);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x102);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+0xFE).writew(0, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xFE, 0);
     }
 
     // 0x5D
@@ -1430,22 +1430,22 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_edi.dword(0x1ABC7);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xF0);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xFE)).readw(0)==0xABC0);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xFC)).readw(0)==0xABC1);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xFA)).readw(0)==0xABC2);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF8)).readw(0)==0xABC3);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF6)).readw(0)==0x0100);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF4)).readw(0)==0xABC5);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF2)).readw(0)==0xABC6);
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF0)).readw(0)==0xABC7);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xFE)).writew(0, 0);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xFC)).writew(0, 0);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xFA)).writew(0, 0);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF8)).writew(0, 0);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF6)).writew(0, 0);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF4)).writew(0, 0);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF2)).writew(0, 0);
-        new Ptr(Memory.direct, (int)(CPU.Segs_SSphys+0xF0)).writew(0, 0);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xFE)==0xABC0);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xFC)==0xABC1);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xFA)==0xABC2);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xF8)==0xABC3);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xF6)==0x0100);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xF4)==0xABC5);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xF2)==0xABC6);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+0xF0)==0xABC7);
+        Memory.host_writew(CPU.Segs_SSphys+0xFE, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xFC, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xFA, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF8, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF6, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF4, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF2, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF0, 0);
     }
 
     // 0x61
@@ -1453,15 +1453,15 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopA() {
         newInstruction(0x61);
         CPU_Regs.reg_esp.dword(0xF0);
-        Ptr p = new Ptr(Memory.direct, (int)(CPU.Segs_SSphys));
-        p.writew(0xFE, 0xABC7);
-        p.writew(0xFC, 0xABC6);
-        p.writew(0xFA, 0xABC5);
-        p.writew(0xF8, 0xABC4);
-        p.writew(0xF6, 0xABC3);
-        p.writew(0xF4, 0xABC2);
-        p.writew(0xF2, 0xABC1);
-        p.writew(0xF0, 0xABC0);
+        Memory.host_writew(CPU.Segs_SSphys+0xFE, 0xABC7);
+        Memory.host_writew(CPU.Segs_SSphys+0xFC, 0xABC6);
+        Memory.host_writew(CPU.Segs_SSphys+0xFA, 0xABC5);
+        Memory.host_writew(CPU.Segs_SSphys+0xF8, 0xABC4);
+        Memory.host_writew(CPU.Segs_SSphys+0xF6, 0xABC3);
+        Memory.host_writew(CPU.Segs_SSphys+0xF4, 0xABC2);
+        Memory.host_writew(CPU.Segs_SSphys+0xF2, 0xABC1);
+        Memory.host_writew(CPU.Segs_SSphys+0xF0, 0xABC0);
+
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.dword==0xABC7);
         assertTrue(CPU_Regs.reg_ecx.dword==0xABC6);
@@ -1471,70 +1471,64 @@ public class testPrefix_none extends InstructionsTestCase{
         assertTrue(CPU_Regs.reg_ebp.dword==0xABC2);
         assertTrue(CPU_Regs.reg_esi.dword==0xABC1);
         assertTrue(CPU_Regs.reg_edi.dword==0xABC0);
-        p.writew(0xFE, 0);
-        p.writew(0xFC, 0);
-        p.writew(0xFA, 0);
-        p.writew(0xF8, 0);
-        p.writew(0xF6, 0);
-        p.writew(0xF4, 0);
-        p.writew(0xF2, 0);
-        p.writew(0xF0, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xFE, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xFC, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xFA, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF8, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF6, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF4, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF2, 0);
+        Memory.host_writew(CPU.Segs_SSphys+0xF0, 0);
     }
 
     // 0x62
     //BOUND
     public void testBound() {
         newInstruction(0x62);
-        Ptr p = new Ptr(Memory.direct, (int)(CPU.Segs_DSphys));
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.dword(0);
-        p.writew(0, 0);
-        p.writew(2, 0);
+        Memory.host_writew(CPU.Segs_DSphys, 0);
+        Memory.host_writew(CPU.Segs_DSphys+2, 0);
         decoder.call();
         assertTrue(CPU.lastint == 0);
 
         newInstruction(0x62);
-        p = new Ptr(Memory.direct, (int)(CPU.Segs_DSphys));
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(1);
-        p.writew(0, 0);
-        p.writew(2, 0);
+        Memory.host_writew(CPU.Segs_DSphys, 0);
+        Memory.host_writew(CPU.Segs_DSphys+2, 0);
         decoder.call();
         assertTrue(CPU.lastint == 5);
 
         newInstruction(0x62);
-        p = new Ptr(Memory.direct, (int)(CPU.Segs_DSphys));
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0x7000);
-        p.writew(0, 0x7000);
-        p.writew(2, 0x7000);
+        Memory.host_writew(CPU.Segs_DSphys, 0x7000);
+        Memory.host_writew(CPU.Segs_DSphys+2, 0x7000);
         decoder.call();
         assertTrue(CPU.lastint == 0);
 
         newInstruction(0x62);
-        p = new Ptr(Memory.direct, (int)(CPU.Segs_DSphys));
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0x7001);
-        p.writew(0, 0x7000);
-        p.writew(2, 0x7000);
+        Memory.host_writew(CPU.Segs_DSphys, 0x7000);
+        Memory.host_writew(CPU.Segs_DSphys+2, 0x7000);
         decoder.call();
         assertTrue(CPU.lastint == 5);
 
         newInstruction(0x62);
-        p = new Ptr(Memory.direct, (int)(CPU.Segs_DSphys));
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0xA000);
-        p.writew(0, 0x9000);
-        p.writew(2, 0x0);
+        Memory.host_writew(CPU.Segs_DSphys, 0x9000);
+        Memory.host_writew(CPU.Segs_DSphys+2, 0);
         decoder.call();
         assertTrue(CPU.lastint == 0);
 
         newInstruction(0x62);
-        p = new Ptr(Memory.direct, (int)(CPU.Segs_DSphys));
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0x8000);
-        p.writew(0, 0x9000);
-        p.writew(2, 0x0000);
+        Memory.host_writew(CPU.Segs_DSphys, 0x9000);
+        Memory.host_writew(CPU.Segs_DSphys+2, 0);
         decoder.call();
         assertTrue(CPU.lastint == 5);
     }
@@ -1567,13 +1561,13 @@ public class testPrefix_none extends InstructionsTestCase{
     //0x64
     //SEG FS
     public void testSegFS() {
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
         newInstruction(0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_DS]=0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_DS,(byte)0);
 
         newInstruction(0x64);
         pushIb((byte)0x88);
@@ -1581,21 +1575,21 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_eax.dword(0xAB);
         CPU.Segs_FSphys = MEM_BASE_SS;
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
-        assertTrue(Memory.direct[MEM_BASE_SS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_SS] = 0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_SS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_SS, (byte)0);
     }
 
     //0x65
     //SEG GS
     public void testSegGS() {
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
         newInstruction(0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_DS]=0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_DS,(byte)0);
 
         newInstruction(0x65);
         pushIb((byte)0x88);
@@ -1603,9 +1597,9 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_eax.dword(0xAB);
         CPU.Segs_GSphys = MEM_BASE_SS;
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS]==0);
-        assertTrue(Memory.direct[MEM_BASE_SS]==(byte)0xAB);
-        Memory.direct[MEM_BASE_SS] = 0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS)==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_SS)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_SS, (byte)0);
     }
 
     //0x66
@@ -1615,15 +1609,15 @@ public class testPrefix_none extends InstructionsTestCase{
     // 0x67
     //Address Size Prefix
     public void testAddressSizePrefix() {
-        assertTrue(Memory.direct[MEM_BASE_DS+0x10000]==0);
+        assertTrue(Memory.host_readbs(MEM_BASE_DS+0x10000)==0);
         newInstruction(0x67);
         pushIb((byte)0x88);
         pushIb((byte)1);
         CPU_Regs.reg_ecx.dword(0x10000);
         CPU_Regs.reg_eax.dword(0xAB);
         decoder.call();
-        assertTrue(Memory.direct[MEM_BASE_DS+0x10000]==(byte)0xAB);
-        Memory.direct[MEM_BASE_DS+0x10000]=0;
+        assertTrue(Memory.host_readbs(MEM_BASE_DS+0x10000)==(byte)0xAB);
+        Memory.host_writebs(MEM_BASE_DS+0x10000, (byte)0);
     }
 
     // 0x68
@@ -1635,9 +1629,9 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIw((short)0xEF01); // just make sure it doesn't read more
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==0xABCD);
-        assertTrue(new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readd(0)==0xABCD);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0);
+        assertTrue(Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(Memory.host_readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x69
@@ -1670,11 +1664,11 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x69);
         pushIb((byte)0);
         pushIw((short)-384);
-        new Ptr(Memory.direct, (int)CPU.Segs_DSphys).writew(0, 20);
+        Memory.host_writew(CPU.Segs_DSphys, 20);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==-7680);
         assertTrue(!Flags.get_CF());
-        new Ptr(Memory.direct, (int)CPU.Segs_DSphys).writew(0, 0);
+        Memory.host_writew(CPU.Segs_DSphys, 0);
 
     }
 
@@ -1687,8 +1681,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIw((short)0xEF01); // just make sure it doesn't read more
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue((short)new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).readw(0)==-71);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0);
+        assertTrue((short)Memory.host_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==-71);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x6b
@@ -1721,11 +1715,11 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x6b);
         pushIb((byte)0);
         pushIw((byte)-127);
-        new Ptr(Memory.direct, (int)CPU.Segs_DSphys).writew(0, -20);
+        Memory.host_writew(CPU.Segs_DSphys, -20);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==2540);
         assertTrue(!Flags.get_CF());
-        new Ptr(Memory.direct, (int)CPU.Segs_DSphys).writew(0, 0);
+        Memory.host_writew(CPU.Segs_DSphys, 0);
     }
 
     // 0x6c
@@ -1739,9 +1733,9 @@ public class testPrefix_none extends InstructionsTestCase{
         IoHandler.IO_ReadHandler handler = new IoHandler.IO_ReadHandler() {public int call(int port, int iolen) {return 0xAB;}};
         IoHandler.IO_RegisterReadHandler(17000, handler, IoHandler.IO_MB);
         decoder.call();        
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_ESphys)).readb(0)==0xAB);
+        assertTrue(Memory.host_readb(CPU.Segs_ESphys)==0xAB);
         IoHandler.IO_FreeReadHandler(17000, IoHandler.IO_MB);
-        new Ptr(Memory.direct, (int)(CPU.Segs_ESphys)).writeb(0,(short)0);
+        Memory.host_writeb(CPU.Segs_ESphys,(short)0);
     }
 
     // 0x6d
@@ -1755,9 +1749,9 @@ public class testPrefix_none extends InstructionsTestCase{
         IoHandler.IO_ReadHandler handler = new IoHandler.IO_ReadHandler() {public int call(int port, int iolen) {return 0xAB;}};
         IoHandler.IO_RegisterReadHandler(17000, handler, IoHandler.IO_MW);
         decoder.call();
-        assertTrue(new Ptr(Memory.direct, (int)(CPU.Segs_ESphys)).readw(0)==0xAB);
+        assertTrue(Memory.host_readw(CPU.Segs_ESphys)==0xAB);
         IoHandler.IO_FreeReadHandler(17000, IoHandler.IO_MW);
-        new Ptr(Memory.direct, (int)(CPU.Segs_ESphys)).writew(0,0);
+        Memory.host_writew(CPU.Segs_ESphys,0);
     }
 
     // 0x6e
@@ -1771,11 +1765,11 @@ public class testPrefix_none extends InstructionsTestCase{
         result = 0;
         IoHandler.IO_WriteHandler handler = new IoHandler.IO_WriteHandler() {public void call(int port, int val, int iolen) {result=val;}};
         IoHandler.IO_RegisterWriteHandler(17000, handler, IoHandler.IO_MB);
-        new Ptr(Memory.direct, (int)(CPU.Segs_DSphys)).writew(0, 0xABCD);
+        Memory.host_writew(CPU.Segs_DSphys, 0xABCD);
         decoder.call();
         assertTrue(result==0xCD);
         IoHandler.IO_FreeWriteHandler(17000, IoHandler.IO_MB);
-        new Ptr(Memory.direct, (int)(CPU.Segs_DSphys)).writew(0, 0);
+        Memory.host_writew(CPU.Segs_DSphys, 0);
     }
 
     // 0x6f
@@ -1788,11 +1782,11 @@ public class testPrefix_none extends InstructionsTestCase{
         result = 0;
         IoHandler.IO_WriteHandler handler = new IoHandler.IO_WriteHandler() {public void call(int port, int val, int iolen) {result=val;}};
         IoHandler.IO_RegisterWriteHandler(17000, handler, IoHandler.IO_MW);
-        new Ptr(Memory.direct, (int)(CPU.Segs_DSphys)).writed(0, 0xABCDEF01);
+        Memory.host_writed(CPU.Segs_DSphys, 0xABCDEF01);
         decoder.call();
         assertTrue(result==0xEF01);
         IoHandler.IO_FreeWriteHandler(17000, IoHandler.IO_MW);
-        new Ptr(Memory.direct, (int)(CPU.Segs_DSphys)).writed(0, 0);
+        Memory.host_writed(CPU.Segs_DSphys, 0);
     }
 
     private void doJump(int instruction, int flag, boolean cond) {
@@ -2545,7 +2539,7 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x8f);
         pushIb((byte)0xC3);
         CPU_Regs.reg_esp.dword(0xFE);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0x89EF);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(CPU_Regs.reg_ebx.dword==0x89EF);
@@ -2553,7 +2547,7 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x8f);
         pushIb((byte)0x0);
         CPU_Regs.reg_esp.dword(0xFE);
-        new Ptr(Memory.direct, CPU.Segs_SSphys+CPU_Regs.reg_esp.dword).writew(0, 0x89EF);
+        Memory.host_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(Memory.mem_readw(MEM_BASE_DS)==0x89EF);
@@ -2645,7 +2639,7 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x98);
         CPU_Regs.reg_eax.dword(0x4444AB01);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword==0x4444000);
+        assertTrue(CPU_Regs.reg_eax.dword==0x44440001);
 
         newInstruction(0x98);
         CPU_Regs.reg_eax.dword(0x4444ABFE);

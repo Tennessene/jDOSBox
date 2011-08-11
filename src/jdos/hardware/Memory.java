@@ -23,13 +23,17 @@ public class Memory extends Module_base {
     //private static final int MEMBASE = 1; // can't use zero
     static int highwaterMark;
     static Ptr host_memory;
-    static public byte[] direct;
+    static private byte[] direct;
     
     public static Ptr allocate(int size) {
         Ptr p = new Ptr(host_memory, highwaterMark, size);
         highwaterMark+=size;
         return p;
     }
+    public static byte host_readbs(/*HostPt*/int off) {
+        return direct[off];
+    }
+
     public static /*Bit8u*/short host_readb(/*HostPt*/int off) {
         return (short)(direct[off] & 0xFF);
     }
@@ -45,7 +49,9 @@ public class Memory extends Module_base {
     public static void host_writeb(/*HostPt*/int off,/*Bit8u*/ short val) {
         direct[off]=(byte)(val);
     }
-
+    public static void host_writebs(/*HostPt*/int off,byte val) {
+        direct[off]=val;
+    }
     public static void host_writew(/*HostPt*/int off,/*Bit16u*/int val) {
         direct[off]=(byte)(val);
 	    direct[off+1]=(byte)(val >> 8);
@@ -58,6 +64,12 @@ public class Memory extends Module_base {
         direct[off+3]=(byte)(val >> 24);
     }
 
+    static public void host_memcpy(byte[] dest,/*PhysPt*/int src,/*Bitu*/int size) {
+        System.arraycopy(Memory.direct, src, dest, 0, size);
+    }
+    static public void host_memcpy(/*PhysPt*/int dest,/*PhysPt*/int src,/*Bitu*/int size) {
+        System.arraycopy(Memory.direct, src, Memory.direct, dest, size);
+    }
     /*
     public static void var_write(Bit8u * var, Bit8u val) {
         host_writeb((HostPt)var, val);

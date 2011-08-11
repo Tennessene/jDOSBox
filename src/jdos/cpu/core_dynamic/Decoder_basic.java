@@ -32,12 +32,10 @@ public class Decoder_basic {
     public static void InitFlagsOptimization() {
         mf_functions_num=0;
     }
-    public static boolean MakeCodePage(/*Bitu*/long lin_addr, Core_dynamic.CodePageHandlerDynRecRef cph) {
-        int i_line_addr = (int)lin_addr;
-
+    public static boolean MakeCodePage(/*Bitu*/int lin_addr, Core_dynamic.CodePageHandlerDynRecRef cph) {
         Memory.mem_readb(lin_addr); // generate page fault here if necessary
 
-        Paging.PageHandler handler=Paging.get_tlb_readhandler(i_line_addr);
+        Paging.PageHandler handler=Paging.get_tlb_readhandler(lin_addr);
         if ((handler.flags & Paging.PFLAG_HASCODE)!=0) {
             // this is a codepage handler, and the one that we're looking for
             cph.value=(CodePageHandlerDynRec)handler;
@@ -48,11 +46,11 @@ public class Decoder_basic {
             cph.value=null;
             return false;
         }
-        /*Bitu*/int lin_page=(int)(lin_addr>>12);
+        /*Bitu*/int lin_page=lin_addr>>>12;
         phys_page.value=lin_page;
         // find the physical page that the linear page is mapped to
         if (!Paging.PAGING_MakePhysPage(phys_page)) {
-            Log.log_msg("DYNREC:Can't find physpage for lin addr "+Long.toString(lin_addr, 16));;
+            Log.log_msg("DYNREC:Can't find physpage for lin addr "+Integer.toString(lin_addr, 16));
             cph.value=null;
             return false;
         }

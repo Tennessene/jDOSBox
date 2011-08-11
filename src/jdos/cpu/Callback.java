@@ -47,15 +47,15 @@ public class Callback {
     static public Handler[] CallBack_Handlers = new Handler[CB_MAX];
     static public String[] CallBack_Description = new String[CB_MAX];
     
-    public static /*RealPt*/long CALLBACK_RealPointer(/*Bitu*/int callback) {
+    public static /*RealPt*/int CALLBACK_RealPointer(/*Bitu*/int callback) {
     	return Memory.RealMake(CB_SEG,(CB_SOFFSET+callback*CB_SIZE));
     }
 
-    public static /*PhysPt*/long CALLBACK_PhysPointer(/*Bitu*/int callback) {
+    public static /*PhysPt*/int CALLBACK_PhysPointer(/*Bitu*/int callback) {
         return Memory.PhysMake(CB_SEG,(CB_SOFFSET+callback*CB_SIZE));
     }
 
-    public static /*PhysPt*/long CALLBACK_GetBase() {
+    public static /*PhysPt*/int CALLBACK_GetBase() {
         return (CB_SEG << 4) + CB_SOFFSET;
     }
 
@@ -90,13 +90,13 @@ public class Callback {
     /* this makes the cpu execute instructions to handle irq's and then come back */
         /*Bitu*/int oldIF=CPU_Regs.GETFLAG(CPU_Regs.IF);
         CPU_Regs.SETFLAGBIT(CPU_Regs.IF,true);
-        /*Bit16u*/long oldcs=CPU.Segs_CSval;
-        /*Bit32u*/long oldeip=CPU_Regs.reg_eip();
+        /*Bit16u*/int oldcs=CPU.Segs_CSval;
+        /*Bit32u*/int oldeip=CPU_Regs.reg_eip;
         CPU_Regs.SegSet16CS(CB_SEG);
-        CPU_Regs.reg_eip(call_idle*CB_SIZE);
+        CPU_Regs.reg_eip=call_idle*CB_SIZE;
         Dosbox.DOSBOX_RunMachine();
-        CPU_Regs.reg_eip(oldeip);
-        CPU_Regs.SegSet16CS((int)oldcs);
+        CPU_Regs.reg_eip=oldeip;
+        CPU_Regs.SegSet16CS(oldcs);
         CPU_Regs.SETFLAGBIT(CPU_Regs.IF,oldIF!=0);
         if (!CPU.CPU_CycleAutoAdjust && CPU.CPU_Cycles>0)
             CPU.CPU_Cycles=0;
@@ -109,7 +109,7 @@ public class Callback {
     private static final int SETUPAT = 2;
     private int m_type = NONE;
     private class VectorHandler {
-        /*RealPt*/long old_vector;
+        /*RealPt*/int old_vector;
         /*Bit8u*/ short interrupt;
         boolean installed = false;
     }
@@ -140,23 +140,23 @@ public class Callback {
         CPU_Regs.reg_esp.word(CPU_Regs.reg_esp.word()-4);
         Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word(),Memory.RealOff(CALLBACK_RealPointer(call_stop)));
         Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+2,Memory.RealSeg(CALLBACK_RealPointer(call_stop)));
-        /*Bit32u*/long oldeip=CPU_Regs.reg_eip();
-        /*Bit16u*/long oldcs=CPU.Segs_CSval;
-        CPU_Regs.reg_eip(off);
+        /*Bit32u*/int oldeip=CPU_Regs.reg_eip;
+        /*Bit16u*/int oldcs=CPU.Segs_CSval;
+        CPU_Regs.reg_eip=off;
         CPU_Regs.SegSet16CS(seg);
         Dosbox.DOSBOX_RunMachine();
-        CPU_Regs.reg_eip(oldeip);
-        CPU_Regs.SegSet16CS((int)oldcs);
+        CPU_Regs.reg_eip=oldeip;
+        CPU_Regs.SegSet16CS(oldcs);
     }
 
     public static void CALLBACK_RunRealInt(/*Bit8u*/int intnum) {
-        /*Bit32u*/long oldeip=CPU_Regs.reg_eip();
-        /*Bit16u*/long oldcs=CPU.Segs_CSval;
-        CPU_Regs.reg_eip(CB_SOFFSET+(CB_MAX*CB_SIZE)+(intnum*6));
+        /*Bit32u*/int oldeip=CPU_Regs.reg_eip;
+        /*Bit16u*/int oldcs=CPU.Segs_CSval;
+        CPU_Regs.reg_eip=CB_SOFFSET+(CB_MAX*CB_SIZE)+(intnum*6);
         CPU_Regs.SegSet16CS(CB_SEG);
         Dosbox.DOSBOX_RunMachine();
-        CPU_Regs.reg_eip(oldeip);
-        CPU_Regs.SegSet16CS((int)oldcs);
+        CPU_Regs.reg_eip=oldeip;
+        CPU_Regs.SegSet16CS(oldcs);
     }
 
     public static void CALLBACK_SZF(boolean val) {
@@ -189,10 +189,10 @@ public class Callback {
         return CallBack_Description[nr];
     }
 
-    public static /*Bitu*/int CALLBACK_SetupExtra(/*Bitu*/int callback, /*Bitu*/int type, /*PhysPt*/long lphysAddress) {
+    public static /*Bitu*/int CALLBACK_SetupExtra(/*Bitu*/int callback, /*Bitu*/int type, /*PhysPt*/int lphysAddress) {
         return CALLBACK_SetupExtra(callback, type, lphysAddress, true);
     }
-    public static /*Bitu*/int CALLBACK_SetupExtra(/*Bitu*/int callback, /*Bitu*/int type, /*PhysPt*/long lphysAddress, boolean use_cb/*=true*/) {
+    public static /*Bitu*/int CALLBACK_SetupExtra(/*Bitu*/int callback, /*Bitu*/int type, /*PhysPt*/int lphysAddress, boolean use_cb/*=true*/) {
         int physAddress = (int)lphysAddress;
         if (callback>=CB_MAX)
             return 0;
@@ -500,7 +500,7 @@ public class Callback {
         return true;
     }
 
-    public static /*Bitu*/int CALLBACK_Setup(/*Bitu*/int callback,Handler handler,/*Bitu*/int type,/*PhysPt*/long addr,String descr) {
+    public static /*Bitu*/int CALLBACK_Setup(/*Bitu*/int callback,Handler handler,/*Bitu*/int type,/*PhysPt*/int addr,String descr) {
         if (callback>=CB_MAX) return 0;
         /*Bitu*/int csize=CALLBACK_SetupExtra(callback,type,addr,(handler!=null));
         if (csize>0) {
@@ -520,7 +520,7 @@ public class Callback {
 		return m_callback;
 	}
 
-    public /*RealPt*/long Get_RealPointer() {
+    public /*RealPt*/int Get_RealPointer() {
 		return CALLBACK_RealPointer(m_callback);
 	}
 
@@ -553,7 +553,7 @@ public class Callback {
         } else Log.exit("Allready installed");
     }
 
-    public void Install(Handler handler,/*Bitu*/int type,/*PhysPt*/long addr,String description){
+    public void Install(Handler handler,/*Bitu*/int type,/*PhysPt*/int addr,String description){
         if(!installed) {
             installed=true;
             m_type=SETUP;
@@ -618,7 +618,7 @@ public class Callback {
                 Memory.real_writed(0,ct*4,CALLBACK_RealPointer(call_default));
             }
             /* Setup block of 0xCD 0xxx instructions */
-            /*PhysPt*/long rint_base=CALLBACK_GetBase()+CB_MAX*CB_SIZE;
+            /*PhysPt*/int rint_base=CALLBACK_GetBase()+CB_MAX*CB_SIZE;
             for (i=0;i<=0xff;i++) {
                 Memory.phys_writeb((int)rint_base,0xCD);
                 Memory.phys_writeb((int)(rint_base+1),i);

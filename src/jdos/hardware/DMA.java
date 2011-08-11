@@ -333,7 +333,7 @@ public class DMA extends Module_base {
     }
 
     /* read a block from physical memory */
-    static private void DMA_BlockRead(/*PhysPt*/long spage,/*PhysPt*/int offset,short[] data, int dataOffset, /*Bitu*/int size) {
+    static private void DMA_BlockRead(/*PhysPt*/int spage,/*PhysPt*/int offset,short[] data, int dataOffset, /*Bitu*/int size) {
         /*Bitu*/int highpart_addr_page = (int)(spage>>12);
         int dma16=1;
         size <<= dma16;
@@ -345,7 +345,7 @@ public class DMA extends Module_base {
 			    Log.log_msg("DMA segbound wrapping (read): "+Long.toString(spage, 16)+":"+Integer.toString(offset,16)+" size "+Integer.toString(size, 16)+" [1] wrap "+Long.toString(dma_wrapping,16));
 		    }
             offset &= dma_wrap;
-            /*Bitu*/int page = highpart_addr_page+(offset >> 12);
+            /*Bitu*/int page = highpart_addr_page+(offset >>> 12);
             /* care for EMS pageframe etc. */
             if (page < EMM_PAGEFRAME4K) page = (int)Paging.paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];
@@ -359,15 +359,15 @@ public class DMA extends Module_base {
         }
     }
 
-    static private void DMA_BlockRead(/*PhysPt*/long spage,/*PhysPt*/int offset,byte[] data, int dataOffset, /*Bitu*/int size) {
-        /*Bitu*/int highpart_addr_page = (int)(spage>>12);
+    static private void DMA_BlockRead(/*PhysPt*/int spage,/*PhysPt*/int offset,byte[] data, int dataOffset, /*Bitu*/int size) {
+        /*Bitu*/int highpart_addr_page = spage >>> 12;
         /*Bit32u*/long dma_wrap = 0xffff;
         for ( ; size!=0 ; size--, offset++) {
             if (offset>(dma_wrapping)) {
 			    Log.log_msg("DMA segbound wrapping (read): "+Long.toString(spage, 16)+":"+Integer.toString(offset,16)+" size "+Integer.toString(size, 16)+" [0] wrap "+Long.toString(dma_wrapping,16));
 		    }
             offset &= dma_wrap;
-            /*Bitu*/int page = (int)(highpart_addr_page+(offset >> 12));
+            /*Bitu*/int page = highpart_addr_page+(offset >>> 12);
             /* care for EMS pageframe etc. */
             if (page < EMM_PAGEFRAME4K) page = (int)Paging.paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];
@@ -377,7 +377,7 @@ public class DMA extends Module_base {
     }
 
     /* write a block into physical memory */
-    static void DMA_BlockWrite(/*PhysPt*/long spage,/*PhysPt*/long offset,byte[] data, int data_offset, /*Bitu*/int size,/*Bit8u*/short dma16) {
+    static void DMA_BlockWrite(/*PhysPt*/int spage,/*PhysPt*/int offset,byte[] data, int data_offset, /*Bitu*/int size,/*Bit8u*/short dma16) {
         /*Bitu*/int highpart_addr_page = (int)(spage>>12);
         size <<= dma16;
         offset <<= dma16;
@@ -387,7 +387,7 @@ public class DMA extends Module_base {
 			    Log.log_msg("DMA segbound wrapping (write): "+Long.toString(spage, 16)+":"+Long.toString(offset,16)+" size "+Integer.toString(size, 16)+" ["+dma16+"] wrap "+Long.toString(dma_wrapping,16));
 		    }
             offset &= dma_wrap;
-            /*Bitu*/int page = (int)(highpart_addr_page+(offset >> 12));
+            /*Bitu*/int page = highpart_addr_page+(offset >>> 12);
             /* care for EMS pageframe etc. */
             if (page < EMM_PAGEFRAME4K) page = (int)Paging.paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];

@@ -200,7 +200,7 @@ public class Dos extends Module_base {
             case 0x09:		/* Write string to STDOUT */
                 {
                     /*Bit8u*/byte[] c=new byte[1];/*Bit16u*/IntRef n=new IntRef(1);
-                    /*PhysPt*/long buf=CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int buf=CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
                     while ((c[0]=((byte)(Memory.mem_readb(buf++) & 0xFF)))!='$') {
                         Dos_files.DOS_WriteFile(Dos_files.STDOUT,c,n);
                     }
@@ -209,7 +209,7 @@ public class Dos extends Module_base {
             case 0x0a:		/* Buffered Input */
                 {
                     //TODO ADD Break checkin in Dos_files.STDIN but can't care that much for it
-                    /*PhysPt*/long data=CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int data=CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
                     /*Bit8u*/short free=Memory.mem_readb(data);
                     /*Bit8u*/short read=0;/*Bit8u*/byte[] c=new byte[1];/*Bit16u*/IntRef n=new IntRef(1);
                     if (free==0) break;
@@ -431,7 +431,7 @@ public class Dos extends Module_base {
     //TODO Get time through bios calls date is fixed
                 {
                     /*	Calculate how many miliseconds have passed */
-                    /*Bitu*/long ticks=5*Memory.mem_readd(Bios.BIOS_TIMER);
+                    /*Bitu*/long ticks=5*(Memory.mem_readd(Bios.BIOS_TIMER) & 0xFFFFFFFFl);
                     ticks = ((ticks / 59659) << 16) + ((ticks % 59659) << 16) / 59659;
                     /*Bitu*/long seconds=(ticks/100);
                     CPU_Regs.reg_ecx.high((/*Bit8u*/short)(seconds/3600));
@@ -557,7 +557,7 @@ public class Dos extends Module_base {
                 break;
             case 0x38:					/* Set Country Code */
                 if (CPU_Regs.reg_eax.low()==0) {		/* Get country specidic information */
-                    /*PhysPt*/long dest = CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int dest = CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
                     Memory.MEM_BlockWrite(dest,dos.tables.country,0x18);
                     CPU_Regs.reg_eax.word(0x01); CPU_Regs.reg_ebx.word(0x01);
                     Callback.CALLBACK_SCF(false);
@@ -847,7 +847,7 @@ public class Dos extends Module_base {
                 CPU_Regs.reg_ebx.word(dos.psp());
                 break;
             case 0x52: {				/* Get list of lists */
-                /*RealPt*/long addr=dos_infoblock.GetPointer();
+                /*RealPt*/int addr=dos_infoblock.GetPointer();
                 CPU_Regs.SegSet16ES(Memory.RealSeg(addr));
                 CPU_Regs.reg_ebx.word(Memory.RealOff(addr));
                 Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_NORMAL,"Call is made for list of lists - let's hope for the best");
@@ -1021,7 +1021,7 @@ public class Dos extends Module_base {
                         break;
                     }
                     /*Bitu*/int len = 0; /* For 0x21 and 0x22 */
-                    /*PhysPt*/long data=CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
+                    /*PhysPt*/int data=CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
                     switch (CPU_Regs.reg_eax.low()) {
                     case 0x01:
                         Memory.mem_writeb(data + 0x00,CPU_Regs.reg_eax.low());
@@ -1297,7 +1297,7 @@ public class Dos extends Module_base {
         dos.date.day=(/*Bit8u*/byte)c.get(Calendar.DAY_OF_MONTH);
         dos.date.month=(/*Bit8u*/byte)(c.get(Calendar.MONTH)+1);
         dos.date.year=(/*Bit16u*/short)c.get(Calendar.YEAR);
-        /*Bit32u*/long ticks=(/*Bit32u*/long)((c.get(Calendar.HOUR)*3600+c.get(Calendar.MINUTE)*60+c.get(Calendar.SECOND))*(float) Timer.PIT_TICK_RATE/65536.0);
+        /*Bit32u*/int ticks=(/*Bit32u*/int)((c.get(Calendar.HOUR)*3600+c.get(Calendar.MINUTE)*60+c.get(Calendar.SECOND))*(float) Timer.PIT_TICK_RATE/65536.0);
         Memory.mem_writed(Bios.BIOS_TIMER,ticks);
     }
 

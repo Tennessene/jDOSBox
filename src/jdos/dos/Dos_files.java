@@ -951,7 +951,7 @@ public class Dos_files {
 
     public static boolean DOS_FCBFindFirst(/*Bit16u*/int seg,/*Bit16u*/int offset) {
         Dos_FCB fcb=new Dos_FCB(seg,offset);
-        /*RealPt*/long old_dta=Dos.dos.dta();Dos.dos.dta((int)Dos.dos.tables.tempdta);
+        /*RealPt*/int old_dta=Dos.dos.dta();Dos.dos.dta((int)Dos.dos.tables.tempdta);
         StringRef name=new StringRef();fcb.GetName(name);
         /*Bit8u*/ShortRef attr = new ShortRef(Dos_system.DOS_ATTR_ARCHIVE);
         fcb.GetAttr(attr); /* Gets search attributes if extended */
@@ -963,7 +963,7 @@ public class Dos_files {
 
     public static boolean DOS_FCBFindNext(/*Bit16u*/int seg,/*Bit16u*/int offset) {
         Dos_FCB fcb=new Dos_FCB(seg,offset);
-        /*RealPt*/long old_dta=Dos.dos.dta();Dos.dos.dta((int)Dos.dos.tables.tempdta);
+        /*RealPt*/int old_dta=Dos.dos.dta();Dos.dos.dta((int)Dos.dos.tables.tempdta);
         boolean ret=DOS_FindNext();
         Dos.dos.dta((int)old_dta);
         if (ret) SaveFindResult(fcb);
@@ -1007,7 +1007,7 @@ public class Dos_files {
         if (pos.value+towrite.value>size.value) size.value=pos.value+towrite.value;
         //time doesn't keep track of endofday
         date.value = Dos.DOS_PackDate(Dos.dos.date.year,Dos.dos.date.month,Dos.dos.date.day);
-        /*Bit32u*/long ticks = Memory.mem_readd(Bios.BIOS_TIMER);
+        /*Bit32u*/long ticks = Memory.mem_readd(Bios.BIOS_TIMER) & 0xFFFFFFFFl;
         /*Bit32u*/long seconds = (ticks*10)/182;
         /*Bit16u*/int hour = (/*Bit16u*/int)(seconds/3600);
         /*Bit16u*/int min = (/*Bit16u*/int)((seconds % 3600)/60);
@@ -1036,7 +1036,7 @@ public class Dos_files {
         if (pos.value+towrite.value>size.value) size.value=pos.value+towrite.value;
         //time doesn't keep track of endofday
         date.value = Dos.DOS_PackDate(Dos.dos.date.year,Dos.dos.date.month,Dos.dos.date.day);
-        /*Bit32u*/long ticks = Memory.mem_readd(Bios.BIOS_TIMER);
+        /*Bit32u*/long ticks = Memory.mem_readd(Bios.BIOS_TIMER) & 0xFFFFFFFFl;
         /*Bit32u*/long seconds = (ticks*10)/182;
         /*Bit16u*/int hour = (/*Bit16u*/int)(seconds/3600);
         /*Bit16u*/int min = (/*Bit16u*/int)((seconds % 3600)/60);
@@ -1134,7 +1134,7 @@ public class Dos_files {
      * To get this: the dta is set to temporary dta in which found files are
      * stored. This can not be the tempdta as that one is used by fcbfindfirst
      */
-        /*RealPt*/long old_dta=Dos.dos.dta();Dos.dos.dta((int)Dos.dos.tables.tempdta_fcbdelete);
+        /*RealPt*/int old_dta=Dos.dos.dta();Dos.dos.dta((int)Dos.dos.tables.tempdta_fcbdelete);
         Dos_FCB fcb=new Dos_FCB(Memory.RealSeg(Dos.dos.dta()),Memory.RealOff(Dos.dos.dta()));
         boolean nextfile = false;
         boolean return_value = false;

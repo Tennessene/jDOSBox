@@ -86,7 +86,7 @@ public class Dos_cdrom {
         public boolean StopAudio();
         public void ChannelControl(TCtrl ctrl);
 
-        public boolean ReadSectors(/*PhysPt*/long buffer, boolean raw, long sector, long num);
+        public boolean ReadSectors(/*PhysPt*/int buffer, boolean raw, long sector, long num);
 
         public boolean LoadUnloadMedia(boolean unload);
 

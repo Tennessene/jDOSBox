@@ -92,7 +92,7 @@ public class XMS extends Module_base {
         return (IoHandler.IO_Read(0x92)&2)>0?1:0;
     }
 
-    private static /*RealPt*/long xms_callback;
+    private static /*RealPt*/int xms_callback;
     private static boolean umb_available;
 
     private static XMS_Block[] xms_handles=new XMS_Block[XMS_HANDLES];
@@ -141,16 +141,16 @@ public class XMS extends Module_base {
         return 0;
     }
 
-    private static /*Bitu*/int XMS_MoveMemory(/*PhysPt*/long bpt) {
+    private static /*Bitu*/int XMS_MoveMemory(/*PhysPt*/int bpt) {
         /* Read the block with mem_read's */
-        /*Bitu*/int length=(int)Memory.mem_readd(bpt+0/*offsetof(XMS_MemMove,length)*/);
+        /*Bitu*/int length=Memory.mem_readd(bpt + 0/*offsetof(XMS_MemMove,length)*/);
         /*Bitu*/int src_handle=Memory.mem_readw(bpt+4/*offsetof(XMS_MemMove,src_handle)*/);
         int src;
         int dest;
-        src=(int)Memory.mem_readd(bpt+6/*offsetof(XMS_MemMove,src.offset)*/);
+        src=Memory.mem_readd(bpt + 6/*offsetof(XMS_MemMove,src.offset)*/);
         /*Bitu*/int dest_handle=Memory.mem_readw(bpt+10/*offsetof(XMS_MemMove,dest_handle)*/);
-        dest=(int)Memory.mem_readd(bpt+12/*offsetof(XMS_MemMove,dest.offset)*/);
-        /*PhysPt*/long srcpt,destpt;
+        dest=Memory.mem_readd(bpt + 12/*offsetof(XMS_MemMove,dest.offset)*/);
+        /*PhysPt*/int srcpt,destpt;
         if (src_handle!=0) {
             if (InvalidHandle(src_handle)) {
                 return XMS_INVALID_SOURCE_HANDLE;
@@ -292,7 +292,7 @@ public class XMS extends Module_base {
             }
                 break;
             case XMS_ALLOCATE_ANY_MEMORY:								/* 89 */
-                CPU_Regs.reg_edx.dword(CPU_Regs.reg_edx.dword() & 0xffff);
+                CPU_Regs.reg_edx.dword&=0xffff;
                 // fall through
             case XMS_ALLOCATE_EXTENDED_MEMORY:							/* 09 */
                 {
@@ -313,7 +313,7 @@ public class XMS extends Module_base {
                 CPU_Regs.reg_eax.word((res==0)?1:0);
                 if (res==0) { // success
                     CPU_Regs.reg_ebx.word((/*Bit16u*/int)(address.value & 0xFFFF));
-                    CPU_Regs.reg_edx.word((/*Bit16u*/int)(address.value >> 16));
+                    CPU_Regs.reg_edx.word((/*Bit16u*/int)(address.value >>> 16));
                 }
                 } break;
             case XMS_UNLOCK_EXTENDED_MEMORY_BLOCK:						/* 0d */
@@ -332,7 +332,7 @@ public class XMS extends Module_base {
             }
                 break;
             case XMS_RESIZE_ANY_EXTENDED_MEMORY_BLOCK:					/* 0x8f */
-                if(CPU_Regs.reg_ebx.dword() > CPU_Regs.reg_ebx.word()) Log.log_msg("64MB memory limit!");
+                if ((CPU_Regs.reg_ebx.dword & 0xFFFFFFFFl) > CPU_Regs.reg_ebx.word()) Log.log_msg("64MB memory limit!");
                 //fall through
             case XMS_RESIZE_EXTENDED_MEMORY_BLOCK:						/* 0f */
                 SET_RESULT(XMS_ResizeMemory(CPU_Regs.reg_edx.word(), CPU_Regs.reg_ebx.word()));
@@ -396,8 +396,8 @@ public class XMS extends Module_base {
                 CPU_Regs.reg_ebx.low(XMS_QueryFreeMemory(ax,dx));
                 CPU_Regs.reg_eax.word(ax.value);
                 CPU_Regs.reg_edx.word(dx.value);
-                CPU_Regs.reg_eax.dword(CPU_Regs.reg_eax.dword() & 0xffff);
-                CPU_Regs.reg_edx.dword(CPU_Regs.reg_edx.dword() & 0xffff);
+                CPU_Regs.reg_eax.dword&=0xffff;
+                CPU_Regs.reg_edx.dword&=0xffff;
                 CPU_Regs.reg_ecx.dword((Memory.MEM_TotalPages()*Memory.MEM_PAGESIZE)-1);			// highest known physical memory address
                 break;
             }
@@ -410,7 +410,7 @@ public class XMS extends Module_base {
                 CPU_Regs.reg_edx.word(dx.value);
                 if (result != 0) CPU_Regs.reg_ebx.low(result);
                 else {
-                    CPU_Regs.reg_edx.dword(CPU_Regs.reg_edx.dword() & 0xffff);
+                    CPU_Regs.reg_edx.dword&=0xffff;
                     CPU_Regs.reg_ecx.word(free_handles.value);
                 }
                 CPU_Regs.reg_eax.word((result==0)?1:0);

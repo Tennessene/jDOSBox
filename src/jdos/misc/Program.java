@@ -64,7 +64,7 @@ public abstract class Program {
             /*Bitu*/int size=1/*sizeof(Bit8u)*/;
             /*Bit8u*/int index;
             /* Read the index from program code in memory */
-            /*PhysPt*/long reader= Memory.PhysMake(Dos.dos.psp(),256+exe_block.length);
+            /*PhysPt*/int reader= Memory.PhysMake(Dos.dos.psp(),256+exe_block.length);
             index=Memory.mem_readb(reader++);
             Program new_program;
             if(index > internal_progs.size()) Log.exit("something is messing with the memory");
@@ -85,7 +85,7 @@ public abstract class Program {
         /* Find the command line and setup the PSP */
         psp = new Dos_PSP(Dos.dos.psp());
         /* Scan environment for filename */
-        /*PhysPt*/long envscan=Memory.PhysMake(psp.GetEnvironment(),0);
+        /*PhysPt*/int envscan=Memory.PhysMake(psp.GetEnvironment(),0);
         while (Memory.mem_readb(envscan)!=0) envscan+=Memory.mem_strlen(envscan)+1;
         envscan+=3;
         String tail;
@@ -154,7 +154,7 @@ public abstract class Program {
             return true;
         }
     	/* Walk through the internal environment and see for a match */
-    	/*PhysPt*/long env_read=Memory.PhysMake(psp.GetEnvironment(),0);
+    	/*PhysPt*/int env_read=Memory.PhysMake(psp.GetEnvironment(),0);
 
     	String env_string;
     	result.value="";
@@ -175,7 +175,7 @@ public abstract class Program {
 
     public boolean GetEnvNum(/*Bitu*/int num,StringRef result) {
     	String env_string;
-    	/*PhysPt*/long env_read=Memory.PhysMake(psp.GetEnvironment(),0);
+    	/*PhysPt*/int env_read=Memory.PhysMake(psp.GetEnvironment(),0);
     	do 	{
     		env_string=Memory.MEM_StrCopy(env_read,1024);
     		if (env_string.length()==0) return false;
@@ -186,7 +186,7 @@ public abstract class Program {
     }
 
     public /*Bitu*/int GetEnvCount() {
-    	/*PhysPt*/long env_read=Memory.PhysMake(psp.GetEnvironment(),0);
+    	/*PhysPt*/int env_read=Memory.PhysMake(psp.GetEnvironment(),0);
         /*Bitu*/int num=0;
     	while (Memory.mem_readb(env_read)!=0) {
     		for (;Memory.mem_readb(env_read)!=0;env_read++) {};
@@ -197,8 +197,8 @@ public abstract class Program {
     }
 
     public boolean SetEnv(String entry,String new_string) {
-    	/*PhysPt*/long env_read=Memory.PhysMake(psp.GetEnvironment(),0);
-    	/*PhysPt*/long env_write=env_read;
+    	/*PhysPt*/int env_read=Memory.PhysMake(psp.GetEnvironment(),0);
+    	/*PhysPt*/int env_write=env_read;
     	String env_string;
     	do 	{
     		env_string = Memory.MEM_StrCopy(env_read,1024);

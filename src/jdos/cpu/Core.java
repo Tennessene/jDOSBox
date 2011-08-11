@@ -4,11 +4,11 @@ import jdos.hardware.Memory;
 
 public abstract class Core extends CPU_Regs {
     static public /*Bitu*/int opcode_index;
-    static public /*PhysPt*/long cseip;
+    static public /*PhysPt*/int cseip;
     static public int base_val_ds;
     static public boolean rep_zero;
 
-    static public /*PhysPt*/long base_ds,base_ss;
+    static public /*PhysPt*/int base_ds,base_ss;
     static public /*Bitu*/int prefixes;
     static public Table_ea.GetEAHandler[] ea_table;
 
@@ -31,17 +31,16 @@ public abstract class Core extends CPU_Regs {
         cseip+=2;
         return temp;
     }
-    static public long Fetchd() {
-        long temp = Memory.mem_readd(cseip);
+    static public int Fetchd() {
+        int temp = Memory.mem_readd(cseip);
         cseip+=4;
         return temp;
     }
     static public int Fetchds() {
-        int temp = (int)Memory.mem_readd(cseip);
+        int temp = Memory.mem_readd(cseip);
         cseip+=4;
         return temp;
     }
-
     static public void DO_PREFIX_SEG_ES() {
         base_ds=CPU.Segs_ESphys;
         base_ss=CPU.Segs_ESphys;

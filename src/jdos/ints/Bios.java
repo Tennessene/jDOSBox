@@ -100,10 +100,10 @@ public class Bios extends Module_base {
     static public final int BIOS_VIDEO_SAVEPTR              =0x4a8;
 
 
-    static public long BIOS_DEFAULT_HANDLER_LOCATION() {return Memory.RealMake(0xf000,0xff53);}
-    static public long BIOS_DEFAULT_IRQ0_LOCATION()		{return Memory.RealMake(0xf000,0xfea5);}
-    static public long BIOS_DEFAULT_IRQ1_LOCATION()		{return Memory.RealMake(0xf000,0xe987);}
-    static public long BIOS_DEFAULT_IRQ2_LOCATION()		{return Memory.RealMake(0xf000,0xff55);}
+    static public int BIOS_DEFAULT_HANDLER_LOCATION() {return Memory.RealMake(0xf000,0xff53);}
+    static public int BIOS_DEFAULT_IRQ0_LOCATION()		{return Memory.RealMake(0xf000,0xfea5);}
+    static public int BIOS_DEFAULT_IRQ1_LOCATION()		{return Memory.RealMake(0xf000,0xe987);}
+    static public int BIOS_DEFAULT_IRQ2_LOCATION()		{return Memory.RealMake(0xf000,0xff55);}
 
     /* maximum of scancodes handled by keyboard bios routines */
     static public final int MAX_SCAN_CODE =0x58;
@@ -128,12 +128,12 @@ public class Bios extends Module_base {
             IoHandler.IO_Write(0x70,0xc);
             IoHandler.IO_Read(0x71);
             if (Memory.mem_readb(BIOS_WAIT_FLAG_ACTIVE)!=0) {
-                /*Bit32u*/long count=Memory.mem_readd(BIOS_WAIT_FLAG_COUNT);
+                /*Bit32u*/long count=Memory.mem_readd(BIOS_WAIT_FLAG_COUNT) & 0xFFFFFFFFl;
                 if (count>997) {
-                    Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,count-997);
+                    Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,(int)count-997);
                 } else {
                     Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,0);
-                    /*PhysPt*/long where=Memory.Real2Phys(Memory.mem_readd(BIOS_WAIT_FLAG_POINTER));
+                    /*PhysPt*/int where=Memory.Real2Phys(Memory.mem_readd(BIOS_WAIT_FLAG_POINTER));
                     Memory.mem_writeb(where,(short)(Memory.mem_readb(where)|0x80));
                     Memory.mem_writeb(BIOS_WAIT_FLAG_ACTIVE,0);
                     Memory.mem_writed(BIOS_WAIT_FLAG_POINTER,Memory.RealMake(0,BIOS_WAIT_FLAG_TEMP));
@@ -213,7 +213,7 @@ public class Bios extends Module_base {
         return true;
     }
 
-    private static void Tandy_SetupTransfer(/*PhysPt*/long bufpt,boolean isplayback) {
+    private static void Tandy_SetupTransfer(/*PhysPt*/int bufpt,boolean isplayback) {
         /*Bitu*/int length=Memory.real_readw(0x40,0xd0);
         if (length==0) return;	/* nothing to do... */
 
@@ -227,7 +227,7 @@ public class Bios extends Module_base {
         else tandy_irq_vector += (0x70-8);
 
         /* revector IRQ-handler if necessary */
-        /*RealPt*/long current_irq=Memory.RealGetVec(tandy_irq_vector);
+        /*RealPt*/int current_irq=Memory.RealGetVec(tandy_irq_vector);
         if (current_irq!=tandy_DAC_callback[0].Get_RealPointer()) {
             Memory.real_writed(0x40,0xd6,current_irq);
             Memory.RealSetVec(tandy_irq_vector,tandy_DAC_callback[0].Get_RealPointer());
@@ -407,7 +407,7 @@ public class Bios extends Module_base {
             switch (CPU_Regs.reg_eax.high() & 0xFF) {
             case 0x00:	/* Get System time */
                 {
-                    /*Bit32u*/int ticks=(int)Memory.mem_readd(BIOS_TIMER);
+                    /*Bit32u*/int ticks=Memory.mem_readd(BIOS_TIMER);
                     CPU_Regs.reg_eax.low(0);		/* Midnight never passes :) */
                     CPU_Regs.reg_ecx.word(ticks >> 16);
                     CPU_Regs.reg_edx.word(ticks & 0xffff);
@@ -480,7 +480,7 @@ public class Bios extends Module_base {
         }
         public /*Bitu*/int call() {
             /* Increase the bios tick counter */
-            /*Bit32u*/long value = Memory.mem_readd(BIOS_TIMER) + 1;
+            /*Bit32u*/int value = Memory.mem_readd(BIOS_TIMER) + 1;
     //    #if DOSBOX_CLOCKSYNC
     //        static boolean check = false;
     //        if((value %50)==0) {
@@ -706,7 +706,7 @@ public class Bios extends Module_base {
             case 0xC0:	/* Get Configuration*/
                 {
                     if (biosConfigSeg==0) biosConfigSeg = Dos_tables.DOS_GetMemory(1); //We have 16 bytes
-                    /*PhysPt*/long data	= Memory.PhysMake(biosConfigSeg,0);
+                    /*PhysPt*/int data	= Memory.PhysMake(biosConfigSeg,0);
                     Memory.mem_writew(data,8);						// 8 Bytes following
                     if (Dosbox.IS_TANDY_ARCH()) {
                         if (Dosbox.machine== MachineType.MCH_TANDY) {
@@ -754,8 +754,8 @@ public class Bios extends Module_base {
                         break;
                     }
                     /*Bit32u*/long count=(CPU_Regs.reg_ecx.word()<<16)|CPU_Regs.reg_edx.word();
-                    Memory.mem_writed(BIOS_WAIT_FLAG_POINTER,Memory.RealMake((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word()));
-                    Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,count);
+                    Memory.mem_writed(BIOS_WAIT_FLAG_POINTER,Memory.RealMake(CPU.Segs_ESval,CPU_Regs.reg_ebx.word()));
+                    Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,(int)count);
                     Memory.mem_writeb(BIOS_WAIT_FLAG_ACTIVE,1);
                     /* Reprogram RTC to start */
                     IoHandler.IO_Write(0x70,0xb);
@@ -808,7 +808,7 @@ public class Bios extends Module_base {
                     }
                     /*Bit32u*/long count=(CPU_Regs.reg_ecx.word()<<16)|CPU_Regs.reg_edx.word();
                     Memory.mem_writed(BIOS_WAIT_FLAG_POINTER,Memory.RealMake(0,BIOS_WAIT_FLAG_TEMP));
-                    Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,count);
+                    Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,(int)count);
                     Memory.mem_writeb(BIOS_WAIT_FLAG_ACTIVE,1);
                     /* Reprogram RTC to start */
                     IoHandler.IO_Write(0x70,0xb);
@@ -823,9 +823,9 @@ public class Bios extends Module_base {
                     boolean enabled = Memory.MEM_A20_Enabled();
                     Memory.MEM_A20_Enable(true);
                     /*Bitu*/int   bytes	= CPU_Regs.reg_ecx.word() * 2;
-                    /*PhysPt*/long data		= CPU.Segs_ESphys+CPU_Regs.reg_esi.word();
-                    /*PhysPt*/long source	= (int)((Memory.mem_readd(data+0x12) & 0x00FFFFFF) + (Memory.mem_readb(data+0x16)<<24));
-                    /*PhysPt*/long dest		= (int)((Memory.mem_readd(data+0x1A) & 0x00FFFFFF) + (Memory.mem_readb(data+0x1E)<<24));
+                    /*PhysPt*/int data		= CPU.Segs_ESphys+CPU_Regs.reg_esi.word();
+                    /*PhysPt*/int source	= ((Memory.mem_readd(data + 0x12) & 0x00FFFFFF) + (Memory.mem_readb(data+0x16)<<24));
+                    /*PhysPt*/int dest		= ((Memory.mem_readd(data + 0x1A) & 0x00FFFFFF) + (Memory.mem_readb(data+0x1E)<<24));
                     Memory.MEM_BlockCopy(dest,source,bytes);
                     CPU_Regs.reg_eax.word(0x00);
                     Memory.MEM_A20_Enable(enabled);
@@ -842,9 +842,9 @@ public class Bios extends Module_base {
                     IoHandler.IO_Write(0x20,0x10);IoHandler.IO_Write(0x21,CPU_Regs.reg_ebx.high());IoHandler.IO_Write(0x21,0);
                     IoHandler.IO_Write(0xA0,0x10);IoHandler.IO_Write(0xA1,CPU_Regs.reg_ebx.low());IoHandler.IO_Write(0xA1,0);
                     Memory.MEM_A20_Enable(true);
-                    /*PhysPt*/long table=CPU.Segs_ESphys+CPU_Regs.reg_esi.word();
-                    CPU.CPU_LGDT(Memory.mem_readw(table+0x8),Memory.mem_readd(table+0x8+0x2) & 0xFFFFFFl);
-                    CPU.CPU_LIDT(Memory.mem_readw(table+0x10),Memory.mem_readd(table+0x10+0x2) & 0xFFFFFFl);
+                    /*PhysPt*/int table=CPU.Segs_ESphys+CPU_Regs.reg_esi.word();
+                    CPU.CPU_LGDT(Memory.mem_readw(table+0x8),Memory.mem_readd(table + 0x8 + 0x2) & 0xFFFFFF);
+                    CPU.CPU_LIDT(Memory.mem_readw(table+0x10),Memory.mem_readd(table + 0x10 + 0x2) & 0xFFFFFF);
                     CPU.CPU_SET_CRX(0,CPU.CPU_GET_CRX(0)|1);
                     CPU.CPU_SetSegGeneralDS(0x18);
                     CPU.CPU_SetSegGeneralES(0x20);
@@ -1164,7 +1164,7 @@ public class Bios extends Module_base {
         /* Reboot */
         callback[10].Install(Reboot_Handler,Callback.CB_IRET,"reboot");
         callback[10].Set_RealVec(0x18);
-        /*RealPt*/long rptr = callback[10].Get_RealPointer();
+        /*RealPt*/int rptr = callback[10].Get_RealPointer();
         Memory.RealSetVec(0x19,rptr);
         // set system BIOS entry point too
         Memory.phys_writeb(0xFFFF0,0xEA);	// FARJMP
@@ -1236,7 +1236,7 @@ public class Bios extends Module_base {
                 if (tandy_irq_vector<8) tandy_irq_vector += 8;
                 else tandy_irq_vector += (0x70-8);
 
-                /*RealPt*/long current_irq=Memory.RealGetVec(tandy_irq_vector);
+                /*RealPt*/int current_irq=Memory.RealGetVec(tandy_irq_vector);
                 Memory.real_writed(0x40,0xd6,current_irq);
                 for (/*Bit16u*/int i=0; i<0x10; i++) Memory.phys_writeb((int)Memory.PhysMake(0xf000,0xa084+i),0x80);
             } else Memory.real_writeb(0x40,0xd4,0x00);

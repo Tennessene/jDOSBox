@@ -26,14 +26,14 @@ public class Prefix_66_0f extends Prefix_66 {
                         if (which==0) saveval=CPU.CPU_SLDT();
                         else saveval=CPU.CPU_STR();
                         if (rm >= 0xc0) {Modrm.GetEArw[rm].word(saveval);}
-                        else {/*PhysPt*/long eaa=getEaa(rm);Memory.mem_writew(eaa,saveval);}
+                        else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,saveval);}
                     }
                     break;
                 case 0x02:case 0x03:case 0x04:case 0x05:
                     {
                         /*Bitu*/int loadval;
                         if (rm >= 0xc0 ) {loadval=Modrm.GetEArw[rm].word();}
-                        else {/*PhysPt*/long eaa=getEaa(rm);loadval=Memory.mem_readw(eaa);}
+                        else {/*PhysPt*/int eaa=getEaa(rm);loadval=Memory.mem_readw(eaa);}
                         switch (which) {
                         case 0x02:
                             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
@@ -65,7 +65,7 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 if (rm < 0xc0)	{ //First ones all use EA
-                    /*PhysPt*/long eaa = getEaa(rm);/*Bitu*/int limit;
+                    /*PhysPt*/int eaa = getEaa(rm);/*Bitu*/int limit;
                     switch (which) {
                     case 0x00:										/* SGDT */
                         Memory.mem_writew(eaa,CPU.CPU_SGDT_limit());
@@ -77,11 +77,11 @@ public class Prefix_66_0f extends Prefix_66 {
                         break;
                     case 0x02:										/* LGDT */
                         if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
-                        CPU.CPU_LGDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa+2));
+                        CPU.CPU_LGDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa + 2));
                         break;
                     case 0x03:										/* LIDT */
                         if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
-                        CPU.CPU_LIDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa+2));
+                        CPU.CPU_LIDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa + 2));
                         break;
                     case 0x04:										/* SMSW */
                         Memory.mem_writew(eaa,(int)(CPU.CPU_SMSW() & 0xFFFFl));
@@ -107,7 +107,7 @@ public class Prefix_66_0f extends Prefix_66 {
                         Modrm.GetEArd[rm].dword(CPU.CPU_SMSW());
                         break;
                     case 0x06:										/* LMSW */
-                        if (CPU.CPU_LMSW((int)Modrm.GetEArd[rm].dword())) return RUNEXCEPTION();
+                        if (CPU.CPU_LMSW(Modrm.GetEArd[rm].dword)) return RUNEXCEPTION();
                         break;
                     default:
                         if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Illegal group 7 RM subfunction "+which);
@@ -123,11 +123,11 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x302] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                short rm=Fetchb();int_ref_1.value = (int)Modrm.Getrd[rm].dword();
+                short rm=Fetchb();int_ref_1.value = Modrm.Getrd[rm].dword;
                 if (rm >= 0xc0) {
                     CPU.CPU_LAR(Modrm.GetEArw[rm].word(),int_ref_1);
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);CPU.CPU_LAR(Memory.mem_readw(eaa),int_ref_1);
+                    /*PhysPt*/int eaa = getEaa(rm);CPU.CPU_LAR(Memory.mem_readw(eaa),int_ref_1);
                 }
                 Modrm.Getrd[rm].dword(int_ref_1.value);
                 return HANDLED;
@@ -138,14 +138,14 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x303] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                short rm=Fetchb();long_ref_1.value = Modrm.Getrd[rm].dword();
+                short rm=Fetchb();int_ref_1.value = Modrm.Getrd[rm].dword;
                 /* Just load 16-bit values for selectors */
                 if (rm >= 0xc0) {
-                    CPU.CPU_LSL(Modrm.GetEArw[rm].word(),long_ref_1);
+                    CPU.CPU_LSL(Modrm.GetEArw[rm].word(),int_ref_1);
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),long_ref_1);
+                    /*PhysPt*/int eaa = getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),int_ref_1);
                 }
-                Modrm.Getrd[rm].dword(long_ref_1.value);
+                Modrm.Getrd[rm].dword=int_ref_1.value;
                 return HANDLED;
             }
         };
@@ -298,12 +298,12 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3a3] = new OP() {
             final public int call() {
                 FillFlags();short rm=Fetchb();
-                /*Bit32u*/long mask=1 << (Modrm.Getrd[rm].dword() & 31);
+                /*Bit32u*/int mask=1 << (Modrm.Getrd[rm].dword & 31);
                 if (rm >= 0xc0 ) {
-                    SETFLAGBIT(CF,(Modrm.GetEArd[rm].dword() & mask)!=0);
+                    SETFLAGBIT(CF,(Modrm.GetEArd[rm].dword & mask)!=0);
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);eaa+=(((/*Bit32s*/int)Modrm.Getrd[rm].dword())>>5)*4;
-                    /*Bit32u*/long old=Memory.mem_readd(eaa);
+                    /*PhysPt*/int eaa = getEaa(rm);eaa+=(Modrm.Getrd[rm].dword>>5)*4; // intentional signed shift
+                    /*Bit32u*/int old=Memory.mem_readd(eaa);
                     SETFLAGBIT(CF,(old & mask)!=0);
                 }
                 return HANDLED;
@@ -318,14 +318,14 @@ public class Prefix_66_0f extends Prefix_66 {
                     int op3 = Fetchb() & 0x1F;
                     if (op3!=0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword(DSHLD(Modrm.Getrd[rm].dword(),op3,r.dword()));
+                        r.dword=DSHLD(Modrm.Getrd[rm].dword,op3,r.dword);
                     }
                 }
                 else {
-                    long eaa = getEaa(rm);
+                    int eaa = getEaa(rm);
                     int op3 = Fetchb() & 0x1F;
                     if (op3!=0)
-                        Memory.mem_writed(eaa, DSHLD(Modrm.Getrd[rm].dword(),op3,Memory.mem_readd(eaa)));
+                        Memory.mem_writed(eaa, DSHLD(Modrm.Getrd[rm].dword,op3,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
             }
@@ -335,17 +335,17 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3a5] = new OP() {
             final public int call() {
                 /*Bit8u*/final short rm=Fetchb();
-                long val = reg_ecx.dword() & 0x1f;
+                int val = reg_ecx.dword & 0x1f;
                 if (rm >= 0xc0 ) {
                     if (val != 0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword(DSHLD(Modrm.Getrd[rm].dword(),val,r.dword()));
+                        r.dword=DSHLD(Modrm.Getrd[rm].dword,val,r.dword);
                     }
                 }
                 else {
-                    long eaa = getEaa(rm);
+                    int eaa = getEaa(rm);
                     if (val != 0)
-                        Memory.mem_writed(eaa, DSHLD(Modrm.Getrd[rm].dword(),val,Memory.mem_readd(eaa)));
+                        Memory.mem_writed(eaa, DSHLD(Modrm.Getrd[rm].dword,val,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
             }
@@ -372,14 +372,14 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 FillFlags();short rm=Fetchb();
                 Reg rd = Modrm.Getrd[rm];
-                /*Bit32u*/long mask=1 << (rd.dword() & 31);
+                /*Bit32u*/int mask=1 << (rd.dword & 31);
                 if (rm >= 0xc0 ) {
                     Reg eard = Modrm.GetEArd[rm];
-                    SETFLAGBIT(CF,(eard.dword() & mask)!=0);
-                    eard.dword(eard.dword()|mask);
+                    SETFLAGBIT(CF,(eard.dword & mask)!=0);
+                    eard.dword(eard.dword|mask);
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);eaa+=(((/*Bit32s*/int)rd.dword())>>5)*4;
-                    /*Bit32u*/long old=Memory.mem_readd(eaa);
+                    /*PhysPt*/int eaa = getEaa(rm);eaa+=(rd.dword>>5)*4; // intentional signed shift
+                    /*Bit32u*/int old=Memory.mem_readd(eaa);
                     Memory.mem_writed(eaa,old | mask);
                     SETFLAGBIT(CF,(old & mask)!=0);
                 }
@@ -395,14 +395,14 @@ public class Prefix_66_0f extends Prefix_66 {
                     int op3 = Fetchb() & 0x1F;
                     if (op3!=0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword(DSHRD(Modrm.Getrd[rm].dword(),op3,r.dword()));
+                        r.dword=DSHRD(Modrm.Getrd[rm].dword,op3,r.dword);
                     }
                 }
                 else {
-                    long eaa = getEaa(rm);
+                    int eaa = getEaa(rm);
                     int op3 = Fetchb() & 0x1F;
                     if (op3!=0)
-                        Memory.mem_writed(eaa, DSHRD(Modrm.Getrd[rm].dword(),op3,Memory.mem_readd(eaa)));
+                        Memory.mem_writed(eaa, DSHRD(Modrm.Getrd[rm].dword,op3,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
             }
@@ -412,17 +412,17 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3ad] = new OP() {
             final public int call() {
                 /*Bit8u*/final short rm=Fetchb();
-                long val = reg_ecx.dword() & 0x1f;
+                int val = reg_ecx.dword & 0x1f;
                 if (rm >= 0xc0 ) {
                     if (val != 0) {
                         Reg r = Modrm.GetEArd[rm];
-                        r.dword(DSHRD(Modrm.Getrd[rm].dword(),val,r.dword()));
+                        r.dword=DSHRD(Modrm.Getrd[rm].dword,val,r.dword);
                     }
                 }
                 else {
-                    long eaa = getEaa(rm);
+                    int eaa = getEaa(rm);
                     if (val != 0)
-                        Memory.mem_writed(eaa, DSHRD(Modrm.Getrd[rm].dword(),val,Memory.mem_readd(eaa)));
+                        Memory.mem_writed(eaa, DSHRD(Modrm.Getrd[rm].dword,val,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
             }
@@ -452,10 +452,10 @@ public class Prefix_66_0f extends Prefix_66 {
 //                for (int i=0;i<1000000;i++) {
                     Reg r = Modrm.Getrd[rm];
                     if (rm >= 0xc0 ) {
-                        r.dword(DIMULD(Modrm.GetEArd[rm].dword(),r.dword()));
+                        r.dword=DIMULD(Modrm.GetEArd[rm].dword,r.dword);
                     }
                     else {
-                        r.dword(DIMULD(Memory.mem_readd(getEaa(rm)),r.dword()));
+                        r.dword=DIMULD(Memory.mem_readd(getEaa(rm)),r.dword);
                     }
 //                }
 //                System.out.println(System.currentTimeMillis()-start);
@@ -471,22 +471,22 @@ public class Prefix_66_0f extends Prefix_66 {
                 short rm=Fetchb();
                 if (rm >= 0xc0) {
                     Reg eard = Modrm.GetEArd[rm];
-                    if (eard.dword()==reg_eax.dword()) {
-                        eard.dword(Modrm.Getrd[rm].dword());
+                    if (eard.dword==reg_eax.dword) {
+                        eard.dword=Modrm.Getrd[rm].dword;
                         SETFLAGBIT(ZF,true);
                     } else {
-                        reg_eax.dword(eard.dword());
+                        reg_eax.dword=eard.dword;
                         SETFLAGBIT(ZF,false);
                     }
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);
-                    /*Bit32u*/long val=Memory.mem_readd(eaa);
-                    if (val==reg_eax.dword()) {
-                        Memory.mem_writed(eaa,Modrm.Getrd[rm].dword());
+                    /*PhysPt*/int eaa = getEaa(rm);
+                    /*Bit32u*/int val=Memory.mem_readd(eaa);
+                    if (val==reg_eax.dword) {
+                        Memory.mem_writed(eaa,Modrm.Getrd[rm].dword);
                         SETFLAGBIT(ZF,true);
                     } else {
                         Memory.mem_writed(eaa,val);	// cmpxchg always issues a write
-                        reg_eax.dword(val);
+                        reg_eax.dword=val;
                         SETFLAGBIT(ZF,false);
                     }
                 }
@@ -499,9 +499,9 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa = getEaa(rm);
+                /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
-                Modrm.Getrd[rm].dword(Memory.mem_readd(eaa));
+                Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
                 return HANDLED;
             }
         };
@@ -511,14 +511,14 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 FillFlags();short rm=Fetchb();
                 Reg rd = Modrm.Getrd[rm];
-                /*Bit32u*/long mask=1 << (rd.dword() & 31);
+                /*Bit32u*/int mask=1 << (rd.dword & 31);
                 if (rm >= 0xc0 ) {
                     Reg eard = Modrm.GetEArd[rm];
-                    SETFLAGBIT(CF,(eard.dword() & mask)!=0);
-                    eard.dword(eard.dword() & ~mask);
+                    SETFLAGBIT(CF,(eard.dword & mask)!=0);
+                    eard.dword(eard.dword & ~mask);
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);eaa+=(((/*Bit32s*/int)rd.dword())>>5)*4;
-                    /*Bit32u*/long old=Memory.mem_readd(eaa);
+                    /*PhysPt*/int eaa = getEaa(rm);eaa+=(rd.dword>>5)*4; // intentional signed shift
+                    /*Bit32u*/int old=Memory.mem_readd(eaa);
                     Memory.mem_writed(eaa,old & ~mask);
                     SETFLAGBIT(CF,(old & mask)!=0);
                 }
@@ -531,9 +531,9 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa = getEaa(rm);
+                /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
-                Modrm.Getrd[rm].dword(Memory.mem_readd(eaa));
+                Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
                 return HANDLED;
             }
         };
@@ -543,9 +543,9 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();
                 if (rm >= 0xc0) return ILLEGAL_OPCODE;
-                /*PhysPt*/long eaa = getEaa(rm);
+                /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
-                Modrm.Getrd[rm].dword(Memory.mem_readd(eaa));
+                Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
                 return HANDLED;
             }
         };
@@ -555,7 +555,7 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword(Modrm.GetEArb[rm].get());}
-                else {/*PhysPt*/long eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readb(eaa));}
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readb(eaa));}
                 return HANDLED;
             }
         };
@@ -565,7 +565,7 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword(Modrm.GetEArw[rm].word());}
-                else {/*PhysPt*/long eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readw(eaa));}
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword(Memory.mem_readw(eaa));}
                 return HANDLED;
             }
         };
@@ -575,28 +575,28 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 FillFlags();short rm=Fetchb();
                 if (rm >= 0xc0 ) {
-                    /*Bit32u*/long mask=1 << (Fetchb() & 31);
+                    /*Bit32u*/int mask=1 << (Fetchb() & 31);
                     Reg eard = Modrm.GetEArd[rm];
-                    SETFLAGBIT(CF,(eard.dword() & mask)!=0);
+                    SETFLAGBIT(CF,(eard.dword & mask)!=0);
                     switch (rm & 0x38) {
                     case 0x20:											/* BT */
                         break;
                     case 0x28:											/* BTS */
-                        eard.dword(eard.dword()|mask);
+                        eard.dword|=mask;
                         break;
                     case 0x30:											/* BTR */
-                        eard.dword(eard.dword()&~mask);
+                        eard.dword&=~mask;
                         break;
                     case 0x38:											/* BTC */
-                        if (GETFLAG(CF)!=0) eard.dword(eard.dword()&~mask);
-                        else eard.dword(eard.dword()|mask);
+                        if (GETFLAG(CF)!=0) eard.dword&=~mask;
+                        else eard.dword|=mask;
                         break;
                     default:
                         Log.exit("CPU:66:0F:BA:Illegal subfunction "+Integer.toString(rm & 0x38,16));
                     }
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);/*Bit32u*/long old=Memory.mem_readd(eaa);
-                    /*Bit32u*/long mask=1 << (Fetchb() & 31);
+                    /*PhysPt*/int eaa = getEaa(rm);/*Bit32u*/int old=Memory.mem_readd(eaa);
+                    /*Bit32u*/int mask=1 << (Fetchb() & 31);
                     switch (rm & 0x38) {
                     case 0x20:											/* BT */
                         break;
@@ -624,14 +624,14 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3bb] = new OP() {
             final public int call() {
                 FillFlags();short rm=Fetchb();
-                /*Bit32u*/long mask=1 << (Modrm.Getrd[rm].dword() & 31);
+                /*Bit32u*/int mask=1 << (Modrm.Getrd[rm].dword & 31);
                 if (rm >= 0xc0 ) {
                     Reg eard = Modrm.GetEArd[rm];
-                    SETFLAGBIT(CF,(eard.dword() & mask)!=0);
-                    eard.dword(eard.dword()^mask);
+                    SETFLAGBIT(CF,(eard.dword & mask)!=0);
+                    eard.dword^=mask;
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);eaa+=(((/*Bit32s*/int)Modrm.Getrd[rm].dword())>>5)*4;
-                    /*Bit32u*/long old=Memory.mem_readd(eaa);
+                    /*PhysPt*/int eaa = getEaa(rm);eaa+=(Modrm.Getrd[rm].dword>>5)*4; // intentional signed shift
+                    /*Bit32u*/int old=Memory.mem_readd(eaa);
                     Memory.mem_writed(eaa,old ^ mask);
                     SETFLAGBIT(CF,(old & mask)!=0);
                 }
@@ -643,16 +643,16 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3bc] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                /*Bit32u*/long result,value;
-                if (rm >= 0xc0) { value=Modrm.GetEArd[rm].dword(); }
-                else			{ /*PhysPt*/long eaa = getEaa(rm); value=Memory.mem_readd(eaa); }
+                /*Bit32u*/int result,value;
+                if (rm >= 0xc0) { value=Modrm.GetEArd[rm].dword; }
+                else			{ /*PhysPt*/int eaa = getEaa(rm); value=Memory.mem_readd(eaa); }
                 if (value==0) {
                     SETFLAGBIT(ZF,true);
                 } else {
                     result = 0;
-                    while ((value & 0x01)==0) { result++; value>>=1; }
+                    while ((value & 0x01)==0) { result++; value>>>=1; }
                     SETFLAGBIT(ZF,false);
-                    Modrm.Getrd[rm].dword( result);
+                    Modrm.Getrd[rm].dword=result;
                 }
                 lflags.type=t_UNKNOWN;
                 return HANDLED;
@@ -663,16 +663,16 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3bd] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                /*Bit32u*/long result,value;
-                if (rm >= 0xc0) { value=Modrm.GetEArd[rm].dword(); }
-                else			{ /*PhysPt*/long eaa = getEaa(rm); value=Memory.mem_readd(eaa); }
+                /*Bit32u*/int result,value;
+                if (rm >= 0xc0) { value=Modrm.GetEArd[rm].dword; }
+                else			{ /*PhysPt*/int eaa = getEaa(rm); value=Memory.mem_readd(eaa); }
                 if (value==0) {
                     SETFLAGBIT(ZF,true);
                 } else {
                     result = 31;	// Operandsize-1
-                    while ((value & 0x80000000l)==0) { result--; value<<=1; }
+                    while ((value & 0x80000000)==0) { result--; value<<=1; }
                     SETFLAGBIT(ZF,false);
-                    Modrm.Getrd[rm].dword( result);
+                    Modrm.Getrd[rm].dword=result;
                 }
                 lflags.type=t_UNKNOWN;
                 return HANDLED;
@@ -684,7 +684,7 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword((byte)(Modrm.GetEArb[rm].get()));}
-                else {/*PhysPt*/long eaa = getEaa(rm);Modrm.Getrd[rm].dword( (byte)Memory.mem_readb(eaa));}
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword( (byte)Memory.mem_readb(eaa));}
                 return HANDLED;
             }
         };
@@ -694,7 +694,7 @@ public class Prefix_66_0f extends Prefix_66 {
             final public int call() {
                 short rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.Getrd[rm].dword((short)(Modrm.GetEArw[rm].word()));}
-                else {/*PhysPt*/long eaa = getEaa(rm);Modrm.Getrd[rm].dword( (short)Memory.mem_readw(eaa));} // Yes that short signed cast is intentional
+                else {/*PhysPt*/int eaa = getEaa(rm);Modrm.Getrd[rm].dword( (short)Memory.mem_readw(eaa));} // Yes that short signed cast is intentional
                 return HANDLED;
             }
         };
@@ -703,15 +703,15 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3c1] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                short rm=Fetchb();/*Bit32u*/long oldrmrd=Modrm.Getrd[rm].dword();
+                short rm=Fetchb();/*Bit32u*/int oldrmrd=Modrm.Getrd[rm].dword;
                 if (rm >= 0xc0 ) {
-                    Modrm.Getrd[rm].dword(Modrm.GetEArd[rm].dword());
-                    Modrm.GetEArd[rm].dword(Modrm.GetEArd[rm].dword()+oldrmrd);
+                    Modrm.Getrd[rm].dword=Modrm.GetEArd[rm].dword;
+                    Modrm.GetEArd[rm].dword+=oldrmrd;
                 } else {
-                    /*PhysPt*/long eaa = getEaa(rm);
-                    long value = Memory.mem_readd(eaa);
+                    /*PhysPt*/int eaa = getEaa(rm);
+                    int value = Memory.mem_readd(eaa);
                     Memory.mem_writed(eaa,value+oldrmrd);
-                    Modrm.Getrd[rm].dword(value);
+                    Modrm.Getrd[rm].dword=value;
                 }
                 return HANDLED;
             }
@@ -721,7 +721,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3c8] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_eax.dword(BSWAPD(reg_eax.dword()));
+		        reg_eax.dword=BSWAPD(reg_eax.dword);
                 return HANDLED;
             }
         };
@@ -730,7 +730,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3c9] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_ecx.dword(BSWAPD(reg_ecx.dword()));
+		        reg_ecx.dword=BSWAPD(reg_ecx.dword);
                 return HANDLED;
             }
         };
@@ -739,7 +739,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3ca] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_edx.dword(BSWAPD(reg_edx.dword()));
+		        reg_edx.dword=BSWAPD(reg_edx.dword);
                 return HANDLED;
             }
         };
@@ -748,7 +748,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3cb] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_ebx.dword(BSWAPD(reg_ebx.dword()));
+		        reg_ebx.dword=BSWAPD(reg_ebx.dword);
                 return HANDLED;
             }
         };
@@ -757,7 +757,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3cc] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_esp.dword(BSWAPD(reg_esp.dword()));
+		        reg_esp.dword=BSWAPD(reg_esp.dword);
                 return HANDLED;
             }
         };
@@ -766,7 +766,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3cd] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_ebp.dword(BSWAPD(reg_ebp.dword()));
+		        reg_ebp.dword=BSWAPD(reg_ebp.dword);
                 return HANDLED;
             }
         };
@@ -775,7 +775,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3ce] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_esi.dword(BSWAPD(reg_esi.dword()));
+		        reg_esi.dword=BSWAPD(reg_esi.dword);
                 return HANDLED;
             }
         };
@@ -784,7 +784,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3cf] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-		        reg_edi.dword(BSWAPD(reg_edi.dword()));
+		        reg_edi.dword=BSWAPD(reg_edi.dword);
                 return HANDLED;
             }
         };

@@ -490,7 +490,7 @@ public class VGA_tseng {
             VGA.vga.vmemsize = 1024*1024;
 
         // Tseng ROM signature
-        /*PhysPt*/long rom_base=(int)Memory.PhysMake(0xc000,0);
+        /*PhysPt*/int rom_base=(int)Memory.PhysMake(0xc000,0);
         Memory.phys_writeb(rom_base+0x0075,' ');
         Memory.phys_writeb(rom_base+0x0076,'T');
         Memory.phys_writeb(rom_base+0x0077,'s');
@@ -893,7 +893,7 @@ public class VGA_tseng {
         VGA.vga.vmemsize = 512*1024; // Cannot figure how this was supposed to work on the real card
 
         // Tseng ROM signature
-        /*PhysPt*/long rom_base=(int)Memory.PhysMake(0xc000,0);
+        /*PhysPt*/int rom_base=(int)Memory.PhysMake(0xc000,0);
         Memory.phys_writeb(rom_base+0x0075,' ');
         Memory.phys_writeb(rom_base+0x0076,'T');
         Memory.phys_writeb(rom_base+0x0077,'s');

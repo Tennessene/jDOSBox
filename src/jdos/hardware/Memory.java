@@ -13,7 +13,6 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.types.MachineType;
 import jdos.util.IntRef;
-import jdos.util.LongRef;
 import jdos.util.Ptr;
 import jdos.util.StringHelper;
 
@@ -39,8 +38,8 @@ public class Memory extends Module_base {
         return (direct[off] & 0xFF) | ((direct[off+1] & 0xFF) << 8);
     }
 
-    public static /*Bit32u*/long host_readd(/*HostPt*/int off) {
-        return (direct[off] & 0xFF) | ((direct[off+1] & 0xFF) << 8) | ((direct[off+2] & 0xFF) << 16) | ((long)(direct[off+3] & 0xFF) << 24);
+    public static /*Bit32u*/int host_readd(/*HostPt*/int off) {
+        return (direct[off] & 0xFF) | ((direct[off+1] & 0xFF) << 8) | ((direct[off+2] & 0xFF) << 16) | ((direct[off+3] & 0xFF) << 24);
     }
 
     public static void host_writeb(/*HostPt*/int off,/*Bit8u*/ short val) {
@@ -52,7 +51,7 @@ public class Memory extends Module_base {
 	    direct[off+1]=(byte)(val >> 8);
     }
 
-    public static void host_writed(/*HostPt*/int off,/*Bit32u*/long val) {
+    public static void host_writed(/*HostPt*/int off,/*Bit32u*/int val) {
         direct[off]=(byte)(val);
 	    direct[off+1]=(byte)(val >> 8);
         direct[off+2]=(byte)(val >> 16);
@@ -72,32 +71,32 @@ public class Memory extends Module_base {
         host_writed((HostPt)var, val);
     }
     */
-    public static void phys_writes(/*PhysPt*/long addr,String s) {
+    public static void phys_writes(/*PhysPt*/int addr,String s) {
         int i;
         byte[] b = s.getBytes();
         for (i=0;i<s.length();i++)
-            host_writeb((int)addr+i,b[i]);
-        host_writeb((int)addr+i, (byte)0);
+            host_writeb(addr+i,b[i]);
+        host_writeb(addr+i, (byte)0);
     }
 
-    public static void phys_writeb(/*PhysPt*/long addr,/*Bit8u*/int val) {
-        host_writeb((int)addr,(short)val);
+    public static void phys_writeb(/*PhysPt*/int addr,/*Bit8u*/int val) {
+        host_writeb(addr,(short)val);
     }
-    public static void phys_writew(/*PhysPt*/long addr,/*Bit16u*/int val){
-        host_writew((int)addr,val);
+    public static void phys_writew(/*PhysPt*/int addr,/*Bit16u*/int val){
+        host_writew(addr,val);
     }
-    public static void phys_writed(/*PhysPt*/long addr,/*Bit32u*/long val){
-        host_writed((int)addr,val);
+    public static void phys_writed(/*PhysPt*/int addr,/*Bit32u*/int val){
+        host_writed(addr,val);
     }
 
-    public static /*Bit8u*/short phys_readb(/*PhysPt*/long addr) {
-        return host_readb((int)addr);
+    public static /*Bit8u*/short phys_readb(/*PhysPt*/int addr) {
+        return host_readb(addr);
     }
-    public static /*Bit16u*/int phys_readw(/*PhysPt*/long addr){
-        return host_readw((int)addr);
+    public static /*Bit16u*/int phys_readw(/*PhysPt*/int addr){
+        return host_readw(addr);
     }
-    public static /*Bit32u*/long phys_readd(/*PhysPt*/long addr){
-        return host_readd((int)addr);
+    public static /*Bit32u*/int phys_readd(/*PhysPt*/int addr){
+        return host_readd(addr);
     }
 
     /* The folowing functions are all shortcuts to the above functions using physical addressing */
@@ -109,8 +108,8 @@ public class Memory extends Module_base {
     public static /*Bit16u*/int real_readw(/*Bit16u*/int seg,/*Bit16u*/int off) {
         return mem_readw((seg<<4)+off);
     }
-    public static /*Bit32u*/long real_readd(/*Bit16u*/int seg,/*Bit16u*/int off) {
-        return mem_readd((seg<<4)+off);
+    public static /*Bit32u*/int real_readd(/*Bit16u*/int seg,/*Bit16u*/int off) {
+        return mem_readd((seg << 4) + off);
     }
 
     public static void real_writeb(/*Bit16u*/int seg,/*Bit16u*/int off,/*Bit8u*/int val) {
@@ -119,47 +118,47 @@ public class Memory extends Module_base {
     public static void real_writew(/*Bit16u*/int seg,/*Bit16u*/int off,/*Bit16u*/int val) {
         mem_writew(((seg<<4)+off),val);
     }
-    public static void real_writed(/*Bit16u*/int seg,/*Bit16u*/int off,/*Bit32u*/long val) {
+    public static void real_writed(/*Bit16u*/int seg,/*Bit16u*/int off,/*Bit32u*/int val) {
         mem_writed(((seg<<4)+off),val);
     }
 
-    public static /*Bit16u*/int RealSeg(/*RealPt*/long pt) {
-        return (/*Bit16u*/int)((pt>>16) & 0xFFFF);
+    public static /*Bit16u*/int RealSeg(/*RealPt*/int pt) {
+        return (/*Bit16u*/int)((pt>>>16) & 0xFFFF);
     }
 
-    public static /*Bit16u*/int RealOff(/*RealPt*/long pt) {
+    public static /*Bit16u*/int RealOff(/*RealPt*/int pt) {
         return (/*Bit16u*/int)(pt & 0xffff);
     }
 
-    public static /*PhysPt*/long Real2Phys(/*RealPt*/long pt) {
+    public static /*PhysPt*/int Real2Phys(/*RealPt*/int pt) {
         return (RealSeg(pt)<<4) +RealOff(pt);
     }
 
-    public static /*PhysPt*/long PhysMake(/*Bit16u*/int seg,/*Bit16u*/int off) {
+    public static /*PhysPt*/int PhysMake(/*Bit16u*/int seg,/*Bit16u*/int off) {
         return (seg<<4)+off;
     }
 
-    public static /*RealPt*/long RealMake(/*Bit16u*/int seg,/*Bit16u*/int off) {
-        return ((long)seg<<16)+off;
+    public static /*RealPt*/int RealMake(/*Bit16u*/int seg,/*Bit16u*/int off) {
+        return (seg<<16)+off;
     }
 
-    public static void RealSetVec(/*Bit8u*/int vec,/*RealPt*/long pt) {
+    public static void RealSetVec(/*Bit8u*/int vec,/*RealPt*/int pt) {
         mem_writed(vec<<2,pt);
     }
 
-    public static void RealSetVec(/*Bit8u*/int vec,/*RealPt*/long pt, LongRef old) {
-        old.value = mem_readd(vec<<2);
+    public static void RealSetVec(/*Bit8u*/int vec,/*RealPt*/int pt, IntRef old) {
+        old.value = mem_readd(vec << 2);
         mem_writed(vec<<2,pt);
     }
 
-    public static long RealSetVec2(/*Bit8u*/int vec,/*RealPt*/long pt) {
-        long ret = mem_readd(vec<<2);
+    public static int RealSetVec2(/*Bit8u*/int vec,/*RealPt*/int pt) {
+        int ret = mem_readd(vec << 2);
         mem_writed(vec<<2,pt);
         return ret;
     }
 
-    public static /*RealPt*/long RealGetVec(/*Bit8u*/int vec) {
-        return mem_readd(vec<<2);
+    public static /*RealPt*/int RealGetVec(/*Bit8u*/int vec) {
+        return mem_readd(vec << 2);
     }
 
     private static final int PAGES_IN_BLOCK = ((1024*1024)/ Paging.MEM_PAGE_SIZE);
@@ -202,26 +201,26 @@ public class Memory extends Module_base {
             flags=Paging.PFLAG_INIT|Paging.PFLAG_NOCODE;
         }
         static /*Bits*/int r_lcount=0;
-        public /*Bitu*/int readb(/*PhysPt*/long addr) {
+        public /*Bitu*/int readb(/*PhysPt*/int addr) {
             if (Config.C_DEBUG)
-                Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
+                Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
             else {
                 if (r_lcount<1000) {
                     r_lcount++;
-                    Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
+                    Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
                 }
             }
             return 0;
         }
         static /*Bits*/int w_lcount=0;
-        public void writeb(/*PhysPt*/long addr,/*Bitu*/int val) {
+        public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
             if (Config.C_DEBUG)
-                Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
+                Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
             else {
 
                 if (w_lcount<1000) {
                     w_lcount++;
-                    Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Long(addr), new Long(CPU.Segs_CSval),new Long(CPU_Regs.reg_eip())}));
+                    Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
                 }
             }
         }
@@ -243,14 +242,14 @@ public class Memory extends Module_base {
         public ROMPageHandler() {
             flags=Paging.PFLAG_READABLE|Paging.PFLAG_HASROM;
         }
-        public void writeb(/*PhysPt*/long addr,/*Bitu*/int val){
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Long.toString(addr,16));
+        public void writeb(/*PhysPt*/int addr,/*Bitu*/int val){
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Integer.toString(addr,16));
         }
-        public void writew(/*PhysPt*/long addr,/*Bitu*/int val){
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Long.toString(addr,16));
+        public void writew(/*PhysPt*/int addr,/*Bitu*/int val){
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Integer.toString(addr,16));
         }
-        public void writed(/*PhysPt*/long addr,/*Bitu*/int val){
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Long.toString(addr,16));
+        public void writed(/*PhysPt*/int addr,/*Bitu*/int val){
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Write "+Integer.toString(val, 16)+" to rom at "+Integer.toString(addr,16));
         }
     }
 
@@ -295,7 +294,7 @@ public class Memory extends Module_base {
         }
     }
 
-    static public /*Bitu*/int mem_strlen(/*PhysPt*/long pt) {
+    static public /*Bitu*/int mem_strlen(/*PhysPt*/int pt) {
         /*Bitu*/int x=0;
         while (x<1024) {
             if (Paging.mem_readb_inline(pt+x)==0) return x;
@@ -304,31 +303,31 @@ public class Memory extends Module_base {
         return 0;		//Hope this doesn't happen
     }
 
-    static private void mem_strcpy(/*PhysPt*/long dest,/*PhysPt*/long src) {
+    static private void mem_strcpy(/*PhysPt*/int dest,/*PhysPt*/int src) {
         /*Bit8u*/short r;
         while ( (r = mem_readb(src++))!=0 ) Paging.mem_writeb_inline(dest++,r);
         Paging.mem_writeb_inline(dest,(short)0);
     }
 
-    static public void mem_memcpy(/*PhysPt*/long dest,/*PhysPt*/long src,/*Bitu*/int size) {
+    static public void mem_memcpy(/*PhysPt*/int dest,/*PhysPt*/int src,/*Bitu*/int size) {
         while (size-- !=0) Paging.mem_writeb_inline(dest++,Paging.mem_readb_inline(src++));
     }
 
-    static public void MEM_BlockRead(/*PhysPt*/long pt,short[] data,int offset, /*Bitu*/int size) {
+    static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,int offset, /*Bitu*/int size) {
         for (int i=0;i<size;i++) {
             short v1 = Paging.mem_readb_inline(pt++);
             short v2 = Paging.mem_readb_inline(pt++);
             data[i+offset]=(short)((v1 & 0xFF) | ((v2 & 0xFF) << 16));
         }
     }
-    static public void MEM_BlockRead16u(/*PhysPt*/long pt,int[] data,int offset, /*Bitu*/int size) {
+    static public void MEM_BlockRead16u(/*PhysPt*/int pt,int[] data,int offset, /*Bitu*/int size) {
         for (int i=0;i<size;i++) {
             short v1 = Paging.mem_readb_inline(pt++);
             short v2 = Paging.mem_readb_inline(pt++);
             data[i+offset]=((v1 & 0xFF) | ((v2 & 0xFF) << 16));
         }
     }
-    static public void MEM_BlockRead(/*PhysPt*/long pt,short[] data,/*Bitu*/int size) {
+    static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,/*Bitu*/int size) {
         for (int i=0;i<size;i++) {
             short v1 = Paging.mem_readb_inline(pt++);
             short v2 = Paging.mem_readb_inline(pt++);
@@ -336,24 +335,24 @@ public class Memory extends Module_base {
         }
     }
 
-    static public String MEM_BlockRead(/*PhysPt*/long pt,/*Bitu*/int size) {
+    static public String MEM_BlockRead(/*PhysPt*/int pt,/*Bitu*/int size) {
         byte[] b = new byte[size];
         MEM_BlockRead(pt, b, size);
         return new String(b, 0, StringHelper.strlen(b));
     }
 
-    static public void MEM_BlockRead(/*PhysPt*/long pt,byte[] data,/*Bitu*/int size) {
+    static public void MEM_BlockRead(/*PhysPt*/int pt,byte[] data,/*Bitu*/int size) {
         for (int i=0;i<size;i++) {
             data[i]=(byte)(Paging.mem_readb_inline(pt++) & 0xFF);
         }
     }
-    static public void MEM_BlockRead(/*PhysPt*/long pt,byte[] data, int offset, /*Bitu*/int size) {
+    static public void MEM_BlockRead(/*PhysPt*/int pt,byte[] data, int offset, /*Bitu*/int size) {
         for (int i=0;i<size;i++) {
             data[i+offset]=(byte)(Paging.mem_readb_inline(pt++) & 0xFF);
         }
     }
 
-    static public void MEM_BlockWrite(/*PhysPt*/long pt,byte[] read,/*Bitu*/int size) {
+    static public void MEM_BlockWrite(/*PhysPt*/int pt,byte[] read,/*Bitu*/int size) {
         int i;
         for (i=0;i<size && i<read.length;i++) {
             Paging.mem_writeb_inline(pt++,read[i]);
@@ -362,7 +361,7 @@ public class Memory extends Module_base {
             Paging.mem_writeb_inline(pt++,(byte)0);
         }
     }
-    static public void MEM_BlockWrite(/*PhysPt*/long pt,byte[] read, int offset, /*Bitu*/int size) {
+    static public void MEM_BlockWrite(/*PhysPt*/int pt,byte[] read, int offset, /*Bitu*/int size) {
         int i;
         for (i=0;i<size && i<read.length;i++) {
             Paging.mem_writeb_inline(pt++,read[i+offset]);
@@ -371,16 +370,16 @@ public class Memory extends Module_base {
             Paging.mem_writeb_inline(pt++,(byte)0);
         }
     }
-    static public void MEM_BlockWrite(/*PhysPt*/long pt,String data,/*Bitu*/int size) {
+    static public void MEM_BlockWrite(/*PhysPt*/int pt,String data,/*Bitu*/int size) {
         byte[] read = data.getBytes();
         MEM_BlockWrite(pt, read, size);
     }
 
-    static public void MEM_BlockCopy(/*PhysPt*/long dest,/*PhysPt*/long src,/*Bitu*/int size) {
+    static public void MEM_BlockCopy(/*PhysPt*/int dest,/*PhysPt*/int src,/*Bitu*/int size) {
         mem_memcpy(dest,src,size);
     }
 
-    static public String MEM_StrCopy(/*PhysPt*/long pt,/*Bitu*/int size) {
+    static public String MEM_StrCopy(/*PhysPt*/int pt,/*Bitu*/int size) {
         StringBuffer buf = new StringBuffer();
         for (int i=0;i<size;i++) {
             short r=Paging.mem_readb_inline(pt++);
@@ -615,12 +614,12 @@ public class Memory extends Module_base {
 
 
     /* Memory access functions */
-    public static /*Bit16u*/int mem_unalignedreadw(/*PhysPt*/long address) {
+    public static /*Bit16u*/int mem_unalignedreadw(/*PhysPt*/int address) {
         return Paging.mem_readb_inline(address) |
             Paging.mem_readb_inline(address+1) << 8;
     }
 
-    public static /*Bit32u*/long mem_unalignedreadd(/*PhysPt*/long address) {
+    public static /*Bit32u*/int mem_unalignedreadd(/*PhysPt*/int address) {
         return Paging.mem_readb_inline(address) |
             (Paging.mem_readb_inline(address+1) << 8) |
             (Paging.mem_readb_inline(address+2) << 16) |
@@ -628,39 +627,39 @@ public class Memory extends Module_base {
     }
 
 
-    public static void mem_unalignedwritew(/*PhysPt*/long address,/*Bit16u*/int val) {
+    public static void mem_unalignedwritew(/*PhysPt*/int address,/*Bit16u*/int val) {
         Paging.mem_writeb_inline(address,(short)val);val>>=8;
         Paging.mem_writeb_inline(address+1,(short)val);
     }
 
-    public static void mem_unalignedwrited(/*PhysPt*/long address,/*Bit32u*/long val) {
+    public static void mem_unalignedwrited(/*PhysPt*/int address,/*Bit32u*/int val) {
         Paging.mem_writeb_inline(address,(short)val);val>>=8;
         Paging.mem_writeb_inline(address+1,(short)val);val>>=8;
         Paging.mem_writeb_inline(address+2,(short)val);val>>=8;
         Paging.mem_writeb_inline(address+3,(short)val);
     }
 
-    public static /*Bit8u*/short mem_readb(/*PhysPt*/long address) {
+    public static /*Bit8u*/short mem_readb(/*PhysPt*/int address) {
         return Paging.mem_readb_inline(address);
     }
 
-    public static /*Bit16u*/int mem_readw(/*PhysPt*/long address) {
+    public static /*Bit16u*/int mem_readw(/*PhysPt*/int address) {
         return Paging.mem_readw_inline(address);
     }
 
-    public static /*Bit32u*/long mem_readd(/*PhysPt*/long address) {
+    public static /*Bit32u*/int mem_readd(/*PhysPt*/int address) {
         return Paging.mem_readd_inline(address);
     }
 
-    static public void mem_writeb(/*PhysPt*/long address,/*Bit8u*/int val) {
+    static public void mem_writeb(/*PhysPt*/int address,/*Bit8u*/int val) {
         Paging.mem_writeb_inline(address,(short)val);
     }
 
-    static public void mem_writew(/*PhysPt*/long address,/*Bit16u*/int val) {
+    static public void mem_writew(/*PhysPt*/int address,/*Bit16u*/int val) {
         Paging.mem_writew_inline(address,val);
     }
 
-    static public void mem_writed(/*PhysPt*/long address,/*Bit32u*/long val) {
+    static public void mem_writed(/*PhysPt*/int address,/*Bit32u*/int val) {
         Paging.mem_writed_inline(address,val);
     }
 

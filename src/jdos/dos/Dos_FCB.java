@@ -114,7 +114,7 @@ public class Dos_FCB extends MemStruct {
     }
 
 	private boolean extended;
-	private /*PhysPt*/long real_pt;
+	private /*PhysPt*/int real_pt;
 
 //	struct sFCB {
 //0		Bit8u drive;			/* Drive number 0=default, 1=A, etc */

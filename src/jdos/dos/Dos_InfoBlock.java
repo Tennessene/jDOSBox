@@ -104,7 +104,7 @@ public class Dos_InfoBlock  extends MemStruct {
     public /*Bit8u*/short GetUMBChainState() {
         return (short)GetIt(1, chainingUMB); //(Bit8u)sGet(sDIB,chainingUMB);
     }
-    public /*RealPt*/long GetPointer() {
+    public /*RealPt*/int GetPointer() {
         return Memory.RealMake(seg,firstDPB);
     }
     public /*Bit32u*/int GetDeviceChain() {

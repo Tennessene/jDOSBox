@@ -30,7 +30,7 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.TESTB(val,Memory.mem_readb(eaa));
             return Constants.BR_Normal;
         }
@@ -55,7 +55,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             int index = Paging.getDirectIndex(eaa);
             if (index>=0)
                 Memory.host_writeb(index,(byte)~Memory.host_readb(index));
@@ -88,7 +88,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Flags.lflags.type=Flags.t_NEGb;
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Flags.lf_var1b(Memory.mem_readb(eaa));
             Flags.lf_resb(0-Flags.lf_var1b());
             Memory.mem_writeb(eaa,Flags.lf_resb());
@@ -115,7 +115,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.MULB(Memory.mem_readb(eaa));
             return Constants.BR_Normal;
         }
@@ -140,7 +140,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.IMULB(Memory.mem_readb(eaa));
             return Constants.BR_Normal;
         }
@@ -164,7 +164,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             return Instructions.DIVBr(this, Memory.mem_readb(eaa));
         }
     }
@@ -187,7 +187,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             return Instructions.IDIVBr(this, Memory.mem_readb(eaa));
         }
     }
@@ -217,7 +217,7 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.TESTW(val,Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
@@ -242,7 +242,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -278,7 +278,7 @@ public class Grp3 extends Helper {
         }
         public int call() {
             Flags.lflags.type=Flags.t_NEGw;
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -314,7 +314,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.MULW(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
@@ -339,7 +339,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.IMULW(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
@@ -363,7 +363,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             return Instructions.DIVWr(this, Memory.mem_readw(eaa));
         }
     }
@@ -386,37 +386,37 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             return Instructions.IDIVWr(this, Memory.mem_readw(eaa));
         }
     }
 
     static public class Testd_reg extends Op {
-        long val;
+        int val;
         CPU_Regs.Reg eard;
 
         public Testd_reg(int rm) {
-            val=decode_fetchd();
+            val= decode_fetchd();
             eard = Mod.ed(rm);
         }
 
         public int call() {
-            Instructions.TESTD(val,eard.dword());
+            Instructions.TESTD(val,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     static public class Testd_mem extends Op {
-        long val;
+        int val;
         EaaBase get_eaa;
 
         public Testd_mem(int rm) {
             this.get_eaa = Mod.getEaa(rm);
-            this.val=decode_fetchd();
+            this.val= decode_fetchd();
         }
 
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.TESTD(val,Memory.mem_readd(eaa));
             return Constants.BR_Normal;
         }
@@ -429,7 +429,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            eard.dword(~eard.dword());
+            eard.dword=~eard.dword;
             return Constants.BR_Normal;
         }
     }
@@ -441,7 +441,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -461,10 +461,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            Flags.lflags.type=Flags.t_NEGd;
-            Flags.lf_var1d(eard.dword());
-            Flags.lf_resd(0-Flags.lf_var1d());
-            eard.dword(Flags.lf_resd());
+            eard.dword = Instructions.Negd(eard.dword);
             return Constants.BR_Normal;
         }
     }
@@ -476,20 +473,15 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            Flags.lflags.type=Flags.t_NEGd;
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
-                    Flags.lf_var1d(Memory.host_readd(index));
-                    Flags.lf_resd(0-Flags.lf_var1d());
-                    Memory.host_writed(index,Flags.lf_resd());
+                    Memory.host_writed(index,Instructions.Negd(Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Flags.lf_var1d(Memory.mem_readd(eaa));
-            Flags.lf_resd(0-Flags.lf_var1d());
-            Memory.mem_writed(eaa,Flags.lf_resd());
+            Memory.mem_writed(eaa,Instructions.Negd(Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -501,7 +493,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            Instructions.MULD(eard.dword());
+            Instructions.MULD(eard.dword);
             return Constants.BR_Normal;
         }
     }
@@ -513,7 +505,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.MULD(Memory.mem_readd(eaa));
             return Constants.BR_Normal;
         }
@@ -526,7 +518,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            Instructions.IMULD(eard.dword());
+            Instructions.IMULD(eard.dword);
             return Constants.BR_Normal;
         }
     }
@@ -538,7 +530,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.IMULD(Memory.mem_readd(eaa));
             return Constants.BR_Normal;
         }
@@ -551,7 +543,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            return Instructions.DIVDr(this, eard.dword());
+            return Instructions.DIVDr(this, eard.dword);
         }
     }
 
@@ -562,7 +554,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             return Instructions.DIVDr(this, Memory.mem_readd(eaa));
         }
     }
@@ -574,7 +566,7 @@ public class Grp3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            return Instructions.IDIVDr(this, eard.dword());
+            return Instructions.IDIVDr(this, eard.dword);
         }
     }
 
@@ -585,7 +577,7 @@ public class Grp3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             return Instructions.IDIVDr(this, Memory.mem_readd(eaa));
         }
     }

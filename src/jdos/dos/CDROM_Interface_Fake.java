@@ -67,7 +67,7 @@ public class CDROM_Interface_Fake implements Dos_cdrom.CDROM_Interface {
     public void ChannelControl(Dos_cdrom.TCtrl ctrl) {
     }
 
-    public boolean ReadSectors(long buffer, boolean raw, long sector, long num) {
+    public boolean ReadSectors(int buffer, boolean raw, long sector, long num) {
         return true;
     }
 

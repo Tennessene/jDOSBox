@@ -21,228 +21,224 @@ public class Instructions extends Table_ea {
         public void call(int value);
     }
 
-    static public interface loadd {
-        public long call();
-    }
-    static public interface saved {
-        public void call(long value);
-    }
-
-    static public interface Instruction2w {
-        public void call(int op2, int op3, loadw l, savew s);
-    }
-    static public interface Instruction2d {
-        public void call(long op2, long op3, loadd l, saved s);
-    }
-    static public interface Instruction1w {
-        public void call(int op2, loadw l, savew s);
-    }
-    static public interface Instruction1d {
-        public void call(long op2, loadd l, saved s);
-    }
-    static public interface Instruction1n {
-        public void call(long op1);
-    }
-    static public interface Instruction0b {
-        public void call(loadb l, saveb s);
-    }
-    static public interface Instruction0w {
-        public void call(loadw l, savew s);
-    }
-    static public interface Instruction0d {
-        public void call(loadd l, saved s);
-    }
     static public short ADDB(short op2, short l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l+op2) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l+op2) & 0xFF);
         lflags.type=t_ADDb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public short ADCB(short op2, short l) {
         lflags.oldcf=get_CF();
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l+op2+(lflags.oldcf?1:0)) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l+op2+(lflags.oldcf?1:0)) & 0xFF);
         lflags.type=t_ADCb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public short SBBB(short op2, short l) {
         lflags.oldcf=get_CF();
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l-(op2+(lflags.oldcf?1:0))) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l-(op2+(lflags.oldcf?1:0))) & 0xFF);
         lflags.type=t_SBBb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public short SUBB(short op2, short l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l-op2) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l-op2) & 0xFF);
         lflags.type=t_SUBb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public short ORB(short op2, short l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l | op2) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l | op2) & 0xFF);
         lflags.type=t_ORb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public short XORB(short op2, short l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l ^ op2) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l ^ op2) & 0xFF);
         lflags.type=t_XORb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public short ANDB(short op2, short l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l & op2) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l & op2) & 0xFF);
         lflags.type=t_ANDb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public void CMPB(short op2, short l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l-op2) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l-op2) & 0xFF);
         lflags.type=t_CMPb;
     }
 
     static public void TESTB(short op2, short l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l & op2) & 0xFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l & op2) & 0xFF);
         lflags.type=t_TESTb;
     }
 
     /* All Word General instructions */
 
     static public int ADDW(int op2, int l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l+op2) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l+op2) & 0xFFFF);
         lflags.type=t_ADDw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
     static public int ADCW(int op2, int l) {
         lflags.oldcf=get_CF();
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l+op2+(lflags.oldcf?1:0)) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l+op2+(lflags.oldcf?1:0)) & 0xFFFF);
         lflags.type=t_ADCw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
     static public int SBBW(int op2, int l) {
         lflags.oldcf=get_CF();
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l-(op2+(lflags.oldcf?1:0))) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l-(op2+(lflags.oldcf?1:0))) & 0xFFFF);
         lflags.type=t_SBBw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
     static public int SUBW(int op2, int l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l-op2) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l-op2) & 0xFFFF);
         lflags.type=t_SUBw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
     static public int ORW(int op2, int l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l | op2) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l | op2) & 0xFFFF);
         lflags.type=t_ORw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
     static public int XORW(int op2, int l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l ^ op2) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l ^ op2) & 0xFFFF);
         lflags.type=t_XORw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
     static public int ANDW(int op2, int l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l & op2) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l & op2) & 0xFFFF);
         lflags.type=t_ANDw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
     static public void CMPW(int op2, int l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l-op2) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l-op2) & 0xFFFF);
         lflags.type=t_CMPw;
     }
 
     static public void TESTW(int op2, int l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res=(l & op2) & 0xFFFF;
+        lf_var1d(l);
+        lf_var2d(op2);
+        lf_resd((l & op2) & 0xFFFF);
         lflags.type=t_TESTw;
     }
 
 
     /* All DWORD General Instructions */
 
-    static public long ADDD(long op2, long l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l+op2) & 0xFFFFFFFFl;
+    static public int ADDD(int op2, int l) {
+        lflags.var1=l;
+        lflags.var2=op2;
+        lflags.res=l+op2;
         lflags.type=t_ADDd;
         return lflags.res;
     }
 
-    static public long ADCD(long op2, long l) {
+    static public int ADCD(int op2, int l) {
         lflags.oldcf=get_CF();
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l + op2+(lflags.oldcf?1:0)) & 0xFFFFFFFFl;
+        lflags.var1=l;
+        lflags.var2=op2;
+        lflags.res=l + op2+(lflags.oldcf?1:0);
         lflags.type=t_ADCd;
         return lflags.res;
     }
 
-    static public long SBBD(long op2, long l) {
+    static public int SBBD(int op2, int l) {
         lflags.oldcf=get_CF();
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l - (op2+(lflags.oldcf?1:0))) & 0xFFFFFFFFl;
+        lflags.var1=l;
+        lflags.var2=op2;
+        lflags.res=l - (op2+(lflags.oldcf?1:0));
         lflags.type=t_SBBd;
         return lflags.res;
     }
 
-    static public long SUBD(long op2, long l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l-op2) & 0xFFFFFFFFl;
+    static public int SUBD(int op2, int l) {
+        lflags.var1=l;
+        lflags.var2=op2;
+        lflags.res=l-op2;
         lflags.type=t_SUBd;
         return lflags.res;
     }
 
-    static public long ORD(long op2, long l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l | op2) & 0xFFFFFFFFl;
+    static public int ORD(int op2, int l) {
+        lflags.var1=l;
+        lflags.var2=op2;
+        lflags.res=l | op2;
         lflags.type=t_ORd;
         return lflags.res;
     }
 
-    static public long XORD(long op2, long l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l ^ op2) & 0xFFFFFFFFl;
+    static public int XORD(int op2, int l) {
+        lflags.var1=l;
+        lflags.var2=op2;
+        lflags.res=l ^ op2;
         lflags.type=t_XORd;
         return lflags.res;
     }
 
-    static public long ANDD(long op2, long l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l & op2) & 0xFFFFFFFFl;
+    static public int ANDD(int op2, int l) {
+        lflags.var1=l;
+        lflags.var2=op2;
+        lflags.res=l & op2;
         lflags.type=t_ANDd;
         return lflags.res;
     }
 
-    static public void CMPD(long op2, long op1) {
-        lflags.var1=op1;lflags.var2=op2;
-        lflags.res = (op1-op2) & 0xFFFFFFFFl;
+    static public void CMPD(int op2, int op1) {
+        lflags.var1=op1;
+        lflags.var2=op2;
+        lflags.res=op1-op2;
         lflags.type=t_CMPd;
     }
 
-    static public void TESTD(long op2, long l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l & op2) & 0xFFFFFFFFl;
+    static public void TESTD(int op2, int op1) {
+        lflags.var1=op1;
+        lflags.var2=op2;
+        lflags.res=op1 & op2;
         lflags.type=t_TESTd;
     }
 
@@ -261,40 +257,44 @@ public class Instructions extends Table_ea {
         return lf_resw();
     }
 
-    static public long INCD(long l) {
-        LoadCF();lf_var1d(l);
-        lf_resd(lf_var1d()+1);
+    static public int INCD(int l) {
+        LoadCF();
+        lflags.var1=l;
+        lflags.res=l+1;
         lflags.type=t_INCd;
-        return lf_resd();
+        return lflags.res;
     }
 
     static public short DECB(short l) {
-        LoadCF();lflags.var1=l;
-        lflags.res = (l-1) & 0xFF;
+        LoadCF();
+        lf_var1d(l);
+        lf_resd((l-1) & 0xFF);
         lflags.type=t_DECb;
-        return (short)lflags.res;
+        return lf_resb();
     }
 
     static public int DECW(int l) {
-        LoadCF();lflags.var1 = l;
-        lflags.res = (l-1) & 0xFFFF;
+        LoadCF();
+        lf_var1d(l);
+        lf_resd((l-1) & 0xFFFF);
         lflags.type=t_DECw;
-        return (int)lflags.res;
+        return lf_resw();
     }
 
-    static public long DECD(long l) {
-        LoadCF();lflags.var1 = l;
-        lflags.res = (l-1) & 0xFFFFFFFFl;
+    static public int DECD(int l) {
+        LoadCF();
+        lflags.var1=l;
+        lflags.res=l-1;
         lflags.type=t_DECd;
         return lflags.res;
     }
 
-    static public boolean valid_ROLB(long op1, int op2) {
+    static public boolean valid_ROLB(int op1, int op2) {
         if ((op2&0x7)==0) {
             if ((op2&0x18)!=0) {
                 FillFlagsNoCFOF();
                 CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(op1 & 1)!=0);
-                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1 & 1) ^ (op1 >> 7))!=0);
+                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1 & 1) ^ (op1 >>> 7))!=0);
             }
             return false;
         }
@@ -310,17 +310,17 @@ public class Instructions extends Table_ea {
         CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lf_resb() & 1) ^ (lf_resb() >> 7))!=0);
         return lf_resb();
     }
-    static public void ROLB(long op1, short op2, loadb l, saveb s) {
+    static public void ROLB(int op1, short op2, loadb l, saveb s) {
         if (valid_ROLB(op1, op2)) {
             s.call(do_ROLB(op2, l.call()));
         }
     }
-    static public boolean valid_ROLW(long op1, int op2) {
+    static public boolean valid_ROLW(int op1, int op2) {
         if ((op2&0xf)==0) {
             if ((op2&0x10)!=0) {
                 FillFlagsNoCFOF();
                 CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(op1 & 1)!=0);
-                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1 & 1) ^ (op1 >> 15))!=0);
+                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1 & 1) ^ (op1 >>> 15))!=0);
             }
             return false;
         }
@@ -336,28 +336,28 @@ public class Instructions extends Table_ea {
         CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lf_resw() & 1) ^ (lf_resw() >> 15))!=0);
         return lf_resw();
     }
-    static public void ROLW(long op1, int op2, loadw l, savew s) {
+    static public void ROLW(int op1, int op2, loadw l, savew s) {
         if (valid_ROLW(op1, op2)) {
             s.call(do_ROLW(op2, l.call()));
         }
     }
 
-    static public long ROLD(long op2, long l) {
+    static public int ROLD(int op2, int l) {
         FillFlagsNoCFOF();
-        lflags.var1=l;
-        lflags.var2=op2;
-        lflags.res=((l << op2) | (l >> (32-op2))) & 0xFFFFFFFFl;
+        lflags.var1 = l;
+        lflags.var2 = op2;
+        lflags.res = (l << op2) | (l >>> (32-op2));
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(lflags.res & 1)!=0);
-        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res & 1) ^ (lflags.res >> 31))!=0);
+        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res & 1) ^ (lflags.res >>> 31))!=0);
         return lflags.res;
     }
 
-    static public boolean valid_RORB(long op1, int op2) {
+    static public boolean valid_RORB(int op1, int op2) {
         if ((op2&0x7)==0) {
             if ((op2&0x18)!=0) {
                 FillFlagsNoCFOF();
                 CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(op1>>7)!=0);
-                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1>>7) ^ ((op1>>6) & 1))!=0);
+                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1>>7) ^ ((op1>>>6) & 1))!=0);
             }
             return false;
         }
@@ -375,17 +375,17 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public void RORB(long op1, short op2, loadb l, saveb s) {
+    static public void RORB(int op1, short op2, loadb l, saveb s) {
         if (valid_RORB(op1, op2)) {
             s.call(do_RORB(op2, l.call()));
         }
     }
-    static public boolean valid_RORW(long op1, int op2) {
+    static public boolean valid_RORW(int op1, int op2) {
         if ((op2&0xf)==0) {
             if ((op2&0x10)!=0) {
                 FillFlagsNoCFOF();
                 CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(op1>>15)!=0);
-                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1>>15) ^ ((op1>>14) & 1))!=0);
+                CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((op1>>15) ^ ((op1>>>14) & 1))!=0);
             }
             return false;
         }
@@ -401,18 +401,18 @@ public class Instructions extends Table_ea {
         CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lf_resw() ^ (lf_resw()<<1)) & 0x8000)!=0);
         return lf_resw();
     }
-    static public void RORW(long op1, int op2, loadw l, savew s) {
+    static public void RORW(int op1, int op2, loadw l, savew s) {
         if (valid_RORW(op1, op2))
             s.call(do_RORW(op2, l.call()));
     }
 
-    static public long RORD(long op2, long l) {
+    static public int RORD(int op2, int l) {
         FillFlagsNoCFOF();
-        lflags.var1=l;
-        lflags.var2=op2;
-        lflags.res=((l >> op2) | (l << (32-op2))) & 0xFFFFFFFFl;
-        CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(lflags.res & 0x80000000l)!=0);
-        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res ^ (lflags.res<<1)) & 0x80000000l)!=0);
+        lflags.var1 = l;
+        lflags.var2 = op2;
+        lflags.res = (l >>> op2) | (l << (32-op2));
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(lflags.res & 0x80000000)!=0);
+        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res ^ (lflags.res <<1)) & 0x80000000)!=0);
         return lflags.res;
     }
 
@@ -457,17 +457,17 @@ public class Instructions extends Table_ea {
         }
     }
 
-    static public long RCLD(long op2, long l) {
-        /*Bit32u*/int cf=FillFlags()&0x1;
-        lflags.var1=l;
-        lflags.var2=op2;
+    static public int RCLD(int op2, int l) {
+        /*Bit32u*/int cf=FillFlags() & 0x1;
+        lflags.var1 = l;
+        lflags.var2 = op2;
         if (op2==1)	{
-            lflags.res = ((l << 1) | cf) & 0xFFFFFFFFl;
+            lflags.res = (l << 1) | cf;
         } else 	{
-            lflags.res = ((l << op2) |(cf << (op2-1)) | (l >> (33-op2))) & 0xFFFFFFFFl;
+            lflags.res = (l << op2) |(cf << (op2-1)) | (l >>> (33-op2));
         }
-        CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(((l >> (32-op2)) & 1))!=0);
-        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((CPU_Regs.flags & 1) ^ (lflags.res >> 31))!=0);
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(((l >>> (32-op2)) & 1))!=0);
+        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((CPU_Regs.flags & 1) ^ (lflags.res >>> 31))!=0);
         return lflags.res;
     }
 
@@ -509,17 +509,17 @@ public class Instructions extends Table_ea {
             s.call(do_RCRW(op2, l.call()));
     }
 
-    static public long RCRD(long op2, long l) {
-        /*Bit32u*/int cf=FillFlags()&0x1;
+    static public int RCRD(int op2, int l) {
+        /*Bit32u*/int cf=FillFlags() & 0x1;
         lflags.var1 = l;
         lflags.var2 = op2;
         if (op2==1) {
-            lflags.res = (l >> 1 | cf << 31) & 0xFFFFFFFFl;
+            lflags.res = (l >>> 1 | cf << 31);
         } else {
-            lflags.res = ((l >> op2) | (cf << (32-op2)) | (l << (33-op2))) & 0xFFFFFFFFl;
+            lflags.res = (l >>> op2) | (cf << (32-op2)) | (l << (33-op2));
         }
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF,((l >> (op2 - 1)) & 1)!=0);
-        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res ^ (lflags.res<<1)) & 0x80000000l)!=0);
+        CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lflags.res ^ (lflags.res << 1)) & 0x80000000)!=0);
         return lflags.res;
     }
 
@@ -552,9 +552,10 @@ public class Instructions extends Table_ea {
             s.call(do_SHLW(op2, l.call()));
     }
 
-    static public long SHLD(long op2, long l) {
-        lflags.var1=l;lflags.var2=op2;
-        lflags.res = (l << op2) & 0xFFFFFFFFl;
+    static public int SHLD(int op2, int l) {
+        lflags.var1 = l;
+        lflags.var2 = op2;
+        lflags.res = l << op2;
         lflags.type=t_SHLd;
         return lflags.res;
     }
@@ -588,9 +589,10 @@ public class Instructions extends Table_ea {
             s.call(do_SHRW(op2, l.call()));
     }
 
-    static public long SHRD(long op2, long l) {
-        lflags.var1 = l;lflags.var2 = op2;
-        lflags.res = (l >> op2);
+    static public int SHRD(int op2, int l) {
+        lflags.var1 = l;
+        lflags.var2 = op2;
+        lflags.res = l >>> op2;
         lflags.type=t_SHRd;
         return lflags.res;
     }
@@ -636,9 +638,10 @@ public class Instructions extends Table_ea {
             s.call(do_SARW(op2, l.call()));
     }
 
-    static public long SARD(long op2, long l) {
-        lflags.var2=op2;lflags.var1=l;
-        lflags.res = (int)l >> op2;
+    static public int SARD(int op2, int l) {
+        lflags.var1 = l;
+        lflags.var2 = op2;
+        lflags.res = l >> op2; // intentional signed shift
         lflags.type=t_SARd;
         return lflags.res;
     }
@@ -819,13 +822,13 @@ public class Instructions extends Table_ea {
         }
     }
 
-    static public void MULD(long l) {
-        /*Bit64u*/long tempu=CPU_Regs.reg_eax.dword()*(l);
-        CPU_Regs.reg_eax.dword((tempu));
-        CPU_Regs.reg_edx.dword((tempu >> 32));
+    static public void MULD(int l) {
+        /*Bit64u*/long tempu=(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl)*(l & 0xFFFFFFFFl);
+        CPU_Regs.reg_eax.dword=(int)tempu;
+        CPU_Regs.reg_edx.dword=(int)(tempu >> 32);
         FillFlagsNoCFOF();
-        CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,CPU_Regs.reg_eax.dword() == 0);
-        if (CPU_Regs.reg_edx.dword()!=0) {
+        CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,CPU_Regs.reg_eax.dword == 0);
+        if (CPU_Regs.reg_edx.dword!=0) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,true);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,true);
         } else {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
@@ -866,16 +869,16 @@ public class Instructions extends Table_ea {
         CPU_Regs.reg_eax.word(quo16);
     }
 
-    static public void DIVD(long val) {
+    static public void DIVD(int val) {
         if (val==0) {
             Prefix_helpers.EXCEPTION(0);
             throw new Prefix_helpers.ContinueException();
         }
-        /*Bit64u*/long num=((CPU_Regs.reg_edx.dword())<<32)|CPU_Regs.reg_eax.dword();
+        /*Bit64u*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         try {
-            /*Bit64u*/long quo= LongHelper.divideLongByInt(num,(int)val);
-            CPU_Regs.reg_edx.dword(((quo >> 32) & 0xFFFFFFFFl));
-            CPU_Regs.reg_eax.dword((quo & 0xFFFFFFFFl));
+            /*Bit64u*/long quo= LongHelper.divideLongByInt(num,val);
+            CPU_Regs.reg_edx.dword=(int)(quo >> 32);
+            CPU_Regs.reg_eax.dword=(int)quo;
         } catch (OverflowException e) {
             Prefix_helpers.EXCEPTION(0);
             throw new Prefix_helpers.ContinueException();
@@ -917,13 +920,12 @@ public class Instructions extends Table_ea {
         CPU_Regs.reg_eax.word(quo16s);
     }
 
-    static public void IDIVD(long l) {
-        /*Bits*/int val=(/*Bit32s*/int)(l);
+    static public void IDIVD(int val) {
         if (val==0) {
             Prefix_helpers.EXCEPTION(0);
             throw new Prefix_helpers.ContinueException();
         }
-        /*Bit64s*/long num=((CPU_Regs.reg_edx.dword())<<32)|CPU_Regs.reg_eax.dword();
+        /*Bit64s*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         /*Bit64s*/long quo=num/val;
         /*Bit32s*/int rem=(/*Bit32s*/int)(num % val);
         /*Bit32s*/int quo32s=(/*Bit32s*/int)(quo&0xffffffffl);
@@ -931,8 +933,8 @@ public class Instructions extends Table_ea {
             Prefix_helpers.EXCEPTION(0);
             throw new Prefix_helpers.ContinueException();
         }
-        CPU_Regs.reg_edx.dword(rem);
-        CPU_Regs.reg_eax.dword(quo32s);
+        CPU_Regs.reg_edx.dword=rem;
+        CPU_Regs.reg_eax.dword=quo32s;
     }
 
     static public int DIVBr(Op op, short l) {
@@ -967,15 +969,15 @@ public class Instructions extends Table_ea {
         return Constants.BR_Normal;
     }
 
-    static public int DIVDr(Op op, long val) {
+    static public int DIVDr(Op op, int val) {
         if (val==0) {
             return op.EXCEPTION(0);
         }
-        /*Bit64u*/long num=((CPU_Regs.reg_edx.dword())<<32)|CPU_Regs.reg_eax.dword();
+        /*Bit64u*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         try {
-            /*Bit64u*/long quo= LongHelper.divideLongByInt(num,(int)val);
-            CPU_Regs.reg_edx.dword(((quo >> 32) & 0xFFFFFFFFl));
-            CPU_Regs.reg_eax.dword((quo & 0xFFFFFFFFl));
+            /*Bit64u*/long quo= LongHelper.divideLongByInt(num,val);
+            CPU_Regs.reg_edx.dword=(int)(quo >> 32);
+            CPU_Regs.reg_eax.dword=(int)quo;
         } catch (OverflowException e) {
             return op.EXCEPTION(0);
         }
@@ -1015,20 +1017,19 @@ public class Instructions extends Table_ea {
         return Constants.BR_Normal;
     }
 
-    static public int IDIVDr(Op op, long l) {
-        /*Bits*/int val=(/*Bit32s*/int)(l);
+    static public int IDIVDr(Op op, int val) {
         if (val==0) {
             return op.EXCEPTION(0);
         }
-        /*Bit64s*/long num=((CPU_Regs.reg_edx.dword())<<32)|CPU_Regs.reg_eax.dword();
+        /*Bit64s*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         /*Bit64s*/long quo=num/val;
         /*Bit32s*/int rem=(/*Bit32s*/int)(num % val);
         /*Bit32s*/int quo32s=(/*Bit32s*/int)(quo&0xffffffffl);
         if (quo!=(/*Bit64s*/long)quo32s) {
             return op.EXCEPTION(0);
         }
-        CPU_Regs.reg_edx.dword(rem);
-        CPU_Regs.reg_eax.dword(quo32s);
+        CPU_Regs.reg_edx.dword=rem;
+        CPU_Regs.reg_eax.dword=quo32s;
         return Constants.BR_Normal;
     }
 
@@ -1056,17 +1057,16 @@ public class Instructions extends Table_ea {
         }
     }
 
-    static public void IMULD(long l) {
-        /*Bit64s*/long temps=((/*Bit64s*/long)((/*Bit32s*/int)CPU_Regs.reg_eax.dword()))*
-                     ((/*Bit64s*/long)((/*Bit32s*/int)(l)));
-        CPU_Regs.reg_eax.dword((temps));
-        CPU_Regs.reg_edx.dword((temps >> 32));
+    static public void IMULD(int l) {
+        /*Bit64s*/long temps=(long)CPU_Regs.reg_eax.dword*l;
+        CPU_Regs.reg_eax.dword=(int)temps;
+        CPU_Regs.reg_edx.dword=(int)(temps >> 32);
         FillFlagsNoCFOF();
-        if ((CPU_Regs.reg_edx.dword()==0xffffffffl) &&
-            (CPU_Regs.reg_eax.dword() & 0x80000000l)!=0 ) {
+        if ((CPU_Regs.reg_edx.dword==0xffffffff) &&
+            (CPU_Regs.reg_eax.dword & 0x80000000)!=0 ) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
-        } else if ( (CPU_Regs.reg_edx.dword()==0x00000000) &&
-                    (CPU_Regs.reg_eax.dword()< 0x80000000l) ) {
+        } else if ( (CPU_Regs.reg_edx.dword==0x00000000) &&
+                    (CPU_Regs.reg_eax.dword > 0) ) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
         } else {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,true);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,true);
@@ -1084,8 +1084,8 @@ public class Instructions extends Table_ea {
         return (res & 0xffff);
     }
 
-    static public long DIMULD(long op2,long op3) {
-        /*Bit64s*/long res=((/*Bit64s*/long)((/*Bit32s*/int)op2))*((/*Bit64s*/long)((/*Bit32s*/int)op3));
+    static public int DIMULD(int op2,int op3) {
+        /*Bit64s*/long res=(long)op2*op3;
         FillFlagsNoCFOF();
         if ((res>-((/*Bit64s*/long)(2147483647)+1)) &&
             (res<(/*Bit64s*/long)2147483647)) {
@@ -1093,19 +1093,21 @@ public class Instructions extends Table_ea {
         } else {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,true);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,true);
         }
-        return res & 0xFFFFFFFFl;
+        return (int)res;
     }
 
-    static public long DSHLD(long op2,long val, long l) {
-        lf_var2b(val);lf_var1d(l);
-        lflags.res = ((l << val) | (op2 >> (32-val))) & 0xFFFFFFFFl;
+    static public int DSHLD(int op2,int val, int l) {
+        lf_var2b(val);
+        lflags.var1 = l;
+        lflags.res = (l << val) | (op2 >>> (32-val));
         lflags.type=t_DSHLd;
         return lflags.res;
     }
 
-    static public long DSHRD(long op2,long val, long l) {
-        lf_var2b(val);lf_var1d(l);
-        lflags.res = ((l >> val) | (op2 << (32-val))) & 0xFFFFFFFFl;
+    static public int DSHRD(int op2,int val, int l) {
+        lf_var2b(val);
+        lflags.var1 = l;
+        lflags.res = (l >>> val) | (op2 << (32-val));
         lflags.type=t_DSHRd;
         return lflags.res;
     }
@@ -1118,8 +1120,8 @@ public class Instructions extends Table_ea {
     static public int do_DSHLW(int op2,int op3, int l) {
         int val=op3 & 0x1F;
         lf_var2b(val);
-        lf_var1d((l<<16)|op2);
-        long tempd=lf_var1d() << lf_var2b();
+        lflags.var1=(l<<16)|op2;
+        long tempd=(long)lflags.var1 << lf_var2b();
         if (lf_var2b()>16) tempd |= (op2 << (lf_var2b() - 16));
         lf_resw((int)(tempd >>> 16));
         lflags.type=t_DSHLw;
@@ -1138,8 +1140,9 @@ public class Instructions extends Table_ea {
 
     static public int do_DSHRW(int op2,int op3, int l) {
         /*Bit8u*/short val=(short)(op3 & 0x1F);
-        lf_var2b(val);lf_var1d((op2<<16)|l);
-        /*Bit32u*/long tempd=lf_var1d() >>> lf_var2b();
+        lf_var2b(val);
+        lflags.var1=(op2<<16)|l;
+        /*Bit32u*/long tempd=lflags.var1 >>> lf_var2b();
         if (lf_var2b()>16) tempd |= (op2 << (32-lf_var2b() ));
         lf_resw((/*Bit16u*/int)(tempd));
         lflags.type=t_DSHRw;
@@ -1154,7 +1157,14 @@ public class Instructions extends Table_ea {
 	    return 0;
     }
 
-    static public long BSWAPD(long op1) {
-        return (op1>>24)|((op1>>8)&0xFF00)|((op1<<8)&0xFF0000)|((op1<<24)&0xFF000000l);
+    static public int BSWAPD(int op1) {
+        return (op1>>>24)|((op1>>8)&0xFF00)|((op1<<8)&0xFF0000)|((op1<<24)&0xFF000000);
+    }
+    
+    static public int Negd(int op1) {
+        Flags.lflags.type=Flags.t_NEGd;
+        lflags.var1 = op1;
+        lflags.res = 0 - op1;
+        return lflags.res;
     }
 }

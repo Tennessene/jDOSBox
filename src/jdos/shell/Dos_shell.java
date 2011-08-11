@@ -458,7 +458,7 @@ public class Dos_shell extends Program {
                             mask="*.*";
                         }
 
-                        /*RealPt*/long save_dta=Dos.dos.dta();
+                        /*RealPt*/int save_dta=Dos.dos.dta();
                         Dos.dos.dta((int)Dos.dos.tables.tempdta);
 
                         boolean res = Dos_files.DOS_FindFirst(mask, 0xffff & ~Dos_system.DOS_ATTR_VOLUME);
@@ -690,7 +690,7 @@ public class Dos_shell extends Program {
             Dos_ParamBlock block=new Dos_ParamBlock(CPU.Segs_SSphys+CPU_Regs.reg_esp.word());
             block.Clear();
             //Add a filename
-            /*RealPt*/long file_name= CPU_Regs.RealMakeSegSS(CPU_Regs.reg_esp.word()+0x20);
+            /*RealPt*/int file_name= CPU_Regs.RealMakeSegSS(CPU_Regs.reg_esp.word()+0x20);
             Memory.MEM_BlockWrite(Memory.Real2Phys(file_name),fullname,fullname.length()+1);
 
             /* HACK: Store full commandline for mount and imgmount */

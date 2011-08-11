@@ -61,7 +61,7 @@ public class VGA_xga {
     private static XGAStatus xga;
 
     private static void XGA_Write_Multifunc(/*Bitu*/int val, /*Bitu*/int len) {
-        /*Bitu*/int regselect = val >> 12;
+        /*Bitu*/int regselect = val >>> 12;
         /*Bitu*/int dataval = val & 0xfff;
         switch(regselect) {
             case 0: // minor axis pixel count

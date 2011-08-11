@@ -5,7 +5,7 @@ import jdos.cpu.core_normal.Prefix_helpers;
 
 public class ModifiedDecode {
     static public int call() {
-        Core.cseip = (CPU.Segs_CSphys + CPU_Regs.reg_eip) & 0xFFFFFFFFl;
+        Core.cseip = CPU.Segs_CSphys + CPU_Regs.reg_eip;
         if (CPU.cpu.code.big) {
             Core.opcode_index=0x200;
             Core.prefixes=1;

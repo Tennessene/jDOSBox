@@ -24,7 +24,7 @@ public class Mouse {
     static private /*Bit16u*/int ps2cbseg,ps2cbofs;
     static private boolean useps2callback,ps2callbackinit;
     static private /*Bitu*/int call_ps2;
-    static private /*RealPt*/long ps2_callback;
+    static private /*RealPt*/int ps2_callback;
     static private /*Bit16s*/short oldmouseX, oldmouseY;
 
     private static class button_event {
@@ -1013,7 +1013,7 @@ public class Mouse {
                 break;
             case 0x09:	/* Define GFX Cursor */
                 {
-                    /*PhysPt*/long src = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int src = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
                     Memory.MEM_BlockRead16u(src          ,userdefScreenMask,0,CURSORY);
                     Memory.MEM_BlockRead16u(src+CURSORY*2,userdefCursorMask,0,CURSORY);
                     mouse.screenMask = userdefScreenMask;
@@ -1078,7 +1078,7 @@ public class Mouse {
             case 0x16: /* Save driver state */
                 {
                     Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Saving driver state...");
-                    /*PhysPt*/long dest = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int dest = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
                     byte[] data = mouse.save();
                     Memory.MEM_BlockWrite(dest, data, data.length);
                 }
@@ -1086,7 +1086,7 @@ public class Mouse {
             case 0x17: /* load driver state */
                 {
                     Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Loading driver state...");
-                    /*PhysPt*/long src = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int src = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
                     byte[] data = new byte[_mouse.sizeof()];
                     Memory.MEM_BlockRead(src, data, data.length);
                     mouse.load(data);
@@ -1297,8 +1297,8 @@ public class Mouse {
         public void call(Section section) {
             // Callback for mouse interrupt 0x33
             call_int33=Callback.CALLBACK_Allocate();
-        //	/*RealPt*/long i33loc=RealMake(CB_SEG+1,(call_int33*CB_SIZE)-0x10);
-            /*RealPt*/long i33loc=Memory.RealMake(Dos_tables.DOS_GetMemory(0x1)-1,0x10);
+        //	/*RealPt*/int i33loc=RealMake(CB_SEG+1,(call_int33*CB_SIZE)-0x10);
+            /*RealPt*/int i33loc=Memory.RealMake(Dos_tables.DOS_GetMemory(0x1)-1,0x10);
             Callback.CALLBACK_Setup(call_int33,INT33_Handler,Callback.CB_MOUSE,Memory.Real2Phys(i33loc),"Mouse");
             // Wasteland needs low(seg(int33))!=0 and low(ofs(int33))!=0
             Memory.real_writed(0,0x33<<2,i33loc);

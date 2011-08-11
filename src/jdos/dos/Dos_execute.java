@@ -118,7 +118,7 @@ public class Dos_execute {
         if (!tsr) curpsp.CloseFiles();
 
         /* Get the termination address */
-        /*RealPt*/long old22 = curpsp.GetInt22();
+        /*RealPt*/int old22 = curpsp.GetInt22();
         /* Restore vector 22,23,24 */
         curpsp.RestoreVectors();
         /* Set the parent PSP */
@@ -170,7 +170,7 @@ public class Dos_execute {
     static private boolean MakeEnv(String name, IntRef segment) {
         /* If segment to copy environment is 0 copy the caller's environment */
         Dos_PSP psp=new Dos_PSP(Dos.dos.psp());
-        /*PhysPt*/long envread,envwrite;
+        /*PhysPt*/int envread,envwrite;
         /*Bit16u*/int envsize=1;
         boolean parentenv=true;
 
@@ -259,11 +259,11 @@ public class Dos_execute {
         psp.SetCommandTail(block.exec.cmdtail);
     }
 
-    static public boolean DOS_Execute(String name,/*PhysPt*/long block_pt,/*Bit8u*/short flags) {
+    static public boolean DOS_Execute(String name,/*PhysPt*/int block_pt,/*Bit8u*/short flags) {
         EXE_Header head=new EXE_Header();/*Bitu*/int i;
         /*Bit16u*/IntRef fhandle=new IntRef(0);
         /*Bit16u*/int loadseg;
-        /*PhysPt*/long loadaddress;
+        /*PhysPt*/int loadaddress;
         /*Bitu*/int headersize=0,imagesize=0;
         Dos_ParamBlock block=new Dos_ParamBlock(block_pt);
 
@@ -403,8 +403,8 @@ public class Dos_execute {
             for (i=0;i<head.relocations;i++) {
                 byte[] d = new byte[4];
                 IntRef readsize=new IntRef(4);Dos_files.DOS_ReadFile(fhandle.value,d,readsize);
-                long relocpt=new Ptr(d,0).readd(0);		//Endianize
-                /*PhysPt*/long address=Memory.PhysMake(Memory.RealSeg(relocpt)+loadseg,Memory.RealOff(relocpt));
+                int relocpt=new Ptr(d,0).readd(0);		//Endianize
+                /*PhysPt*/int address=Memory.PhysMake(Memory.RealSeg(relocpt)+loadseg,Memory.RealOff(relocpt));
                 Memory.mem_writew(address,Memory.mem_readw(address)+relocate);
             }
         }
@@ -418,7 +418,7 @@ public class Dos_execute {
         }
         Callback.CALLBACK_SCF(false);		/* Carry flag cleared for caller if successfull */
         if (flags==OVERLAY) return true;			/* Everything done for overlays */
-        /*RealPt*/long csip,sssp;
+        /*RealPt*/int csip,sssp;
         if (iscom) {
             csip=Memory.RealMake(pspseg.value,0x100);
             sssp=Memory.RealMake(pspseg.value,0xfffe);

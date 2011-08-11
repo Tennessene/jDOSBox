@@ -28,8 +28,8 @@ public class Int10_memory {
         0x2000,0x6000,0xa000,0xe000
     };
 
-    public static void INT10_LoadFont(/*PhysPt*/long font,boolean reload,/*Bitu*/int count,/*Bitu*/int offset,/*Bitu*/int map,/*Bitu*/int height) {
-        /*PhysPt*/long ftwhere= Memory.PhysMake(0xa000,map_offset[map & 0x7]+(offset*32));
+    public static void INT10_LoadFont(/*PhysPt*/int font,boolean reload,/*Bitu*/int count,/*Bitu*/int offset,/*Bitu*/int map,/*Bitu*/int height) {
+        /*PhysPt*/int ftwhere= Memory.PhysMake(0xa000,map_offset[map & 0x7]+(offset*32));
         IoHandler.IO_Write(0x3c4,0x2);IoHandler.IO_Write(0x3c5,0x4);	//Enable plane 2
         IoHandler.IO_Write(0x3ce,0x6);/*Bitu*/int old_6=IoHandler.IO_Read(0x3cf);
         IoHandler.IO_Write(0x3cf,0x0);	//Disable odd/even and a0000 adressing
@@ -86,7 +86,7 @@ public class Int10_memory {
 
     static public void INT10_SetupRomMemory() {
 /* This should fill up certain structures inside the Video Bios Rom Area */
-        /*PhysPt*/long rom_base=Memory.PhysMake(0xc000,0);
+        /*PhysPt*/int rom_base=Memory.PhysMake(0xc000,0);
         /*Bitu*/int i;
         Int10.int10.rom.used=3;
         if (Dosbox.IS_EGAVGA_ARCH()) {
@@ -199,17 +199,17 @@ public class Int10_memory {
 
     public static void INT10_ReloadRomFonts() {
         // 16x8 font
-        /*PhysPt*/long font16pt=Memory.Real2Phys(Int10.int10.rom.font_16);
+        /*PhysPt*/int font16pt=Memory.Real2Phys(Int10.int10.rom.font_16);
         for (/*Bitu*/int i=0;i<256*16;i++) {
             Memory.phys_writeb(font16pt+i,int10_font_16[i]);
         }
         // 14x8 font
-        /*PhysPt*/long font14pt=Memory.Real2Phys(Int10.int10.rom.font_14);
+        /*PhysPt*/int font14pt=Memory.Real2Phys(Int10.int10.rom.font_14);
         for (/*Bitu*/int i=0;i<256*14;i++) {
             Memory.phys_writeb(font14pt+i,int10_font_14[i]);
         }
         // 8x8 fonts
-        /*PhysPt*/long font8pt=Memory.Real2Phys(Int10.int10.rom.font_8_first);
+        /*PhysPt*/int font8pt=Memory.Real2Phys(Int10.int10.rom.font_8_first);
         for (/*Bitu*/int i=0;i<128*8;i++) {
             Memory.phys_writeb(font8pt+i,int10_font_08[i]);
         }
@@ -223,7 +223,7 @@ public class Int10_memory {
         if (Dosbox.IS_EGAVGA_ARCH()) { //EGA/VGA. Just to be safe
             /* Sum of all bytes in rom module 256 should be 0 */
             /*Bit8u*/int sum = 0;
-            /*PhysPt*/long rom_base = Memory.PhysMake(0xc000,0);
+            /*PhysPt*/int rom_base = Memory.PhysMake(0xc000,0);
             /*Bitu*/int last_rombyte = 32*1024 - 1;		//32 KB romsize
             for (/*Bitu*/int i = 0;i < last_rombyte;i++)
                 sum += Memory.phys_readb(rom_base + i);	//OVERFLOW IS OKAY

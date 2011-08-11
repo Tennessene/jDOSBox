@@ -228,7 +228,7 @@ public class VGA_paradise {
         }
 
         // Paradise ROM signature
-        /*PhysPt*/long rom_base=(int)Memory.PhysMake(0xc000,0);
+        /*PhysPt*/int rom_base=(int)Memory.PhysMake(0xc000,0);
         Memory.phys_writeb(rom_base+0x007d,'V');
         Memory.phys_writeb(rom_base+0x007e,'G');
         Memory.phys_writeb(rom_base+0x007f,'A');

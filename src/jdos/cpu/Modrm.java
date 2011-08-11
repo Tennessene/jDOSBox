@@ -215,78 +215,6 @@ public class Modrm {
         public void set(long value);
     }
 
-    static final private Getrd_interface eax = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_eax.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_eax.dword(value);
-        }
-    };
-
-    static final private Getrd_interface ecx = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_ecx.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_ecx.dword(value);
-        }
-    };
-
-    static final private Getrd_interface edx = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_edx.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_edx.dword(value);
-        }
-    };
-
-    static final private Getrd_interface ebx = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_ebx.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_ebx.dword(value);
-        }
-    };
-
-    static final private Getrd_interface esp = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_esp.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_esp.dword(value);
-        }
-    };
-
-    static final private Getrd_interface ebp = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_ebp.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_ebp.dword(value);
-        }
-    };
-
-    static final private Getrd_interface esi = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_esi.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_esi.dword(value);
-        }
-    };
-
-    static final private Getrd_interface edi = new Getrd_interface() {
-        final public long get() {
-            return CPU_Regs.reg_edi.dword();
-        }
-        final public void set(long value) {
-            CPU_Regs.reg_edi.dword(value);
-        }
-    };
-
     static final public CPU_Regs.Reg[] Getrd = new CPU_Regs.Reg[] {
             CPU_Regs.reg_eax, CPU_Regs.reg_eax, CPU_Regs.reg_eax, CPU_Regs.reg_eax, CPU_Regs.reg_eax, CPU_Regs.reg_eax, CPU_Regs.reg_eax, CPU_Regs.reg_eax,
             CPU_Regs.reg_ecx, CPU_Regs.reg_ecx, CPU_Regs.reg_ecx, CPU_Regs.reg_ecx, CPU_Regs.reg_ecx, CPU_Regs.reg_ecx, CPU_Regs.reg_ecx, CPU_Regs.reg_ecx,
@@ -597,75 +525,75 @@ public class Modrm {
             null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,
             null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,	null,
             new Move() {final public void call() { /*CPU_Regs.reg_eax.dword = CPU_Regs.reg_eax.dword;*/ }},
-            new Move() {final public void call() { CPU_Regs.reg_eax.dword(CPU_Regs.reg_ecx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_eax.dword(CPU_Regs.reg_edx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_eax.dword(CPU_Regs.reg_ebx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_eax.dword(CPU_Regs.reg_esp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_eax.dword(CPU_Regs.reg_ebp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_eax.dword(CPU_Regs.reg_esi.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_eax.dword(CPU_Regs.reg_edi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_eax.dword=CPU_Regs.reg_ecx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_eax.dword=CPU_Regs.reg_edx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_eax.dword=CPU_Regs.reg_ebx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_eax.dword=CPU_Regs.reg_esp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_eax.dword=CPU_Regs.reg_ebp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_eax.dword=CPU_Regs.reg_esi.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_eax.dword=CPU_Regs.reg_edi.dword; }},
 
-            new Move() {final public void call() { CPU_Regs.reg_ecx.dword(CPU_Regs.reg_eax.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_ecx.dword=CPU_Regs.reg_eax.dword; }},
             new Move() {final public void call() { /*CPU_Regs.reg_ecx.dword = CPU_Regs.reg_ecx.dword;*/ }},
-            new Move() {final public void call() { CPU_Regs.reg_ecx.dword(CPU_Regs.reg_edx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ecx.dword(CPU_Regs.reg_ebx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ecx.dword(CPU_Regs.reg_esp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ecx.dword(CPU_Regs.reg_ebp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ecx.dword(CPU_Regs.reg_esi.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ecx.dword(CPU_Regs.reg_edi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_ecx.dword=CPU_Regs.reg_edx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ecx.dword=CPU_Regs.reg_ebx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ecx.dword=CPU_Regs.reg_esp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ecx.dword=CPU_Regs.reg_ebp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ecx.dword=CPU_Regs.reg_esi.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ecx.dword=CPU_Regs.reg_edi.dword; }},
 
-            new Move() {final public void call() { CPU_Regs.reg_edx.dword(CPU_Regs.reg_eax.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edx.dword(CPU_Regs.reg_ecx.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_edx.dword=CPU_Regs.reg_eax.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edx.dword=CPU_Regs.reg_ecx.dword; }},
             new Move() {final public void call() { /*CPU_Regs.reg_edx.dword = CPU_Regs.reg_edx.dword;*/ }},
-            new Move() {final public void call() { CPU_Regs.reg_edx.dword(CPU_Regs.reg_ebx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edx.dword(CPU_Regs.reg_esp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edx.dword(CPU_Regs.reg_ebp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edx.dword(CPU_Regs.reg_esi.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edx.dword(CPU_Regs.reg_edi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_edx.dword=CPU_Regs.reg_ebx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edx.dword=CPU_Regs.reg_esp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edx.dword=CPU_Regs.reg_ebp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edx.dword=CPU_Regs.reg_esi.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edx.dword=CPU_Regs.reg_edi.dword; }},
 
-            new Move() {final public void call() { CPU_Regs.reg_ebx.dword(CPU_Regs.reg_eax.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebx.dword(CPU_Regs.reg_ecx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebx.dword(CPU_Regs.reg_edx.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_ebx.dword=CPU_Regs.reg_eax.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebx.dword=CPU_Regs.reg_ecx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebx.dword=CPU_Regs.reg_edx.dword; }},
             new Move() {final public void call() { /*CPU_Regs.reg_ebx.dword = CPU_Regs.reg_ebx.dword;*/ }},
-            new Move() {final public void call() { CPU_Regs.reg_ebx.dword(CPU_Regs.reg_esp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebx.dword(CPU_Regs.reg_ebp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebx.dword(CPU_Regs.reg_esi.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebx.dword(CPU_Regs.reg_edi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_ebx.dword=CPU_Regs.reg_esp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebx.dword=CPU_Regs.reg_ebp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebx.dword=CPU_Regs.reg_esi.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebx.dword=CPU_Regs.reg_edi.dword; }},
 
-            new Move() {final public void call() { CPU_Regs.reg_esp.dword(CPU_Regs.reg_eax.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esp.dword(CPU_Regs.reg_ecx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esp.dword(CPU_Regs.reg_edx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esp.dword(CPU_Regs.reg_ebx.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_esp.dword=CPU_Regs.reg_eax.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esp.dword=CPU_Regs.reg_ecx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esp.dword=CPU_Regs.reg_edx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esp.dword=CPU_Regs.reg_ebx.dword; }},
             new Move() {final public void call() { /*CPU_Regs.reg_esp.dword = CPU_Regs.reg_esp.dword;*/ }},
-            new Move() {final public void call() { CPU_Regs.reg_esp.dword(CPU_Regs.reg_ebp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esp.dword(CPU_Regs.reg_esi.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esp.dword(CPU_Regs.reg_edi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_esp.dword=CPU_Regs.reg_ebp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esp.dword=CPU_Regs.reg_esi.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esp.dword=CPU_Regs.reg_edi.dword; }},
 
-            new Move() {final public void call() { CPU_Regs.reg_ebp.dword(CPU_Regs.reg_eax.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebp.dword(CPU_Regs.reg_ecx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebp.dword(CPU_Regs.reg_edx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebp.dword(CPU_Regs.reg_ebx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebp.dword(CPU_Regs.reg_esp.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_ebp.dword=CPU_Regs.reg_eax.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebp.dword=CPU_Regs.reg_ecx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebp.dword=CPU_Regs.reg_edx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebp.dword=CPU_Regs.reg_ebx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebp.dword=CPU_Regs.reg_esp.dword; }},
             new Move() {final public void call() { /*CPU_Regs.reg_ebp.dword = CPU_Regs.reg_ebp.dword;*/ }},
-            new Move() {final public void call() { CPU_Regs.reg_ebp.dword(CPU_Regs.reg_esi.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_ebp.dword(CPU_Regs.reg_edi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_ebp.dword=CPU_Regs.reg_esi.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_ebp.dword=CPU_Regs.reg_edi.dword; }},
 
-            new Move() {final public void call() { CPU_Regs.reg_esi.dword(CPU_Regs.reg_eax.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esi.dword(CPU_Regs.reg_ecx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esi.dword(CPU_Regs.reg_edx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esi.dword(CPU_Regs.reg_ebx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esi.dword(CPU_Regs.reg_esp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_esi.dword(CPU_Regs.reg_ebp.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_esi.dword=CPU_Regs.reg_eax.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esi.dword=CPU_Regs.reg_ecx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esi.dword=CPU_Regs.reg_edx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esi.dword=CPU_Regs.reg_ebx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esi.dword=CPU_Regs.reg_esp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_esi.dword=CPU_Regs.reg_ebp.dword; }},
             new Move() {final public void call() { /*CPU_Regs.reg_esi.dword = CPU_Regs.reg_esi.dword;*/ }},
-            new Move() {final public void call() { CPU_Regs.reg_esi.dword(CPU_Regs.reg_edi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_esi.dword=CPU_Regs.reg_edi.dword; }},
 
-            new Move() {final public void call() { CPU_Regs.reg_edi.dword(CPU_Regs.reg_eax.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edi.dword(CPU_Regs.reg_ecx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edi.dword(CPU_Regs.reg_edx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edi.dword(CPU_Regs.reg_ebx.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edi.dword(CPU_Regs.reg_esp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edi.dword(CPU_Regs.reg_ebp.dword()); }},
-            new Move() {final public void call() { CPU_Regs.reg_edi.dword(CPU_Regs.reg_esi.dword()); }},
+            new Move() {final public void call() { CPU_Regs.reg_edi.dword=CPU_Regs.reg_eax.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edi.dword=CPU_Regs.reg_ecx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edi.dword=CPU_Regs.reg_edx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edi.dword=CPU_Regs.reg_ebx.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edi.dword=CPU_Regs.reg_esp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edi.dword=CPU_Regs.reg_ebp.dword; }},
+            new Move() {final public void call() { CPU_Regs.reg_edi.dword=CPU_Regs.reg_esi.dword; }},
             new Move() {final public void call() { /*CPU_Regs.reg_edi.dword = CPU_Regs.reg_edi.dword;*/ }},
     };
 //    static public void GetEArd(short index, long value) {

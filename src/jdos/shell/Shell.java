@@ -299,7 +299,7 @@ public class Shell {
                 /* Regular startup */
             call_shellstop=Callback.CALLBACK_Allocate();
             /* Setup the startup CS:IP to kill the last running machine when exitted */
-            /*RealPt*/long newcsip=Callback.CALLBACK_RealPointer(call_shellstop);
+            /*RealPt*/int newcsip=Callback.CALLBACK_RealPointer(call_shellstop);
             CPU_Regs.SegSet16CS(Memory.RealSeg(newcsip));
             CPU_Regs.reg_ip(Memory.RealOff(newcsip));
 
@@ -316,10 +316,10 @@ public class Shell {
             /* Set up int 24 and psp (Telarium games) */
             Memory.real_writeb(psp_seg+16+1,0,0xea);		/* far jmp */
             Memory.real_writed(psp_seg+16+1,1,Memory.real_readd(0,0x24*4));
-            Memory.real_writed(0,0x24*4,((long)psp_seg<<16) | ((16+1)<<4));
+            Memory.real_writed(0,0x24*4,(psp_seg<<16) | ((16+1)<<4));
 
             /* Set up int 23 to "int 20" in the psp. Fixes what.exe */
-            Memory.real_writed(0,0x23*4,((long)psp_seg<<16));
+            Memory.real_writed(0,0x23*4,(psp_seg<<16));
 
             /* Setup MCBs */
             Dos_MCB pspmcb=new Dos_MCB((/*Bit16u*/int)(psp_seg-1));
@@ -332,7 +332,7 @@ public class Shell {
             envmcb.SetType((short)0x4d);
 
             /* Setup environment */
-            /*PhysPt*/long env_write=Memory.PhysMake(env_seg,0);
+            /*PhysPt*/int env_write=Memory.PhysMake(env_seg,0);
             Memory.MEM_BlockWrite(env_write,path_string,(/*Bitu*/int)(path_string.length()+1));
             env_write += path_string.length()+1;
             Memory.MEM_BlockWrite(env_write,comspec_string,(/*Bitu*/int)(comspec_string.length()+1));

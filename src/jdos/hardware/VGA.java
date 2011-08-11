@@ -394,8 +394,8 @@ public class VGA {
 
     static public class VGA_LFB {
         public /*Bit32u*/int page;
-        public /*Bit32u*/long addr;
-        public /*Bit32u*/long mask;
+        public /*Bit32u*/int addr;
+        public /*Bit32u*/int mask;
         public Paging.PageHandler handler;
     }
 

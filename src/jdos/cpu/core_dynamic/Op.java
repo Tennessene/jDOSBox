@@ -9,7 +9,7 @@ import jdos.cpu.core_share.Data;
 
 abstract public class Op {
     public int c=-1;
-    public long eip_count=0;
+    public int eip_count=0;
     public Op next;
     public int cycle = 0;
     abstract public int call();

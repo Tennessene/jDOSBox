@@ -51,7 +51,7 @@ public class CPU_Regs extends Flags {
     public static final int fs=4;
     public static final int gs=5;
 
-//    public static /*PhysPt*/long SegPhys(int index) {
+//    public static /*PhysPt*/int SegPhys(int index) {
 //        return CPU.Segs.phys[index];
 //    }
 //
@@ -59,12 +59,12 @@ public class CPU_Regs extends Flags {
 //        return (int)(CPU.Segs.val[index] & 0xFFFFl);
 //    }
 //
-    public static /*RealPt*/long RealMakeSegDS(/*Bit16u*/int off) {
-        return Memory.RealMake((int)CPU.Segs_DSval,off);
+    public static /*RealPt*/int RealMakeSegDS(/*Bit16u*/int off) {
+        return Memory.RealMake(CPU.Segs_DSval,off);
     }
 
-    public static /*RealPt*/long RealMakeSegSS(/*Bit16u*/int off) {
-        return Memory.RealMake((int)CPU.Segs_SSval,off);
+    public static /*RealPt*/int RealMakeSegSS(/*Bit16u*/int off) {
+        return Memory.RealMake(CPU.Segs_SSval,off);
     }
 
     public static void SegSet16ES(/*Bit16u*/int val) {
@@ -99,18 +99,12 @@ public class CPU_Regs extends Flags {
 
     // IP
     public static int reg_ip() {
-        return (int)(reg_eip & 0xFFFFl);
+        return reg_eip & 0xFFFF;
     }
     public static void reg_ip(int value) {
-        reg_eip = value & 0xFFFF | (reg_eip & 0xFFFF0000l);
+        reg_eip = value & 0xFFFF | (reg_eip & 0xFFFF0000);
     }
 
-    public static long reg_eip() {
-        return (reg_eip & 0xFFFFFFFFl);
-    }
-    public static void reg_eip(long value) {
-        reg_eip = value & 0xFFFFFFFFl;
-    }
     public CPU_Regs() {
     }
 
@@ -138,38 +132,37 @@ public class CPU_Regs extends Flags {
                 return parent.high();
         }
         final public void dword(long l) {
-            dword = l & 0xFFFFFFFFl;
+            dword = (int)l;
         }
         final public void dword_dec() {
             dword--;
-            dword&=0xFFFFFFFFl;
         }
         final public long dword() {
-            return dword;
+            return dword & 0xFFFFFFFFl;
         }
         final public void word_dec() {
             word(word()-1);
         }
         final public int word() {
-            return (int)(dword & 0xFFFFl);
+            return dword & 0xFFFF;
         }
         final public void word(int value) {
-            dword = (value & 0xFFFF) | (dword & 0xFFFF0000l);
+            dword = (value & 0xFFFF) | (dword & 0xFFFF0000);
         }
         final public short low() {
             return (short)(dword & 0xffl);
         }
         final public void low(int value) {
-            dword = (value & 0xFF) | (dword & 0xFFFFFF00l);
+            dword = (value & 0xFF) | (dword & 0xFFFFFF00);
         }
 
         final public short high() {
             return (short)((dword >> 8) & 0xffl);
         }
         final public void high(int value) {
-            dword = ((value & 0xFF) << 8) | (dword & 0xFFFF00FFl);
+            dword = ((value & 0xFF) << 8) | (dword & 0xFFFF00FF);
         }
-        private long dword;
+        public int dword;
     }
 
     final static public Reg reg_eax = new Reg();
@@ -186,7 +179,7 @@ public class CPU_Regs extends Flags {
     final static public Reg reg_dh = new Reg(reg_edx);
 
     final static public Reg reg_ebp = new Reg();
-    static public long reg_eip;
+    static public int reg_eip;
 
     static public /*Bitu*/int flags;
 }

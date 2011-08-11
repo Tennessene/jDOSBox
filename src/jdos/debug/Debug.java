@@ -80,15 +80,15 @@ public class Debug {
         lastType = type;
         if ((type & MASK)!=0) {
             Debug.log(Debug.INSTRUCTION, c);
-            Debug.log(Debug.EAX, CPU_Regs.reg_eax.dword());
-            Debug.log(Debug.EBX, CPU_Regs.reg_ebx.dword());
-            Debug.log(Debug.ECX, CPU_Regs.reg_ecx.dword());
-            Debug.log(Debug.EDX, CPU_Regs.reg_edx.dword());
-            Debug.log(Debug.EDI, CPU_Regs.reg_edi.dword());
+            Debug.log(Debug.EAX, CPU_Regs.reg_eax.dword);
+            Debug.log(Debug.EBX, CPU_Regs.reg_ebx.dword);
+            Debug.log(Debug.ECX, CPU_Regs.reg_ecx.dword);
+            Debug.log(Debug.EDX, CPU_Regs.reg_edx.dword);
+            Debug.log(Debug.EDI, CPU_Regs.reg_edi.dword);
             Debug.log(Debug.EIP, CPU_Regs.reg_eip);
-            Debug.log(Debug.ESP, CPU_Regs.reg_esp.dword());
-            Debug.log(Debug.EBP, CPU_Regs.reg_ebp.dword());
-            Debug.log(Debug.ESI, CPU_Regs.reg_esi.dword());
+            Debug.log(Debug.ESP, CPU_Regs.reg_esp.dword);
+            Debug.log(Debug.EBP, CPU_Regs.reg_ebp.dword);
+            Debug.log(Debug.ESI, CPU_Regs.reg_esi.dword);
             Debug.log(Debug.FLAGS, CPU_Regs.flags);
             Debug.log(Debug.ES, CPU.Segs_ESphys);
             Debug.log(Debug.CS, CPU.Segs_CSphys);
@@ -103,15 +103,15 @@ public class Debug {
         lastType = type;
         if ((type & MASK)!=0) {
             Debug.log(Debug.INSTRUCTION_DONE, c);
-            Debug.log(Debug.EAX, CPU_Regs.reg_eax.dword());
-            Debug.log(Debug.EBX, CPU_Regs.reg_ebx.dword());
-            Debug.log(Debug.ECX, CPU_Regs.reg_ecx.dword());
-            Debug.log(Debug.EDX, CPU_Regs.reg_edx.dword());
-            Debug.log(Debug.EDI, CPU_Regs.reg_edi.dword());
+            Debug.log(Debug.EAX, CPU_Regs.reg_eax.dword);
+            Debug.log(Debug.EBX, CPU_Regs.reg_ebx.dword);
+            Debug.log(Debug.ECX, CPU_Regs.reg_ecx.dword);
+            Debug.log(Debug.EDX, CPU_Regs.reg_edx.dword);
+            Debug.log(Debug.EDI, CPU_Regs.reg_edi.dword);
             Debug.log(Debug.EIP, CPU_Regs.reg_eip);
-            Debug.log(Debug.ESP, CPU_Regs.reg_esp.dword());
-            Debug.log(Debug.EBP, CPU_Regs.reg_ebp.dword());
-            Debug.log(Debug.ESI, CPU_Regs.reg_esi.dword());
+            Debug.log(Debug.ESP, CPU_Regs.reg_esp.dword);
+            Debug.log(Debug.EBP, CPU_Regs.reg_ebp.dword);
+            Debug.log(Debug.ESI, CPU_Regs.reg_esi.dword);
             Debug.log(Debug.FLAGS, CPU_Regs.flags);
             Debug.log(Debug.ES, CPU.Segs_ESphys);
             Debug.log(Debug.CS, CPU.Segs_CSphys);

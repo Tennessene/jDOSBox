@@ -11,10 +11,10 @@ import jdos.types.MachineType;
 import jdos.types.SVGACards;
 
 public class Int10_char {
-    static void CGA2_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/long  base) {
+    static void CGA2_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/int  base) {
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+((Int10_modes.CurMode.twidth*rnew)*(cheight/2)+cleft);
-        /*PhysPt*/long  src=base+((Int10_modes.CurMode.twidth*rold)*(cheight/2)+cleft);
+        /*PhysPt*/int  dest=base+((Int10_modes.CurMode.twidth*rnew)*(cheight/2)+cleft);
+        /*PhysPt*/int  src=base+((Int10_modes.CurMode.twidth*rold)*(cheight/2)+cleft);
         /*Bitu*/int copy=(cright-cleft);
         /*Bitu*/int nextline=Int10_modes.CurMode.twidth;
         for (/*Bitu*/int i=0;i<cheight/2;i++) {
@@ -24,10 +24,10 @@ public class Int10_char {
         }
     }
 
-    static void CGA4_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/long  base) {
+    static void CGA4_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/int  base) {
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+((Int10_modes.CurMode.twidth*rnew)*(cheight/2)+cleft)*2;
-        /*PhysPt*/long  src=base+((Int10_modes.CurMode.twidth*rold)*(cheight/2)+cleft)*2;
+        /*PhysPt*/int  dest=base+((Int10_modes.CurMode.twidth*rnew)*(cheight/2)+cleft)*2;
+        /*PhysPt*/int  src=base+((Int10_modes.CurMode.twidth*rold)*(cheight/2)+cleft)*2;
         /*Bitu*/int copy=(cright-cleft)*2;/*Bitu*/int nextline=Int10_modes.CurMode.twidth*2;
         for (/*Bitu*/int i=0;i<cheight/2;i++) {
             Memory.MEM_BlockCopy(dest,src,copy);
@@ -36,10 +36,10 @@ public class Int10_char {
         }
     }
 
-    static void TANDY16_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/long  base) {
+    static void TANDY16_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/int  base) {
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+((Int10_modes.CurMode.twidth*rnew)*(cheight/4)+cleft)*4;
-        /*PhysPt*/long  src=base+((Int10_modes.CurMode.twidth*rold)*(cheight/4)+cleft)*4;
+        /*PhysPt*/int  dest=base+((Int10_modes.CurMode.twidth*rnew)*(cheight/4)+cleft)*4;
+        /*PhysPt*/int  src=base+((Int10_modes.CurMode.twidth*rold)*(cheight/4)+cleft)*4;
         /*Bitu*/int copy=(cright-cleft)*4;/*Bitu*/int nextline=Int10_modes.CurMode.twidth*4;
         for (/*Bitu*/int i=0;i<cheight/4;i++) {
             Memory.MEM_BlockCopy(dest,src,copy);
@@ -50,8 +50,8 @@ public class Int10_char {
         }
     }
 
-    static void EGA16_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/long  base) {
-        /*PhysPt*/long  src,dest;/*Bitu*/int copy;
+    static void EGA16_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/int  base) {
+        /*PhysPt*/int  src,dest;/*Bitu*/int copy;
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
         dest=base+(Int10_modes.CurMode.twidth*rnew)*cheight+cleft;
         src=base+(Int10_modes.CurMode.twidth*rold)*cheight+cleft;
@@ -71,8 +71,8 @@ public class Int10_char {
         IoHandler.IO_Write(0x3cf,0);		/* Normal transfer mode */
     }
 
-    static void VGA_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/long  base) {
-        /*PhysPt*/long  src,dest;/*Bitu*/int copy;
+    static void VGA_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/int  base) {
+        /*PhysPt*/int  src,dest;/*Bitu*/int copy;
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
         dest=base+8*((Int10_modes.CurMode.twidth*rnew)*cheight+cleft);
         src=base+8*((Int10_modes.CurMode.twidth*rold)*cheight+cleft);
@@ -85,16 +85,16 @@ public class Int10_char {
         }
     }
 
-    static void TEXT_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/long  base) {
-        /*PhysPt*/long  src,dest;
+    static void TEXT_CopyRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short rold,/*Bit8u*/short rnew,/*PhysPt*/int  base) {
+        /*PhysPt*/int  src,dest;
         src=base+(rold*Int10_modes.CurMode.twidth+cleft)*2;
         dest=base+(rnew*Int10_modes.CurMode.twidth+cleft)*2;
         Memory.MEM_BlockCopy(dest,src,(cright-cleft)*2);
     }
 
-    static void CGA2_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/long  base,/*Bit8u*/short attr) {
+    static void CGA2_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/int  base,/*Bit8u*/short attr) {
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+((Int10_modes.CurMode.twidth*row)*(cheight/2)+cleft);
+        /*PhysPt*/int  dest=base+((Int10_modes.CurMode.twidth*row)*(cheight/2)+cleft);
         /*Bitu*/int copy=(cright-cleft);
         /*Bitu*/int nextline=Int10_modes.CurMode.twidth;
         attr=(short)((attr & 0x3) | ((attr & 0x3) << 2) | ((attr & 0x3) << 4) | ((attr & 0x3) << 6));
@@ -107,9 +107,9 @@ public class Int10_char {
         }
     }
 
-    static void CGA4_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/long  base,/*Bit8u*/short attr) {
+    static void CGA4_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/int  base,/*Bit8u*/short attr) {
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+((Int10_modes.CurMode.twidth*row)*(cheight/2)+cleft)*2;
+        /*PhysPt*/int  dest=base+((Int10_modes.CurMode.twidth*row)*(cheight/2)+cleft)*2;
         /*Bitu*/int copy=(cright-cleft)*2;/*Bitu*/int nextline=Int10_modes.CurMode.twidth*2;
         attr=(short)((attr & 0x3) | ((attr & 0x3) << 2) | ((attr & 0x3) << 4) | ((attr & 0x3) << 6));
         for (/*Bitu*/int i=0;i<cheight/2;i++) {
@@ -121,9 +121,9 @@ public class Int10_char {
         }
     }
 
-    static void TANDY16_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/long  base,/*Bit8u*/short attr) {
+    static void TANDY16_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/int  base,/*Bit8u*/short attr) {
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+((Int10_modes.CurMode.twidth*row)*(cheight/4)+cleft)*4;
+        /*PhysPt*/int  dest=base+((Int10_modes.CurMode.twidth*row)*(cheight/4)+cleft)*4;
         /*Bitu*/int copy=(cright-cleft)*4;/*Bitu*/int nextline=Int10_modes.CurMode.twidth*4;
         attr=(short)((attr & 0xf) | (attr & 0xf) << 4);
         for (/*Bitu*/int i=0;i<cheight/4;i++) {
@@ -137,14 +137,14 @@ public class Int10_char {
         }
     }
 
-    static void EGA16_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/long  base,/*Bit8u*/short attr) {
+    static void EGA16_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/int  base,/*Bit8u*/short attr) {
         /* Set Bitmask / Color / Full Set Reset */
         IoHandler.IO_Write(0x3ce,0x8);IoHandler.IO_Write(0x3cf,0xff);
         IoHandler.IO_Write(0x3ce,0x0);IoHandler.IO_Write(0x3cf,attr);
         IoHandler.IO_Write(0x3ce,0x1);IoHandler.IO_Write(0x3cf,0xf);
         /* Write some bytes */
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+(Int10_modes.CurMode.twidth*row)*cheight+cleft;
+        /*PhysPt*/int  dest=base+(Int10_modes.CurMode.twidth*row)*cheight+cleft;
         /*Bitu*/int nextline=Int10_modes.CurMode.twidth;
         /*Bitu*/int copy = cheight;/*Bitu*/int rowsize=(cright-cleft);
         for (;copy>0;copy--) {
@@ -154,10 +154,10 @@ public class Int10_char {
         IoHandler.IO_Write(0x3cf,0);
     }
 
-    static void VGA_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/long  base,/*Bit8u*/short attr) {
+    static void VGA_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/int  base,/*Bit8u*/short attr) {
         /* Write some bytes */
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
-        /*PhysPt*/long  dest=base+8*((Int10_modes.CurMode.twidth*row)*cheight+cleft);
+        /*PhysPt*/int  dest=base+8*((Int10_modes.CurMode.twidth*row)*cheight+cleft);
         /*Bitu*/int nextline=8*Int10_modes.CurMode.twidth;
         /*Bitu*/int copy = cheight;/*Bitu*/int rowsize=8*(cright-cleft);
         for (;copy>0;copy--) {
@@ -166,9 +166,9 @@ public class Int10_char {
         }
     }
 
-    static void TEXT_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/long  base,/*Bit8u*/short attr) {
+    static void TEXT_FillRow(/*Bit8u*/short cleft,/*Bit8u*/short cright,/*Bit8u*/short row,/*PhysPt*/int  base,/*Bit8u*/short attr) {
         /* Do some filing */
-        /*PhysPt*/long  dest;
+        /*PhysPt*/int  dest;
         dest=base+(row*Int10_modes.CurMode.twidth+cleft)*2;
         /*Bit16u*/int fill=(attr<<8)+' ';
         for (/*Bit8u*/short x=0;x<(cright-cleft);x++) {
@@ -191,7 +191,7 @@ public class Int10_char {
 
         /* Get the correct page */
         if(page==0xFF) page=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE);
-        /*PhysPt*/long  base=Int10_modes.CurMode.pstart+page*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE);
+        /*PhysPt*/int  base=Int10_modes.CurMode.pstart+page*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE);
 
         /* See how much lines need to be copied */
         /*Bit8u*/int start=0,end=0;/*Bits*/int next=0;
@@ -384,7 +384,7 @@ public class Int10_char {
 
     static public int ReadCharAttr(/*Bit16u*/int col,/*Bit16u*/int row,/*Bit8u*/short page) {
         /* Externally used by the mouse routine */
-        /*PhysPt*/long  fontdata;
+        /*PhysPt*/int  fontdata;
         /*Bitu*/int x,y;
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
         boolean split_chr = false;
@@ -395,7 +395,7 @@ public class Int10_char {
                 /*Bit16u*/int address=page*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE);
                 address+=(row*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)+col)*2;
                 // read the char
-                /*PhysPt*/long  where = Int10_modes.CurMode.pstart+address;
+                /*PhysPt*/int  where = Int10_modes.CurMode.pstart+address;
                 return Memory.mem_readw(where);
             }
         case VGA.M_CGA4:
@@ -451,7 +451,7 @@ public class Int10_char {
     static private boolean warned_use = false;
     public static void WriteChar(/*Bit16u*/int col,/*Bit16u*/int row,/*Bit8u*/short page,/*Bit8u*/short chr,/*Bit8u*/short attr,boolean useattr) {
         /* Externally used by the mouse routine */
-        /*RealPt*/long fontdata;
+        /*RealPt*/int fontdata;
         /*Bitu*/int x,y;
         /*Bit8u*/short cheight = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CHAR_HEIGHT);
         switch (Int10_modes.CurMode.type) {
@@ -461,7 +461,7 @@ public class Int10_char {
                 /*Bit16u*/int address=page*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE);
                 address+=(row*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_COLS)+col)*2;
                 // Write the char
-                /*PhysPt*/long  where = Int10_modes.CurMode.pstart+address;
+                /*PhysPt*/int  where = Int10_modes.CurMode.pstart+address;
                 Memory.mem_writeb(where,chr);
                 if (useattr) {
                     Memory.mem_writeb(where+1,attr);
@@ -618,7 +618,7 @@ public class Int10_char {
         INT10_TeletypeOutputAttr((short)chr,(short)attr,Int10_modes.CurMode.type!=VGA.M_TEXT);
     }
 
-    public static void INT10_WriteString(/*Bit8u*/short row,/*Bit8u*/short col,/*sBit8u*/short flag,/*Bit8u*/short attr,/*PhysPt*/long string,/*Bit16u*/int count,/*Bit8u*/short page) {
+    public static void INT10_WriteString(/*Bit8u*/short row,/*Bit8u*/short col,/*sBit8u*/short flag,/*Bit8u*/short attr,/*PhysPt*/int string,/*Bit16u*/int count,/*Bit8u*/short page) {
         /*Bit8u*/short cur_row=Int10.CURSOR_POS_ROW(page);
         /*Bit8u*/short cur_col=Int10.CURSOR_POS_COL(page);
 

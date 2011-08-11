@@ -553,7 +553,7 @@ public class VGA_s3 {
         }
 
         // S3 ROM signature
-        /*PhysPt*/long rom_base=Memory.PhysMake(0xc000,0);
+        /*PhysPt*/int rom_base=Memory.PhysMake(0xc000,0);
         Memory.phys_writeb(rom_base+0x003f,'S');
         Memory.phys_writeb(rom_base+0x0040,'3');
         Memory.phys_writeb(rom_base+0x0041,' ');

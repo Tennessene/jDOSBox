@@ -1087,7 +1087,7 @@ public class Prefix_66 extends Helper {
         /* CALL FAR Ad */
         ops[0x29a] = new Decode() {
             final public int call(Op prev) {
-                long newip=decode_fetchd();
+                int newip= decode_fetchd();
                 int newcs=decode_fetchw();
                 prev.next = new Inst3.CallFarAp(newcs, newip);
                 return RESULT_JUMP;
@@ -1486,7 +1486,7 @@ public class Prefix_66 extends Helper {
         /* JCXZ */
         ops[0x2e3] = new Decode() {
             final public int call(Op prev) {
-                prev.next = new Inst3.Jcxz(AddrMaskTable[prefixes & Core.PREFIX_ADDR]);
+                prev.next = new Inst3.Jcxz(AddrMaskTable1[prefixes & Core.PREFIX_ADDR]);
                 return RESULT_JUMP;
             }
         };

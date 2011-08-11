@@ -576,7 +576,7 @@ public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearm
 		break;
 	}
 
-	/*RealPt*/long vparams = Memory.RealGetVec(0x1d);
+	/*RealPt*/int vparams = Memory.RealGetVec(0x1d);
 	if ((vparams != Memory.RealMake(0xf000,0xf0a4)) && (mode < 8)) {
 		// load crtc parameters from video params table
 		/*Bit16u*/int crtc_block_index = 0;

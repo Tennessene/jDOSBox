@@ -14,8 +14,8 @@ public class Dos_tables {
         public byte[] chars = new byte[256];
     }
 
-    /*RealPt*/long DOS_TableUpCase;
-    /*RealPt*/long DOS_TableLowCase;
+    /*RealPt*/int DOS_TableUpCase;
+    /*RealPt*/int DOS_TableLowCase;
 
     static /*Bitu*/int call_casemap;
 
@@ -76,9 +76,9 @@ public class Dos_tables {
 
         /* create a CON device driver */
         seg=Dos.DOS_CONDRV_SEG;
-        Memory.real_writed(seg,0x00,0xffffffffl);	// next ptr
+        Memory.real_writed(seg,0x00,0xffffffff);	// next ptr
         Memory.real_writew(seg,0x04,0x8013);		// attributes
-        Memory.real_writed(seg,0x06,0xffffffffl);	// strategy routine
+        Memory.real_writed(seg,0x06,0xffffffff);	// strategy routine
         Memory.real_writed(seg,0x0a,0x204e4f43);	// driver name
         Memory.real_writed(seg,0x0e,0x20202020);	// driver name
         Dos.dos_infoblock.SetDeviceChainStart((int)Memory.RealMake(seg,0));
@@ -130,7 +130,7 @@ public class Dos_tables {
 
         /* Create a fake FCB SFT */
         seg=DOS_GetMemory(4);
-        Memory.real_writed(seg,0,0xffffffffl);		//Last File Table
+        Memory.real_writed(seg,0,0xffffffff);		//Last File Table
         Memory.real_writew(seg,4,100);				//File Table supports 100 files
         Dos.dos_infoblock.SetFCBTable((int)Memory.RealMake(seg,0));
 
@@ -145,7 +145,7 @@ public class Dos_tables {
         Memory.real_writew(seg,0x02,0xffff);		// backward ptr
         Memory.real_writeb(seg,0x04,0xff);			// not in use
         Memory.real_writeb(seg,0x0a,0x01);			// number of FATs
-        Memory.real_writed(seg,0x0d,0xffffffffl);	// pointer to DPB
+        Memory.real_writed(seg,0x0d,0xffffffff);	// pointer to DPB
         Dos.dos_infoblock.SetDiskBufferHeadPt((int)Memory.RealMake(seg,0));
 
         /* Set buffers to a nice value */

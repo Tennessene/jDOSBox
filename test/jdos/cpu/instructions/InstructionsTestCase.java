@@ -13,13 +13,16 @@ abstract public class InstructionsTestCase extends TestCase {
     protected int cseip = 0x10000;
     protected final static int MEM_BASE_DS = 0x2000;
     protected final static int MEM_BASE_SS = 0x3000;
-    protected void newInstruction(byte op) {
+    protected void newInstruction(int op) {
         clearReg();
         CPU.lastint = 0;
         //cseip = 0x10000;
         CPU_Regs.reg_eip = cseip-0x10000;
         CPU.CPU_Cycles = 1;
-        Memory.direct[cseip++] = op;
+        if (op>0x200) {
+            Memory.direct[cseip++] = 0x66;
+        }
+        Memory.direct[cseip++] = (byte)op;
         CPU.Segs_ESphys=0;
         CPU.Segs_CSphys=0x10000;
         CPU.Segs_SSphys=MEM_BASE_SS;
@@ -29,8 +32,8 @@ abstract public class InstructionsTestCase extends TestCase {
 
         CPU.Segs_ESval=0;
         CPU.Segs_CSval=0;
-        CPU.Segs_SSval=CPU.Segs_SSphys >> 4;
-        CPU.Segs_DSval=CPU.Segs_DSphys >> 4;
+        CPU.Segs_SSval=(int)(CPU.Segs_SSphys >> 4);
+        CPU.Segs_DSval=(int)(CPU.Segs_DSphys >> 4);
         CPU.Segs_FSval=0;
         CPU.Segs_GSval=0;
     }
@@ -43,6 +46,12 @@ abstract public class InstructionsTestCase extends TestCase {
     protected void pushIw(short iw) {
         Memory.direct[cseip++]=(byte)(iw);
 	    Memory.direct[cseip++]=(byte)(iw >> 8);
+    }
+    protected void pushId(int id) {
+        Memory.direct[cseip++]=(byte)(id);
+	    Memory.direct[cseip++]=(byte)(id >> 8);
+        Memory.direct[cseip++]=(byte)(id >> 16);
+        Memory.direct[cseip++]=(byte)(id >> 24);
     }
     protected void runReg(byte op, long ed, long gd, boolean gdResult, long result) {
         int rm = 0xC0;
@@ -169,12 +178,45 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS+2, 0);
     }
 
+    protected void runRegd(int op, int ed, int gd, boolean gdResult, int result) {
+        int rm = 0xC1;
+        int flags = CPU_Regs.flags;
+        newInstruction(op);
+        pushIb((byte)rm);
+        Mod.gd(rm).dword=gd;
+        Mod.ed(rm).dword=ed;
+        decoder.call();
+        if (gdResult)
+            assertTrue(Mod.gd(rm).dword==result);
+        else
+            assertTrue(Mod.ed(rm).dword==result);
+
+        CPU_Regs.flags = flags;
+
+        newInstruction(op);
+        pushIb((byte)0x00);
+        Mod.gd(rm).dword=gd;
+        Memory.mem_writed(MEM_BASE_DS - 4, 0xCDCDCDCD);
+        Memory.mem_writed(MEM_BASE_DS, ed);
+        Memory.mem_writed(MEM_BASE_DS + 4, 0xCDCDCDCD);
+        decoder.call();
+        if (gdResult)
+            assertTrue(Mod.gd(rm).dword==result);
+        else
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==result);
+        assertTrue(Memory.mem_readd(MEM_BASE_DS - 4) == 0xCDCDCDCD);
+        assertTrue(Memory.mem_readd(MEM_BASE_DS + 4) == 0xCDCDCDCD);
+        Memory.mem_writed(MEM_BASE_DS - 4, 0);
+        Memory.mem_writed(MEM_BASE_DS, 0);
+        Memory.mem_writed(MEM_BASE_DS + 4, 0);
+    }
+
     protected void runRegwFlagsi(byte op, int rm, int eb, int value, int state) {
         rm += 0xC1;
         int flags = CPU_Regs.flags;
         newInstruction(op);
         pushIb((byte)rm);
-        pushIw((short)value);
+        pushIw((short) value);
         Mod.ed(rm).dword(0xABCDEF12);
         Mod.ew(rm).word(eb);
         decoder.call();
@@ -183,7 +225,7 @@ abstract public class InstructionsTestCase extends TestCase {
         rm-=0xC1;
         newInstruction(op);
         pushIb((byte)rm);
-        pushIw((short)value);
+        pushIw((short) value);
         Memory.mem_writew(MEM_BASE_DS, eb);
         Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
         Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
@@ -240,11 +282,11 @@ abstract public class InstructionsTestCase extends TestCase {
         CPU_Regs.flags = flags;
 
         newInstruction(op);
-        pushIb((byte)0x00);
+        pushIb((byte) 0x00);
         Mod.gd(rm).word(gd);
         Memory.mem_writew(MEM_BASE_DS-2, 0xCDCD);
         Memory.mem_writew(MEM_BASE_DS, ed);
-        Memory.mem_writew(MEM_BASE_DS+2, 0xCDCD);
+        Memory.mem_writew(MEM_BASE_DS + 2, 0xCDCD);
         decoder.call();
         assertFlags(state);
         assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2) == (short)0xCDCD);
@@ -297,6 +339,27 @@ abstract public class InstructionsTestCase extends TestCase {
                     assertTrue("rm = "+rm, (short) Mod.gw(rm).word()==(short)result);
                 else
                     assertTrue("rm = "+rm, (short) Mod.ew(rm).word()==(short)result);
+            }
+        }
+    }
+
+    protected void runRegsd(int op, int ed, int gd, boolean gdResult, int result, int result2) {
+        for (int rm=192;rm<256;rm++) {
+            newInstruction(op);
+            pushIb((byte) rm);
+            Mod.gw(rm).dword=gd;
+            Mod.ew(rm).dword=ed;
+            decoder.call();
+            if (Mod.gd(rm) == Mod.ed(rm)) {
+                if (gdResult)
+                    assertTrue("rm = "+rm, Mod.gd(rm).dword==result2);
+                else
+                    assertTrue("rm = "+rm, Mod.ed(rm).dword==result2);
+            } else {
+                if (gdResult)
+                    assertTrue("rm = "+rm, Mod.gd(rm).dword==result);
+                else
+                    assertTrue("rm = "+rm, Mod.ed(rm).dword==result);
             }
         }
     }

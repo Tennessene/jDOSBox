@@ -1,7 +1,7 @@
 package jdos.dos;
 
 public class Dos_ParamBlock extends MemStruct {
-	public Dos_ParamBlock(/*PhysPt*/long addr) {pt=addr;}
+	public Dos_ParamBlock(/*PhysPt*/int addr) {pt=addr;}
     
 	public void Clear() {
         exec = new sExec();
@@ -34,11 +34,11 @@ public class Dos_ParamBlock extends MemStruct {
 	}
 	public static class sExec {
 		public /*Bit16u*/int envseg;
-		public /*RealPt*/long cmdtail;
-		public /*RealPt*/long fcb1;
-		public /*RealPt*/long fcb2;
-		public /*RealPt*/long initsssp;
-		public /*RealPt*/long initcsip;
+		public /*RealPt*/int cmdtail;
+		public /*RealPt*/int fcb1;
+		public /*RealPt*/int fcb2;
+		public /*RealPt*/int initsssp;
+		public /*RealPt*/int initcsip;
 	}
 
 	public sExec exec = new sExec();

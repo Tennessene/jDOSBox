@@ -8,7 +8,7 @@ public class Dos_Block {
 	public /*Bit16u*/int psp(){return new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).GetPSP();}
 	public void psp(/*Bit16u*/int _seg){ new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).SetPSP(_seg);}
 	public /*Bit16u*/int env;
-	public /*RealPt*/long cpmentry;
+	public /*RealPt*/int cpmentry;
 	public /*RealPt*/int dta(){return new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).GetDTA();}
 	public void dta(/*RealPt*/int _dta){new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).SetDTA(_dta);}
 	public /*Bit8u*/short return_code,return_mode;
@@ -18,13 +18,13 @@ public class Dos_Block {
 	boolean breakcheck;
 	public boolean echo;          // if set to true dev_con::read will echo input
 	public static class Tables  {
-		/*RealPt*/long mediaid;
-		public /*RealPt*/long tempdta;
-		/*RealPt*/long tempdta_fcbdelete;
-		/*RealPt*/long dbcs;
-		/*RealPt*/long filenamechar;
-		/*RealPt*/long collatingseq;
-		/*RealPt*/long upcase;
+		/*RealPt*/int mediaid;
+		public /*RealPt*/int tempdta;
+		/*RealPt*/int tempdta_fcbdelete;
+		/*RealPt*/int dbcs;
+		/*RealPt*/int filenamechar;
+		/*RealPt*/int collatingseq;
+		/*RealPt*/int upcase;
 		/*Bit8u*/byte[] country;//Will be copied to dos memory. resides in real mem
 		/*Bit16u*/int dpb; //Fake Disk parameter system using only the first entry so the drive letter matches
 	}

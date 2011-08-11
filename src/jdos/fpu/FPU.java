@@ -57,7 +57,7 @@ public class FPU {
 //                ll(ll);
 //            }
         }
-        void ll(long lower, long upper) {
+        void ll(int lower, int upper) {
             ll(lower & 0xFFFFFFFFl | ((upper & 0xFFFFFFFFl) << 32));
         }
         long ll() {
@@ -225,9 +225,9 @@ public class FPU {
         /*Bit16s*/short begin;
         FPU_Reg eind=new FPU_Reg();
     }
-    static private /*Real64*/double FPU_FLD80(/*PhysPt*/long addr) {
+    static private /*Real64*/double FPU_FLD80(/*PhysPt*/int addr) {
         Test test = new Test();
-        test.eind.ll(Memory.mem_readd(addr), Memory.mem_readd(addr+4));
+        test.eind.ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
         test.begin = (short)Memory.mem_readw(addr+8);
 
         /*Bit64s*/long exp64 = (((test.begin&0x7fff) - BIAS80));
@@ -248,7 +248,7 @@ public class FPU {
         //mant64= test.mant80/2***64    * 2 **53
     }
 
-    static private void FPU_ST80(/*PhysPt*/long addr,/*Bitu*/int reg) {
+    static private void FPU_ST80(/*PhysPt*/int addr,/*Bitu*/int reg) {
         Test test = new Test();
         /*Bit64s*/long sign80 = (fpu.regs[reg].ll() & (0x8000000000000000l))!=0?1:0;
         /*Bit64s*/long exp80 =  fpu.regs[reg].ll() & (0x7ff0000000000000l);
@@ -269,33 +269,33 @@ public class FPU {
     }
 
 
-    static private void FPU_FLD_F32(/*PhysPt*/long addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=Float.intBitsToFloat((int)Memory.mem_readd(addr));
+    static private void FPU_FLD_F32(/*PhysPt*/int addr,/*Bitu*/int store_to) {
+        fpu.regs[store_to].d=Float.intBitsToFloat(Memory.mem_readd(addr));
     }
 
-    static private void FPU_FLD_F64(/*PhysPt*/long addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].ll(Memory.mem_readd(addr), Memory.mem_readd(addr+4));
+    static private void FPU_FLD_F64(/*PhysPt*/int addr,/*Bitu*/int store_to) {
+        fpu.regs[store_to].ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
     }
 
-    static private void FPU_FLD_F80(/*PhysPt*/long addr) {
+    static private void FPU_FLD_F80(/*PhysPt*/int addr) {
         fpu.regs[fpu.top].d=FPU_FLD80(addr);
     }
 
-    static private void FPU_FLD_I16(/*PhysPt*/long addr,/*Bitu*/int store_to) {
+    static private void FPU_FLD_I16(/*PhysPt*/int addr,/*Bitu*/int store_to) {
         fpu.regs[store_to].d=(short)Memory.mem_readw(addr);
     }
 
-    static private void FPU_FLD_I32(/*PhysPt*/long addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=(int)Memory.mem_readd(addr);
+    static private void FPU_FLD_I32(/*PhysPt*/int addr,/*Bitu*/int store_to) {
+        fpu.regs[store_to].d=Memory.mem_readd(addr);
     }
 
-    static private void FPU_FLD_I64(/*PhysPt*/long addr,/*Bitu*/int store_to) {
+    static private void FPU_FLD_I64(/*PhysPt*/int addr,/*Bitu*/int store_to) {
         FPU_Reg blah=new FPU_Reg();
-        blah.ll(Memory.mem_readd(addr), Memory.mem_readd(addr+4));
+        blah.ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
         fpu.regs[store_to].d=blah.ll();
     }
 
-    static private void FPU_FBLD(/*PhysPt*/long addr,/*Bitu*/int store_to) {
+    static private void FPU_FBLD(/*PhysPt*/int addr,/*Bitu*/int store_to) {
         /*Bit64u*/long val = 0;
         /*Bitu*/int in = 0;
         /*Bit64u*/long base = 1;
@@ -317,49 +317,49 @@ public class FPU {
     }
 
 
-    static private void FPU_FLD_F32_EA(/*PhysPt*/long addr) {
+    static private void FPU_FLD_F32_EA(/*PhysPt*/int addr) {
         FPU_FLD_F32(addr,8);
     }
-    static private void FPU_FLD_F64_EA(/*PhysPt*/long addr) {
+    static private void FPU_FLD_F64_EA(/*PhysPt*/int addr) {
         FPU_FLD_F64(addr,8);
     }
-    static private void FPU_FLD_I32_EA(/*PhysPt*/long addr) {
+    static private void FPU_FLD_I32_EA(/*PhysPt*/int addr) {
         FPU_FLD_I32(addr,8);
     }
-    static private void FPU_FLD_I16_EA(/*PhysPt*/long addr) {
+    static private void FPU_FLD_I16_EA(/*PhysPt*/int addr) {
         FPU_FLD_I16(addr,8);
     }
 
-    static private void FPU_FST_F32(/*PhysPt*/long addr) {
+    static private void FPU_FST_F32(/*PhysPt*/int addr) {
         //should depend on rounding method
         Memory.mem_writed(addr,Float.floatToIntBits((float)fpu.regs[fpu.top].d));
     }
 
-    static private void FPU_FST_F64(/*PhysPt*/long addr) {
+    static private void FPU_FST_F64(/*PhysPt*/int addr) {
         Memory.mem_writed(addr,fpu.regs[fpu.top].l.lower());
         Memory.mem_writed(addr+4,fpu.regs[fpu.top].l.upper());
     }
 
-    static private void FPU_FST_F80(/*PhysPt*/long addr) {
+    static private void FPU_FST_F80(/*PhysPt*/int addr) {
         FPU_ST80(addr,fpu.top);
     }
 
-    static private void FPU_FST_I16(/*PhysPt*/long addr) {
+    static private void FPU_FST_I16(/*PhysPt*/int addr) {
         Memory.mem_writew(addr,(short)(FROUND(fpu.regs[fpu.top].d)));
     }
 
-    static private void FPU_FST_I32(/*PhysPt*/long addr) {
+    static private void FPU_FST_I32(/*PhysPt*/int addr) {
         Memory.mem_writed(addr,(int)(FROUND(fpu.regs[fpu.top].d)));
     }
 
-    static private void FPU_FST_I64(/*PhysPt*/long addr) {
+    static private void FPU_FST_I64(/*PhysPt*/int addr) {
         FPU_Reg blah=new FPU_Reg();
         blah.ll((long)(FROUND(fpu.regs[fpu.top].d)));
         Memory.mem_writed(addr,blah.l.lower());
         Memory.mem_writed(addr+4,blah.l.upper());
     }
 
-    static private void FPU_FBST(/*PhysPt*/long addr) {
+    static private void FPU_FBST(/*PhysPt*/int addr) {
         FPU_Reg val = new FPU_Reg(fpu.regs[fpu.top]);
         boolean sign = false;
         if((fpu.regs[fpu.top].ll() & 0x8000000000000000l)!=0) { //sign
@@ -566,20 +566,20 @@ public class FPU {
         //2^x where x is chopped.
     }
 
-    static private void FPU_FSTENV(/*PhysPt*/long addr){
+    static private void FPU_FSTENV(/*PhysPt*/int addr){
         FPU_SET_TOP(fpu.top);
         if(!CPU.cpu.code.big) {
-            Memory.mem_writew(addr+0,(int)(fpu.cw));
-            Memory.mem_writew(addr+2,(int)(fpu.sw));
-            Memory.mem_writew(addr+4,(int)(FPU_GetTag()));
+            Memory.mem_writew(addr+0,(fpu.cw));
+            Memory.mem_writew(addr+2,(fpu.sw));
+            Memory.mem_writew(addr+4,(FPU_GetTag()));
         } else {
-            Memory.mem_writed(addr+0,(long)(fpu.cw));
-            Memory.mem_writed(addr+4,(long)(fpu.sw));
-            Memory.mem_writed(addr+8,(long)(FPU_GetTag()));
+            Memory.mem_writed(addr+0,(fpu.cw));
+            Memory.mem_writed(addr+4,(fpu.sw));
+            Memory.mem_writed(addr+8,(FPU_GetTag()));
         }
     }
 
-    static private void FPU_FLDENV(/*PhysPt*/long addr){
+    static private void FPU_FLDENV(/*PhysPt*/int addr){
         /*Bit16u*/int tag;
         /*Bit32u*/long tagbig;
         /*Bitu*/int cw;
@@ -588,9 +588,9 @@ public class FPU {
             fpu.sw = Memory.mem_readw(addr+2);
             tag    = Memory.mem_readw(addr+4);
         } else {
-            cw     = (int)Memory.mem_readd(addr+0);
-            fpu.sw = (/*Bit16u*/int)Memory.mem_readd(addr+4);
-            tagbig = Memory.mem_readd(addr+8);
+            cw     = Memory.mem_readd(addr + 0);
+            fpu.sw = Memory.mem_readd(addr + 4);
+            tagbig = Memory.mem_readd(addr + 8) & 0xFFFFFFFFl;
             tag    = (int)(tagbig);
         }
         FPU_SetTag(tag);
@@ -598,7 +598,7 @@ public class FPU {
         fpu.top = FPU_GET_TOP();
     }
 
-    static private void FPU_FSAVE(/*PhysPt*/long addr){
+    static private void FPU_FSAVE(/*PhysPt*/int addr){
         FPU_FSTENV(addr);
         /*Bitu*/int start = (CPU.cpu.code.big?28:14);
         for(/*Bitu*/int i = 0;i < 8;i++){
@@ -608,7 +608,7 @@ public class FPU {
         FPU_FINIT();
     }
 
-    static private void FPU_FRSTOR(/*PhysPt*/long addr){
+    static private void FPU_FRSTOR(/*PhysPt*/int addr){
         FPU_FLDENV(addr);
         /*Bitu*/int start = (CPU.cpu.code.big?28:14);
         for(/*Bitu*/int i = 0;i < 8;i++){
@@ -704,7 +704,7 @@ public class FPU {
 
     private static FPU_rec fpu=new FPU_rec();
 
-    static private void FPU_FLDCW(/*PhysPt*/long addr){
+    static private void FPU_FLDCW(/*PhysPt*/int addr){
         /*Bit16u*/int temp = Memory.mem_readw(addr);
         FPU_SetCW(temp);
     }
@@ -754,7 +754,7 @@ public class FPU {
         }
     }
 
-    static public void FPU_ESC0_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC0_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
         /* REGULAR TREE WITH 32 BITS REALS */
         FPU_FLD_F32_EA(addr);
         EATREE(rm);
@@ -794,7 +794,7 @@ public class FPU {
         }
     }
 
-    static public void FPU_ESC1_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC1_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
 // floats
         /*Bitu*/int group=(rm >> 3) & 7;
         /*Bitu*/int sub=(rm & 7);
@@ -972,7 +972,7 @@ public class FPU {
     }
 
 
-    static public void FPU_ESC2_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC2_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
         /* 32 bits integer operants */
         FPU_FLD_I32_EA(addr);
         EATREE(rm);
@@ -1001,7 +1001,7 @@ public class FPU {
     }
 
 
-    static public void FPU_ESC3_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC3_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
         /*Bitu*/int group=(rm >> 3) & 7;
         /*Bitu*/int sub=(rm & 7);
         switch(group){
@@ -1064,7 +1064,7 @@ public class FPU {
     }
 
 
-    static public void FPU_ESC4_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC4_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
         /* REGULAR TREE WITH 64 BITS REALS */
         FPU_FLD_F64_EA(addr);
         EATREE(rm);
@@ -1105,7 +1105,7 @@ public class FPU {
         }
     }
 
-    static public void FPU_ESC5_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC5_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
         /*Bitu*/int group=(rm >> 3) & 7;
         /*Bitu*/int sub=(rm & 7);
         switch(group){
@@ -1169,7 +1169,7 @@ public class FPU {
         }
     }
 
-    static public void FPU_ESC6_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC6_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
         /* 16 bit (word integer) operants */
         FPU_FLD_I16_EA(addr);
         EATREE(rm);
@@ -1217,7 +1217,7 @@ public class FPU {
     }
 
 
-    static public void FPU_ESC7_EA(/*Bitu*/int rm,/*PhysPt*/long addr) {
+    static public void FPU_ESC7_EA(/*Bitu*/int rm,/*PhysPt*/int addr) {
         /*Bitu*/int group=(rm >> 3) & 7;
         /*Bitu*/int sub=(rm & 7);
         switch(group){

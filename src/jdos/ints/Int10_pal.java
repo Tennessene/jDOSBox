@@ -61,7 +61,7 @@ public class Int10_pal {
         }
     }
 
-    public static void INT10_SetAllPaletteRegisters(/*PhysPt*/long data) {
+    public static void INT10_SetAllPaletteRegisters(/*PhysPt*/int data) {
         switch (Dosbox.machine) {
         case MachineType.MCH_TANDY:
         case MachineType.MCH_PCJR: //TANDY_ARCH_CASE:
@@ -152,7 +152,7 @@ public class Int10_pal {
         return val;
     }
 
-    public static void INT10_GetAllPaletteRegisters(/*PhysPt*/long data) {
+    public static void INT10_GetAllPaletteRegisters(/*PhysPt*/int data) {
         ResetACTL();
         // First the colors
         for(/*Bit8u*/short i=0;i<0x10;i++) {
@@ -195,7 +195,7 @@ public class Int10_pal {
         blue.value=IoHandler.IO_Read(Int10.VGAREG_DAC_DATA);
     }
 
-    public static void INT10_SetDACBlock(/*Bit16u*/int index,/*Bit16u*/int count,/*PhysPt*/long data) {
+    public static void INT10_SetDACBlock(/*Bit16u*/int index,/*Bit16u*/int count,/*PhysPt*/int data) {
         IoHandler.IO_Write(Int10.VGAREG_DAC_WRITE_ADDRESS,index);
         if ((Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_MODESET_CTL)&0x06)==0) {
             for (;count>0;count--) {
@@ -219,7 +219,7 @@ public class Int10_pal {
         }
     }
 
-    public static void INT10_GetDACBlock(/*Bit16u*/int index,/*Bit16u*/int count,/*PhysPt*/long data) {
+    public static void INT10_GetDACBlock(/*Bit16u*/int index,/*Bit16u*/int count,/*PhysPt*/int data) {
         IoHandler.IO_Write(Int10.VGAREG_DAC_READ_ADDRESS,index);
         for (;count>0;count--) {
             Memory.mem_writeb(data++,IoHandler.IO_Read(Int10.VGAREG_DAC_DATA));

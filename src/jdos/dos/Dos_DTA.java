@@ -4,7 +4,7 @@ import jdos.hardware.Memory;
 import jdos.util.*;
 
 public class Dos_DTA extends MemStruct {
-	public Dos_DTA(/*RealPt*/long addr) { SetPt(addr); }
+	public Dos_DTA(/*RealPt*/int addr) { SetRealPt(addr); }
 
 	public void SetupSearch(/*Bit8u*/int _sdrive,/*Bit8u*/int _sattr,String _pattern) {
         SaveIt(1,0, _sdrive);//sSave(sDTA,sdrive,_sdrive);

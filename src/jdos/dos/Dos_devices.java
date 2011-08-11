@@ -107,8 +107,8 @@ public class Dos_devices {
         }
         public boolean Close() { return true; }
         public /*Bit16u*/int GetInformation() { return 0x8084; }
-        public boolean ReadFromControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {return false;}
-        public boolean WriteToControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {return false;}
+        public boolean ReadFromControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {return false;}
+        public boolean WriteToControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {return false;}
     }
 
     static private class device_LPT1 extends device_NUL {
@@ -469,10 +469,10 @@ public class Dos_devices {
             }
             return 0x80D3; /* No Key Available */
         }
-        public boolean ReadFromControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
+        public boolean ReadFromControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
             return false;
         }
-        public boolean WriteToControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
+        public boolean WriteToControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
             return false;
         }
         public void ClearAnsi() {

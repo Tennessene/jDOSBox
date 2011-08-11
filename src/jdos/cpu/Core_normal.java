@@ -14,11 +14,11 @@ public class Core_normal extends Prefix_66_0f {
 
     public static class State {
         public int s_opcode_index;
-        public long s_cseip;
+        public int s_cseip;
         public int s_prefixes;
         public boolean EA16;
-        public long s_base_ds;
-        public long s_base_ss;
+        public int s_base_ds;
+        public int s_base_ss;
         public int s_base_val_ds;
         public boolean rep_zero;
     }
@@ -51,7 +51,7 @@ public class Core_normal extends Prefix_66_0f {
             while (CPU.CPU_Cycles-->0) {
                 // inlined
                 //LOADIP();
-                cseip=(CPU.Segs_CSphys+CPU_Regs.reg_eip) & 0xFFFFFFFFl;
+                cseip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
                 if (CPU.cpu.code.big) {
                     opcode_index=0x200;
                     prefixes=1;
@@ -98,7 +98,7 @@ public class Core_normal extends Prefix_66_0f {
                             } else if (result == NOT_HANDLED || result == ILLEGAL_OPCODE) {
                                 if (Config.C_DEBUG)
                                 {
-                                    /*Bitu*/int len=(int)((GETIP()-reg_eip()));
+                                    /*Bitu*/int len=GETIP()-reg_eip;
                                     LOADIP();
                                     if (len>16) len=16;
                                     StringBuffer tempcode=new StringBuffer();

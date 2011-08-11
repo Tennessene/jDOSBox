@@ -55,8 +55,8 @@ public class Dos_misc {
                 if(CPU_Regs.reg_ebx.word() <= Dos_files.DOS_FILES) Callback.CALLBACK_SCF(false);
                 else Callback.CALLBACK_SCF(true);
                 if (CPU_Regs.reg_ebx.word()<16) {
-                    /*RealPt*/long sftrealpt= Memory.mem_readd(Memory.Real2Phys(Dos.dos_infoblock.GetPointer())+4);
-                    /*PhysPt*/long sftptr=Memory.Real2Phys(sftrealpt);
+                    /*RealPt*/int sftrealpt= Memory.mem_readd(Memory.Real2Phys(Dos.dos_infoblock.GetPointer()) + 4);
+                    /*PhysPt*/int sftptr=Memory.Real2Phys(sftrealpt);
                     /*Bitu*/int sftofs=0x06+CPU_Regs.reg_ebx.word()*0x3b;
 
                     if (Dos_files.Files[CPU_Regs.reg_ebx.word()]!=null) Memory.mem_writeb(sftptr+sftofs,Dos_files.Files[CPU_Regs.reg_ebx.word()].refCtr);
@@ -87,8 +87,8 @@ public class Dos_misc {
                         Dos_files.Files[CPU_Regs.reg_ebx.word()].Seek(curpos,Dos_files.DOS_SEEK_CUR);
                         /*Bit32u*/LongRef endpos=new LongRef(0);
                         Dos_files.Files[CPU_Regs.reg_ebx.word()].Seek(endpos,Dos_files.DOS_SEEK_END);
-                        Memory.mem_writed(sftptr+sftofs+0x11,endpos.value);		// size
-                        Memory.mem_writed(sftptr+sftofs+0x15,curpos.value);		// current position
+                        Memory.mem_writed(sftptr+sftofs+0x11,(int)endpos.value);		// size
+                        Memory.mem_writed(sftptr+sftofs+0x15,(int)curpos.value);		// current position
                         Dos_files.Files[CPU_Regs.reg_ebx.word()].Seek(curpos,Dos_files.DOS_SEEK_SET);
                     }
 
@@ -111,23 +111,23 @@ public class Dos_misc {
                         int i;
 
                         for (i=0; i<nlen; i++)
-                            Memory.mem_writeb((/*PhysPt*/long)(sftptr+sftofs+0x20+i),filename.charAt(i));
+                            Memory.mem_writeb((/*PhysPt*/int)(sftptr+sftofs+0x20+i),filename.charAt(i));
                         for (i=nlen; i<8; i++)
-                            Memory.mem_writeb((/*PhysPt*/long)(sftptr+sftofs+0x20+i),' ');
+                            Memory.mem_writeb((/*PhysPt*/int)(sftptr+sftofs+0x20+i),' ');
 
                         if (extlen>3) extlen=3;
                         for (i=0; i<extlen; i++)
-                            Memory.mem_writeb((/*PhysPt*/long)(sftptr+sftofs+0x28+i),filename.charAt(dotpos+i));
+                            Memory.mem_writeb((/*PhysPt*/int)(sftptr+sftofs+0x28+i),filename.charAt(dotpos+i));
                         for (i=extlen; i<3; i++)
-                            Memory.mem_writeb((/*PhysPt*/long)(sftptr+sftofs+0x28+i),' ');
+                            Memory.mem_writeb((/*PhysPt*/int)(sftptr+sftofs+0x28+i),' ');
                     } else {
                         int i;
                         int nlen=filename.length();
                         if (nlen>8) nlen=8;
                         for (i=0; i<nlen; i++)
-                            Memory.mem_writeb((/*PhysPt*/long)(sftptr+sftofs+0x20+i),filename.charAt(i));
+                            Memory.mem_writeb((/*PhysPt*/int)(sftptr+sftofs+0x20+i),filename.charAt(i));
                         for (i=nlen; i<11; i++)
-                            Memory.mem_writeb((/*PhysPt*/long)(sftptr+sftofs+0x20+i),' ');
+                            Memory.mem_writeb((/*PhysPt*/int)(sftptr+sftofs+0x20+i),' ');
                     }
 
                     CPU_Regs.SegSet16ES(Memory.RealSeg(sftrealpt));

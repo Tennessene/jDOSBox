@@ -14,6 +14,7 @@ import jdos.misc.setup.Config;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
+import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringHelper;
 
@@ -184,7 +185,7 @@ public class IPX extends Module_base {
     static private InetAddress ipxServConnIp;			// IPAddress for client connection to server
     static private DatagramSocket ipxClientSocket;
 
-    private static /*RealPt*/long ipx_callback;
+    private static /*RealPt*/int ipx_callback;
 
     static private final packetBuffer incomingPacket = new packetBuffer();
 
@@ -204,7 +205,7 @@ public class IPX extends Module_base {
     static private ECBClass ESRList;	// ECBs waiting to be ESR notified
 
     private static class ECBClass {
-        public /*RealPt*/long ECBAddr;
+        public /*RealPt*/int ECBAddr;
         public boolean isInESRList;
         ECBClass prevECB;	// Linked List
         ECBClass nextECB;
@@ -318,7 +319,7 @@ public class IPX extends Module_base {
             fragDesc.size = Memory.real_readw(Memory.RealSeg(ECBAddr), memoff);
         }
 
-        public /*RealPt*/long getESRAddr() {
+        public /*RealPt*/int getESRAddr() {
             return Memory.RealMake(Memory.real_readw(Memory.RealSeg(ECBAddr),
             Memory.RealOff(ECBAddr)+6),
             Memory.real_readw(Memory.RealSeg(ECBAddr),
@@ -561,7 +562,7 @@ public class IPX extends Module_base {
             }
             case 0x0006:	// cancel operation
             {
-                /*RealPt*/long ecbaddress = Memory.RealMake((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word());
+                /*RealPt*/int ecbaddress = Memory.RealMake((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word());
                 tmpECB= ECBList;
                 ECBClass tmp2ECB;
                 while (tmpECB!=null) {
@@ -1265,7 +1266,7 @@ public class IPX extends Module_base {
     private Callback callback_ipx = new Callback();
     private Callback callback_esr = new Callback();
     private Callback callback_ipxint = new Callback();
-    private /*RealPt*/LongRef old_73_vector = new LongRef(0);
+    private /*RealPt*/IntRef old_73_vector = new IntRef(0);
     private static /*Bit16u*/int dospage;
 
     private IPX(Section configuration) {
@@ -1292,7 +1293,7 @@ public class IPX extends Module_base {
 
         if(dospage==0) dospage = Dos_tables.DOS_GetMemory(2); // can not be freed yet
 
-        /*PhysPt*/long phyDospage = Memory.PhysMake(dospage,0);
+        /*PhysPt*/int phyDospage = Memory.PhysMake(dospage,0);
 
         if (Config.IPX_DEBUGMSG)
             Log.log_msg("ESR callback address: "+Long.toString(phyDospage, 16)+", HandlerID "+call_ipxesr1);
@@ -1323,7 +1324,7 @@ public class IPX extends Module_base {
         //phys_writeb(phyDospage+28,(Bit8u)0x12);
         //IPXVERpointer = RealMake(dospage,27);
 
-        /*RealPt*/long ESRRoutineBase = Memory.RealMake(dospage, 0);
+        /*RealPt*/int ESRRoutineBase = Memory.RealMake(dospage, 0);
 
         // Interrupt enabling
         Memory.RealSetVec(0x73,ESRRoutineBase,old_73_vector);	// IRQ11
@@ -1347,7 +1348,7 @@ public class IPX extends Module_base {
         Memory.RealSetVec(0x73, old_73_vector.value);
         IO.IO_WriteB(0xa1, IO.IO_ReadB(0xa1) | 8);	// disable IRQ11
 
-        /*PhysPt*/long phyDospage = Memory.PhysMake(dospage, 0);
+        /*PhysPt*/int phyDospage = Memory.PhysMake(dospage, 0);
         for(/*Bitu*/int i = 0;i < 32;i++)
             Memory.phys_writeb(phyDospage + i, 0x00);
 

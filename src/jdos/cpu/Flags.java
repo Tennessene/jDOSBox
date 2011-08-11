@@ -11,78 +11,78 @@ public class Flags {
         return (short)(lflags.var1 & 0xFF);
     }
 
-    public static void lf_var1b(long b) {
-        lflags.var1&=~0xFF;
-        lflags.var1|=b & 0xFF;
+    public static void lf_var1b(int b) {
+        lflags.var1=lflags.var1 & ~0xFF;
+        lflags.var1=lflags.var1 | b & 0xFF;
     }
 
     public static short lf_var2b() {
         return (short)(lflags.var2 & 0xFF);
     }
 
-    public static void lf_var2b(long b) {
-        lflags.var2&=~0xFF;
-        lflags.var2|=b & 0xFF;
+    public static void lf_var2b(int b) {
+        lflags.var2=lflags.var2 & ~0xFF;
+        lflags.var2=lflags.var2 | b & 0xFF;
     }
 
     public static short lf_resb() {
         return (short)(lflags.res & 0xFF);
     }
 
-    public static void lf_resb(long b) {
-        lflags.res&=~0xFF;
-        lflags.res|=b & 0xFF;
+    public static void lf_resb(int b) {
+        lflags.res = lflags.res & ~0xFF;
+        lflags.res = lflags.res | b & 0xFF;
     }
 
     public static int lf_var1w() {
         return (int)(lflags.var1 & 0xFFFF);
     }
 
-    public static void lf_var1w(long s) {
-        lflags.var1&=~0xFFFF;
-        lflags.var1|=s & 0xFFFF;
+    public static void lf_var1w(int s) {
+        lflags.var1=lflags.var1 & ~0xFFFF;
+        lflags.var1=lflags.var1 | s & 0xFFFF;
     }
 
     public static int lf_var2w() {
         return (int)(lflags.var2 & 0xFFFF);
     }
 
-    public static void lf_var2w(long s) {
-        lflags.var2&=~0xFFFF;
-        lflags.var2|=s & 0xFFFF;
+    public static void lf_var2w(int s) {
+        lflags.var2=lflags.var2 & ~0xFFFF;
+        lflags.var2=lflags.var2 | s & 0xFFFF;
     }
 
     public static int lf_resw() {
         return (int)(lflags.res & 0xFFFF);
     }
 
-    public static void lf_resw(long s) {
-        lflags.res&=~0xFFFF;
-        lflags.res|=s & 0xFFFF;
+    public static void lf_resw(int s) {
+        lflags.res = lflags.res & ~0xFFFF;
+        lflags.res = lflags.res | s & 0xFFFF;
     }
 
-    public static long lf_var1d() {
-        return lflags.var1;
+    static long lf_var1d() {
+        return lflags.var1 & 0xFFFFFFFFl;
     }
 
     public static void lf_var1d(long v) {
-        lflags.var1=v & 0xFFFFFFFFl;
+        lflags.var1=(int)v;
     }
 
     public static long lf_var2d() {
-        return lflags.var2;
+        return lflags.var2 & 0xFFFFFFFFl;
     }
 
     public static void lf_var2d(long v) {
-        lflags.var2=v & 0xFFFFFFFFl;
+        lflags.var2=(int)v;
     }
 
-    public static long lf_resd() {
-        return lflags.res;
+    static long lf_resd() {
+        return lflags.res & 0xFFFFFFFFl;
     }
 
     public static void lf_resd(long v) {
-        lflags.res=v & 0xFFFFFFFFl;
+        lflags.res=(int)v;
     }
 
     public static void SETFLAGSb(int FLAGB) {

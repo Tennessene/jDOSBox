@@ -386,7 +386,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 	    player.ctrlData.copy(ctrl);
     }
 
-	public boolean ReadSectors(/*PhysPt*/long buffer, boolean raw, long sector, long num) {
+	public boolean ReadSectors(/*PhysPt*/int buffer, boolean raw, long sector, long num) {
         int sectorSize = raw ? Dos_cdrom.RAW_SECTOR_SIZE : Dos_cdrom.COOKED_SECTOR_SIZE;
         /*Bitu*/int buflen = (int)(num * sectorSize);
         /*Bit8u*/byte[] buf = new /*Bit8u*/byte[buflen];

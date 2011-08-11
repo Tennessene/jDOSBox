@@ -99,10 +99,10 @@ public class Int10_vesa {
 
     public static /*Bit8u*/short VESA_GetSVGAInformation(/*Bit16u*/int seg,/*Bit16u*/int off) {
         /* Fill 256 byte buffer with VESA information */
-        /*PhysPt*/long buffer= Memory.PhysMake(seg,off);
+        /*PhysPt*/int buffer= Memory.PhysMake(seg,off);
         /*Bitu*/int i;
         boolean vbe2=false;/*Bit16u*/int vbe2_pos=256+off;
-        /*Bitu*/int id=(int)Memory.mem_readd(buffer);
+        /*Bitu*/int id=Memory.mem_readd(buffer);
         if (((id==0x56424532)||(id==0x32454256)) && (!Int10.int10.vesa_oldvbe)) vbe2=true;
         if (vbe2) {
             for (i=0;i<0x200;i++) Memory.mem_writeb(buffer+i,0);
@@ -135,7 +135,7 @@ public class Int10_vesa {
     static public /*Bit8u*/short VESA_GetSVGAModeInformation(/*Bit16u*/int mode,/*Bit16u*/int seg,/*Bit16u*/int off) {
         MODE_INFO minfo = new MODE_INFO();
         //memset(&minfo,0,sizeof(minfo));
-        /*PhysPt*/long buf=Memory.PhysMake(seg,off);
+        /*PhysPt*/int buf=Memory.PhysMake(seg,off);
         /*Bitu*/int pageSize;
         /*Bit8u*/short modeAttributes;
         /*Bitu*/int i=0;
@@ -303,7 +303,7 @@ public class Int10_vesa {
     }
 
 
-    public static /*Bit8u*/short VESA_SetPalette(/*PhysPt*/long data,/*Bitu*/int index,/*Bitu*/int count) {
+    public static /*Bit8u*/short VESA_SetPalette(/*PhysPt*/int data,/*Bitu*/int index,/*Bitu*/int count) {
 //Structure is (vesa 3.0 doc): blue,green,red,alignment
         /*Bit8u*/short r,g,b;
         if (index>255) return 0x1;
@@ -323,7 +323,7 @@ public class Int10_vesa {
     }
 
 
-    static public /*Bit8u*/short VESA_GetPalette(/*PhysPt*/long data,/*Bitu*/int index,/*Bitu*/int count) {
+    static public /*Bit8u*/short VESA_GetPalette(/*PhysPt*/int data,/*Bitu*/int index,/*Bitu*/int count) {
         /*Bit8u*/short r,g,b;
         if (index>255) return 0x1;
         if (index+count>256) return 0x1;
@@ -475,7 +475,7 @@ public class Int10_vesa {
             return "Int10_vesa.VESA_PMSetPalette";
         }
         public /*Bitu*/int call() {
-            VESA_SetPalette(CPU.Segs_ESphys +  CPU_Regs.reg_edi.dword(), CPU_Regs.reg_edx.word(), CPU_Regs.reg_ecx.word() );
+            VESA_SetPalette(CPU.Segs_ESphys +  CPU_Regs.reg_edi.dword, CPU_Regs.reg_edx.word(), CPU_Regs.reg_ecx.word() );
             return 0;
         }
     };

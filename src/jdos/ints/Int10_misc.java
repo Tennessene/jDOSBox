@@ -9,7 +9,7 @@ import jdos.types.LogTypes;
 import jdos.util.IntRef;
 
 public class Int10_misc {
-    static public void INT10_GetFuncStateInformation(/*PhysPt*/long save) {
+    static public void INT10_GetFuncStateInformation(/*PhysPt*/int save) {
         /* set static state pointer */
         Memory.mem_writed(save,Int10.int10.rom.static_state);
         /* Copy BIOS Segment areas */
@@ -29,10 +29,10 @@ public class Int10_misc {
         /* DCC */
     //	Memory.mem_writeb(save+0x25,Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_DCC_INDEX));
         /*Bit8u*/short dccode = 0x00;
-        /*RealPt*/long vsavept=Memory.real_readd(Int10.BIOSMEM_SEG,Int10.BIOSMEM_VS_POINTER);
-        /*RealPt*/long svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
+        /*RealPt*/int vsavept=Memory.real_readd(Int10.BIOSMEM_SEG,Int10.BIOSMEM_VS_POINTER);
+        /*RealPt*/int svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
         if (svstable!= 0) {
-            /*RealPt*/long dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
+            /*RealPt*/int dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
             /*Bit8u*/short entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
             /*Bit8u*/short idx=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_DCC_INDEX);
             // check if index within range
@@ -85,7 +85,7 @@ public class Int10_misc {
         Memory.mem_writeb(save+0x31,3);
     }
 
-    static public /*RealPt*/long INT10_EGA_RIL_GetVersionPt() {
+    static public /*RealPt*/int INT10_EGA_RIL_GetVersionPt() {
         /* points to a graphics ROM location at the moment
            as checks test for bx!=0 only */
         return Memory.RealMake(0xc000,0x30);
@@ -166,7 +166,7 @@ public class Int10_misc {
         return bl;
     }
 
-    static public void INT10_EGA_RIL_ReadRegisterRange(/*Bit8u*/short ch, /*Bit8u*/short cl, /*Bit16u*/int dx, /*PhysPt*/long dst) {
+    static public void INT10_EGA_RIL_ReadRegisterRange(/*Bit8u*/short ch, /*Bit8u*/short cl, /*Bit16u*/int dx, /*PhysPt*/int dst) {
         /*Bitu*/IntRef port = new IntRef(0);
         /*Bitu*/IntRef regs = new IntRef(0);
         EGA_RIL(dx,port,regs);
@@ -187,7 +187,7 @@ public class Int10_misc {
         }
     }
 
-    public static void INT10_EGA_RIL_WriteRegisterRange(/*Bit8u*/short ch, /*Bit8u*/short cl, /*Bit16u*/int dx, /*PhysPt*/long src) {
+    public static void INT10_EGA_RIL_WriteRegisterRange(/*Bit8u*/short ch, /*Bit8u*/short cl, /*Bit16u*/int dx, /*PhysPt*/int src) {
         /*Bitu*/IntRef port = new IntRef(0);
         /*Bitu*/IntRef regs = new IntRef(0);
         EGA_RIL(dx,port,regs);
@@ -219,7 +219,7 @@ public class Int10_misc {
        offset 2 (byte): register number (0 for single registers, ignored)
        offset 3 (byte): register value (return value when reading)
     */
-    static public void INT10_EGA_RIL_ReadRegisterSet(/*Bit16u*/int cx, /*PhysPt*/long tbl) {
+    static public void INT10_EGA_RIL_ReadRegisterSet(/*Bit16u*/int cx, /*PhysPt*/int tbl) {
         /* read cx register sets */
         for (/*Bitu*/int i=0; i<cx; i++) {
             /*Bit8u*/short vl=Memory.mem_readb(tbl+2);
@@ -229,7 +229,7 @@ public class Int10_misc {
         }
     }
 
-    static public void INT10_EGA_RIL_WriteRegisterSet(/*Bit16u*/int cx, /*PhysPt*/long tbl) {
+    static public void INT10_EGA_RIL_WriteRegisterSet(/*Bit16u*/int cx, /*PhysPt*/int tbl) {
         /* write cx register sets */
         /*Bitu*/IntRef port = new IntRef(0);
         /*Bitu*/IntRef regs = new IntRef(0);

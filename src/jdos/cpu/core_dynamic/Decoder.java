@@ -57,15 +57,15 @@ public class Decoder extends Inst1 {
         Prefix_66_0f.init(ops);
     }
 
-    public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/long start,/*Bitu*/int max_opcodes) {
+    public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/int start,/*Bitu*/int max_opcodes) {
         // initialize a load of variables
         decode.code_start=start;
         decode.code=start;
         decode.page.code=codepage;
-        decode.page.index=(int)(start&4095);
+        decode.page.index=start & 4095;
         decode.page.wmap=codepage.write_map;
         decode.page.invmap=codepage.invalidation_map;
-        decode.page.first=(int)(start >> 12);
+        decode.page.first=start >>> 12;
         decode.active_block=decode.block=Cache.cache_openblock();
         decode.block.page.start=decode.page.index;
         codepage.AddCacheBlock(decode.block);

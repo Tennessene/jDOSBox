@@ -38,7 +38,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		/*Bits*/int index=1+(end>> Core_dynamic.DYN_HASH_SHIFT);
 		boolean is_current_block=false;	// if the current block is modified, it has to be exited as soon as possible
 
-		/*Bit32u*/long ip_point=(CPU.Segs_CSphys + CPU_Regs.reg_eip) & 0xFFFl;
+		/*Bit32u*/int ip_point=(CPU.Segs_CSphys + CPU_Regs.reg_eip) & 0xFFF;
 		while (index>=0) {
 			/*Bitu*/int map=0;
 			// see if there is still some code in the range
@@ -68,8 +68,8 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	}
 
 	// the following functions will clean all cache blocks that are invalid now due to the write
-	public void writeb(/*PhysPt*/long address,/*Bitu*/int val){
-		int addr = (int)(address & 4095);
+	public void writeb(/*PhysPt*/int address,/*Bitu*/int val){
+		int addr = (address & 4095);
 		if (Memory.host_readb(hostmem+addr)==(val & 0xFF)) return;
 		Memory.host_writeb(hostmem+addr,(short)val);
 		// see if there's code where we are writing to
@@ -84,8 +84,8 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		invalidation_map.p[addr]++;
 		InvalidateRange(addr,addr);
 	}
-	public void writew(/*PhysPt*/long address,/*Bitu*/int val){
-		int addr = (int)(address & 4095);
+	public void writew(/*PhysPt*/int address,/*Bitu*/int val){
+		int addr = (address & 4095);
 		if (Memory.host_readw(hostmem+addr)==(val & 0xFFFF)) return;
 		Memory.host_writew(hostmem+addr,val);
 		// see if there's code where we are writing to
@@ -100,9 +100,9 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
         invalidation_map.writew(addr, invalidation_map.readw(addr)+0x101);
 		InvalidateRange(addr,addr+1);
 	}
-	public void writed(/*PhysPt*/long address,/*Bitu*/int val){
-		int addr = (int)(address & 4095);
-		if (Memory.host_readd(hostmem+addr)==(val & 0xFFFFFFFFl)) return;
+	public void writed(/*PhysPt*/int address,/*Bitu*/int val){
+		int addr = (address & 4095);
+		if (Memory.host_readd(hostmem + addr)==(val & 0xFFFFFFFF)) return;
 		Memory.host_writed(hostmem+addr,val);
 		// see if there's code where we are writing to
 		if (write_map.readd(addr)==0) {

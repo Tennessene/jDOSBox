@@ -13,6 +13,7 @@ public class Helper extends CPU_Regs {
     static protected int opcode_index = 0;
 
     static protected final long[] AddrMaskTable={0x0000ffffl,0xffffffffl};
+    static protected final int[] AddrMaskTable1={0x0000ffff,0xffffffff};
     
     protected static final int OPCODE_NONE=0x000;
     protected static final int OPCODE_0F=0x100;
@@ -29,27 +30,6 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_ANOTHER = 5;
     public final static int RESULT_JUMP = 6;
     public final static int RESULT_CONTINUE_SEG = 7;
-
-    static void decode_advancepage() {
-        // Advance to the next page
-        decode.active_block.page.end=4095;
-        // trigger possible page fault here
-        decode.page.first++;
-        /*Bitu*/long faddr=(long)decode.page.first << 12;
-        Memory.mem_readb(faddr);
-        codeRef.value = decode.page.code;
-        Decoder_basic.MakeCodePage(faddr,codeRef);
-        decode.page.code = codeRef.value;
-        CacheBlockDynRec newblock=Cache.cache_getblock();
-        decode.active_block.crossblock=newblock;
-        newblock.crossblock=decode.active_block;
-        decode.active_block=newblock;
-        decode.active_block.page.start=0;
-        decode.page.code.AddCrossBlock(decode.active_block);
-        decode.page.wmap=decode.page.code.write_map;
-        decode.page.invmap=decode.page.code.invalidation_map;
-        decode.page.index=0;
-    }
 
     // fetch the next byte of the instruction stream
     static /*Bit8u*/byte decode_fetchbs() {
@@ -100,12 +80,13 @@ public class Helper extends CPU_Regs {
         return Memory.mem_readw(decode.code-2);
     }
     static int decode_fetchds() {
-        return (int)decode_fetchd();
+        return decode_fetchd();
     }
+
     // fetch the next dword of the instruction stream
-    static /*Bit32u*/long decode_fetchd() {
+    static /*Bit32u*/int decode_fetchd() {
         if (decode.page.index>=4093) {
-            /*Bit32u*/long val=decode_fetchb();
+            /*Bit32u*/int val=decode_fetchb();
             val|=decode_fetchb() << 8;
             val|=decode_fetchb() << 16;
             val|=(long)decode_fetchb() << 24;
@@ -120,6 +101,6 @@ public class Helper extends CPU_Regs {
         decode.page.wmap.p[decode.page.index+2]+=0x01;
         decode.page.wmap.p[decode.page.index+3]+=0x01;
         decode.code+=4;decode.page.index+=4;
-        return Memory.mem_readd(decode.code-4);
+        return Memory.mem_readd(decode.code - 4);
     }
 }

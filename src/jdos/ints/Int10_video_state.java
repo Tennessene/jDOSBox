@@ -19,7 +19,7 @@ public class Int10_video_state {
         return size;
     }
 
-    public static boolean INT10_VideoState_Save(/*Bitu*/int state,/*RealPt*/long buffer) {
+    public static boolean INT10_VideoState_Save(/*Bitu*/int state,/*RealPt*/int buffer) {
         /*Bitu*/int ct;
         if ((state&7)==0) return false;
 
@@ -195,7 +195,7 @@ public class Int10_video_state {
         return true;
     }
 
-    public static boolean INT10_VideoState_Restore(/*Bitu*/int state,/*RealPt*/long buffer) {
+    public static boolean INT10_VideoState_Restore(/*Bitu*/int state,/*RealPt*/int buffer) {
         /*Bitu*/int ct;
         if ((state&7)==0) return false;
 

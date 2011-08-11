@@ -5,7 +5,6 @@ import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.util.IntRef;
-import jdos.util.LongRef;
 
 public class Inst2 extends Helper {
     final static public class Sldt_reg extends Op {
@@ -31,7 +30,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writew(eaa, CPU.CPU_SLDT());
             return Constants.BR_Normal;
         }
@@ -60,7 +59,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writew(eaa, CPU.CPU_STR());
             return Constants.BR_Normal;
         }
@@ -91,7 +90,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.CPU_LLDT(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
@@ -122,7 +121,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.CPU_LTR(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
@@ -151,7 +150,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             CPU.CPU_VERR(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
@@ -180,7 +179,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             CPU.CPU_VERW(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
@@ -194,7 +193,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writew(eaa,CPU.CPU_SGDT_limit());
             Memory.mem_writed(eaa+2,CPU.CPU_SGDT_base());
             return Constants.BR_Normal;
@@ -209,7 +208,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writew(eaa,CPU.CPU_SIDT_limit());
             Memory.mem_writed(eaa+2,CPU.CPU_SIDT_base());
             return Constants.BR_Normal;
@@ -224,9 +223,9 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
-            long v1 = (Memory.mem_readd(eaa+2) & 0xFFFFFFl);
+            int v1 = (Memory.mem_readd(eaa + 2) & 0xFFFFFF);
             int v0 = Memory.mem_readw(eaa);
             CPU.CPU_LGDT(v0,v1);
             return Constants.BR_Normal;
@@ -241,9 +240,9 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
-            long v1 = (Memory.mem_readd(eaa+2) & 0xFFFFFFl);
+            int v1 = (Memory.mem_readd(eaa + 2) & 0xFFFFFF);
             int v0 = Memory.mem_readw(eaa);
             CPU.CPU_LIDT(v0,v1);
             return Constants.BR_Normal;
@@ -258,7 +257,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writew(eaa,(int)(CPU.CPU_SMSW() & 0xFFFFl));
             return Constants.BR_Normal;
         }
@@ -272,7 +271,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             int limit=Memory.mem_readw(eaa);
             if (CPU.CPU_LMSW(limit)) return RUNEXCEPTION();
             return Constants.BR_Normal;
@@ -354,7 +353,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             IntRef value=new IntRef(rw.word());
             CPU.CPU_LAR(Memory.mem_readw(eaa),value);
@@ -366,6 +365,8 @@ public class Inst2 extends Helper {
     final static public class LslGwEw_reg extends Op {
         Reg earw;
         Reg rw;
+        IntRef value = new IntRef(0);
+
         public LslGwEw_reg(int rm) {
             earw = Mod.ew(rm);
             rw = Mod.gw(rm);
@@ -373,9 +374,9 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            LongRef value=new LongRef(rw.word());
+            value.value=rw.word();
             CPU.CPU_LSL(earw.word(),value);
-            rw.word((int)value.value);
+            rw.word(value.value);
             return Constants.BR_Normal;
         }
     }
@@ -383,18 +384,19 @@ public class Inst2 extends Helper {
     final static public class LslGwEw_mem extends Op {
         EaaBase get_eaa;
         Reg rw;
-        
+        IntRef value = new IntRef(0);
+
         public LslGwEw_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
             rw = Mod.gw(rm);
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            LongRef value=new LongRef(rw.word());
+            value.value=rw.word();
             CPU.CPU_LSL(Memory.mem_readw(eaa),value);
-            rw.word((int)value.value);
+            rw.word(value.value);
             return Constants.BR_Normal;
         }
     }
@@ -454,7 +456,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            if (CPU.CPU_WRITE_CRX(which,eard.dword())) return RUNEXCEPTION();
+            if (CPU.CPU_WRITE_CRX(which,eard.dword)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -469,7 +471,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            if (CPU.CPU_WRITE_DRX(which,eard.dword())) return RUNEXCEPTION();
+            if (CPU.CPU_WRITE_DRX(which,eard.dword)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -499,7 +501,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            if (CPU.CPU_WRITE_TRX(which,eard.dword())) return RUNEXCEPTION();
+            if (CPU.CPU_WRITE_TRX(which,eard.dword)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
     }
@@ -644,7 +646,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_O()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -669,7 +671,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NO()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -694,7 +696,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_B()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -719,7 +721,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NB()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -744,7 +746,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_Z()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -769,7 +771,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NZ()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -794,7 +796,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_BE()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -819,7 +821,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NBE()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -844,7 +846,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_S()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -869,7 +871,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NS()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -894,7 +896,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_P()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -919,7 +921,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NP()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -944,7 +946,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_L()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -969,7 +971,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NL()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -994,7 +996,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_LE()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -1019,7 +1021,7 @@ public class Inst2 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NLE()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
@@ -1075,7 +1077,7 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             mask=1 << (rw.word() & 15);
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
@@ -1110,7 +1112,7 @@ public class Inst2 extends Helper {
             this.op3 = op3;
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1148,7 +1150,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             if (Instructions.valid_DSHLW(CPU_Regs.reg_ecx.low())) {
-                long eaa = get_eaa.call();
+                int eaa = get_eaa.call();
                 if ((eaa & 0xFFF)<0xFFF) {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
@@ -1206,7 +1208,7 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             mask=1 << (rw.word() & 15);
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
 
             if ((eaa & 0xFFF)<0xFFF) {
@@ -1252,7 +1254,7 @@ public class Inst2 extends Helper {
             this.op3 = op3;
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1290,7 +1292,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             if (Instructions.valid_DSHRW(CPU_Regs.reg_ecx.low())) {
-                long eaa = get_eaa.call();
+                int eaa = get_eaa.call();
                 if ((eaa & 0xFFF)<0xFFF) {
                     int index = Paging.getDirectIndex(eaa);
                     if (index>=0) {
@@ -1327,7 +1329,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             rw.word(Instructions.DIMULW(Memory.mem_readw(eaa),rw.word()));
             return Constants.BR_Normal;
         }
@@ -1364,7 +1366,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             int index = Paging.getDirectIndex(eaa);
             if (index>=0) {
                 short val = Memory.host_readb(index);
@@ -1421,7 +1423,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1459,7 +1461,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
             Core.base_ss=CPU.Segs_SSphys;
@@ -1493,7 +1495,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             Flags.FillFlags();
             int mask=1 << (rw.word() & 15);
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
@@ -1522,7 +1524,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
@@ -1538,7 +1540,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
@@ -1568,7 +1570,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             rw.word(Memory.mem_readb(eaa));
             return Constants.BR_Normal;
         }
@@ -1597,7 +1599,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             rw.word(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
@@ -1676,7 +1678,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             return Constants.BR_Normal;
@@ -1693,7 +1695,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1720,7 +1722,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1747,7 +1749,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1793,7 +1795,7 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             int mask=1 << (rw.word() & 15);
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);
@@ -1846,7 +1848,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             int value=Memory.mem_readw(eaa);
             if (value==0) {
                 SETFLAGBIT(ZF,true);
@@ -1895,7 +1897,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             int value=Memory.mem_readw(eaa);
             if (value==0) {
                 SETFLAGBIT(ZF,true);
@@ -1935,7 +1937,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             rw.word((byte)Memory.mem_readb(eaa));
             return Constants.BR_Normal;
         }
@@ -1968,7 +1970,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             short oldrmrb=rb.get8();
             int index = Paging.getDirectIndex(eaa);
             if (index>=0) {
@@ -2011,7 +2013,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             int oldrmrb=rw.word();
             if ((eaa & 0xFFF)<0xFFF) {
                 int index = Paging.getDirectIndex(eaa);

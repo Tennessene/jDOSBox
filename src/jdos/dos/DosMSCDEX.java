@@ -32,7 +32,7 @@ public class DosMSCDEX {
 
     static private class DOS_DeviceHeader extends MemStruct {
         public static final int size = 22;
-        public DOS_DeviceHeader(/*PhysPt*/long ptr)				{ pt = ptr; };
+        public DOS_DeviceHeader(/*PhysPt*/int ptr)				{ pt = ptr; };
 
         public void SetNextDeviceHeader(/*RealPt*/int ptr)	{ SaveIt(4, 0, ptr); } //sSave(sDeviceHeader,nextDeviceHeader,ptr); }
         public /*RealPt*/int GetNextDeviceHeader() { return GetIt(4, 0); } //sGet(sDeviceHeader,nextDeviceHeader); }
@@ -91,7 +91,7 @@ public class DosMSCDEX {
                 dinfo[i] = new TDriveInfo();
         }
 
-        void GetDrives(/*PhysPt*/long data)
+        void GetDrives(/*PhysPt*/int data)
         {
             for (/*Bit16u*/int i=0; i<GetNumDrives(); i++) Memory.mem_writeb(data+i,dinfo[i].drive);
         }
@@ -241,13 +241,13 @@ public class DosMSCDEX {
                 devHeader.SetName("MSCD001 ");
 
                 //Link it in the device chain
-                /*Bit32u*/long start = Dos.dos_infoblock.GetDeviceChain();
+                /*Bit32u*/long start = Dos.dos_infoblock.GetDeviceChain() & 0xFFFFFFFFl;
                 /*Bit16u*/int segm  = (/*Bit16u*/int)(start>>16);
                 /*Bit16u*/int offm  = (/*Bit16u*/int)(start&0xFFFF);
                 while(start != 0xFFFFFFFFl) {
-                    segm  = (/*Bit16u*/int)(start>>16);
+                    segm  = (/*Bit16u*/int)(start>>>16);
                     offm  = (/*Bit16u*/int)(start&0xFFFF);
-                    start = Memory.real_readd(segm,offm);
+                    start = Memory.real_readd(segm,offm) & 0xFFFFFFFFl;
                 }
                 Memory.real_writed(segm,offm,seg<<16);
 
@@ -324,7 +324,7 @@ public class DosMSCDEX {
             StopAudio(subUnit);
         }
 
-        /*PhysPt*/long GetDefaultBuffer() {
+        /*PhysPt*/int GetDefaultBuffer() {
             if (defaultBufSeg==0) {
                 /*Bit16u*/int size = (2352*2+15)/16;
                 defaultBufSeg = Dos_tables.DOS_GetMemory(size);
@@ -332,7 +332,7 @@ public class DosMSCDEX {
             return Memory.PhysMake(defaultBufSeg,2352);
         }
 
-        /*PhysPt*/long GetTempBuffer() {
+        /*PhysPt*/int GetTempBuffer() {
             if (defaultBufSeg==0) {
                 /*Bit16u*/int size = (2352*2+15)/16;
                 defaultBufSeg = Dos_tables.DOS_GetMemory(size);
@@ -340,7 +340,7 @@ public class DosMSCDEX {
             return Memory.PhysMake(defaultBufSeg,0);
         }
 
-        void GetDriverInfo	(/*PhysPt*/long data) {
+        void GetDriverInfo	(/*PhysPt*/int data) {
             for (/*Bit16u*/int i=0; i<GetNumDrives(); i++) {
                 Memory.mem_writeb(data  ,(/*Bit8u*/short)i);	// subunit
                 Memory.mem_writed(data+1,Memory.RealMake(rootDriverHeaderSeg,0));
@@ -478,7 +478,7 @@ public class DosMSCDEX {
             return 0;
         }
 
-        boolean ReadVTOC(/*Bit16u*/int drive, /*Bit16u*/int volume, /*PhysPt*/long data, /*Bit16u*/IntRef error) {
+        boolean ReadVTOC(/*Bit16u*/int drive, /*Bit16u*/int volume, /*PhysPt*/int data, /*Bit16u*/IntRef error) {
             /*Bit8u*/short subunit = GetSubUnit(drive);
         /*	if (subunit>=numDrives) {
                 error=MSCDEX_ERROR_UNKNOWN_DRIVE;
@@ -505,7 +505,7 @@ public class DosMSCDEX {
 
             /*Bit16u*/IntRef error = new IntRef(0);
             boolean success = false;
-            /*PhysPt*/long ptoc = GetTempBuffer();
+            /*PhysPt*/int ptoc = GetTempBuffer();
             success = ReadVTOC(drive,0x00,ptoc,error);
             if (success) {
                 data.value = Memory.MEM_StrCopy(ptoc+40,31);
@@ -514,10 +514,10 @@ public class DosMSCDEX {
             return success;
         }
 
-        boolean GetCopyrightName(/*Bit16u*/int drive, /*PhysPt*/long data) {
+        boolean GetCopyrightName(/*Bit16u*/int drive, /*PhysPt*/int data) {
             /*Bit16u*/IntRef error=new IntRef(0);
             boolean success = false;
-            /*PhysPt*/long ptoc = GetTempBuffer();
+            /*PhysPt*/int ptoc = GetTempBuffer();
             success = ReadVTOC(drive,0x00,ptoc,error);
             if (success) {
                 Memory.MEM_BlockCopy(data,ptoc+702,37);
@@ -526,10 +526,10 @@ public class DosMSCDEX {
             return success;
         }
 
-        boolean GetAbstractName(/*Bit16u*/int drive, /*PhysPt*/long data) {
+        boolean GetAbstractName(/*Bit16u*/int drive, /*PhysPt*/int data) {
             /*Bit16u*/IntRef error = new IntRef(0);
             boolean success = false;
-            /*PhysPt*/long ptoc = GetTempBuffer();
+            /*PhysPt*/int ptoc = GetTempBuffer();
             success = ReadVTOC(drive,0x00,ptoc,error);
             if (success) {
                 Memory.MEM_BlockCopy(data,ptoc+739,37);
@@ -538,10 +538,10 @@ public class DosMSCDEX {
             return success;
         }
 
-        boolean GetDocumentationName(/*Bit16u*/int drive, /*PhysPt*/long data) {
+        boolean GetDocumentationName(/*Bit16u*/int drive, /*PhysPt*/int data) {
             /*Bit16u*/IntRef error=new IntRef(0);
             boolean success = false;
-            /*PhysPt*/long ptoc = GetTempBuffer();
+            /*PhysPt*/int ptoc = GetTempBuffer();
             success = ReadVTOC(drive,0x00,ptoc,error);
             if (success) {
                 Memory.MEM_BlockCopy(data,ptoc+776,37);
@@ -556,7 +556,7 @@ public class DosMSCDEX {
             return dinfo[subUnit].lastResult = cdrom[subUnit].GetUPC(attr,upc);
         }
 
-        boolean ReadSectors(/*Bit8u*/short subUnit, boolean raw, /*Bit32u*/long sector, /*Bit16u*/int num, /*PhysPt*/long data) {
+        boolean ReadSectors(/*Bit8u*/short subUnit, boolean raw, /*Bit32u*/long sector, /*Bit16u*/int num, /*PhysPt*/int data) {
             if (subUnit>=numDrives) return false;
             if ((4*num*2048+5) < CPU.CPU_Cycles) CPU.CPU_Cycles -= 4*num*2048;
             else CPU.CPU_Cycles = 5;
@@ -564,7 +564,7 @@ public class DosMSCDEX {
             return dinfo[subUnit].lastResult;
         }
 
-        boolean ReadSectorsMSF(/*Bit8u*/short subUnit, boolean raw, /*Bit32u*/long start, /*Bit16u*/int num, /*PhysPt*/long data) {
+        boolean ReadSectorsMSF(/*Bit8u*/short subUnit, boolean raw, /*Bit32u*/long start, /*Bit16u*/int num, /*PhysPt*/int data) {
             if (subUnit>=numDrives) return false;
             /*Bit8u*/short min		= (/*Bit8u*/short)((start>>16) & 0xFF);
             /*Bit8u*/short sec		= (/*Bit8u*/short)((start>> 8) & 0xFF);
@@ -574,11 +574,11 @@ public class DosMSCDEX {
         }
 
         // Called from INT 2F
-        boolean ReadSectors(/*Bit16u*/int drive, /*Bit32u*/long sector, /*Bit16u*/int num, /*PhysPt*/long data) {
+        boolean ReadSectors(/*Bit16u*/int drive, /*Bit32u*/long sector, /*Bit16u*/int num, /*PhysPt*/int data) {
             return ReadSectors(GetSubUnit(drive),false,sector,num,data);
         }
 
-        boolean GetDirectoryEntry(/*Bit16u*/int drive, boolean copyFlag, /*PhysPt*/long pathname, /*PhysPt*/long buffer, /*Bit16u*/IntRef error)
+        boolean GetDirectoryEntry(/*Bit16u*/int drive, boolean copyFlag, /*PhysPt*/int pathname, /*PhysPt*/int buffer, /*Bit16u*/IntRef error)
         {
             String volumeID;
             String searchName;
@@ -600,15 +600,15 @@ public class DosMSCDEX {
 
             //LOG(LOG_MISC,LOG_ERROR)("MSCDEX: Get DirEntry : Find : %s",searchName);
             // read vtoc
-            /*PhysPt*/long defBuffer = GetDefaultBuffer();
+            /*PhysPt*/int defBuffer = GetDefaultBuffer();
             if (!ReadSectors(GetSubUnit(drive),false,16,1,defBuffer)) return false;
             // TODO: has to be iso 9960
             volumeID = Memory.MEM_StrCopy(defBuffer+1,5);
             boolean iso = ("CD001".equals(volumeID));
             if (!iso) Log.exit("MSCDEX: GetDirEntry: Not an ISO 9960 CD.");
             // get directory position
-            /*Bitu*/int dirEntrySector = (int)Memory.mem_readd(defBuffer+156+2);
-            /*Bits*/int dirSize	= (int)Memory.mem_readd(defBuffer+156+10);
+            /*Bitu*/int dirEntrySector = Memory.mem_readd(defBuffer + 156 + 2);
+            /*Bits*/int dirSize	= Memory.mem_readd(defBuffer + 156 + 10);
             /*Bitu*/int index;
             while (dirSize>0) {
                 index = 0;
@@ -681,8 +681,8 @@ public class DosMSCDEX {
                         return true;
                     }
                     // change directory
-                    dirEntrySector = (int)Memory.mem_readd(defBuffer+index+2);
-                    dirSize	= (int)Memory.mem_readd(defBuffer+index+10);
+                    dirEntrySector = Memory.mem_readd(defBuffer + index + 2);
+                    dirSize	= Memory.mem_readd(defBuffer + index + 10);
                     nextPart = true;
                 } else {
                     // continue search in next sector
@@ -746,7 +746,7 @@ public class DosMSCDEX {
             return dinfo[subUnit].lastResult;
         }
 
-        boolean SendDriverRequest(/*Bit16u*/int drive, /*PhysPt*/long data)
+        boolean SendDriverRequest(/*Bit16u*/int drive, /*PhysPt*/int data)
         {
             /*Bit8u*/short subUnit = GetSubUnit(drive);
             if (subUnit>=numDrives) return false;
@@ -805,9 +805,9 @@ public class DosMSCDEX {
     }
 
     private static CMscdex mscdex = null;
-    private static /*PhysPt*/long curReqheaderPtr = 0;
+    private static /*PhysPt*/int curReqheaderPtr = 0;
 
-    private static /*Bit16u*/int MSCDEX_IOCTL_Input(/*PhysPt*/long buffer,/*Bit8u*/short drive_unit) {
+    private static /*Bit16u*/int MSCDEX_IOCTL_Input(/*PhysPt*/int buffer,/*Bit8u*/short drive_unit) {
         /*Bitu*/int ioctl_fct = Memory.mem_readb(buffer);
         if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: IOCTL INPUT Subfunction "+Integer.toString(ioctl_fct,16));
         switch (ioctl_fct) {
@@ -822,7 +822,7 @@ public class DosMSCDEX {
                             /*Bit32u*/long frames=pos.min*60*Dos_cdrom.CD_FPS+ pos.sec*Dos_cdrom.CD_FPS+pos.fr;
                             if (frames<150) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Get position: invalid position "+pos.min+":"+pos.sec+":"+pos.fr);
                             else frames-=150;
-                            Memory.mem_writed(buffer+2,frames);
+                            Memory.mem_writed(buffer+2,(int)frames);
                         } else if (addr_mode==1) {	// Red book
                             Memory.mem_writeb(buffer+2,pos.fr);
                             Memory.mem_writeb(buffer+3,pos.sec);
@@ -842,7 +842,7 @@ public class DosMSCDEX {
 					}
 					break;
             case 0x06 : /* Get Device status */
-                        Memory.mem_writed(buffer+1,mscdex.GetDeviceStatus(drive_unit));
+                        Memory.mem_writed(buffer+1,(int)mscdex.GetDeviceStatus(drive_unit));
                         break;
             case 0x07 : /* Get sector size */
                         if (Memory.mem_readb(buffer+1)==0) Memory.mem_writed(buffer+2,2048);
@@ -850,7 +850,7 @@ public class DosMSCDEX {
                         else return 0x03;		// invalid function
                         break;
             case 0x08 : /* Get size of current volume */
-                        Memory.mem_writed(buffer+1,mscdex.GetVolumeSize(drive_unit));
+                        Memory.mem_writed(buffer+1,(int)mscdex.GetVolumeSize(drive_unit));
                         break;
             case 0x09 : /* Media change ? */
                         /*Bit8u*/ShortRef status = new ShortRef();
@@ -924,7 +924,7 @@ public class DosMSCDEX {
         return 0x00;	// success
     }
 
-    private static /*Bit16u*/int MSCDEX_IOCTL_Optput(/*PhysPt*/long buffer,/*Bit8u*/short drive_unit) {
+    private static /*Bit16u*/int MSCDEX_IOCTL_Optput(/*PhysPt*/int buffer,/*Bit8u*/short drive_unit) {
         /*Bitu*/int ioctl_fct = Memory.mem_readb(buffer);
     //	Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,("MSCDEX: IOCTL OUTPUT Subfunction %02X",ioctl_fct);
         switch (ioctl_fct) {
@@ -977,7 +977,7 @@ public class DosMSCDEX {
             /*Bit8u*/short	subUnit		= Memory.mem_readb(curReqheaderPtr+1);
             /*Bit8u*/short	funcNr		= Memory.mem_readb(curReqheaderPtr+2);
             /*Bit16u*/int	errcode		= 0;
-            /*PhysPt*/long	buffer		= 0;
+            /*PhysPt*/int	buffer		= 0;
 
             if (Log.level<=LogSeverities.LOG_ERROR)Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Driver Function "+Integer.toString(funcNr,16));
 
@@ -1001,7 +1001,7 @@ public class DosMSCDEX {
                                 break;
                 case 0x80	:	// Read long
                 case 0x82	: { // Read long prefetch . both the same here :)
-                                /*Bit32u*/long start = Memory.mem_readd(curReqheaderPtr+0x14);
+                                /*Bit32u*/long start = Memory.mem_readd(curReqheaderPtr + 0x14) & 0xFFFFFFFFl;
                                 /*Bit16u*/int len	 = Memory.mem_readw(curReqheaderPtr+0x12);
                                 boolean raw	 = (Memory.mem_readb(curReqheaderPtr+0x18)==1);
                                 if (Memory.mem_readb(curReqheaderPtr+0x0D)==0x00) // HSG
@@ -1013,8 +1013,8 @@ public class DosMSCDEX {
                 case 0x83	:	// Seek - dont care :)
                                 break;
                 case 0x84	: {	/* Play Audio Sectors */
-                                /*Bit32u*/long start = Memory.mem_readd(curReqheaderPtr+0x0E);
-                                /*Bit32u*/long len	 = Memory.mem_readd(curReqheaderPtr+0x12);
+                                /*Bit32u*/long start = Memory.mem_readd(curReqheaderPtr + 0x0E) & 0xFFFFFFFFl;
+                                /*Bit32u*/long len	 = Memory.mem_readd(curReqheaderPtr + 0x12) & 0xFFFFFFFFl;
                                 if (Memory.mem_readb(curReqheaderPtr+0x0D)==0x00) // HSG
                                     mscdex.PlayAudioSector(subUnit,start,len);
                                 else // RED BOOK
@@ -1043,7 +1043,7 @@ public class DosMSCDEX {
         public boolean call() {
             if(CPU_Regs.reg_eax.high() == 0x11) {
                 if(CPU_Regs.reg_eax.low() == 0x00) {
-                    /*PhysPt*/long check = Memory.PhysMake((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word());
+                    /*PhysPt*/int check = Memory.PhysMake((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word());
                     if(Memory.mem_readw(check+6) == 0xDADA) {
                         //MSCDEX sets word on stack to ADAD if it DADA on entry.
                         Memory.mem_writew(check+6,0xADAD);
@@ -1060,7 +1060,7 @@ public class DosMSCDEX {
 
             if (CPU_Regs.reg_eax.high()!=0x15) return false;		// not handled here, continue chain
 
-            /*PhysPt*/long data = Memory.PhysMake((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word());
+            /*PhysPt*/int data = Memory.PhysMake((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word());
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: INT 2F "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" BX= "+Integer.toString(CPU_Regs.reg_ebx.word(), 16)+" CX="+Integer.toString(CPU_Regs.reg_ecx.word(),16));
             switch (CPU_Regs.reg_eax.word()) {
 
@@ -1187,14 +1187,14 @@ public class DosMSCDEX {
         public boolean Seek(/*Bit32u*/LongRef pos,/*Bit32u*/int type) {return false;}
         public boolean Close() {return false;}
         public /*Bit16u*/int GetInformation() {return 0xc880;}
-        public boolean ReadFromControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
+        public boolean ReadFromControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
             if (MSCDEX_IOCTL_Input(bufptr,(short)0)==0) {
                 retcode.value=size;
                 return true;
             }
             return false;
         }
-        public boolean WriteToControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
+        public boolean WriteToControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
             if (MSCDEX_IOCTL_Optput(bufptr,(short)0)==0) {
                 retcode.value=size;
                 return true;

@@ -229,23 +229,26 @@ public class VGA_draw {
                 // stay at the right position in the pattern
                 if ((cursorMemStart & 0x2)!=0) cursorMemStart--;
                 /*Bitu*/int cursorMemEnd = cursorMemStart + ((64-VGA.vga.s3.hgc.posx) >> 2);
-                Ptr xat = new Ptr(TempLine,VGA.vga.s3.hgc.originx); // mouse data start pos. in scanline
+                byte[] dst = TempLine.p;
+                int dst_off = VGA.vga.s3.hgc.originx + TempLine.off; // mouse data start pos. in scanline
+                cursorMemStart+=VGA.vga.mem.linear.off;
+                cursorMemEnd+=VGA.vga.mem.linear.off();
                 for (/*Bitu*/int m = cursorMemStart; m < cursorMemEnd;) {
                     // for each byte of cursor data
-                    /*Bit8u*/int bitsA = VGA.vga.mem.linear.get(m);
-                    /*Bit8u*/int bitsB = VGA.vga.mem.linear.get(m+2);
+                    /*Bit8u*/int bitsA = VGA.vga.mem.linear.p[m];
+                    /*Bit8u*/int bitsB = VGA.vga.mem.linear.p[m+2];
                     for (/*Bit8u*/int bit=(0x80 >> cursorStartBit); bit != 0; bit >>= 1) {
                         // for each bit
                         cursorStartBit=0; // only the first byte has some bits cut off
                         if ((bitsA & bit)!=0) {
-                            if ((bitsB & bit)!=0) xat.setInc(xat.get() ^ 0xFF); // Invert screen data
+                            if ((bitsB & bit)!=0) {dst[dst_off]=(byte)(dst[dst_off] ^ 0xFF);dst_off++;} // Invert screen data
                             //else Transparent
                         } else if ((bitsB & bit)!=0) {
-                            xat.set(VGA.vga.s3.hgc.forestack.get()); // foreground color
+                            dst[dst_off]=VGA.vga.s3.hgc.forestack.p[0]; // foreground color
                         } else {
-                            xat.set(VGA.vga.s3.hgc.backstack.get());
+                            dst[dst_off]=VGA.vga.s3.hgc.backstack.p[0];
                         }
-                        xat.inc();
+                        dst_off++;
                     }
                     if ((m&1)!=0)
                         m+=3;

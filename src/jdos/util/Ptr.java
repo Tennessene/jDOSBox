@@ -156,9 +156,9 @@ public class Ptr {
 	    return (p[off] & 0xFF) | ((p[off+1] & 0xFF) << 8);
     }
 
-    public /*Bit32u*/long readd(/*HostPt*/int off) {
+    public /*Bit32u*/int readd(/*HostPt*/int off) {
         off=off*dataWidth()+this.off;
-	    return (p[off] & 0xFF) | ((p[off+1] & 0xFF) << 8) | ((p[off+2] & 0xFF) << 16) | ((long)(p[off+3] & 0xFF) << 24);
+	    return (p[off] & 0xFF) | ((p[off+1] & 0xFF) << 8) | ((p[off+2] & 0xFF) << 16) | ((p[off+3] & 0xFF) << 24);
     }
 
     public void read(byte[] b) {

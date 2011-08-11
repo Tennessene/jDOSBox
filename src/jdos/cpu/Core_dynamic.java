@@ -61,8 +61,8 @@ public class Core_dynamic {
     private static CacheBlockDynRec LinkBlocks(CacheBlockDynRec running, /*BlockReturn*/int ret) {
         CacheBlockDynRec block=null;
         // the last instruction was a control flow modifying instruction
-        /*Bitu*/long temp_ip=(CPU.Segs_CSphys+CPU_Regs.reg_eip) & 0xFFFFFFFFl;
-        Paging.PageHandler handler = Paging.get_tlb_readhandler((int)temp_ip);
+        /*Bitu*/int temp_ip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
+        Paging.PageHandler handler = Paging.get_tlb_readhandler(temp_ip);
         if (handler instanceof CodePageHandlerDynRec) {
             CodePageHandlerDynRec temp_handler=(CodePageHandlerDynRec)handler;
             if ((temp_handler.flags & Paging.PFLAG_HASCODE)!=0) {
@@ -85,11 +85,11 @@ public class Core_dynamic {
             Core.base_val_ds=CPU_Regs.ds;
             while (CPU.CPU_Cycles>0) {
                 // Determine the linear address of CS:EIP
-                /*PhysPt*/long ip_point=(CPU.Segs_CSphys+ CPU_Regs.reg_eip()) & 0xFFFFFFFFl;
+                /*PhysPt*/int ip_point=CPU.Segs_CSphys + CPU_Regs.reg_eip;
 
                 Paging.PageHandler handler=Paging.get_tlb_readhandler((int)ip_point);
                 CodePageHandlerDynRec chandler=null;
-                int page_ip_point = (int)ip_point&4095;
+                int page_ip_point = ip_point & 4095;
 
                 if (handler != null && handler instanceof CodePageHandlerDynRec)
                     chandler = (CodePageHandlerDynRec)handler;
@@ -135,10 +135,10 @@ public class Core_dynamic {
             //		BlockReturn ret=((BlockReturn (*)(void))(block->cache.start))();
                     if (block != null) {
                         if (Config.DYNAMIC_CORE_VERIFY) {
-                            int offset = Paging.getDirectIndexRO((CPU.Segs_CSphys+ CPU_Regs.reg_eip()) & 0xFFFFFFFFl);
+                            int offset = Paging.getDirectIndexRO(CPU.Segs_CSphys+ CPU_Regs.reg_eip);
                             for (int i=0;i<block.originalByteCode.length;i++) {
                                 if (block.originalByteCode[i]!=Memory.direct[i+offset]) {
-                                    Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+CPU.Segs_CSphys + ":" + CPU_Regs.reg_eip()+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(Memory.direct[i+offset] & 0xFF,16)+" memory value @ "+offset+"\n    block="+block);
+                                    Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+Integer.toString(CPU.Segs_CSphys,16) + ":" + Integer.toString(CPU_Regs.reg_eip,16)+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(Memory.direct[i+offset] & 0xFF,16)+" memory value @ "+offset+"\n    block="+block);
                                 }
                             }
                         }

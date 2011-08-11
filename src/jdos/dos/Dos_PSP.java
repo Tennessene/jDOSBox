@@ -72,7 +72,7 @@ public class Dos_PSP extends MemStruct {
     }
 
 	public /*Bit16u*/int FindFreeFileEntry() {
-        /*PhysPt*/long files=Memory.Real2Phys(GetIt(4,52) /*sGet(sPSP,file_table)*/);
+        /*PhysPt*/int files=Memory.Real2Phys(GetIt(4,52) /*sGet(sPSP,file_table)*/);
         for (/*Bit16u*/int i=0;i<GetIt(2, 50) /*sGet(sPSP,max_files)*/;i++) {
             if (Memory.mem_readb(files+i)==0xff) return i;
         }	
@@ -121,14 +121,14 @@ public class Dos_PSP extends MemStruct {
 
 	public void	SetFileHandle(/*Bit16u*/int index, /*Bit8u*/int handle) {
         if (index<GetIt(2, 50)/*sGet(sPSP,max_files)*/) {
-            /*PhysPt*/long files=Memory.Real2Phys(GetIt(4,52)/*sGet(sPSP,file_table)*/);
+            /*PhysPt*/int files=Memory.Real2Phys(GetIt(4,52)/*sGet(sPSP,file_table)*/);
             Memory.mem_writeb(files+index,handle);
         }
     }
 
 	public /*Bit8u*/int GetFileHandle (/*Bit16u*/int index) {
         if (index>=GetIt(2, 50)/*sGet(sPSP,max_files)*/) return 0xff;
-        /*PhysPt*/long files=Memory.Real2Phys(GetIt(4,52)/*sGet(sPSP,file_table)*/);
+        /*PhysPt*/int files=Memory.Real2Phys(GetIt(4,52)/*sGet(sPSP,file_table)*/);
         return Memory.mem_readb(files+index);
     }
 
@@ -140,31 +140,31 @@ public class Dos_PSP extends MemStruct {
         return (/*Bit16u*/int)GetIt(2,22);//sGet(sPSP,psp_parent);
     }
 
-	public void	SetStack(/*RealPt*/long stackpt) {
+	public void	SetStack(/*RealPt*/int stackpt) {
         SaveIt(4,46,(int)stackpt); //sSave(sPSP,stack,stackpt);
     }
 
-	public /*RealPt*/long GetStack() {
+	public /*RealPt*/int GetStack() {
         return GetIt(4,46);//sGet(sPSP,stack);
     }
 
-	public void	SetInt22(/*RealPt*/long int22pt) {
+	public void	SetInt22(/*RealPt*/int int22pt) {
         SaveIt(4,10,(int)int22pt);//sSave(sPSP,int_22,int22pt);
     }
 
-	public /*RealPt*/long GetInt22() {
+	public /*RealPt*/int GetInt22() {
         return GetIt(4,10);//sGet(sPSP,int_22);
     }
 
-	public void	SetFCB1(/*RealPt*/long src) {
+	public void	SetFCB1(/*RealPt*/int src) {
         if (src!=0) Memory.MEM_BlockCopy(Memory.PhysMake(seg,92/*offsetof(sPSP,fcb1)*/),Memory.Real2Phys(src),16);
     }
 
-	public void	SetFCB2(/*RealPt*/long src) {
+	public void	SetFCB2(/*RealPt*/int src) {
         if (src!=0) Memory.MEM_BlockCopy(Memory.PhysMake(seg,108/*offsetof(sPSP,fcb2)*/),Memory.Real2Phys(src),16);
     }
 
-	public void	SetCommandTail(/*RealPt*/long src) {
+	public void	SetCommandTail(/*RealPt*/int src) {
         if (src!=0) {	// valid source
             Memory.MEM_BlockCopy(pt+128/*offsetof(sPSP,cmdtail)*/,Memory.Real2Phys(src),128);
         } else {	// empty
@@ -178,7 +178,7 @@ public class Dos_PSP extends MemStruct {
             // Allocate needed paragraphs
             fileNum+=2;	// Add a few more files for safety
             /*Bit16u*/int para = (fileNum/16)+((fileNum%16)>0?1:0);
-            /*RealPt*/long data	= Memory.RealMake(Dos_tables.DOS_GetMemory(para),0);
+            /*RealPt*/int data	= Memory.RealMake(Dos_tables.DOS_GetMemory(para),0);
             SaveIt(4, 52, (int)data); //sSave(sPSP,file_table,data);
             SaveIt(2, 50, fileNum); //sSave(sPSP,max_files,fileNum);
             /*Bit16u*/int i;
@@ -191,7 +191,7 @@ public class Dos_PSP extends MemStruct {
     }
 
 	public /*Bit16u*/int FindEntryByHandle(/*Bit8u*/short handle) {
-        /*PhysPt*/long files=Memory.Real2Phys(GetIt(4,50)/*sGet(sPSP,file_table)*/);
+        /*PhysPt*/int files=Memory.Real2Phys(GetIt(4,50)/*sGet(sPSP,file_table)*/);
         for (/*Bit16u*/int i=0;i<GetIt(2,50)/*sGet(sPSP,max_files)*/;i++) {
             if (Memory.mem_readb(files+i)==handle) return i;
         }

@@ -8,6 +8,7 @@ public class Prefix_helpers extends Instructions {
         public int call();
     }
     static protected final long[] AddrMaskTable={0x0000ffffl,0xffffffffl};
+    static protected final long[] AddrMaskTable1={0x0000ffff,0xffffffff};
 
     protected static final int OPCODE_NONE=0x000;
     protected static final int OPCODE_0F=0x100;
@@ -38,17 +39,17 @@ public class Prefix_helpers extends Instructions {
         return CONTINUE;
     }
 
-    static protected long GETIP() {
+    static protected int GETIP() {
         return (cseip- CPU.Segs_CSphys);
     }
 
     static public void SAVEIP() {
-        CPU_Regs.reg_eip(GETIP());
+        CPU_Regs.reg_eip=GETIP();
         //System.out.println("SAVEIP: "+CPU_Regs.reg_eip);
     }
 
     static protected void LOADIP() {
-        cseip=(CPU.Segs_CSphys+CPU_Regs.reg_eip()) & 0xFFFFFFFFl;
+        cseip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
         //System.out.println("LOADIP: "+cseip);
     }
 
@@ -78,10 +79,10 @@ public class Prefix_helpers extends Instructions {
         if (COND) {
             byte offset = Fetchbs();
             SAVEIP();
-            reg_eip(reg_eip()+offset);
+            reg_eip+=offset;
         } else {
             SAVEIP();
-            reg_eip(reg_eip()+1);
+            reg_eip++;
         }
     }
 
@@ -89,10 +90,10 @@ public class Prefix_helpers extends Instructions {
         if (COND) {
             int offset = Fetchds();
             SAVEIP();
-            reg_eip(reg_eip()+offset);
+            reg_eip+=offset;
         } else {
             SAVEIP();
-            reg_eip(reg_eip()+4);
+            reg_eip+=4;
         }
     }
 
@@ -111,7 +112,7 @@ public class Prefix_helpers extends Instructions {
 //	}
 
     static protected short r;
-    static protected long m;
+    static protected int m;
 
     static protected final Instructions.loadw rw_l = new Instructions.loadw() {
         final public int call() {
@@ -306,17 +307,17 @@ public class Prefix_helpers extends Instructions {
             if (val == 0) return;
             Reg r = Modrm.GetEArd[rm];
             switch (which)	{
-            case 0x00:r.dword(ROLD(val,r.dword()));break;
-            case 0x01:r.dword(RORD(val,r.dword()));break;
-            case 0x02:r.dword(RCLD(val,r.dword()));break;
-            case 0x03:r.dword(RCRD(val,r.dword()));break;
+            case 0x00:r.dword=ROLD(val,r.dword);break;
+            case 0x01:r.dword=RORD(val,r.dword);break;
+            case 0x02:r.dword=RCLD(val,r.dword);break;
+            case 0x03:r.dword=RCRD(val,r.dword);break;
             case 0x04:/* SHL and SAL are the same */
-            case 0x06:r.dword(SHLD(val,r.dword()));break;
-            case 0x05:r.dword(SHRD(val,r.dword()));break;
-            case 0x07:r.dword(SARD(val,r.dword()));break;
+            case 0x06:r.dword=SHLD(val,r.dword);break;
+            case 0x05:r.dword=SHRD(val,r.dword);break;
+            case 0x07:r.dword=SARD(val,r.dword);break;
             }
         } else {
-            long eaa = getEaa(rm);
+            int eaa = getEaa(rm);
             /*Bit8u*/int val=blah & 0x1f;
 
             if (val == 0) return;

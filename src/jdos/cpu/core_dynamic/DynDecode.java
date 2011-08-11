@@ -5,9 +5,9 @@ import jdos.util.Ptr;
 // decoding information used during translation of a code block
 public final class DynDecode {
     public boolean modifiedAlot;
-    /*PhysPt*/long code;			// pointer to next byte in the instruction stream
-    /*PhysPt*/long code_start;		// pointer to the start of the current code block
-    /*PhysPt*/long op_start;		// pointer to the start of the current instruction
+    /*PhysPt*/int code;			// pointer to next byte in the instruction stream
+    /*PhysPt*/int code_start;		// pointer to the start of the current code block
+    /*PhysPt*/int op_start;		// pointer to the start of the current instruction
     /*Bitu*/int cycles;			// number cycles used by currently translated code
 
     // block that contains the first instruction translated

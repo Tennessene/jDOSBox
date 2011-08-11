@@ -192,7 +192,7 @@ public class Bios_disk {
     static private /*Bit8u*/short last_status;
     static private/*Bit8u*/short last_drive;
     static public /*Bit16u*/int imgDTASeg;
-    static public /*RealPt*/long imgDTAPtr;
+    static public /*RealPt*/int imgDTAPtr;
     static public Dos_DTA imgDTA;
     static private boolean killRead;
     static private boolean swapping_requested;
@@ -205,7 +205,7 @@ public class Bios_disk {
     static public void updateDPT() {
         /*Bit32u*/LongRef tmpheads=new LongRef(0), tmpcyl=new LongRef(0), tmpsect=new LongRef(0), tmpsize=new LongRef(0);
         if(imageDiskList[2] != null) {
-            /*PhysPt*/long dp0physaddr= (int)Callback.CALLBACK_PhysPointer(diskparm0);
+            /*PhysPt*/int dp0physaddr= (int)Callback.CALLBACK_PhysPointer(diskparm0);
             imageDiskList[2].Get_Geometry(tmpheads, tmpcyl, tmpsect, tmpsize);
             Memory.phys_writew(dp0physaddr,(/*Bit16u*/int)tmpcyl.value);
             Memory.phys_writeb(dp0physaddr+0x2,(/*Bit8u*/short)tmpheads.value);
@@ -220,7 +220,7 @@ public class Bios_disk {
             Memory.phys_writeb(dp0physaddr+0xe,(/*Bit8u*/short)tmpsect.value);
         }
         if(imageDiskList[3] != null) {
-            /*PhysPt*/long dp1physaddr=(int)Callback.CALLBACK_PhysPointer(diskparm1);
+            /*PhysPt*/int dp1physaddr=(int)Callback.CALLBACK_PhysPointer(diskparm1);
             imageDiskList[3].Get_Geometry(tmpheads, tmpcyl, tmpsect, tmpsize);
             Memory.phys_writew(dp1physaddr,(/*Bit16u*/int)tmpcyl.value);
             Memory.phys_writeb(dp1physaddr+0x2,(/*Bit8u*/short)tmpheads.value);
@@ -546,8 +546,8 @@ public class Bios_disk {
         Memory.RealSetVec(0x41,Callback.CALLBACK_RealPointer(diskparm0));
         Memory.RealSetVec(0x46,Callback.CALLBACK_RealPointer(diskparm1));
 
-        /*PhysPt*/long dp0physaddr=Callback.CALLBACK_PhysPointer(diskparm0);
-        /*PhysPt*/long dp1physaddr=Callback.CALLBACK_PhysPointer(diskparm1);
+        /*PhysPt*/int dp0physaddr=Callback.CALLBACK_PhysPointer(diskparm0);
+        /*PhysPt*/int dp1physaddr=Callback.CALLBACK_PhysPointer(diskparm1);
         for(i=0;i<16;i++) {
             Memory.phys_writeb((int)dp0physaddr+i,(short)0);
             Memory.phys_writeb((int)dp1physaddr+i,(short)0);

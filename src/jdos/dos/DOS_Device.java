@@ -27,10 +27,10 @@ public class DOS_Device extends DOS_File {
     public /*Bit16u*/int GetInformation() {
         return Dos_devices.Devices[devnum].GetInformation();
     }
-    public boolean ReadFromControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
+    public boolean ReadFromControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
         return Dos_devices.Devices[devnum].ReadFromControlChannel(bufptr,size,retcode);
     }
-    public boolean WriteToControlChannel(/*PhysPt*/long bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
+    public boolean WriteToControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
         return Dos_devices.Devices[devnum].WriteToControlChannel(bufptr,size,retcode);
     }
     void SetDeviceNumber(/*Bitu*/int num) { devnum=num;}

@@ -17,7 +17,7 @@ import jdos.util.IntRef;
 import jdos.util.ShortRef;
 
 public class Int10 {
-    public static final long S3_LFB_BASE=		0xC0000000l;
+    public static final int S3_LFB_BASE=		0xC0000000;
 
     public static final int BIOSMEM_SEG=		0x40;
 
@@ -127,20 +127,20 @@ public class Int10 {
 
     public static class Int10Data {
         public static class Rom {
-            /*RealPt*/long font_8_first;
-            /*RealPt*/long font_8_second;
-            /*RealPt*/long font_14;
-            /*RealPt*/long font_16;
-            /*RealPt*/long font_14_alternate;
-            /*RealPt*/long font_16_alternate;
-            /*RealPt*/long static_state;
-            /*RealPt*/long video_save_pointers;
-            /*RealPt*/long video_parameter_table;
-            /*RealPt*/long video_save_pointer_table;
-            /*RealPt*/long video_dcc_table;
-            /*RealPt*/long oemstring;
-            /*RealPt*/long vesa_modes;
-            /*RealPt*/long pmode_interface;
+            /*RealPt*/int font_8_first;
+            /*RealPt*/int font_8_second;
+            /*RealPt*/int font_14;
+            /*RealPt*/int font_16;
+            /*RealPt*/int font_14_alternate;
+            /*RealPt*/int font_16_alternate;
+            /*RealPt*/int static_state;
+            /*RealPt*/int video_save_pointers;
+            /*RealPt*/int video_parameter_table;
+            /*RealPt*/int video_save_pointer_table;
+            /*RealPt*/int video_dcc_table;
+            /*RealPt*/int oemstring;
+            /*RealPt*/int vesa_modes;
+            /*RealPt*/int pmode_interface;
             /*Bit16u*/int pmode_interface_size;
             /*Bit16u*/int pmode_interface_start;
             /*Bit16u*/int pmode_interface_window;
@@ -421,14 +421,14 @@ public class Int10 {
                 switch (CPU_Regs.reg_ebx.high()) {
                 case 0x00:	/* interupt 0x1f vector */
                     {
-                        /*RealPt*/long int_1f=Memory.RealGetVec(0x1f);
+                        /*RealPt*/int int_1f=Memory.RealGetVec(0x1f);
                         CPU_Regs.SegSet16ES(Memory.RealSeg(int_1f));
                         CPU_Regs.reg_ebp.word(Memory.RealOff(int_1f));
                     }
                     break;
                 case 0x01:	/* interupt 0x43 vector */
                     {
-                        /*RealPt*/long int_43=Memory.RealGetVec(0x43);
+                        /*RealPt*/int int_43=Memory.RealGetVec(0x43);
                         CPU_Regs.SegSet16ES(Memory.RealSeg(int_43));
                         CPU_Regs.reg_ebp.word(Memory.RealOff(int_43));
                     }
@@ -608,10 +608,10 @@ public class Int10 {
             if (!Dosbox.IS_VGA_ARCH()) break;
             if (CPU_Regs.reg_eax.low()==0) {	// get dcc
                 // walk the tables...
-                /*RealPt*/long vsavept=Memory.real_readd(BIOSMEM_SEG,BIOSMEM_VS_POINTER);
-                /*RealPt*/long svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
+                /*RealPt*/int vsavept=Memory.real_readd(BIOSMEM_SEG,BIOSMEM_VS_POINTER);
+                /*RealPt*/int svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
                 if (svstable!=0) {
-                    /*RealPt*/long dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
+                    /*RealPt*/int dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
                     /*Bit8u*/short entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
                     /*Bit8u*/short idx=Memory.real_readb(BIOSMEM_SEG,BIOSMEM_DCC_INDEX);
                     // check if index within range
@@ -625,10 +625,10 @@ public class Int10 {
             } else if (CPU_Regs.reg_eax.low()==1) {	// set dcc
                 /*Bit8u*/short newidx=0xff;
                 // walk the tables...
-                /*RealPt*/long vsavept=Memory.real_readd(BIOSMEM_SEG,BIOSMEM_VS_POINTER);
-                /*RealPt*/long svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
+                /*RealPt*/int vsavept=Memory.real_readd(BIOSMEM_SEG,BIOSMEM_VS_POINTER);
+                /*RealPt*/int svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
                 if (svstable!=0) {
-                    /*RealPt*/long dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
+                    /*RealPt*/int dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
                     /*Bit8u*/short entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
                     if (entries!=0) {
                         /*Bitu*/int ct;
@@ -858,7 +858,7 @@ public class Int10 {
             Int10_misc.INT10_EGA_RIL_WriteRegisterSet(CPU_Regs.reg_ecx.word(), CPU.Segs_ESphys+CPU_Regs.reg_ebx.word());
             break;
         case 0xfa: {
-            /*RealPt*/long pt=Int10_misc.INT10_EGA_RIL_GetVersionPt();
+            /*RealPt*/int pt=Int10_misc.INT10_EGA_RIL_GetVersionPt();
             CPU_Regs.SegSet16ES(Memory.RealSeg(pt));
             CPU_Regs.reg_ebx.word(Memory.RealOff(pt));
             }

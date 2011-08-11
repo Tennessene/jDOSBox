@@ -10,7 +10,6 @@ import jdos.misc.setup.*;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.IntRef;
-import jdos.util.LongRef;
 
 public class CPU extends Module_base {
     public static final int CPU_AUTODETERMINE_NONE=0x00;
@@ -38,12 +37,12 @@ public class CPU extends Module_base {
     public static final int CPU_INT_NOIOPLCHECK=0x8;
 
     public static void CPU_HW_Interrupt(/*Bitu*/int num) {
-        CPU_Interrupt(num,0,CPU_Regs.reg_eip());
+        CPU_Interrupt(num,0,CPU_Regs.reg_eip);
     }
-    public static void CPU_SW_Interrupt(/*Bitu*/int num,/*Bitu*/long oldeip) {
+    public static void CPU_SW_Interrupt(/*Bitu*/int num,/*Bitu*/int oldeip) {
         CPU_Interrupt(num,CPU_INT_SOFTWARE,oldeip);
     }
-    public static void CPU_SW_Interrupt_NoIOPLCheck(/*Bitu*/int num,/*Bitu*/long oldeip) {
+    public static void CPU_SW_Interrupt_NoIOPLCheck(/*Bitu*/int num,/*Bitu*/int oldeip) {
         CPU_Interrupt(num,CPU_INT_SOFTWARE|CPU_INT_NOIOPLCHECK,oldeip);
     }
 
@@ -317,21 +316,21 @@ public class CPU extends Module_base {
                 }
             }
         }
-        final public void Load(/*PhysPt*/long address) {
+        final public void Load(/*PhysPt*/int address) {
             cpu.mpl=0;
-            saved.fill(Memory.mem_readd(address) | Memory.mem_readd(address+4) << 32);
+            saved.fill((Memory.mem_readd(address) & 0xFFFFFFFFl) | (long)Memory.mem_readd(address + 4) << 32);
             cpu.mpl=3;
         }
 
-        final public void Save(/*PhysPt*/long address) {
+        final public void Save(/*PhysPt*/int address) {
             cpu.mpl=0;
-	        Memory.mem_writed(address,saved.gate.fill);
-	        Memory.mem_writed(address+4,(saved.gate.fill >>> 32));
+	        Memory.mem_writed(address,(int)saved.gate.fill);
+	        Memory.mem_writed(address+4,(int)(saved.gate.fill >>> 32));
 	        cpu.mpl=3;
         }
 
-        final public /*PhysPt*/long GetBase() {
-            return ((long)saved.seg.base_24_31()<<24) | (saved.seg.base_16_23()<<16) | saved.seg.base_0_15();
+        final public /*PhysPt*/int GetBase() {
+            return (saved.seg.base_24_31()<<24) | (saved.seg.base_16_23()<<16) | saved.seg.base_0_15();
         }
         final public /*Bitu*/long GetLimit () {
             /*Bitu*/long limit = (saved.seg.limit_16_19()<<16) | saved.seg.limit_0_15();
@@ -361,13 +360,13 @@ public class CPU extends Module_base {
     }
 
     static class DescriptorTable {
-        final public /*PhysPt*/long GetBase() {
+        final public /*PhysPt*/int GetBase() {
             return table_base;
         }
         final public /*Bitu*/int GetLimit() {
             return table_limit;
         }
-        final public void SetBase(/*PhysPt*/long _base) {
+        final public void SetBase(/*PhysPt*/int _base) {
             table_base = _base;
         }
         final public void SetLimit(/*Bitu*/int _limit) {
@@ -380,7 +379,7 @@ public class CPU extends Module_base {
             desc.Load(table_base+(selector));
 		    return true;
         }
-        protected /*PhysPt*/long table_base;
+        protected /*PhysPt*/int table_base;
         protected /*Bitu*/int table_limit;
     }
 
@@ -429,7 +428,7 @@ public class CPU extends Module_base {
             ldt_value=value;
             return true;
         }
-        private /*PhysPt*/long ldt_base;
+        private /*PhysPt*/int ldt_base;
         private /*Bitu*/long ldt_limit;
         private /*Bitu*/int ldt_value;
     }
@@ -451,14 +450,14 @@ public class CPU extends Module_base {
     }
 
     final static public class CPUBlock {
-        public /*Bitu*/long cpl;							/* Current Privilege */
-        public /*Bitu*/long mpl;
-        public /*Bitu*/long cr0;
+        public /*Bitu*/int cpl;							/* Current Privilege */
+        public /*Bitu*/int mpl;
+        public /*Bitu*/int cr0;
         public boolean pmode;							/* Is Protected mode enabled */
         final public GDTDescriptorTable gdt = new GDTDescriptorTable();
         final public DescriptorTable idt = new DescriptorTable();
         final public class Stack {
-            public /*Bitu*/long mask, notmask;
+            public /*Bitu*/int mask, notmask;
             public boolean big;
         }
         final public Stack stack = new Stack();
@@ -467,8 +466,8 @@ public class CPU extends Module_base {
         }
         final public Code code = new Code();
         final public class Hlt {
-            public /*Bitu*/long cs;
-            public long eip;
+            public /*Bitu*/int cs;
+            public int eip;
             public CPU_Decoder old_decoder;
         }
         final public Hlt hlt = new Hlt();
@@ -478,8 +477,8 @@ public class CPU extends Module_base {
         final public Exception exception = new Exception();
         public /*Bits*/int direction;
         public boolean trap_skip;
-        final public /*Bit32u*/long[] drx=new long[8];
-        final public /*Bit32u*/long[] trx=new long[8];
+        final public /*Bit32u*/int[] drx=new int[8];
+        final public /*Bit32u*/int[] trx=new int[8];
     }
 
     public static void CPU_SetFlagsd(/*Bitu*/int word) {
@@ -495,19 +494,19 @@ public class CPU extends Module_base {
     public static CPU_Regs regs = new CPU_Regs();
     public static CPUBlock cpu = new CPUBlock();
 
-    static public /*Bitu*/long Segs_ESval;
-    static public /*Bitu*/long Segs_CSval;
-    static public /*Bitu*/long Segs_SSval;
-    static public /*Bitu*/long Segs_DSval;
-    static public /*Bitu*/long Segs_FSval;
-    static public /*Bitu*/long Segs_GSval;
+    static public /*Bitu*/int Segs_ESval;
+    static public /*Bitu*/int Segs_CSval;
+    static public /*Bitu*/int Segs_SSval;
+    static public /*Bitu*/int Segs_DSval;
+    static public /*Bitu*/int Segs_FSval;
+    static public /*Bitu*/int Segs_GSval;
 
-    static public /*Bitu*/long Segs_ESphys;
-    static public /*Bitu*/long Segs_CSphys;
-    static public /*Bitu*/long Segs_SSphys;
-    static public /*Bitu*/long Segs_DSphys;
-    static public /*Bitu*/long Segs_FSphys;
-    static public /*Bitu*/long Segs_GSphys;
+    static public /*Bitu*/int Segs_ESphys;
+    static public /*Bitu*/int Segs_CSphys;
+    static public /*Bitu*/int Segs_SSphys;
+    static public /*Bitu*/int Segs_DSphys;
+    static public /*Bitu*/int Segs_FSphys;
+    static public /*Bitu*/int Segs_GSphys;
 
     static public long seg_value(int index) {
         switch (index) {
@@ -559,30 +558,30 @@ public class CPU extends Module_base {
 //    private static final boolean CPU_CHECK_IGNORE = Config.C_DEBUG;
 
     public static void CPU_Push16(/*Bitu*/int value) {
-        /*Bit32u*/long new_esp=(CPU_Regs.reg_esp.dword() & cpu.stack.notmask) | ((CPU_Regs.reg_esp.dword() - 2) & cpu.stack.mask);
+        /*Bit32u*/int new_esp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask) | ((CPU_Regs.reg_esp.dword - 2) & cpu.stack.mask);
         Memory.mem_writew(Segs_SSphys + (new_esp & cpu.stack.mask) ,value & 0xFFFF);
-        CPU_Regs.reg_esp.dword(new_esp);
+        CPU_Regs.reg_esp.dword=new_esp;
     }
 
-    public static void CPU_Push32(/*Bitu*/long value) {
-        /*Bit32u*/long new_esp=(CPU_Regs.reg_esp.dword() & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword() - 4) & cpu.stack.mask);
-        Memory.mem_writed(Segs_SSphys + (new_esp & cpu.stack.mask) ,value & 0xFFFFFFFFl);
-        CPU_Regs.reg_esp.dword(new_esp);
+    public static void CPU_Push32(/*Bitu*/int value) {
+        /*Bit32u*/int new_esp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword - 4) & cpu.stack.mask);
+        Memory.mem_writed(Segs_SSphys + (new_esp & cpu.stack.mask) ,value);
+        CPU_Regs.reg_esp.dword=new_esp;
     }
 
     public static /*Bitu*/int CPU_Pop16() {
-        /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask));
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword() & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword() + 2 )& cpu.stack.mask));
+        /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword + 2 )& cpu.stack.mask);
         return val;
     }
 
-    public static /*Bitu*/long CPU_Pop32() {
-        /*Bitu*/long val=Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask));
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword() & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword() + 4)&cpu.stack.mask));
+    public static /*Bitu*/int CPU_Pop32() {
+        /*Bitu*/int val=Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword + 4)&cpu.stack.mask);
         return val;
     }
 
-//    private static /*PhysPt*/long SelBase(/*Bitu*/int sel) {
+//    private static /*PhysPt*/int SelBase(/*Bitu*/int sel) {
 //        if ((cpu.cr0 & CR0_PROTECTION) != 0) {
 //            Descriptor desc = new Descriptor();
 //            cpu.gdt.GetDescriptor(sel,desc);
@@ -632,7 +631,7 @@ public class CPU extends Module_base {
         if (cpu.pmode && (cpu.cpl>0)) mask &= (~CPU_Regs.IOPL);
         if (cpu.pmode && CPU_Regs.GETFLAG(CPU_Regs.VM)==0 && (CPU_Regs.GETFLAG_IOPL()<cpu.cpl)) mask &= (~CPU_Regs.IF);
         if (use32)
-            CPU_SetFlags((int)CPU_Pop32(),mask);
+            CPU_SetFlags(CPU_Pop32(),mask);
         else CPU_SetFlags(CPU_Pop16(),mask & 0xffff);
         Flags.DestroyConditionFlags();
         return false;
@@ -711,14 +710,14 @@ public class CPU extends Module_base {
         final void SaveSelector() {
             cpu.gdt.SetDescriptor(selector,desc);
         }
-        final void Get_SSx_ESPx( /*Bitu*/int level, /*Bitu*/IntRef _ss, /*Bitu*/LongRef _esp) {
+        final void Get_SSx_ESPx( /*Bitu*/int level, /*Bitu*/IntRef _ss, /*Bitu*/IntRef _esp) {
             cpu.mpl=0;
             if (is386 != 0) {
-                /*PhysPt*/long where=base+TSS_32_esp0_offset+level*8;
+                /*PhysPt*/int where=base+TSS_32_esp0_offset+level*8;
                 _esp.value=Memory.mem_readd(where);
                 _ss.value=Memory.mem_readw(where+4);
             } else {
-                 /*PhysPt*/long where=base+TSS_16_sp0_offset+level*4;
+                 /*PhysPt*/int where=base+TSS_16_sp0_offset+level*4;
                 _esp.value=Memory.mem_readw(where);
                 _ss.value=Memory.mem_readw(where+2);
             }
@@ -752,7 +751,7 @@ public class CPU extends Module_base {
         }
         TSS_Descriptor desc = new TSS_Descriptor();
         /*Bitu*/int selector;
-        /*PhysPt*/long base;
+        /*PhysPt*/int base;
         /*Bitu*/long limit;
         /*Bitu*/int is386;
         boolean valid;
@@ -768,7 +767,7 @@ public class CPU extends Module_base {
 
     static private final TaskStateSegment new_tss_temp=new TaskStateSegment();
     static private final Descriptor cs_desc_temp = new Descriptor();
-    static private boolean CPU_SwitchTask( /*Bitu*/int new_tss_selector,int tstype, /*Bitu*/long old_eip) {
+    static private boolean CPU_SwitchTask( /*Bitu*/int new_tss_selector,int tstype, /*Bitu*/int old_eip) {
         Flags.FillFlags();
 
         if (!new_tss_temp.SetSelector(new_tss_selector))
@@ -780,24 +779,24 @@ public class CPU extends Module_base {
             if (new_tss_temp.desc.IsBusy()!=0)
                 Log.exit("TSS busy for JMP/CALL/INT");
         }
-         /*Bitu*/long new_cr3;
-         /*Bitu*/long new_eax,new_ebx,new_ecx,new_edx,new_esp,new_ebp,new_esi,new_edi;
-         /*Bitu*/long new_es,new_cs,new_ss,new_ds,new_fs,new_gs;
-         /*Bitu*/long new_eip;
+         /*Bitu*/int new_cr3;
+         /*Bitu*/int new_eax,new_ebx,new_ecx,new_edx,new_esp,new_ebp,new_esi,new_edi;
+         /*Bitu*/int new_es,new_cs,new_ss,new_ds,new_fs,new_gs;
+         /*Bitu*/int new_eip;
         int new_eflags,new_ldt;
         /* Read new context from new TSS */
         if (new_tss_temp.is386!=0) {
-            new_cr3=Memory.mem_readd(new_tss_temp.base+TSS_32_cr3_offset);
-            new_eip=Memory.mem_readd(new_tss_temp.base+TSS_32_eip_offset);
-            new_eflags=(int)Memory.mem_readd(new_tss_temp.base+TSS_32_eflags_offset);
-            new_eax=Memory.mem_readd(new_tss_temp.base+TSS_32_eax_offset);
-            new_ecx=Memory.mem_readd(new_tss_temp.base+TSS_32_ecx_offset);
-            new_edx=Memory.mem_readd(new_tss_temp.base+TSS_32_edx_offset);
-            new_ebx=Memory.mem_readd(new_tss_temp.base+TSS_32_ebx_offset);
-            new_esp=Memory.mem_readd(new_tss_temp.base+TSS_32_esp_offset);
-            new_ebp=Memory.mem_readd(new_tss_temp.base+TSS_32_ebp_offset);
-            new_edi=Memory.mem_readd(new_tss_temp.base+TSS_32_edi_offset);
-            new_esi=Memory.mem_readd(new_tss_temp.base+TSS_32_esi_offset);
+            new_cr3=Memory.mem_readd(new_tss_temp.base + TSS_32_cr3_offset);
+            new_eip=Memory.mem_readd(new_tss_temp.base + TSS_32_eip_offset);
+            new_eflags=Memory.mem_readd(new_tss_temp.base + TSS_32_eflags_offset);
+            new_eax=Memory.mem_readd(new_tss_temp.base + TSS_32_eax_offset);
+            new_ecx=Memory.mem_readd(new_tss_temp.base + TSS_32_ecx_offset);
+            new_edx=Memory.mem_readd(new_tss_temp.base + TSS_32_edx_offset);
+            new_ebx=Memory.mem_readd(new_tss_temp.base + TSS_32_ebx_offset);
+            new_esp=Memory.mem_readd(new_tss_temp.base + TSS_32_esp_offset);
+            new_ebp=Memory.mem_readd(new_tss_temp.base + TSS_32_ebp_offset);
+            new_edi=Memory.mem_readd(new_tss_temp.base + TSS_32_edi_offset);
+            new_esi=Memory.mem_readd(new_tss_temp.base + TSS_32_esi_offset);
 
             new_es=Memory.mem_readw(new_tss_temp.base+TSS_32_es_offset);
             new_cs=Memory.mem_readw(new_tss_temp.base+TSS_32_cs_offset);
@@ -831,14 +830,14 @@ public class CPU extends Module_base {
             Memory.mem_writed(cpu_tss.base+TSS_32_eflags_offset,old_flags);
             Memory.mem_writed(cpu_tss.base+TSS_32_eip_offset,old_eip);
 
-            Memory.mem_writed(cpu_tss.base+TSS_32_eax_offset,CPU_Regs.reg_eax.dword());
-            Memory.mem_writed(cpu_tss.base+TSS_32_ecx_offset,CPU_Regs.reg_ecx.dword());
-            Memory.mem_writed(cpu_tss.base+TSS_32_edx_offset,CPU_Regs.reg_edx.dword());
-            Memory.mem_writed(cpu_tss.base+TSS_32_ebx_offset,CPU_Regs.reg_ebx.dword());
-            Memory.mem_writed(cpu_tss.base+TSS_32_esp_offset,CPU_Regs.reg_esp.dword());
-            Memory.mem_writed(cpu_tss.base+TSS_32_ebp_offset,CPU_Regs.reg_ebp.dword());
-            Memory.mem_writed(cpu_tss.base+TSS_32_esi_offset,CPU_Regs.reg_esi.dword());
-            Memory.mem_writed(cpu_tss.base+TSS_32_edi_offset,CPU_Regs.reg_edi.dword());
+            Memory.mem_writed(cpu_tss.base+TSS_32_eax_offset,CPU_Regs.reg_eax.dword);
+            Memory.mem_writed(cpu_tss.base+TSS_32_ecx_offset,CPU_Regs.reg_ecx.dword);
+            Memory.mem_writed(cpu_tss.base+TSS_32_edx_offset,CPU_Regs.reg_edx.dword);
+            Memory.mem_writed(cpu_tss.base+TSS_32_ebx_offset,CPU_Regs.reg_ebx.dword);
+            Memory.mem_writed(cpu_tss.base+TSS_32_esp_offset,CPU_Regs.reg_esp.dword);
+            Memory.mem_writed(cpu_tss.base+TSS_32_ebp_offset,CPU_Regs.reg_ebp.dword);
+            Memory.mem_writed(cpu_tss.base+TSS_32_esi_offset,CPU_Regs.reg_esi.dword);
+            Memory.mem_writed(cpu_tss.base+TSS_32_edi_offset,CPU_Regs.reg_edi.dword);
 
             Memory.mem_writed(cpu_tss.base+TSS_32_es_offset,Segs_ESval);
             Memory.mem_writed(cpu_tss.base+TSS_32_cs_offset,Segs_CSval);
@@ -868,7 +867,7 @@ public class CPU extends Module_base {
 
 //	cpu.cr0|=CR0_TASKSWITCHED;
         if (new_tss_selector == cpu_tss.selector) {
-            CPU_Regs.reg_eip(old_eip);
+            CPU_Regs.reg_eip=old_eip;
             new_cs = Segs_CSval;
             new_ss = Segs_SSval;
             new_ds = Segs_DSval;
@@ -886,7 +885,7 @@ public class CPU extends Module_base {
 
             /* Load new context */
             if (new_tss_temp.is386 != 0) {
-                CPU_Regs.reg_eip(new_eip);
+                CPU_Regs.reg_eip=new_eip;
                 CPU_SetFlags(new_eflags,CPU_Regs.FMASK_ALL | CPU_Regs.VM);
                 CPU_Regs.reg_eax.dword(new_eax);
                 CPU_Regs.reg_ecx.dword(new_ecx);
@@ -922,7 +921,7 @@ public class CPU extends Module_base {
             case DESC_CODE_R_NC_A:		case DESC_CODE_R_NC_NA:
                 if (cpu.cpl != cs_desc_temp.DPL()) Log.exit("Task CS RPL != DPL");
                 //goto doconforming;
-                Segs_CSphys=cs_desc_temp.GetBase();
+                Segs_CSphys=(int)cs_desc_temp.GetBase();
                 cpu.code.big=cs_desc_temp.Big()>0;
                 Segs_CSval=new_cs;
                 break;
@@ -930,7 +929,7 @@ public class CPU extends Module_base {
             case DESC_CODE_R_C_A:		case DESC_CODE_R_C_NA:
                 if (cpu.cpl < cs_desc_temp.DPL()) Log.exit("Task CS RPL < DPL");
             //doconforming:
-                Segs_CSphys=cs_desc_temp.GetBase();
+                Segs_CSphys=(int)cs_desc_temp.GetBase();
                 cpu.code.big=cs_desc_temp.Big()>0;
                 Segs_CSval=new_cs;
                 break;
@@ -962,7 +961,7 @@ public class CPU extends Module_base {
         if (cpu.pmode && ((CPU_Regs.GETFLAG_IOPL()<cpu.cpl) || CPU_Regs.GETFLAG(CPU_Regs.VM)!=0)) {
             cpu.mpl=0;
             if (cpu_tss.is386==0) return doexception(port);
-             /*PhysPt*/long bwhere=cpu_tss.base+0x66;
+             /*PhysPt*/int bwhere=cpu_tss.base+0x66;
              /*Bitu*/int ofs=Memory.mem_readw(bwhere);
             if (ofs>cpu_tss.limit) return doexception(port);
             bwhere=cpu_tss.base+ofs+(port/8);
@@ -980,7 +979,7 @@ public class CPU extends Module_base {
     public static void CPU_Exception( /*Bitu*/int which, /*Bitu*/int error ) {
 //	LOG_MSG("Exception %d error %x",which,error);
         cpu.exception.error=error;
-        CPU_Interrupt(which,CPU_INT_EXCEPTION | ((which>=8) ? CPU_INT_HAS_ERROR : 0),CPU_Regs.reg_eip());
+        CPU_Interrupt(which,CPU_INT_EXCEPTION | ((which>=8) ? CPU_INT_HAS_ERROR : 0),CPU_Regs.reg_eip);
     }
 
     static private void CPU_CHECK_COND(boolean cond, String msg, int exc, int sel) {
@@ -993,11 +992,10 @@ public class CPU extends Module_base {
     static private final Descriptor cs_desc_temp_1 = new Descriptor();
     static private final Descriptor n_ss_desc_temp_1 = new Descriptor();
     static private final /*Bitu*/IntRef n_ss_1=new IntRef(0);
-    static private final LongRef n_esp_1=new LongRef(0);
+    static private final IntRef n_esp_1=new IntRef(0);
     static private final /*Bitu*/IntRef o_ss_1=new IntRef(0);
-    static private final LongRef o_esp_1 = new LongRef(0);
 
-    static private void CPU_Interrupt(/*Bitu*/int num, /*Bitu*/int type, /*Bitu*/long oldeip) {
+    static private void CPU_Interrupt(/*Bitu*/int num, /*Bitu*/int type, /*Bitu*/int oldeip) {
         lastint=num;
         Flags.FillFlags();
         if (Config.C_DEBUG) {
@@ -1020,13 +1018,13 @@ public class CPU extends Module_base {
         if (!cpu.pmode) {
             /* Save everything on a 16-bit stack */
             CPU_Push16(CPU_Regs.flags & 0xffff);
-            CPU_Push16((int)Segs_CSval);
-            CPU_Push16((int)(oldeip & 0xFFFFl));
+            CPU_Push16(Segs_CSval);
+            CPU_Push16(oldeip & 0xFFFF);
             CPU_Regs.SETFLAGBIT(CPU_Regs.IF,false);
             CPU_Regs.SETFLAGBIT(CPU_Regs.TF,false);
             /* Get the new CS:IP from vector table */
-             /*PhysPt*/long base=cpu.idt.GetBase();
-            CPU_Regs.reg_eip(Memory.mem_readw(base+(num << 2)));
+             /*PhysPt*/int base=cpu.idt.GetBase();
+            CPU_Regs.reg_eip=Memory.mem_readw(base+(num << 2));
             Segs_CSval=Memory.mem_readw(base+(num << 2)+2);
             Segs_CSphys=Segs_CSval<<4;
             cpu.code.big=false;
@@ -1063,7 +1061,7 @@ public class CPU extends Module_base {
 
 
                      /*Bitu*/int gate_sel= gate_temp_1.GetSelector();
-                     /*Bitu*/long gate_off= gate_temp_1.GetOffset();
+                     /*Bitu*/int gate_off= (int)gate_temp_1.GetOffset();
                     if (Config.C_DEBUG) CPU_CHECK_COND((gate_sel & 0xfffc)==0, "INT:Gate with CS zero selector", EXCEPTION_GP,((type&CPU_INT_SOFTWARE)!=0)?0:1);
                     boolean success = cpu.gdt.GetDescriptor(gate_sel,cs_desc_temp_1);
                     if (Config.C_DEBUG) CPU_CHECK_COND(!success, "INT:Gate with CS beyond limit", EXCEPTION_GP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
@@ -1079,8 +1077,8 @@ public class CPU extends Module_base {
                             if (Config.C_DEBUG) CPU_CHECK_COND((CPU_Regs.flags & CPU_Regs.VM)!=0 && (cs_dpl!=0), "V86 interrupt calling codesegment with DPL>0", EXCEPTION_GP,gate_sel & 0xfffc);
 
 
-                            o_ss_1.value=(int)Segs_SSval;
-                            o_esp_1.value=CPU_Regs.reg_esp.dword();
+                            o_ss_1.value=Segs_SSval;
+                            int o_esp=CPU_Regs.reg_esp.dword;
                             cpu_tss.Get_SSx_ESPx(cs_dpl,n_ss_1,n_esp_1);
                             if (Config.C_DEBUG) CPU_CHECK_COND((n_ss_1.value & 0xfffc)==0, "INT:Gate with SS zero selector", EXCEPTION_TS,((type&CPU_INT_SOFTWARE)!=0)?0:1);
 
@@ -1099,17 +1097,17 @@ public class CPU extends Module_base {
                             if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_temp_1.saved.seg.p()==0, "INT:Inner level with nonpresent SS", EXCEPTION_SS,(n_ss_1.value & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
 
                             // commit point
-                            Segs_SSphys=n_ss_desc_temp_1.GetBase();
+                            Segs_SSphys=(int)n_ss_desc_temp_1.GetBase();
                             Segs_SSval=n_ss_1.value;
                             if (n_ss_desc_temp_1.Big()!=0) {
                                 cpu.stack.big=true;
-                                cpu.stack.mask=0xffffffffl;
+                                cpu.stack.mask=0xffffffff;
                                 cpu.stack.notmask=0;
                                 CPU_Regs.reg_esp.dword(n_esp_1.value);
                             } else {
                                 cpu.stack.big=false;
                                 cpu.stack.mask=0xffff;
-                                cpu.stack.notmask=0xffff0000l;
+                                cpu.stack.notmask=0xffff0000;
                                 CPU_Regs.reg_esp.word((int)(n_esp_1.value & 0xffffl));
                             }
 
@@ -1122,11 +1120,11 @@ public class CPU extends Module_base {
                                     CPU_Push32(Segs_ESval);CPU_Regs.SegSet16ES(0x0);
                                 }
                                 CPU_Push32(o_ss_1.value);
-                                CPU_Push32(o_esp_1.value);
+                                CPU_Push32(o_esp);
                             } else {					/* 16-bit Gate */
                                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0) Log.exit("V86 to 16-bit gate");
                                 CPU_Push16(o_ss_1.value);
-                                CPU_Push16((int)(o_esp_1.value & 0xFFFFl));
+                                CPU_Push16(o_esp);
                             }
 //						LOG_MSG("INT:Gate to inner level SS:%X SP:%X",n_ss,n_esp);
                             //goto do_interrupt;
@@ -1137,8 +1135,8 @@ public class CPU extends Module_base {
                                 if ((type & CPU_INT_HAS_ERROR)!=0) CPU_Push32(cpu.exception.error);
                             } else {					/* 16-bit gate */
                                 CPU_Push16(CPU_Regs.flags & 0xffff);
-                                CPU_Push16((int)Segs_CSval);
-                                CPU_Push16((int)(oldeip & 0xFFFFl));
+                                CPU_Push16(Segs_CSval);
+                                CPU_Push16(oldeip & 0xFFFF);
                                 if ((type & CPU_INT_HAS_ERROR)!=0) CPU_Push16(cpu.exception.error);
                             }
                             break;
@@ -1161,8 +1159,8 @@ public class CPU extends Module_base {
                             if ((type & CPU_INT_HAS_ERROR)!=0) CPU_Push32(cpu.exception.error);
                         } else {					/* 16-bit gate */
                             CPU_Push16(CPU_Regs.flags & 0xffff);
-                            CPU_Push16((int)Segs_CSval);
-                            CPU_Push16((int)(oldeip & 0xFFFFl));
+                            CPU_Push16(Segs_CSval);
+                            CPU_Push16(oldeip & 0xFFFF);
                             if ((type & CPU_INT_HAS_ERROR)!=0) CPU_Push16(cpu.exception.error);
                         }
                         break;
@@ -1171,9 +1169,9 @@ public class CPU extends Module_base {
                     }
 
                     Segs_CSval=(gate_sel&0xfffc) | cpu.cpl;
-                    Segs_CSphys=cs_desc_temp_1.GetBase();
+                    Segs_CSphys=(int)cs_desc_temp_1.GetBase();
                     cpu.code.big=cs_desc_temp_1.Big()>0;
-                    CPU_Regs.reg_eip(gate_off);
+                    CPU_Regs.reg_eip=gate_off;
 
                     if ((gate_temp_1.Type()&1)==0) {
                         CPU_Regs.SETFLAGBIT(CPU_Regs.IF,false);
@@ -1204,15 +1202,15 @@ public class CPU extends Module_base {
     static private final Descriptor n_cs_desc_2 = new Descriptor();
     static private final Descriptor n_ss_desc_2 = new Descriptor();
     static public boolean iret = false;
-    static public void CPU_IRET(boolean use32, /*Bitu*/long oldeip) {
+    static public void CPU_IRET(boolean use32, /*Bitu*/int oldeip) {
         iret = true;
         if (!cpu.pmode) {					/* RealMode IRET */
             if (use32) {
-                CPU_Regs.reg_eip(CPU_Pop32());
-                CPU_Regs.SegSet16CS((int)CPU_Pop32());
-                CPU_SetFlags((int)CPU_Pop32(),CPU_Regs.FMASK_ALL);
+                CPU_Regs.reg_eip=CPU_Pop32();
+                CPU_Regs.SegSet16CS(CPU_Pop32());
+                CPU_SetFlags(CPU_Pop32(),CPU_Regs.FMASK_ALL);
             } else {
-                CPU_Regs.reg_eip(CPU_Pop16());
+                CPU_Regs.reg_eip=CPU_Pop16();
                 CPU_Regs.SegSet16CS(CPU_Pop16());
                 CPU_SetFlags(CPU_Pop16(),CPU_Regs.FMASK_ALL & 0xffff);
             }
@@ -1226,26 +1224,26 @@ public class CPU extends Module_base {
                     return;
                 } else {
                     if (use32) {
-                        /*Bit32u*/long new_eip=Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask));
-                        /*Bit32u*/long tempesp=(CPU_Regs.reg_esp.dword() & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+4)&cpu.stack.mask);
-                        /*Bit32u*/int new_cs=(int)Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
+                        /*Bit32u*/int new_eip=Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
+                        /*Bit32u*/int tempesp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+4)&cpu.stack.mask);
+                        /*Bit32u*/int new_cs=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
                         tempesp=(tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask);
-                        /*Bit32u*/int new_flags=(int)Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
+                        /*Bit32u*/int new_flags=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
                         CPU_Regs.reg_esp.dword((tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask));
 
-                        CPU_Regs.reg_eip(new_eip);
+                        CPU_Regs.reg_eip=new_eip;
                         CPU_Regs.SegSet16CS((new_cs&0xffff));
                         /* IOPL can not be modified in v86 mode by IRET */
                         CPU_SetFlags(new_flags,CPU_Regs.FMASK_NORMAL|CPU_Regs.NT);
                     } else {
-                        /*Bit16u*/int new_eip=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask));
-                        /*Bit32u*/long tempesp=(CPU_Regs.reg_esp.dword() & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword() + 2)&cpu.stack.mask);
+                        /*Bit16u*/int new_eip=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
+                        /*Bit32u*/int tempesp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword + 2)&cpu.stack.mask);
                         /*Bit16u*/int new_cs=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
                         tempesp=(tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask);
                         /*Bit16u*/int new_flags=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
                         CPU_Regs.reg_esp.dword((tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask));
 
-                        CPU_Regs.reg_eip(new_eip);
+                        CPU_Regs.reg_eip=new_eip;
                         CPU_Regs.SegSet16CS(new_cs);
                         /* IOPL can not be modified in v86 mode by IRET */
                         CPU_SetFlags(new_flags,CPU_Regs.FMASK_NORMAL|CPU_Regs.NT);
@@ -1267,21 +1265,21 @@ public class CPU extends Module_base {
                 return;
             }
             int n_cs_sel, n_flags;
-             /*Bitu*/long n_eip;
-            /*Bit32u*/long tempesp;
+             /*Bitu*/int n_eip;
+            /*Bit32u*/int tempesp;
             if (use32) {
-                n_eip=Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask));
-                tempesp=(CPU_Regs.reg_esp.dword() & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword() + 4) & cpu.stack.mask);
-                n_cs_sel=(int)Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask)) & 0xffff;
+                n_eip=Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
+                tempesp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword + 4) & cpu.stack.mask);
+                n_cs_sel=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask)) & 0xffff;
                 tempesp=(tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask);
-                n_flags=(int)Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
+                n_flags=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
                 tempesp=(tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask);
 
                 if ((n_flags & CPU_Regs.VM) != 0 && (cpu.cpl==0)) {
                     // commit point
                     CPU_Regs.reg_esp.dword(tempesp);
-                    CPU_Regs.reg_eip(n_eip & 0xffff);
-                     /*Bitu*/long n_ss,n_esp,n_es,n_ds,n_fs,n_gs;
+                    CPU_Regs.reg_eip=n_eip & 0xffff;
+                     /*Bitu*/int n_ss,n_esp,n_es,n_ds,n_fs,n_gs;
                     n_esp=CPU_Pop32();
                     n_ss=CPU_Pop32() & 0xffff;
                     n_es=CPU_Pop32() & 0xffff;
@@ -1293,21 +1291,21 @@ public class CPU extends Module_base {
                     Flags.DestroyConditionFlags();
                     CPU_SetCPL(3);
 
-                    CPU_SetSegGeneralSS((int)n_ss);
-                    CPU_SetSegGeneralES((int)n_es);
-                    CPU_SetSegGeneralDS((int)n_ds);
-                    CPU_SetSegGeneralFS((int)n_fs);
-                    CPU_SetSegGeneralGS((int)n_gs);
+                    CPU_SetSegGeneralSS(n_ss);
+                    CPU_SetSegGeneralES(n_es);
+                    CPU_SetSegGeneralDS(n_ds);
+                    CPU_SetSegGeneralFS(n_fs);
+                    CPU_SetSegGeneralGS(n_gs);
                     CPU_Regs.reg_esp.dword(n_esp);
                     cpu.code.big=false;
                     CPU_Regs.SegSet16CS(n_cs_sel);
-                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IRET:Back to V86: CS:"+Long.toString(Segs_CSval, 16)+" IP "+Long.toString(CPU_Regs.reg_eip(), 16)+" SS:"+Long.toString(Segs_SSval, 16)+" SP "+Long.toString(CPU_Regs.reg_esp.dword(), 16)+" FLAGS:%X"+Integer.toString(CPU_Regs.flags,16));
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL, "IRET:Back to V86: CS:"+Integer.toString(Segs_CSval, 16)+" IP "+Integer.toString(CPU_Regs.reg_eip, 16)+" SS:"+Integer.toString(Segs_SSval, 16)+" SP "+Integer.toString(CPU_Regs.reg_esp.dword, 16)+" FLAGS:%X"+Integer.toString(CPU_Regs.flags,16));
                     return;
                 }
                 if ((n_flags & CPU_Regs.VM)!=0) Log.exit("IRET from pmode to v86 with CPL!=0");
             } else {
-                n_eip=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask));
-                tempesp=(CPU_Regs.reg_esp.dword() & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword() + 2) & cpu.stack.mask);
+                n_eip=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
+                tempesp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword + 2) & cpu.stack.mask);
                 n_cs_sel=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
                 tempesp=(tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask);
                 n_flags=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
@@ -1341,11 +1339,11 @@ public class CPU extends Module_base {
                 /* Return to same level */
 
                 // commit point
-                CPU_Regs.reg_esp.dword(tempesp);
-                Segs_CSphys=n_cs_desc_2.GetBase();
+                CPU_Regs.reg_esp.dword=tempesp;
+                Segs_CSphys=(int)n_cs_desc_2.GetBase();
                 cpu.code.big=n_cs_desc_2.Big()>0;
                 Segs_CSval=n_cs_sel;
-                CPU_Regs.reg_eip(n_eip);
+                CPU_Regs.reg_eip=n_eip;
 
                  /*Bitu*/int mask=cpu.cpl !=0 ? (CPU_Regs.FMASK_NORMAL | CPU_Regs.NT) : CPU_Regs.FMASK_ALL;
                 if (CPU_Regs.GETFLAG_IOPL()<cpu.cpl) mask &= (~CPU_Regs.IF);
@@ -1355,11 +1353,11 @@ public class CPU extends Module_base {
             } else {
                 /* Return to outer level */
                  /*Bitu*/int n_ss;
-                long n_esp;
+                int n_esp;
                 if (use32) {
                     n_esp=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask));
                     tempesp=(tempesp&cpu.stack.notmask)|((tempesp+4)&cpu.stack.mask);
-                    n_ss=(int)Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask)) & 0xffff;
+                    n_ss=Memory.mem_readd(Segs_SSphys + (tempesp & cpu.stack.mask)) & 0xffff;
                 } else {
                     n_esp=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
                     tempesp=(tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask);
@@ -1384,7 +1382,7 @@ public class CPU extends Module_base {
 
                 // commit point
 
-                Segs_CSphys=n_cs_desc_2.GetBase();
+                Segs_CSphys=(int)n_cs_desc_2.GetBase();
                 cpu.code.big=n_cs_desc_2.Big()>0;
                 Segs_CSval=n_cs_sel;
 
@@ -1394,19 +1392,19 @@ public class CPU extends Module_base {
                 Flags.DestroyConditionFlags();
 
                 CPU_SetCPL(n_cs_rpl);
-                CPU_Regs.reg_eip(n_eip);
+                CPU_Regs.reg_eip=n_eip;
 
                 Segs_SSval=n_ss;
-                Segs_SSphys=n_ss_desc_2.GetBase();
+                Segs_SSphys=(int)n_ss_desc_2.GetBase();
                 if (n_ss_desc_2.Big()!=0) {
                     cpu.stack.big=true;
-                    cpu.stack.mask=0xffffffffl;
+                    cpu.stack.mask=0xffffffff;
                     cpu.stack.notmask=0;
                     CPU_Regs.reg_esp.dword(n_esp);
                 } else {
                     cpu.stack.big=false;
                     cpu.stack.mask=0xffff;
-                    cpu.stack.notmask=0xffff0000l;
+                    cpu.stack.notmask=0xffff0000;
                     CPU_Regs.reg_esp.word((int)(n_esp & 0xffffl));
                 }
 
@@ -1420,16 +1418,15 @@ public class CPU extends Module_base {
 
     static private final Descriptor desc_3 = new Descriptor();
 
-    public static void CPU_JMP(boolean use32, /*Bitu*/int selector, /*Bitu*/int offset, /*Bitu*/long oldeip) {
+    public static void CPU_JMP(boolean use32, /*Bitu*/int selector, /*Bitu*/int offset, /*Bitu*/int oldeip) {
         if (!cpu.pmode || (CPU_Regs.flags & CPU_Regs.VM)!=0) {
             if (!use32) {
-                CPU_Regs.reg_eip(offset&0xffff);
+                CPU_Regs.reg_eip=offset&0xffff;
             } else {
-                CPU_Regs.reg_eip(offset);
+                CPU_Regs.reg_eip=offset;
             }
             CPU_Regs.SegSet16CS(selector);
             cpu.code.big=false;
-            return;
         } else {
             if (Config.C_DEBUG) CPU_CHECK_COND((selector & 0xfffc)==0, "JMP:CS selector zero", EXCEPTION_GP,0);
              /*Bitu*/int rpl=selector & 3;
@@ -1450,10 +1447,10 @@ public class CPU extends Module_base {
                 }
 
                 /* Normal jump to another selector:offset */
-                Segs_CSphys=desc_3.GetBase();
+                Segs_CSphys=(int)desc_3.GetBase();
                 cpu.code.big=desc_3.Big()>0;
                 Segs_CSval=(selector & 0xfffc) | cpu.cpl;
-                CPU_Regs.reg_eip(offset);
+                CPU_Regs.reg_eip=offset;
                 return;
             case DESC_CODE_N_C_A:		case DESC_CODE_N_C_NA:
             case DESC_CODE_R_C_A:		case DESC_CODE_R_C_NA:
@@ -1467,10 +1464,10 @@ public class CPU extends Module_base {
                 }
 
                 /* Normal jump to another selector:offset */
-                Segs_CSphys=desc_3.GetBase();
+                Segs_CSphys=(int)desc_3.GetBase();
                 cpu.code.big=desc_3.Big()>0;
                 Segs_CSval=(selector & 0xfffc) | cpu.cpl;
-                CPU_Regs.reg_eip(offset);
+                CPU_Regs.reg_eip=offset;
                 return;
             case DESC_386_TSS_A:
                 if (Config.C_DEBUG) CPU_CHECK_COND(desc_3.DPL()<cpu.cpl, "JMP:TSS:dpl<cpl", EXCEPTION_GP,selector & 0xfffc);
@@ -1488,22 +1485,21 @@ public class CPU extends Module_base {
     static final private Descriptor n_cs_desc_4 = new Descriptor();
     static final private Descriptor n_ss_desc_4 = new Descriptor();
     static final private /*Bitu*/IntRef n_ss_sel_4 = new IntRef(0);
-    static final private LongRef n_esp_4 = new LongRef(0);
+    static final private IntRef n_esp_4 = new IntRef(0);
 
-    public static void CPU_CALL(boolean use32, /*Bitu*/int selector, /*Bitu*/long offset, /*Bitu*/long oldeip) {
+    public static void CPU_CALL(boolean use32, /*Bitu*/int selector, /*Bitu*/int offset, /*Bitu*/int oldeip) {
         if (!cpu.pmode || (CPU_Regs.flags & CPU_Regs.VM)!=0) {
             if (!use32) {
-                CPU_Push16((int)Segs_CSval);
-                CPU_Push16((int)(oldeip & 0xFFFFl));
-                CPU_Regs.reg_eip(offset&0xffffl);
+                CPU_Push16(Segs_CSval);
+                CPU_Push16(oldeip & 0xFFFF);
+                CPU_Regs.reg_eip=offset & 0xffff;
             } else {
                 CPU_Push32(Segs_CSval);
                 CPU_Push32(oldeip);
-                CPU_Regs.reg_eip(offset);
+                CPU_Regs.reg_eip=offset;
             }
             cpu.code.big=false;
             CPU_Regs.SegSet16CS(selector);
-            return;
         } else {
             if (Config.C_DEBUG) CPU_CHECK_COND((selector & 0xfffc)==0, "CALL:CS selector zero", EXCEPTION_GP,0);
              /*Bitu*/int rpl=selector & 3;
@@ -1525,15 +1521,15 @@ public class CPU extends Module_base {
                 }
                 // commit point
                 if (!use32) {
-                    CPU_Push16((int)Segs_CSval);
-                    CPU_Push16((int)(oldeip & 0xFFFFl));
-                    CPU_Regs.reg_eip(offset & 0xffff);
+                    CPU_Push16(Segs_CSval);
+                    CPU_Push16(oldeip);
+                    CPU_Regs.reg_eip=offset & 0xffff;
                 } else {
                     CPU_Push32(Segs_CSval);
                     CPU_Push32(oldeip);
-                    CPU_Regs.reg_eip(offset);
+                    CPU_Regs.reg_eip=offset;
                 }
-                Segs_CSphys=call_4.GetBase();
+                Segs_CSphys=(int)call_4.GetBase();
                 cpu.code.big=call_4.Big()>0;
                 Segs_CSval=(selector & 0xfffc) | cpu.cpl;
                 return;
@@ -1549,15 +1545,15 @@ public class CPU extends Module_base {
                 }
                 // commit point
                 if (!use32) {
-                    CPU_Push16((int)Segs_CSval);
-                    CPU_Push16((int)(oldeip & 0xFFFFl));
-                    CPU_Regs.reg_eip(offset & 0xffff);
+                    CPU_Push16(Segs_CSval);
+                    CPU_Push16(oldeip);
+                    CPU_Regs.reg_eip=offset & 0xffff;
                 } else {
                     CPU_Push32(Segs_CSval);
                     CPU_Push32(oldeip);
-                    CPU_Regs.reg_eip(offset);
+                    CPU_Regs.reg_eip=offset;
                 }
-                Segs_CSphys=call_4.GetBase();
+                Segs_CSphys=(int)call_4.GetBase();
                 cpu.code.big=call_4.Big()>0;
                 Segs_CSval=(selector & 0xfffc) | cpu.cpl;
                 return;
@@ -1577,7 +1573,7 @@ public class CPU extends Module_base {
                     if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_dpl>cpu.cpl, "CALL:Gate:CS DPL>CPL", EXCEPTION_GP,n_cs_sel & 0xfffc);
                     if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_desc_4.saved.seg.p()==0, "CALL:Gate:CS not present", EXCEPTION_NP,n_cs_sel & 0xfffc);
 
-                     /*Bitu*/long n_eip		= call_4.GetOffset();
+                     /*Bitu*/int n_eip = (int)call_4.GetOffset();
                     switch (n_cs_desc_4.Type()) {
                     case DESC_CODE_N_NC_A:case DESC_CODE_N_NC_NA:
                     case DESC_CODE_R_NC_A:case DESC_CODE_R_NC_NA:
@@ -1601,16 +1597,16 @@ public class CPU extends Module_base {
                             if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_4.saved.seg.p()==0, "CALL:Gate:Stack segment not present", EXCEPTION_SS,n_ss_sel_4.value & 0xfffc);
 
                             /* Load the new SS:ESP and save data on it */
-                             /*Bitu*/long o_esp		= CPU_Regs.reg_esp.dword();
-                             /*Bitu*/long o_ss		= Segs_SSval;
-                             /*PhysPt*/long o_stack  = Segs_SSphys+(CPU_Regs.reg_esp.dword() & cpu.stack.mask);
+                             /*Bitu*/int o_esp		= CPU_Regs.reg_esp.dword;
+                             /*Bitu*/int o_ss		= Segs_SSval;
+                             /*PhysPt*/int o_stack  = Segs_SSphys+(CPU_Regs.reg_esp.dword & cpu.stack.mask);
 
 
                             // catch pagefaults
                             if ((call_4.saved.gate.paramcount() & 31)!=0) {
                                 if (call_4.Type()==DESC_386_CALL_GATE) {
                                     for (/*Bits*/int i=(call_4.saved.gate.paramcount()&31)-1;i>=0;i--)
-                                        Memory.mem_readd(o_stack+i*4);
+                                        Memory.mem_readd(o_stack + i * 4);
                                 } else {
                                     for (/*Bits*/int i=(call_4.saved.gate.paramcount()&31)-1;i>=0;i--)
                                         Memory.mem_readw(o_stack+i*2);
@@ -1619,39 +1615,39 @@ public class CPU extends Module_base {
 
                             // commit point
                             Segs_SSval=n_ss_sel_4.value;
-                            Segs_SSphys=n_ss_desc_4.GetBase();
+                            Segs_SSphys=(int)n_ss_desc_4.GetBase();
                             if (n_ss_desc_4.Big()!=0) {
                                 cpu.stack.big=true;
-                                cpu.stack.mask=0xffffffffl;
+                                cpu.stack.mask=0xffffffff;
                                 cpu.stack.notmask=0;
                                 CPU_Regs.reg_esp.dword(n_esp_4.value);
                             } else {
                                 cpu.stack.big=false;
                                 cpu.stack.mask=0xffff;
-                                cpu.stack.notmask=0xffff0000l;
+                                cpu.stack.notmask=0xffff0000;
                                 CPU_Regs.reg_esp.word((int)(n_esp_4.value & 0xffffl));
                             }
 
                             CPU_SetCPL(n_cs_desc_4.DPL());
-                            /*Bit16u*/long oldcs    = Segs_CSval;
+                            /*Bit16u*/int oldcs    = Segs_CSval;
                             /* Switch to new CS:EIP */
-                            Segs_CSphys	= n_cs_desc_4.GetBase();
+                            Segs_CSphys	= (int)n_cs_desc_4.GetBase();
                             Segs_CSval	= (n_cs_sel & 0xfffc) | cpu.cpl;
                             cpu.code.big	= n_cs_desc_4.Big()>0;
-                            CPU_Regs.reg_eip(n_eip);
-                            if (!use32)	CPU_Regs.reg_eip(CPU_Regs.reg_eip() & 0xffff);
+                            CPU_Regs.reg_eip=n_eip;
+                            if (!use32)	CPU_Regs.reg_eip=CPU_Regs.reg_eip & 0xffff;
 
                             if (call_4.Type()==DESC_386_CALL_GATE) {
                                 CPU_Push32(o_ss);		//save old stack
                                 CPU_Push32(o_esp);
                                 if ((call_4.saved.gate.paramcount() & 31)!= 0)
                                     for (/*Bits*/int i=(call_4.saved.gate.paramcount() & 31)-1;i>=0;i--)
-                                        CPU_Push32(Memory.mem_readd(o_stack+i*4));
+                                        CPU_Push32(Memory.mem_readd(o_stack + i * 4));
                                 CPU_Push32(oldcs);
                                 CPU_Push32(oldeip);
                             } else {
                                 CPU_Push16((int)o_ss);		//save old stack
-                                CPU_Push16((int)(o_esp & 0xFFFFl));
+                                CPU_Push16(o_esp & 0xFFFF);
                                 if ((call_4.saved.gate.paramcount() & 31)!=0)
                                     for (/*Bits*/int i=(call_4.saved.gate.paramcount() & 31)-1;i>=0;i--)
                                         CPU_Push16(Memory.mem_readw(o_stack+i*2));
@@ -1675,11 +1671,11 @@ public class CPU extends Module_base {
                         }
 
                         /* Switch to new CS:EIP */
-                        Segs_CSphys	= n_cs_desc_4.GetBase();
+                        Segs_CSphys	= (int)n_cs_desc_4.GetBase();
                         Segs_CSval	= (n_cs_sel & 0xfffc) | cpu.cpl;
-                        cpu.code.big	= n_cs_desc_4.Big()>0;
-                        CPU_Regs.reg_eip(n_eip);
-                        if (!use32)	CPU_Regs.reg_eip(CPU_Regs.reg_eip() & 0xffff);
+                        cpu.code.big = n_cs_desc_4.Big()>0;
+                        CPU_Regs.reg_eip=n_eip;
+                        if (!use32)	CPU_Regs.reg_eip=CPU_Regs.reg_eip & 0xffff;
                         break;
                     default:
                         Log.exit("CALL:GATE:CS no executable segment");
@@ -1706,25 +1702,25 @@ public class CPU extends Module_base {
 
     static final private Descriptor desc_5 = new Descriptor();
     static final private Descriptor n_ss_desc_5 = new Descriptor();
-    static public void CPU_RET(boolean use32, /*Bitu*/int bytes, /*Bitu*/long oldeip) {
+    static public void CPU_RET(boolean use32, /*Bitu*/int bytes, /*Bitu*/int oldeip) {
         if (!cpu.pmode || (CPU_Regs.flags & CPU_Regs.VM) != 0) {
-             /*Bitu*/long new_ip;
+             /*Bitu*/int new_ip;
             int new_cs;
             if (!use32) {
                 new_ip=CPU_Pop16();
                 new_cs=CPU_Pop16();
             } else {
                 new_ip=CPU_Pop32();
-                new_cs=(int)(CPU_Pop32() & 0xffff);
+                new_cs=CPU_Pop32() & 0xffff;
             }
-            CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword()+bytes);
+            CPU_Regs.reg_esp.dword+=bytes;
             CPU_Regs.SegSet16CS(new_cs);
-            CPU_Regs.reg_eip(new_ip);
+            CPU_Regs.reg_eip=new_ip;
             cpu.code.big=false;
         } else {
              /*Bitu*/int offset,selector;
-            if (!use32) selector = Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask) + 2) & 0xFFFFFFFFl);
-            else selector = (int)(Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask) + 4) & 0xffffl);
+            if (!use32) selector = Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask) + 2);
+            else selector = (Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask) + 4) & 0xffff);
 
              /*Bitu*/int rpl=selector & 3;
             if(rpl < cpu.cpl) {
@@ -1755,16 +1751,16 @@ public class CPU extends Module_base {
                         offset=CPU_Pop16();
                         selector=CPU_Pop16();
                     } else {
-                        offset=(int)CPU_Pop32();
-                        selector=(int)CPU_Pop32() & 0xffff;
+                        offset=CPU_Pop32();
+                        selector=CPU_Pop32() & 0xffff;
                     }
 
-                    Segs_CSphys=desc_5.GetBase();
+                    Segs_CSphys=(int)desc_5.GetBase();
                     cpu.code.big=desc_5.Big()>0;
                     Segs_CSval=selector;
-                    CPU_Regs.reg_eip(offset);
+                    CPU_Regs.reg_eip=offset;
                     if (cpu.stack.big) {
-                        CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword()+bytes);
+                        CPU_Regs.reg_esp.dword+=bytes;
                     } else {
                         CPU_Regs.reg_esp.word(CPU_Regs.reg_esp.word()+bytes);
                     }
@@ -1789,16 +1785,16 @@ public class CPU extends Module_base {
                     offset=CPU_Pop16();
                     selector=CPU_Pop16();
                 } else {
-                    offset=(int)CPU_Pop32();
-                    selector=(int)CPU_Pop32() & 0xffff;
+                    offset=CPU_Pop32();
+                    selector=CPU_Pop32() & 0xffff;
                 }
 
-                Segs_CSphys=desc_5.GetBase();
+                Segs_CSphys=(int)desc_5.GetBase();
                 cpu.code.big=desc_5.Big()>0;
                 Segs_CSval=selector;
-                CPU_Regs.reg_eip(offset);
+                CPU_Regs.reg_eip=offset;
                 if (cpu.stack.big) {
-                    CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword()+bytes);
+                    CPU_Regs.reg_esp.dword+=bytes;
                 } else {
                     CPU_Regs.reg_esp.word(CPU_Regs.reg_esp.word()+bytes);
                 }
@@ -1824,15 +1820,15 @@ public class CPU extends Module_base {
                  /*Bitu*/int n_ss;
                 long n_esp;
                 if (use32) {
-                    offset=(int)CPU_Pop32();
-                    selector=(int)CPU_Pop32() & 0xffff;
-                    CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword()+bytes);
+                    offset=CPU_Pop32();
+                    selector=CPU_Pop32() & 0xffff;
+                    CPU_Regs.reg_esp.dword+=bytes;
                     n_esp = CPU_Pop32();
-                    n_ss = (int)CPU_Pop32() & 0xffff;
+                    n_ss = CPU_Pop32() & 0xffff;
                 } else {
                     offset=CPU_Pop16();
                     selector=CPU_Pop16();
-                    CPU_Regs.reg_esp.dword(CPU_Regs.reg_esp.dword()+bytes);
+                    CPU_Regs.reg_esp.dword+=bytes;
                     n_esp = CPU_Pop16();
                     n_ss = CPU_Pop16();
                 }
@@ -1853,22 +1849,22 @@ public class CPU extends Module_base {
                 if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_5.saved.seg.p()==0, "RET:Stack segment not present", EXCEPTION_SS,n_ss & 0xfffc);
 
                 CPU_SetCPL(rpl);
-                Segs_CSphys=desc_5.GetBase();
+                Segs_CSphys=(int)desc_5.GetBase();
                 cpu.code.big=desc_5.Big()>0;
                 Segs_CSval=(selector&0xfffc) | cpu.cpl;
-                CPU_Regs.reg_eip(offset);
+                CPU_Regs.reg_eip=offset;
 
                 Segs_SSval=n_ss;
-                Segs_SSphys=n_ss_desc_5.GetBase();
+                Segs_SSphys=(int)n_ss_desc_5.GetBase();
                 if (n_ss_desc_5.Big()!=0) {
                     cpu.stack.big=true;
-                    cpu.stack.mask=0xffffffffl;
+                    cpu.stack.mask=0xffffffff;
                     cpu.stack.notmask=0;
                     CPU_Regs.reg_esp.dword(n_esp+bytes);
                 } else {
                     cpu.stack.big=false;
                     cpu.stack.mask=0xffff;
-                    cpu.stack.notmask=0xffff0000l;
+                    cpu.stack.notmask=0xffff0000;
                     CPU_Regs.reg_esp.word((int)((n_esp & 0xffffl)+bytes));
                 }
 
@@ -1939,26 +1935,26 @@ public class CPU extends Module_base {
         return false;
     }
 
-    static public void CPU_LGDT( /*Bitu*/int limit, /*Bitu*/long base) {
+    static public void CPU_LGDT( /*Bitu*/int limit, /*Bitu*/int base) {
         if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"GDT Set to base:"+Long.toString(base, 16)+" limit:"+Integer.toString(limit,16));
         cpu.gdt.SetLimit(limit);
         cpu.gdt.SetBase(base);
     }
 
-    static public void CPU_LIDT( /*Bitu*/int limit, /*Bitu*/long base) {
+    static public void CPU_LIDT( /*Bitu*/int limit, /*Bitu*/int base) {
         if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"IDT Set to base:"+Long.toString(base, 16)+" limit:"+Integer.toString(limit,16));
         cpu.idt.SetLimit(limit);
         cpu.idt.SetBase(base);
     }
 
-    static public /*Bitu*/long CPU_SGDT_base() {
+    static public /*Bitu*/int CPU_SGDT_base() {
         return cpu.gdt.GetBase();
     }
     static public /*Bitu*/int CPU_SGDT_limit() {
         return cpu.gdt.GetLimit();
     }
 
-    static public /*Bitu*/long CPU_SIDT_base() {
+    static public /*Bitu*/int CPU_SIDT_base() {
         return cpu.idt.GetBase();
     }
     static public /*Bitu*/int CPU_SIDT_limit() {
@@ -1966,7 +1962,7 @@ public class CPU extends Module_base {
     }
 
     static boolean printed_cycles_auto_info = false;
-    static public void CPU_SET_CRX( /*Bitu*/int cr, /*Bitu*/long value) {
+    static public void CPU_SET_CRX( /*Bitu*/int cr, /*Bitu*/int value) {
         switch (cr) {
         case 0:
             {
@@ -2020,12 +2016,12 @@ public class CPU extends Module_base {
             Paging.PAGING_SetDirBase(value);
             break;
         default:
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV CR"+cr+","+Long.toString(value, 16));
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV CR"+cr+","+Integer.toString(value, 16));
             break;
         }
     }
 
-    public static boolean CPU_WRITE_CRX( /*Bitu*/int cr, /*Bitu*/long value) {
+    public static boolean CPU_WRITE_CRX( /*Bitu*/int cr, /*Bitu*/int value) {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         if ((cr==1) || (cr>4)) return CPU_PrepareException(EXCEPTION_UD,0);
@@ -2036,16 +2032,16 @@ public class CPU extends Module_base {
         return false;
     }
 
-     public static /*Bitu*/long CPU_GET_CRX( /*Bitu*/int cr) {
+     public static /*Bitu*/int CPU_GET_CRX( /*Bitu*/int cr) {
         switch (cr) {
         case 0:
             if (CPU_ArchitectureType>=CPU_ARCHTYPE_PENTIUM) return cpu.cr0;
-            else if (CPU_ArchitectureType>=CPU_ARCHTYPE_486OLD) return (cpu.cr0 & 0xe005003fl);
-            else return (cpu.cr0 | 0x7ffffff0l);
+            else if (CPU_ArchitectureType>=CPU_ARCHTYPE_486OLD) return (cpu.cr0 & 0xe005003f);
+            else return (cpu.cr0 | 0x7ffffff0);
         case 2:
             return Paging.paging.cr2;
         case 3:
-            return Paging.PAGING_GetDirBase() & 0xfffff000l;
+            return Paging.PAGING_GetDirBase() & 0xfffff000;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, CR"+cr);
             break;
@@ -2062,7 +2058,7 @@ public class CPU extends Module_base {
     }
 
 
-    public static boolean CPU_WRITE_DRX( /*Bitu*/int dr, /*Bitu*/long value) {
+    public static boolean CPU_WRITE_DRX( /*Bitu*/int dr, /*Bitu*/int value) {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         switch (dr) {
@@ -2074,18 +2070,18 @@ public class CPU extends Module_base {
             break;
         case 4:
         case 6:
-            cpu.drx[6]=(value|0xffff0ff0l) & 0xffffefffl;
+            cpu.drx[6]=(value|0xffff0ff0) & 0xffffefff;
             break;
         case 5:
         case 7:
             if (CPU_ArchitectureType<CPU_ARCHTYPE_PENTIUM) {
-                cpu.drx[7]=(value|0x400) & 0xffff2fffl;
+                cpu.drx[7]=(value|0x400) & 0xffff2fff;
             } else {
                 cpu.drx[7]=(value|0x400);
             }
             break;
         default:
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV DR"+dr+","+Long.toString(value,16));
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV DR"+dr+","+Integer.toString(value,16));
             break;
         }
         return false;
@@ -2101,13 +2097,13 @@ public class CPU extends Module_base {
         case 3:
         case 6:
         case 7:
-            retvalue.dword(cpu.drx[dr]);
+            retvalue.dword=cpu.drx[dr];
             break;
         case 4:
-            retvalue.dword(cpu.drx[6]);
+            retvalue.dword=cpu.drx[6];
             break;
         case 5:
-            retvalue.dword(cpu.drx[7]);
+            retvalue.dword=cpu.drx[7];
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, DR"+dr);
@@ -2117,7 +2113,7 @@ public class CPU extends Module_base {
         return false;
     }
 
-    public static boolean CPU_WRITE_TRX( /*Bitu*/int tr, /*Bitu*/long value) {
+    public static boolean CPU_WRITE_TRX( /*Bitu*/int tr, /*Bitu*/int value) {
         /* Check if privileged to access control registers */
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         switch (tr) {
@@ -2228,7 +2224,7 @@ public class CPU extends Module_base {
     }
 
     private static final Descriptor desc_7 = new Descriptor();
-    public static void CPU_LSL( /*Bitu*/int selector, /*Bitu*/LongRef limit) {
+    public static void CPU_LSL( /*Bitu*/int selector, /*Bitu*/IntRef limit) {
         Flags.FillFlags();
         if (selector == 0) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
@@ -2267,7 +2263,7 @@ public class CPU extends Module_base {
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
             return;
         }
-        limit.value=desc_7.GetLimit();
+        limit.value=(int)desc_7.GetLimit();
         CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);
     }
 
@@ -2373,7 +2369,7 @@ public class CPU extends Module_base {
             }
 
             Segs_ESval=value;
-            Segs_ESphys=desc_11.GetBase();
+            Segs_ESphys=(int)desc_11.GetBase();
             return false;
         }
     }
@@ -2419,7 +2415,7 @@ public class CPU extends Module_base {
             }
 
             Segs_CSval=value;
-            Segs_CSphys=desc_12.GetBase();
+            Segs_CSphys=(int)desc_12.GetBase();
             return false;
         }
     }
@@ -2465,7 +2461,7 @@ public class CPU extends Module_base {
             }
 
             Segs_DSval=value;
-            Segs_DSphys=desc_13.GetBase();
+            Segs_DSphys=(int)desc_13.GetBase();
             return false;
         }
     }
@@ -2511,7 +2507,7 @@ public class CPU extends Module_base {
             }
 
             Segs_FSval=value;
-            Segs_FSphys=desc_14.GetBase();
+            Segs_FSphys=(int)desc_14.GetBase();
             return false;
         }
     }
@@ -2558,7 +2554,7 @@ public class CPU extends Module_base {
             }
 
             Segs_GSval=value;
-            Segs_GSphys=desc_15.GetBase();
+            Segs_GSphys=(int)desc_15.GetBase();
             return false;
         }
     }
@@ -2571,7 +2567,7 @@ public class CPU extends Module_base {
             Segs_SSphys=value << 4;
             cpu.stack.big=false;
             cpu.stack.mask=0xffff;
-            cpu.stack.notmask=0xffff0000l;
+            cpu.stack.notmask=0xffff0000;
             return false;
         } else {
             // Stack needs to be non-zero
@@ -2603,15 +2599,15 @@ public class CPU extends Module_base {
             }
 
             Segs_SSval=value;
-            Segs_SSphys=desc_16.GetBase();
+            Segs_SSphys=(int)desc_16.GetBase();
             if (desc_16.Big()!=0) {
                 cpu.stack.big=true;
-                cpu.stack.mask=0xffffffffl;
+                cpu.stack.mask=0xffffffff;
                 cpu.stack.notmask=0;
             } else {
                 cpu.stack.big=false;
                 cpu.stack.mask=0xffff;
-                cpu.stack.notmask=0xffff0000l;
+                cpu.stack.notmask=0xffff0000;
             }
             return false;
         }
@@ -2632,56 +2628,56 @@ public class CPU extends Module_base {
     }
 
     public static boolean CPU_PopSegES(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
+         /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
         if (CPU_SetSegGeneralES(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+addsp) & cpu.stack.mask);
         return false;
     }
 
     public static boolean CPU_PopSegCS(boolean use32) {
-        /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
+        /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
         if (CPU_SetSegGeneralCS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+addsp) & cpu.stack.mask);
         return false;
     }
 
     public static boolean CPU_PopSegSS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
+         /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
         if (CPU_SetSegGeneralSS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+addsp) & cpu.stack.mask);
         return false;
     }
 
     public static boolean CPU_PopSegDS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
+         /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
         if (CPU_SetSegGeneralDS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+addsp) & cpu.stack.mask);
         return false;
     }
 
     public static boolean CPU_PopSegFS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
+         /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
         if (CPU_SetSegGeneralFS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+addsp) & cpu.stack.mask);
         return false;
     }
 
     public static boolean CPU_PopSegGS(boolean use32) {
-         /*Bitu*/int val=Memory.mem_readw((Segs_SSphys + (CPU_Regs.reg_esp.dword() & cpu.stack.mask)) & 0xFFFFFFFFl);
+         /*Bitu*/int val=Memory.mem_readw(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
         if (CPU_SetSegGeneralGS(val)) return true;
          /*Bitu*/int addsp=use32?0x04:0x02;
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((CPU_Regs.reg_esp.dword()+addsp)&cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+addsp) & cpu.stack.mask);
         return false;
     }
 
     public static boolean CPU_CPUID() {
         if (CPU_ArchitectureType<CPU_ARCHTYPE_486NEW) return false;
-        switch ((int)CPU_Regs.reg_eax.dword()) {
+        switch (CPU_Regs.reg_eax.dword) {
         case 0:	/* Vendor ID String and maximum level? */
             CPU_Regs.reg_eax.dword(1);  /* Maximum level */
             CPU_Regs.reg_ebx.dword('G' | ('e' << 8) | ('n' << 16) | ('u'<< 24));
@@ -2705,7 +2701,7 @@ public class CPU extends Module_base {
             }
             break;
         default:
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled CPUID Function "+Long.toString(CPU_Regs.reg_eax.dword(),16));
+            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled CPUID Function "+Integer.toString(CPU_Regs.reg_eax.dword,16));
             CPU_Regs.reg_eax.dword(0);
             CPU_Regs.reg_ebx.dword(0);
             CPU_Regs.reg_ecx.dword(0);
@@ -2718,7 +2714,7 @@ public class CPU extends Module_base {
     final static private CPU_Decoder HLT_Decode = new CPU_Decoder() {
         public /*Bits*/int call() {
             /* Once an interrupt occurs, it should change cpu core */
-            if (CPU_Regs.reg_eip()!=cpu.hlt.eip || Segs_CSval != cpu.hlt.cs) {
+            if (CPU_Regs.reg_eip!=cpu.hlt.eip || Segs_CSval != cpu.hlt.cs) {
                 cpudecoder=cpu.hlt.old_decoder;
             } else {
                 CPU_Cycles=0;
@@ -2728,23 +2724,23 @@ public class CPU extends Module_base {
     };
 
 
-    static public void CPU_HLT( /*Bitu*/long oldeip) {
-        CPU_Regs.reg_eip(oldeip);
+    static public void CPU_HLT( /*Bitu*/int oldeip) {
+        CPU_Regs.reg_eip=oldeip;
         CPU_Cycles=0;
         cpu.hlt.cs=Segs_CSval;
-        cpu.hlt.eip=CPU_Regs.reg_eip();
+        cpu.hlt.eip=CPU_Regs.reg_eip;
         cpu.hlt.old_decoder=cpudecoder;
         cpudecoder=HLT_Decode;
     }
 
     static public void CPU_ENTER(boolean use32, /*Bitu*/int bytes, /*Bitu*/int level) {
         level&=0x1f;
-         /*Bitu*/long sp_index=CPU_Regs.reg_esp.dword() & cpu.stack.mask;
-         /*Bitu*/long bp_index=CPU_Regs.reg_ebp.dword() & cpu.stack.mask;
+         /*Bitu*/int sp_index=CPU_Regs.reg_esp.dword & cpu.stack.mask;
+         /*Bitu*/int bp_index=CPU_Regs.reg_ebp.dword & cpu.stack.mask;
         if (!use32) {
             sp_index-=2;
             Memory.mem_writew(Segs_SSphys+sp_index,CPU_Regs.reg_ebp.word());
-            CPU_Regs.reg_ebp.word((/*Bit16u*/int)(CPU_Regs.reg_esp.dword()-2));
+            CPU_Regs.reg_ebp.word(CPU_Regs.reg_esp.dword-2);
             if (level!=0) {
                 for ( /*Bitu*/int i=1;i<level;i++) {
                     sp_index-=2;bp_index-=2;
@@ -2755,19 +2751,19 @@ public class CPU extends Module_base {
             }
         } else {
             sp_index-=4;
-            Memory.mem_writed(Segs_SSphys+sp_index,CPU_Regs.reg_ebp.dword());
-            CPU_Regs.reg_ebp.dword(CPU_Regs.reg_esp.dword()-4);
+            Memory.mem_writed(Segs_SSphys+sp_index,CPU_Regs.reg_ebp.dword);
+            CPU_Regs.reg_ebp.dword=CPU_Regs.reg_esp.dword-4;
             if (level!=0) {
                 for ( /*Bitu*/int i=1;i<level;i++) {
                     sp_index-=4;bp_index-=4;
-                    Memory.mem_writed(Segs_SSphys+sp_index,Memory.mem_readd(Segs_SSphys+bp_index));
+                    Memory.mem_writed(Segs_SSphys+sp_index,Memory.mem_readd(Segs_SSphys + bp_index));
                 }
                 sp_index-=4;
-                Memory.mem_writed(Segs_SSphys+sp_index,CPU_Regs.reg_ebp.dword());
+                Memory.mem_writed(Segs_SSphys+sp_index,CPU_Regs.reg_ebp.dword);
             }
         }
         sp_index-=bytes;
-        CPU_Regs.reg_esp.dword((CPU_Regs.reg_esp.dword()&cpu.stack.notmask)|((sp_index)&cpu.stack.mask));
+        CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|(sp_index & cpu.stack.mask);
     }
 
     final static private Mapper.MAPPER_Handler CPU_CycleIncrease = new Mapper.MAPPER_Handler() {
@@ -2867,11 +2863,11 @@ public class CPU extends Module_base {
         CPU_Regs.SegSet16SS(0);
 
         CPU_SetFlags(CPU_Regs.IF,CPU_Regs.FMASK_ALL);		//Enable interrupts
-        cpu.cr0=0xffffffffl;
+        cpu.cr0=0xffffffff;
         CPU_SET_CRX(0,0);						//Initialize
         cpu.code.big=false;
         cpu.stack.mask=0xffff;
-        cpu.stack.notmask=0xffff0000l;
+        cpu.stack.notmask=0xffff0000;
         cpu.stack.big=false;
         cpu.trap_skip=false;
         cpu.idt.SetBase(0);
@@ -2882,9 +2878,9 @@ public class CPU extends Module_base {
             cpu.trx[i]=0;
         }
         if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUM) {
-            cpu.drx[6]=0xffff0ff0l;
+            cpu.drx[6]=0xffff0ff0;
         } else {
-            cpu.drx[6]=0xffff1ff0l;
+            cpu.drx[6]=0xffff1ff0;
         }
         cpu.drx[7]=0x00000400;
 

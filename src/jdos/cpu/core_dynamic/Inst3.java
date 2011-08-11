@@ -18,7 +18,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            e.dword(Instructions.ADDD(g.dword(), e.dword()));
+            e.dword=Instructions.ADDD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -33,15 +33,15 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
+            int eaa = e.call();
             if ((eaa & 0xFFF) < 0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index >= 0) {
-                    Memory.host_writed(index, Instructions.ADDD(g.dword(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.ADDD(g.dword, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Memory.mem_writed(eaa, Instructions.ADDD(g.dword(), Memory.mem_readd(eaa)));
+            Memory.mem_writed(eaa, Instructions.ADDD(g.dword, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -56,21 +56,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            e.dword(Instructions.ADDD(Memory.mem_readd(eaa), e.dword()));
+            int eaa = g.call();
+            e.dword=Instructions.ADDD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class AddEaxId extends Op {
-        long i;
+        int i;
 
         public AddEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            reg_eax.dword(Instructions.ADDD(i, reg_eax.dword()));
+            reg_eax.dword=Instructions.ADDD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -99,7 +99,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            e.dword(Instructions.ORD(g.dword(), e.dword()));
+            e.dword=Instructions.ORD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -114,15 +114,15 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
+            int eaa = e.call();
             if ((eaa & 0xFFF) < 0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index >= 0) {
-                    Memory.host_writed(index, Instructions.ORD(g.dword(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.ORD(g.dword, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Memory.mem_writed(eaa, Instructions.ORD(g.dword(), Memory.mem_readd(eaa)));
+            Memory.mem_writed(eaa, Instructions.ORD(g.dword, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -137,21 +137,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            e.dword(Instructions.ORD(Memory.mem_readd(eaa), e.dword()));
+            int eaa = g.call();
+            e.dword=Instructions.ORD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class OrEaxId extends Op {
-        long i;
+        int i;
 
         public OrEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            reg_eax.dword(Instructions.ORD(i, reg_eax.dword()));
+            reg_eax.dword=Instructions.ORD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -173,7 +173,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            e.dword(Instructions.ADCD(g.dword(), e.dword()));
+            e.dword=Instructions.ADCD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -188,15 +188,15 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
+            int eaa = e.call();
             if ((eaa & 0xFFF) < 0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index >= 0) {
-                    Memory.host_writed(index, Instructions.ADCD(g.dword(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.ADCD(g.dword, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Memory.mem_writed(eaa, Instructions.ADCD(g.dword(), Memory.mem_readd(eaa)));
+            Memory.mem_writed(eaa, Instructions.ADCD(g.dword, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -211,21 +211,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            e.dword(Instructions.ADCD(Memory.mem_readd(eaa), e.dword()));
+            int eaa = g.call();
+            e.dword=Instructions.ADCD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class AdcEaxId extends Op {
-        long i;
+        int i;
 
         public AdcEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            reg_eax.dword(Instructions.ADCD(i, reg_eax.dword()));
+            reg_eax.dword=Instructions.ADCD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -255,7 +255,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            e.dword(Instructions.SBBD(g.dword(), e.dword()));
+            e.dword=Instructions.SBBD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -270,15 +270,15 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
+            int eaa = e.call();
             if ((eaa & 0xFFF) < 0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index >= 0) {
-                    Memory.host_writed(index, Instructions.SBBD(g.dword(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.SBBD(g.dword, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Memory.mem_writed(eaa, Instructions.SBBD(g.dword(), Memory.mem_readd(eaa)));
+            Memory.mem_writed(eaa, Instructions.SBBD(g.dword, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -293,21 +293,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            e.dword(Instructions.SBBD(Memory.mem_readd(eaa), e.dword()));
+            int eaa = g.call();
+            e.dword(Instructions.SBBD(Memory.mem_readd(eaa), e.dword));
             return Constants.BR_Normal;
         }
     }
 
     final static public class SbbEaxId extends Op {
-        long i;
+        int i;
 
         public SbbEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            reg_eax.dword(Instructions.SBBD(i, reg_eax.dword()));
+            reg_eax.dword=Instructions.SBBD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -338,7 +338,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            e.dword(Instructions.ANDD(g.dword(), e.dword()));
+            e.dword=Instructions.ANDD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -353,15 +353,15 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
+            int eaa = e.call();
             if ((eaa & 0xFFF) < 0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index >= 0) {
-                    Memory.host_writed(index, Instructions.ANDD(g.dword(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.ANDD(g.dword, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Memory.mem_writed(eaa, Instructions.ANDD(g.dword(), Memory.mem_readd(eaa)));
+            Memory.mem_writed(eaa, Instructions.ANDD(g.dword, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -376,21 +376,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            e.dword(Instructions.ANDD(Memory.mem_readd(eaa), e.dword()));
+            int eaa = g.call();
+            e.dword=Instructions.ANDD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class AndEaxId extends Op {
-        long i;
+        int i;
 
         public AndEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            reg_eax.dword(Instructions.ANDD(i, reg_eax.dword()));
+            reg_eax.dword=Instructions.ANDD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -405,7 +405,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            e.dword(Instructions.SUBD(g.dword(), e.dword()));
+            e.dword=Instructions.SUBD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -420,15 +420,15 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
+            int eaa = e.call();
             if ((eaa & 0xFFF) < 0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index >= 0) {
-                    Memory.host_writed(index, Instructions.SUBD(g.dword(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.SUBD(g.dword, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Memory.mem_writed(eaa, Instructions.SUBD(g.dword(), Memory.mem_readd(eaa)));
+            Memory.mem_writed(eaa, Instructions.SUBD(g.dword, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -443,21 +443,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            e.dword(Instructions.SUBD(Memory.mem_readd(eaa), e.dword()));
+            int eaa = g.call();
+            e.dword=Instructions.SUBD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class SubEaxId extends Op {
-        long i;
+        int i;
 
         public SubEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            reg_eax.dword(Instructions.SUBD(i, reg_eax.dword()));
+            reg_eax.dword=Instructions.SUBD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -472,7 +472,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            e.dword(Instructions.XORD(g.dword(), e.dword()));
+            e.dword=Instructions.XORD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -487,15 +487,15 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
+            int eaa = e.call();
             if ((eaa & 0xFFF) < 0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index >= 0) {
-                    Memory.host_writed(index, Instructions.XORD(g.dword(), Memory.host_readd(index)));
+                    Memory.host_writed(index, Instructions.XORD(g.dword, Memory.host_readd(index)));
                     return Constants.BR_Normal;
                 }
             }
-            Memory.mem_writed(eaa, Instructions.XORD(g.dword(), Memory.mem_readd(eaa)));
+            Memory.mem_writed(eaa, Instructions.XORD(g.dword, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -510,21 +510,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            e.dword(Instructions.XORD(Memory.mem_readd(eaa), e.dword()));
+            int eaa = g.call();
+            e.dword=Instructions.XORD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class XorEaxId extends Op {
-        long i;
+        int i;
 
         public XorEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            reg_eax.dword(Instructions.XORD(i, reg_eax.dword()));
+            reg_eax.dword=Instructions.XORD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -539,7 +539,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            Instructions.CMPD(g.dword(), e.dword());
+            Instructions.CMPD(g.dword, e.dword);
             return Constants.BR_Normal;
         }
     }
@@ -554,8 +554,8 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = e.call();
-            Instructions.CMPD(g.dword(), Memory.mem_readd(eaa));
+            int eaa = e.call();
+            Instructions.CMPD(g.dword, Memory.mem_readd(eaa));
             return Constants.BR_Normal;
         }
     }
@@ -570,21 +570,21 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = g.call();
-            Instructions.CMPD(Memory.mem_readd(eaa), e.dword());
+            int eaa = g.call();
+            Instructions.CMPD(Memory.mem_readd(eaa), e.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class CmpEaxId extends Op {
-        long i;
+        int i;
 
         public CmpEaxId() {
             i = decode_fetchd();
         }
 
         public int call() {
-            Instructions.CMPD(i, reg_eax.dword());
+            Instructions.CMPD(i, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -596,10 +596,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            LoadCF();lflags.var1 = reg.dword();
-            lflags.res = (lflags.var1+1) & 0xFFFFFFFFl;
-            reg.dword(lflags.res);
-            lflags.type=t_INCd;
+            reg.dword = Instructions.INCD(reg.dword);
             return Constants.BR_Normal;
         }
     }
@@ -610,7 +607,7 @@ public class Inst3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -630,10 +627,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            LoadCF();lflags.var1 = reg.dword();
-            lflags.res = (lflags.var1-1) & 0xFFFFFFFFl;
-            reg.dword(lflags.res);
-            lflags.type=t_DECd;
+            reg.dword = Instructions.DECD(reg.dword);
             return Constants.BR_Normal;
         }
     }
@@ -644,7 +638,7 @@ public class Inst3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -664,7 +658,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            CPU.CPU_Push32(reg.dword());
+            CPU.CPU_Push32(reg.dword);
             return Constants.BR_Normal;
         }
     }
@@ -676,29 +670,29 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            reg.dword(CPU.CPU_Pop32());
+            reg.dword=CPU.CPU_Pop32();
             return Constants.BR_Normal;
         }
     }
 
     final static public class Pushad extends Op {
         public int call() {
-            /*Bitu*/long tmpesp = reg_esp.dword();
-            CPU.CPU_Push32(reg_eax.dword());CPU.CPU_Push32(reg_ecx.dword());CPU.CPU_Push32(reg_edx.dword());CPU.CPU_Push32(reg_ebx.dword());
-            CPU.CPU_Push32(tmpesp);CPU.CPU_Push32(reg_ebp.dword());CPU.CPU_Push32(reg_esi.dword());CPU.CPU_Push32(reg_edi.dword());
+            /*Bitu*/int tmpesp = reg_esp.dword;
+            CPU.CPU_Push32(reg_eax.dword);CPU.CPU_Push32(reg_ecx.dword);CPU.CPU_Push32(reg_edx.dword);CPU.CPU_Push32(reg_ebx.dword);
+            CPU.CPU_Push32(tmpesp);CPU.CPU_Push32(reg_ebp.dword);CPU.CPU_Push32(reg_esi.dword);CPU.CPU_Push32(reg_edi.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class Popad extends Op {
         public int call() {
-            reg_edi.dword(CPU.CPU_Pop32());
-            reg_esi.dword(CPU.CPU_Pop32());
-            reg_ebp.dword(CPU.CPU_Pop32());CPU.CPU_Pop32();//Don't save ESP
-            reg_ebx.dword(CPU.CPU_Pop32());
-            reg_edx.dword(CPU.CPU_Pop32());
-            reg_ecx.dword(CPU.CPU_Pop32());
-            reg_eax.dword(CPU.CPU_Pop32());
+            reg_edi.dword=CPU.CPU_Pop32();
+            reg_esi.dword=CPU.CPU_Pop32();
+            reg_ebp.dword=CPU.CPU_Pop32();CPU.CPU_Pop32();//Don't save ESP
+            reg_ebx.dword=CPU.CPU_Pop32();
+            reg_edx.dword=CPU.CPU_Pop32();
+            reg_ecx.dword=CPU.CPU_Pop32();
+            reg_eax.dword=CPU.CPU_Pop32();
             return Constants.BR_Normal;
         }
     }
@@ -714,10 +708,10 @@ public class Inst3 extends Helper {
         }
         public int call() {
             int bound_min, bound_max;
-            long eaa=get_eaa.call();
-            bound_min=(int)Memory.mem_readd(eaa);
-            bound_max=(int)Memory.mem_readd(eaa+4);
-            int rmrd = (int)(rd.dword() & 0xFFFFFFFFl);
+            int eaa=get_eaa.call();
+            bound_min=Memory.mem_readd(eaa);
+            bound_max=Memory.mem_readd(eaa + 4);
+            int rmrd = rd.dword;
             if (rmrd < bound_min || rmrd > bound_max) {
                 return EXCEPTION(5);
             }
@@ -737,9 +731,9 @@ public class Inst3 extends Helper {
 
         public int call() {
             if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            ref.value = (int) eard.dword();
+            ref.value = eard.dword;
             CPU.CPU_ARPL(ref,rd.word());
-            eard.dword(ref.value);
+            eard.dword=ref.value;
             return Constants.BR_Normal;
         }
     }
@@ -755,7 +749,7 @@ public class Inst3 extends Helper {
         }
         public int call() {
             if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -773,7 +767,7 @@ public class Inst3 extends Helper {
     }
 
     final static public class PushId extends Op {
-        long id;
+        int id;
 
         public PushId() {
             id = decode_fetchd();
@@ -787,7 +781,7 @@ public class Inst3 extends Helper {
     final static public class ImulGdEdId_reg extends Op {
         Reg eard;
         Reg rd;
-        long op3;
+        int op3;
 
         public ImulGdEdId_reg(int rm) {
             eard = Mod.ed(rm);
@@ -796,7 +790,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            rd.dword(Instructions.DIMULD(eard.dword(),op3));
+            rd.dword=Instructions.DIMULD(eard.dword,op3);
             return Constants.BR_Normal;
         }
     }
@@ -804,7 +798,7 @@ public class Inst3 extends Helper {
     final static public class ImulGdEdId_mem extends Op {
         EaaBase get_eaa;
         Reg rd;
-        long op3;
+        int op3;
 
         public ImulGdEdId_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -812,14 +806,14 @@ public class Inst3 extends Helper {
             op3 = decode_fetchds();
         }
         public int call() {
-            long eaa = get_eaa.call();
-            rd.dword(Instructions.DIMULD(Memory.mem_readd(eaa),op3));
+            int eaa = get_eaa.call();
+            rd.dword=Instructions.DIMULD(Memory.mem_readd(eaa),op3);
             return Constants.BR_Normal;
         }
     }
 
     final static public class PushIb extends Op {
-        long id;
+        int id;
 
         public PushIb() {
             id = decode_fetchbs();
@@ -833,7 +827,7 @@ public class Inst3 extends Helper {
     final static public class ImulGdEdIb_reg extends Op {
         Reg eard;
         Reg rd;
-        long op3;
+        int op3;
 
         public ImulGdEdIb_reg(int rm) {
             eard = Mod.ed(rm);
@@ -842,7 +836,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            rd.dword(Instructions.DIMULD(eard.dword(),op3));
+            rd.dword=Instructions.DIMULD(eard.dword,op3);
             return Constants.BR_Normal;
         }
     }
@@ -850,7 +844,7 @@ public class Inst3 extends Helper {
     final static public class ImulGdEdIb_mem extends Op {
         EaaBase get_eaa;
         Reg rd;
-        long op3;
+        int op3;
 
         public ImulGdEdIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -858,8 +852,8 @@ public class Inst3 extends Helper {
             op3 = decode_fetchbs();
         }
         public int call() {
-            long eaa = get_eaa.call();
-            rd.dword(Instructions.DIMULD(Memory.mem_readd(eaa),op3));
+            int eaa = get_eaa.call();
+            rd.dword=Instructions.DIMULD(Memory.mem_readd(eaa),op3);
             return Constants.BR_Normal;
         }
     }
@@ -872,10 +866,10 @@ public class Inst3 extends Helper {
 
         final protected int jump(boolean COND, int off) {
             if (COND) {
-                reg_eip(reg_eip()+off+eip_count);
+                reg_eip+=off+eip_count;
                 return Constants.BR_Link1;
             }
-            reg_eip(reg_eip()+eip_count);
+            reg_eip+=eip_count;
             return Constants.BR_Link2;
         }
     }
@@ -978,153 +972,153 @@ public class Inst3 extends Helper {
 
     final static public class GrplEdId_reg_add extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_add(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            eard.dword(Instructions.ADDD(ib,eard.dword()));
+            eard.dword=Instructions.ADDD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_reg_or extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_or(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            eard.dword(Instructions.ORD(ib,eard.dword()));
+            eard.dword=Instructions.ORD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_reg_adc extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_adc(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            eard.dword(Instructions.ADCD(ib,eard.dword()));
+            eard.dword=Instructions.ADCD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_reg_sbb extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_sbb(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            eard.dword(Instructions.SBBD(ib,eard.dword()));
+            eard.dword=Instructions.SBBD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_reg_and extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_and(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            eard.dword(Instructions.ANDD(ib,eard.dword()));
+            eard.dword=Instructions.ANDD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_reg_sub extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_sub(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            eard.dword(Instructions.SUBD(ib,eard.dword()));
+            eard.dword=Instructions.SUBD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_reg_xor extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_xor(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            eard.dword(Instructions.XORD(ib,eard.dword()));
+            eard.dword=Instructions.XORD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_reg_cmp extends Op {
         Reg eard;
-        long ib;
+        int ib;
 
         public GrplEdId_reg_cmp(int rm, boolean signed) {
             eard = Mod.ed(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            Instructions.CMPD(ib,eard.dword());
+            Instructions.CMPD(ib,eard.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class GrplEdId_mem_add extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_add(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1138,18 +1132,18 @@ public class Inst3 extends Helper {
     }
 
     final static public class GrplEdId_mem_or extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_or(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1163,18 +1157,18 @@ public class Inst3 extends Helper {
     }
 
     final static public class GrplEdId_mem_adc extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_adc(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1188,18 +1182,18 @@ public class Inst3 extends Helper {
     }
 
     final static public class GrplEdId_mem_sbb extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_sbb(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1213,18 +1207,18 @@ public class Inst3 extends Helper {
     }
 
     final static public class GrplEdId_mem_and extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_and(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1238,18 +1232,18 @@ public class Inst3 extends Helper {
     }
 
     final static public class GrplEdId_mem_sub extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_sub(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1263,18 +1257,18 @@ public class Inst3 extends Helper {
     }
 
     final static public class GrplEdId_mem_xor extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_xor(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
@@ -1288,18 +1282,18 @@ public class Inst3 extends Helper {
     }
 
     final static public class GrplEdId_mem_cmp extends Op {
-        long ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEdId_mem_cmp(int rm, boolean signed) {
             get_eaa= Mod.getEaa(rm);
             if (signed)
-                ib = decode_fetchbs() & 0xFFFFFFFFl;
+                ib = decode_fetchbs();
             else
                 ib = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Instructions.CMPD(ib,Memory.mem_readd(eaa));
             return Constants.BR_Normal;
         }
@@ -1315,7 +1309,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            Instructions.TESTD(rd.dword(), eard.dword());
+            Instructions.TESTD(rd.dword, eard.dword);
             return Constants.BR_Normal;
         }
     }
@@ -1330,8 +1324,8 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = get_eaa.call();
-            Instructions.TESTD(rd.dword(), Memory.mem_readd(eaa));
+            int eaa = get_eaa.call();
+            Instructions.TESTD(rd.dword, Memory.mem_readd(eaa));
             return Constants.BR_Normal;
         }
     }
@@ -1346,9 +1340,9 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long oldrmrd= rd.dword();
-            rd.dword(eard.dword());
-            eard.dword(oldrmrd);
+            int oldrmrd= rd.dword;
+            rd.dword=eard.dword;
+            eard.dword=oldrmrd;
             return Constants.BR_Normal;
         }
     }
@@ -1363,20 +1357,20 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = get_eaa.call();
-            long oldrmrd= rd.dword();
+            int eaa = get_eaa.call();
+            int oldrmrd= rd.dword;
              if ((eaa & 0xFFF)<0xFFD) {
                 int index = Paging.getDirectIndex(eaa);
                 if (index>=0) {
-                    long tmp = Memory.host_readd(index);
+                    int tmp = Memory.host_readd(index);
                     Memory.host_writed(index,oldrmrd);
-                    rd.dword(tmp);
+                    rd.dword=tmp;
                     return Constants.BR_Normal;
                 }
             }
-            long tmp = Memory.mem_readd(eaa);
+            int tmp = Memory.mem_readd(eaa);
             Memory.mem_writed(eaa,oldrmrd);
-            rd.dword(tmp);
+            rd.dword=tmp;
             return Constants.BR_Normal;
         }
     }
@@ -1391,7 +1385,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword(rd.dword());
+            eard.dword=rd.dword;
             return Constants.BR_Normal;
         }
     }
@@ -1406,8 +1400,8 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = get_eaa.call();
-            Memory.mem_writed(eaa, rd.dword());
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, rd.dword);
             return Constants.BR_Normal;
         }
     }
@@ -1422,7 +1416,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            rd.dword(eard.dword());
+            rd.dword=eard.dword;
             return Constants.BR_Normal;
         }
     }
@@ -1437,8 +1431,8 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long eaa = get_eaa.call();
-            rd.dword(Memory.mem_readd(eaa));
+            int eaa = get_eaa.call();
+            rd.dword=Memory.mem_readd(eaa);
             return Constants.BR_Normal;
         }
     }
@@ -1526,7 +1520,7 @@ public class Inst3 extends Helper {
         public int call() {
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             rd.dword(eaa);
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
@@ -1546,7 +1540,7 @@ public class Inst3 extends Helper {
         public int call() {
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             rd.dword(eaa);
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
@@ -1561,7 +1555,7 @@ public class Inst3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            eard.dword(CPU.CPU_Pop32());
+            eard.dword=CPU.CPU_Pop32();
             return Constants.BR_Normal;
         }
     }
@@ -1572,8 +1566,8 @@ public class Inst3 extends Helper {
             get_eaa= Mod.getEaa(rm);
         }
         public int call() {
-            long val = CPU.CPU_Pop32();
-            long eaa = get_eaa.call();
+            int val = CPU.CPU_Pop32();
+            int eaa = get_eaa.call();
             Memory.mem_writed(eaa, val);
             return Constants.BR_Normal;
         }
@@ -1587,33 +1581,33 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long old=reg.dword();
-            reg.dword(reg_eax.dword());
-            reg_eax.dword(old);
+            int old=reg.dword;
+            reg.dword=reg_eax.dword;
+            reg_eax.dword=old;
             return Constants.BR_Normal;
         }
     }
 
     final static public class Cwde extends Op {
         public int call() {
-            reg_eax.dword((short)reg_eax.word());
+            reg_eax.dword=(short)reg_eax.word();
             return Constants.BR_Normal;
         }
     }
 
     final static public class Cdq extends Op {
         public int call() {
-            if ((reg_eax.dword() & 0x80000000l)!=0) reg_edx.dword(0xffffffffl);
-            else reg_edx.dword(0);
+            if ((reg_eax.dword & 0x80000000)!=0) reg_edx.dword=0xffffffff;
+            else reg_edx.dword=0;
             return Constants.BR_Normal;
         }
     }
 
     final static public class CallFarAp extends Op {
         int newcs;
-        long newip;
+        int newip;
 
-        public CallFarAp(int newcs, long newip) {
+        public CallFarAp(int newcs, int newip) {
             this.newcs = newcs;
             this.newip = newip;
         }
@@ -1655,33 +1649,33 @@ public class Inst3 extends Helper {
 
      final static public class MovEaxOd extends Inst1.GetEADirect {
         public int call() {
-            long eaa = (Core.base_ds+value) & 0xFFFFFFFFl;
-            reg_eax.dword(Memory.mem_readd(eaa));
+            int eaa = (Core.base_ds+value);
+            reg_eax.dword=Memory.mem_readd(eaa);
             return Constants.BR_Normal;
         }
     }
 
     final static public class MovOdEax extends Inst1.GetEADirect {
         public int call() {
-            long eaa = (Core.base_ds+value) & 0xFFFFFFFFl;
-            Memory.mem_writed(eaa, reg_eax.dword());
+            int eaa = (Core.base_ds+value);
+            Memory.mem_writed(eaa, reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class TestEaxId extends Op {
-        long id;
+        int id;
         public TestEaxId() {
             id = decode_fetchd();
         }
         public int call() {
-            Instructions.TESTD(id,reg_eax.dword());
+            Instructions.TESTD(id,reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
 
     final static public class MovId extends Op {
-        long id;
+        int id;
         Reg reg;
         public MovId(Reg reg) {
             id = decode_fetchd();
@@ -1694,14 +1688,14 @@ public class Inst3 extends Helper {
     }
 
     final static public class MovId_mem extends Op {
-        long id;
+        int id;
         EaaBase get_eaa;
         public MovId_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
             id = decode_fetchd();
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             Memory.mem_writed(eaa, id);
             return Constants.BR_Normal;
         }
@@ -1714,15 +1708,15 @@ public class Inst3 extends Helper {
             offset = decode_fetchw();
         }
         public int call() {
-            reg_eip(CPU.CPU_Pop32());
-            reg_esp.dword(reg_esp.dword()+offset);
+            reg_eip=CPU.CPU_Pop32();
+            reg_esp.dword=reg_esp.dword+offset;
             return Constants.BR_Jump;
         }
     }
 
     final static public class Retn32 extends Op {
         public int call() {
-            reg_eip(CPU.CPU_Pop32());
+            reg_eip=CPU.CPU_Pop32();
             return Constants.BR_Jump;
         }
     }
@@ -1735,9 +1729,9 @@ public class Inst3 extends Helper {
             rd = Mod.gd(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
-            rd.dword(Memory.mem_readd(eaa));
+            rd.dword=Memory.mem_readd(eaa);
             return Constants.BR_Normal;
         }
     }
@@ -1750,9 +1744,9 @@ public class Inst3 extends Helper {
             rd = Mod.gd(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
+            int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
-            rd.dword(Memory.mem_readd(eaa));
+            rd.dword=Memory.mem_readd(eaa);
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
@@ -1775,9 +1769,9 @@ public class Inst3 extends Helper {
 
     final static public class Leave32 extends Op {
         public int call() {
-            reg_esp.dword(reg_esp.dword() & CPU.cpu.stack.notmask);
-            reg_esp.dword(reg_esp.dword() | (reg_ebp.dword() & CPU.cpu.stack.mask));
-            reg_ebp.dword(CPU.CPU_Pop32());
+            reg_esp.dword&=CPU.cpu.stack.notmask;
+            reg_esp.dword|=(reg_ebp.dword & CPU.cpu.stack.mask);
+            reg_ebp.dword=CPU.CPU_Pop32();
             return Constants.BR_Normal;
         }
     }
@@ -1819,8 +1813,8 @@ public class Inst3 extends Helper {
 
     final static public class Loopnz32 extends JumpCond32_b {
         public int call() {
-            reg_ecx.dword(reg_ecx.dword()-1);
-            return jump(reg_ecx.dword()!=0 && !Flags.get_ZF(), offset);
+            reg_ecx.dword--;
+            return jump(reg_ecx.dword!=0 && !Flags.get_ZF(), offset);
         }
     }
 
@@ -1833,8 +1827,8 @@ public class Inst3 extends Helper {
 
     final static public class Loopz32 extends JumpCond32_b {
         public int call() {
-            reg_ecx.dword(reg_ecx.dword()-1);
-            return jump(reg_ecx.dword()!=0 && Flags.get_ZF(), offset);
+            reg_ecx.dword--;
+            return jump(reg_ecx.dword!=0 && Flags.get_ZF(), offset);
         }
     }
 
@@ -1847,8 +1841,8 @@ public class Inst3 extends Helper {
 
     final static public class Loop32 extends JumpCond32_b {
         public int call() {
-            reg_ecx.dword(reg_ecx.dword()-1);
-            return jump(reg_ecx.dword()!=0, offset);
+            reg_ecx.dword--;
+            return jump(reg_ecx.dword!=0, offset);
         }
     }
 
@@ -1860,12 +1854,12 @@ public class Inst3 extends Helper {
     }
 
     final static public class Jcxz extends JumpCond32_b {
-        long mask;
-        public Jcxz(long mask) {
+        int mask;
+        public Jcxz(int mask) {
             this.mask = mask;
         }
         public int call() {
-            return jump((reg_ecx.dword() & mask)==0, offset);
+            return jump((reg_ecx.dword & mask)==0, offset);
         }
     }
 
@@ -1876,7 +1870,7 @@ public class Inst3 extends Helper {
         }
         public int call() {
             if (CPU.CPU_IO_Exception(port,4)) return RUNEXCEPTION();
-            reg_eax.dword(IO.IO_ReadD(port));
+            reg_eax.dword=IO.IO_ReadD(port);
             return Constants.BR_Normal;
         }
     }
@@ -1888,7 +1882,7 @@ public class Inst3 extends Helper {
         }
         public int call() {
             if (CPU.CPU_IO_Exception(port,4)) return RUNEXCEPTION();
-            IO.IO_WriteD(port,reg_eax.dword());
+            IO.IO_WriteD(port,reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -1899,8 +1893,8 @@ public class Inst3 extends Helper {
             addip=decode_fetchds();
         }
         public int call() {
-            CPU.CPU_Push32(reg_eip()+eip_count);
-            reg_eip(reg_eip()+addip+eip_count);
+            CPU.CPU_Push32(reg_eip+eip_count);
+            reg_eip+=addip+eip_count;
             return Constants.BR_Link1;
         }
     }
@@ -1911,22 +1905,21 @@ public class Inst3 extends Helper {
             addip=decode_fetchds();
         }
         public int call() {
-            reg_eip(reg_eip+eip_count);
-            reg_eip(reg_eip()+addip);
+            reg_eip+=eip_count+addip;
             return Constants.BR_Link1;
         }
     }
 
     final static public class JmpAd extends Op {
-        long newip;
+        int newip;
         int newcs;
         public JmpAd() {
-            newip=decode_fetchd();
+            newip= decode_fetchd();
             newcs=decode_fetchw();
         }
         public int call() {
             Flags.FillFlags();
-            CPU.CPU_JMP(true,newcs,(int)newip,reg_eip+eip_count);
+            CPU.CPU_JMP(true,newcs,newip,reg_eip+eip_count);
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
@@ -1943,22 +1936,21 @@ public class Inst3 extends Helper {
             addip=decode_fetchbs();
         }
         public int call() {
-            reg_eip(reg_eip+eip_count);
-            reg_eip(reg_eip()+addip);
+            reg_eip+=eip_count+addip;
             return Constants.BR_Link1;
         }
     }
 
     final static public class InEaxDx extends Op {
         public int call() {
-            reg_eax.dword(IO.IO_ReadD(reg_edx.word()));
+            reg_eax.dword=IO.IO_ReadD(reg_edx.word());
             return Constants.BR_Normal;
         }
     }
 
     final static public class OutEaxDx extends Op {
         public int call() {
-            IO.IO_WriteD(reg_edx.word(),reg_eax.dword());
+            IO.IO_WriteD(reg_edx.word(),reg_eax.dword);
             return Constants.BR_Normal;
         }
     }
@@ -1971,9 +1963,9 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            long old = reg_eip+eip_count;
+            int old = reg_eip+eip_count;
             CPU.CPU_Push32(old);
-            reg_eip(eard.dword());
+            reg_eip=eard.dword;
             return Constants.BR_Jump;
         }
     }
@@ -1985,9 +1977,9 @@ public class Inst3 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
-            long old = reg_eip+eip_count;
-            long eip = Memory.mem_readd(eaa);
+            int eaa=get_eaa.call();
+            int old = reg_eip+eip_count;
+            int eip = Memory.mem_readd(eaa);
             CPU.CPU_Push32(old);
             reg_eip = eip;
             return Constants.BR_Jump;
@@ -2001,8 +1993,8 @@ public class Inst3 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
-            long newip=Memory.mem_readd(eaa);
+            int eaa=get_eaa.call();
+            int newip=Memory.mem_readd(eaa);
             int newcs=Memory.mem_readw(eaa+4);
             FillFlags();
             CPU.CPU_CALL(true,newcs,newip,reg_eip+eip_count);
@@ -2024,7 +2016,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            reg_eip(eard.dword());
+            reg_eip=eard.dword;
             return Constants.BR_Jump;
         }
     }
@@ -2036,8 +2028,8 @@ public class Inst3 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
-            reg_eip(Memory.mem_readd(eaa));
+            int eaa=get_eaa.call();
+            reg_eip=Memory.mem_readd(eaa);
             return Constants.BR_Jump;
         }
     }
@@ -2049,11 +2041,11 @@ public class Inst3 extends Helper {
             get_eaa =  Mod.getEaa(rm);
         }
         public int call() {
-            long eaa=get_eaa.call();
-            long newip=Memory.mem_readd(eaa);
+            int eaa=get_eaa.call();
+            int newip=Memory.mem_readd(eaa);
             int newcs=Memory.mem_readw(eaa+4);
             FillFlags();
-            CPU.CPU_JMP(true,newcs,(int)newip,reg_eip+eip_count);
+            CPU.CPU_JMP(true,newcs,newip,reg_eip+eip_count);
             if (CPU_TRAP_CHECK) {
                 if (GETFLAG(TF)!=0) {
                     CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
@@ -2070,7 +2062,7 @@ public class Inst3 extends Helper {
             eard = Mod.ed(rm);
         }
         public int call() {
-            CPU.CPU_Push32(eard.dword());
+            CPU.CPU_Push32(eard.dword);
             return Constants.BR_Normal;
         }
     }
@@ -2081,7 +2073,7 @@ public class Inst3 extends Helper {
             this.get_eaa = Mod.getEaa(rm);
         }
         public int call() {
-            long eaa = get_eaa.call();
+            int eaa = get_eaa.call();
             CPU.CPU_Push32(Memory.mem_readd(eaa));
             return Constants.BR_Normal;
         }

@@ -2572,7 +2572,7 @@ public class Prefix_none extends Helper {
         /* JCXZ */
         ops[0xe3] = new Decode() {
             final public int call(Op prev) {
-                prev.next = new Inst1.Jcxz(AddrMaskTable[prefixes & Core.PREFIX_ADDR]);
+                prev.next = new Inst1.Jcxz(AddrMaskTable1[prefixes & Core.PREFIX_ADDR]);
                 return RESULT_JUMP;
             }
         };

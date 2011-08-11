@@ -4,32 +4,32 @@ import jdos.cpu.Core;
 
 public class Eaa extends Helper {
     final static public class EA_16_00_n implements EaaBase {
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF); }
     }
     final static public class EA_16_01_n implements EaaBase {
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF); }
     }
     final static public class EA_16_02_n implements EaaBase {
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()) & 0xFFFF); }
     }
     final static public class EA_16_03_n implements EaaBase {
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()) & 0xFFFF); }
     }
     final static public class EA_16_04_n implements EaaBase {
-        public /*PhysPt*/long call() { return Core.base_ds+(reg_esi.word()); }
+        public /*PhysPt*/int call() { return Core.base_ds+(reg_esi.word()); }
     }
     final static public class EA_16_05_n implements EaaBase {
-        public /*PhysPt*/long call() { return Core.base_ds+(reg_edi.word()); }
+        public /*PhysPt*/int call() { return Core.base_ds+(reg_edi.word()); }
     }
     final static public class EA_16_06_n implements EaaBase {
         int i;
         public EA_16_06_n() {
             i = decode_fetchw();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+i;}
+        public /*PhysPt*/int call() { return Core.base_ds+i;}
     }
     final static public class EA_16_07_n implements EaaBase {
-        public /*PhysPt*/long call() { return Core.base_ds+(reg_ebx.word()); }
+        public /*PhysPt*/int call() { return Core.base_ds+(reg_ebx.word()); }
     }
 
     final static public class EA_16_40_n implements EaaBase {
@@ -37,56 +37,56 @@ public class Eaa extends Helper {
         public EA_16_40_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_41_n implements EaaBase {
         byte i;
         public EA_16_41_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_42_n implements EaaBase {
         int i;
         public EA_16_42_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_43_n implements EaaBase {
         int i;
         public EA_16_43_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_44_n implements EaaBase {
         int i;
         public EA_16_44_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_esi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_esi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_45_n implements EaaBase {
         int i;
         public EA_16_45_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_edi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_edi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_46_n implements EaaBase {
         int i;
         public EA_16_46_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_47_n implements EaaBase {
         int i;
         public EA_16_47_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+i) & 0xFFFF); }
     }
 
     final static public class EA_16_80_n implements EaaBase {
@@ -94,69 +94,69 @@ public class Eaa extends Helper {
         public EA_16_80_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_81_n implements EaaBase {
         int i;
         public EA_16_81_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_82_n implements EaaBase {
         int i;
         public EA_16_82_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_83_n implements EaaBase {
         int i;
         public EA_16_83_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+(/*Bit16s*/short)reg_edi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_84_n implements EaaBase {
         int i;
         public EA_16_84_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_esi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_esi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_85_n implements EaaBase {
         int i;
         public EA_16_85_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_edi.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_edi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_86_n implements EaaBase {
         int i;
         public EA_16_86_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ss+((reg_ebp.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ss+((reg_ebp.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_87_n implements EaaBase {
         int i;
         public EA_16_87_n() {
             i = decode_fetchws();
         }
-        public /*PhysPt*/long call() { return Core.base_ds+((reg_ebx.word()+i) & 0xFFFF); }
+        public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+i) & 0xFFFF); }
     }
 
     final static public class EA_32_00_n implements EaaBase {
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_eax.dword()) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_eax.dword); }
     }
     final static public class EA_32_01_n implements EaaBase {
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_ecx.dword()) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_ecx.dword); }
     }
     final static public class EA_32_02_n implements EaaBase {
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_edx.dword()) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_edx.dword); }
     }
     final static public class EA_32_03_n implements EaaBase {
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_ebx.dword()) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_ebx.dword); }
     }
     final static public class EA_32_04_n implements EaaBase {
         boolean ds;
@@ -181,7 +181,7 @@ public class Eaa extends Helper {
                 reg = reg_esp;break;
             case 5:	/* #1 Base */
                 reg = new Reg();
-                reg.dword(decode_fetchd());
+                reg.dword= decode_fetchd();
                 break;
             case 6:	/* ESI Base */
                 reg = reg_esi;break;
@@ -218,24 +218,24 @@ public class Eaa extends Helper {
             }
             sib = sib >> 6;
         }
-        public /*PhysPt*/long call() {
+        public /*PhysPt*/int call() {
             if (ds)
-                return (Core.base_ds+reg.dword()+(reg2.dword() << sib)) & 0xFFFFFFFFl;
-            return (Core.base_ss+reg.dword()+(reg2.dword() << sib)) & 0xFFFFFFFFl;
+                return (Core.base_ds+reg.dword+(reg2.dword << sib));
+            return (Core.base_ss+reg.dword+(reg2.dword << sib));
         }
     }
     final static public class EA_32_05_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_05_n() {
             i = decode_fetchd();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+i); }
     }
     final static public class EA_32_06_n implements EaaBase {
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_esi.dword()) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_esi.dword); }
     }
     final static public class EA_32_07_n implements EaaBase {
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_edi.dword()) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_edi.dword); }
     }
 
     final static public class EA_32_40_n implements EaaBase {
@@ -243,28 +243,28 @@ public class Eaa extends Helper {
         public EA_32_40_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_eax.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_eax.dword+i); }
     }
     final static public class EA_32_41_n implements EaaBase {
         int i;
         public EA_32_41_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_ecx.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_ecx.dword+i); }
     }
     final static public class EA_32_42_n implements EaaBase {
         int i;
         public EA_32_42_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_edx.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_edx.dword+i); }
     }
     final static public class EA_32_43_n implements EaaBase {
         int i;
         public EA_32_43_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_ebx.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_ebx.dword+i); }
     }
     final static public class EA_32_44_n implements EaaBase {
         int i;
@@ -328,10 +328,10 @@ public class Eaa extends Helper {
             }
             sib = sib >> 6;
         }
-        public /*PhysPt*/long call() {
+        public /*PhysPt*/int call() {
             if (ds)
-                return (Core.base_ds+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
-            return (Core.base_ss+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
+                return (Core.base_ds+reg.dword+(reg2.dword << sib)+i);
+            return (Core.base_ss+reg.dword+(reg2.dword << sib)+i);
         }
     }
     final static public class EA_32_45_n implements EaaBase {
@@ -339,53 +339,53 @@ public class Eaa extends Helper {
         public EA_32_45_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return (Core.base_ss+reg_ebp.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ss+reg_ebp.dword+i); }
     }
     final static public class EA_32_46_n implements EaaBase {
         int i;
         public EA_32_46_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_esi.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_esi.dword+i); }
     }
     final static public class EA_32_47_n implements EaaBase {
         int i;
         public EA_32_47_n() {
             i = decode_fetchbs();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_edi.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_edi.dword+i); }
     }
 
     final static public class EA_32_80_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_80_n() {
             i = decode_fetchds();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_eax.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_eax.dword+i); }
     }
     final static public class EA_32_81_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_81_n() {
             i = decode_fetchds();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_ecx.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_ecx.dword+i); }
     }
     final static public class EA_32_82_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_82_n() {
             i = decode_fetchds();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_edx.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_edx.dword+i); }
     }
     final static public class EA_32_83_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_83_n() {
             i = decode_fetchds();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_ebx.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_ebx.dword+i); }
     }
     final static public class EA_32_84_n implements EaaBase {
-        long i;
+        int i;
 
         boolean ds;
         Reg reg;
@@ -446,31 +446,31 @@ public class Eaa extends Helper {
             }
             sib = sib >> 6;
         }
-        public /*PhysPt*/long call() {
+        public /*PhysPt*/int call() {
             if (ds)
-                return (Core.base_ds+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
-            return (Core.base_ss+reg.dword()+(reg2.dword() << sib)+i) & 0xFFFFFFFFl;
+                return (Core.base_ds+reg.dword+(reg2.dword << sib)+i);
+            return (Core.base_ss+reg.dword+(reg2.dword << sib)+i);
         }
     }
     final static public class EA_32_85_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_85_n() {
             i = decode_fetchds();
         }
-        public /*PhysPt*/long call() { return (Core.base_ss+reg_ebp.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ss+reg_ebp.dword+i); }
     }
     final static public class EA_32_86_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_86_n() {
             i = decode_fetchds();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_esi.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_esi.dword+i); }
     }
     final static public class EA_32_87_n implements EaaBase {
-        long i;
+        int i;
         public EA_32_87_n() {
             i = decode_fetchds();
         }
-        public /*PhysPt*/long call() { return (Core.base_ds+reg_edi.dword()+i) & 0xFFFFFFFFl; }
+        public /*PhysPt*/int call() { return (Core.base_ds+reg_edi.dword+i); }
     }
 }

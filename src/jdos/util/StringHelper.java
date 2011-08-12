@@ -223,7 +223,7 @@ public class StringHelper {
                             if (dec>=0) {
                                 if (precision==0) {
                                     value = value.substring(0, dec);
-                                } else {
+                                } else if (value.length()>dec+1+precision) {
                                     value = value.substring(0, dec+1+precision);
                                 }
                             }

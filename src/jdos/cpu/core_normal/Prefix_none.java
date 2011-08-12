@@ -2992,7 +2992,7 @@ public class Prefix_none extends StringOp {
         /* LOCK */
         ops[0xf0] = new OP() {
             final public int call() {
-                Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CPU:LOCK"); /* FIXME: see case D_LOCK in core_full/new Instructions.load()h */
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CPU:LOCK"); /* FIXME: see case D_LOCK in core_full/new Instructions.load()h */
                 return HANDLED;
             }
         };

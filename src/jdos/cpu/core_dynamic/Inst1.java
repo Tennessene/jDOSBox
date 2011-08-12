@@ -3495,7 +3495,7 @@ public class Inst1 extends Helper {
 
     final static public class Lock extends Op {
         public int call() {
-            Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CPU:LOCK"); /* FIXME: see case D_LOCK in core_full/new Instructions.load()h */
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CPU:LOCK"); /* FIXME: see case D_LOCK in core_full/new Instructions.load()h */
             return Constants.BR_Normal;
         }
     }

@@ -428,11 +428,11 @@ public class VGA_memory {
         }
         public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
             phys_page-=vgapages.base;
-            return VGA.vga.mem.linear+VGA.vga.svga.bank_read_full+phys_page*4096;
+            return VGA.vga.mem.linear+((VGA.vga.svga.bank_read_full+phys_page*4096)&(VGA.vga.vmemwrap-1));
         }
         public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             phys_page-=vgapages.base;
-            return VGA.vga.mem.linear+VGA.vga.svga.bank_write_full+phys_page*4096;
+            return VGA.vga.mem.linear+((VGA.vga.svga.bank_write_full+phys_page*4096)&(VGA.vga.vmemwrap-1));
         }
     }
 
@@ -487,12 +487,14 @@ public class VGA_memory {
         }
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = VGA.vga.svga.bank_write_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
+            addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
 //            MEM_CHANGED( addr << 3 );
             writeHandler(addr+0,(/*Bit8u*/short)(val >> 0));
         }
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = VGA.vga.svga.bank_write_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
+            addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
 //            MEM_CHANGED( addr << 3 );
             writeHandler(addr+0,(/*Bit8u*/short)(val >> 0));
@@ -500,6 +502,7 @@ public class VGA_memory {
         }
         public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = VGA.vga.svga.bank_write_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
+            addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
 //            MEM_CHANGED( addr << 3 );
             writeHandler(addr+0,(/*Bit8u*/short)(val >> 0));
@@ -509,11 +512,13 @@ public class VGA_memory {
         }
         public /*Bitu*/int readb(/*PhysPt*/int addr) {
             addr = VGA.vga.svga.bank_read_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
+            addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
             return readHandler(addr);
         }
         public /*Bitu*/int readw(/*PhysPt*/int addr) {
             addr = VGA.vga.svga.bank_read_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
+            addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
             return
                 (readHandler(addr+0) << 0) |
@@ -521,6 +526,7 @@ public class VGA_memory {
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr) {
             addr = VGA.vga.svga.bank_read_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
+            addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
             return
                 (readHandler(addr+0) << 0)  |
@@ -575,7 +581,7 @@ public class VGA_memory {
         }
         public /*HostPt*/int GetHostReadPt( /*Bitu*/int phys_page ) {
             phys_page -= VGA.vga.lfb.page;
-            return VGA.vga.mem.linear + phys_page * 4096;
+            return VGA.vga.mem.linear + ((phys_page * 4096)&(VGA.vga.vmemwrap-1));
         }
         public /*HostPt*/int GetHostWritePt( /*Bitu*/int phys_page ) {
             return GetHostReadPt( phys_page );

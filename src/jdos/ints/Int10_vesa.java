@@ -453,8 +453,8 @@ public class Int10_vesa {
             return "Int10_vesa.VESA_SetWindow";
         }
         public /*Bitu*/int call() {
-            if (CPU_Regs.reg_ebx.high()!=0) {CPU_Regs.reg_eax.high(0);CPU_Regs.reg_edx.word((byte)VESA_GetCPUWindow(CPU_Regs.reg_ebx.low()));}
-            else CPU_Regs.reg_eax.high(VESA_SetCPUWindow(CPU_Regs.reg_ebx.low(),(/*Bit8u*/short)CPU_Regs.reg_edx.word()));
+            if (CPU_Regs.reg_ebx.high()!=0) {CPU_Regs.reg_eax.high(0);CPU_Regs.reg_edx.word(VESA_GetCPUWindow(CPU_Regs.reg_ebx.low()));}
+            else CPU_Regs.reg_eax.high(VESA_SetCPUWindow(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_edx.low()));
             CPU_Regs.reg_eax.low(0x4f);
             return 0;
         }

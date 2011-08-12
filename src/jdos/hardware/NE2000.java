@@ -1323,13 +1323,13 @@ public class NE2000 extends Module_base {
                 }
 
             }
-            if ((io_len < 40/*60*/) && s.RCR.runts_ok == 0) {
+            if ((io_len < 60) && s.RCR.runts_ok == 0) {
                 if (BX_DEBUG)
                     Log.log_msg("[NE2000] rejected small packet, length " + io_len);
                 return true;
             }
             // some computers don't care...
-            if (io_len < 60) io_len = 60;
+            //if (io_len < 60) io_len = 60;
 
             // Do address filtering if not in promiscuous mode
             if (s.RCR.promisc == 0) {

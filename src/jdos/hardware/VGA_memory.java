@@ -292,12 +292,24 @@ public class VGA_memory {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
+            if ((addr & 1)!=0) {
+                int a = Memory.host_readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
+                int b = Memory.host_readb(VGA.vga.mem.linear + (((addr+1) & ~3) << 2) + ((addr+1) & 3));
+                return a | (b << 8);
+            }
             return Memory.host_readw(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr ) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
+            if ((addr & 3)!=0) {
+                int a = Memory.host_readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
+                int b = Memory.host_readb(VGA.vga.mem.linear + (((addr+1) & ~3) << 2) + ((addr+1) & 3));
+                int c = Memory.host_readb(VGA.vga.mem.linear + (((addr+2) & ~3) << 2) + ((addr+2) & 3));
+                int d = Memory.host_readb(VGA.vga.mem.linear + (((addr+3) & ~3) << 2) + ((addr+3) & 3));
+                return a | (b << 8) | (c << 16) | (d << 24);
+            }
             return Memory.host_readd(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
         }
         public void writeb(/*PhysPt*/int addr, /*Bitu*/int val ) {
@@ -317,8 +329,12 @@ public class VGA_memory {
 //            addr = CHECKED(addr);
 //            MEM_CHANGED( addr );
     //		MEM_CHANGED( addr + 1);
-
-            Memory.host_writew(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
+            if ((addr & 1)!=0) {
+                Memory.host_writebs(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (byte)val);
+                Memory.host_writebs(VGA.vga.mem.linear+(((addr+1) & ~3) << 2) + ((addr+1) & 3), (byte)(val>>8));
+            } else {
+                Memory.host_writew(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
+            }
 
             // Cache
             Memory.host_writew(VGA.vga.fastmem+addr, val);
@@ -332,7 +348,14 @@ public class VGA_memory {
 //            MEM_CHANGED( addr );
     //		MEM_CHANGED( addr + 3);
 
-            Memory.host_writed(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
+            if ((addr & 3)!=0) {
+                Memory.host_writebs(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (byte)val);
+                Memory.host_writebs(VGA.vga.mem.linear+(((addr+1) & ~3) << 2) + ((addr+1) & 3), (byte)(val>>8));
+                Memory.host_writebs(VGA.vga.mem.linear+(((addr+2) & ~3) << 2) + ((addr+2) & 3), (byte)(val>>16));
+                Memory.host_writebs(VGA.vga.mem.linear+(((addr+3) & ~3) << 2) + ((addr+3) & 3), (byte)(val>>24));
+            } else {
+                Memory.host_writed(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
+            }
 
             // Cache
             Memory.host_writed(VGA.vga.fastmem+addr, val);

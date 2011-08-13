@@ -3032,7 +3032,7 @@ public class CPU extends Module_base {
             } else {
                 Log.exit("prefetch queue emulation requires the normal core setting.");
             }
-        } else if (cputype.equals("pentium_slow")) {
+        } else if (cputype.equals("pentium")) {
             CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM;
         }
 

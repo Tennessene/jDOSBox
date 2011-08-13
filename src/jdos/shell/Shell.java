@@ -218,7 +218,7 @@ public class Shell {
                 "\033[44;1m\u00C9\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD" +
                 "\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD" +
                 "\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00BB\n" +
-                "\u00BA \033[32mWelcome to DOSBox v%-8s\033[37m                                        \u00BA\n" +
+                "\u00BA \033[32mWelcome to DOSBox v%-12s\033[37m                                    \u00BA\n" +
                 "\u00BA                                                                    \u00BA\n" +
         //		"\u00BA DOSBox runs real and protected mode games.                         \u00BA\n" +
                 "\u00BA For a short introduction for new users type: \033[33mINTRO\033[37m                 \u00BA\n" +
@@ -243,6 +243,7 @@ public class Shell {
             Msg.add("SHELL_STARTUP_END",
                     "\u00BA \033[32mHAVE FUN!\033[37m                                                          \u00BA\n" +
                     "\u00BA \033[32mThe DOSBox Team \033[33mhttp://www.dosbox.com\033[37m                              \u00BA\n" +
+                    "\u00BA \033[32mPorted to Java by James Bryant \033[33mhttp://jdosbox.sf.net\033[37m               \u00BA\n" +
                     "\u00C8\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD" +
                     "\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD" +
                     "\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00CD\u00BC\033[0m\n"

@@ -2,12 +2,13 @@ package jdos.fpu;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
+import jdos.debug.Debug;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.misc.setup.Section;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.debug.Debug;
+import jdos.util.MicroDouble;
 
 public class FPU {
     static public void log() {
@@ -27,7 +28,7 @@ public class FPU {
         Debug.log(Debug.FPU_ROUND, fpu.round);
     }
     
-    private static class FPU_Reg {
+    public static class FPU_Reg {
         // union
         public FPU_Reg() {
         }
@@ -61,14 +62,14 @@ public class FPU {
             ll(lower & 0xFFFFFFFFl | ((upper & 0xFFFFFFFFl) << 32));
         }
         long ll() {
-            return Double.doubleToLongBits(d);
+            return d;
         }
         void ll(long l) {
-            d = Double.longBitsToDouble(l);
+            d = l;
         }
 
         L l = new L();
-        double d;
+        public long d;
     }
 
     private static class FPU_P_Reg {
@@ -85,34 +86,33 @@ public class FPU {
     private static final int TAG_Weird = 2;
     private static final int TAG_Empty = 3;
 
-    private static final int ROUND_Nearest = 0;
-    private static final int ROUND_Down    = 1;
-    private static final int ROUND_Up      = 2;
-    private static final int ROUND_Chop    = 3;
+    public static final int ROUND_Nearest = 0;
+    public static final int ROUND_Down    = 1;
+    public static final int ROUND_Up      = 2;
+    public static final int ROUND_Chop    = 3;
 
-    private static class FPU_rec {
+    public static class FPU_rec {
         public FPU_rec() {
             for (int i=0;i<regs.length;i++)
                 regs[i] = new FPU_Reg();
             for (int i=0;i<p_regs.length;i++)
                 p_regs[i] = new FPU_P_Reg();
         }
-        FPU_Reg[]		regs=new FPU_Reg[9];
-        FPU_P_Reg[]	    p_regs=new FPU_P_Reg[9];
-        int[]		    tags=new int[9];
-        /*Bit16u*/int   cw,cw_mask_all;
-        /*Bit16u*/int   sw;
-        /*Bitu*/int	    top;
-        int	            round;
+        public FPU_Reg[]		regs=new FPU_Reg[9];
+        public FPU_P_Reg[]	    p_regs=new FPU_P_Reg[9];
+        public int[]		    tags=new int[9];
+        public /*Bit16u*/int   cw,cw_mask_all;
+        public /*Bit16u*/int   sw;
+        public /*Bitu*/int	    top;
+        public int	            round;
     }
 
 
-//get pi from a real library
-    private static final double PI		=3.14159265358979323846;
-    private static final double L2E		=1.4426950408889634;
-    private static final double L2T		=3.3219280948873623;
-    private static final double LN2		=0.69314718055994531;
-    private static final double LG2		=0.3010299956639812;
+    public static final long PI		    =MicroDouble.PI;
+    public static final long L2E		=MicroDouble.INV_LN2;
+    public static final long L2T		=MicroDouble.parseDouble("3.3219280948873623");
+    public static final long LN2		=MicroDouble.LN2;
+    public static final long LG2		=MicroDouble.parseDouble("0.3010299956639812");
 
 
     //#define TOP fpu.top
@@ -181,7 +181,7 @@ public class FPU {
     static private void FPU_FNOP(){
     }
 
-    static private void FPU_PUSH(double in){
+    static private void FPU_PUSH(long in){
         fpu.top = (fpu.top - 1) &7;
         //actually check if empty
         fpu.tags[fpu.top] = TAG_Valid;
@@ -201,18 +201,22 @@ public class FPU {
     //	LOG(LOG_FPU,LOG_ERROR)("popped from %d  %g off the stack",top,fpu.regs[top].d);
     }
 
-    static private double FROUND(double in){
+    static private long FROUND(long in){
         switch(fpu.round){
         case ROUND_Nearest:
-            if (in-Math.floor(in)>0.5) return (Math.floor(in)+1);
-            else if (in-Math.floor(in)<0.5) return (Math.floor(in));
-            else return ((((long)(Math.floor(in)))&1)!=0)?(Math.floor(in)+1):(Math.floor(in));
+        {
+            long floor = MicroDouble.floor(in);
+            long diff = MicroDouble.sub(in, floor);
+            if (MicroDouble.gt(diff, MicroDouble.ONE_HALF)) return MicroDouble.ceil(in);
+            else if (MicroDouble.lt(diff, MicroDouble.ONE_HALF)) return floor;
+            else return ((MicroDouble.longValue(floor)&1)!=0)?MicroDouble.ceil(in):floor;
+        }
         case ROUND_Down:
-            return (Math.floor(in));
+            return MicroDouble.floor(in);
         case ROUND_Up:
-            return (Math.ceil(in));
+            return MicroDouble.ceil(in);
         case ROUND_Chop:
-            return in; //the cast afterwards will do it right maybe cast here
+            return MicroDouble.truncate(in);
         default:
             return in;
         }
@@ -225,7 +229,7 @@ public class FPU {
         /*Bit16s*/short begin;
         FPU_Reg eind=new FPU_Reg();
     }
-    static private /*Real64*/double FPU_FLD80(/*PhysPt*/int addr) {
+    static private /*Real64*/long FPU_FLD80(/*PhysPt*/int addr) {
         Test test = new Test();
         test.eind.ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
         test.begin = (short)Memory.mem_readw(addr+8);
@@ -241,7 +245,7 @@ public class FPU {
 
         if(test.eind.ll() == 0x8000000000000000l && (test.begin & 0x7fff) == 0x7fff) {
 		    //Detect INF and -INF (score 3.11 when drawing a slur.)
-		    result.d = sign!=0?Double.NEGATIVE_INFINITY:Double.POSITIVE_INFINITY;
+		    result.d = sign!=0?MicroDouble.NEGATIVE_INFINITY:MicroDouble.POSITIVE_INFINITY;
 	    }
         return result.d;
 
@@ -270,7 +274,7 @@ public class FPU {
 
 
     static private void FPU_FLD_F32(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=Float.intBitsToFloat(Memory.mem_readd(addr));
+        fpu.regs[store_to].d= MicroDouble.floatToDouble(Memory.mem_readd(addr));
     }
 
     static private void FPU_FLD_F64(/*PhysPt*/int addr,/*Bitu*/int store_to) {
@@ -282,17 +286,17 @@ public class FPU {
     }
 
     static private void FPU_FLD_I16(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=(short)Memory.mem_readw(addr);
+        fpu.regs[store_to].d=MicroDouble.intToDouble((short)Memory.mem_readw(addr));
     }
 
     static private void FPU_FLD_I32(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=Memory.mem_readd(addr);
+        fpu.regs[store_to].d=MicroDouble.intToDouble(Memory.mem_readd(addr));
     }
 
     static private void FPU_FLD_I64(/*PhysPt*/int addr,/*Bitu*/int store_to) {
         FPU_Reg blah=new FPU_Reg();
         blah.ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
-        fpu.regs[store_to].d=blah.ll();
+        fpu.regs[store_to].d=MicroDouble.longToDouble(blah.ll());
     }
 
     static private void FPU_FBLD(/*PhysPt*/int addr,/*Bitu*/int store_to) {
@@ -306,13 +310,12 @@ public class FPU {
             val += ((( in>>4)&0xf) * base);
             base *= 10;
         }
-
         //last number, only now convert to float in order to get
         //the best signification
-        /*Real64*/double temp = (double)(val);
+        /*Real64*/long temp = MicroDouble.longToDouble(val);
         in = Memory.mem_readb(addr + 9);
-        temp += ( (in&0xf) * base );
-        if((in&0x80)!=0) temp *= -1.0;
+        temp = MicroDouble.add(temp, MicroDouble.longToDouble((in&0xf) * base));
+        if((in&0x80)!=0) temp = MicroDouble.negate(temp);
         fpu.regs[store_to].d=temp;
     }
 
@@ -332,7 +335,7 @@ public class FPU {
 
     static private void FPU_FST_F32(/*PhysPt*/int addr) {
         //should depend on rounding method
-        Memory.mem_writed(addr,Float.floatToIntBits((float)fpu.regs[fpu.top].d));
+        Memory.mem_writed(addr,MicroDouble.floatValue(fpu.regs[fpu.top].d));
     }
 
     static private void FPU_FST_F64(/*PhysPt*/int addr) {
@@ -345,116 +348,108 @@ public class FPU {
     }
 
     static private void FPU_FST_I16(/*PhysPt*/int addr) {
-        Memory.mem_writew(addr,(short)(FROUND(fpu.regs[fpu.top].d)));
+        Memory.mem_writew(addr,MicroDouble.shortValue(FROUND(fpu.regs[fpu.top].d)));
     }
 
     static private void FPU_FST_I32(/*PhysPt*/int addr) {
-        Memory.mem_writed(addr,(int)(FROUND(fpu.regs[fpu.top].d)));
+        Memory.mem_writed(addr,MicroDouble.intValue(FROUND(fpu.regs[fpu.top].d)));
     }
 
     static private void FPU_FST_I64(/*PhysPt*/int addr) {
         FPU_Reg blah=new FPU_Reg();
-        blah.ll((long)(FROUND(fpu.regs[fpu.top].d)));
+        blah.ll(MicroDouble.longValue(FROUND(fpu.regs[fpu.top].d)));
         Memory.mem_writed(addr,blah.l.lower());
         Memory.mem_writed(addr+4,blah.l.upper());
     }
 
     static private void FPU_FBST(/*PhysPt*/int addr) {
-        FPU_Reg val = new FPU_Reg(fpu.regs[fpu.top]);
+        String val = String.valueOf(MicroDouble.longValue(fpu.regs[fpu.top].d));
         boolean sign = false;
-        if((fpu.regs[fpu.top].ll() & 0x8000000000000000l)!=0) { //sign
-            sign=true;
-            val.d=-val.d;
+        if (val.startsWith("-")) {
+            sign = true;
+            val = val.substring(1);
         }
-        //numbers from back to front
-        /*Real64*/double temp=val.d;
-        /*Bitu*/int p;
-        for(/*Bitu*/int i=0;i<9;i++){
-            val.d=temp;
-            temp = (double)((long)(Math.floor(val.d/10.0)));
-            p = (int)(val.d - 10.0*temp);
-            val.d=temp;
-            temp = (double)((long)(Math.floor(val.d/10.0)));
-            p |= ((int)(val.d - 10.0*temp)<<4);
-
+        while (val.length()<19) {
+            val = "0"+val;
+        }
+        for (int i=0;i<9;i++) {
+            short p = (short)((val.charAt(i*2)-'0') | ((val.charAt(i*2+1)-'0') << 4));
             Memory.mem_writeb(addr+i,p);
         }
-        val.d=temp;
-        temp = (double)((long)(Math.floor(val.d/10.0)));
-        p = (int)(val.d - 10.0*temp);
-        if(sign)
+        short p = (short)(val.charAt(18)-'0');
+        if (sign)
             p|=0x80;
         Memory.mem_writeb(addr+9,p);
     }
 
     static private void FPU_FADD(/*Bitu*/int op1, /*Bitu*/int op2){
-        fpu.regs[op1].d+=fpu.regs[op2].d;
+        fpu.regs[op1].d=MicroDouble.add(fpu.regs[op1].d,fpu.regs[op2].d);
         //flags and such :)
     }
 
     static private void FPU_FSIN(){
-        fpu.regs[fpu.top].d = Math.sin(fpu.regs[fpu.top].d);
+        fpu.regs[fpu.top].d = MicroDouble.sin(fpu.regs[fpu.top].d);
         FPU_SET_C2(0);
         //flags and such :)
     }
 
     static private void FPU_FSINCOS(){
-        /*Real64*/double temp = fpu.regs[fpu.top].d;
-        fpu.regs[fpu.top].d = Math.sin(temp);
-        FPU_PUSH(Math.cos(temp));
+        /*Real64*/long temp = fpu.regs[fpu.top].d;
+        fpu.regs[fpu.top].d = MicroDouble.sin(temp);
+        FPU_PUSH(MicroDouble.cos(temp));
         FPU_SET_C2(0);
         //flags and such :)
     }
 
     static private void FPU_FCOS(){
-        fpu.regs[fpu.top].d = Math.cos(fpu.regs[fpu.top].d);
+        fpu.regs[fpu.top].d = MicroDouble.cos(fpu.regs[fpu.top].d);
         FPU_SET_C2(0);
         //flags and such :)
     }
 
     static private void FPU_FSQRT(){
-        fpu.regs[fpu.top].d = Math.sqrt(fpu.regs[fpu.top].d);
+        fpu.regs[fpu.top].d = MicroDouble.sqrt(fpu.regs[fpu.top].d);
         //flags and such :)
     }
     static private void FPU_FPATAN(){
-        fpu.regs[STV(1)].d = Math.atan2(fpu.regs[STV(1)].d,fpu.regs[fpu.top].d);
+        fpu.regs[STV(1)].d = MicroDouble.atan(MicroDouble.div(fpu.regs[STV(1)].d,fpu.regs[fpu.top].d));
         FPU_FPOP();
         //flags and such :)
     }
     static private void FPU_FPTAN(){
-        fpu.regs[fpu.top].d = Math.tan(fpu.regs[fpu.top].d);
-        FPU_PUSH(1.0);
+        fpu.regs[fpu.top].d = MicroDouble.tan(fpu.regs[fpu.top].d);
+        FPU_PUSH(MicroDouble.ONE);
         FPU_SET_C2(0);
         //flags and such :)
     }
     static private void FPU_FDIV(/*Bitu*/int st, /*Bitu*/int other){
-        fpu.regs[st].d= fpu.regs[st].d/fpu.regs[other].d;
+        fpu.regs[st].d= MicroDouble.div(fpu.regs[st].d,fpu.regs[other].d);
         //flags and such :)
     }
 
     static private void FPU_FDIVR(/*Bitu*/int st, /*Bitu*/int other){
-        fpu.regs[st].d= fpu.regs[other].d/fpu.regs[st].d;
+        fpu.regs[st].d= MicroDouble.div(fpu.regs[other].d,fpu.regs[st].d);
         // flags and such :)
     }
 
     static private void FPU_FMUL(/*Bitu*/int st, /*Bitu*/int other){
-        fpu.regs[st].d*=fpu.regs[other].d;
+        fpu.regs[st].d=MicroDouble.mul(fpu.regs[st].d,fpu.regs[other].d);
         //flags and such :)
     }
 
     static private void FPU_FSUB(/*Bitu*/int st, /*Bitu*/int other){
-        fpu.regs[st].d = fpu.regs[st].d - fpu.regs[other].d;
+        fpu.regs[st].d = MicroDouble.sub(fpu.regs[st].d, fpu.regs[other].d);
         //flags and such :)
     }
 
     static private void FPU_FSUBR(/*Bitu*/int st, /*Bitu*/int other){
-        fpu.regs[st].d= fpu.regs[other].d - fpu.regs[st].d;
+        fpu.regs[st].d= MicroDouble.sub(fpu.regs[other].d,  fpu.regs[st].d);
         //flags and such :)
     }
 
     static private void FPU_FXCH(/*Bitu*/int st, /*Bitu*/int other){
         int tag = fpu.tags[other];
-        double reg = fpu.regs[other].d;
+        long reg = fpu.regs[other].d;
         fpu.tags[other] = fpu.tags[st];
         fpu.regs[other].d = fpu.regs[st].d;
         fpu.tags[st] = tag;
@@ -472,10 +467,10 @@ public class FPU {
             ((fpu.tags[other] != TAG_Valid) && (fpu.tags[other] != TAG_Zero))){
             FPU_SET_C3(1);FPU_SET_C2(1);FPU_SET_C0(1);return;
         }
-        if(fpu.regs[st].d == fpu.regs[other].d){
+        if(MicroDouble.eq(fpu.regs[st].d, fpu.regs[other].d)){
             FPU_SET_C3(1);FPU_SET_C2(0);FPU_SET_C0(0);return;
         }
-        if(fpu.regs[st].d < fpu.regs[other].d){
+        if(MicroDouble.lt(fpu.regs[st].d, fpu.regs[other].d)){
             FPU_SET_C3(0);FPU_SET_C2(0);FPU_SET_C0(1);return;
         }
         // st > other
@@ -488,18 +483,18 @@ public class FPU {
     }
 
     static private void FPU_FRNDINT(){
-        /*Bit64s*/long temp= (long)(FROUND(fpu.regs[fpu.top].d));
-        fpu.regs[fpu.top].d=(double)(temp);
+        fpu.regs[fpu.top].d=FROUND(fpu.regs[fpu.top].d);
     }
 
     static private void FPU_FPREM(){
-        /*Real64*/double valtop = fpu.regs[fpu.top].d;
-        /*Real64*/double valdiv = fpu.regs[STV(1)].d;
-        /*Bit64s*/long ressaved = (long)( (valtop/valdiv) );
+        /*Real64*/long valtop = fpu.regs[fpu.top].d;
+        /*Real64*/long valdiv = fpu.regs[STV(1)].d;
+        /*Bit64s*/long ressaved = MicroDouble.floor(MicroDouble.div(valtop, valdiv));
     // Some backups
     //	/*Real64*/double res=valtop - ressaved*valdiv;
     //      res= fmod(valtop,valdiv);
-        fpu.regs[fpu.top].d = valtop - ressaved*valdiv;
+        fpu.regs[fpu.top].d = MicroDouble.sub(valtop, MicroDouble.mul(ressaved,valdiv));
+        ressaved = MicroDouble.longValue(ressaved);
         FPU_SET_C0((int)(ressaved&4));
         FPU_SET_C3((int)(ressaved&2));
         FPU_SET_C1((int)(ressaved&1));
@@ -507,15 +502,16 @@ public class FPU {
     }
 
     static private void FPU_FPREM1(){
-        /*Real64*/double valtop = fpu.regs[fpu.top].d;
-        /*Real64*/double valdiv = fpu.regs[STV(1)].d;
-        double quot = valtop/valdiv;
-        double quotf = Math.floor(quot);
+        /*Real64*/long valtop = fpu.regs[fpu.top].d;
+        /*Real64*/long valdiv = fpu.regs[STV(1)].d;
+        long quot = MicroDouble.div(valtop,valdiv);
+        long quotf = MicroDouble.floor(quot);
         /*Bit64s*/long ressaved;
-        if (quot-quotf>0.5) ressaved = (long)(quotf+1);
-        else if (quot-quotf<0.5) ressaved = (long)(quotf);
-        else ressaved = (long)(((((long)(quotf))&1)!=0)?(quotf+1):(quotf));
-        fpu.regs[fpu.top].d = valtop - ressaved*valdiv;
+        if (MicroDouble.gt(MicroDouble.sub(quot, quotf), MicroDouble.ONE_HALF)) ressaved = MicroDouble.add(quotf, MicroDouble.ONE);
+        else if (MicroDouble.lt(MicroDouble.sub(quot,quotf), MicroDouble.ONE_HALF)) ressaved = quotf;
+        else ressaved = ((MicroDouble.longValue(quotf)&1)!=0)?MicroDouble.add(quotf,MicroDouble.ONE):quotf;
+        ressaved = MicroDouble.longValue(ressaved);
+        fpu.regs[fpu.top].d = MicroDouble.sub(valtop, MicroDouble.mul(MicroDouble.longToDouble(ressaved),valdiv));
         FPU_SET_C0((int)(ressaved&4));
         FPU_SET_C3((int)(ressaved&2));
         FPU_SET_C1((int)(ressaved&1));
@@ -536,7 +532,7 @@ public class FPU {
             FPU_SET_C3(1);FPU_SET_C2(0);FPU_SET_C0(1);
             return;
         }
-        if(fpu.regs[fpu.top].d == 0.0)		//zero or normalized number.
+        if(MicroDouble.isZero(fpu.regs[fpu.top].d))		//zero or normalized number.
         {
             FPU_SET_C3(1);FPU_SET_C2(0);FPU_SET_C0(0);
         }
@@ -548,21 +544,21 @@ public class FPU {
 
 
     static private void FPU_F2XM1(){
-        fpu.regs[fpu.top].d = Math.pow(2.0,fpu.regs[fpu.top].d) - 1;
+        fpu.regs[fpu.top].d = MicroDouble.sub(MicroDouble.pow(MicroDouble.TWO,fpu.regs[fpu.top].d), MicroDouble.ONE);
     }
 
     static private void FPU_FYL2X(){
-        fpu.regs[STV(1)].d*=Math.log(fpu.regs[fpu.top].d)/Math.log((double)(2.0));
+        fpu.regs[STV(1)].d=MicroDouble.mul(fpu.regs[STV(1)].d, MicroDouble.div(MicroDouble.log(fpu.regs[fpu.top].d),MicroDouble.log(MicroDouble.TWO)));
         FPU_FPOP();
     }
 
     static private void FPU_FYL2XP1(){
-        fpu.regs[STV(1)].d*=Math.log(fpu.regs[fpu.top].d+1.0)/Math.log((double)(2.0));
+        fpu.regs[STV(1)].d=MicroDouble.mul(fpu.regs[STV(1)].d, MicroDouble.div(MicroDouble.log(MicroDouble.add(fpu.regs[fpu.top].d, MicroDouble.ONE)), MicroDouble.log(MicroDouble.TWO)));
         FPU_FPOP();
     }
 
     static private void FPU_FSCALE(){
-        fpu.regs[fpu.top].d *= Math.pow(2.0,(double)((long)(fpu.regs[STV(1)].d)));
+        fpu.regs[fpu.top].d = MicroDouble.mul(fpu.regs[fpu.top].d, MicroDouble.pow(MicroDouble.TWO, MicroDouble.truncate(fpu.regs[STV(1)].d)));
         //2^x where x is chopped.
     }
 
@@ -625,27 +621,28 @@ public class FPU {
         FPU_Reg test = new FPU_Reg(fpu.regs[fpu.top]);
         /*Bit64s*/long exp80 =  test.ll() & 0x7ff0000000000000l;
         /*Bit64s*/long exp80final = (exp80>>52) - BIAS64;
-        /*Real64*/double mant = test.d / (Math.pow(2.0,(double)(exp80final)));
-        fpu.regs[fpu.top].d = (double)(exp80final);
+        exp80final = MicroDouble.longToDouble(exp80final);
+        /*Real64*/long mant = MicroDouble.div(test.d , MicroDouble.pow(MicroDouble.TWO, exp80final));
+        fpu.regs[fpu.top].d = exp80final;
         FPU_PUSH(mant);
     }
 
     static private void FPU_FCHS(){
-        fpu.regs[fpu.top].d = -1.0*(fpu.regs[fpu.top].d);
+        fpu.regs[fpu.top].d = MicroDouble.negate(fpu.regs[fpu.top].d);
     }
 
     static private void FPU_FABS(){
-        fpu.regs[fpu.top].d = Math.abs(fpu.regs[fpu.top].d);
+        fpu.regs[fpu.top].d = MicroDouble.abs(fpu.regs[fpu.top].d);
     }
 
     static private void FPU_FTST(){
-        fpu.regs[8].d = 0.0;
+        fpu.regs[8].d = MicroDouble.ZERO;
         FPU_FCOM(fpu.top,8);
     }
 
     static private void FPU_FLD1(){
         FPU_PREP_PUSH();
-        fpu.regs[fpu.top].d = 1.0;
+        fpu.regs[fpu.top].d = MicroDouble.ONE;
     }
 
     static private void FPU_FLDL2T(){
@@ -675,7 +672,7 @@ public class FPU {
 
     static private void FPU_FLDZ(){
         FPU_PREP_PUSH();
-        fpu.regs[fpu.top].d = 0.0;
+        fpu.regs[fpu.top].d = MicroDouble.ZERO;
         fpu.tags[fpu.top] = TAG_Zero;
     }
 
@@ -702,7 +699,7 @@ public class FPU {
         FPU_FCOM(op1,8);
     }
 
-    private static FPU_rec fpu=new FPU_rec();
+    public static FPU_rec fpu=new FPU_rec();
 
     static private void FPU_FLDCW(/*PhysPt*/int addr){
         /*Bit16u*/int temp = Memory.mem_readw(addr);
@@ -767,23 +764,23 @@ public class FPU {
         case 0x00:		/* FADD ST,STi */
             FPU_FADD(fpu.top,STV(sub));
             break;
-        case 0x01:		/* FMUL  ST,STi */
+        case 0x01:		/* FMUL ST,STi */
             FPU_FMUL(fpu.top,STV(sub));
             break;
-        case 0x02:		/* FCOM  STi */
+        case 0x02:		/* FCOM STi */
             FPU_FCOM(fpu.top,STV(sub));
             break;
         case 0x03:		/* FCOMP STi */
             FPU_FCOM(fpu.top,STV(sub));
             FPU_FPOP();
             break;
-        case 0x04:		/* FSUB  ST,STi */
+        case 0x04:		/* FSUB ST,STi */
             FPU_FSUB(fpu.top,STV(sub));
             break;
         case 0x05:		/* FSUBR ST,STi */
             FPU_FSUBR(fpu.top,STV(sub));
             break;
-        case 0x06:		/* FDIV  ST,STi */
+        case 0x06:		/* FDIV ST,STi */
             FPU_FDIV(fpu.top,STV(sub));
             break;
         case 0x07:		/* FDIVR ST,STi */

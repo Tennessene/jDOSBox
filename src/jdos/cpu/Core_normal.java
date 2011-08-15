@@ -107,6 +107,7 @@ public class Core_normal extends Prefix_66_0f {
                                     }
                                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL,"Illegal/Unhandled opcode "+tempcode);
                                 }
+                                Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL,"Illegal/Unhandled opcode "+Integer.toHexString(c));
                                 CPU.CPU_Exception(6,0);
                                 break;
                             }

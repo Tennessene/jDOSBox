@@ -238,7 +238,7 @@ public class FPU {
         /*Bit64s*/long blah = ((exp64 >0)?exp64:-exp64)&0x3ff;
         /*Bit64s*/long exp64final = ((exp64 >0)?blah:-blah) +BIAS64;
 
-        /*Bit64s*/long mant64 = (test.eind.ll() >>> 11) & 0xfffffffffffffl;
+        /*Bit64s*/long mant64 = ((test.eind.ll()+0x3FF) >>> 11) & 0xfffffffffffffl;
         /*Bit64s*/long sign = (test.begin&0x8000)!=0?1:0;
         FPU_Reg result=new FPU_Reg();
         result.ll((sign <<63)|(exp64final << 52)| mant64);

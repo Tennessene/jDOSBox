@@ -3,23 +3,21 @@ package jdos.gui;
 import jdos.sdl.GUI;
 import jdos.util.FileHelper;
 import jdos.util.Progress;
-import jdos.util.UnZip;
 import jdos.util.StringHelper;
+import jdos.util.UnZip;
 
 import java.applet.Applet;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.event.*;
-import java.awt.image.MemoryImageSource;
 import java.awt.image.BufferedImage;
-import java.util.Vector;
-import java.io.File;
+import java.awt.image.MemoryImageSource;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URLConnection;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.util.Vector;
 
 public class MainApplet extends Applet implements GUI, KeyListener, Runnable, MouseListener, MouseMotionListener {
     final private static String base_dir = ".jdosbox";
@@ -32,6 +30,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     private int progressPercent = 0;
     private long progressTotal = 0;
     private long progressCompleted = 0;
+    private Color backgroundColor = Color.darkGray;
 
     static private int current_id = 0;
     private int id;
@@ -57,7 +56,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
 
     public void setSize(int width, int height) {
-        resize(width, height);
+        //resize(width, height);
     }
     public void dopaint() {
         repaint();
@@ -152,6 +151,21 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     private void unzip(File file, File directory) {
         UnZip.unzip(file.getAbsolutePath(), directory.getAbsolutePath(), progressBar);
     }
+
+    private Color parseColorStr(String s) {
+        int r, g, b;
+        if (s.length() == 7 && s.charAt(0) == '#') {
+            try {
+                r = Integer.parseInt(s.substring(1, 3), 16);
+                g = Integer.parseInt(s.substring(3, 5), 16);
+                b = Integer.parseInt(s.substring(5, 7), 16);
+                return (new Color(r, g, b));
+            } catch (Exception e) {
+            }
+        }
+        return (Color.black);
+    }
+
     public void run() {
         System.out.println("About to start DosBox");
         // Not sure why this pause helps so much or what the right value is
@@ -179,6 +193,10 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                 System.out.println("download parameter should be the url of a .zip or .7z file");
                 e.printStackTrace();
             }
+        }
+        String bg = getParameter("background-color");
+        if (bg!=null) {
+            backgroundColor = parseColorStr(bg);
         }
         progressMsg = null;
         progressPercent = 0;
@@ -303,11 +321,25 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
 
     private void draw(Graphics g) {
+        int x = 0;
+        int y = 0;
+        if (Main.screen_width<this.getWidth()) {
+            x = (getWidth()-Main.screen_width)/2;
+            g.setColor(backgroundColor);
+            g.fillRect(0, 0, x, getHeight());
+            g.fillRect(x+Main.screen_width, 0, getWidth()-(x+Main.screen_width), getHeight());
+        }
+        if (Main.screen_height<this.getHeight()) {
+            y = (getHeight()-Main.screen_height)/2;
+            g.setColor(backgroundColor);
+            g.fillRect(0, 0, getWidth(), y);
+            g.fillRect(0, y+Main.screen_height, getWidth(), getHeight()-(y+Main.screen_height));
+        }
         if (Render.render!=null && Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
             BufferedImage resized = MainFrame.resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g.drawImage(resized, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.screen_width, Main.screen_height, null);
+            g.drawImage(resized, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.screen_width, Main.screen_height, null);
         } else {
-            g.drawImage(Main.buffer, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);
+            g.drawImage(Main.buffer, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.buffer_width, Main.buffer_height, null);
         }
     }
     public void update( Graphics g ) {

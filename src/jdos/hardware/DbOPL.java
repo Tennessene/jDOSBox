@@ -888,7 +888,7 @@ public class DbOPL {
                 }
 
                 //Do unsigned shift so we can shift out all bits but still stay in 10 bit range otherwise
-                /*Bit32s*/int mod = (/*Bit32u*/int)((old[0] + old[1])) >> feedback;
+                /*Bit32s*/int mod = (/*Bit32u*/int)((old[0] + old[1])) >>> feedback;
                 old[0] = old[1];
                 old[1] = Op(0).GetSample( mod );
                 /*Bit32s*/int sample=0;

@@ -6,13 +6,15 @@ import jdos.misc.Program;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
 import jdos.util.FloatRef;
-import jdos.util.IntPtr;
 import jdos.util.Ptr;
 import jdos.util.ShortPtr;
 
-import javax.sound.sampled.*;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.SourceDataLine;
 
 public class Mixer extends Program {
     static public interface MIXER_MixHandler {
@@ -788,13 +790,15 @@ public class Mixer extends Program {
 
 
     static private Thread audioThread;
-
+    static private boolean lineStarted = false;
     private static boolean open(AudioFormat format) {
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             line = (SourceDataLine)AudioSystem.getLine(info);
-            line.open(format);
-            line.start();
+            // Java in general can have a pretty big audio delay apart from the buffer and can very between JVM's and OS's
+            // Currently there are no real time audio APIs
+            line.open(format, (int)(mixer.freq>>2)/4*4); // 1/16 second at 16-bit stereo (4 bytes x mixer.freq) / second
+            //line.start();
             audioThreadExit = false;
             audioThread = new Thread() {
                 public void run() {
@@ -803,15 +807,35 @@ public class Mixer extends Program {
                         synchronized (audioMutex) {
                             result = MIXER_CallBack(0, audioBuffer, audioBuffer.length);
                         }
-                        if (result)
-                            line.write(audioBuffer, 0, audioBuffer.length);
-                        else {
+                        if (result) {
+                            int available = line.available();
+                            int len = audioBuffer.length;
+                            int offset = 0;
+                            while (len>0) {
+                                if (len>available) {
+                                    if (!lineStarted) {
+                                        line.start();
+                                        lineStarted = true;
+                                    }
+                                    if (available>0) {
+                                        line.write(audioBuffer, offset, available);
+                                        len-=available;
+                                        offset+=available;
+                                    }
+                                    try {Thread.sleep(10);} catch (Exception e) {}
+                                    available = line.available();
+                                } else {
+                                    line.write(audioBuffer, offset, len);
+                                    break;
+                                }
+                            }
+                        } else {
                             try {Thread.sleep(20);} catch (Exception e){}
                         }
                     }
                 }
             };
-            audioBuffer = new byte[512]; // this needs to be smaller than buffer size passed into open other line.write will block
+            audioBuffer = new byte[128];
             audioThread.start();
             return true;
         } catch (Exception e) {

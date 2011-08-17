@@ -105,9 +105,9 @@ public class Core_normal extends Prefix_66_0f {
                                     for (;len>0;len--) {
                                         tempcode.append(Integer.toHexString(Memory.mem_readb(cseip++)));
                                     }
-                                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL,"Illegal/Unhandled opcode "+tempcode);
                                 }
-                                Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL,"Illegal/Unhandled opcode "+Integer.toHexString(c));
+                                if (Log.level<=LogSeverities.LOG_NORMAL)
+                                    Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL,"Illegal/Unhandled opcode "+Integer.toHexString(c));
                                 CPU.CPU_Exception(6,0);
                                 break;
                             }

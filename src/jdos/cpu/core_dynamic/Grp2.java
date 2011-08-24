@@ -2,7 +2,6 @@ package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Instructions;
-import jdos.cpu.Paging;
 import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 
@@ -130,11 +129,7 @@ public class Grp2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_ROLB(eaa, val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_ROLB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_ROLB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_ROLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -152,11 +147,7 @@ public class Grp2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RORB(eaa, val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_RORB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_RORB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_RORB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -174,11 +165,7 @@ public class Grp2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RCLB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_RCLB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_RCLB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_RCLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -196,11 +183,7 @@ public class Grp2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RCRB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_RCRB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_RCRB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_RCRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -216,13 +199,9 @@ public class Grp2 extends Helper {
 
         }
         public int call() {
-            int eaa = get_eaa.call();
             if (Instructions.valid_SHLB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_SHLB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_SHLB(val, Memory.mem_readb(eaa)));
+                int eaa = get_eaa.call();
+                Memory.mem_writeb(eaa, Instructions.do_SHLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -237,13 +216,9 @@ public class Grp2 extends Helper {
             this.val=val;
         }
         public int call() {
-            int eaa = get_eaa.call();
             if (Instructions.valid_SHRB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_SHRB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_SHRB(val, Memory.mem_readb(eaa)));
+                int eaa = get_eaa.call();
+                Memory.mem_writeb(eaa, Instructions.do_SHRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -258,13 +233,9 @@ public class Grp2 extends Helper {
             this.val=val;
         }
         public int call() {
-            int eaa = get_eaa.call();
             if (Instructions.valid_SARB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_SARB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_SARB(val, Memory.mem_readb(eaa)));
+                int eaa = get_eaa.call();
+                Memory.mem_writeb(eaa, Instructions.do_SARB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -393,13 +364,6 @@ public class Grp2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_ROLW(eaa, val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_ROLW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_ROLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -417,13 +381,6 @@ public class Grp2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RORW(eaa, val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_RORW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_RORW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -441,13 +398,6 @@ public class Grp2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RCLW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_RCLW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_RCLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -463,15 +413,8 @@ public class Grp2 extends Helper {
             this.val=val;
         }
         public int call() {
-            int eaa = get_eaa.call();
             if (Instructions.valid_RCRW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_RCRW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_RCRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -487,15 +430,8 @@ public class Grp2 extends Helper {
             this.val=val;
         }
         public int call() {
-            int eaa = get_eaa.call();
             if (Instructions.valid_SHLW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_SHLW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SHLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -511,15 +447,8 @@ public class Grp2 extends Helper {
             this.val=val;
         }
         public int call() {
-            int eaa = get_eaa.call();
             if (Instructions.valid_SHRW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_SHRW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SHRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -535,15 +464,8 @@ public class Grp2 extends Helper {
             this.val=val;
         }
         public int call() {
-            int eaa = get_eaa.call();
             if (Instructions.valid_SARW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_SARW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SARW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -658,11 +580,7 @@ public class Grp2 extends Helper {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_ROLB(eaa, val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_ROLB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_ROLB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_ROLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -678,11 +596,7 @@ public class Grp2 extends Helper {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RORB(eaa, val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_RORB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_RORB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_RORB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -698,11 +612,7 @@ public class Grp2 extends Helper {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCLB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_RCLB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_RCLB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_RCLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -718,11 +628,7 @@ public class Grp2 extends Helper {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCRB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_RCRB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_RCRB(val, Memory.mem_readb(eaa)));
+                Memory.mem_writeb(eaa, Instructions.do_RCRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -735,14 +641,10 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
         }
         public int call() {
-            int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHLB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_SHLB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_SHLB(val, Memory.mem_readb(eaa)));
+                int eaa = get_eaa.call();
+                Memory.mem_writeb(eaa, Instructions.do_SHLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -755,14 +657,10 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
         }
         public int call() {
-            int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHRB(reg_ecx.low())) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_SHRB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_SHRB(val, Memory.mem_readb(eaa)));
+                int eaa = get_eaa.call();
+                Memory.mem_writeb(eaa, Instructions.do_SHRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -775,14 +673,10 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
         }
         public int call() {
-            int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SARB(val)) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0)
-                    Memory.host_writeb(index, Instructions.do_SARB(val, Memory.host_readb(index)));
-                else
-                    Memory.mem_writeb(eaa, Instructions.do_SARB(val, Memory.mem_readb(eaa)));
+                int eaa = get_eaa.call();
+                Memory.mem_writeb(eaa, Instructions.do_SARB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
         }
@@ -899,13 +793,6 @@ public class Grp2 extends Helper {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_ROLW(eaa, val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_ROLW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_ROLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -922,13 +809,6 @@ public class Grp2 extends Helper {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RORW(eaa, val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_RORW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_RORW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -945,13 +825,6 @@ public class Grp2 extends Helper {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCLW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_RCLW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_RCLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -965,16 +838,9 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
         }
         public int call() {
-            int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCRW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_RCRW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_RCRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -988,16 +854,9 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
         }
         public int call() {
-            int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHLW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_SHLW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SHLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -1011,16 +870,9 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
         }
         public int call() {
-            int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHRW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_SHRW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SHRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -1034,16 +886,9 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
         }
         public int call() {
-            int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SARW(val)) {
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_SARW(val, Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
+                int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SARW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -1173,13 +1018,6 @@ public class Grp2 extends Helper {
         public int call() {
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.ROLD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.ROLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1197,13 +1035,6 @@ public class Grp2 extends Helper {
         public int call() {
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.RORD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.RORD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1221,13 +1052,6 @@ public class Grp2 extends Helper {
         public int call() {
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.RCLD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.RCLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1245,13 +1069,6 @@ public class Grp2 extends Helper {
         public int call() {
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.RCRD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.RCRD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1269,13 +1086,6 @@ public class Grp2 extends Helper {
         public int call() {
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.SHLD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.SHLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1293,13 +1103,6 @@ public class Grp2 extends Helper {
         public int call() {
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.SHRD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.SHRD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1317,13 +1120,6 @@ public class Grp2 extends Helper {
         public int call() {
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.SARD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.SARD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1441,13 +1237,6 @@ public class Grp2 extends Helper {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.ROLD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.ROLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1464,13 +1253,6 @@ public class Grp2 extends Helper {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.RORD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.RORD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1487,13 +1269,6 @@ public class Grp2 extends Helper {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.RCLD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.RCLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1510,13 +1285,6 @@ public class Grp2 extends Helper {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.RCRD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.RCRD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1533,13 +1301,6 @@ public class Grp2 extends Helper {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.SHLD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.SHLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1556,13 +1317,6 @@ public class Grp2 extends Helper {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.SHRD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.SHRD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -1579,13 +1333,6 @@ public class Grp2 extends Helper {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.SARD(val, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.SARD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;

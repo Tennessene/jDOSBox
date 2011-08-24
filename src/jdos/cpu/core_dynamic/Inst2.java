@@ -523,10 +523,10 @@ public class Inst2 extends Helper {
         }
         final protected int jump(boolean COND, int off) {
             if (COND) {
-                reg_ip(reg_ip()+off+(int)eip_count);
+                reg_ip(reg_ip()+off+eip_count);
                 return Constants.BR_Link1;
             }
-            reg_ip(reg_ip()+(int)eip_count);
+            reg_ip(reg_ip()+eip_count);
             return Constants.BR_Link2;
         }
     }
@@ -1029,7 +1029,7 @@ public class Inst2 extends Helper {
 
     final static public class PushFS extends Op {
         public int call() {
-            CPU.CPU_Push16((int) CPU.Segs_FSval);
+            CPU.CPU_Push16(CPU.Segs_FSval);
             return Constants.BR_Normal;
         }
     }
@@ -1113,13 +1113,6 @@ public class Inst2 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.do_DSHLW(rw.word(), op3, Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.do_DSHLW(rw.word(), op3, Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -1151,13 +1144,6 @@ public class Inst2 extends Helper {
         public int call() {
             if (Instructions.valid_DSHLW(CPU_Regs.reg_ecx.low())) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_DSHLW(rw.word(), CPU_Regs.reg_ecx.low(), Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_DSHLW(rw.word(), CPU_Regs.reg_ecx.low(), Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -1166,7 +1152,7 @@ public class Inst2 extends Helper {
 
     final static public class PushGS extends Op {
         public int call() {
-            CPU.CPU_Push16((int) CPU.Segs_GSval);
+            CPU.CPU_Push16(CPU.Segs_GSval);
             return Constants.BR_Normal;
         }
     }
@@ -1179,7 +1165,6 @@ public class Inst2 extends Helper {
     }
 
     final static public class BtsEwGw_reg extends Op {
-        int mask;
         Reg rw;
         Reg earw;
 
@@ -1189,7 +1174,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            mask=1 << (rw.word() & 15);
+            int mask=1 << (rw.word() & 15);
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word() | mask);
             return Constants.BR_Normal;
@@ -1197,7 +1182,6 @@ public class Inst2 extends Helper {
     }
 
     final static public class BtsEwGw_mem extends Op {
-        int mask;
         Reg rw;
         EaaBase get_eaa;
 
@@ -1207,19 +1191,9 @@ public class Inst2 extends Helper {
         }
         public int call() {
             Flags.FillFlags();
-            mask=1 << (rw.word() & 15);
+            int mask=1 << (rw.word() & 15);
             int eaa=get_eaa.call();
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
-
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                     int old=Memory.host_readw(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writew(index,old | mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old | mask);
@@ -1255,13 +1229,6 @@ public class Inst2 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.do_DSHRW(rw.word(), op3, Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.do_DSHRW(rw.word(), op3, Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -1293,13 +1260,6 @@ public class Inst2 extends Helper {
         public int call() {
             if (Instructions.valid_DSHRW(CPU_Regs.reg_ecx.low())) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFF) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writew(index, Instructions.do_DSHRW(rw.word(), CPU_Regs.reg_ecx.low(), Memory.host_readw(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writew(eaa, Instructions.do_DSHRW(rw.word(), CPU_Regs.reg_ecx.low(), Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
@@ -1367,27 +1327,14 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0) {
-                short val = Memory.host_readb(index);
-                if (reg_eax.low() == val) {
-                    Memory.host_writeb(index,rb.get8());
-                    SETFLAGBIT(ZF,true);
-                } else {
-                    Memory.host_writeb(index,val);	// cmpxchg always issues a write
-                    reg_eax.low(val);
-                    SETFLAGBIT(ZF,false);
-                }
+            short val = Memory.mem_readb(eaa);
+            if (reg_eax.low() == val) {
+                Memory.mem_writeb(eaa,rb.get8());
+                SETFLAGBIT(ZF,true);
             } else {
-                short val = Memory.mem_readb(eaa);
-                if (reg_eax.low() == val) {
-                    Memory.mem_writeb(eaa,rb.get8());
-                    SETFLAGBIT(ZF,true);
-                } else {
-                    Memory.mem_writeb(eaa,val);	// cmpxchg always issues a write
-                    reg_eax.low(val);
-                    SETFLAGBIT(ZF,false);
-                }
+                Memory.mem_writeb(eaa,val);	// cmpxchg always issues a write
+                reg_eax.low(val);
+                SETFLAGBIT(ZF,false);
             }
             return Constants.BR_Normal;
         }
@@ -1424,21 +1371,6 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int val = Memory.host_readw(index);
-                    if (reg_eax.word() == val) {
-                        Memory.host_writew(index,rw.word());
-                        SETFLAGBIT(ZF,true);
-                    } else {
-                        Memory.host_writew(index,val);	// cmpxchg always issues a write
-                        reg_eax.word(val);
-                        SETFLAGBIT(ZF,false);
-                    }
-                    return Constants.BR_Normal;
-                }
-            }
             int val = Memory.mem_readw(eaa);
             if (reg_eax.word() == val) {
                 Memory.mem_writew(eaa,rw.word());
@@ -1499,15 +1431,6 @@ public class Inst2 extends Helper {
             Flags.FillFlags();
             int mask=1 << (rw.word() & 15);
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readw(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writew(index,old & ~mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old & ~mask);
@@ -1696,15 +1619,6 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readw(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writew(index,old|mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old|mask);
@@ -1723,15 +1637,6 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readw(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writew(index,old & ~mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old & ~mask);
@@ -1750,15 +1655,6 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readw(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writew(index,old ^ mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old ^ mask);
@@ -1797,16 +1693,6 @@ public class Inst2 extends Helper {
             int mask=1 << (rw.word() & 15);
             int eaa=get_eaa.call();
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readw(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writew(index,old ^ mask);
-                    return Constants.BR_Normal;
-                }
-            }
-
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old ^ mask);
@@ -1972,13 +1858,6 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             short oldrmrb=rb.get8();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0) {
-                short val = Memory.host_readb(index);
-                Memory.host_writeb(index,(short)(val+oldrmrb));
-                rb.set8(val);
-                return Constants.BR_Normal;
-            }
             short val = Memory.mem_readb(eaa);
             Memory.mem_writeb(eaa,val+oldrmrb);
             rb.set8(val);
@@ -2015,15 +1894,6 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             int oldrmrb=rw.word();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int val = Memory.host_readw(index);
-                    Memory.host_writew(index,val+oldrmrb);
-                    rw.word(val);
-                    return Constants.BR_Normal;
-                }
-            }
             int val = Memory.mem_readw(eaa);
             Memory.mem_writew(eaa,val+oldrmrb);
             rw.word(val);

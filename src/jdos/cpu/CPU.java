@@ -508,7 +508,7 @@ public class CPU extends Module_base {
     static public /*Bitu*/int Segs_FSphys;
     static public /*Bitu*/int Segs_GSphys;
 
-    static public long seg_value(int index) {
+    static public int seg_value(int index) {
         switch (index) {
             case CPU_Regs.es:
                 return Segs_ESval;

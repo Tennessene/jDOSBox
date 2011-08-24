@@ -334,13 +334,6 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             if (op3!=0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.DSHLD(rd.dword, op3, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.DSHLD(rd.dword, op3, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -375,13 +368,6 @@ static abstract public class JumpCond32_d extends Op {
             int op3 = CPU_Regs.reg_ecx.low() & 0x1F;
             if (op3!=0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.DSHLD(rd.dword, op3, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.DSHLD(rd.dword, op3, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -434,16 +420,6 @@ static abstract public class JumpCond32_d extends Op {
             mask=1 << (rd.dword & 31);
             int eaa=get_eaa.call();
             eaa+=(rd.dword>>5)*4; // intentional signed shift
-
-            if ((eaa & 0xFFF)<0xFFD) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readd(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writed(index,old | mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readd(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writed(eaa,old | mask);
@@ -481,13 +457,6 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             if (op3!=0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.DSHRD(rd.dword, op3, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.DSHRD(rd.dword, op3, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -522,13 +491,6 @@ static abstract public class JumpCond32_d extends Op {
             int op3=CPU_Regs.reg_ecx.low() & 0x1F;
             if (op3!=0) {
                 int eaa = get_eaa.call();
-                if ((eaa & 0xFFF)<0xFFD) {
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writed(index, Instructions.DSHRD(rd.dword, op3, Memory.host_readd(index)));
-                        return Constants.BR_Normal;
-                    }
-                }
                 Memory.mem_writed(eaa, Instructions.DSHRD(rd.dword, op3, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
@@ -596,21 +558,6 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFD) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int val = Memory.host_readd(index);
-                    if (reg_eax.dword == val) {
-                        Memory.host_writed(index,rd.dword);
-                        SETFLAGBIT(ZF,true);
-                    } else {
-                        Memory.host_writed(index,val);	// cmpxchg always issues a write
-                        reg_eax.dword=val;
-                        SETFLAGBIT(ZF,false);
-                    }
-                    return Constants.BR_Normal;
-                }
-            }
             int val = Memory.mem_readd(eaa);
             if (reg_eax.dword == val) {
                 Memory.mem_writed(eaa,rd.dword);
@@ -673,16 +620,6 @@ static abstract public class JumpCond32_d extends Op {
             Flags.FillFlags();
             int mask=1 << (rd.dword & 31);
             eaa+=(rd.dword>>5)*4; // intentional signed shift
-
-            if ((eaa & 0xFFF)<0xFFD) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readd(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writed(index,old & ~mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readd(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writed(eaa,old & ~mask);
@@ -872,15 +809,6 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFD) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readd(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writed(index,old|mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readd(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writed(eaa,old|mask);
@@ -899,15 +827,6 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFD) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readd(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writed(index,old & ~mask);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readd(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writed(eaa,old & ~mask);
@@ -926,17 +845,6 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFD) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readd(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    if (GETFLAG(CF)!=0) old&=~mask;
-                    else old|=mask;
-                    Memory.host_writed(index,old);
-                    return Constants.BR_Normal;
-                }
-            }
             int old=Memory.mem_readd(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             if (GETFLAG(CF)!=0) old&=~mask;
@@ -977,16 +885,6 @@ static abstract public class JumpCond32_d extends Op {
             int mask=1 << (rd.dword & 31);
             int eaa=get_eaa.call();
             eaa+=(rd.dword>>5)*4; // intentional signed shift
-            if ((eaa & 0xFFF)<0xFF4) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int old=Memory.host_readd(index);
-                    SETFLAGBIT(CF,(old & mask)!=0);
-                    Memory.host_writed(index,old ^ mask);
-                    return Constants.BR_Normal;
-                }
-            }
-
             int old=Memory.mem_readd(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writed(eaa,old ^ mask);
@@ -1183,15 +1081,6 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             int eaa=get_eaa.call();
             int oldrmrd=rd.dword;
-            if ((eaa & 0xFFF)<0xFFD) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int val = Memory.host_readd(index);
-                    Memory.host_writed(index,val+oldrmrd);
-                    rd.dword=val;
-                    return Constants.BR_Normal;
-                }
-            }
             int val = Memory.mem_readd(eaa);
             Memory.mem_writed(eaa,val+oldrmrd);
             rd.dword=val;

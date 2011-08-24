@@ -38,11 +38,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ADDB(g.get8(), Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ADDB(g.get8(), Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ADDB(g.get8(), Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -87,13 +83,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ADDW(g.word(), Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ADDW(g.word(), Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -163,11 +152,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ORB(g.get8(), Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ORB(g.get8(), Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ORB(g.get8(), Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -212,13 +197,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ORW(g.word(), Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ORW(g.word(), Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -288,11 +266,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ADCB(g.get8(), Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ADCB(g.get8(), Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ADCB(g.get8(), Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -337,13 +311,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ADCW(g.word(), Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ADCW(g.word(), Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -413,11 +380,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.SBBB(g.get8(), Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.SBBB(g.get8(), Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.SBBB(g.get8(), Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -462,13 +425,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.SBBW(g.word(), Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.SBBW(g.word(), Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -538,11 +494,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ANDB(g.get8(), Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ANDB(g.get8(), Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ANDB(g.get8(), Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -587,13 +539,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ANDW(g.word(), Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ANDW(g.word(), Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -663,11 +608,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.SUBB(g.get8(), Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.SUBB(g.get8(), Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.SUBB(g.get8(), Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -712,13 +653,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.SUBW(g.word(), Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.SUBW(g.word(), Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -788,11 +722,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.XORB(g.get8(), Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.XORB(g.get8(), Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.XORB(g.get8(), Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -837,13 +767,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = e.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.XORW(g.word(), Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.XORW(g.word(), Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -1004,7 +927,7 @@ public class Inst1 extends Helper {
 
     final static public class PushES extends Op {
         public int call() {
-            CPU.CPU_Push16((int) CPU.Segs_ESval);
+            CPU.CPU_Push16(CPU.Segs_ESval);
             return Constants.BR_Normal;
         }
     }
@@ -1016,13 +939,13 @@ public class Inst1 extends Helper {
     }
     final static public class PushCS extends Op {
         public int call() {
-            CPU.CPU_Push16((int) CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU.Segs_CSval);
             return Constants.BR_Normal;
         }
     }
     final static public class PushSS extends Op {
         public int call() {
-            CPU.CPU_Push16((int) CPU.Segs_SSval);
+            CPU.CPU_Push16(CPU.Segs_SSval);
             return Constants.BR_Normal;
         }
     }
@@ -1035,7 +958,7 @@ public class Inst1 extends Helper {
     }
     final static public class PushDS extends Op {
         public int call() {
-            CPU.CPU_Push16((int) CPU.Segs_DSval);
+            CPU.CPU_Push16(CPU.Segs_DSval);
             return Constants.BR_Normal;
         }
     }
@@ -1275,21 +1198,9 @@ public class Inst1 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             int eaa=get_eaa.call();
-
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    ref.value = Memory.host_readw(index);
-                    CPU.CPU_ARPL(ref,rw.word());
-                    Memory.host_writew(index,ref.value);
-                    return Constants.BR_Normal;
-                }
-            }
             ref.value = Memory.mem_readw(eaa);
             CPU.CPU_ARPL(ref,rw.word());
             Memory.mem_writew(eaa,ref.value);
-
-
             return Constants.BR_Normal;
         }
     }
@@ -1383,10 +1294,10 @@ public class Inst1 extends Helper {
 
         final protected int jump(boolean COND, int off) {
             if (COND) {
-                reg_ip(reg_ip()+off+(int)eip_count);
+                reg_ip(reg_ip()+off+eip_count);
                 return Constants.BR_Link1;
             }
-            reg_ip(reg_ip()+(int)eip_count);
+            reg_ip(reg_ip()+eip_count);
             return Constants.BR_Link2;
         }
     }
@@ -1609,11 +1520,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ADDB(ib,Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ADDB(ib,Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ADDB(ib,Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -1628,11 +1535,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ORB(ib,Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ORB(ib,Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ORB(ib,Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -1647,11 +1550,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ADCB(ib,Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ADCB(ib,Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ADCB(ib,Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -1666,11 +1565,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.SBBB(ib,Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.SBBB(ib,Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.SBBB(ib,Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -1685,11 +1580,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.ANDB(ib,Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.ANDB(ib,Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.ANDB(ib,Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -1704,11 +1595,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.SUBB(ib,Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.SUBB(ib,Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.SUBB(ib,Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -1723,11 +1610,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.XORB(ib,Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.XORB(ib,Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.XORB(ib,Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -1896,13 +1779,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ADDW(ib,Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ADDW(ib,Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -1921,13 +1797,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ORW(ib,Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ORW(ib,Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -1946,13 +1815,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ADCW(ib,Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ADCW(ib,Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -1971,13 +1833,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.SBBW(ib,Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.SBBW(ib,Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -1996,13 +1851,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.ANDW(ib,Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.ANDW(ib,Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -2021,13 +1869,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.SUBW(ib,Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.SUBW(ib,Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -2046,13 +1887,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.XORW(ib,Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.XORW(ib,Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -2162,16 +1996,9 @@ public class Inst1 extends Helper {
         public int call() {
             short oldrmrb=rb.get8();
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0) {
-                short newrb = Memory.host_readb(index);
-                Memory.host_writeb(index,oldrmrb);
-                rb.set8(newrb);
-            } else {
-                short newrb = Memory.mem_readb(eaa);
-                Memory.mem_writeb(eaa,oldrmrb);
-                rb.set8(newrb);
-            }
+            short newrb = Memory.mem_readb(eaa);
+            Memory.mem_writeb(eaa,oldrmrb);
+            rb.set8(newrb);
             return Constants.BR_Normal;
         }
     }
@@ -2204,15 +2031,6 @@ public class Inst1 extends Helper {
         public int call() {
             int oldrmrw=rw.word();
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF) < 0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    int newrw = Memory.host_readw(index);
-                    Memory.host_writew(index,oldrmrw);
-                    rw.word(newrw);
-                    return Constants.BR_Normal;
-                }
-            }
             int newrw = Memory.mem_readw(eaa);
             Memory.mem_writew(eaa,oldrmrw);
             rw.word(newrw);
@@ -2262,9 +2080,9 @@ public class Inst1 extends Helper {
 
         public int call() {
             if (CPU.cpu.pmode && !CPU.cpu.code.big) {
-                CPU.cpu.gdt.GetDescriptor((int)CPU.seg_value(Core.base_val_ds),desc);
+                CPU.cpu.gdt.GetDescriptor(CPU.seg_value(Core.base_val_ds),desc);
                 if ((desc.Type()==CPU.DESC_CODE_R_NC_A) || (desc.Type()==CPU.DESC_CODE_R_NC_NA)) {
-                    CPU.CPU_Exception(CPU.EXCEPTION_GP,(int)CPU.seg_value(Core.base_val_ds) & 0xfffc);
+                    CPU.CPU_Exception(CPU.EXCEPTION_GP,CPU.seg_value(Core.base_val_ds) & 0xfffc);
                     return Constants.BR_Jump;
                 }
             }
@@ -2371,7 +2189,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word((int)CPU.Segs_ESval);
+            earw.word(CPU.Segs_ESval);
             return Constants.BR_Normal;
         }
     }
@@ -2384,7 +2202,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,(int)CPU.Segs_ESval);
+            Memory.mem_writew(eaa,CPU.Segs_ESval);
             return Constants.BR_Normal;
         }
     }
@@ -2396,7 +2214,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word((int)CPU.Segs_CSval);
+            earw.word(CPU.Segs_CSval);
             return Constants.BR_Normal;
         }
     }
@@ -2409,7 +2227,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,(int)CPU.Segs_CSval);
+            Memory.mem_writew(eaa,CPU.Segs_CSval);
             return Constants.BR_Normal;
         }
     }
@@ -2421,7 +2239,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word((int)CPU.Segs_SSval);
+            earw.word(CPU.Segs_SSval);
             return Constants.BR_Normal;
         }
     }
@@ -2434,7 +2252,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,(int)CPU.Segs_SSval);
+            Memory.mem_writew(eaa,CPU.Segs_SSval);
             return Constants.BR_Normal;
         }
     }
@@ -2446,7 +2264,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word((int)CPU.Segs_DSval);
+            earw.word(CPU.Segs_DSval);
             return Constants.BR_Normal;
         }
     }
@@ -2459,7 +2277,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,(int)CPU.Segs_DSval);
+            Memory.mem_writew(eaa,CPU.Segs_DSval);
             return Constants.BR_Normal;
         }
     }
@@ -2471,7 +2289,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word((int)CPU.Segs_FSval);
+            earw.word(CPU.Segs_FSval);
             return Constants.BR_Normal;
         }
     }
@@ -2484,7 +2302,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,(int)CPU.Segs_FSval);
+            Memory.mem_writew(eaa,CPU.Segs_FSval);
             return Constants.BR_Normal;
         }
     }
@@ -2496,7 +2314,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word((int)CPU.Segs_GSval);
+            earw.word(CPU.Segs_GSval);
             return Constants.BR_Normal;
         }
     }
@@ -2509,7 +2327,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,(int)CPU.Segs_GSval);
+            Memory.mem_writew(eaa,CPU.Segs_GSval);
             return Constants.BR_Normal;
         }
     }
@@ -2537,7 +2355,7 @@ public class Inst1 extends Helper {
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
             int eaa = get_eaa.call();
-            rw.word((int)(eaa));
+            rw.word(eaa);
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
@@ -2557,7 +2375,7 @@ public class Inst1 extends Helper {
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
             int eaa = get_eaa.call();
-            rw.word((int)(eaa));
+            rw.word(eaa);
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
@@ -3592,11 +3410,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.INCB(Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.INCB(Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.INCB(Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -3619,11 +3433,7 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            int index = Paging.getDirectIndex(eaa);
-            if (index>=0)
-                Memory.host_writeb(index, Instructions.DECB(Memory.host_readb(index)));
-            else
-                Memory.mem_writeb(eaa, Instructions.DECB(Memory.mem_readb(eaa)));
+            Memory.mem_writeb(eaa, Instructions.DECB(Memory.mem_readb(eaa)));
             return Constants.BR_Normal;
         }
     }
@@ -3658,13 +3468,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.INCW(Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.INCW(Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }
@@ -3688,13 +3491,6 @@ public class Inst1 extends Helper {
         }
         public int call() {
             int eaa = get_eaa.call();
-            if ((eaa & 0xFFF)<0xFFF) {
-                int index = Paging.getDirectIndex(eaa);
-                if (index>=0) {
-                    Memory.host_writew(index, Instructions.DECW(Memory.host_readw(index)));
-                    return Constants.BR_Normal;
-                }
-            }
             Memory.mem_writew(eaa, Instructions.DECW(Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
         }

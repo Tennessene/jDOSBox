@@ -150,7 +150,7 @@ public class Prefix_0f extends Prefix_none {
                 } else {
                     /*PhysPt*/int eaa=getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),int_ref_1);
                 }
-                Modrm.Getrw[rm].word((int)int_ref_1.value);
+                Modrm.Getrw[rm].word(int_ref_1.value);
                 return HANDLED;
             }
         };
@@ -263,7 +263,7 @@ public class Prefix_0f extends Prefix_none {
                     rm |= 0xc0;
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"MOV TR"+which+",XXX with non-register");
                 }
-                if (CPU.CPU_WRITE_TRX(which,(int)Modrm.GetEArd[rm].dword)) return RUNEXCEPTION();
+                if (CPU.CPU_WRITE_TRX(which,Modrm.GetEArd[rm].dword)) return RUNEXCEPTION();
                 return HANDLED;
             }
         };
@@ -556,7 +556,7 @@ public class Prefix_0f extends Prefix_none {
         /* PUSH FS */
         ops[0x1a0] = new OP() {
             final public int call() {
-                CPU.CPU_Push16((int)CPU.Segs_FSval);
+                CPU.CPU_Push16(CPU.Segs_FSval);
                 return HANDLED;
             }
         };
@@ -632,7 +632,7 @@ public class Prefix_0f extends Prefix_none {
         /* PUSH GS */
         ops[0x1a8] = new OP() {
             final public int call() {
-                CPU.CPU_Push16((int)CPU.Segs_GSval);
+                CPU.CPU_Push16(CPU.Segs_GSval);
                 return HANDLED;
             }
         };

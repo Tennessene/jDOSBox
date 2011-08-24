@@ -1,6 +1,9 @@
 package jdos.cpu.core_normal;
 
-import jdos.cpu.*;
+import jdos.cpu.CPU;
+import jdos.cpu.CPU_Regs;
+import jdos.cpu.Instructions;
+import jdos.cpu.Modrm;
 import jdos.hardware.Memory;
 
 public class Prefix_helpers extends Instructions {
@@ -321,22 +324,6 @@ public class Prefix_helpers extends Instructions {
             /*Bit8u*/int val=blah & 0x1f;
 
             if (val == 0) return;
-            if ((eaa & 0xFFF)<0xFFD) {
-                int addr = Paging.getDirectIndex(eaa);
-                if (addr>=0) {
-                    switch (which) {
-                    case 0x00:Memory.host_writed(addr, ROLD(val,Memory.host_readd(addr)));break;
-                    case 0x01:Memory.host_writed(addr, RORD(val,Memory.host_readd(addr)));break;
-                    case 0x02:Memory.host_writed(addr, RCLD(val,Memory.host_readd(addr)));break;
-                    case 0x03:Memory.host_writed(addr, RCRD(val,Memory.host_readd(addr)));break;
-                    case 0x04:/* SHL and SAL are the same */
-                    case 0x06:Memory.host_writed(addr, SHLD(val,Memory.host_readd(addr)));break;
-                    case 0x05:Memory.host_writed(addr, SHRD(val,Memory.host_readd(addr)));break;
-                    case 0x07:Memory.host_writed(addr, SARD(val,Memory.host_readd(addr)));break;
-                    }
-                    return;
-                }
-            }
             switch (which) {
             case 0x00:Memory.mem_writed(eaa, ROLD(val,Memory.mem_readd(eaa)));break;
             case 0x01:Memory.mem_writed(eaa, RORD(val,Memory.mem_readd(eaa)));break;

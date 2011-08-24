@@ -23,13 +23,6 @@ public class Prefix_66 extends Prefix_0f {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writed(index, ADDD(Modrm.Getrd[rm].dword,Memory.host_readd(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writed(eaa, ADDD(Modrm.Getrd[rm].dword,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
@@ -84,13 +77,6 @@ public class Prefix_66 extends Prefix_0f {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writed(index, ORD(Modrm.Getrd[rm].dword,Memory.host_readd(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writed(eaa, ORD(Modrm.Getrd[rm].dword,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
@@ -137,13 +123,6 @@ public class Prefix_66 extends Prefix_0f {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writed(index, ADCD(Modrm.Getrd[rm].dword,Memory.host_readd(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writed(eaa, ADCD(Modrm.Getrd[rm].dword,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
@@ -200,13 +179,6 @@ public class Prefix_66 extends Prefix_0f {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writed(index, SBBD(Modrm.Getrd[rm].dword,Memory.host_readd(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writed(eaa, SBBD(Modrm.Getrd[rm].dword,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
@@ -261,13 +233,6 @@ public class Prefix_66 extends Prefix_0f {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writed(index, ANDD(Modrm.Getrd[rm].dword,Memory.host_readd(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writed(eaa, ANDD(Modrm.Getrd[rm].dword,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
@@ -306,13 +271,6 @@ public class Prefix_66 extends Prefix_0f {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writed(index, SUBD(Modrm.Getrd[rm].dword,Memory.host_readd(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writed(eaa, SUBD(Modrm.Getrd[rm].dword,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
@@ -351,13 +309,6 @@ public class Prefix_66 extends Prefix_0f {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writed(index, XORD(Modrm.Getrd[rm].dword,Memory.host_readd(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writed(eaa, XORD(Modrm.Getrd[rm].dword,Memory.mem_readd(eaa)));
                 }
                 return HANDLED;
@@ -958,22 +909,6 @@ public class Prefix_66 extends Prefix_0f {
                 } else {
                     int eaa = getEaa(rm);
                     /*Bit32u*/int id= Fetchd();
-                    if ((eaa & 0xFFF) < 0xFFD) {
-                        int addr = Paging.getDirectIndex(eaa);
-                        if (addr>=0) {
-                            switch (which) {
-                            case 0x00:Memory.host_writed(addr, ADDD(id,Memory.host_readd(addr)));break;
-                            case 0x01: Memory.host_writed(addr, ORD(id,Memory.host_readd(addr)));break;
-                            case 0x02:Memory.host_writed(addr, ADCD(id,Memory.host_readd(addr)));break;
-                            case 0x03:Memory.host_writed(addr, SBBD(id,Memory.host_readd(addr)));break;
-                            case 0x04:Memory.host_writed(addr, ANDD(id,Memory.host_readd(addr)));break;
-                            case 0x05:Memory.host_writed(addr, SUBD(id,Memory.host_readd(addr)));break;
-                            case 0x06:Memory.host_writed(addr, XORD(id,Memory.host_readd(addr)));break;
-                            case 0x07:CMPD(id,Memory.host_readd(addr));break;
-                            }
-                            return HANDLED;
-                        }
-                    }
                     switch (which) {
                     case 0x00:Memory.mem_writed(eaa, ADDD(id,Memory.mem_readd(eaa)));break;
                     case 0x01: Memory.mem_writed(eaa, ORD(id,Memory.mem_readd(eaa)));break;
@@ -1011,30 +946,14 @@ public class Prefix_66 extends Prefix_0f {
                     int eaa = getEaa(rm);
 
                     /*Bit32u*/int id=Fetchbs();
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            switch (which) {
-                            case 0x00:Memory.host_writed(index, ADDD((int)id,Memory.host_readd(index)));break;
-                            case 0x01: Memory.host_writed(index, ORD((int)id,Memory.host_readd(index)));break;
-                            case 0x02:Memory.host_writed(index, ADCD((int)id,Memory.host_readd(index)));break;
-                            case 0x03:Memory.host_writed(index, SBBD((int)id,Memory.host_readd(index)));break;
-                            case 0x04:Memory.host_writed(index, ANDD((int)id,Memory.host_readd(index)));break;
-                            case 0x05:Memory.host_writed(index, SUBD((int)id,Memory.host_readd(index)));break;
-                            case 0x06:Memory.host_writed(index, XORD((int)id,Memory.host_readd(index)));break;
-                            case 0x07:CMPD(id,Memory.host_readd(index));break;
-                            }
-                            return HANDLED;
-                        }
-                    }
                     switch (which) {
-                    case 0x00:Memory.mem_writed(eaa, ADDD((int)id,Memory.mem_readd(eaa)));break;
-                    case 0x01: Memory.mem_writed(eaa, ORD((int)id,Memory.mem_readd(eaa)));break;
-                    case 0x02:Memory.mem_writed(eaa, ADCD((int)id,Memory.mem_readd(eaa)));break;
-                    case 0x03:Memory.mem_writed(eaa, SBBD((int)id,Memory.mem_readd(eaa)));break;
-                    case 0x04:Memory.mem_writed(eaa, ANDD((int)id,Memory.mem_readd(eaa)));break;
-                    case 0x05:Memory.mem_writed(eaa, SUBD((int)id,Memory.mem_readd(eaa)));break;
-                    case 0x06:Memory.mem_writed(eaa, XORD((int)id,Memory.mem_readd(eaa)));break;
+                    case 0x00:Memory.mem_writed(eaa, ADDD(id,Memory.mem_readd(eaa)));break;
+                    case 0x01: Memory.mem_writed(eaa, ORD(id,Memory.mem_readd(eaa)));break;
+                    case 0x02:Memory.mem_writed(eaa, ADCD(id,Memory.mem_readd(eaa)));break;
+                    case 0x03:Memory.mem_writed(eaa, SBBD(id,Memory.mem_readd(eaa)));break;
+                    case 0x04:Memory.mem_writed(eaa, ANDD(id,Memory.mem_readd(eaa)));break;
+                    case 0x05:Memory.mem_writed(eaa, SUBD(id,Memory.mem_readd(eaa)));break;
+                    case 0x06:Memory.mem_writed(eaa, XORD(id,Memory.mem_readd(eaa)));break;
                     case 0x07:CMPD(id,Memory.mem_readd(eaa));break;
                     }
                 }
@@ -1069,17 +988,7 @@ public class Prefix_66 extends Prefix_0f {
                     eard.dword=oldrmrd;
                 } else {
                     /*PhysPt*/int eaa=getEaa(rm);
-                    int val;
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            val = Memory.host_readd(index);
-                            Memory.host_writed(index,oldrmrd);
-                            rd.dword=val;
-                            return HANDLED;
-                        }
-                    }
-                    val = Memory.mem_readd(eaa);
+                    int val = Memory.mem_readd(eaa);
                     Memory.mem_writed(eaa,oldrmrd);
                     rd.dword=val;
                 }
@@ -1455,22 +1364,6 @@ public class Prefix_66 extends Prefix_0f {
                     int blah = Fetchb();
                     /*Bit8u*/int val=blah & 0x1f;
                     if (val == 0) return HANDLED;
-                    if ((eaa & 0xFFF)<0xFFD) {
-                        int addr = Paging.getDirectIndex(eaa);
-                        if (addr>=0) {
-                            switch (which) {
-                            case 0x00:Memory.host_writed(addr, ROLD(val,Memory.host_readd(addr)));break;
-                            case 0x01:Memory.host_writed(addr, RORD(val,Memory.host_readd(addr)));break;
-                            case 0x02:Memory.host_writed(addr, RCLD(val,Memory.host_readd(addr)));break;
-                            case 0x03:Memory.host_writed(addr, RCRD(val,Memory.host_readd(addr)));break;
-                            case 0x04:/* SHL and SAL are the same */
-                            case 0x06:Memory.host_writed(addr, SHLD(val,Memory.host_readd(addr)));break;
-                            case 0x05:Memory.host_writed(addr, SHRD(val,Memory.host_readd(addr)));break;
-                            case 0x07:Memory.host_writed(addr, SARD(val,Memory.host_readd(addr)));break;
-                            }
-                            return HANDLED;
-                        }
-                    }
                     switch (which) {
                     case 0x00:Memory.mem_writed(eaa, ROLD(val,Memory.mem_readd(eaa)));break;
                     case 0x01:Memory.mem_writed(eaa, RORD(val,Memory.mem_readd(eaa)));break;
@@ -1768,13 +1661,6 @@ public class Prefix_66 extends Prefix_0f {
                             r.dword=~r.dword;
                         } else {
                             /*PhysPt*/int eaa=getEaa(rm);
-                            if ((eaa & 0xFFF)<0xFFD) {
-                                int index = Paging.getDirectIndex(eaa);
-                                if (index>=0) {
-                                    Memory.host_writed(index,~Memory.host_readd(index));
-                                    break;
-                                }
-                            }
                             Memory.mem_writed(eaa,~Memory.mem_readd(eaa));
                         }
                         break;
@@ -1786,13 +1672,6 @@ public class Prefix_66 extends Prefix_0f {
                             r.dword = Instructions.Negd(r.dword);
                         } else {
                             /*PhysPt*/int eaa=getEaa(rm);
-                            if ((eaa & 0xFFF)<0xFFD) {
-                                int index = Paging.getDirectIndex(eaa);
-                                if (index>=0) {
-                                    Memory.host_writed(index,Instructions.Negd(Memory.host_readd(index)));
-                                    break;
-                                }
-                            }
                             Memory.mem_writed(eaa,Instructions.Negd(Memory.mem_readd(eaa)));
                         }
                         break;
@@ -1850,13 +1729,6 @@ public class Prefix_66 extends Prefix_0f {
                     }
                     else {
                         int eaa = getEaa(rm);
-                        if ((eaa & 0xFFF)<0xFFD) {
-                            int index = Paging.getDirectIndex(eaa);
-                            if (index>=0) {
-                                Memory.host_writed(index, INCD(Memory.host_readd(index)));
-                                break;
-                            }
-                        }
                         Memory.mem_writed(eaa, INCD(Memory.mem_readd(eaa)));
                     }
                     break;
@@ -1867,13 +1739,6 @@ public class Prefix_66 extends Prefix_0f {
                     }
                     else {
                         int eaa = getEaa(rm);
-                        if ((eaa & 0xFFF)<0xFFD) {
-                            int addr = Paging.getDirectIndex(eaa);
-                            if (addr>=0) {
-                                Memory.host_writed(addr, DECD(Memory.host_readd(addr)));
-                                break;
-                            }
-                        }
                         Memory.mem_writed(eaa, DECD(Memory.mem_readd(eaa)));
                     }
                     break;

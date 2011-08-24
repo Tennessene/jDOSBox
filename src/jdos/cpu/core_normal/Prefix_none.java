@@ -68,12 +68,7 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writeb(index, ADDB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
-                    } else {
-                        Memory.mem_writeb(eaa, ADDB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
-                    }
+                    Memory.mem_writeb(eaa, ADDB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
                 }
                 return HANDLED;
             }
@@ -89,13 +84,6 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writew(index, ADDW(Modrm.Getrw[rm].word(),Memory.host_readw(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writew(eaa, ADDW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa)));
                 }
                 return HANDLED;
@@ -151,7 +139,7 @@ public class Prefix_none extends StringOp {
         /* PUSH ES */
         ops[0x06] = new OP() {
             final public int call() {
-                CPU.CPU_Push16((int)CPU.Segs_ESval);
+                CPU.CPU_Push16(CPU.Segs_ESval);
                 return HANDLED;
             }
         };
@@ -173,11 +161,7 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0)
-                        Memory.host_writeb(index, ORB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
-                    else
-                        Memory.mem_writeb(eaa, ORB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
+                    Memory.mem_writeb(eaa, ORB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
                 }
                 return HANDLED;
             }
@@ -194,13 +178,6 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writew(index, ORW(Modrm.Getrw[rm].word(),Memory.host_readw(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writew(eaa, ORW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa)));
                 }
                 return HANDLED;
@@ -257,7 +234,7 @@ public class Prefix_none extends StringOp {
         /* PUSH CS */
         ops[0x0e] = new OP() {
             final public int call() {
-                CPU.CPU_Push16((int)CPU.Segs_CSval);
+                CPU.CPU_Push16(CPU.Segs_CSval);
                 return HANDLED;
             }
         };
@@ -281,11 +258,7 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0)
-                        Memory.host_writeb(index, ADCB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
-                    else
-                        Memory.mem_writeb(eaa, ADCB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
+                    Memory.mem_writeb(eaa, ADCB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
                 }
                 return HANDLED;
             }
@@ -301,13 +274,6 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writew(index, ADCW(Modrm.Getrw[rm].word(),Memory.host_readw(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writew(eaa, ADCW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa)));
                 }
                 return HANDLED;
@@ -363,7 +329,7 @@ public class Prefix_none extends StringOp {
         /* PUSH SS */
         ops[0x16] = new OP() {
             final public int call() {
-                CPU.CPU_Push16((int)CPU.Segs_SSval);
+                CPU.CPU_Push16(CPU.Segs_SSval);
                 return HANDLED;
             }
         };
@@ -386,12 +352,7 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        Memory.host_writeb(index, SBBB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
-                    } else {
-                        Memory.mem_writeb(eaa, SBBB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
-                    }
+                    Memory.mem_writeb(eaa, SBBB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
                 }
                 return HANDLED;
             }
@@ -408,13 +369,6 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writew(index, SBBW(Modrm.Getrw[rm].word(),Memory.host_readw(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writew(eaa, SBBW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa)));
                 }
                 return HANDLED;
@@ -471,7 +425,7 @@ public class Prefix_none extends StringOp {
         /* PUSH DS */
         ops[0x1e] = new OP() {
             final public int call() {
-                CPU.CPU_Push16((int)CPU.Segs_DSval);
+                CPU.CPU_Push16(CPU.Segs_DSval);
                 return HANDLED;
             }
         };
@@ -493,11 +447,7 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0)
-                        Memory.host_writeb(index, ANDB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
-                    else
-                        Memory.mem_writeb(eaa, ANDB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
+                    Memory.mem_writeb(eaa, ANDB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
                 }
                 return HANDLED;
             }
@@ -513,13 +463,6 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writew(index, ANDW(Modrm.Getrw[rm].word(),Memory.host_readw(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writew(eaa, ANDW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa)));
                 }
                 return HANDLED;
@@ -600,11 +543,7 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0)
-                        Memory.host_writeb(index, SUBB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
-                    else
-                        Memory.mem_writeb(eaa, SUBB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
+                    Memory.mem_writeb(eaa, SUBB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
                 }
                 return HANDLED;
             }
@@ -620,13 +559,6 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writew(index, SUBW(Modrm.Getrw[rm].word(),Memory.host_readw(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writew(eaa, SUBW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa)));
                 }
                 return HANDLED;
@@ -707,11 +639,7 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0)
-                        Memory.host_writeb(index, XORB(Modrm.Getrb[rm].get(),Memory.host_readb(index)));
-                    else
-                        Memory.mem_writeb(eaa, XORB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
+                    Memory.mem_writeb(eaa, XORB(Modrm.Getrb[rm].get(),Memory.mem_readb(eaa)));
                 }
                 return HANDLED;
             }
@@ -727,13 +655,6 @@ public class Prefix_none extends StringOp {
                 }
                 else {
                     int eaa = getEaa(rm);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            Memory.host_writew(index, XORW(Modrm.Getrw[rm].word(),Memory.host_readw(index)));
-                            return HANDLED;
-                        }
-                    }
                     Memory.mem_writew(eaa, XORW(Modrm.Getrw[rm].word(),Memory.mem_readw(eaa)));
                 }
                 return HANDLED;
@@ -1531,29 +1452,15 @@ public class Prefix_none extends StringOp {
                     int eaa = m = getEaa(rm);
 
                     /*Bit8u*/short ib=Fetchb();
-                    int index = Paging.getDirectIndex(eaa);
-                    if (index>=0) {
-                        switch (which) {
-                        case 0x00:Memory.host_writeb(index, ADDB(ib,Memory.host_readb(index)));break;
-                        case 0x01: Memory.host_writeb(index, ORB(ib,Memory.host_readb(index)));break;
-                        case 0x02:Memory.host_writeb(index, ADCB(ib,Memory.host_readb(index)));break;
-                        case 0x03:Memory.host_writeb(index, SBBB(ib,Memory.host_readb(index)));break;
-                        case 0x04:Memory.host_writeb(index, ANDB(ib,Memory.host_readb(index)));break;
-                        case 0x05:Memory.host_writeb(index, SUBB(ib,Memory.host_readb(index)));break;
-                        case 0x06:Memory.host_writeb(index, XORB(ib,Memory.host_readb(index)));break;
-                        case 0x07:CMPB(ib,Memory.host_readb(index));break;
-                        }
-                    } else {
-                        switch (which) {
-                        case 0x00:Memory.mem_writeb(eaa, ADDB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x01: Memory.mem_writeb(eaa, ORB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x02:Memory.mem_writeb(eaa, ADCB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x03:Memory.mem_writeb(eaa, SBBB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x04:Memory.mem_writeb(eaa, ANDB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x05:Memory.mem_writeb(eaa, SUBB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x06:Memory.mem_writeb(eaa, XORB(ib,Memory.mem_readb(eaa)));break;
-                        case 0x07:CMPB(ib,Memory.mem_readb(eaa));break;
-                        }
+                    switch (which) {
+                    case 0x00:Memory.mem_writeb(eaa, ADDB(ib,Memory.mem_readb(eaa)));break;
+                    case 0x01: Memory.mem_writeb(eaa, ORB(ib,Memory.mem_readb(eaa)));break;
+                    case 0x02:Memory.mem_writeb(eaa, ADCB(ib,Memory.mem_readb(eaa)));break;
+                    case 0x03:Memory.mem_writeb(eaa, SBBB(ib,Memory.mem_readb(eaa)));break;
+                    case 0x04:Memory.mem_writeb(eaa, ANDB(ib,Memory.mem_readb(eaa)));break;
+                    case 0x05:Memory.mem_writeb(eaa, SUBB(ib,Memory.mem_readb(eaa)));break;
+                    case 0x06:Memory.mem_writeb(eaa, XORB(ib,Memory.mem_readb(eaa)));break;
+                    case 0x07:CMPB(ib,Memory.mem_readb(eaa));break;
                     }
                 }
                 return HANDLED;
@@ -1586,22 +1493,6 @@ public class Prefix_none extends StringOp {
                 } else {
                     int eaa = getEaa(rm);
                     /*Bit16u*/int iw=Fetchw();
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            switch (which) {
-                            case 0x00:Memory.host_writew(index, ADDW(iw,Memory.host_readw(index)));break;
-                            case 0x01: Memory.host_writew(index, ORW(iw,Memory.host_readw(index)));break;
-                            case 0x02:Memory.host_writew(index, ADCW(iw,Memory.host_readw(index)));break;
-                            case 0x03:Memory.host_writew(index, SBBW(iw,Memory.host_readw(index)));break;
-                            case 0x04:Memory.host_writew(index, ANDW(iw,Memory.host_readw(index)));break;
-                            case 0x05:Memory.host_writew(index, SUBW(iw,Memory.host_readw(index)));break;
-                            case 0x06:Memory.host_writew(index, XORW(iw,Memory.host_readw(index)));break;
-                            case 0x07:CMPW(iw,Memory.host_readw(index));break;
-                            }
-                            return HANDLED;
-                        }
-                    }
                     switch (which) {
                     case 0x00:Memory.mem_writew(eaa, ADDW(iw,Memory.mem_readw(eaa)));break;
                     case 0x01: Memory.mem_writew(eaa, ORW(iw,Memory.mem_readw(eaa)));break;
@@ -1639,22 +1530,6 @@ public class Prefix_none extends StringOp {
                     int eaa = m = getEaa(rm);
 
                     /*Bit16u*/int iw=(((short)Fetchbs()) & 0xFFFF);
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            switch (which) {
-                            case 0x00:Memory.host_writew(index, ADDW(iw,Memory.host_readw(index)));break;
-                            case 0x01: Memory.host_writew(index, ORW(iw,Memory.host_readw(index)));break;
-                            case 0x02:Memory.host_writew(index, ADCW(iw,Memory.host_readw(index)));break;
-                            case 0x03:Memory.host_writew(index, SBBW(iw,Memory.host_readw(index)));break;
-                            case 0x04:Memory.host_writew(index, ANDW(iw,Memory.host_readw(index)));break;
-                            case 0x05:Memory.host_writew(index, SUBW(iw,Memory.host_readw(index)));break;
-                            case 0x06:Memory.host_writew(index, XORW(iw,Memory.host_readw(index)));break;
-                            case 0x07:CMPW(iw,Memory.host_readw(index));break;
-                            }
-                            return HANDLED;
-                        }
-                    }
                     switch (which) {
                     case 0x00:Memory.mem_writew(eaa, ADDW(iw,Memory.mem_readw(eaa)));break;
                     case 0x01: Memory.mem_writew(eaa, ORW(iw,Memory.mem_readw(eaa)));break;
@@ -1708,15 +1583,8 @@ public class Prefix_none extends StringOp {
                 if (rm >= 0xc0 ) {Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());Modrm.GetEArb[rm].set(oldrmrb);}
                 else {
                     /*PhysPt*/int eaa=getEaa(rm);
-                    int index = Paging.getDirectIndex(eaa);
-                    short val;
-                    if (index>=0) {
-                        val = Memory.host_readb(index);
-                        Memory.host_writeb(index,oldrmrb);
-                    } else {
-                        val = Memory.mem_readb(eaa);
-                        Memory.mem_writeb(eaa,oldrmrb);
-                    }
+                    short val = Memory.mem_readb(eaa);
+                    Memory.mem_writeb(eaa,oldrmrb);
                     Modrm.Getrb[rm].set(val);
                 }
                 return HANDLED;
@@ -1736,17 +1604,7 @@ public class Prefix_none extends StringOp {
                 } else {
                     /*Bit16u*/int oldrmrw=Modrm.Getrw[rm].word();
                     /*PhysPt*/int eaa=getEaa(rm);
-                    int val;
-                    if ((eaa & 0xFFF)<0xFFF) {
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0) {
-                            val = Memory.host_readw(index);
-                            Memory.host_writew(index,oldrmrw);
-                            Modrm.Getrw[rm].word(val);
-                            return HANDLED;
-                        }
-                    }
-                    val = Memory.mem_readw(eaa);
+                    int val = Memory.mem_readw(eaa);
                     Memory.mem_writew(eaa,oldrmrw);
                     Modrm.Getrw[rm].word(val);
                 }
@@ -1784,9 +1642,9 @@ public class Prefix_none extends StringOp {
                 } else {
                     if (rm == 5) {
                         if (CPU.cpu.pmode && !CPU.cpu.code.big) {
-                            CPU.cpu.gdt.GetDescriptor((int)CPU.seg_value(base_val_ds),desc);
+                            CPU.cpu.gdt.GetDescriptor(CPU.seg_value(base_val_ds),desc);
                             if ((desc.Type()==CPU.DESC_CODE_R_NC_A) || (desc.Type()==CPU.DESC_CODE_R_NC_NA)) {
-                                CPU.CPU_Exception(CPU.EXCEPTION_GP,(int)CPU.seg_value(base_val_ds) & 0xfffc);
+                                CPU.CPU_Exception(CPU.EXCEPTION_GP,CPU.seg_value(base_val_ds) & 0xfffc);
                                 return CONTINUE;
                             }
                         }
@@ -1878,7 +1736,7 @@ public class Prefix_none extends StringOp {
         /* Mov Ew,Sw */
         ops[0x8c] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bit16u*/long val;/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/short rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:					/* MOV Ew,ES */
                     val=CPU.Segs_ESval;break;
@@ -1896,8 +1754,8 @@ public class Prefix_none extends StringOp {
                     Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"CPU:8c:Illegal RM Byte");
                     return ILLEGAL_OPCODE;
                 }
-                if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word((int)val);}
-                else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,(int)val);}
+                if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word(val);}
+                else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,val);}
                 return HANDLED;
             }
         };
@@ -2907,7 +2765,7 @@ public class Prefix_none extends StringOp {
         ops[0xe8] = new OP() {
             final public int call() {
                 /*Bit16u*/int addip=Fetchws();
-                CPU.CPU_Push16((int)(GETIP() & 0xFFFF));
+                CPU.CPU_Push16(GETIP() & 0xFFFF);
                 SAVEIP();
                 reg_eip=(reg_eip+addip) & 0xFFFF;
                 return CONTINUE;
@@ -3072,11 +2930,7 @@ public class Prefix_none extends StringOp {
                         if (rm >= 0xc0 ) {Modrm.GetEArb[rm].set((short)~Modrm.GetEArb[rm].get());}
                         else {
                             /*PhysPt*/int eaa=getEaa(rm);
-                            int index = Paging.getDirectIndex(eaa);
-                            if (index>=0)
-                                Memory.host_writebs(index,(byte)~Memory.host_readbs(index));
-                            else
-                                Memory.mem_writeb(eaa, ~Memory.mem_readb(eaa));
+                            Memory.mem_writeb(eaa, ~Memory.mem_readb(eaa));
                         }
                         break;
                     }
@@ -3158,13 +3012,6 @@ public class Prefix_none extends StringOp {
                         if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word(~Modrm.GetEArw[rm].word());}
                         else {
                             /*PhysPt*/int eaa=getEaa(rm);
-                            if ((eaa & 0xFFF)<0xFFF) {
-                                int index = Paging.getDirectIndex(eaa);
-                                if (index>=0) {
-                                    Memory.host_writew(index,~Memory.host_readw(index));
-                                    break;
-                                }
-                            }
                             Memory.mem_writew(eaa,~Memory.mem_readw(eaa));
                         }
                         break;
@@ -3177,15 +3024,6 @@ public class Prefix_none extends StringOp {
                             Modrm.GetEArw[rm].word(Flags.lf_resw());
                         } else {
                             /*PhysPt*/int eaa=getEaa(rm);
-                            if ((eaa & 0xFFF)<0xFFF) {
-                                int index = Paging.getDirectIndex(eaa);
-                                if (index>=0) {
-                                    Flags.lf_var1w(Memory.host_readw(index));
-                                    Flags.lf_resw(0-Flags.lf_var1w());
-                                    Memory.host_writew(index,Flags.lf_resw());
-                                    break;
-                                }
-                            }
                             Flags.lf_var1w(Memory.mem_readw(eaa));
                             Flags.lf_resw(0-Flags.lf_var1w());
                             Memory.mem_writew(eaa,Flags.lf_resw());
@@ -3314,11 +3152,7 @@ public class Prefix_none extends StringOp {
                     }
                     else {
                         int eaa = getEaa(rm);
-                        int index = Paging.getDirectIndex(eaa);
-                        if (index>=0)
-                            Memory.host_writeb(index, INCB(Memory.host_readb(index)));
-                        else
-                            Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));
+                        Memory.mem_writeb(eaa, INCB(Memory.mem_readb(eaa)));
                     }
                     break;
                 case 0x01:										/* DEC Eb */
@@ -3336,11 +3170,7 @@ public class Prefix_none extends StringOp {
                     }
                     else {
                         int eaa = getEaa(rm);
-                        int addr = Paging.getDirectIndex(eaa);
-                        if (addr>=0)
-                            Memory.host_writeb(addr, DECB(Memory.host_readb(addr)));
-                        else
-                            Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));
+                        Memory.mem_writeb(eaa, DECB(Memory.mem_readb(eaa)));
                     }
                     break;
                 case 0x07:										/* CallBack */
@@ -3380,13 +3210,6 @@ public class Prefix_none extends StringOp {
                     }
                     else {
                         int eaa = getEaa(rm);
-                        if ((eaa & 0xFFF)<0xFFF) {
-                            int index = Paging.getDirectIndex(eaa);
-                            if (index>=0) {
-                                Memory.host_writew(index, INCW(Memory.host_readw(index)));
-                                break;
-                            }
-                        }
                         Memory.mem_writew(eaa, INCW(Memory.mem_readw(eaa)));
                     }
                     break;
@@ -3397,13 +3220,6 @@ public class Prefix_none extends StringOp {
                     }
                     else {
                         int eaa = getEaa(rm);
-                        if ((eaa & 0xFFF)<0xFFF) {
-                            int addr = Paging.getDirectIndex(eaa);
-                            if (addr>=0) {
-                                Memory.host_writew(addr, DECW(Memory.host_readw(addr)));
-                                break;
-                            }
-                        }
                         Memory.mem_writew(eaa, DECW(Memory.mem_readw(eaa)));
                     }
                     break;
@@ -3412,7 +3228,7 @@ public class Prefix_none extends StringOp {
                     int eip;
                     if (rm >= 0xc0 ) {eip=Modrm.GetEArw[rm].word();}
                     else {/*PhysPt*/int eaa=getEaa(rm);eip=Memory.mem_readw(eaa);}
-                    CPU.CPU_Push16((int)(GETIP() & 0xFFFF));
+                    CPU.CPU_Push16(GETIP() & 0xFFFF);
                     reg_eip = eip;
                     return CONTINUE;
                 }

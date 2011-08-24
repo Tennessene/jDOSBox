@@ -142,7 +142,7 @@ public class Core_dynamic {
                                 }
                             }
                         }
-                        ret=block.code.call2();
+                        ret=block.code.call();
                     }
 
                     switch (ret) {

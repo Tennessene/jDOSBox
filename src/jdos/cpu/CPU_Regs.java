@@ -110,14 +110,24 @@ public class CPU_Regs extends Flags {
 
     public static final class Reg {
         Reg parent;
+        String name = null;
 
         public Reg() {
+        }
+        public Reg(String name) {
+            this.name = name;
         }
 
         public Reg(Reg parent) {
             this.parent = parent;
         }
 
+        public String getName() {
+            return name;
+        }
+        public Reg getParent() {
+            return parent;
+        }
         public void set8(short s) {
             if (parent == null)
                 low(s);
@@ -159,20 +169,20 @@ public class CPU_Regs extends Flags {
         public int dword;
     }
 
-    final static public Reg reg_eax = new Reg();
-    final static public Reg reg_ebx = new Reg();
-    final static public Reg reg_ecx = new Reg();
-    final static public Reg reg_edx = new Reg();
-    final static public Reg reg_esi = new Reg();
-    final static public Reg reg_edi = new Reg();
-    final static public Reg reg_esp = new Reg();
+    final static public Reg reg_eax = new Reg("eax");
+    final static public Reg reg_ebx = new Reg("ebx");
+    final static public Reg reg_ecx = new Reg("ecx");
+    final static public Reg reg_edx = new Reg("edx");
+    final static public Reg reg_esi = new Reg("esi");
+    final static public Reg reg_edi = new Reg("edi");
+    final static public Reg reg_esp = new Reg("esp");
+    final static public Reg reg_ebp = new Reg("ebp");
 
     final static public Reg reg_ah = new Reg(reg_eax);
     final static public Reg reg_bh = new Reg(reg_ebx);
     final static public Reg reg_ch = new Reg(reg_ecx);
     final static public Reg reg_dh = new Reg(reg_edx);
 
-    final static public Reg reg_ebp = new Reg();
     static public int reg_eip;
 
     static public /*Bitu*/int flags;

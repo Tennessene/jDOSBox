@@ -115,11 +115,11 @@ public class Memory extends Module_base {
     static public void host_memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
         int begin = src & 3;
         int end = size & ~3;
-        for (int i=0;i<begin;i++)
+        for (int i=0;i<begin && i<size;i++)
             dest[i+dest_offset] = host_readbs(src + i);
         int off = dest_offset+begin;
         int index = (src+begin)>>2;
-        for (int i=begin;i<end;i+=4) {
+        for (int i=begin;i<end && i+3<size;i+=4) {
             int v = direct[index++];
             dest[off++] = (byte)v;
             dest[off++] = (byte)(v>>8);

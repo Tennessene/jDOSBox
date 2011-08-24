@@ -2594,11 +2594,11 @@ public class Inst1 extends Helper {
             if (CPU_TRAP_CHECK) {
                     if (GETFLAG(TF)!=0) {
                         CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
-                        return DECODE_END();
+                        return DECODE_END(eip_count);
                     }
             }
             if (CPU_PIC_CHECK)
-                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return DECODE_END();
+                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return DECODE_END(eip_count);
             return Constants.BR_Normal;
         }
     }
@@ -3371,7 +3371,7 @@ public class Inst1 extends Helper {
         public int call() {
             if (CPU.CPU_STI()) return RUNEXCEPTION();
             if (CPU_PIC_CHECK)
-                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return DECODE_END();
+                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return DECODE_END(eip_count);
             return Constants.BR_Normal;
         }
     }
@@ -3625,6 +3625,15 @@ public class Inst1 extends Helper {
         public int call() {
             if ((reg_eax.word() & 0x8000)!=0) reg_edx.word(0xffff);else reg_edx.word(0);
             return Constants.BR_Normal;
+        }
+    }
+
+    final static public class Wait extends Op {
+        public int call() {
+            return Constants.BR_Normal;
+        }
+        public boolean compile(StringBuffer method) {
+            return true;
         }
     }
 }

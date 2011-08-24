@@ -128,7 +128,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
         activeCount++;
         usedCount++;
         if ((usedCount % 1000)==0) {
-            System.out.println("Dynamic code cache: active="+activeCount+" compiled="+usedCount);
+            System.out.println("Dynamic code cache: "+activeCount+"/"+usedCount);
         }
 	}
 	// there's a block whose code started in a different page

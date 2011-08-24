@@ -1,10 +1,11 @@
 package jdos.cpu.instructions;
 
-import junit.framework.TestCase;
 import jdos.cpu.*;
+import jdos.cpu.core_dynamic.DecodeBlock;
 import jdos.cpu.core_dynamic.Mod;
 import jdos.hardware.Memory;
 import jdos.misc.setup.*;
+import junit.framework.TestCase;
 
 abstract public class InstructionsTestCase extends TestCase {
     //static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
@@ -645,6 +646,7 @@ abstract public class InstructionsTestCase extends TestCase {
         CPU.cpu.code.big = false;
         CPU.cpu.pmode = false;
         CPU_Regs.flags = 0;
+        DecodeBlock.compileThreshold = 1;
     }
     protected void tearDown() throws java.lang.Exception {
         dosbox_prop.ExecuteDestroy(true);

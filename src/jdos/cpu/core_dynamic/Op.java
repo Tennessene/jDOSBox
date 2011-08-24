@@ -24,8 +24,8 @@ abstract public class Op {
         return Constants.BR_Jump;
     }
 
-    public int DECODE_END() {
-        CPU_Regs.reg_eip += eip_count;
+    public int DECODE_END(int count) {
+        CPU_Regs.reg_eip += count;
         Flags.FillFlags();
         return CB_NONE();
     }

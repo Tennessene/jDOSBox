@@ -7,14 +7,24 @@ import jdos.cpu.core_share.Constants;
 import jdos.debug.Debug;
 import jdos.misc.setup.Config;
 
-final public class DecodeBlock {
-    Op op;
+final public class DecodeBlock extends Op {
+    public Op op;
+    public boolean active = true;
+    public byte[] byteCode;
+    public int codeStart;
+    public int runCount = 0;
+    static public int compileThreshold = 0;
 
     public static boolean smc = false;
     public DecodeBlock(Op op) {
         this.op = op;
+        this.next = op; // simplifies the compiler
     }
-    final public int call2() {
+    final public int call() {
+        runCount++;
+        if (runCount==compileThreshold) {
+            jdos.cpu.core_dynamic.Compiler.compile(this);
+        }
         Op o = op;
         int result = Constants.BR_Normal;
         Core.base_ds= CPU.Segs_DSphys;

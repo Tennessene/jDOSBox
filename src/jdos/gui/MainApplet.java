@@ -1,5 +1,6 @@
 package jdos.gui;
 
+import jdos.cpu.core_dynamic.DecodeBlock;
 import jdos.sdl.GUI;
 import jdos.util.FileHelper;
 import jdos.util.Progress;
@@ -229,7 +230,10 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                 MainFrame.robot = new Robot();
             }
         } catch (Throwable e) {
-            System.out.println("Applet is not signed, mouse capture will not work");
+            System.out.println("Applet is not signed");
+            System.out.println("    mouse capture will not work");
+            System.out.println("    disabling compiler");
+            DecodeBlock.compileThreshold = 0;
         }
         if (thread != null) {
             System.out.println("Applet.init force stop");

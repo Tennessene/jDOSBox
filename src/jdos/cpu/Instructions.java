@@ -1167,4 +1167,18 @@ public class Instructions extends Table_ea {
         lflags.res = 0 - op1;
         return lflags.res;
     }
+
+    static public short Negb(short op1) {
+        Flags.lflags.type=Flags.t_NEGb;
+        Flags.lf_var1b(op1);
+        Flags.lf_resb(0-Flags.lf_var1b());
+        return Flags.lf_resb();
+    }
+
+    static public int Negw(int op1) {
+        Flags.lflags.type=Flags.t_NEGw;
+        Flags.lf_var1w(op1);
+        Flags.lf_resw(0-Flags.lf_var1w());
+        return Flags.lf_resw();
+    }
 }

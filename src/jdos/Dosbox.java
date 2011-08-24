@@ -412,6 +412,9 @@ public class Dosbox {
         Pint.SetMinMax(1,1000000);
         Pint.Set_help("Setting it lower than 100 will be a percentage.");
 
+        Pint = secprop.Add_int("compiler_threshold",Property.Changeable.Always,0);
+        Pint.Set_help("How many times a block is seen before it is compiled.  0 turns off the compiler, 1 compiles everything.\nOnly used when dynamic_core is active. Values between 100-1000 yield the best results.\nCurrently the default is 0 since this is an experimental feature.  For most DOS games expect a 2x performance improvement when set to 1000.");
+
         if (Config.C_FPU)
             secprop.AddInitFunction(FPU.FPU_Init);
 

@@ -33,13 +33,13 @@ public class Decoder extends Inst1 {
         }
     }
 
-    private static class HandledDecode extends Op {
+    public static class HandledDecode extends Op {
         public int call() {
             return Constants.BR_Jump;
         }
     }
 
-    private static class HandledSegChange extends Op {
+    public static class HandledSegChange extends Op {
         public int call() {
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
@@ -181,7 +181,7 @@ public class Decoder extends Inst1 {
         return decode.block;
     }
 
-    static private class ModifiedDecodeOp extends Op {
+    static public class ModifiedDecodeOp extends Op {
         public int call() {
             return ModifiedDecode.call();
         }

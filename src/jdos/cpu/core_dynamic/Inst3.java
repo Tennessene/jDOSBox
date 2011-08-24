@@ -1506,11 +1506,11 @@ public class Inst3 extends Helper {
             if (CPU_TRAP_CHECK) {
                     if (GETFLAG(TF)!=0) {
                         CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;
-                        return DECODE_END();
+                        return DECODE_END(eip_count);
                     }
             }
             if (CPU_PIC_CHECK)
-                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return DECODE_END();
+                if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return DECODE_END(eip_count);
             return Constants.BR_Normal;
         }
     }

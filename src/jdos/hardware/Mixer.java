@@ -791,11 +791,11 @@ public class Mixer extends Program {
 
     static private Thread audioThread;
 
-    private static boolean open(AudioFormat format) {
+    private static boolean open(int bufferSize, AudioFormat format) {
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             line = (SourceDataLine)AudioSystem.getLine(info);
-            line.open(format);
+            line.open(format, bufferSize);
             line.start();
             audioThreadExit = false;
             audioThread = new Thread() {
@@ -852,12 +852,18 @@ public class Mixer extends Program {
 //            spec.samples=(Uint16)mixer.blocksize;
 
             mixer.tick_remain=0;
+            mixer.min_needed=section.Get_int("prebuffer");
+            if (mixer.min_needed>100) mixer.min_needed=100;
+            mixer.min_needed=(int)(mixer.freq*mixer.min_needed)/1000;
+            mixer.max_needed=(int)mixer.blocksize * 2 + 2*mixer.min_needed;
+            mixer.needed=mixer.min_needed+1;
+
             if (mixer.nosound) {
                 Log.log_msg("MIXER:No Sound Mode Selected.");
                 mixer.tick_add=((mixer.freq) << MIXER_SHIFT)/1000;
                 Timer.TIMER_AddTickHandler(MIXER_Mix_NoSound);
             }
-            else if (!open(new AudioFormat(mixer.freq, 16, 2, true, false))) {
+            else if (!open(section.Get_int("javabuffer"), new AudioFormat(mixer.freq, 16, 2, true, false))) {
 //            else if (SDL_OpenAudio(&spec, &obtained) <0 ) {
 //                mixer.nosound = true;
 //                Log.log_msg("MIXER:Can't open audio: %s , running in nosound mode.",SDL_GetError());
@@ -872,11 +878,6 @@ public class Mixer extends Program {
                 Timer.TIMER_AddTickHandler(MIXER_Mix);
 //                SDL_PauseAudio(0);
             }
-            mixer.min_needed=section.Get_int("prebuffer");
-            if (mixer.min_needed>100) mixer.min_needed=100;
-            mixer.min_needed=(int)(mixer.freq*mixer.min_needed)/1000;
-            mixer.max_needed=(int)mixer.blocksize * 2 + 2*mixer.min_needed;
-            mixer.needed=mixer.min_needed+1;
             PROGRAMS_MakeFile("MIXER.COM",MIXER_ProgramStart);
         }
     };

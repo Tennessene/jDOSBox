@@ -435,6 +435,10 @@ public class Dosbox {
         Pint.SetMinMax(0,100);
         Pint.Set_help("How many milliseconds of data to keep on top of the blocksize.");
 
+        Pint = secprop.Add_int("javabuffer",Property.Changeable.OnlyAtStart,8820);
+        Pint.SetMinMax(0,100);
+        Pint.Set_help("Buffer parameter passed to Java's SourceDataLine.open call. At 44100Hz, 16-bit stereo a value of 8820 represents 50ms");
+
         secprop=control.AddSection_prop("midi", Midi.MIDI_Init,true);//done
         secprop.AddInitFunction(MPU401.MPU401_Init,true);//done
 

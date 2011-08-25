@@ -12,6 +12,7 @@ final public class DecodeBlock extends Op {
     public boolean active = true;
     public byte[] byteCode;
     public int codeStart;
+    public int codeLen;
     public int runCount = 0;
     static public int compileThreshold = 0;
 

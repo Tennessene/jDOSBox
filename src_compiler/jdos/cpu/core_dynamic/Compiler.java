@@ -24,7 +24,7 @@ public class Compiler extends Helper {
     private static Hashtable cache = new Hashtable();
 
     // :TODO: not sure if the compiler is thread safe
-    private static final int processorCount = 0;//Runtime.getRuntime().availableProcessors();
+    private static final int processorCount = 1;//Runtime.getRuntime().availableProcessors();
 
     static {
         compilerThread = new Thread[processorCount];
@@ -67,14 +67,12 @@ public class Compiler extends Helper {
 
     static public void compile(DecodeBlock block) {
         synchronized (compilerQueue) {
-            int len = Helper.decode.active_block.page.end - Helper.decode.active_block.page.start + 1;
-            block.byteCode = new byte[len];
-            block.codeStart = Helper.decode.code_start;
-            int src = Paging.getDirectIndexRO(Helper.decode.code_start);
+            block.byteCode = new byte[block.codeLen];
+            int src = Paging.getDirectIndexRO(block.codeStart);
             if (src>=0)
-                Memory.host_memcpy(block.byteCode, 0, src, len);
+                Memory.host_memcpy(block.byteCode, 0, src, block.codeLen);
             else
-                Memory.MEM_BlockRead(Helper.decode.code_start, block.byteCode, len);
+                Memory.MEM_BlockRead(Helper.decode.code_start, block.byteCode, block.codeLen);
             Op op = null;
             Vector ops;
             synchronized (cache) {
@@ -83,7 +81,7 @@ public class Compiler extends Helper {
             if (ops != null) {
                 for (int i = 0; i < ops.size(); i++) {
                     if (Arrays.equals(block.byteCode, ((DecodeBlock) ops.elementAt(i)).byteCode)) {
-                        //op = ((DecodeBlock)ops.elementAt(i)).next;
+                        op = ((DecodeBlock)ops.elementAt(i)).next;
                         cacheCount++;
                         if ((cacheCount & 0x3FF) == 0)
                             System.out.println("Cached " + cacheCount);
@@ -129,7 +127,7 @@ public class Compiler extends Helper {
         while (op != null) {
             try {
                 boolean jump = false;
-                if (op.c < 0x400) {
+                if (true) {
                     count++;
                     if (start == null) {
                         start = prev;
@@ -145,8 +143,6 @@ public class Compiler extends Helper {
                         method.append("}");
                         jump = true;
                     }
-                } else {
-                    //System.out.println(Integer.toHexString(op.c));
                 }
 //                if (op.next!=null) {
 //                    System.out.println(Integer.toHexString(op.c));

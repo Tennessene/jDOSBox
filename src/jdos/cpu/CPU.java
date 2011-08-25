@@ -1,7 +1,6 @@
 package jdos.cpu;
 
 import jdos.Dosbox;
-import jdos.cpu.core_dynamic.DecodeBlock;
 import jdos.debug.Debug;
 import jdos.gui.Main;
 import jdos.gui.Mapper;
@@ -2979,7 +2978,7 @@ public class CPU extends Module_base {
             }
             CPU_CycleAutoAdjust=false;
         }
-        DecodeBlock.compileThreshold = section.Get_int("compiler_threshold");
+
         CPU_CycleUp=section.Get_int("cycleup");
         CPU_CycleDown=section.Get_int("cycledown");
         String core = section.Get_string("core");

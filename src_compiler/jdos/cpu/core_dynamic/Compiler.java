@@ -6,6 +6,8 @@ import jdos.cpu.Instructions;
 import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
+import jdos.misc.setup.Section;
+import jdos.misc.setup.Section_prop;
 
 import java.net.URLClassLoader;
 import java.util.LinkedList;
@@ -13,6 +15,7 @@ import java.util.LinkedList;
 public class Compiler extends Helper {
     public static int compiledMethods = 0;
     public static boolean saveClasses = false;
+    public static int min_block_size = 1;
 
     private static Thread[] compilerThread = null;
     private static LinkedList compilerQueue = new LinkedList();
@@ -115,7 +118,7 @@ public class Compiler extends Helper {
 //                    System.out.println(Integer.toHexString(op.c));
 //                    System.exit(1);
 //                }
-                if (count > 0) {
+                if (count >= min_block_size) {
                     Op compiled = compileMethod(start, method, jump);
                     if (compiled != null) {
                         // set it up first
@@ -9667,4 +9670,12 @@ public class Compiler extends Helper {
         }
         return null;
     }
+
+    final public static Section.SectionFunction Compiler_Init = new Section.SectionFunction() {
+        public void call(Section newconfig) {
+            Section_prop section=(Section_prop)newconfig;
+            DecodeBlock.compileThreshold = section.Get_int("threshold");
+            min_block_size = section.Get_int("min_block_size");
+        }
+    };
 }

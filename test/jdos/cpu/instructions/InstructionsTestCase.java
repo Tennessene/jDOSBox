@@ -1,6 +1,7 @@
 package jdos.cpu.instructions;
 
 import jdos.cpu.*;
+import jdos.cpu.core_dynamic.Compiler;
 import jdos.cpu.core_dynamic.DecodeBlock;
 import jdos.cpu.core_dynamic.Mod;
 import jdos.hardware.Memory;
@@ -647,6 +648,7 @@ abstract public class InstructionsTestCase extends TestCase {
         CPU.cpu.pmode = false;
         CPU_Regs.flags = 0;
         DecodeBlock.compileThreshold = 1;
+        Compiler.min_block_size = 1;
     }
     protected void tearDown() throws java.lang.Exception {
         dosbox_prop.ExecuteDestroy(true);

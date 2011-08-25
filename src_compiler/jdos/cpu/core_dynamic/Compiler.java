@@ -1,6 +1,7 @@
 package jdos.cpu.core_dynamic;
 
 import javassist.*;
+import jdos.Dosbox;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Instructions;
 import jdos.cpu.Paging;
@@ -9,6 +10,8 @@ import jdos.misc.Log;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.LinkedList;
 
@@ -9613,6 +9616,26 @@ public class Compiler extends Helper {
         pool.importPackage("jdos.util");
         pool.importPackage("jdos.cpu.core_normal");
         pool.importPackage("jdos.cpu.core_share");
+        pool.insertClassPath(new ClassPath() {
+            public InputStream openClassfile(String s) throws NotFoundException {
+                if (s.startsWith("jdos.")) {
+                    s = "/" + s.replace('.', '/') + ".class";
+                    return Dosbox.class.getResourceAsStream(s.substring(6));
+                }
+                return null;
+            }
+
+            public URL find(String s) {
+                if (s.startsWith("jdos.")) {
+                    s = "/" + s.replace('.', '/') + ".class";
+                    return Dosbox.class.getResource(s.substring(6));
+                }
+                return null;
+            }
+
+            public void close() {
+            }
+        });
         try {
             md = java.security.MessageDigest.getInstance("MD5");
         } catch (Exception e) {

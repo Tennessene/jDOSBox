@@ -159,7 +159,7 @@ public class MainFrame implements GUI {
         return tmpImage;
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         if (args.length>1 && args[0].equalsIgnoreCase("-pcap")) {
             String nic = args[1];
             int port = 15654;
@@ -224,6 +224,11 @@ public class MainFrame implements GUI {
         panel.addMouseListener((MyFrame)frame);
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+                synchronized (Main.pauseMutex) {
+                    Main.pauseMutex.notify();
+                }
+                Main.addEvent(null);
+                try {mainThread.join(5000);} catch (Exception e1) {}
                 if (!Dosbox.applet) {
                     System.exit(0);
                 }
@@ -232,9 +237,15 @@ public class MainFrame implements GUI {
         Container contentPane = frame.getContentPane();
         contentPane.setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.PAGE_START);
-        Main.main(new MainFrame(), args);
+        mainThread = new Thread(new Runnable() {
+            public void run() {
+                Main.main(new MainFrame(), args);
+            }
+        });
+        mainThread.start();
     }
 
+    private static Thread mainThread;
     private static JFrame frame;
     private static JPanel panel;
 
@@ -273,10 +284,6 @@ public class MainFrame implements GUI {
         }
 
         public void windowClosing(WindowEvent e) {
-            synchronized (Main.pauseMutex) {
-                Main.pauseMutex.notify();
-            }
-            Main.addEvent(null);
         }
 
         public void windowClosed(WindowEvent e) {

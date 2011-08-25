@@ -177,9 +177,7 @@ public class Decoder extends Inst1 {
             decode.block.originalByteCode = new byte[decode.block.page.end - decode.block.page.start + 1];
             Memory.host_memcpy(decode.block.originalByteCode, 0, Paging.getDirectIndexRO(start), decode.block.originalByteCode.length);
         }
-        decode.block.code = new DecodeBlock(start_op.next);
-        decode.block.code.codeStart = start;
-        decode.block.code.codeLen = decode.block.page.end - decode.block.page.start + 1;
+        decode.block.code = new DecodeBlock(start_op.next, start, decode.block.page.end - decode.block.page.start + 1);
         return decode.block;
     }
 

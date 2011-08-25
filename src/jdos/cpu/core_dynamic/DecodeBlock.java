@@ -3,27 +3,50 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core;
+import jdos.cpu.Paging;
 import jdos.cpu.core_share.Constants;
 import jdos.debug.Debug;
+import jdos.hardware.Memory;
 import jdos.misc.setup.Config;
 
 final public class DecodeBlock extends Op {
     public Op op;
     public boolean active = true;
-    public byte[] byteCode;
     public int codeStart;
     public int codeLen;
     public int runCount = 0;
     static public int compileThreshold = 0;
 
     public static boolean smc = false;
-    public DecodeBlock(Op op) {
+    private boolean compiled = false;
+
+    static private byte[] getOpCode(int start, int len) {
+        byte[] opCode = new byte[len];
+        int src = Paging.getDirectIndexRO(start);
+        if (src>=0)
+            Memory.host_memcpy(opCode, 0, src, len);
+        else
+            Memory.MEM_BlockRead(start, opCode, len);
+        return opCode;
+    }
+
+    public DecodeBlock(Op op, int start, int len) {
         this.op = op;
         this.next = op; // simplifies the compiler
+        this.codeStart = start;
+        this.codeLen = len;
+        if (Loader.isLoaded()) {
+            Op o = Loader.load(codeStart, getOpCode(codeStart, codeLen));
+            if (o != null) {
+                this.op = o;
+                this.next = o;
+                this.compiled = true;
+            }
+        }
     }
     final public int call() {
         runCount++;
-        if (runCount==compileThreshold) {
+        if (runCount==compileThreshold && !compiled) {
             jdos.cpu.core_dynamic.Compiler.compile(this);
         }
         Op o = op;

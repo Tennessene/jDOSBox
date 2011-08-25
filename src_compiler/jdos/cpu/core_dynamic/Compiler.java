@@ -1,9 +1,6 @@
 package jdos.cpu.core_dynamic;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
+import javassist.*;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Instructions;
 import jdos.cpu.Paging;
@@ -11,17 +8,14 @@ import jdos.hardware.Memory;
 import jdos.misc.Log;
 
 import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.LinkedList;
-import java.util.Vector;
 
 public class Compiler extends Helper {
     public static int compiledMethods = 0;
+    public static boolean saveClasses = false;
 
     private static Thread[] compilerThread = null;
     private static LinkedList compilerQueue = new LinkedList();
-    private static Hashtable cache = new Hashtable();
 
     // :TODO: not sure if the compiler is thread safe
     private static final int processorCount = 1;//Runtime.getRuntime().availableProcessors();
@@ -46,15 +40,6 @@ public class Compiler extends Helper {
                             if (nextBlock.active) {
                                 do_compile(nextBlock);
                                 nextBlock.op = nextBlock.next;
-                                Integer key = new Integer(nextBlock.codeStart);
-                                synchronized (cache) {
-                                    Vector ops = (Vector) cache.get(key);
-                                    if (ops == null) {
-                                        ops = new Vector();
-                                        cache.put(key, ops);
-                                    }
-                                    ops.add(nextBlock);
-                                }
                             }
                         }
                     } catch (Exception e) {
@@ -65,54 +50,33 @@ public class Compiler extends Helper {
         }
     }
 
+    static private byte[] getOpCode(int start, int len) {
+        byte[] opCode = new byte[len];
+        int src = Paging.getDirectIndexRO(start);
+        if (src>=0)
+            Memory.host_memcpy(opCode, 0, src, len);
+        else
+            Memory.MEM_BlockRead(start, opCode, len);
+        return opCode;
+    }
+
     static public void compile(DecodeBlock block) {
-        synchronized (compilerQueue) {
-            block.byteCode = new byte[block.codeLen];
-            int src = Paging.getDirectIndexRO(block.codeStart);
-            if (src>=0)
-                Memory.host_memcpy(block.byteCode, 0, src, block.codeLen);
-            else
-                Memory.MEM_BlockRead(Helper.decode.code_start, block.byteCode, block.codeLen);
-            Op op = null;
-            Vector ops;
-            synchronized (cache) {
-                ops = (Vector) cache.get(new Integer(block.codeStart));
-            }
-            if (ops != null) {
-                for (int i = 0; i < ops.size(); i++) {
-                    if (Arrays.equals(block.byteCode, ((DecodeBlock) ops.elementAt(i)).byteCode)) {
-                        op = ((DecodeBlock)ops.elementAt(i)).next;
-                        cacheCount++;
-                        if ((cacheCount & 0x3FF) == 0)
-                            System.out.println("Cached " + cacheCount);
-                        break;
-                    }
-                }
-            }
-            if (op != null) {
-                block.op = op;
-            } else {
-                if (processorCount > 0) {
-                    compilerQueue.add(block);
-                    compilerQueue.notify();
-                } else {
-                    do_compile(block);
-                    block.op = block.next;
-                    Integer key = new Integer(block.codeStart);
-                    if (ops == null) {
-                        ops = new Vector();
-                        cache.put(key, ops);
-                    }
-                    ops.add(block);
-                }
-            }
-        }
         if (block == null) {
             for (int i = 0; i < compilerThread.length; i++)
-                try {
-                    compilerThread[i].join();
-                } catch (Exception e) {
-                }
+            try {
+                compilerThread[i].join();
+            } catch (Exception e) {
+            }
+            return;
+        }
+        synchronized (compilerQueue) {
+            if (processorCount > 0) {
+                compilerQueue.add(block);
+                compilerQueue.notify();
+            } else {
+                do_compile(block);
+                block.op = block.next;
+            }
         }
     }
 
@@ -142,6 +106,9 @@ public class Compiler extends Helper {
                     } else {
                         method.append("}");
                         jump = true;
+                        if (op.next != null) {
+                            Log.exit("Instruction "+Integer.toHexString(op.c)+" jumped but there was another instruction after it: "+Integer.toHexString(op.next.c));
+                        }
                     }
                 }
 //                if (op.next!=null) {
@@ -149,14 +116,12 @@ public class Compiler extends Helper {
 //                    System.exit(1);
 //                }
                 if (count > 0) {
-                    Op compiled = compileMethod(method, jump);
+                    Op compiled = compileMethod(start, method, jump);
                     if (compiled != null) {
                         // set it up first
-                        compiled.next = op;
-                        if (op.cycle >= 1)
-                            compiled.cycle = op.cycle;
-                        else
-                            compiled.cycle = prev.cycle;
+                        if (!jump)
+                            compiled.next = op;  // only happens when this is a mixed block
+
                         // once this is assigned it is live
                         start.next = compiled;
                         compiledMethods++;
@@ -9640,7 +9605,6 @@ public class Compiler extends Helper {
     static {
         pool.importPackage("jdos.cpu.core_dynamic");
         pool.importPackage("jdos.cpu");
-        pool.importPackage("jdos.debug");
         pool.importPackage("jdos.fpu");
         pool.importPackage("jdos.hardware");
         pool.importPackage("jdos.util");
@@ -9655,16 +9619,31 @@ public class Compiler extends Helper {
 
     static private int count = 0;
 
-    static private Op compileMethod(StringBuffer method, boolean jump) {
+    static private Op compileMethod(Op op, StringBuffer method, boolean jump) {
         //System.out.println(method.toString());
         try {
-            CtClass codeBlock = pool.makeClass("CacheBlock" + (count++));
+            String className = "CacheBlock" + (count++);
+            // :TODO: research using a new pool for each block since the classes don't need to see each other
+            CtClass codeBlock = pool.makeClass(className);
             codeBlock.setSuperclass(pool.getCtClass("jdos.cpu.core_dynamic.Op"));
             if (!jump)
                 method.append("return Constants.BR_Normal;");
             method.append("}");
             CtMethod m = CtNewMethod.make("public int call() {" + method.toString(), codeBlock);
             codeBlock.addMethod(m);
+
+            Op o = op;
+            int cycle = 0;
+            while (o!=null) {
+                cycle = o.cycle;
+                o = o.next;
+            }
+            if (cycle<1) {
+                cycle=1;
+            }
+            CtConstructor c = CtNewConstructor.make("public "+className+"(){this.cycle="+cycle+";}", codeBlock);
+            codeBlock.addConstructor(c);
+
             // Make the dynamic class belong to its own class loader so that when we
             // release the decoder block the class and class loader will be unloaded
             URLClassLoader cl = (URLClassLoader) codeBlock.getClass().getClassLoader();
@@ -9672,6 +9651,15 @@ public class Compiler extends Helper {
             Class clazz = codeBlock.toClass(cl, null);
             Op compiledCode = (Op) clazz.newInstance();
             codeBlock.detach();
+            if (saveClasses) {
+                if (op instanceof DecodeBlock) {
+                    DecodeBlock block = (DecodeBlock)op;
+                    String header = "package jdos.cpu.core_dynamic;\n\nimport jdos.cpu.core_dynamic.*;\nimport jdos.cpu.*;\nimport jdos.fpu.*;\nimport jdos.hardware.*;\nimport jdos.util.*;\nimport jdos.cpu.core_normal.*;\nimport jdos.cpu.core_share.*;\n\npublic final class "+className+" extends Op {\npublic int call() {";
+                    Loader.add(codeBlock.getName(), codeBlock.toBytecode(), block.codeStart, getOpCode(block.codeStart, block.codeLen), header+method.toString()+"\n}");
+                } else {
+                    Log.exit("Tried to save an incomplete code block");
+                }
+            }
             return compiledCode;
         } catch (Exception e) {
             System.out.println(method.toString());

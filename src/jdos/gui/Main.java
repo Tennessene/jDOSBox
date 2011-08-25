@@ -2,6 +2,8 @@ package jdos.gui;
 
 import jdos.Dosbox;
 import jdos.cpu.CPU;
+import jdos.cpu.core_dynamic.Compiler;
+import jdos.cpu.core_dynamic.Loader;
 import jdos.dos.Dos_execute;
 import jdos.dos.Dos_programs;
 import jdos.hardware.Keyboard;
@@ -824,9 +826,13 @@ public class Main {
         while (true) {
             Main.GFX_SetTitle(-1, -1, false);
             CommandLine com_line = new CommandLine(args);
+            String saveName;
 
             if (com_line.FindExist("-applet", true)) {
                 Dosbox.applet = true;
+            }
+            if ((saveName=com_line.FindString("-compile", true))!=null) {
+                Compiler.saveClasses = true;
             }
 
             Config myconf = new Config(com_line);
@@ -911,6 +917,9 @@ public class Main {
                 try {myconf.Destroy();} catch (Exception e1){}
                 continue;
             } catch (ShutdownException e) {
+                if (saveName!=null) {
+                    Loader.save(saveName, false);
+                }
                 System.out.println("Normal Shutdown");
                 try {myconf.Destroy();} catch (Exception e1){}
             } catch (KillException e) {

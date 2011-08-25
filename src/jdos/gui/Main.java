@@ -160,14 +160,18 @@ public class Main {
         public int rel_y;
         public float abs_x;
         public float abs_y;
-        public MouseEvent2(MouseEvent event, int rel_x, int rel_y, float abs_x, float abs_y) {
-            super(event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(), event.getX(), event.getY(), event.getClickCount(), event.isPopupTrigger());
+        public MouseEvent2(MouseEvent event, int rel_x, int rel_y, float abs_x, float abs_y, int offX, int offY) {
+            super(event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(), event.getX()-offX, event.getY()-offY, event.getClickCount(), event.isPopupTrigger());
             this.rel_x = rel_x;
             this.rel_y = rel_y;
             this.abs_x = abs_x;
             this.abs_y = abs_y;
         }
-
+    }
+    static public class MouseEvent1 extends MouseEvent {
+        public MouseEvent1(MouseEvent event, int offX, int offY) {
+            super(event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(), event.getX()-offX, event.getY()-offY, event.getClickCount(), event.isPopupTrigger());
+        }
     }
     static private Point lastMouse = new Point();
     static private void handle(MouseEvent event) {

@@ -324,17 +324,30 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         g.setClip(0, 0, width, height);
     }
 
+    private int getScreenX() {
+        if (Main.screen_width<this.getWidth()) {
+            return (getWidth()-Main.screen_width)/2;
+        }
+        return 0;
+    }
+
+    private int getScreenY() {
+        if (Main.screen_height<this.getHeight()) {
+            return (getHeight()-Main.screen_height)/2;
+        }
+        return 0;
+    }
     private void draw(Graphics g) {
         int x = 0;
         int y = 0;
         if (Main.screen_width<this.getWidth()) {
-            x = (getWidth()-Main.screen_width)/2;
+            x = getScreenX();
             g.setColor(backgroundColor);
             g.fillRect(0, 0, x, getHeight());
             g.fillRect(x+Main.screen_width, 0, getWidth()-(x+Main.screen_width), getHeight());
         }
         if (Main.screen_height<this.getHeight()) {
-            y = (getHeight()-Main.screen_height)/2;
+            y = getScreenY();
             g.setColor(backgroundColor);
             g.fillRect(0, 0, getWidth(), y);
             g.fillRect(0, y+Main.screen_height, getWidth(), getHeight()-(y+Main.screen_height));
@@ -405,10 +418,10 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
 
     public void mouseDragged(MouseEvent e) {
-        MainFrame.robotMouse(e, getLocationOnScreen());
+        MainFrame.robotMouse(e, getLocationOnScreen(), getScreenX(), getScreenY());
     }
 
     public void mouseMoved(MouseEvent e) {
-        MainFrame.robotMouse(e, getLocationOnScreen());
+        MainFrame.robotMouse(e, getLocationOnScreen(), getScreenX(), getScreenY());
     }
 }

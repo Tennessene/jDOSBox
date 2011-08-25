@@ -26,21 +26,21 @@ public class MainFrame implements GUI {
         
     }
 
-    static public void robotMouse(MouseEvent e, Point rel) {
-         if (eatNextMouseMove) {
-            last_x = e.getX();
-            last_y = e.getY();
+    static public void robotMouse(MouseEvent e, Point rel, int offX, int offY) {
+        if (eatNextMouseMove) {
+            last_x = e.getX()-offX;
+            last_y = e.getY()-offY;
             eatNextMouseMove = false;
             return;
         }
         if (!Main.mouse_locked || robot == null)
-            Main.addEvent(e);
+            Main.addEvent(new Main.MouseEvent1(e, offX, offY));
         else {
-            int rel_x = e.getX() - last_x;
-            int rel_y = e.getY() - last_y;
+            int rel_x = e.getX() - last_x - offX;
+            int rel_y = e.getY() - last_y - offY;
             float abs_x = (Mouse.mouse.x+rel_x*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_x);
             float abs_y = (Mouse.mouse.y+rel_y*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_y);
-            Main.addEvent(new Main.MouseEvent2(e,rel_x, rel_y, abs_x, abs_y));
+            Main.addEvent(new Main.MouseEvent2(e,rel_x, rel_y, abs_x, abs_y, offX, offY));
             robotCenter(rel);
         }
     }
@@ -322,11 +322,11 @@ public class MainFrame implements GUI {
         }
 
         public void mouseMoved(MouseEvent e) {
-            robotMouse(e, panel.getLocationOnScreen());
+            robotMouse(e, panel.getLocationOnScreen(), 0, 0);
         }
 
         public void mouseDragged(MouseEvent e) {
-            robotMouse(e, panel.getLocationOnScreen());
+            robotMouse(e, panel.getLocationOnScreen(), 0, 0);
         }
 
     }

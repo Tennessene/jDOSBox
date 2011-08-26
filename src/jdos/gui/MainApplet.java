@@ -233,7 +233,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
             System.out.println("Applet is not signed");
             System.out.println("    mouse capture will not work");
             System.out.println("    disabling compiler");
-            DecodeBlock.compileThreshold = 0;
+            DecodeBlock.compilerEnabled = false;
         }
         if (thread != null) {
             System.out.println("Applet.init force stop");

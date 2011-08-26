@@ -16,6 +16,7 @@ final public class DecodeBlock extends Op {
     public int codeLen;
     public int runCount = 0;
     static public int compileThreshold = 0;
+    static public boolean compilerEnabled = true;
 
     public static boolean smc = false;
     private boolean compiled = false;
@@ -46,7 +47,7 @@ final public class DecodeBlock extends Op {
     }
     final public int call() {
         runCount++;
-        if (runCount==compileThreshold && !compiled) {
+        if (compilerEnabled && runCount==compileThreshold && !compiled) {
             jdos.cpu.core_dynamic.Compiler.compile(this);
         }
         Op o = op;

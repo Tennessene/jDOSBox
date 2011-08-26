@@ -1,12 +1,12 @@
 package jdos.gui;
 
+import jdos.Dosbox;
+import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
-import jdos.misc.Log;
-import jdos.types.LogTypes;
 import jdos.types.LogSeverities;
-import jdos.Dosbox;
+import jdos.types.LogTypes;
 
 import javax.sound.midi.*;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class Midi extends Module_base {
         Receiver handler;
         MidiDevice device;
     }
-    static final private _midi midi = new _midi();
+    static private _midi midi;
     static private ShortMessage msg = new ShortMessage();
     static private SysexMessage sysex_msg = new SysexMessage();
 
@@ -201,11 +201,13 @@ public class Midi extends Module_base {
                 midi.device.close();
             }
             test = null;
+            midi = null;
         }
     };
 
     public static Section.SectionFunction MIDI_Init = new Section.SectionFunction() {
         public void call(Section section) {
+            midi = new _midi();
             test = new Midi(section);
             section.AddDestroyFunction(MIDI_Destroy);
         }

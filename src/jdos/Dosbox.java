@@ -414,8 +414,8 @@ public class Dosbox {
         Pint.Set_help("Setting it lower than 100 will be a percentage.");
 
         secprop=control.AddSection_prop("compiler", Compiler.Compiler_Init,true);
-        Pint = secprop.Add_int("threshold",Property.Changeable.Always,0);
-        Pint.Set_help("How many times a block is seen before it is compiled.  0 turns off the compiler, 1 compiles everything.\nOnly used when dynamic_core is active. Values between 100-1000 yield the best results.\nCurrently the default is 0 since this is an experimental feature.  For most DOS games expect a 2x performance improvement when set to 1000.");
+        Pint = secprop.Add_int("threshold",Property.Changeable.Always,1000);
+        Pint.Set_help("How many times a block is seen before it is compiled.  0 turns off the compiler, 1 compiles everything.\nOnly used when dynamic_core is active. Values between 100-1000 yield the best results.");
 
         Pint = secprop.Add_int("min_block_size",Property.Changeable.Always,2);
         Pint.Set_help("The minimum number of ops the block must contain in order to be compiled.  In general 2 is a good value.");

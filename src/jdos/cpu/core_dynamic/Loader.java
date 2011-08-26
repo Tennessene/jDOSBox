@@ -97,7 +97,7 @@ public class Loader {
             ByteArrayOutputStream src_bos = null;
             DataOutputStream src_dos = null;
             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(fileName+".jar")));
-            String root = fileName+"_src"+File.separator+"jdos";
+            String root = fileName+"_src"+File.separator+ "jdos";
             String dirName = root+File.separator+"cpu"+File.separator+"core_dynamic";
             if (source) {
                 src_bos = new ByteArrayOutputStream();
@@ -123,7 +123,7 @@ public class Loader {
                     FileOutputStream fos = new FileOutputStream(dirName+File.separator+item.name.substring(item.name.lastIndexOf('.')+1)+".java");
                     fos.write(item.source.getBytes());
                     fos.close();
-                    src_dos.writeUTF("jdos.cpu.core_dynamic."+item.name);
+                    src_dos.writeUTF("jdos.cpu.core_dynamic." + item.name);
                     dos.writeInt(item.start);
                     src_dos.writeInt(item.opCode.length);
                     src_dos.write(item.opCode);

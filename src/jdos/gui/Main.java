@@ -932,6 +932,8 @@ public class Main {
                 e.printStackTrace();
                 if (!Dosbox.applet)
                     System.exit(1);
+            } finally {
+                events.clear();
             }
             break;
         }

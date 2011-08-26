@@ -492,7 +492,7 @@ public class CPU extends Module_base {
     }
 
     public static CPU_Regs regs = new CPU_Regs();
-    public static CPUBlock cpu = new CPUBlock();
+    public static CPUBlock cpu;
 
     static public /*Bitu*/int Segs_ESval;
     static public /*Bitu*/int Segs_CSval;
@@ -2838,6 +2838,10 @@ public class CPU extends Module_base {
     }
 
     private static boolean inited = false;
+    static public void initialize() {
+        inited = false;
+        cpu = new CPUBlock();
+    }
     public CPU(Section configuration) {
         super(configuration);
         if(inited) {

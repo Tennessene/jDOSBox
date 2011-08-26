@@ -828,6 +828,7 @@ public class Main {
     static void main(GUI g, String[] args) {
         gui = g;
         while (true) {
+            CPU.initialize();
             Main.GFX_SetTitle(-1, -1, false);
             CommandLine com_line = new CommandLine(args);
             String saveName;

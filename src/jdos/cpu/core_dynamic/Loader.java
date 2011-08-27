@@ -54,7 +54,7 @@ public class Loader {
                     int len = dis.readInt();
                     item.opCodes = new byte[len];
                     dis.readFully(item.opCodes);
-                    Integer key = new Integer(Arrays.hashCode(item.opCodes));
+                    Integer key = new Integer(item.start);
                     Vector bucket = (Vector)items.get(key);
                     if (bucket == null) {
                         bucket = new Vector();
@@ -69,7 +69,7 @@ public class Loader {
         }
     }
     public static Op load(int start, byte[] opCodes) {
-        Integer key = new Integer(Arrays.hashCode(opCodes));
+        Integer key = new Integer(start);
         Vector bucket = (Vector)items.get(key);
         if (bucket != null) {
             for (int i=0;i<bucket.size();i++) {

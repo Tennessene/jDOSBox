@@ -5719,7 +5719,9 @@ public class Compiler extends Helper {
                     Inst2.BtEwIb_reg o = (Inst2.BtEwIb_reg) op;
                     method.append("Flags.FillFlags();CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet16(o.earw));
-                    method.append(" & mask)!=0);");
+                    method.append(" & ");
+                    method.append(o.mask);
+                    method.append(")!=0);");
                     return true;
                 }
                 if (op instanceof Inst2.BtsEwIb_reg) {

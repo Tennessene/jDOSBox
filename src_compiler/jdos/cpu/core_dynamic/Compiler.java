@@ -5696,6 +5696,7 @@ public class Compiler extends Helper {
                 }
                 break;
             case 0x1b7: // MOVZX Gw,Ew
+            case 0x1bf:  // MOVSX Gw,Ew
                 if (op instanceof Inst2.MovzxGwEw_reg) {
                     Inst2.MovzxGwEw_reg o = (Inst2.MovzxGwEw_reg) op;
                     method.append(nameSet16(o.rw, nameGet16(o.earw)));
@@ -5711,8 +5712,6 @@ public class Compiler extends Helper {
                     method.append(";");
                     return true;
                 }
-                break;
-            case 0x1bf: // MOVSX Gw,Ew
                 break;
             case 0x1ba: // GRP8 Ew,Ib
                 if (op instanceof Inst2.BtEwIb_reg) {

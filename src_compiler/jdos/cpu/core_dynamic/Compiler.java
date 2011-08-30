@@ -4728,6 +4728,7 @@ public class Compiler extends Helper {
                 }
                 break;
             case 0x100: // GRP 6 Exxx
+            case 0x300:
                 if (op instanceof Inst2.Sldt_reg) {
                     Inst2.Sldt_reg o = (Inst2.Sldt_reg) op;
                     method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");

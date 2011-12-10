@@ -242,7 +242,6 @@ public class Instructions extends Table_ea {
         lflags.type=t_TESTd;
     }
 
-
     static public short INCB(short l) {
         LoadCF();lf_var1b(l);
         lf_resb(lf_var1b()+1);

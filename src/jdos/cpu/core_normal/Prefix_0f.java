@@ -714,6 +714,7 @@ public class Prefix_0f extends Prefix_none {
         };
 
         /* cmpxchg Eb,Gb */
+        // :DOSBOX: this is different from dosbox
         ops[0x1b0] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
@@ -721,6 +722,7 @@ public class Prefix_0f extends Prefix_none {
                 /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb_interface r = Modrm.GetEArb[rm];
+                    Instructions.CMPB(r.get(), reg_eax.low()); // Sets the flags
                     if (reg_eax.low() == r.get()) {
                         r.set(Modrm.Getrb[rm].get());
                         SETFLAGBIT(ZF,true);
@@ -731,6 +733,7 @@ public class Prefix_0f extends Prefix_none {
                 } else {
                     /*PhysPt*/int eaa=getEaa(rm);
                     /*Bit8u*/short val = Memory.mem_readb(eaa);
+                    Instructions.CMPB(val, reg_eax.low()); // Sets the flags
                     if (reg_eax.low() == val) {
                         Memory.mem_writeb(eaa,Modrm.Getrb[rm].get());
                         SETFLAGBIT(ZF,true);
@@ -746,12 +749,14 @@ public class Prefix_0f extends Prefix_none {
         ops[0x3b0] = ops[0x1b0];
 
         /* cmpxchg Ew,Gw */
+        // :DOSBOX: this is different from dosbox
         ops[0x1b1] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 Flags.FillFlags();
                 /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0 ) {
+                    Instructions.CMPW(Modrm.GetEArw[rm].word(), reg_eax.word()); // Sets the flags
                     if(reg_eax.word() == Modrm.GetEArw[rm].word()) {
                         Modrm.GetEArw[rm].word(Modrm.Getrw[rm].word());
                         SETFLAGBIT(ZF,true);
@@ -760,8 +765,9 @@ public class Prefix_0f extends Prefix_none {
                         SETFLAGBIT(ZF,false);
                     }
                 } else {
-                       /*PhysPt*/int eaa=getEaa(rm);
+                    /*PhysPt*/int eaa=getEaa(rm);
                     /*Bit16u*/int val = Memory.mem_readw(eaa);
+                    Instructions.CMPW(val, reg_eax.word()); // Sets the flags
                     if(reg_eax.word() == val) {
                         Memory.mem_writew(eaa,Modrm.Getrw[rm].word());
                         SETFLAGBIT(ZF,true);
@@ -967,24 +973,44 @@ public class Prefix_0f extends Prefix_none {
         };
 
         /* XADD Gb,Eb */
+        // :DOSBOX: this is different from dosbox
         ops[0x1c0] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();/*Bit8u*/short oldrmrb=Modrm.Getrb[rm].get();
-                if (rm >= 0xc0 ) {Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());Modrm.GetEArb[rm].set((short)(Modrm.GetEArb[rm].get()+oldrmrb));}
-                else {/*PhysPt*/int eaa=getEaa(rm);Modrm.Getrb[rm].set(Memory.mem_readb(eaa));Memory.mem_writeb(eaa,Memory.mem_readb(eaa)+oldrmrb);}
+                /*Bit8u*/short rm=Fetchb();
+                if (rm >= 0xc0 ) {
+                    short result = Instructions.ADDB(Modrm.Getrb[rm].get(), Modrm.GetEArb[rm].get());
+                    Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());
+                    Modrm.GetEArb[rm].set(result);
+                } else {
+                    /*PhysPt*/int eaa=getEaa(rm);
+                    short val = Memory.mem_readb(eaa);
+                    short result = Instructions.ADDB(Modrm.Getrb[rm].get(), val);
+                    Memory.mem_writeb(eaa,result);
+                    Modrm.Getrb[rm].set(val);
+                }
                 return HANDLED;
             }
         };
         ops[0x3c0] = ops[0x1c0];
 
         /* XADD Gw,Ew */
+        // :DOSBOX: this is different from dosbox
         ops[0x1c1] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();/*Bit16u*/int oldrmrw=Modrm.Getrw[rm].word();
-                if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());Modrm.GetEArw[rm].word(Modrm.GetEArw[rm].word()+oldrmrw);}
-                else {/*PhysPt*/int eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readw(eaa));Memory.mem_writew(eaa,Memory.mem_readw(eaa)+oldrmrw);}
+                /*Bit8u*/short rm=Fetchb();
+                if (rm >= 0xc0 ) {
+                    int result = Instructions.ADDW(Modrm.Getrw[rm].word(), Modrm.GetEArw[rm].word());
+                    Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());
+                    Modrm.GetEArw[rm].word(result);
+                } else {
+                    /*PhysPt*/int eaa=getEaa(rm);
+                    int val = Memory.mem_readw(eaa);
+                    int result = Instructions.ADDW(Modrm.Getrw[rm].word(), val);
+                    Memory.mem_writew(eaa,result);
+                    Modrm.Getrw[rm].word(val);
+                }
                 return HANDLED;
             }
         };

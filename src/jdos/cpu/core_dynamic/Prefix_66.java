@@ -1257,6 +1257,10 @@ public class Prefix_66 extends Helper {
                 int which=(rm>>3)&7;
                 if (rm >= 0xc0) {
                     int val = decode_fetchb() & 0x1f;
+                    if (val==0) {
+                        prev.next = new Inst1.Noop();
+                        return RESULT_HANDLED;
+                    }
                     switch (which)	{
                     case 0x00:prev.next = new Grp2.ROLD_reg(rm, val);break;
                     case 0x01:prev.next = new Grp2.RORD_reg(rm, val);break;
@@ -1270,6 +1274,10 @@ public class Prefix_66 extends Helper {
                 } else {
                     EaaBase get_eaa= Mod.getEaa(rm);
                     int val = decode_fetchb() & 0x1f;
+                    if (val==0) {
+                        prev.next = new Inst1.Noop();
+                        return RESULT_HANDLED;
+                    }
                     switch (which) {
                     case 0x00:prev.next = new Grp2.ROLD_mem(get_eaa, val);break;
                     case 0x01:prev.next = new Grp2.RORD_mem(get_eaa, val);break;

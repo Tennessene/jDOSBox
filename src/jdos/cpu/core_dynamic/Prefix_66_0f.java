@@ -247,9 +247,17 @@ public class Prefix_66_0f extends Helper {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
                 if (rm >= 0xc0 ) {
-                    prev.next = new Inst4.ShldEdGdIb_reg(rm);
+                    Inst4.ShldEdGdIb_reg tmp = new Inst4.ShldEdGdIb_reg(rm);
+                    if (tmp.op3==0)
+                        prev.next = new Inst1.Noop();
+                    else
+                        prev.next = tmp;
                 } else {
-                    prev.next = new Inst4.ShldEdGdIb_mem(rm);
+                    Inst4.ShldEdGdIb_mem tmp = new Inst4.ShldEdGdIb_mem(rm);
+                    if (tmp.op3==0)
+                        prev.next = new Inst1.Noop();
+                    else
+                        prev.next = tmp;
                 }
                 return RESULT_HANDLED;
             }
@@ -302,9 +310,17 @@ public class Prefix_66_0f extends Helper {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
                 if (rm >= 0xc0 ) {
-                    prev.next = new Inst4.ShrdEdGdIb_reg(rm);
+                    Inst4.ShrdEdGdIb_reg tmp = new Inst4.ShrdEdGdIb_reg(rm);
+                    if (tmp.op3 == 0)
+                        prev.next = new Inst1.Noop();
+                    else
+                        prev.next = tmp;
                 } else {
-                    prev.next = new Inst4.ShrdEdGdIb_mem(rm);
+                    Inst4.ShrdEdGdIb_mem tmp = new Inst4.ShrdEdGdIb_mem(rm);
+                    if (tmp.op3 == 0)
+                        prev.next = new Inst1.Noop();
+                    else
+                        prev.next = tmp;
                 }
                 return RESULT_HANDLED;
             }

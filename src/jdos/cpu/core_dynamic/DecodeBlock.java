@@ -20,6 +20,8 @@ final public class DecodeBlock extends Op {
 
     public static boolean smc = false;
     private boolean compiled = false;
+    public CacheBlockDynRec parent;
+    public Op compiledOp = null;
 
     static private byte[] getOpCode(int start, int len) {
         byte[] opCode = new byte[len];
@@ -31,7 +33,8 @@ final public class DecodeBlock extends Op {
         return opCode;
     }
 
-    public DecodeBlock(Op op, int start, int len) {
+    public DecodeBlock(CacheBlockDynRec parent, Op op, int start, int len) {
+        this.parent = parent;
         this.op = op;
         this.next = op; // simplifies the compiler
         this.codeStart = start;
@@ -47,11 +50,16 @@ final public class DecodeBlock extends Op {
     }
     final public int call() {
         runCount++;
-        if (compilerEnabled && runCount==compileThreshold && !compiled) {
+        if (runCount==compileThreshold && !compiled && compilerEnabled) {
             jdos.cpu.core_dynamic.Compiler.compile(this);
         }
+        if (compiledOp!=null) {
+            parent.code = compiledOp;
+        }
+//        if ((runCount % 10000) == 0)
+//            System.out.println(op.toString()+":"+runCount);
         Op o = op;
-        int result = Constants.BR_Normal;
+        int result;
         Core.base_ds= CPU.Segs_DSphys;
         Core.base_ss=CPU.Segs_SSphys;
         Core.base_val_ds= CPU_Regs.ds;

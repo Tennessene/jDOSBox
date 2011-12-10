@@ -91,7 +91,7 @@ public class CacheBlockDynRec {
     public _Link link1;
     public _Link link2;
 	CacheBlockDynRec crossblock;
-    public DecodeBlock code;
+    public Op code;
     public byte[] originalByteCode = null; //used for dynamic core cache verification
 }
 

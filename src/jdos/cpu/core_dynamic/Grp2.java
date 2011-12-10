@@ -15,10 +15,19 @@ public class Grp2 extends Helper {
             earb = Mod.eb(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_ROLB(earb.get8(), val))
                 earb.set8(Instructions.do_ROLB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -31,10 +40,19 @@ public class Grp2 extends Helper {
             earb = Mod.eb(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_RORB(earb.get8(), val))
                 earb.set8(Instructions.do_RORB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -47,10 +65,19 @@ public class Grp2 extends Helper {
             earb = Mod.eb(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_RCLB(val))
                 earb.set8(Instructions.do_RCLB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -63,10 +90,19 @@ public class Grp2 extends Helper {
             earb = Mod.eb(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_RCRB(val))
                 earb.set8(Instructions.do_RCRB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -79,10 +115,19 @@ public class Grp2 extends Helper {
             earb = Mod.eb(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_SHLB(val))
                 earb.set8(Instructions.do_SHLB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -95,10 +140,19 @@ public class Grp2 extends Helper {
             earb = Mod.eb(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_SHRB(val))
                 earb.set8(Instructions.do_SHRB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -111,10 +165,19 @@ public class Grp2 extends Helper {
             earb = Mod.eb(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_SARB(val))
                 earb.set8(Instructions.do_SARB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -126,12 +189,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_ROLB(eaa, val)) {
                 Memory.mem_writeb(eaa, Instructions.do_ROLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -144,12 +216,21 @@ public class Grp2 extends Helper {
             this.val=val;
 
         }
+
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RORB(eaa, val)) {
                 Memory.mem_writeb(eaa, Instructions.do_RORB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -162,12 +243,21 @@ public class Grp2 extends Helper {
             this.val=val;
 
         }
+
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RCLB(val)) {
                 Memory.mem_writeb(eaa, Instructions.do_RCLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -180,12 +270,21 @@ public class Grp2 extends Helper {
             this.val=val;
 
         }
+
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RCRB(val)) {
                 Memory.mem_writeb(eaa, Instructions.do_RCRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -198,12 +297,21 @@ public class Grp2 extends Helper {
             this.val=val;
 
         }
+
         public int call() {
             if (Instructions.valid_SHLB(val)) {
                 int eaa = get_eaa.call();
                 Memory.mem_writeb(eaa, Instructions.do_SHLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -215,12 +323,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             if (Instructions.valid_SHRB(val)) {
                 int eaa = get_eaa.call();
                 Memory.mem_writeb(eaa, Instructions.do_SHRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -232,12 +349,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             if (Instructions.valid_SARB(val)) {
                 int eaa = get_eaa.call();
                 Memory.mem_writeb(eaa, Instructions.do_SARB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -250,10 +376,19 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_ROLW(earw.word(), val))
                 earw.word(Instructions.do_ROLW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -266,10 +401,19 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_RORW(earw.word(), val))
                 earw.word(Instructions.do_RORW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -282,10 +426,19 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_RCLW(val))
                 earw.word(Instructions.do_RCLW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -298,10 +451,19 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_RCRW(val))
                 earw.word(Instructions.do_RCRW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -314,10 +476,19 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_SHLW(val))
                 earw.word(Instructions.do_SHLW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -330,10 +501,19 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_SHRW(val))
                 earw.word(Instructions.do_SHRW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -346,10 +526,19 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             if (Instructions.valid_SARW(val))
                 earw.word(Instructions.do_SARW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -361,12 +550,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_ROLW(eaa, val)) {
                 Memory.mem_writew(eaa, Instructions.do_ROLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -378,12 +576,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RORW(eaa, val)) {
                 Memory.mem_writew(eaa, Instructions.do_RORW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -395,12 +602,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             if (Instructions.valid_RCLW(val)) {
                 Memory.mem_writew(eaa, Instructions.do_RCLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -412,12 +628,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             if (Instructions.valid_RCRW(val)) {
                 int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_RCRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -429,12 +654,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             if (Instructions.valid_SHLW(val)) {
                 int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SHLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -446,12 +680,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             if (Instructions.valid_SHRW(val)) {
                 int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SHRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -463,12 +706,21 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
             if (Instructions.valid_SARW(val)) {
                 int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_SARW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -478,11 +730,20 @@ public class Grp2 extends Helper {
         public ROLB_reg_cl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_ROLB(earb.get8(), val))
                 earb.set8(Instructions.do_ROLB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -492,11 +753,20 @@ public class Grp2 extends Helper {
         public RORB_reg_cl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RORB(earb.get8(), val))
                 earb.set8(Instructions.do_RORB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -506,11 +776,20 @@ public class Grp2 extends Helper {
         public RCLB_reg_cl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCLB(val))
                 earb.set8(Instructions.do_RCLB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -520,11 +799,20 @@ public class Grp2 extends Helper {
         public RCRB_reg_cl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCRB(val))
                 earb.set8(Instructions.do_RCRB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -534,11 +822,20 @@ public class Grp2 extends Helper {
         public SHLB_reg_cl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHLB(val))
                 earb.set8(Instructions.do_SHLB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -548,11 +845,20 @@ public class Grp2 extends Helper {
         public SHRB_reg_cl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHRB(val))
                 earb.set8(Instructions.do_SHRB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -562,11 +868,20 @@ public class Grp2 extends Helper {
         public SARB_reg_cl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SARB(val))
                 earb.set8(Instructions.do_SARB(val, earb.get8()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -576,6 +891,7 @@ public class Grp2 extends Helper {
         public ROLB_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
@@ -583,6 +899,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writeb(eaa, Instructions.do_ROLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -592,6 +916,7 @@ public class Grp2 extends Helper {
         public RORB_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
@@ -599,6 +924,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writeb(eaa, Instructions.do_RORB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -608,6 +941,7 @@ public class Grp2 extends Helper {
         public RCLB_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
@@ -615,6 +949,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writeb(eaa, Instructions.do_RCLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -624,6 +966,7 @@ public class Grp2 extends Helper {
         public RCRB_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
@@ -631,6 +974,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writeb(eaa, Instructions.do_RCRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -640,6 +991,7 @@ public class Grp2 extends Helper {
         public SHLB_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHLB(val)) {
@@ -647,6 +999,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writeb(eaa, Instructions.do_SHLB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -656,6 +1016,7 @@ public class Grp2 extends Helper {
         public SHRB_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHRB(reg_ecx.low())) {
@@ -663,6 +1024,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writeb(eaa, Instructions.do_SHRB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -672,6 +1041,7 @@ public class Grp2 extends Helper {
         public SARB_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SARB(val)) {
@@ -679,6 +1049,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writeb(eaa, Instructions.do_SARB(val, Memory.mem_readb(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -688,11 +1066,20 @@ public class Grp2 extends Helper {
         public ROLW_reg_cl(int rm) {
             earw = Mod.ew(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_ROLW(earw.word(), val))
                 earw.word(Instructions.do_ROLW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -702,11 +1089,20 @@ public class Grp2 extends Helper {
         public RORW_reg_cl(int rm) {
             earw = Mod.ew(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RORW(earw.word(), val))
                 earw.word(Instructions.do_RORW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -716,11 +1112,20 @@ public class Grp2 extends Helper {
         public RCLW_reg_cl(int rm) {
             earw = Mod.ew(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCLW(val))
                 earw.word(Instructions.do_RCLW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -731,11 +1136,20 @@ public class Grp2 extends Helper {
             earw = Mod.ew(rm);
 
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCRW(val))
                 earw.word(Instructions.do_RCRW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -744,13 +1158,21 @@ public class Grp2 extends Helper {
 
         public SHLW_reg_cl(int rm) {
             earw = Mod.ew(rm);
-
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHLW(val))
                 earw.word(Instructions.do_SHLW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -759,13 +1181,21 @@ public class Grp2 extends Helper {
 
         public SHRW_reg_cl(int rm) {
             earw = Mod.ew(rm);
-
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHRW(val))
                 earw.word(Instructions.do_SHRW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -775,11 +1205,20 @@ public class Grp2 extends Helper {
         public SARW_reg_cl(int rm) {
             earw = Mod.ew(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SARW(val))
                 earw.word(Instructions.do_SARW(val, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -789,6 +1228,7 @@ public class Grp2 extends Helper {
         public ROLW_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
@@ -796,6 +1236,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writew(eaa, Instructions.do_ROLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -805,6 +1253,7 @@ public class Grp2 extends Helper {
         public RORW_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
@@ -812,6 +1261,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writew(eaa, Instructions.do_RORW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -821,6 +1278,7 @@ public class Grp2 extends Helper {
         public RCLW_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             int val = reg_ecx.low() & 0x1f;
@@ -828,6 +1286,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writew(eaa, Instructions.do_RCLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -837,6 +1303,7 @@ public class Grp2 extends Helper {
         public RCRW_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_RCRW(val)) {
@@ -844,6 +1311,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writew(eaa, Instructions.do_RCRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -853,6 +1328,7 @@ public class Grp2 extends Helper {
         public SHLW_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHLW(val)) {
@@ -860,6 +1336,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writew(eaa, Instructions.do_SHLW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -869,6 +1353,7 @@ public class Grp2 extends Helper {
         public SHRW_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SHRW(val)) {
@@ -876,6 +1361,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writew(eaa, Instructions.do_SHRW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -885,6 +1378,7 @@ public class Grp2 extends Helper {
         public SARW_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (Instructions.valid_SARW(val)) {
@@ -892,6 +1386,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writew(eaa, Instructions.do_SARW(val, Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -904,10 +1406,18 @@ public class Grp2 extends Helper {
             eard = Mod.ed(rm);
 
         }
+
         public int call() {
-            if (val != 0)
-                eard.dword=Instructions.ROLD(val, eard.dword);
+            eard.dword=Instructions.ROLD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -920,10 +1430,18 @@ public class Grp2 extends Helper {
             eard = Mod.ed(rm);
 
         }
+
         public int call() {
-            if (val != 0)
-                eard.dword=Instructions.RORD(val, eard.dword);
+            eard.dword=Instructions.RORD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -936,10 +1454,18 @@ public class Grp2 extends Helper {
             eard = Mod.ed(rm);
 
         }
+
         public int call() {
-            if (val != 0)
-                eard.dword=Instructions.RCLD(val, eard.dword);
+            eard.dword=Instructions.RCLD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -952,10 +1478,18 @@ public class Grp2 extends Helper {
             eard = Mod.ed(rm);
 
         }
+
         public int call() {
-            if (val != 0)
-                eard.dword=Instructions.RCRD(val, eard.dword);
+            eard.dword=Instructions.RCRD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -966,12 +1500,19 @@ public class Grp2 extends Helper {
         public SHLD_reg(int rm, int val) {
             this.val = val;
             eard = Mod.ed(rm);
-
         }
+
         public int call() {
-            if (val != 0)
-                eard.dword=Instructions.SHLD(val, eard.dword);
+            eard.dword=Instructions.SHLD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -982,12 +1523,19 @@ public class Grp2 extends Helper {
         public SHRD_reg(int rm, int val) {
             this.val = val;
             eard = Mod.ed(rm);
-
         }
+
         public int call() {
-            if (val != 0)
-                eard.dword=Instructions.SHRD(val, eard.dword);
+            eard.dword=Instructions.SHRD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -998,12 +1546,19 @@ public class Grp2 extends Helper {
         public SARD_reg(int rm, int val) {
             this.val = val;
             eard = Mod.ed(rm);
-
         }
+
         public int call() {
-            if (val != 0)
-                eard.dword=Instructions.SARD(val, eard.dword);
+            eard.dword=Instructions.SARD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1015,12 +1570,19 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
-            if (val != 0) {
-                int eaa = get_eaa.call();
-                Memory.mem_writed(eaa, Instructions.ROLD(val, Memory.mem_readd(eaa)));
-            }
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, Instructions.ROLD(val, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1032,12 +1594,19 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
-            if (val != 0) {
-                int eaa = get_eaa.call();
-                Memory.mem_writed(eaa, Instructions.RORD(val, Memory.mem_readd(eaa)));
-            }
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, Instructions.RORD(val, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1049,12 +1618,19 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
-            if (val != 0) {
-                int eaa = get_eaa.call();
-                Memory.mem_writed(eaa, Instructions.RCLD(val, Memory.mem_readd(eaa)));
-            }
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, Instructions.RCLD(val, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -1066,12 +1642,19 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
-            if (val != 0) {
-                int eaa = get_eaa.call();
-                Memory.mem_writed(eaa, Instructions.RCRD(val, Memory.mem_readd(eaa)));
-            }
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, Instructions.RCRD(val, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -1083,12 +1666,19 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
-            if (val != 0) {
-                int eaa = get_eaa.call();
-                Memory.mem_writed(eaa, Instructions.SHLD(val, Memory.mem_readd(eaa)));
-            }
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, Instructions.SHLD(val, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1100,12 +1690,19 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
-            if (val != 0) {
-                int eaa = get_eaa.call();
-                Memory.mem_writed(eaa, Instructions.SHRD(val, Memory.mem_readd(eaa)));
-            }
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, Instructions.SHRD(val, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1117,12 +1714,19 @@ public class Grp2 extends Helper {
             this.get_eaa = get_eaa;
             this.val=val;
         }
+
         public int call() {
-            if (val != 0) {
-                int eaa = get_eaa.call();
-                Memory.mem_writed(eaa, Instructions.SARD(val, Memory.mem_readd(eaa)));
-            }
+            int eaa = get_eaa.call();
+            Memory.mem_writed(eaa, Instructions.SARD(val, Memory.mem_readd(eaa)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1132,11 +1736,20 @@ public class Grp2 extends Helper {
         public ROLD_reg_cl(int rm) {
             eard = Mod.ed(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val!=0)
                 eard.dword=Instructions.ROLD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1146,11 +1759,20 @@ public class Grp2 extends Helper {
         public RORD_reg_cl(int rm) {
             eard = Mod.ed(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0)
                 eard.dword=Instructions.RORD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1160,11 +1782,20 @@ public class Grp2 extends Helper {
         public RCLD_reg_cl(int rm) {
             eard = Mod.ed(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0)
                 eard.dword=Instructions.RCLD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -1175,11 +1806,20 @@ public class Grp2 extends Helper {
             eard = Mod.ed(rm);
 
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0)
                 eard.dword=Instructions.RCRD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -1188,13 +1828,21 @@ public class Grp2 extends Helper {
 
         public SHLD_reg_cl(int rm) {
             eard = Mod.ed(rm);
-
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0)
                 eard.dword=Instructions.SHLD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1203,13 +1851,21 @@ public class Grp2 extends Helper {
 
         public SHRD_reg_cl(int rm) {
             eard = Mod.ed(rm);
-
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0)
                 eard.dword=Instructions.SHRD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1219,11 +1875,20 @@ public class Grp2 extends Helper {
         public SARD_reg_cl(int rm) {
             eard = Mod.ed(rm);
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0)
                 eard.dword=Instructions.SARD(val, eard.dword);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1233,6 +1898,7 @@ public class Grp2 extends Helper {
         public ROLD_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
@@ -1240,6 +1906,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writed(eaa, Instructions.ROLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1249,6 +1923,7 @@ public class Grp2 extends Helper {
         public RORD_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
@@ -1256,6 +1931,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writed(eaa, Instructions.RORD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1265,6 +1948,7 @@ public class Grp2 extends Helper {
         public RCLD_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
@@ -1272,6 +1956,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writed(eaa, Instructions.RCLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -1281,6 +1973,7 @@ public class Grp2 extends Helper {
         public RCRD_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
@@ -1288,6 +1981,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writed(eaa, Instructions.RCRD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -1297,6 +1998,7 @@ public class Grp2 extends Helper {
         public SHLD_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
@@ -1304,6 +2006,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writed(eaa, Instructions.SHLD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1313,6 +2023,7 @@ public class Grp2 extends Helper {
         public SHRD_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
@@ -1320,6 +2031,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writed(eaa, Instructions.SHRD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1329,6 +2048,7 @@ public class Grp2 extends Helper {
         public SARD_mem_cl(EaaBase get_eaa) {
             this.get_eaa = get_eaa;
         }
+
         public int call() {
             int val = reg_ecx.low() & 0x1f;
             if (val != 0) {
@@ -1336,6 +2056,14 @@ public class Grp2 extends Helper {
                 Memory.mem_writed(eaa, Instructions.SARD(val, Memory.mem_readd(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 

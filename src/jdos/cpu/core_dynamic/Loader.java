@@ -64,6 +64,7 @@ public class Loader {
                 }
                 System.out.println("Loaded " + count + " blocks");
             } catch (Exception e) {
+                e.printStackTrace();
             }
             try {dis.close();} catch (Exception e) {}
         }
@@ -124,7 +125,7 @@ public class Loader {
                     fos.write(item.source.getBytes());
                     fos.close();
                     src_dos.writeUTF("jdos.cpu.core_dynamic." + item.name);
-                    dos.writeInt(item.start);
+                    //dos.writeInt(item.start);
                     src_dos.writeInt(item.opCode.length);
                     src_dos.write(item.opCode);
                 }

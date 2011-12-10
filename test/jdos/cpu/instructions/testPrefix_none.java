@@ -1,11 +1,10 @@
 package jdos.cpu.instructions;
 
-import jdos.cpu.CPU_Regs;
 import jdos.cpu.CPU;
+import jdos.cpu.CPU_Regs;
 import jdos.cpu.Flags;
-import jdos.util.Ptr;
-import jdos.hardware.Memory;
 import jdos.hardware.IoHandler;
+import jdos.hardware.Memory;
 
 public class testPrefix_none extends InstructionsTestCase{
     // 0x00
@@ -13,9 +12,11 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testAddEbGb() {  
         runRegsb((byte)0x00, 1, 2, false, 3, 2);
         runRegb((byte)0x00, 1, -2, false, -1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x00, 0x80, 0x80, false, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegb((byte)0x00, 0x80, 0x80, false, 0);
     }
 
@@ -24,9 +25,11 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testAddEwGw() {  
         runRegsw((byte)0x01, 1001, 2, false, 1003, 2002);
         runRegw((byte)0x01, 1, -2, false, -1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x01, 0x8000, 0x8000, false, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegw((byte)0x01, 0x8000, 0x8000, false, 0);
     }
 
@@ -35,9 +38,11 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testAddGbEb() {  
         runRegsb((byte)0x02, 1, 2, true, 3, 2);
         runRegb((byte)0x02, 1, -2, true, -1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x02, 0x80, 0x80, true, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegb((byte)0x02, 0x80, 0x80, true, 0);
     }
 
@@ -46,9 +51,11 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testAddGwEw() {  
         runRegsw((byte)0x03, 1001, 2, true, 1003, 2002);
         runRegw((byte)0x03, 1, -2, true, -1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x03, 0x8000, 0x8000, true, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegw((byte)0x03, 0x8000, 0x8000, true, 0);
     }
 
@@ -67,7 +74,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==255);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x04);
         CPU_Regs.reg_eax.low(0x80);
@@ -75,7 +83,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==0);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         newInstruction(0x04);
         CPU_Regs.reg_eax.low(0x80);
@@ -99,7 +108,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0xFFFF);
         assertTrue(CPU_Regs.reg_eax.dword==0xFFFF);
-        assertTrue(!Flags.get_CF());
+         if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x05);
         CPU_Regs.reg_eax.word(0x8000);
@@ -107,7 +117,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0);
         assertTrue(CPU_Regs.reg_eax.dword==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         newInstruction(0x05);
         CPU_Regs.reg_eax.word(0x8000);
@@ -245,44 +256,60 @@ public class testPrefix_none extends InstructionsTestCase{
     //ADC Eb,Gb
     public void testAdcEbGb() {
         runRegsb((byte)0x10, 1, 2, false, 3, 2);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x10, 192, 128, false, 64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegb((byte)0x10, 192, 128, false, 65);  // test the +1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x11
     //ADC Ew,Gw
     public void testAdcEwGw() {
         runRegsw((byte)0x11, 1, 2, false, 3, 2);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x11, 0xC000, 0x8000, false, 0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegw((byte)0x11, 0xC000, 0x8000, false, 0x4001);  // test the +1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x12
     //ADC Gb,Eb
     public void testAdcGbEb() {
         runRegsb((byte)0x12, 1, 2, true, 3, 2);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x12, 192, 128, true, 64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegb((byte)0x12, 192, 128, true, 65);  // test the +1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x13
     //ADC Gw,Ew
     public void testAdcGwEw() {
         runRegsw((byte)0x13, 1, 2, true, 3, 2);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x13, 0xC000, 0x8000, true, 0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegw((byte)0x13, 0xC000, 0x8000, true, 0x4001);  // test the +1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x14
@@ -300,7 +327,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==255);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x14);
         CPU_Regs.reg_eax.low(0x80);
@@ -308,8 +336,10 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==0);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         newInstruction(0x14);
         CPU_Regs.reg_eax.low(0x80);
         pushIb((byte)0x80);
@@ -333,7 +363,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0xFFFF);
         assertTrue(CPU_Regs.reg_eax.dword==0xFFFF);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x15);
         CPU_Regs.reg_eax.word(0x8000);
@@ -341,8 +372,10 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0);
         assertTrue(CPU_Regs.reg_eax.dword==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         newInstruction(0x15);
         CPU_Regs.reg_eax.word(0x8000);
         pushIw((short)0x8000);
@@ -379,11 +412,15 @@ public class testPrefix_none extends InstructionsTestCase{
     //SBB Eb,Gb
     public void testSbbEbGb() {
         runRegsb((byte)0x18, 3, 2, false, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x18, 192, 128, false, 64);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x18, 128, 192, false, -64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegb((byte)0x18, 128, 192, false, -65);  // test the -1 carry
     }
 
@@ -391,39 +428,54 @@ public class testPrefix_none extends InstructionsTestCase{
     //SBB Ew,Gw
     public void testSbbEwGw() {
         runRegsw((byte)0x19, 3, 2, false, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x19, 0xC000, 0x8000, false, 0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x19, 0x8000, 0xC000, false, -0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegw((byte)0x19, 0x8000, 0xC000, false, -0x4001);  // test the -1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x1a
     //SBB Gb,Eb
     public void testSbbGbEb() {
         runRegsb((byte)0x1a, 2, 3, true, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x1a, 128, 192, true, 64);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x1a, 192, 128, true, -64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegb((byte)0x1a, 192, 128, true, -65);  // test the -1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x1b
     //SBB Gw,Ew
     public void testSbbGwEw() {
         runRegsw((byte)0x1b, 2, 3, true, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x1b, 0x8000, 0xC000, true, 0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x1b, 0xC000, 0x8000, true, -0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegw((byte)0x1b, 0xC000, 0x8000, true, -0x4001);  // test the -1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x1c
@@ -434,7 +486,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)2);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x1c);
         CPU_Regs.reg_eax.low(192);
@@ -442,7 +495,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==64);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x1c);
         CPU_Regs.reg_eax.low(128);
@@ -450,15 +504,18 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==192);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         newInstruction(0x1c);
         CPU_Regs.reg_eax.low(128);
         pushIb((byte)192);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==191); // test the -1 carry
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x1d
@@ -469,7 +526,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIw((short)2);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x1d);
         CPU_Regs.reg_eax.word(0xC000);
@@ -477,7 +535,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0x4000);
         assertTrue(CPU_Regs.reg_eax.dword==0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x1d);
         CPU_Regs.reg_eax.word(0x8000);
@@ -485,15 +544,18 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0xC000);
         assertTrue(CPU_Regs.reg_eax.dword==0xC000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         newInstruction(0x1d);
         CPU_Regs.reg_eax.word(0x8000);
         pushIw((short)0xC000);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0xBFFF);
         assertTrue(CPU_Regs.reg_eax.dword==0xBFFF);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x1E
@@ -689,52 +751,68 @@ public class testPrefix_none extends InstructionsTestCase{
     //SUB Eb,Gb
     public void testSubEbGb() {
         runRegsb((byte)0x28, 3, 2, false, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x28, 192, 128, false, 64);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x28, 128, 192, false, -64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegb((byte)0x28, 128, 192, false, -64); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x29
     //SUB Ew,Gw
     public void testSubEwGw() {
         runRegsw((byte)0x29, 3, 2, false, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x29, 0xC000, 0x8000, false, 0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x29, 0x8000, 0xC000, false, -0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegw((byte)0x29, 0x8000, 0xC000, false, -0x4000); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x2a
     //SUB Gb,Eb
     public void testSubGbEb() {
         runRegsb((byte)0x2a, 2, 3, true, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x2a, 128, 192, true, 64);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegb((byte)0x2a, 192, 128, true, -64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegb((byte)0x2a, 192, 128, true, -64); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x2b
     //SUB Gw,Ew
     public void testSubGwEw() {
         runRegsw((byte)0x2b, 2, 3, true, 1, 0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x2b, 0x8000, 0xC000, true, 0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegw((byte)0x2b, 0xC000, 0x8000, true, -0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegw((byte)0x2b, 0xC000, 0x8000, true, -0x4000); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x2c
@@ -745,7 +823,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)2);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x2c);
         CPU_Regs.reg_eax.low(192);
@@ -753,7 +832,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==64);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x2c);
         CPU_Regs.reg_eax.low(128);
@@ -761,7 +841,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==192);
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         newInstruction(0x2c);
         CPU_Regs.reg_eax.low(128);
@@ -769,7 +850,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.low()==192); // test no carry
         assertTrue(CPU_Regs.reg_eax.high()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     // 0x2d
@@ -780,7 +862,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIw((short)2);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x2d);
         CPU_Regs.reg_eax.word(0xC000);
@@ -788,7 +871,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0x4000);
         assertTrue(CPU_Regs.reg_eax.dword==0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x2d);
         CPU_Regs.reg_eax.word(0x8000);
@@ -796,7 +880,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0xC000);
         assertTrue(CPU_Regs.reg_eax.dword==0xC000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         newInstruction(0x2d);
         CPU_Regs.reg_eax.word(0x8000);
@@ -804,7 +889,8 @@ public class testPrefix_none extends InstructionsTestCase{
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0xC000);
         assertTrue(CPU_Regs.reg_eax.dword==0xC000); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
     }
 
     //0x2e
@@ -924,13 +1010,13 @@ public class testPrefix_none extends InstructionsTestCase{
     // 0x35
     // XOR AX,Iw
      public void testXorAxIw() {
-        newInstruction(0x05);
+        newInstruction(0x35);
         CPU_Regs.reg_eax.word(1);
         pushIw((short)2);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==3);
 
-        newInstruction(0x05);
+        newInstruction(0x35);
         CPU_Regs.reg_eax.word(1);
         pushIw((short)-2);
         decoder.call();
@@ -938,15 +1024,16 @@ public class testPrefix_none extends InstructionsTestCase{
         assertTrue(CPU_Regs.reg_eax.dword==0xFFFF);
         assertTrue(!Flags.get_CF());
 
-        newInstruction(0x05);
+        newInstruction(0x35);
         CPU_Regs.reg_eax.word(0x8000);
         pushIw((short)0x8000);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==0);
         assertTrue(CPU_Regs.reg_eax.dword==0);
-        assertTrue(Flags.get_CF());
+         if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
-        newInstruction(0x05);
+        newInstruction(0x35);
         CPU_Regs.reg_eax.word(0x8000);
         pushIw((short)0x8000);
         decoder.call();
@@ -1072,7 +1159,7 @@ public class testPrefix_none extends InstructionsTestCase{
         assertFlags(-1);
         assertTrue(Flags.get_CF());
 
-        newInstruction(0x2c);
+        newInstruction(0x3c);
         CPU_Regs.reg_eax.low(255);
         pushIb((byte)255);
         decoder.call();
@@ -1090,21 +1177,21 @@ public class testPrefix_none extends InstructionsTestCase{
         assertFlags(1);
         assertTrue(!Flags.get_CF());
 
-        newInstruction(0x2d);
+        newInstruction(0x3d);
         CPU_Regs.reg_eax.word(0xC000);
         pushIw((short)0x8000);
         decoder.call();
         assertFlags(1);
         assertTrue(!Flags.get_CF());
 
-        newInstruction(0x2d);
+        newInstruction(0x3d);
         CPU_Regs.reg_eax.word(0x8000);
         pushIw((short)0xC000);
         decoder.call();
         assertFlags(-1);
         assertTrue(Flags.get_CF());
 
-        newInstruction(0x2d);
+        newInstruction(0x3d);
         CPU_Regs.reg_eax.word(0x0);
         pushIw((short)0x0);
         decoder.call();
@@ -1643,7 +1730,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_ecx.word(9);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==9000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x69);
         pushIb((byte)0xC1);
@@ -1651,7 +1739,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_ecx.word(1000);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==-9000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x69);
         pushIb((byte)0xC1);
@@ -1659,7 +1748,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_ecx.word(0x8000);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         newInstruction(0x69);
         pushIb((byte)0);
@@ -1667,7 +1757,8 @@ public class testPrefix_none extends InstructionsTestCase{
         Memory.host_writew(CPU.Segs_DSphys, 20);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==-7680);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         Memory.host_writew(CPU.Segs_DSphys, 0);
 
     }
@@ -1694,7 +1785,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_ecx.word(1000);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.word()==9000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x6b);
         pushIb((byte)0xC1);
@@ -1702,7 +1794,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_ecx.word(1000);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==-9000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
 
         newInstruction(0x6b);
         pushIb((byte)0xC1);
@@ -1710,7 +1803,8 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_ecx.word(0x8000);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         newInstruction(0x6b);
         pushIb((byte)0);
@@ -1718,7 +1812,8 @@ public class testPrefix_none extends InstructionsTestCase{
         Memory.host_writew(CPU.Segs_DSphys, -20);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==2540);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         Memory.host_writew(CPU.Segs_DSphys, 0);
     }
 
@@ -2048,9 +2143,11 @@ public class testPrefix_none extends InstructionsTestCase{
         // ADDB
         runRegsbi((byte)0x80, (byte)0, 1, (byte)2, 3);
         runRegbi((byte)0x80, 0, 1, -2, -1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegbi((byte)0x80, 0, 0x80, 0x80, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegbi((byte)0x80, 0, 0x80, 0x80, 0);
 
         // ORB
@@ -2062,20 +2159,28 @@ public class testPrefix_none extends InstructionsTestCase{
 
         // ADCB
         runRegsbi((byte)0x80, (byte)(2<<3), 1, (byte)2, 3);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegbi((byte)0x80, 2<<3, 192, 128, 64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegbi((byte)0x80, 2<<3, 192, 128, 65);  // test the +1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         CPU_Regs.flags = 0;
 
         // SBBB
         runRegsbi((byte)0x80, (byte)(3<<3), 3, (byte)2, 1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegbi((byte)0x80, 3<<3, 192, 128, 64);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegbi((byte)0x80, 3<<3, 128, 192, -64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegbi((byte)0x80, 3<<3, 128, 192, -65);  // test the -1 carry
 
         // ANDB
@@ -2087,13 +2192,17 @@ public class testPrefix_none extends InstructionsTestCase{
 
         // SUBB
         runRegsbi((byte)0x80, (byte)(5<<3), 3, (byte)2, 1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegbi((byte)0x80, 5<<3, 192, 128, 64);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegbi((byte)0x80, 5<<3, 128, 192, -64);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegbi((byte)0x80, 5<<3, 128, 192, -64); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         // XOR
         runRegsbi((byte)0x80, (byte)(6<<3), 1, (byte)2, 3);
@@ -2117,9 +2226,11 @@ public class testPrefix_none extends InstructionsTestCase{
         // AND
         runRegswi((byte)0x81, (byte)0, 1001, 2, 1003);
         runRegwi((byte)0x81, (byte)0, 1, -2, -1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwi((byte)0x81, (byte)0, 0x8000, 0x8000, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegwi((byte)0x81, (byte)0, 0x8000, 0x8000, 0);
 
         // OR
@@ -2131,22 +2242,31 @@ public class testPrefix_none extends InstructionsTestCase{
 
         // ADC
         runRegswi((byte)0x81, 2<<3, 1, 2, 3);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwi((byte)0x81, 2<<3, 0xC000, 0x8000, 0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegwi((byte)0x81, 2<<3, 0xC000, 0x8000, 0x4001);  // test the +1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         CPU_Regs.flags = 0;
         
         // SBB
         runRegswi((byte)0x81, 3<<3, 3, 2, 1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwi((byte)0x81, 3<<3, 0xC000, 0x8000, 0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwi((byte)0x81, 3<<3, 0x8000, 0xC000, -0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegwi((byte)0x81, 3<<3, 0x8000, 0xC000, -0x4001);  // test the -1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         // AND
         runRegswi((byte)0x81, 4<<3, 1, 2, 0);
@@ -2157,13 +2277,17 @@ public class testPrefix_none extends InstructionsTestCase{
 
         // SUB
         runRegswi((byte)0x81, 5<<3, 3, 2, 1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwi((byte)0x81, 5<<3, 0xC000, 0x8000, 0x4000);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwi((byte)0x81, 5<<3, 0x8000, 0xC000, -0x4000);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegwi((byte)0x81, 5<<3, 0x8000, 0xC000, -0x4000); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         // XOR
         runRegswi((byte)0x81, 6<<3, 1, 2, 3);
@@ -2187,9 +2311,11 @@ public class testPrefix_none extends InstructionsTestCase{
         // ADD
         runRegswix((byte)0x83, (byte)0, 1001, (byte)2, 1003);
         runRegwix((byte)0x83, (byte)0, 1, (byte)-2, -1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwix((byte)0x83, (byte)0, 0x80, (byte)0x80, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegwix((byte)0x83, (byte)0, 0x80, (byte)0x80, 0);
 
         // OR
@@ -2201,22 +2327,31 @@ public class testPrefix_none extends InstructionsTestCase{
 
         // ADC
         runRegswix((byte)0x83, 2<<3, 1, (byte)2, 3);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwix((byte)0x83, 2<<3, 0x00C0, (byte)0x80, 0x0040); // 0x00C0+0xFF80
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegwix((byte)0x83, 2<<3, 0x00C0, (byte)0x80, 0x0041);  // test the +1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         CPU_Regs.flags = 0;
 
         // SBB
         runRegswix((byte)0x83, 3<<3, 3, (byte)2, 1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwix((byte)0x83, 3<<3, 0xFFC0, (byte)0x80, 0x0040);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwix((byte)0x83, 3<<3, 0x0080, (byte)0xC0, 0x00C0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         runRegwix((byte)0x83, 3<<3, 0x0080, (byte)0xC0, 0x00BF);  // test the -1 carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         // AND
         runRegswix((byte)0x83, 4<<3, 1, (byte)2, 0);
@@ -2227,13 +2362,17 @@ public class testPrefix_none extends InstructionsTestCase{
 
         // SUB
         runRegswix((byte)0x83, 5<<3, 3, (byte)2, 1);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwix((byte)0x83, 5<<3, 0xC000, (byte)0x70, 0xBF90);
-        assertTrue(!Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(!Flags.get_CF());
         runRegwix((byte)0x83, 5<<3, 0x8000, (byte)0xC0, 0x8040);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
         runRegwix((byte)0x83, 5<<3, 0x8000, (byte)0xC0, 0x8040); // test no carry
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
 
         // XOR
         runRegswix((byte)0x83, 6<<3, 1, (byte)2, 3);

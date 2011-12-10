@@ -19,6 +19,14 @@ public class Inst2 extends Helper {
             earw.word(CPU.CPU_SLDT());
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Sldt_mem extends Op {
@@ -34,6 +42,14 @@ public class Inst2 extends Helper {
             Memory.mem_writew(eaa, CPU.CPU_SLDT());
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Str_reg extends Op {
@@ -47,6 +63,14 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             earw.word(CPU.CPU_STR());
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -63,6 +87,14 @@ public class Inst2 extends Helper {
             Memory.mem_writew(eaa, CPU.CPU_STR());
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Lldt_reg extends Op {
@@ -77,6 +109,14 @@ public class Inst2 extends Helper {
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             if (CPU.CPU_LLDT(earw.word())) return RUNEXCEPTION();
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -94,6 +134,14 @@ public class Inst2 extends Helper {
             if (CPU.CPU_LLDT(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Ltr_reg extends Op {
@@ -108,6 +156,14 @@ public class Inst2 extends Helper {
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             if (CPU.CPU_LTR(earw.word())) return RUNEXCEPTION();
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -125,6 +181,14 @@ public class Inst2 extends Helper {
             if (CPU.CPU_LTR(Memory.mem_readw(eaa))) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Verr_reg extends Op {
@@ -138,6 +202,14 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             CPU.CPU_VERR(earw.word());
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -154,6 +226,14 @@ public class Inst2 extends Helper {
             CPU.CPU_VERR(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Verw_reg extends Op {
@@ -167,6 +247,14 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             CPU.CPU_VERW(earw.word());
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -183,6 +271,14 @@ public class Inst2 extends Helper {
             CPU.CPU_VERW(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Sgdt_mem extends Op {
@@ -198,6 +294,14 @@ public class Inst2 extends Helper {
             Memory.mem_writed(eaa+2,CPU.CPU_SGDT_base());
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Sidt_mem extends Op {
@@ -212,6 +316,14 @@ public class Inst2 extends Helper {
             Memory.mem_writew(eaa,CPU.CPU_SIDT_limit());
             Memory.mem_writed(eaa+2,CPU.CPU_SIDT_base());
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -230,6 +342,14 @@ public class Inst2 extends Helper {
             CPU.CPU_LGDT(v0,v1);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Lidt_mem extends Op {
@@ -247,6 +367,14 @@ public class Inst2 extends Helper {
             CPU.CPU_LIDT(v0,v1);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Smsw_mem extends Op {
@@ -260,6 +388,14 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             Memory.mem_writew(eaa,CPU.CPU_SMSW() & 0xFFFF);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -276,6 +412,14 @@ public class Inst2 extends Helper {
             if (CPU.CPU_LMSW(limit)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Invlpg extends Op {
@@ -284,6 +428,14 @@ public class Inst2 extends Helper {
             Paging.PAGING_ClearTLB();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Lgdt_reg extends Op {
@@ -291,12 +443,28 @@ public class Inst2 extends Helper {
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             return Constants.BR_Illegal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Lidt_reg extends Op {
         public int call() {
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             return Constants.BR_Illegal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -311,6 +479,14 @@ public class Inst2 extends Helper {
             earw.word(CPU.CPU_SMSW() & 0xFFFF);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Lmsw_reg extends Op {
@@ -323,6 +499,14 @@ public class Inst2 extends Helper {
         public int call() {
             if (CPU.CPU_LMSW(earw.word())) return RUNEXCEPTION();
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -340,6 +524,14 @@ public class Inst2 extends Helper {
             CPU.CPU_LAR(earw.word(),value);
             rw.word(value.value);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -360,6 +552,14 @@ public class Inst2 extends Helper {
             rw.word(value.value);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class LslGwEw_reg extends Op {
@@ -378,6 +578,14 @@ public class Inst2 extends Helper {
             CPU.CPU_LSL(earw.word(),value);
             rw.word(value.value);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -399,6 +607,14 @@ public class Inst2 extends Helper {
             rw.word(value.value);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Clts extends Op {
@@ -407,12 +623,28 @@ public class Inst2 extends Helper {
             CPU.cpu.cr0&=(~CPU.CR0_TASKSWITCH);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Invd extends Op {
         public int call() {
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -429,6 +661,14 @@ public class Inst2 extends Helper {
             if (CPU.CPU_READ_CRX(which,eard)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class MovRdDr extends Op {
@@ -443,6 +683,14 @@ public class Inst2 extends Helper {
         public int call() {
             if (CPU.CPU_READ_DRX(which,eard)) return RUNEXCEPTION();
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -459,6 +707,14 @@ public class Inst2 extends Helper {
             if (CPU.CPU_WRITE_CRX(which,eard.dword)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class MovDrRd extends Op {
@@ -473,6 +729,14 @@ public class Inst2 extends Helper {
         public int call() {
             if (CPU.CPU_WRITE_DRX(which,eard.dword)) return RUNEXCEPTION();
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -489,6 +753,14 @@ public class Inst2 extends Helper {
             if (CPU.CPU_READ_TRX(which,eard)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class MovTrRd extends Op {
@@ -504,6 +776,14 @@ public class Inst2 extends Helper {
             if (CPU.CPU_WRITE_TRX(which,eard.dword)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class Rdtsc extends Op {
@@ -513,6 +793,14 @@ public class Inst2 extends Helper {
             reg_edx.dword=(int)(tsc>>>32);
             reg_eax.dword=(int)(tsc&0xffffffffl);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -535,11 +823,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_O(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.OF;
+        }
     }
 
     final static public class JumpCond16_w_no extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NO(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.OF;
         }
     }
 
@@ -547,11 +851,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_B(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
+        }
     }
 
     final static public class JumpCond16_w_nb extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NB(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -559,11 +879,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_Z(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF;
+        }
     }
 
     final static public class JumpCond16_w_nz extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NZ(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF;
         }
     }
 
@@ -571,11 +907,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_BE(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF | CPU_Regs.ZF;
+        }
     }
 
     final static public class JumpCond16_w_nbe extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NBE(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF | CPU_Regs.ZF;
         }
     }
 
@@ -583,11 +935,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_S(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF;
+        }
     }
 
     final static public class JumpCond16_w_ns extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NS(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF;
         }
     }
 
@@ -595,11 +963,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_P(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.PF;
+        }
     }
 
     final static public class JumpCond16_w_np extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NP(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.PF;
         }
     }
 
@@ -607,11 +991,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_L(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF;
+        }
     }
 
     final static public class JumpCond16_w_nl extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NL(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF;
         }
     }
 
@@ -619,11 +1019,27 @@ public class Inst2 extends Helper {
         public int call() {
             return jump(Flags.TFLG_LE(), offset);
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
+        }
     }
 
     final static public class JumpCond16_w_nle extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_NLE(), offset);
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
     }
 
@@ -636,6 +1052,14 @@ public class Inst2 extends Helper {
         public int call() {
             earb.set8((short)((Flags.TFLG_O()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.OF;
         }
     }
 
@@ -650,6 +1074,14 @@ public class Inst2 extends Helper {
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_O()) ? 1 : 0)));
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.OF;
+        }
     }
 
     final static public class SETcc_reg_no extends Op {
@@ -658,9 +1090,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_no(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NO()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.OF;
         }
     }
 
@@ -670,10 +1111,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_no(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NO()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.OF;
         }
     }
 
@@ -683,9 +1133,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_b(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_B()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -695,10 +1154,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_b(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_B()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -708,9 +1176,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_nb(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NB()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -720,10 +1197,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_nb(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NB()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.CF;
         }
     }
 
@@ -733,9 +1219,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_z(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_Z()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF;
         }
     }
 
@@ -745,10 +1240,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_z(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_Z()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF;
         }
     }
 
@@ -758,9 +1262,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_nz(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NZ()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF;
         }
     }
 
@@ -770,10 +1283,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_nz(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NZ()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF;
         }
     }
 
@@ -783,9 +1305,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_be(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_BE()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF | CPU_Regs.CF;
         }
     }
 
@@ -795,10 +1326,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_be(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_BE()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF | CPU_Regs.CF;
         }
     }
 
@@ -808,9 +1348,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_nbe(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NBE()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF | CPU_Regs.CF;
         }
     }
 
@@ -820,10 +1369,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_nbe(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NBE()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.ZF | CPU_Regs.CF;
         }
     }
 
@@ -833,9 +1391,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_s(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_S()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF;
         }
     }
 
@@ -845,10 +1412,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_s(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_S()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF;
         }
     }
 
@@ -858,9 +1434,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_ns(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NS()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF;
         }
     }
 
@@ -870,10 +1455,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_ns(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NS()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF;
         }
     }
 
@@ -887,6 +1481,14 @@ public class Inst2 extends Helper {
             earb.set8((short)((Flags.TFLG_P()) ? 1 : 0));
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.PF;
+        }
     }
 
     final static public class SETcc_mem_p extends Op {
@@ -895,10 +1497,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_p(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_P()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.PF;
         }
     }
 
@@ -908,9 +1519,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_np(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NP()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.PF;
         }
     }
 
@@ -920,10 +1540,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_np(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NP()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.PF;
         }
     }
 
@@ -933,9 +1562,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_l(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_L()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF;
         }
     }
 
@@ -945,10 +1583,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_l(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_L()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF;
         }
     }
 
@@ -958,9 +1605,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_nl(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NL()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF;
         }
     }
 
@@ -970,10 +1626,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_nl(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NL()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF;
         }
     }
 
@@ -983,9 +1648,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_le(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_LE()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
     }
 
@@ -995,10 +1669,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_le(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_LE()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
     }
 
@@ -1008,9 +1691,18 @@ public class Inst2 extends Helper {
         public SETcc_reg_nle(int rm) {
             earb = Mod.eb(rm);
         }
+
         public int call() {
             earb.set8((short)((Flags.TFLG_NLE()) ? 1 : 0));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
     }
 
@@ -1020,10 +1712,19 @@ public class Inst2 extends Helper {
         public SETcc_mem_nle(int rm) {
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NLE()) ? 1 : 0)));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
     }
 
@@ -1032,6 +1733,14 @@ public class Inst2 extends Helper {
             CPU.CPU_Push16(CPU.Segs_FSval);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class PopFS extends Op {
@@ -1039,12 +1748,28 @@ public class Inst2 extends Helper {
             if (CPU.CPU_PopSegFS(false)) return RUNEXCEPTION();
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class CPUID extends Op {
         public int call() {
             if (!CPU.CPU_CPUID()) return Constants.BR_Illegal;
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1062,6 +1787,14 @@ public class Inst2 extends Helper {
             mask=1 << (rw.word() & 15);
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1083,6 +1816,14 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(old & mask)!=0);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class ShldEwGwIb_reg extends Op {
@@ -1095,9 +1836,19 @@ public class Inst2 extends Helper {
             this.earw = earw;
             this.op3 = op3;
         }
+
         public int call() {
             earw.word(Instructions.do_DSHLW(rw.word(), op3, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1111,10 +1862,20 @@ public class Inst2 extends Helper {
             this.get_eaa = get_eaa;
             this.op3 = op3;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writew(eaa, Instructions.do_DSHLW(rw.word(), op3, Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
+        }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1126,10 +1887,20 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             earw = Mod.ew(rm);
         }
+
         public int call() {
             if (Instructions.valid_DSHLW(CPU_Regs.reg_ecx.low()))
                 earw.word(Instructions.do_DSHLW(rw.word(), CPU_Regs.reg_ecx.low(), earw.word()));
             return Constants.BR_Normal;
+        }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1141,12 +1912,22 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             if (Instructions.valid_DSHLW(CPU_Regs.reg_ecx.low())) {
                 int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_DSHLW(rw.word(), CPU_Regs.reg_ecx.low(), Memory.mem_readw(eaa)));
             }
             return Constants.BR_Normal;
+        }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1155,12 +1936,28 @@ public class Inst2 extends Helper {
             CPU.CPU_Push16(CPU.Segs_GSval);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class PopGS extends Op {
         public int call() {
             if (CPU.CPU_PopSegGS(false)) return RUNEXCEPTION();
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1179,6 +1976,14 @@ public class Inst2 extends Helper {
             earw.word(earw.word() | mask);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BtsEwGw_mem extends Op {
@@ -1189,6 +1994,7 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa= Mod.getEaa(rm);
         }
+
         public int call() {
             Flags.FillFlags();
             int mask=1 << (rw.word() & 15);
@@ -1198,6 +2004,14 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old | mask);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1211,9 +2025,19 @@ public class Inst2 extends Helper {
             this.earw = earw;
             this.op3 = op3;
         }
+
         public int call() {
             earw.word(Instructions.do_DSHRW(rw.word(), op3, earw.word()));
             return Constants.BR_Normal;
+        }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1227,10 +2051,20 @@ public class Inst2 extends Helper {
             this.get_eaa = get_eaa;
             this.op3 = op3;
         }
+
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writew(eaa, Instructions.do_DSHRW(rw.word(), op3, Memory.mem_readw(eaa)));
             return Constants.BR_Normal;
+        }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1242,10 +2076,20 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             earw = Mod.ew(rm);
         }
+
         public int call() {
             if (Instructions.valid_DSHRW(CPU_Regs.reg_ecx.low()))
                 earw.word(Instructions.do_DSHRW(rw.word(), CPU_Regs.reg_ecx.low(), earw.word()));
             return Constants.BR_Normal;
+        }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1264,6 +2108,15 @@ public class Inst2 extends Helper {
             }
             return Constants.BR_Normal;
         }
+
+        // AF is always 0
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class ImulGwEw_reg extends Op {
@@ -1274,9 +2127,18 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             earw = Mod.ew(rm);
         }
+
         public int call() {
             rw.word(Instructions.DIMULW(earw.word(),rw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1288,10 +2150,19 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa = get_eaa.call();
             rw.word(Instructions.DIMULW(Memory.mem_readw(eaa),rw.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.OF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1303,8 +2174,10 @@ public class Inst2 extends Helper {
             rb = Mod.gb(rm);
             earb = Mod.eb(rm);
         }
+
         public int call() {
             Flags.FillFlags();
+            Instructions.CMPB(earb.get8(), reg_eax.low());
             if (reg_eax.low() == earb.get8()) {
                 earb.set8(rb.get8());
                 SETFLAGBIT(ZF,true);
@@ -1313,6 +2186,14 @@ public class Inst2 extends Helper {
                 SETFLAGBIT(ZF,false);
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1324,10 +2205,12 @@ public class Inst2 extends Helper {
             rb = Mod.gb(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
             short val = Memory.mem_readb(eaa);
+            Instructions.CMPB(val, reg_eax.low());
             if (reg_eax.low() == val) {
                 Memory.mem_writeb(eaa,rb.get8());
                 SETFLAGBIT(ZF,true);
@@ -1338,6 +2221,14 @@ public class Inst2 extends Helper {
             }
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
     final static public class CmpxchgEwGw_reg extends Op {
         Reg rw;
@@ -1347,8 +2238,10 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             earw = Mod.ew(rm);
         }
+
         public int call() {
             Flags.FillFlags();
+            Instructions.CMPW(earw.word(), reg_eax.word());
             if (reg_eax.word() == earw.word()) {
                 earw.word(rw.word());
                 SETFLAGBIT(ZF,true);
@@ -1357,6 +2250,14 @@ public class Inst2 extends Helper {
                 SETFLAGBIT(ZF,false);
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1368,10 +2269,12 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
             int val = Memory.mem_readw(eaa);
+            Instructions.CMPW(val, reg_eax.word());
             if (reg_eax.word() == val) {
                 Memory.mem_writew(eaa,rw.word());
                 SETFLAGBIT(ZF,true);
@@ -1381,6 +2284,14 @@ public class Inst2 extends Helper {
                 SETFLAGBIT(ZF,false);
             }
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1399,6 +2310,14 @@ public class Inst2 extends Helper {
             Core.base_ss=CPU.Segs_SSphys;
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BtrEwGw_reg extends Op {
@@ -1409,12 +2328,21 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             earw = Mod.ew(rm);
         }
+
         public int call() {
             Flags.FillFlags();
             int mask=1 << (rw.word() & 15);
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word() & ~mask);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1426,6 +2354,7 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             Flags.FillFlags();
@@ -1435,6 +2364,14 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old & ~mask);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1446,11 +2383,20 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1462,11 +2408,20 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1478,9 +2433,18 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             earb = Mod.eb(rm);
         }
+
         public int call() {
             rw.word(earb.get8());
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1492,10 +2456,19 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             rw.word(Memory.mem_readb(eaa));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1507,9 +2480,18 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             earw = Mod.ew(rm);
         }
+
         public int call() {
             rw.word(earw.word());
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1521,16 +2503,26 @@ public class Inst2 extends Helper {
             rw = Mod.gw(rm);
             get_eaa =  Mod.getEaa(rm);
         }
+
         public int call() {
             int eaa=get_eaa.call();
             rw.word(Memory.mem_readw(eaa));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
     final static public class BtEwIb_reg extends Op {
         Reg earw;
         int mask;
+
         public BtEwIb_reg(int rm) {
             earw = Mod.ew(rm);
             mask=1 << (decode_fetchb() & 15);
@@ -1541,11 +2533,20 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BtsEwIb_reg extends Op {
         Reg earw;
         int mask;
+
         public BtsEwIb_reg(int rm) {
             earw = Mod.ew(rm);
             mask=1 << (decode_fetchb() & 15);
@@ -1557,11 +2558,20 @@ public class Inst2 extends Helper {
             earw.word(earw.word() | mask);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BtrEwIb_reg extends Op {
         Reg earw;
         int mask;
+
         public BtrEwIb_reg(int rm) {
             earw = Mod.ew(rm);
             mask=1 << (decode_fetchb() & 15);
@@ -1573,11 +2583,20 @@ public class Inst2 extends Helper {
             earw.word(earw.word() & ~mask);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BtcEwIb_reg extends Op {
         Reg earw;
         int mask;
+
         public BtcEwIb_reg(int rm) {
             earw = Mod.ew(rm);
             mask=1 << (decode_fetchb() & 15);
@@ -1589,6 +2608,14 @@ public class Inst2 extends Helper {
             earw.word(earw.word() ^ mask);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BtEwIb_mem extends Op {
@@ -1599,12 +2626,21 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
             mask=1 << (decode_fetchb() & 15);
         }
+
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1616,6 +2652,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
             mask=1 << (decode_fetchb() & 15);
         }
+
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
@@ -1623,6 +2660,14 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old|mask);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1634,6 +2679,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
             mask=1 << (decode_fetchb() & 15);
         }
+
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
@@ -1641,6 +2687,14 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old & ~mask);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1652,6 +2706,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
             mask=1 << (decode_fetchb() & 15);
         }
+
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
@@ -1659,6 +2714,14 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old ^ mask);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1678,6 +2741,14 @@ public class Inst2 extends Helper {
             earw.word(earw.word()^mask);
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BtcEwGw_mem extends Op {
@@ -1688,6 +2759,7 @@ public class Inst2 extends Helper {
             get_eaa =  Mod.getEaa(rm);
             rw = Mod.gw(rm);
         }
+
         public int call() {
             Flags.FillFlags();
             int mask=1 << (rw.word() & 15);
@@ -1697,6 +2769,14 @@ public class Inst2 extends Helper {
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old ^ mask);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1721,6 +2801,15 @@ public class Inst2 extends Helper {
             }
             Flags.lflags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
+        }
+
+        // Other flags are undefined
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1747,6 +2836,15 @@ public class Inst2 extends Helper {
             Flags.lflags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
+
+        // Other flags are undefined
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class BsrGwEw_reg extends Op {
@@ -1770,6 +2868,15 @@ public class Inst2 extends Helper {
             }
             Flags.lflags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
+        }
+
+        // Other flags are undefined
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1796,6 +2903,15 @@ public class Inst2 extends Helper {
             Flags.lflags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
+
+        // Other flags are undefined
+        public int sets() {
+            return CPU_Regs.ZF;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class MovsxGwEb_reg extends Op {
@@ -1810,6 +2926,14 @@ public class Inst2 extends Helper {
         public int call() {
             rw.word((byte)earb.get8());
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1827,6 +2951,14 @@ public class Inst2 extends Helper {
             rw.word((byte)Memory.mem_readb(eaa));
             return Constants.BR_Normal;
         }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
     }
 
     final static public class XaddGbEb_reg extends Op {
@@ -1839,10 +2971,19 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            short oldrmrb=rb.get8();
+            // :DOSBOX: this is different from dosbox
+            short result=Instructions.ADDB(rb.get8(), earb.get8());
             rb.set8(earb.get8());
-            earb.set8((short)(earb.get8()+oldrmrb));
+            earb.set8(result);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1856,12 +2997,21 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
+            // :DOSBOX: this is different from dosbox
             int eaa=get_eaa.call();
-            short oldrmrb=rb.get8();
             short val = Memory.mem_readb(eaa);
-            Memory.mem_writeb(eaa,val+oldrmrb);
+            short result = Instructions.ADDB(rb.get8(), val);
+            Memory.mem_writeb(eaa,val+result);
             rb.set8(val);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1875,10 +3025,19 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            int oldrmrw=rw.word();
+            // :DOSBOX: this is different from dosbox
+            int result=Instructions.ADDW(rw.word(), earw.word());
             rw.word(earw.word());
-            earw.word(earw.word()+oldrmrw);
+            earw.word(result);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1892,12 +3051,21 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
+            // :DOSBOX: this is different from dosbox
             int eaa=get_eaa.call();
-            int oldrmrb=rw.word();
             int val = Memory.mem_readw(eaa);
-            Memory.mem_writew(eaa,val+oldrmrb);
+            int result = Instructions.ADDW(rw.word(), val);
+            Memory.mem_writew(eaa,result);
             rw.word(val);
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 
@@ -1911,6 +3079,14 @@ public class Inst2 extends Helper {
         public int call() {
             reg.word(Instructions.BSWAPW(reg.word()));
             return Constants.BR_Normal;
+        }
+
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
         }
     }
 }

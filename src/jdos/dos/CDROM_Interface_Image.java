@@ -640,7 +640,8 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
                 // failure
                 else success = false;
 
-                if (!success) return false;
+                if (!success)
+                    return false;
             }
         } catch (Exception e) {
             e.printStackTrace();

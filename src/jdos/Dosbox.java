@@ -415,7 +415,7 @@ public class Dosbox {
 
         secprop=control.AddSection_prop("compiler", Compiler.Compiler_Init,true);
         Pint = secprop.Add_int("threshold",Property.Changeable.Always,1000);
-        Pint.Set_help("How many times a block is seen before it is compiled.  0 turns off the compiler, 1 compiles everything.\nOnly used when dynamic_core is active. Values between 100-1000 yield the best results.");
+        Pint.Set_help("How many times a block is seen before it is compiled.  0 turns off the compiler, 1 compiles everything (And will like cause problems with self modifying code).\nOnly used when dynamic_core is active. Values between 100-1000 yield the best results.");
 
         Pint = secprop.Add_int("min_block_size",Property.Changeable.Always,2);
         Pint.Set_help("The minimum number of ops the block must contain in order to be compiled.  In general 2 is a good value.");

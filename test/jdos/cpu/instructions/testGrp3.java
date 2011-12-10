@@ -2,6 +2,7 @@ package jdos.cpu.instructions;
 
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Flags;
+import jdos.cpu.core_dynamic.Compiler;
 import jdos.hardware.Memory;
 
 public class testGrp3 extends InstructionsTestCase {
@@ -455,7 +456,8 @@ public class testGrp3 extends InstructionsTestCase {
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.dword==0x0000);
         assertTrue(CPU_Regs.reg_edx.dword==0x0001);
-        assertTrue(Flags.get_OF());
+        if (!Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_OF());
         Memory.mem_writed(MEM_BASE_DS - 4, 0);
         Memory.mem_writed(MEM_BASE_DS, 0);
         Memory.mem_writed(MEM_BASE_DS + 4, 0);
@@ -479,7 +481,8 @@ public class testGrp3 extends InstructionsTestCase {
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.dword==0xFD000000);
         assertTrue(CPU_Regs.reg_edx.dword==0x02F0F0F0);
-        assertTrue(Flags.get_OF());
+        if (!Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_OF());
         Memory.mem_writed(MEM_BASE_DS - 4, 0);
         Memory.mem_writed(MEM_BASE_DS, 0);
         Memory.mem_writed(MEM_BASE_DS + 4, 0);

@@ -20,6 +20,8 @@ public class CPU_Regs extends Flags {
     public static final int AC=	0x00040000;
     public static final int ID=	0x00200000;
 
+    public static final int MAYBE=0x10000000;
+
     public static final int FMASK_TEST	=	(CF | PF | AF | ZF | SF | OF);
     public static final int FMASK_NORMAL=	(FMASK_TEST | DF | TF | IF | AC );
     public static final int FMASK_ALL	=	(FMASK_NORMAL | IOPL | NT);
@@ -113,6 +115,9 @@ public class CPU_Regs extends Flags {
         String name = null;
 
         public Reg() {
+        }
+        public Reg(int value) {
+            dword = value;
         }
         public Reg(String name) {
             this.name = name;

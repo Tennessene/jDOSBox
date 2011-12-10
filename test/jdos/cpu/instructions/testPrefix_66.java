@@ -4,9 +4,8 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Flags;
 import jdos.hardware.Memory;
-import jdos.util.Ptr;
 
-public class testPrefix_66 extends InstructionsTestCase{
+public class testPrefix_66 extends InstructionsTestCase {
     // 0x201
     // ADD Ed,Gd
     public void testAddEdGd() {
@@ -14,7 +13,9 @@ public class testPrefix_66 extends InstructionsTestCase{
         runRegd(0x201, 1, -2, false, -1);
         assertTrue(!Flags.get_CF());
         runRegd(0x201, 0x80000000, 0x80000000, false, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         // make sure CF doesn't affect it
         runRegd(0x201, 0x80000000, 0x80000000, false, 0);
         runRegd(0x201, 0x80000000, 0x00000001, false, 0x80000001);
@@ -27,7 +28,9 @@ public class testPrefix_66 extends InstructionsTestCase{
         runRegd(0x203, 1, -2, true, -1);
         assertTrue(!Flags.get_CF());
         runRegd(0x203, 0x80000000, 0x80000000, true, 0);
-        assertTrue(Flags.get_CF());
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         // make sure CF doesn't affect it
         runRegd(0x203, 0x80000000, 0x80000000, true, 0);
         runRegd(0x203, 0x80000000, 0x00000001, true, 0x80000001);
@@ -35,33 +38,35 @@ public class testPrefix_66 extends InstructionsTestCase{
 
     // 0x205
     // ADD EAX,Id
-     public void testAddEaxId() {
+    public void testAddEaxId() {
         newInstruction(0x205);
         CPU_Regs.reg_eax.word(1);
         pushId(2);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.word()==3);
+        assertTrue(CPU_Regs.reg_eax.word() == 3);
 
         newInstruction(0x205);
         CPU_Regs.reg_eax.word(1);
         pushId(-2);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword==0xFFFFFFFF);
+        assertTrue(CPU_Regs.reg_eax.dword == 0xFFFFFFFF);
         assertTrue(!Flags.get_CF());
 
         newInstruction(0x205);
         CPU_Regs.reg_eax.dword(0x80000001);
         pushId(0x80000000);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword==1);
-        assertTrue(Flags.get_CF());
+        assertTrue(CPU_Regs.reg_eax.dword == 1);
+        if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
+            assertTrue(Flags.get_CF());
+        CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
 
-         // make sure CF doesn't affect it
+        // make sure CF doesn't affect it
         newInstruction(0x205);
         CPU_Regs.reg_eax.dword(0x80000002);
         pushId(0x80000000);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.word()==2);
+        assertTrue(CPU_Regs.reg_eax.word() == 2);
     }
 
     // 0x206
@@ -71,8 +76,8 @@ public class testPrefix_66 extends InstructionsTestCase{
         CPU_Regs.reg_esp.dword(0x100);
         CPU.Segs_ESval = 0xABCD;
         decoder.call();
-        assertTrue(CPU_Regs.reg_esp.dword==0xFC);
-        assertTrue(Memory.host_readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(CPU_Regs.reg_esp.dword == 0xFC);
+        assertTrue(Memory.host_readd(CPU.Segs_SSphys + CPU_Regs.reg_esp.dword) == 0xABCD);
     }
 
     // 0x207
@@ -80,10 +85,10 @@ public class testPrefix_66 extends InstructionsTestCase{
     public void testPopES() {
         newInstruction(0x207);
         CPU_Regs.reg_esp.dword(0xFC);
-        Memory.host_writed(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x189EF);
+        Memory.host_writed(CPU.Segs_SSphys + CPU_Regs.reg_esp.dword, 0x189EF);
         decoder.call();
-        assertTrue(CPU_Regs.reg_esp.dword==0x100);
-        assertTrue(CPU.Segs_ESval==0x89EF); // will only pop 16-bit segment
+        assertTrue(CPU_Regs.reg_esp.dword == 0x100);
+        assertTrue(CPU.Segs_ESval == 0x89EF); // will only pop 16-bit segment
     }
 
     // 0x209
@@ -110,22 +115,22 @@ public class testPrefix_66 extends InstructionsTestCase{
     //OR EAX,Id
     public void testOrEaxId() {
         newInstruction(0x20D);
-        CPU_Regs.reg_eax.dword=1;
+        CPU_Regs.reg_eax.dword = 1;
         pushId(2);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword==3);
+        assertTrue(CPU_Regs.reg_eax.dword == 3);
 
         newInstruction(0x20D);
-        CPU_Regs.reg_eax.dword=0;
+        CPU_Regs.reg_eax.dword = 0;
         pushId(0);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword==0);
+        assertTrue(CPU_Regs.reg_eax.dword == 0);
 
         newInstruction(0x20D);
-        CPU_Regs.reg_eax.dword=0xF00FF00F;
+        CPU_Regs.reg_eax.dword = 0xF00FF00F;
         pushId(0x0FF00FF0);
         decoder.call();
-        assertTrue(CPU_Regs.reg_eax.dword==0xFFFFFFFF);
+        assertTrue(CPU_Regs.reg_eax.dword == 0xFFFFFFFF);
     }
 
     // 0x20E
@@ -135,7 +140,7 @@ public class testPrefix_66 extends InstructionsTestCase{
         CPU_Regs.reg_esp.dword(0x100);
         CPU.Segs_CSval = 0x1234ABCD;
         decoder.call();
-        assertTrue(CPU_Regs.reg_esp.dword==0xFC);
-        assertTrue(Memory.host_readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0x1234ABCD);
+        assertTrue(CPU_Regs.reg_esp.dword == 0xFC);
+        assertTrue(Memory.host_readd(CPU.Segs_SSphys + CPU_Regs.reg_esp.dword) == 0x1234ABCD);
     }
 }

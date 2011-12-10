@@ -87,7 +87,7 @@ public class Core_dynamic {
                 // Determine the linear address of CS:EIP
                 /*PhysPt*/int ip_point=CPU.Segs_CSphys + CPU_Regs.reg_eip;
 
-                Paging.PageHandler handler=Paging.get_tlb_readhandler((int)ip_point);
+                Paging.PageHandler handler=Paging.get_tlb_readhandler(ip_point);
                 CodePageHandlerDynRec chandler=null;
                 int page_ip_point = ip_point & 4095;
 
@@ -148,26 +148,22 @@ public class Core_dynamic {
                     switch (ret) {
                     case Constants.BR_Link1:
                     {
-                        if (block != null) {
-                            CacheBlockDynRec next = block.link1.to;
-                            if (next == null)
-                                block=LinkBlocks(block, ret);
-                            else
-                                block = next;
-                            if (block!=null && CPU.CPU_Cycles>0) continue;
-                        }
+                        CacheBlockDynRec next = block.link1.to;
+                        if (next == null)
+                            block=LinkBlocks(block, ret);
+                        else
+                            block = next;
+                        if (block!=null && CPU.CPU_Cycles>0) continue;
                         break;
                     }
                     case Constants.BR_Link2:
                     {
-                        if (block != null) {
-                            CacheBlockDynRec next = block.link2.to;
-                            if (next == null)
-                                block=LinkBlocks(block, ret);
-                            else
-                                block = next;
-                            if (block!=null && CPU.CPU_Cycles>0) continue;
-                        }
+                        CacheBlockDynRec next = block.link2.to;
+                        if (next == null)
+                            block=LinkBlocks(block, ret);
+                        else
+                            block = next;
+                        if (block!=null && CPU.CPU_Cycles>0) continue;
                         break;
                     }
                     case Constants.BR_Normal:

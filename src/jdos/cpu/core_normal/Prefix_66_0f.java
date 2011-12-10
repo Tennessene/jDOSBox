@@ -464,6 +464,7 @@ public class Prefix_66_0f extends Prefix_66 {
         };
 
         /* CMPXCHG Ed,Gd */
+        // :DOSBOX: this is different from dosbox
         ops[0x3b1] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486NEW) return ILLEGAL_OPCODE;
@@ -471,6 +472,7 @@ public class Prefix_66_0f extends Prefix_66 {
                 short rm=Fetchb();
                 if (rm >= 0xc0) {
                     Reg eard = Modrm.GetEArd[rm];
+                    Instructions.CMPD(eard.dword, reg_eax.dword); // Sets the flags
                     if (eard.dword==reg_eax.dword) {
                         eard.dword=Modrm.Getrd[rm].dword;
                         SETFLAGBIT(ZF,true);
@@ -481,6 +483,7 @@ public class Prefix_66_0f extends Prefix_66 {
                 } else {
                     /*PhysPt*/int eaa = getEaa(rm);
                     /*Bit32u*/int val=Memory.mem_readd(eaa);
+                    Instructions.CMPD(val, reg_eax.dword); // Sets the flags
                     if (val==reg_eax.dword) {
                         Memory.mem_writed(eaa,Modrm.Getrd[rm].dword);
                         SETFLAGBIT(ZF,true);
@@ -700,17 +703,20 @@ public class Prefix_66_0f extends Prefix_66 {
         };
 
         /* XADD Gd,Ed */
+        // :DOSBOX: this is different from dosbox
         ops[0x3c1] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                short rm=Fetchb();/*Bit32u*/int oldrmrd=Modrm.Getrd[rm].dword;
+                short rm=Fetchb();
                 if (rm >= 0xc0 ) {
+                    int result = Instructions.ADDD(Modrm.Getrd[rm].dword, Modrm.GetEArd[rm].dword);
                     Modrm.Getrd[rm].dword=Modrm.GetEArd[rm].dword;
-                    Modrm.GetEArd[rm].dword+=oldrmrd;
+                    Modrm.GetEArd[rm].dword=result;
                 } else {
                     /*PhysPt*/int eaa = getEaa(rm);
                     int value = Memory.mem_readd(eaa);
-                    Memory.mem_writed(eaa,value+oldrmrd);
+                    int result = Instructions.ADDD(Modrm.Getrd[rm].dword, value);
+                    Memory.mem_writed(eaa,result);
                     Modrm.Getrd[rm].dword=value;
                 }
                 return HANDLED;

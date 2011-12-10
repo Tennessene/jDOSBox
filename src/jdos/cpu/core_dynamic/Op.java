@@ -34,4 +34,7 @@ abstract public class Op {
         Data.callback = Callback.CBRET_NONE;
         return Constants.BR_CallBack;
     }
+
+    public int sets() { return 0; }
+    public int gets() { return 0; }
 }

@@ -61,28 +61,28 @@ public class Flags {
         lflags.res = lflags.res | s & 0xFFFF;
     }
 
-    static long lf_var1d() {
-        return lflags.var1 & 0xFFFFFFFFl;
+    static int lf_var1d() {
+        return lflags.var1;
     }
 
-    public static void lf_var1d(long v) {
+    public static void lf_var1d(int v) {
         lflags.var1=(int)v;
     }
 
-    public static long lf_var2d() {
-        return lflags.var2 & 0xFFFFFFFFl;
+    public static int lf_var2d() {
+        return lflags.var2;
     }
 
-    public static void lf_var2d(long v) {
-        lflags.var2=(int)v;
+    public static void lf_var2d(int v) {
+        lflags.var2=v;
     }
 
-    static long lf_resd() {
-        return lflags.res & 0xFFFFFFFFl;
+    static int lf_resd() {
+        return lflags.res;
     }
 
-    public static void lf_resd(long v) {
-        lflags.res=(int)v;
+    public static void lf_resd(int v) {
+        lflags.res=v;
     }
 
     public static void SETFLAGSb(int FLAGB) {
@@ -126,19 +126,19 @@ public class Flags {
         case t_ADDw:
             return (lf_resw()<lf_var1w());
         case t_ADDd:
-            return (lf_resd()<lf_var1d());
+            return ((lf_resd() & 0xFFFFFFFFl)<(lf_var1d() & 0xFFFFFFFFl));
         case t_ADCb:
             return (lf_resb() < lf_var1b()) || (lflags.oldcf && (lf_resb() == lf_var1b()));
         case t_ADCw:
             return (lf_resw() < lf_var1w()) || (lflags.oldcf && (lf_resw() == lf_var1w()));
         case t_ADCd:
-            return (lf_resd() < lf_var1d()) || (lflags.oldcf && (lf_resd() == lf_var1d()));
+            return ((lf_resd() & 0xFFFFFFFFl) < (lf_var1d() & 0xFFFFFFFFl)) || (lflags.oldcf && (lf_resd() == lf_var1d()));
         case t_SBBb:
             return (lf_var1b() < lf_resb()) || (lflags.oldcf && (lf_var2b()==0xff));
         case t_SBBw:
             return (lf_var1w() < lf_resw()) || (lflags.oldcf && (lf_var2w()==0xffff));
         case t_SBBd:
-            return (lf_var1d() < lf_resd()) || (lflags.oldcf && (lf_var2d()==0xffffffffl));
+            return ((lf_var1d() & 0xFFFFFFFFl) < (lf_resd() & 0xFFFFFFFFl)) || (lflags.oldcf && (lf_var2d()==0xffffffffl));
         case t_SUBb:
         case t_CMPb:
             return (lf_var1b()<lf_var2b());
@@ -147,7 +147,7 @@ public class Flags {
             return (lf_var1w()<lf_var2w());
         case t_SUBd:
         case t_CMPd:
-            return (lf_var1d()<lf_var2d());
+            return ((lf_var1d() & 0xFFFFFFFFl)<(lf_var2d() & 0xFFFFFFFFl));
         case t_SHLb:
             if (lf_var2b()>8) return false;
             else return ((lf_var1b() >> (8-lf_var2b())) & 1)!=0;
@@ -478,7 +478,7 @@ public class Flags {
             if ((lf_var2b()&0x1f)==1) return (lf_var1w() > 0x8000);
             else return false;
         case t_SHRd:
-            if ((lf_var2b()&0x1f)==1) return (lf_var1d() > 0x80000000l);
+            if ((lf_var2b()&0x1f)==1) return ((lf_var1d() & 0xFFFFFFFFl) > 0x80000000l);
             else return false;
         case t_ORb:
         case t_ORw:
@@ -720,7 +720,7 @@ public class Flags {
             DOFLAG_PF();
             break;
         case t_ADDd:
-            SET_FLAG(CPU_Regs.CF,(lf_resd()<lf_var1d()));
+            SET_FLAG(CPU_Regs.CF,((lf_resd() & 0xFFFFFFFFl)<(lf_var1d() & 0xFFFFFFFFl)));
             DOFLAG_AF();
             DOFLAG_ZFd();
             DOFLAG_SFd();
@@ -744,7 +744,7 @@ public class Flags {
             DOFLAG_PF();
             break;
         case t_ADCd:
-            SET_FLAG(CPU_Regs.CF,(lf_resd() < lf_var1d()) || (lflags.oldcf && (lf_resd() == lf_var1d())));
+            SET_FLAG(CPU_Regs.CF,((lf_resd() & 0xFFFFFFFFl) < (lf_var1d() & 0xFFFFFFFFl)) || (lflags.oldcf && (lf_resd() == lf_var1d())));
             DOFLAG_AF();
             DOFLAG_ZFd();
             DOFLAG_SFd();
@@ -770,7 +770,7 @@ public class Flags {
             DOFLAG_PF();
             break;
         case t_SBBd:
-            SET_FLAG(CPU_Regs.CF,(lf_var1d() < lf_resd()) || (lflags.oldcf && (lf_var2d()==0xffffffffl)));
+            SET_FLAG(CPU_Regs.CF,((lf_var1d() & 0xFFFFFFFFl) < (lf_resd() & 0xFFFFFFFFl)) || (lflags.oldcf && (lf_var2d()==0xffffffffl)));
             DOFLAG_AF();
             DOFLAG_ZFd();
             DOFLAG_SFd();
@@ -799,7 +799,7 @@ public class Flags {
             break;
         case t_SUBd:
         case t_CMPd:
-            SET_FLAG(CPU_Regs.CF,(lf_var1d()<lf_var2d()));
+            SET_FLAG(CPU_Regs.CF,((lf_var1d() & 0xFFFFFFFFl)<(lf_var2d() & 0xFFFFFFFFl)));
             DOFLAG_AF();
             DOFLAG_ZFd();
             DOFLAG_SFd();

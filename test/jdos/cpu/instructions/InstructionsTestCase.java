@@ -9,9 +9,9 @@ import jdos.misc.setup.*;
 import junit.framework.TestCase;
 
 abstract public class InstructionsTestCase extends TestCase {
-    //static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
+    static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
     //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
-    static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
+    //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
     protected int cseip = 0x10000;
     protected final static int MEM_BASE_DS = 0x2000;
     protected final static int MEM_BASE_SS = 0x3000;

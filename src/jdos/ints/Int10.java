@@ -293,7 +293,8 @@ public class Int10 {
             CPU_Regs.reg_eax.high((Memory.real_readw(BIOSMEM_SEG,BIOSMEM_NB_COLS) & 0xFF));
             break;
         case 0x10:								/* Palette functions */
-            if ((Dosbox.machine==MachineType.MCH_CGA) || ((!Dosbox.IS_VGA_ARCH()) && (CPU_Regs.reg_eax.low()>0x03))) break;
+            if (!Dosbox.IS_EGAVGA_ARCH() && (CPU_Regs.reg_eax.low()>0x02)) break;
+		    else if (!Dosbox.IS_VGA_ARCH() && (CPU_Regs.reg_eax.low()>0x03)) break;
             switch (CPU_Regs.reg_eax.low()) {
             case 0x00:							/* SET SINGLE PALETTE REGISTER */
                 Int10_pal.INT10_SetSinglePaletteRegister(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high());

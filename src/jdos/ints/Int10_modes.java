@@ -228,6 +228,7 @@ public class Int10_modes {
         new Int10.VideoModeBlock( 0x008  ,VGA.M_TANDY16,160 ,200 ,20 ,25 ,8 ,8  ,8 ,0xB8000 ,0x2000 ,56  ,127 ,40 ,100 ,0   ),
         new Int10.VideoModeBlock( 0x009  ,VGA.M_TANDY16,320 ,200 ,40 ,25 ,8 ,8  ,8 ,0xB8000 ,0x2000 ,113 ,63  ,80 ,50  ,0   ),
         new Int10.VideoModeBlock( 0x00A  ,VGA.M_CGA4   ,640 ,200 ,80 ,25 ,8 ,8  ,8 ,0xB8000 ,0x2000 ,113 ,63  ,80 ,50  ,0   ),
+            //{ 0x00E  ,M_TANDY16,640 ,200 ,80 ,25 ,8 ,8  ,8 ,0xA0000 ,0x10000 ,113 ,256 ,80 ,200 ,0   },
         new Int10.VideoModeBlock(0xFFFF  ,VGA.M_ERROR  ,0   ,0   ,0  ,0  ,0 ,0  ,0 ,0x00000 ,0x0000 ,0   ,0   ,0  ,0   ,0 	),
     };
 
@@ -530,6 +531,11 @@ public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearm
 		default:
 			IO.IO_WriteB(0x3de,0x0);break;
 		}
+        // write palette
+		for(int i = 0; i < 16; i++) {
+			IO.IO_WriteB(0x3da,i+0x10);
+			IO.IO_WriteB(0x3de,i);
+		}
 		//Clear extended mapping
 		IO.IO_WriteB(0x3da,0x5);
 		IO.IO_WriteB(0x3de,0x0);
@@ -570,8 +576,9 @@ public static boolean INT10_SetVideoMode_OTHER(/*Bit16u*/int mode,boolean clearm
 
 		if (CurMode.mode == 0x6 || CurMode.mode==0xa) color_select=0x3f;
 		else color_select=0x30;
-		IO.IO_WriteB(0x3d9,color_select);
 		Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL,color_select);
+        Int10_pal.INT10_SetColorSelect((short)1);
+		Int10_pal.INT10_SetBackgroundBorder((short)0);
 		break;
 	}
 

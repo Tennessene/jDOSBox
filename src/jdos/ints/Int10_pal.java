@@ -23,10 +23,44 @@ public class Int10_pal {
 
     static public void INT10_SetSinglePaletteRegister(/*Bit8u*/short reg,/*Bit8u*/short val) {
         switch (Dosbox.machine) {
-        case MachineType.MCH_TANDY:
-        case MachineType.MCH_PCJR: //TANDY_ARCH_CASE:
+        case MachineType.MCH_PCJR:
+            reg&=0xf;
             IoHandler.IO_Read(Int10.VGAREG_TDY_RESET);
             WriteTandyACTL((short)(reg+0x10),val);
+            IoHandler.IO_Write(0x3da,0x0); // palette back on
+            break;
+        case MachineType.MCH_TANDY:
+            // TODO waits for vertical retrace
+            switch(VGA.vga.mode) {
+            case VGA.M_TANDY2:
+                if (reg >= 0x10) break;
+                else if (reg==1) reg = 0x1f;
+                else reg |= 0x10;
+                WriteTandyACTL((short)(reg+0x10),val);
+                break;
+            case VGA.M_TANDY4: {
+                if (Int10_modes.CurMode.mode!=0x0a) {
+                    // Palette values are kept constand by the BIOS.
+                    // The four colors are mapped to special palette values by hardware.
+                    // 3D8/3D9 registers influence this mapping. We need to figure out
+                    // which entry is used for the requested color.
+                    if (reg > 3) break;
+                    if (reg != 0) { // 0 is assumed to be at 0
+                        /*Bit8u*/short color_select=Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_PAL);
+                        reg = (short)(reg*2+8); // Green Red Brown
+                        if ((color_select& 0x20)!=0) reg++; // Cyan Magenta White
+                    }
+                    WriteTandyACTL((short)(reg+0x10),val);
+                }
+                // 4-color high resolution mode 0x0a isn't handled specially
+                else WriteTandyACTL((short)(reg+0x10),val);
+                break;
+            }
+            default:
+                WriteTandyACTL((short)(reg+0x10),val);
+                break;
+            }
+            IoHandler.IO_Write(0x3da, 0x0); // palette back on
             break;
         // EGAVGA_ARCH_CASE
         case MachineType.MCH_EGA:

@@ -171,6 +171,20 @@ public class Memory extends Module_base {
             host_writeb(dest++, b);
     }
 
+    static public void host_memset(int dest, int size, int value) {
+        if ((dest & 0x3) == 0) {
+            int index = (dest >>> 2);
+            int len = (size >>> 2);
+            value &= 0xFF;
+            Arrays.fill(direct, index, index+len, (value << 24) | (value << 16) | (value << 8) | value);
+            size = (size & 0x3) << 3;
+            dest+=len<<2;
+        }
+        byte b = (byte)value;
+        for (int i = 0; i < size; i++)
+            host_writeb(dest++, b);
+    }
+
     /*
     public static void var_write(Bit8u * var, Bit8u val) {
         host_writeb((HostPt)var, val);

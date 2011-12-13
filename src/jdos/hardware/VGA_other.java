@@ -145,6 +145,29 @@ public class VGA_other {
         }
     };
 
+    private static IoHandler.IO_WriteHandler write_lightpen = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            switch (port) {
+            case 0x3db:	// Clear lightpen latch
+                VGA.vga.other.lightpen_triggered = false;
+                break;
+            case 0x3dc:	// Preset lightpen latch
+                if (!VGA.vga.other.lightpen_triggered) {
+                    VGA.vga.other.lightpen_triggered = true; // TODO: this shows at port 3ba/3da bit 1
+
+                    double timeInFrame = Pic.PIC_FullIndex()-VGA.vga.draw.delay.framestart;
+                    double timeInLine = timeInFrame % VGA.vga.draw.delay.htotal;
+                    int current_scanline = (int)(timeInFrame / VGA.vga.draw.delay.htotal);
+
+                    VGA.vga.other.lightpen = ((VGA.vga.draw.address_add/2) * (current_scanline/2));
+                    VGA.vga.other.lightpen += (int)((timeInLine / VGA.vga.draw.delay.hdend) * ((float)(VGA.vga.draw.address_add/2)));
+                    VGA.vga.other.lightpen &= 0xFFFF;
+                }
+                break;
+            }
+        }
+    };
+
     private static double hue_offset = 0.0;
     private static /*Bit8u*/short cga16_val = 0;
     private static /*Bit8u*/short herc_pal = 0;
@@ -230,49 +253,135 @@ public class VGA_other {
         }
     };
 
-    private static void write_color_select(/*Bit8u*/short val) {
-        VGA.vga.tandy.color_select=val;
+    private static void write_cga_color_select(/*Bitu*/int val) {
+        VGA.vga.tandy.color_select=(short)val;
         switch (VGA.vga.mode) {
+        case  VGA.M_TANDY4:
+            {
+                /*Bit8u*/int base = (val & 0x10)!=0 ? 0x08 : 0;
+                /*Bit8u*/short bg = (short)(val & 0xf);
+                if ((VGA.vga.tandy.mode_control & 0x4)!=0)	// cyan red white
+                    VGA.VGA_SetCGA4Table(bg, 3+base, 4+base, 7+base);
+                else if ((val & 0x20)!=0)				// cyan magenta white
+                    VGA.VGA_SetCGA4Table(bg, 3+base, 5+base, 7+base);
+                else								// green red brown
+                    VGA.VGA_SetCGA4Table(bg, 2+base, 4+base, 6+base);
+                VGA.vga.tandy.border_color = bg;
+                VGA.vga.attr.overscan_color = bg;
+                break;
+            }
         case VGA.M_TANDY2:
             VGA.VGA_SetCGA2Table((short)0,(short)(val & 0xf));
-            break;
-        case VGA.M_TANDY4:
-            {
-                if ((Dosbox.machine==MachineType.MCH_TANDY && (VGA.vga.tandy.gfx_control & 0x8)!=0) ||
-                    (Dosbox.machine==MachineType.MCH_PCJR && (VGA.vga.tandy.mode_control==0x0b))) {
-                    VGA.VGA_SetCGA4Table(0,1,2,3);
-                    return;
-                }
-                /*Bit8u*/int base=(val & 0x10)!=0 ? 0x08 : 0;
-                /* Check for BW Mode */
-                if ((VGA.vga.tandy.mode_control & 0x4)!=0) {
-                    VGA.VGA_SetCGA4Table(val & 0xf,3+base,4+base,7+base);
-                } else {
-                    if ((val & 0x20)!=0) VGA.VGA_SetCGA4Table(val & 0xf,3+base,5+base,7+base);
-                    else VGA.VGA_SetCGA4Table(val & 0xf,2+base,4+base,6+base);
-                }
-            }
+            VGA.vga.attr.overscan_color = 0;
             break;
         case VGA.M_CGA16:
-            cga16_color_select(val);
+            cga16_color_select((short)val);
             break;
         case VGA.M_TEXT:
-        case VGA.M_TANDY16:
+            VGA.vga.tandy.border_color = (short)(val & 0xf);
+		    VGA.vga.attr.overscan_color = 0;
             break;
+        }
+    }
+
+    private static IoHandler.IO_WriteHandler write_cga = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            switch (port) {
+            case 0x3d8:
+                VGA.vga.tandy.mode_control=(short)val;
+                VGA.vga.attr.disabled = (short)((val&0x8)!=0? 0: 1);
+                if ((VGA.vga.tandy.mode_control & 0x2)!=0) {		// graphics mode
+                    if ((VGA.vga.tandy.mode_control & 0x10)!=0) {// highres mode
+                        if ((val & 0x4)==0) {				// burst on
+                            VGA.VGA_SetMode(VGA.M_CGA16);		// composite ntsc 160x200 16 color mode
+                        } else {
+                            VGA.VGA_SetMode(VGA.M_TANDY2);
+                        }
+                    } else VGA.VGA_SetMode(VGA.M_TANDY4);		// lowres mode
+
+                    write_cga_color_select(VGA.vga.tandy.color_select);
+                } else {
+                    VGA.VGA_SetMode(VGA.M_TANDY_TEXT);
+                }
+                VGA_draw.VGA_SetBlinking(val & 0x20);
+                break;
+            case 0x3d9: // color select
+                write_cga_color_select(val);
+                break;
+            }
+        }
+    };
+
+    private static void tandy_update_palette() {
+        // TODO mask off bits if needed
+        if (Dosbox.machine == MachineType.MCH_TANDY) {
+            switch (VGA.vga.mode) {
+            case VGA.M_TANDY2:
+                VGA.VGA_SetCGA2Table(VGA.vga.attr.palette[0],
+                    //vga.attr.palette[vga.tandy.color_select&0xf]);
+                    VGA.vga.attr.palette[0xf]);
+                //VGA_SetCGA2Table(vga.attr.palette[0xf],vga.attr.palette[0]);
+                break;
+            case VGA.M_TANDY4:
+                if ((VGA.vga.tandy.gfx_control & 0x8)!=0) {
+                    // 4-color high resolution - might be an idea to introduce M_TANDY4H
+                    VGA.VGA_SetCGA4Table( // function sets both medium and highres 4color tables
+                        VGA.vga.attr.palette[0], VGA.vga.attr.palette[1],
+                        VGA.vga.attr.palette[2], VGA.vga.attr.palette[3]);
+                } else {
+                    int color_set = 0;
+                    int r_mask = 0xf;
+                    if ((VGA.vga.tandy.color_select & 0x10)!=0) color_set |= 8; // intensity
+                    if ((VGA.vga.tandy.color_select & 0x20)!=0) color_set |= 1; // Cyan Mag. White
+                    if ((VGA.vga.tandy.mode_control & 0x04)!=0) {			// Cyan Red White
+                        color_set |= 1;
+                        r_mask &= ~1;
+                    }
+                    VGA.VGA_SetCGA4Table(
+                        VGA.vga.attr.palette[0],
+                        VGA.vga.attr.palette[(2|color_set)& VGA.vga.tandy.palette_mask],
+                        VGA.vga.attr.palette[(4|(color_set& r_mask))& VGA.vga.tandy.palette_mask],
+                        VGA.vga.attr.palette[(6|color_set)& VGA.vga.tandy.palette_mask]);
+                }
+                break;
+            default:
+                break;
+            }
+        } else {
+            // PCJr
+            switch (VGA.vga.mode) {
+            case VGA.M_TANDY2:
+                VGA.VGA_SetCGA2Table(VGA.vga.attr.palette[0],VGA.vga.attr.palette[1]);
+                break;
+            case VGA.M_TANDY4:
+                VGA.VGA_SetCGA4Table(
+                    VGA.vga.attr.palette[0], VGA.vga.attr.palette[1],
+                    VGA.vga.attr.palette[2], VGA.vga.attr.palette[3]);
+                break;
+            default:
+                break;
+            }
         }
     }
 
     private static void TANDY_FindMode() {
         if ((VGA.vga.tandy.mode_control & 0x2)!=0) {
-            if ((VGA.vga.tandy.gfx_control & 0x10)!=0)
-                VGA.VGA_SetMode(VGA.M_TANDY16);
-            else if ((VGA.vga.tandy.gfx_control & 0x08)!=0)
+            if ((VGA.vga.tandy.gfx_control & 0x10)!=0) {
+                if (VGA.vga.mode==VGA.M_TANDY4) {
+                    VGA.VGA_SetModeNow(VGA.M_TANDY16);
+                } else VGA.VGA_SetMode(VGA.M_TANDY16);
+            }
+            else if ((VGA.vga.tandy.gfx_control & 0x08)!=0) {
                 VGA.VGA_SetMode(VGA.M_TANDY4);
+            }
             else if ((VGA.vga.tandy.mode_control & 0x10)!=0)
                 VGA.VGA_SetMode(VGA.M_TANDY2);
-            else
-                VGA.VGA_SetMode(VGA.M_TANDY4);
-            write_color_select(VGA.vga.tandy.color_select);
+            else {
+                if (VGA.vga.mode==VGA.M_TANDY16) {
+                    VGA.VGA_SetModeNow(VGA.M_TANDY4);
+                } else VGA.VGA_SetMode(VGA.M_TANDY4);
+            }
+            tandy_update_palette();
         } else {
             VGA.VGA_SetMode(VGA.M_TANDY_TEXT);
         }
@@ -292,7 +401,6 @@ public class VGA_other {
                 if (VGA.vga.mode==VGA.M_TANDY16) VGA.VGA_SetModeNow(VGA.M_TANDY4);
                 else VGA.VGA_SetMode(VGA.M_TANDY4);
             }
-            write_color_select(VGA.vga.tandy.color_select);
         } else {
             VGA.VGA_SetMode(VGA.M_TANDY_TEXT);
         }
@@ -320,11 +428,16 @@ public class VGA_other {
                 VGA.vga.tandy.mode_control=val;
                 VGA_draw.VGA_SetBlinking(val & 0x20);
                 PCJr_FindMode();
-                VGA.vga.attr.disabled = (short)((val&0x8)!=0? 0: 1);
+                if ((val&0x8)!=0) VGA.vga.attr.disabled &= ~1;
+			    else VGA.vga.attr.disabled |= 1;
             } else {
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Unhandled Write "+Integer.toString(val, 16)+" to tandy reg "+Integer.toString(VGA.vga.tandy.reg_index,16));
             }
             break;
+        case 0x1:	/* Palette mask */
+		    VGA.vga.tandy.palette_mask = val;
+		    tandy_update_palette();
+		    break;
         case 0x2:	/* Border color */
             VGA.vga.tandy.border_color=val;
             break;
@@ -341,80 +454,36 @@ public class VGA_other {
             TandyCheckLineMask();
             VGA_memory.VGA_SetupHandlers();
             break;
-        case 0x8:	/* Monitor mode seletion */
-            //Bit 1 select mode e, for 640x200x16, some double clocking thing?
-            //Bit 4 select 350 line mode for hercules emulation
-            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Write "+Integer.toString(val, 16)+" to tandy monitor mode");
-            break;
-        /* palette colors */
-        case 0x10: case 0x11: case 0x12: case 0x13:
-        case 0x14: case 0x15: case 0x16: case 0x17:
-        case 0x18: case 0x19: case 0x1a: case 0x1b:
-        case 0x1c: case 0x1d: case 0x1e: case 0x1f:
-            VGA_attr.VGA_ATTR_SetPalette(VGA.vga.tandy.reg_index-0x10,val & 0xf);
-            break;
         default:
-            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"Unhandled Write "+Integer.toString(val, 16)+" to tandy reg "+Integer.toString(VGA.vga.tandy.reg_index,16));
-        }
-    }
-
-    private static IoHandler.IO_WriteHandler write_cga = new IoHandler.IO_WriteHandler() {
-        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
-            switch (port) {
-            case 0x3d8:
-                VGA.vga.tandy.mode_control=(/*Bit8u*/short)val;
-                VGA.vga.attr.disabled = (short)((val&0x8)!=0? 0: 1);
-                if ((VGA.vga.tandy.mode_control & 0x2)!=0) {
-                    if ((VGA.vga.tandy.mode_control & 0x10)!=0) {
-                        if ((val & 0x4)==0 && Dosbox.machine==MachineType.MCH_CGA) {
-                            VGA.VGA_SetMode(VGA.M_CGA16);		//Video burst 16 160x200 color mode
-                        } else {
-                            VGA.VGA_SetMode(VGA.M_TANDY2);
-                        }
-                    } else VGA.VGA_SetMode(VGA.M_TANDY4);
-                    write_color_select(VGA.vga.tandy.color_select);
-                } else {
-                    VGA.VGA_SetMode(VGA.M_TANDY_TEXT);
-                }
-                VGA_draw.VGA_SetBlinking(val & 0x20);
-                break;
-            case 0x3d9:
-                write_color_select((/*Bit8u*/short)val);
-                break;
+		    if ((VGA.vga.tandy.reg_index & 0xf0) == 0x10) { // color palette
+                VGA.vga.attr.palette[VGA.vga.tandy.reg_index-0x10] = (short)(val&0xf);
+                tandy_update_palette();
+            } else
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL, "Unhandled Write "+Integer.toString(val, 16)+" to tandy reg "+Integer.toString(VGA.vga.tandy.reg_index,16));
             }
-        }
-    };
+    }
 
     private static IoHandler.IO_WriteHandler write_tandy = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             switch (port) {
             case 0x3d8:
                 VGA.vga.tandy.mode_control=(/*Bit8u*/short)val;
+                if ((val&0x8)!=0) VGA.vga.attr.disabled &= ~1;
+		        else VGA.vga.attr.disabled |= 1;
                 TandyCheckLineMask();
                 VGA_draw.VGA_SetBlinking(val & 0x20);
                 TANDY_FindMode();
                 break;
             case 0x3d9:
-                write_color_select((/*Bit8u*/short)val);
+                VGA.vga.tandy.color_select=(short)val;
+                if (VGA.vga.mode==VGA.M_TANDY2) VGA.vga.attr.palette[0xf] = (short)(VGA.vga.tandy.color_select&0xf);
+                else VGA.vga.attr.palette[0] = (short)(VGA.vga.tandy.color_select&0xf); // Pirates!
+                tandy_update_palette();
                 break;
             case 0x3da:
                 VGA.vga.tandy.reg_index=(/*Bit8u*/short)val;
-                break;
-            case 0x3db:	// Clear lightpen latch
-                VGA.vga.other.lightpen_triggered = false;
-                break;
-            case 0x3dc:	// Preset lightpen latch
-                if (!VGA.vga.other.lightpen_triggered) {
-                    VGA.vga.other.lightpen_triggered = true; // TODO: this shows at port 3ba/3da bit 1
-
-                    double timeInFrame = Pic.PIC_FullIndex()-VGA.vga.draw.delay.framestart;
-                    double timeInLine = timeInFrame % VGA.vga.draw.delay.htotal;
-                    /*Bitu*/int current_scanline = (/*Bitu*/int)(timeInFrame / VGA.vga.draw.delay.htotal);
-
-                    VGA.vga.other.lightpen = ((VGA.vga.draw.address_add/2) * (current_scanline/2));
-                    VGA.vga.other.lightpen += ((timeInLine / VGA.vga.draw.delay.hdend) *
-                        ((float)(VGA.vga.draw.address_add/2)));
-                }
+                //if (val&0x10) vga.attr.disabled |= 2;
+		        //else vga.attr.disabled &= ~2;
                 break;
     //	case 0x3dd:	//Extended ram page address register:
                 //break;
@@ -424,6 +493,7 @@ public class VGA_other {
             case 0x3df:
                 VGA.vga.tandy.line_mask = (/*Bit8u*/short)(val >> 6);
                 VGA.vga.tandy.draw_bank = (short)(val & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
+                if (VGA.vga.tandy.line_mask==3) VGA.vga.tandy.draw_bank &= ~1; // LSB unused in 32k modes
                 VGA.vga.tandy.mem_bank = (short)((val >> 3) & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
                 TandyCheckLineMask();
                 VGA_memory.VGA_SetupHandlers();
@@ -435,12 +505,14 @@ public class VGA_other {
     private static IoHandler.IO_WriteHandler write_pcjr = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             switch (port) {
-            case 0x3d9:
-                write_color_select((/*Bit8u*/short)val);
-                break;
             case 0x3da:
                 if (VGA.vga.tandy.pcjr_flipflop) write_tandy_reg((/*Bit8u*/short)val);
-                else VGA.vga.tandy.reg_index=(/*Bit8u*/short)val;
+                else {
+                    VGA.vga.tandy.reg_index=(short)val;
+                    if ((VGA.vga.tandy.reg_index & 0x10)!=0)
+                        VGA.vga.attr.disabled |= 2;
+                    else VGA.vga.attr.disabled &= ~2;
+                }
                 VGA.vga.tandy.pcjr_flipflop=!VGA.vga.tandy.pcjr_flipflop;
                 break;
             case 0x3df:
@@ -579,6 +651,10 @@ public class VGA_other {
             for (int i=0;i<256;i++)	System.arraycopy(Int10_memory.int10_font_08, i*8, VGA.vga.draw.font, i*32, 8);
             VGA.vga.draw.font_tables[0]=VGA.vga.draw.font_tables[1]=new Ptr(VGA.vga.draw.font,0);
         }
+        if (Dosbox.machine==MachineType.MCH_CGA || Dosbox.IS_TANDY_ARCH() || Dosbox.machine==MachineType.MCH_HERC) {
+            IoHandler.IO_RegisterWriteHandler(0x3db,write_lightpen,IoHandler.IO_MB);
+            IoHandler.IO_RegisterWriteHandler(0x3dc,write_lightpen,IoHandler.IO_MB);
+        }
         if (Dosbox.machine==MachineType.MCH_HERC) {
             for (int i=0;i<256;i++)	System.arraycopy(Int10_memory.int10_font_14, i*14, VGA.vga.draw.font, i*32, 14);
             VGA.vga.draw.font_tables[0]=VGA.vga.draw.font_tables[1]=new Ptr(VGA.vga.draw.font,0);
@@ -587,8 +663,6 @@ public class VGA_other {
         if (Dosbox.machine==MachineType.MCH_CGA) {
             IoHandler.IO_RegisterWriteHandler(0x3d8,write_cga,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3d9,write_cga,IoHandler.IO_MB);
-            IoHandler.IO_RegisterWriteHandler(0x3db,write_tandy,IoHandler.IO_MB);
-            IoHandler.IO_RegisterWriteHandler(0x3dc,write_tandy,IoHandler.IO_MB);
             Mapper.MAPPER_AddHandler(IncreaseHue,Mapper.MapKeys.MK_f11,Mapper.MMOD2,"inchue","Inc Hue");
             Mapper.MAPPER_AddHandler(DecreaseHue,Mapper.MapKeys.MK_f11,0,"dechue","Dec Hue");
         }
@@ -596,14 +670,13 @@ public class VGA_other {
             write_tandy.call( 0x3df, 0x0, 0 );
             IoHandler.IO_RegisterWriteHandler(0x3d8,write_tandy,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3d9,write_tandy,IoHandler.IO_MB);
+            IoHandler.IO_RegisterWriteHandler(0x3da,write_tandy,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3de,write_tandy,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3df,write_tandy,IoHandler.IO_MB);
-            IoHandler.IO_RegisterWriteHandler(0x3da,write_tandy,IoHandler.IO_MB);
         }
         if (Dosbox.machine==MachineType.MCH_PCJR) {
             //write_pcjr will setup base address
             write_pcjr.call( 0x3df, 0x7 | (0x7 << 3), 0 );
-            IoHandler.IO_RegisterWriteHandler(0x3d9,write_pcjr,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3da,write_pcjr,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3df,write_pcjr,IoHandler.IO_MB);
         }

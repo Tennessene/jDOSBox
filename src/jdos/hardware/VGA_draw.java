@@ -9,8 +9,6 @@ import jdos.types.LogTypes;
 import jdos.types.MachineType;
 import jdos.types.SVGACards;
 import jdos.util.IntPtr;
-import jdos.util.Ptr;
-import jdos.util.ShortPtr;
 import jdos.util.StringHelper;
 
 public class VGA_draw {
@@ -123,16 +121,13 @@ public class VGA_draw {
         public int call(/*Bitu*/int vidstart, /*Bitu*/int line) {
             int base = VGA.vga.tandy.draw_base + ((line & VGA.vga.tandy.line_mask) << VGA.vga.tandy.line_shift);
             int draw=TempLine;
-            for (/*Bitu*/int x=0;x<VGA.vga.draw.blocks;x++) {
-                /*Bitu*/int val1 = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
-                ++vidstart;
-                /*Bitu*/int val2 = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
-                ++vidstart;
-                Memory.host_writed(draw, (val1 & 0x0f) << 8  |
-                        (val1 & 0xf0) >> 4  |
-                        (val2 & 0x0f) << 24 |
-                        (val2 & 0xf0) << 12);
-                draw+=4;
+            int end = VGA.vga.draw.blocks*2;
+            while(end!=0) {
+                int b = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
+                Memory.host_writeb(draw++, VGA.vga.attr.palette[b >> 4]);
+                Memory.host_writeb(draw++, VGA.vga.attr.palette[b & 0x0f]);
+                vidstart++;
+                end--;
             }
             return TempLine;
         }
@@ -142,14 +137,17 @@ public class VGA_draw {
         public int call(/*Bitu*/int vidstart, /*Bitu*/int line) {
             int base = VGA.vga.tandy.draw_base + ((line & VGA.vga.tandy.line_mask) << VGA.vga.tandy.line_shift);
             int draw=TempLine;
-            for (/*Bitu*/int x=0;x<VGA.vga.draw.blocks;x++) {
-                /*Bitu*/int val = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
-                ++vidstart;
-                Memory.host_writed(draw, (val & 0xf0) >> 4  |
-                        (val & 0xf0) << 4  |
-                        (val & 0x0f) << 16 |
-                        (val & 0x0f) << 24);
-                draw+=4;
+            int end = VGA.vga.draw.blocks;
+            while(end!=0) {
+                int b = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
+                short data = VGA.vga.attr.palette[b >> 4];
+                Memory.host_writeb(draw++, data);
+                Memory.host_writeb(draw++, data);
+                data = VGA.vga.attr.palette[b & 0x0f];
+                Memory.host_writeb(draw++, data);
+                Memory.host_writeb(draw++, data);
+                vidstart++;
+                end--;
             }
             return TempLine;
         }
@@ -547,11 +545,61 @@ public class VGA_draw {
         VGA.vga.draw.address_line=0;
     }
 
+    private static int bg_color_index = 0; // screen-off black index
+
     private static Pic.PIC_EventHandler VGA_DrawSingleLine = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             if (VGA.vga.attr.disabled!=0) {
-                // draw blanked line (DoWhackaDo, Alien Carnage, TV sports Football)
-                Memory.host_zeroset(TempLine, TEMPLINE_SIZE);
+                switch(Dosbox.machine) {
+                    case MachineType.MCH_PCJR:
+                        // Displays the border color when screen is disabled
+                        bg_color_index = VGA.vga.tandy.border_color;
+                        break;
+                    case MachineType.MCH_TANDY:
+                        // Either the PCJr way or the CGA way
+                        if ((VGA.vga.tandy.gfx_control & 0x4)!=0) {
+                            bg_color_index = VGA.vga.tandy.border_color;
+                        } else if (VGA.vga.mode==VGA.M_TANDY4)
+                            bg_color_index = VGA.vga.attr.palette[0];
+                        else bg_color_index = 0;
+                        break;
+                    case MachineType.MCH_CGA:
+                        // the background color
+                        bg_color_index = VGA.vga.attr.overscan_color;
+                        break;
+                    case MachineType.MCH_EGA:
+                    case MachineType.MCH_VGA:
+                        // DoWhackaDo, Alien Carnage, TV sports Football
+                        // when disabled by attribute index bit 5:
+                        //  ET3000, ET4000, Paradise display the border color
+                        //  S3 displays the content of the currently selected attribute register
+                        // when disabled by sequencer the screen is black "257th color"
+
+                        // the DAC table may not match the bits of the overscan register
+                        // so use black for this case too...
+                        //if (vga.attr.disabled& 2) {
+                        if (VGA.vga.dac.xlat16[bg_color_index] != 0) {
+                            for(int i = 0; i < 256; i++)
+                                if (VGA.vga.dac.xlat16[i] == 0) {
+                                    bg_color_index = i;
+                                    break;
+                                }
+                        }
+                        //} else
+                        //    bg_color_index = vga.attr.overscan_color;
+                        break;
+                    default:
+                        bg_color_index = 0;
+                        break;
+                }
+                if (VGA.vga.draw.bpp==8) {
+                    Memory.host_memset(TempLine, TEMPLINE_SIZE, bg_color_index);
+                } else if (VGA.vga.draw.bpp==16) {
+                    int value = VGA.vga.dac.xlat16[bg_color_index];
+                    for (int i = 0; i < TEMPLINE_SIZE/2; i++) {
+                        Memory.host_writew(TempLine+i*2, value);
+                    }
+                }
                 Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
             } else {
                 int data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
@@ -938,6 +986,7 @@ public class VGA_draw {
             switch (Dosbox.machine) {
             case MachineType.MCH_CGA:
             case MachineType.MCH_PCJR:
+            case MachineType.MCH_TANDY:
                 VGA.vga.draw.mode = VGA.Drawmode.LINE;
                 break;
             case MachineType.MCH_EGA:

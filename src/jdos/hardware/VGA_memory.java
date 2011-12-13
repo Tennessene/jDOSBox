@@ -629,7 +629,7 @@ public class VGA_memory {
                 phys_page&=0x03;
             else
                 phys_page&=0x07;
-            return VGA.vga.mem.linear + (phys_page * 4096);
+            return VGA.vga.tandy.mem_base + (phys_page * 4096);
         }
         public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             return GetHostReadPt( phys_page );
@@ -646,7 +646,7 @@ public class VGA_memory {
             //test for a unaliged bank, then replicate 2x16kb
             if ((VGA.vga.tandy.mem_bank & 1)!=0)
                 phys_page&=0x03;
-            return VGA.vga.mem.linear + (phys_page * 4096);
+            return VGA.vga.tandy.mem_base + (phys_page * 4096);
         }
         public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
             return GetHostReadPt( phys_page );

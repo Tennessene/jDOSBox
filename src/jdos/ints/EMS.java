@@ -95,6 +95,8 @@ public class EMS extends Module_base {
         EMM_Mapping[] page_map=new EMM_Mapping[EMM_MAX_PHYS];
     }
 
+    private static int ems_type;
+
     private final static EMM_Handle[] emm_handles = new EMM_Handle[EMM_MAX_HANDLES];
     private final static EMM_Mapping[] emm_mappings = new EMM_Mapping[EMM_MAX_PHYS];
     private final static EMM_Mapping[] emm_segmentmappings = new EMM_Mapping[0x40];
@@ -343,7 +345,23 @@ public class EMS extends Module_base {
     private static /*Bit8u*/short EMM_MapSegment(/*Bitu*/int segment,/*Bit16u*/int handle,/*Bit16u*/int log_page) {
     //	LOG_MSG("EMS MapSegment handle %d segment %d log %d",handle,segment,log_page);
 
-        if (((segment>=0xa000) && (segment<0xb000)) || ((segment>=EMM_PAGEFRAME-0x1000) && (segment<EMM_PAGEFRAME+0x1000))) {
+        boolean valid_segment=false;
+
+        if ((ems_type==1) || (ems_type==3)) {
+            if (segment<0xf000+0x1000) valid_segment=true;
+        } else {
+            if ((segment>=0xa000) && (segment<0xb000)) {
+                valid_segment=true;		// allow mapping of graphics memory
+            }
+            if ((segment>=EMM_PAGEFRAME) && (segment<EMM_PAGEFRAME+0x1000)) {
+                valid_segment=true;		// allow mapping of EMS page frame
+            }
+    /*		if ((segment>=EMM_PAGEFRAME-0x1000) && (segment<EMM_PAGEFRAME)) {
+                valid_segment=true;
+            } */
+        }
+
+	    if (valid_segment) {
             /*Bit32s*/int tphysPage = ((/*Bit32s*/int)segment-EMM_PAGEFRAME)/(0x1000/EMM_MAX_PHYS);
 
             /* unmapping doesn't need valid handle (as handle isn't used) */
@@ -1331,7 +1349,6 @@ public class EMS extends Module_base {
     private /*RealPt*/int old4b_pointer,old67_pointer;
     private Callback call_vdma=new Callback(),call_vcpi=new Callback(),call_v86mon=new Callback();
     /*Bitu*/int call_int67;
-    /*Bitu*/int ems_type;
 
     static /*Bitu*/int GetEMSType(Section_prop section) {
         /*Bitu*/int rtype = 0;

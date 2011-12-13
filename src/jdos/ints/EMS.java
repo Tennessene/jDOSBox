@@ -123,7 +123,7 @@ public class EMS extends Module_base {
             return false;
         }
         public /*Bit16u*/int GetInformation() {
-            return 0xc080;
+            return 0xc0c0;
         }
         public boolean ReadFromControlChannel(/*PhysPt*/int bufptr,/*Bit16u*/int size,/*Bit16u*/IntRef retcode) {
             /*Bitu*/int subfct= Memory.mem_readb(bufptr);

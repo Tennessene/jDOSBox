@@ -74,7 +74,7 @@ public class Main {
             //sprintf(title,"DOSBox %s, Cpu speed: max %3d%% cycles, Frameskip %2d, Program: %8s",VERSION,internal_cycles,internal_frameskip,RunningProgram);
             title.append("DOSBox ");
             title.append(Config.VERSION);
-            title.append(", Cpu speed: max ");
+            title.append(", CPU speed: max ");
             title.append(internal_cycles);
             title.append("% cycles, Frameskip ");
             title.append(internal_frameskip);
@@ -84,7 +84,7 @@ public class Main {
             //sprintf(title,"DOSBox %s, Cpu speed: %8d cycles, Frameskip %2d, Program: %8s",VERSION,internal_cycles,internal_frameskip,RunningProgram);
             title.append("DOSBox ");
             title.append(Config.VERSION);
-            title.append(", Cpu speed: ");
+            title.append(", CPU speed: ");
             title.append(internal_cycles);
             title.append(" cycles, Frameskip ");
             title.append(internal_frameskip);

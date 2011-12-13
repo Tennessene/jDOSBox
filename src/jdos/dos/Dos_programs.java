@@ -531,153 +531,163 @@ public class Dos_programs {
             if ((bootarea.rawdata[0]==0x50) && (bootarea.rawdata[1]==0x43) && (bootarea.rawdata[2]==0x6a) && (bootarea.rawdata[3]==0x72)) {
                 if (Dosbox.machine!=MachineType.MCH_PCJR) WriteOut(Msg.get("PROGRAM_BOOT_CART_WO_PCJR"));
                 else {
-//                    Bit8u rombuf[65536];
-//                    Bits cfound_at=-1;
-//                    if (cart_cmd!="") {
-//                        /* read cartridge data into buffer */
-//                        fseek(usefile_1,0x200L, SEEK_SET);
-//                        fread(rombuf, 1, rombytesize_1-0x200, usefile_1);
-//
-//                        char cmdlist[1024];
-//                        cmdlist[0]=0;
-//                        Bitu ct=6;
-//                        Bits clen=rombuf[ct];
-//                        char buf[257];
-//                        if (cart_cmd=="?") {
-//                            while (clen!=0) {
-//                                strncpy(buf,(char*)&rombuf[ct+1],clen);
-//                                buf[clen]=0;
-//                                upcase(buf);
-//                                strcat(cmdlist," ");
-//                                strcat(cmdlist,buf);
-//                                ct+=1+clen+3;
-//                                if (ct>sizeof(cmdlist)) break;
-//                                clen=rombuf[ct];
-//                            }
-//                            if (ct>6) {
-//                                WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"),cmdlist);
-//                            } else {
-//                                WriteOut(Msg.get("PROGRAM_BOOT_CART_NO_CMDS"));
-//                            }
-//                            for(Bitu dct=0;dct<MAX_SWAPPABLE_DISKS;dct++) {
-//                                if(diskSwap[dct]!=NULL) {
-//                                    delete diskSwap[dct];
-//                                    diskSwap[dct]=NULL;
-//                                }
-//                            }
-//                            //fclose(usefile_1); //delete diskSwap closes the file
-//                            return;
-//                        } else {
-//                            while (clen!=0) {
-//                                strncpy(buf,(char*)&rombuf[ct+1],clen);
-//                                buf[clen]=0;
-//                                upcase(buf);
-//                                strcat(cmdlist," ");
-//                                strcat(cmdlist,buf);
-//                                ct+=1+clen;
-//
-//                                if (cart_cmd==buf) {
-//                                    cfound_at=ct;
-//                                    break;
-//                                }
-//
-//                                ct+=3;
-//                                if (ct>sizeof(cmdlist)) break;
-//                                clen=rombuf[ct];
-//                            }
-//                            if (cfound_at<=0) {
-//                                if (ct>6) {
-//                                    WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"),cmdlist);
-//                                } else {
-//                                    WriteOut(Msg.get("PROGRAM_BOOT_CART_NO_CMDS"));
-//                                }
-//                                for(Bitu dct=0;dct<MAX_SWAPPABLE_DISKS;dct++) {
-//                                    if(diskSwap[dct]!=NULL) {
-//                                        delete diskSwap[dct];
-//                                        diskSwap[dct]=NULL;
-//                                    }
-//                                }
-//                                //fclose(usefile_1); //Delete diskSwap closes the file
-//                                return;
-//                            }
-//                        }
-//                    }
-//
-//                    disable_umb_ems_xms();
-//                    void PreparePCJRCartRom(void);
-//                    PreparePCJRCartRom();
-//
-//                    if (usefile_1==NULL) return;
-//
-//                    Bit32u sz1,sz2;
-//                    FILE *tfile = getFSFile("system.rom", &sz1, &sz2, true);
-//                    if (tfile!=NULL) {
-//                        fseek(tfile, 0x3000L, SEEK_SET);
-//                        Bit32u drd=(Bit32u)fread(rombuf, 1, 0xb000, tfile);
-//                        if (drd==0xb000) {
-//                            for(i=0;i<0xb000;i++) phys_writeb(0xf3000+i,rombuf[i]);
-//                        }
-//                        fclose(tfile);
-//                    }
-//
-//                    if (usefile_2!=NULL) {
-//                        fseek(usefile_2, 0x0L, SEEK_SET);
-//                        fread(rombuf, 1, 0x200, usefile_2);
-//                        PhysPt romseg_pt=host_readw(&rombuf[0x1ce])<<4;
-//
-//                        /* read cartridge data into buffer */
-//                        fseek(usefile_2, 0x200L, SEEK_SET);
-//                        fread(rombuf, 1, rombytesize_2-0x200, usefile_2);
-//                        //fclose(usefile_2); //usefile_2 is in diskSwap structure which should be deleted to close the file
-//
-//                        /* write cartridge data into ROM */
-//                        for(i=0;i<rombytesize_2-0x200;i++) phys_writeb(romseg_pt+i,rombuf[i]);
-//                    }
-//
-//                    fseek(usefile_1, 0x0L, SEEK_SET);
-//                    fread(rombuf, 1, 0x200, usefile_1);
-//                    Bit16u romseg=host_readw(&rombuf[0x1ce]);
-//
-//                    /* read cartridge data into buffer */
-//                    fseek(usefile_1,0x200L, SEEK_SET);
-//                    fread(rombuf, 1, rombytesize_1-0x200, usefile_1);
-//                    //fclose(usefile_1); //usefile_1 is in diskSwap structure which should be deleted to close the file
-//
-//                    /* write cartridge data into ROM */
-//                    for(i=0;i<rombytesize_1-0x200;i++) phys_writeb((romseg<<4)+i,rombuf[i]);
-//
-//                    //Close cardridges
-//                    for(Bitu dct=0;dct<MAX_SWAPPABLE_DISKS;dct++) {
-//                        if(diskSwap[dct]!=NULL) {
-//                            delete diskSwap[dct];
-//                            diskSwap[dct]=NULL;
-//                        }
-//                    }
-//
-//
-//                    if (cart_cmd=="") {
-//                        Bit32u old_int18=mem_readd(0x60);
-//                        /* run cartridge setup */
-//                        SegSet16(ds,romseg);
-//                        SegSet16(es,romseg);
-//                        SegSet16(ss,0x8000);
-//                        reg_esp=0xfffe;
-//                        CALLBACK_RunRealFar(romseg,0x0003);
-//
-//                        Bit32u new_int18=mem_readd(0x60);
-//                        if (old_int18!=new_int18) {
-//                            /* boot cartridge (int18) */
-//                            SegSet16(cs,RealSeg(new_int18));
-//                            reg_ip = RealOff(new_int18);
-//                        }
-//                    } else {
-//                        if (cfound_at>0) {
-//                            /* run cartridge setup */
-//                            SegSet16(ds,dos.psp());
-//                            SegSet16(es,dos.psp());
-//                            CALLBACK_RunRealFar(romseg,cfound_at);
-//                        }
-//                    }
+                    byte[] rombuf = new byte[65536];
+                    int cfound_at=-1;
+                    if (cart_cmd.length()>0) {
+                        /* read cartridge data into buffer */
+                        try {
+                            usefile_1.seek(0x200L);
+                            usefile_1.read(rombuf, 0, (int)rombytesize_1.value-0x200);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        String cmdlist = "";
+                        int ct=6;
+                        int clen=rombuf[ct] & 0xFF;
+                        byte[] buf=new byte[257];
+                        if (cart_cmd.equals("?")) {
+                            while (clen!=0 && cmdlist.length()<1024) {
+                                cmdlist+=" ";
+                                cmdlist+=new String(rombuf, ct+1, clen).toUpperCase();
+                                ct+=1+clen+3;
+                                clen=rombuf[ct] & 0xFF;
+                            }
+                            if (ct>6) {
+                                WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"),new Object[]{cmdlist});
+                            } else {
+                                WriteOut(Msg.get("PROGRAM_BOOT_CART_NO_CMDS"));
+                            }
+                            for(int dct=0;dct<Bios_disk.MAX_SWAPPABLE_DISKS;dct++) {
+                                if (Bios_disk.diskSwap[dct] != null) {
+                                    Bios_disk.diskSwap[dct].close();
+                                    Bios_disk.diskSwap[dct] = null;
+                                }
+                            }
+                            //fclose(usefile_1); //delete diskSwap closes the file
+                            return;
+                        } else {
+                            while (clen!=0) {
+                                String cmd = new String(rombuf, ct+1, clen).toUpperCase();
+
+                                ct+=1+clen;
+
+                                if (cart_cmd.equals(buf)) {
+                                    cfound_at=ct;
+                                    break;
+                                }
+
+                                ct+=3;
+                                clen=rombuf[ct] & 0xFF;
+                            }
+                            if (cfound_at<=0) {
+                                if (ct>6) {
+                                    WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"), new Object[] {cmdlist});
+                                } else {
+                                    WriteOut(Msg.get("PROGRAM_BOOT_CART_NO_CMDS"));
+                                }
+                                for(int dct=0;dct<Bios_disk.MAX_SWAPPABLE_DISKS;dct++) {
+                                    if (Bios_disk.diskSwap[dct] != null) {
+                                        Bios_disk.diskSwap[dct].close();
+                                        Bios_disk.diskSwap[dct] = null;
+                                    }
+                                }
+                                //fclose(usefile_1); //Delete diskSwap closes the file
+                                return;
+                            }
+                        }
+                    }
+
+                    disable_umb_ems_xms();
+                    Memory.PreparePCJRCartRom();
+
+                    if (usefile_1==null) return;
+
+                    LongRef sz1 = new LongRef(0);
+                    LongRef sz2 = new LongRef(0);
+                    FileIO tfile = getFSFile("system.rom", sz1, sz2);
+
+                    if (tfile!=null) {
+                        int drd = 0;
+                        try {
+                            tfile.seek(0x3000L);
+                            drd = tfile.read(rombuf, 0, 0xb000);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        if (drd==0xb000) {
+                            for(i=0;i<0xb000;i++) Memory.phys_writeb(0xf3000+i,rombuf[i]);
+                        }
+                        try {tfile.close();} catch (Exception e) {}
+                    }
+
+                    if (usefile_2!=null) {
+                        try {
+                            usefile_2.seek(0);
+                            usefile_2.read(rombuf, 0, 0x200);
+                            int romseg_pt=new Ptr(rombuf, 0).readw(0x1ce) << 4;
+
+                            /* read cartridge data into buffer */
+                            usefile_2.seek(0x200);
+                            usefile_2.read(rombuf, 0, (int)rombytesize_2.value-0x200);
+                            //fclose(usefile_2); //usefile_2 is in diskSwap structure which should be deleted to close the file
+
+                            /* write cartridge data into ROM */
+                            for(i=0;i<rombytesize_2.value-0x200;i++) Memory.phys_writeb(romseg_pt+i,rombuf[i]);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    int romseg = 0;
+                    try {
+                        usefile_1.seek(0);
+                        usefile_1.read(rombuf, 0, 0x200);
+                        romseg=new Ptr(rombuf, 0).readw(0x1ce);
+
+                        /* read cartridge data into buffer */
+                        usefile_1.seek(0x200);
+                        usefile_1.read(rombuf, 0, (int)rombytesize_1.value-0x200);
+
+                        //fclose(usefile_1); //usefile_1 is in diskSwap structure which should be deleted to close the file
+
+                        /* write cartridge data into ROM */
+                        for(i=0;i<rombytesize_1.value-0x200;i++) Memory.phys_writeb((romseg << 4)+i,rombuf[i]);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    //Close cardridges
+                    for(int dct=0;dct<Bios_disk.MAX_SWAPPABLE_DISKS;dct++) {
+                        if (Bios_disk.diskSwap[dct] != null) {
+                            Bios_disk.diskSwap[dct].close();
+                            Bios_disk.diskSwap[dct] = null;
+                        }
+                    }
+
+
+                    if (cart_cmd.length()==0) {
+                        int old_int18=Memory.mem_readd(0x60);
+                        /* run cartridge setup */
+                        CPU_Regs.SegSet16DS(romseg);
+                        CPU_Regs.SegSet16ES(romseg);
+                        CPU_Regs.SegSet16SS(0x8000);
+                        CPU_Regs.reg_esp.dword=0xfffe;
+                        Callback.CALLBACK_RunRealFar(romseg,0x0003);
+
+                        int new_int18=Memory.mem_readd(0x60);
+                        if (old_int18!=new_int18) {
+                            /* boot cartridge (int18) */
+                            CPU_Regs.SegSet16CS(Memory.RealSeg(new_int18));
+                            CPU_Regs.reg_eip = Memory.RealOff(new_int18);
+                        }
+                    } else {
+                        if (cfound_at>0) {
+                            /* run cartridge setup */
+                            CPU_Regs.SegSet16DS(Dos.dos.psp());
+                            CPU_Regs.SegSet16ES(Dos.dos.psp());
+                            Callback.CALLBACK_RunRealFar(romseg,cfound_at);
+                        }
+                    }
                 }
             } else {
                 disable_umb_ems_xms();

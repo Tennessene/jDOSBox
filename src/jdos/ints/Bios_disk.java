@@ -48,6 +48,16 @@ public class Bios_disk {
         public /*Bit32u*/long sector_size;
         public /*Bit32u*/long heads,cylinders,sectors;
 
+        public void close() {
+            if (diskimg != null) {
+                try {
+                    diskimg.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         public /*Bit8u*/short Read_Sector(/*Bit32u*/long head,/*Bit32u*/long cylinder,/*Bit32u*/long sector,byte[] data) {
             /*Bit32u*/long sectnum;
 

@@ -798,7 +798,7 @@ public class Memory extends Module_base {
         }
     }
 
-    void PreparePCJRCartRom() {
+    static public void PreparePCJRCartRom() {
         /* Setup rom at 0xd0000-0xe0000 */
         for (/*Bitu*/int ct=0xd0;ct<0xe0;ct++) {
             memory.phandlers[ct] = rom_page_handler;

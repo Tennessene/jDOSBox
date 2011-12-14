@@ -155,9 +155,28 @@ public class VGA_draw {
 
     private static VGA_Line_Handler VGA_Draw_Linear_Line = new VGA_Line_Handler() {
         public int call(/*Bitu*/int vidstart, /*Bitu*/int line) {
-        // There is guaranteed extra memory past the wrap boundary. So, instead of using temporary
-        // storage just copy appropriate chunk from the beginning to the wrap boundary when needed.
             /*Bitu*/int offset = vidstart & VGA.vga.draw.linear_mask;
+
+            int ret = VGA.vga.draw.linear_base+offset;
+
+            // in case (vga.draw.line_length + offset) has bits set that
+            // are not set in the mask: ((x|y)!=y) equals (x&~y)
+            if (((VGA.vga.draw.line_length + offset) & ~VGA.vga.draw.linear_mask)!=0) {
+                // this happens, if at all, only once per frame (1 of 480 lines)
+                // in some obscure games
+                int end = (offset + VGA.vga.draw.line_length) & VGA.vga.draw.linear_mask;
+
+                // assuming lines not longer than 4096 pixels
+                int wrapped_len = end & 0xFFF;
+                int unwrapped_len = VGA.vga.draw.line_length-wrapped_len;
+
+                // unwrapped chunk: to top of memory block
+                Memory.host_memcpy(TempLine, ret, unwrapped_len);
+                // wrapped chunk: from base of memory block
+                Memory.host_memcpy(TempLine+unwrapped_len, VGA.vga.draw.linear_base,  wrapped_len);
+                ret = TempLine;
+            }
+
             if (VGA.vga.draw.linear_mask-offset < VGA.vga.draw.line_length)
                 Memory.host_memcpy(VGA.vga.draw.linear_base+VGA.vga.draw.linear_mask+1, VGA.vga.draw.linear_base, VGA.vga.draw.line_length);
             return VGA.vga.draw.linear_base+offset;

@@ -1075,7 +1075,7 @@ public class Instructions extends Table_ea {
     static public int DIMULW(int op2,int op3) {
         /*Bits*/int res=((/*Bit16s*/short)op2) * ((/*Bit16s*/short)op3);
         FillFlagsNoCFOF();
-        if ((res> -32768)  && (res<32767)) {
+        if ((res >= -32768)  && (res <= 32767)) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
         } else {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,true);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,true);
@@ -1086,8 +1086,7 @@ public class Instructions extends Table_ea {
     static public int DIMULD(int op2,int op3) {
         /*Bit64s*/long res=(long)op2*op3;
         FillFlagsNoCFOF();
-        if ((res>-((/*Bit64s*/long)(2147483647)+1)) &&
-            (res<(/*Bit64s*/long)2147483647)) {
+        if ((res >= -((/*Bit64s*/long)(2147483647)+1)) && (res <= (/*Bit64s*/long)2147483647)) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
         } else {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,true);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,true);

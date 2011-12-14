@@ -563,10 +563,22 @@ public class CPU extends Module_base {
         CPU_Regs.reg_esp.dword=new_esp;
     }
 
+    public static int CPU_Push16(int esp, /*Bitu*/int value) {
+        /*Bit32u*/int new_esp=(esp & cpu.stack.notmask) | ((esp - 2) & cpu.stack.mask);
+        Memory.mem_writew(Segs_SSphys + (new_esp & cpu.stack.mask) ,value & 0xFFFF);
+        return new_esp;
+    }
+
     public static void CPU_Push32(/*Bitu*/int value) {
         /*Bit32u*/int new_esp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword - 4) & cpu.stack.mask);
         Memory.mem_writed(Segs_SSphys + (new_esp & cpu.stack.mask) ,value);
         CPU_Regs.reg_esp.dword=new_esp;
+    }
+
+    public static int CPU_Push32(int esp, /*Bitu*/int value) {
+        /*Bit32u*/int new_esp=(esp & cpu.stack.notmask)|((esp - 4) & cpu.stack.mask);
+        Memory.mem_writed(Segs_SSphys + (new_esp & cpu.stack.mask) ,value);
+        return new_esp;
     }
 
     public static /*Bitu*/int CPU_Pop16() {
@@ -1017,17 +1029,23 @@ public class CPU extends Module_base {
 
         if (!cpu.pmode) {
             /* Save everything on a 16-bit stack */
-            CPU_Push16(CPU_Regs.flags & 0xffff);
-            CPU_Push16(Segs_CSval);
-            CPU_Push16(oldeip & 0xFFFF);
-            CPU_Regs.SETFLAGBIT(CPU_Regs.IF,false);
-            CPU_Regs.SETFLAGBIT(CPU_Regs.TF,false);
+            int esp = CPU_Push16(CPU_Regs.reg_esp.dword, CPU_Regs.flags & 0xffff);
+            esp = CPU_Push16(esp, Segs_CSval);
+            esp = CPU_Push16(esp, oldeip & 0xFFFF);
+
             /* Get the new CS:IP from vector table */
              /*PhysPt*/int base=cpu.idt.GetBase();
-            CPU_Regs.reg_eip=Memory.mem_readw(base+(num << 2));
+            int eip=Memory.mem_readw(base+(num << 2));
+
+            // do writes now since PF can not happen after this read
             Segs_CSval=Memory.mem_readw(base+(num << 2)+2);
             Segs_CSphys=Segs_CSval<<4;
             cpu.code.big=false;
+
+            CPU_Regs.SETFLAGBIT(CPU_Regs.IF,false);
+            CPU_Regs.SETFLAGBIT(CPU_Regs.TF,false);
+            CPU_Regs.reg_esp.dword = esp;
+            CPU_Regs.reg_eip = eip;
             return;
         } else {
             /* Protected Mode Interrupt */
@@ -1489,15 +1507,17 @@ public class CPU extends Module_base {
 
     public static void CPU_CALL(boolean use32, /*Bitu*/int selector, /*Bitu*/int offset, /*Bitu*/int oldeip) {
         if (!cpu.pmode || (CPU_Regs.flags & CPU_Regs.VM)!=0) {
+            int esp = CPU_Regs.reg_esp.dword;
             if (!use32) {
-                CPU_Push16(Segs_CSval);
-                CPU_Push16(oldeip & 0xFFFF);
+                esp = CPU_Push16(esp, Segs_CSval);
+                esp = CPU_Push16(esp, oldeip & 0xFFFF);
                 CPU_Regs.reg_eip=offset & 0xffff;
             } else {
-                CPU_Push32(Segs_CSval);
-                CPU_Push32(oldeip);
+                esp = CPU_Push32(esp, Segs_CSval);
+                esp = CPU_Push32(esp, oldeip);
                 CPU_Regs.reg_eip=offset;
             }
+            CPU_Regs.reg_esp.dword = esp; // don't set ESP until we are done with Memory Writes / CPU_Push so that we are reentrant
             cpu.code.big=false;
             CPU_Regs.SegSet16CS(selector);
         } else {
@@ -1505,6 +1525,8 @@ public class CPU extends Module_base {
              /*Bitu*/int rpl=selector & 3;
 
             boolean success = cpu.gdt.GetDescriptor(selector,call_4);
+            int esp;
+
             if (Config.C_DEBUG) CPU_CHECK_COND(!success, "CALL:CS beyond limits", EXCEPTION_GP,selector & 0xfffc);
             /* Check for type of far call */
             switch (call_4.Type()) {
@@ -1519,17 +1541,19 @@ public class CPU extends Module_base {
                     CPU_Exception(EXCEPTION_NP,selector & 0xfffc);
                     return;
                 }
+                esp = CPU_Regs.reg_esp.dword;
                 // commit point
                 if (!use32) {
-                    CPU_Push16(Segs_CSval);
-                    CPU_Push16(oldeip);
+                    esp = CPU_Push16(esp, Segs_CSval);
+                    esp = CPU_Push16(esp, oldeip);
                     CPU_Regs.reg_eip=offset & 0xffff;
                 } else {
-                    CPU_Push32(Segs_CSval);
-                    CPU_Push32(oldeip);
+                    esp = CPU_Push32(esp, Segs_CSval);
+                    esp = CPU_Push32(esp, oldeip);
                     CPU_Regs.reg_eip=offset;
                 }
-                Segs_CSphys=(int)call_4.GetBase();
+                CPU_Regs.reg_esp.dword = esp; // don't set ESP until we are done with Memory Writes / CPU_Push so that we are reentrant
+                Segs_CSphys=call_4.GetBase();
                 cpu.code.big=call_4.Big()>0;
                 Segs_CSval=(selector & 0xfffc) | cpu.cpl;
                 return;
@@ -1543,17 +1567,19 @@ public class CPU extends Module_base {
                     CPU_Exception(EXCEPTION_NP,selector & 0xfffc);
                     return;
                 }
+                esp = CPU_Regs.reg_esp.dword;
                 // commit point
                 if (!use32) {
-                    CPU_Push16(Segs_CSval);
-                    CPU_Push16(oldeip);
+                    esp = CPU_Push16(esp, Segs_CSval);
+                    esp = CPU_Push16(esp, oldeip);
                     CPU_Regs.reg_eip=offset & 0xffff;
                 } else {
-                    CPU_Push32(Segs_CSval);
-                    CPU_Push32(oldeip);
+                    esp = CPU_Push32(esp, Segs_CSval);
+                    esp = CPU_Push32(esp, oldeip);
                     CPU_Regs.reg_eip=offset;
                 }
-                Segs_CSphys=(int)call_4.GetBase();
+                CPU_Regs.reg_esp.dword = esp; // don't set ESP until we are done with Memory Writes / CPU_Push so that we are reentrant
+                Segs_CSphys=call_4.GetBase();
                 cpu.code.big=call_4.Big()>0;
                 Segs_CSval=(selector & 0xfffc) | cpu.cpl;
                 return;
@@ -1603,19 +1629,19 @@ public class CPU extends Module_base {
 
 
                             // catch pagefaults
-                            if ((call_4.saved.gate.paramcount() & 31)!=0) {
-                                if (call_4.Type()==DESC_386_CALL_GATE) {
-                                    for (/*Bits*/int i=(call_4.saved.gate.paramcount()&31)-1;i>=0;i--)
-                                        Memory.mem_readd(o_stack + i * 4);
-                                } else {
-                                    for (/*Bits*/int i=(call_4.saved.gate.paramcount()&31)-1;i>=0;i--)
-                                        Memory.mem_readw(o_stack+i*2);
-                                }
+                            int paramCount = call_4.saved.gate.paramcount() & 31;
+                            paramCount+=4; //o_ss, o_esp, params, oldcs, oldip
+                            if (call_4.Type()==DESC_386_CALL_GATE) {
+                                for (/*Bits*/int i=paramCount-1;i>=0;i--)
+                                    Memory.mem_readd(o_stack + i * 4);
+                            } else {
+                                for (/*Bits*/int i=paramCount-1;i>=0;i--)
+                                    Memory.mem_readw(o_stack+i*2);
                             }
 
                             // commit point
                             Segs_SSval=n_ss_sel_4.value;
-                            Segs_SSphys=(int)n_ss_desc_4.GetBase();
+                            Segs_SSphys=n_ss_desc_4.GetBase();
                             if (n_ss_desc_4.Big()!=0) {
                                 cpu.stack.big=true;
                                 cpu.stack.mask=0xffffffff;
@@ -1631,7 +1657,7 @@ public class CPU extends Module_base {
                             CPU_SetCPL(n_cs_desc_4.DPL());
                             /*Bit16u*/int oldcs    = Segs_CSval;
                             /* Switch to new CS:EIP */
-                            Segs_CSphys	= (int)n_cs_desc_4.GetBase();
+                            Segs_CSphys	= n_cs_desc_4.GetBase();
                             Segs_CSval	= (n_cs_sel & 0xfffc) | cpu.cpl;
                             cpu.code.big	= n_cs_desc_4.Big()>0;
                             CPU_Regs.reg_eip=n_eip;
@@ -1646,13 +1672,13 @@ public class CPU extends Module_base {
                                 CPU_Push32(oldcs);
                                 CPU_Push32(oldeip);
                             } else {
-                                CPU_Push16((int)o_ss);		//save old stack
+                                CPU_Push16(o_ss);		//save old stack
                                 CPU_Push16(o_esp & 0xFFFF);
                                 if ((call_4.saved.gate.paramcount() & 31)!=0)
                                     for (/*Bits*/int i=(call_4.saved.gate.paramcount() & 31)-1;i>=0;i--)
                                         CPU_Push16(Memory.mem_readw(o_stack+i*2));
-                                CPU_Push16((int)oldcs);
-                                CPU_Push16((int)(oldeip & 0xFFFFl));
+                                CPU_Push16(oldcs);
+                                CPU_Push16(oldeip & 0xFFFF);
                             }
 
                             break;
@@ -1662,13 +1688,15 @@ public class CPU extends Module_base {
                     case DESC_CODE_R_C_A:case DESC_CODE_R_C_NA:
                         // zrdx extender
 
+                        esp = CPU_Regs.reg_esp.dword;
                         if (call_4.Type()==DESC_386_CALL_GATE) {
-                            CPU_Push32(Segs_CSval);
-                            CPU_Push32(oldeip);
+                            esp = CPU_Push32(esp, Segs_CSval);
+                            esp = CPU_Push32(esp, oldeip);
                         } else {
-                            CPU_Push16((int)Segs_CSval);
-                            CPU_Push16((int)(oldeip & 0xFFFFl));
+                            esp = CPU_Push16(esp, Segs_CSval);
+                            esp = CPU_Push16(esp, oldeip & 0xFFFF);
                         }
+                        CPU_Regs.reg_esp.dword = esp; // don't set ESP until we are done with Memory Writes / CPU_Push so that we are reentrant
 
                         /* Switch to new CS:EIP */
                         Segs_CSphys	= (int)n_cs_desc_4.GetBase();

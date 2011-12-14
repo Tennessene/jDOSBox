@@ -999,8 +999,17 @@ public class Inst3 extends Helper {
     final static public class Pushad extends Op {
         public int call() {
             /*Bitu*/int tmpesp = reg_esp.dword;
-            CPU.CPU_Push32(reg_eax.dword);CPU.CPU_Push32(reg_ecx.dword);CPU.CPU_Push32(reg_edx.dword);CPU.CPU_Push32(reg_ebx.dword);
-            CPU.CPU_Push32(tmpesp);CPU.CPU_Push32(reg_ebp.dword);CPU.CPU_Push32(reg_esi.dword);CPU.CPU_Push32(reg_edi.dword);
+            int esp = reg_esp.dword;
+            esp = CPU.CPU_Push32(esp, reg_eax.dword);
+            esp = CPU.CPU_Push32(esp, reg_ecx.dword);
+            esp = CPU.CPU_Push32(esp, reg_edx.dword);
+            esp = CPU.CPU_Push32(esp, reg_ebx.dword);
+            esp = CPU.CPU_Push32(esp, tmpesp);
+            esp = CPU.CPU_Push32(esp, reg_ebp.dword);
+            esp = CPU.CPU_Push32(esp, reg_esi.dword);
+            esp = CPU.CPU_Push32(esp, reg_edi.dword);
+            // Don't store ESP until all the memory writes are done in case of a PF so that this op can be reentrant
+            reg_esp.word(esp);
             return Constants.BR_Normal;
         }
 
@@ -2624,8 +2633,9 @@ public class Inst3 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
+            int val = Memory.mem_readd(eaa); // make sure all reads are done before writing something in case of a PF
             if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
-            rd.dword=Memory.mem_readd(eaa);
+            rd.dword=val;
             return Constants.BR_Normal;
         }
 
@@ -2649,8 +2659,9 @@ public class Inst3 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
+            int val = Memory.mem_readd(eaa); // make sure all reads are done before writing something in case of a PF
             if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
-            rd.dword=Memory.mem_readd(eaa);
+            rd.dword=val;
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;

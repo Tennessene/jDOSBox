@@ -1871,8 +1871,17 @@ public class Inst1 extends Helper {
     final static public class Pusha extends Op {
         public int call() {
             /*Bit16u*/int old_sp=reg_esp.word();
-            CPU.CPU_Push16(reg_eax.word());CPU.CPU_Push16(reg_ecx.word());CPU.CPU_Push16(reg_edx.word());CPU.CPU_Push16(reg_ebx.word());
-            CPU.CPU_Push16(old_sp);CPU.CPU_Push16(reg_ebp.word());CPU.CPU_Push16(reg_esi.word());CPU.CPU_Push16(reg_edi.word());
+            int esp = reg_esp.dword;
+            esp = CPU.CPU_Push16(esp, reg_eax.word());
+            esp = CPU.CPU_Push16(esp, reg_ecx.word());
+            esp = CPU.CPU_Push16(esp, reg_edx.word());
+            esp = CPU.CPU_Push16(esp, reg_ebx.word());
+            esp = CPU.CPU_Push16(esp, old_sp);
+            esp = CPU.CPU_Push16(esp, reg_ebp.word());
+            esp = CPU.CPU_Push16(esp, reg_esi.word());
+            esp = CPU.CPU_Push16(esp, reg_edi.word());
+            // Don't store ESP until all the memory writes are done in case of a PF so that this op can be reentrant
+            reg_esp.word(esp);
             return Constants.BR_Normal;
         }
 
@@ -4550,8 +4559,9 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
+            int val = Memory.mem_readw(eaa); // make sure all reads are done before writing something in case of a PF
             if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
-            rw.word(Memory.mem_readw(eaa));
+            rw.word(val);
             return Constants.BR_Normal;
         }
 
@@ -4575,8 +4585,9 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
+            int val = Memory.mem_readw(eaa); // make sure all reads are done before writing something in case of a PF
             if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
-            rw.word(Memory.mem_readw(eaa));
+            rw.word(val);
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_val_ds= CPU_Regs.ds;
             return Constants.BR_Normal;

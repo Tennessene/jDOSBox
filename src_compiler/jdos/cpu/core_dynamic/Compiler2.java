@@ -1313,7 +1313,7 @@ public class Compiler2 extends Compiler {
             case 0x260: // PUSHAD
                 if (op instanceof Inst3.Pushad) {
                     Inst3.Pushad o = (Inst3.Pushad) op;
-                    method.append("int tmpesp = CPU_Regs.reg_esp.dword;CPU.CPU_Push32(CPU_Regs.reg_eax.dword);CPU.CPU_Push32(CPU_Regs.reg_ecx.dword);CPU.CPU_Push32(CPU_Regs.reg_edx.dword);CPU.CPU_Push32(CPU_Regs.reg_ebx.dword);CPU.CPU_Push32(tmpesp);CPU.CPU_Push32(CPU_Regs.reg_ebp.dword);CPU.CPU_Push32(CPU_Regs.reg_esi.dword);CPU.CPU_Push32(CPU_Regs.reg_edi.dword);");
+                    method.append("int tmpesp = CPU_Regs.reg_esp.dword;int esp = CPU_Regs.reg_esp.dword;esp = CPU.CPU_Push32(esp, CPU_Regs.reg_eax.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ecx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ebx.dword);esp = CPU.CPU_Push32(esp, tmpesp);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ebp.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_esi.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edi.dword);CPU_Regs.reg_esp.word(esp);");
                     return true;
                 }
                 break;
@@ -2633,9 +2633,10 @@ public class Compiler2 extends Compiler {
                     Inst3.Les32 o = (Inst3.Les32) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
+                    // make sure all reads are done before writing something in case of a PF
+                    method.append(";int val=Memory.mem_readd(eaa);if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
                     method.append(nameGet32(o.rd));
-                    method.append("=Memory.mem_readd(eaa);");
+                    method.append("=val;");
                     return true;
                 }
                 break;
@@ -2644,9 +2645,10 @@ public class Compiler2 extends Compiler {
                     Inst3.Lds32 o = (Inst3.Lds32) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append("; if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
+                    // make sure all reads are done before writing something in case of a PF
+                    method.append(";int val=Memory.mem_readd(eaa); if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
                     method.append(nameGet32(o.rd));
-                    method.append("=Memory.mem_readd(eaa);Core.base_ds=CPU.Segs_DSphys;Core.base_val_ds= CPU_Regs.ds;");
+                    method.append("=val;Core.base_ds=CPU.Segs_DSphys;Core.base_val_ds= CPU_Regs.ds;");
                     return true;
                 }
                 break;

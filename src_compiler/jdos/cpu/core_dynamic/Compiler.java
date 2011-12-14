@@ -1700,7 +1700,7 @@ public class Compiler extends Helper {
             case 0x60: // PUSHA
                 if (op instanceof Inst1.Pusha) {
                     Inst1.Pusha o = (Inst1.Pusha) op;
-                    method.append("int old_sp=CPU_Regs.reg_esp.word();CPU.CPU_Push16(CPU_Regs.reg_eax.word());CPU.CPU_Push16(CPU_Regs.reg_ecx.word());CPU.CPU_Push16(CPU_Regs.reg_edx.word());CPU.CPU_Push16(CPU_Regs.reg_ebx.word());CPU.CPU_Push16(old_sp);CPU.CPU_Push16(CPU_Regs.reg_ebp.word());CPU.CPU_Push16(CPU_Regs.reg_esi.word());CPU.CPU_Push16(CPU_Regs.reg_edi.word());");
+                    method.append("int old_sp=CPU_Regs.reg_esp.word();int esp = CPU_Regs.reg_esp.dword;esp = CPU.CPU_Push16(esp, CPU_Regs.reg_eax.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ecx.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_edx.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ebx.word());esp = CPU.CPU_Push16(esp, old_sp);esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ebp.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_esi.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_edi.word());CPU_Regs.reg_esp.word(esp);");
                     return true;
                 }
                 break;
@@ -3430,8 +3430,9 @@ public class Compiler extends Helper {
                     Inst1.Les o = (Inst1.Les) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();");
-                    method.append(nameSet16(o.rw, "Memory.mem_readw(eaa)"));
+                    // make sure all reads are done before writing something in case of a PF
+                    method.append(";int val=Memory.mem_readw(eaa);if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();");
+                    method.append(nameSet16(o.rw, "val"));
                     method.append(";");
                     return true;
                 }
@@ -3441,8 +3442,9 @@ public class Compiler extends Helper {
                     Inst1.Lds o = (Inst1.Lds) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();");
-                    method.append(nameSet16(o.rw, "Memory.mem_readw(eaa)"));
+                    // make sure all reads are done before writing something in case of a PF
+                    method.append(";int val=Memory.mem_readw(eaa);if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();");
+                    method.append(nameSet16(o.rw, "val"));
                     method.append(";Core.base_ds=CPU.Segs_DSphys;Core.base_val_ds= CPU_Regs.ds;");
                     return true;
                 }

@@ -7,12 +7,11 @@ import jdos.util.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
 
 public class Drive_local extends Dos_Drive {
-    static protected class localFile extends DOS_File {
-        public localFile(String name, FileIO handle) {
+    static public class localFile extends DOS_File {
+        public localFile(String machinePath, String name, FileIO handle) {
             fhandle=handle;
             open=true;
             UpdateDateTimeFromHost();
@@ -20,8 +19,12 @@ public class Drive_local extends Dos_Drive {
             last_action=Last_action.NONE;
             read_only_medium=false;
             SetName(name);
+            this.machinePath = machinePath;
         }
 
+        public String GetPath() {
+            return machinePath;
+        }
         public boolean Read(byte[] data,/*Bit16u*/IntRef size) {
             if ((this.flags & 0xf) == Dos_files.OPEN_WRITE) {	// check if file opened in write-only mode
                 Dos.DOS_SetError(Dos.DOSERR_ACCESS_DENIED);
@@ -128,6 +131,7 @@ public class Drive_local extends Dos_Drive {
             public static final int WRITE=2;
         }
         private int last_action;
+        private String machinePath;
     }
 
     public Drive_local(String startdir,/*Bit16u*/int _bytes_sector,/*Bit8u*/short _sectors_cluster,/*Bit16u*/int _total_clusters,/*Bit16u*/int _free_clusters,/*Bit8u*/short _mediaid) {
@@ -180,7 +184,7 @@ public class Drive_local extends Dos_Drive {
 
         try {
             FileIO raf = FileIOFactory.open(newname.value, type);
-            DOS_File file = new localFile(name, raf);
+            DOS_File file = new localFile(newname.value, name, raf);
             file.flags = flags;
             return file;
         } catch (FileNotFoundException e) {
@@ -203,7 +207,7 @@ public class Drive_local extends Dos_Drive {
             FileIO hand=FileIOFactory.open(temp_name,FileIOFactory.MODE_READ|FileIOFactory.MODE_WRITE|FileIOFactory.MODE_TRUNCATE);
             if(!existing_file) dirCache.AddEntry(newname, true);
             /* Make the 16 bit device information */
-            DOS_File file=new localFile(name,hand);
+            DOS_File file=new localFile(temp_name,name,hand);
             file.flags=Dos_files.OPEN_READWRITE;
             return file;
         } catch (Exception e) {

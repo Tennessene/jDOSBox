@@ -20,12 +20,13 @@ import java.util.Arrays;
 
 public class Memory extends Module_base {
     public static final int MEM_PAGESIZE = 4096;
+    public static int MEM_SIZE = 0;
     static final int EXTRA_MEM = 8196;
 
     //private static final int MEMBASE = 1; // can't use zero
     static int highwaterMark;
     static Ptr host_memory;
-    static private int[] direct;
+    static public int[] direct;
     
     public static int allocate(int size) {
         int result = highwaterMark;
@@ -110,6 +111,11 @@ public class Memory extends Module_base {
           index++;
           local[index] = (local[index] & mask) | (val >>> (32-off));
         }
+    }
+
+    static public void host_memcpy(int dest, byte[] src, int srcOffset, /*Bitu*/int size) {
+        for (int i=0;i<size;i++)
+            host_writeb(dest++, src[srcOffset++]);
     }
 
     static public void host_memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
@@ -438,6 +444,18 @@ public class Memory extends Module_base {
 
     static public void mem_memcpy(/*PhysPt*/int dest,/*PhysPt*/int src,/*Bitu*/int size) {
         while (size-- !=0) Paging.mem_writeb_inline(dest++,Paging.mem_readb_inline(src++));
+    }
+
+    static public void mem_memcpy(byte[] dest, int destOffset, /*PhysPt*/int src,/*Bitu*/int size) {
+        while (size-- !=0) dest[destOffset++]=(byte)Paging.mem_readb_inline(src++);
+    }
+
+    static public void mem_memcpy(/*PhysPt*/int dest, byte[] src, int srcOffset, /*Bitu*/int size) {
+        while (size-- !=0) Paging.mem_writeb_inline(dest++, src[srcOffset++]);
+    }
+
+    static public void mem_zero(int dest, int len) {
+        while (len-- != 0) Paging.mem_writeb_inline(dest++, (short)0);
     }
 
     static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,int offset, /*Bitu*/int size) {
@@ -840,6 +858,7 @@ public class Memory extends Module_base {
                 Log.log_msg("Memory sizes above "+(SAFE_MEMORY - 1)+" MB are NOT recommended.");
                 Log.log_msg("Stick with the default values unless you are absolutely certain.");
             }
+            MEM_SIZE = memsize;
             try {
                 Runtime.getRuntime().gc();
                 highwaterMark = memsize*1024*1024;

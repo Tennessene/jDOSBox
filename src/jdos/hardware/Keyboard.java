@@ -460,17 +460,19 @@ public class Keyboard {
             break;
         }
         /* Add the actual key in the keyboard queue */
-        if (pressed) {
-            if (keyb.repeat.key==keytype) keyb.repeat.wait=keyb.repeat.rate;
-            else keyb.repeat.wait=keyb.repeat.pause;
-            keyb.repeat.key=keytype;
-        } else {
-            keyb.repeat.key=KBD_KEYS.KBD_NONE;
-            keyb.repeat.wait=0;
-            ret+=128;
+        if (keyb != null) { // keyb is  null when WINE is running
+            if (pressed) {
+                if (keyb.repeat.key==keytype) keyb.repeat.wait=keyb.repeat.rate;
+                else keyb.repeat.wait=keyb.repeat.pause;
+                keyb.repeat.key=keytype;
+            } else {
+                keyb.repeat.key=KBD_KEYS.KBD_NONE;
+                keyb.repeat.wait=0;
+                ret+=128;
+            }
+            if (extend) KEYBOARD_AddBuffer(0xe0);
+            KEYBOARD_AddBuffer(ret);
         }
-        if (extend) KEYBOARD_AddBuffer(0xe0);
-        KEYBOARD_AddBuffer(ret);
     }
 
     static private Timer.TIMER_TickHandler KEYBOARD_TickHandler = new Timer.TIMER_TickHandler() {
@@ -484,6 +486,14 @@ public class Keyboard {
 
     public static Section.SectionFunction KEYBOARD_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
+            IoHandler.IO_FreeWriteHandler(0x60,IoHandler.IO_MB);
+            IoHandler.IO_FreeReadHandler(0x60,IoHandler.IO_MB);
+            IoHandler.IO_FreeWriteHandler(0x61,IoHandler.IO_MB);
+            IoHandler.IO_FreeReadHandler(0x61,IoHandler.IO_MB);
+            IoHandler.IO_FreeWriteHandler(0x64,IoHandler.IO_MB);
+            IoHandler.IO_FreeReadHandler(0x64,IoHandler.IO_MB);
+            Timer.TIMER_DelTickHandler(KEYBOARD_TickHandler);
+            KEYBOARD_ClrBuffer();
             keyb = null;
         }
     };
@@ -509,7 +519,8 @@ public class Keyboard {
             keyb.repeat.rate=33;
             keyb.repeat.wait=0;
             KEYBOARD_ClrBuffer();
-            section.AddDestroyFunction(KEYBOARD_ShutDown,false);
+            if (section != null)
+                section.AddDestroyFunction(KEYBOARD_ShutDown,false);
         }
     };
 }

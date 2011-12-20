@@ -5,6 +5,7 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.cpu.Core_normal;
+import jdos.dos.drives.Drive_local;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
@@ -16,6 +17,8 @@ import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.Ptr;
 import jdos.util.StringRef;
+
+import java.lang.reflect.Method;
 
 public class Dos_execute {
     static public String RunningProgram="DOSBOX";
@@ -259,6 +262,32 @@ public class Dos_execute {
         psp.SetCommandTail(block.exec.cmdtail);
     }
 
+    static private Method winMethod = null;
+    static private boolean loadedWinMethod = false;
+    static private boolean winRun(String path) {
+        if (!loadedWinMethod) {
+            try {
+                Class c = Class.forName("jdos.win.Win");
+                winMethod = c.getDeclaredMethod("run", new Class[] {String.class});
+                System.out.println("Win32 support available");
+            } catch (Exception e) {
+                System.out.println("Win32 support not available");
+            } finally {
+                loadedWinMethod = true;
+            }
+        }
+        if (winMethod != null) {
+            try {
+                Object result = winMethod.invoke(null, new Object[]{path});
+                return ((Boolean)result).booleanValue();
+            } catch (Exception e) {
+                e.printStackTrace();
+                loadedWinMethod = true;
+                winMethod = null;
+            }
+        }
+        return false;
+    }
     static public boolean DOS_Execute(String name,/*PhysPt*/int block_pt,/*Bit8u*/short flags) {
         EXE_Header head=new EXE_Header();/*Bitu*/int i;
         /*Bit16u*/IntRef fhandle=new IntRef(0);
@@ -281,6 +310,13 @@ public class Dos_execute {
         if (!Dos_files.DOS_OpenFile(name,Dos_files.OPEN_READ,fhandle)) {
             Dos.DOS_SetError(Dos.DOSERR_FILE_NOT_FOUND);
             return false;
+        }
+        if (Dos_files.Files[Dos.RealHandle(fhandle.value)] instanceof Drive_local.localFile) {
+            String path = ((Drive_local.localFile)Dos_files.Files[Dos.RealHandle(fhandle.value)]).GetPath();
+            if (winRun(path)) {
+                Dos_files.DOS_CloseFile(fhandle.value);
+                return true;
+            }
         }
         IntRef len=new IntRef(EXE_Header.size);
         byte[] hd = new byte[len.value];

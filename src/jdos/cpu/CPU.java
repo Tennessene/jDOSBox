@@ -587,6 +587,10 @@ public class CPU extends Module_base {
         return val;
     }
 
+    public static int CPU_Peek32(int index) {
+        return Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword+index*4 & cpu.stack.mask));
+    }
+
     public static /*Bitu*/int CPU_Pop32() {
         /*Bitu*/int val=Memory.mem_readd(Segs_SSphys + (CPU_Regs.reg_esp.dword & cpu.stack.mask));
         CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|((CPU_Regs.reg_esp.dword + 4)&cpu.stack.mask);

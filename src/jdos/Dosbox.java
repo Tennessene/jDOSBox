@@ -173,7 +173,7 @@ public class Dosbox {
         loop=handler;
     }
 
-    static private void DOSBOX_SetNormalLoop() {
+    static public void DOSBOX_SetNormalLoop() {
         loop=Normal_Loop;
     }
 

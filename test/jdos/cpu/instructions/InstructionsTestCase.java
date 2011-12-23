@@ -5,6 +5,7 @@ import jdos.cpu.core_dynamic.Compiler;
 import jdos.cpu.core_dynamic.DecodeBlock;
 import jdos.cpu.core_dynamic.Mod;
 import jdos.hardware.Memory;
+import jdos.hardware.Pic;
 import jdos.misc.setup.*;
 import junit.framework.TestCase;
 
@@ -647,9 +648,12 @@ abstract public class InstructionsTestCase extends TestCase {
         Pint = cpu_prop.Add_int("cycledown",Property.Changeable.Always,20);
         Pint.SetMinMax(1,1000000);
 
+        dosbox_prop.Add_int("memsize", Property.Changeable.OnlyAtStart, 4);
+
         Paging.PAGING_Init.call(dosbox_prop);
         Memory.MEM_Init.call(dosbox_prop);
         CPU.CPU_Init.call(cpu_prop);
+        Pic.PIC_Init.call(null);
         clearReg();
         CPU.cpu.code.big = false;
         CPU.cpu.pmode = false;

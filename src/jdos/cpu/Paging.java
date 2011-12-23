@@ -27,7 +27,7 @@ public class Paging extends Module_base {
     static public final int BANK_MASK = 0xffff; // always the same as TLB_SIZE-1?
     static public final int TLB_BANKS;
 
-    static public final int LINK_START = ((1024 + 64) / 4); //Start right after the HMA
+    static public int LINK_START = ((1024 + 64) / 4); //Start right after the HMA
 
     static public final int INVALID_ADDRESS = 0xFFFFFFFF;
 
@@ -906,7 +906,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                     // Read the paging stuff, throw not present exceptions if needed
                     // and find out how the page should be mapped
                     /*PhysPt*/int dirEntryAddr = GetPageDirectoryEntryAddr(lin_addr);
-                    dir_entry.load((int)Memory.phys_readd(dirEntryAddr));
+                    dir_entry.load(Memory.phys_readd(dirEntryAddr));
 
                     if (dir_entry.block.p==0) {
                         // table pointer is not present, do a page fault
@@ -916,7 +916,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                         else continue; //goto initpage_retry; // TODO maybe E_Exit after a few loops
                     }
                     /*PhysPt*/int tableEntryAddr = GetPageTableEntryAddr(lin_addr, dir_entry);
-                    table_entry.load((int)(Memory.phys_readd(tableEntryAddr)));
+                    table_entry.load(Memory.phys_readd(tableEntryAddr));
 
                     // set page table accessed (IA manual: A is set whenever the entry is
                     // used in a page translation)
@@ -1330,7 +1330,8 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
     public static Section.SectionFunction PAGING_Init = new Section.SectionFunction() {
         public void call(Section section) {
             test = new Paging(section);
-            section.AddDestroyFunction(PAGING_ShutDown);
+            if (section != null)
+                section.AddDestroyFunction(PAGING_ShutDown);
         }
     };
 }

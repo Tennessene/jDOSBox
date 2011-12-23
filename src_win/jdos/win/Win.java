@@ -3,11 +3,14 @@ package jdos.win;
 import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.Core_normal;
+import jdos.cpu.Paging;
 import jdos.dos.Dos_files;
 import jdos.hardware.Keyboard;
 import jdos.hardware.Memory;
+import jdos.hardware.Pic;
 import jdos.misc.setup.Section;
 import jdos.util.StringRef;
+import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.HeaderPE;
 import jdos.win.utils.CpuState;
 import jdos.win.utils.Path;
@@ -28,7 +31,12 @@ public class Win {
     static private CpuState cpu = null;
     static private int[] saveDosMemory;
 
+    public static void panic(String msg) {
+        Console.out("PANIC: "+msg);
+        Win.exit();
+    }
     public static void exit() {
+        WinCallback.doIdle();
         WinSystem.exit();
         Keyboard.KEYBOARD_Init.call(null);
         cpu.load();
@@ -70,10 +78,34 @@ public class Win {
         saveDosMemory = new int[1024*256];
         System.arraycopy(Memory.direct, 0, saveDosMemory, 0, saveDosMemory.length);
 
+        // This references old callbacks, like video card timers, etc
+        Pic.PIC_Destroy.call(null);
+        Pic.PIC_Init.call(null);
+
+        // Remove special handling of the first 1MB
+        Paging.PAGING_ShutDown.call(null);
+        Paging.LINK_START = 0;
+        Paging.PAGING_Init.call(null);
+
+        Memory.clear();
+
+        Keyboard.KEYBOARD_ShutDown.call(null);
+        CPU.cpu.code.big = true;
+
+        CPU.CPU_SetSegGeneralCS(0);
+        CPU.CPU_SetSegGeneralDS(0);
+        CPU.CPU_SetSegGeneralES(0);
+        CPU.CPU_SetSegGeneralFS(0);
+        CPU.CPU_SetSegGeneralGS(0);
+        CPU.CPU_SetSegGeneralSS(0);
+
+        CPU.CPU_SET_CRX(0, CPU.cpu.cr0 |= CPU.CR0_PROTECTION);
+        CPU.cpu.pmode = true;
+        CPU.Segs_CSval = 0x08;
+
         WinSystem.start();
+
         if (WinSystem.createProcess(name, null, paths) > 0) {
-            CPU.cpu.code.big = true;
-            Keyboard.KEYBOARD_ShutDown.call(null);
             return true;
         }
         return true;

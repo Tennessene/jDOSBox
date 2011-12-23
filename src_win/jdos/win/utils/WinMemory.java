@@ -32,17 +32,16 @@ public class WinMemory {
     public WinMemory(Heap heap) {
         this.heap = heap;
         heapHandle = heap.createHeap(0, 0);
+        //initialise_paging();
     }
 
     public int virtualAlloc(int address, int size, int flags, int protect) {
-        int result = 0;
-
         if ((flags & MEM_RESERVE) != 0) {
             address = heap.allocateHeap(heapHandle, size);
         }
         if ((flags & MEM_COMMIT) != 0) {
-            for (int i=0;i<size;i++)
-                Memory.mem_writeb(address+i, 0);
+            for (int i = 0; i < size; i++)
+                Memory.mem_writeb(address + i, 0);
         }
         return address;
     }

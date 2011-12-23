@@ -36,7 +36,7 @@ public class Callback {
     static public final int CB_IPXESR_RET=19;
 	static public final int CB_INT21=20;
 
-    static public final int CB_MAX = 1024;
+    static public final int CB_MAX = 128;
     static public final int CB_SIZE = 32;
     static public final int CB_SEG = 0xF000;
     static public final int CB_SOFFSET = 0x1000;
@@ -73,7 +73,7 @@ public class Callback {
         return 0;
     }
 
-    public static void CALLBACK_DeAllocate(/*Bitu*/int in) {
+    private static void CALLBACK_DeAllocate(/*Bitu*/int in) {
         CallBack_Handlers[in]=illegal_handler;
     }
 

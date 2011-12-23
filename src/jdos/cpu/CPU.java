@@ -59,7 +59,7 @@ public class CPU extends Module_base {
     public static final int CR0_TASKSWITCH=0x00000008;
     public static final int CR0_FPUPRESENT=0x00000010;
     public static final int CR0_WRITEPROTECT=0x00010000;
-    public static final long CR0_PAGING=0x80000000l;
+    public static final int CR0_PAGING=0x80000000;
 
     // *********************************************************************
     // Descriptor

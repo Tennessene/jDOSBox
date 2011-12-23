@@ -6,6 +6,7 @@ import jdos.util.LongRef;
 import jdos.util.StringRef;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.WinAPI;
+import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
 
@@ -16,7 +17,6 @@ public class BuiltinModule extends Module {
     private Hashtable functions = new Hashtable();
     private String name;
     private String fileName;
-    private Vector callbacks = new Vector();
     private Hashtable registeredCallbacks = new Hashtable();
 
     public BuiltinModule(String name, int handle) {
@@ -52,9 +52,7 @@ public class BuiltinModule extends Module {
             }
         }
         if (handler != null) {
-            int cb = Callback.CALLBACK_Allocate();
-            Callback.CallBack_Handlers[cb] = handler;
-            callbacks.add(new Integer(cb));
+            int cb = WinCallback.addCallback(handler);
             int address =  Loader.registerFunction(cb);
             registeredCallbacks.put(functionName, new Integer(address));
             return address;
@@ -69,11 +67,7 @@ public class BuiltinModule extends Module {
     }
 
     public void unload() {
-        for (int i=0;i<callbacks.size();i++) {
-            Callback.CALLBACK_DeAllocate(((Integer)callbacks.elementAt(i)).intValue());
-        }
         functions.clear();
-        callbacks.clear();
     }
 
     public boolean RtlImageDirectoryEntryToData(int dir, LongRef address, LongRef size) {

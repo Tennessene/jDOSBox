@@ -593,7 +593,8 @@ public class Pic extends Module_base {
             for (int i=0;i<pics.length;i++)
                 pics[i] = new PIC_Controller();
             test = new Pic(section);
-            section.AddDestroyFunction(PIC_Destroy);
+            if (section!=null)
+                section.AddDestroyFunction(PIC_Destroy);
         }
     };
 }

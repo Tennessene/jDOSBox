@@ -1,5 +1,8 @@
 package jdos.win.utils;
 
+import jdos.cpu.CPU_Regs;
+import jdos.win.kernel.*;
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -10,12 +13,30 @@ public class WinSystem {
 
     static private int nextProcessId;
     static private int nextThreadId;
+    static private WinCallback callbacks;
+    static private KernelMemory memory;
+    static private DescriptorTables descriptorTables;
+    static public Interrupts interrupts;
+    static public Timer timer;
 
     static public void start() {
         nextProcessId = 0x2000;
         nextThreadId = 0x3000;
         scheduler = new Scheduler();
         processes = new Hashtable();
+
+        memory = new KernelMemory();
+        WinCallback.start(memory);
+        interrupts = new Interrupts(memory);
+        descriptorTables = new DescriptorTables(interrupts, memory);
+        timer = new Timer(50); // 50MHz timer
+
+        final int stackSize = 16*1024;
+        int stackEnd = memory.kmalloc(stackSize);
+        CPU_Regs.reg_esp.dword = stackEnd+stackSize;
+
+        //memory.registerPageFault(interrupts);
+        //memory.initialise_paging();
     }
 
     static public void exit() {
@@ -27,6 +48,7 @@ public class WinSystem {
         scheduler = null;
         processes = null;
     }
+
     static public WinProcess getCurrentProcess() {
         return scheduler.getCurrentThread().getProcess();
     }

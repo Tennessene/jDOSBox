@@ -458,6 +458,10 @@ public class Memory extends Module_base {
         while (len-- != 0) Paging.mem_writeb_inline(dest++, (short)0);
     }
 
+    static public void phys_zero(int dest, int len) {
+        while (len-- != 0) host_writeb(dest++, (short)0);
+    }
+
     static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,int offset, /*Bitu*/int size) {
         for (int i=0;i<size;i++) {
             short v1 = Paging.mem_readb_inline(pt++);
@@ -902,6 +906,13 @@ public class Memory extends Module_base {
             MEM_A20_Enable(false);
     }
 
+    static public void clear() {
+        for (int i = 0;i < memory.pages;i++) {
+            memory.phandlers[i] = ram_page_handler;
+            memory.mhandles[i] = 0;				//Set to 0 for memory allocation
+        }
+        memory.links.used = 0;
+    }
     static Memory test;
     public static Section.SectionFunction MEM_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {

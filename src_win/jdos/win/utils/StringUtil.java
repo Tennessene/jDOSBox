@@ -4,6 +4,8 @@ import jdos.cpu.CPU;
 import jdos.hardware.Memory;
 import jdos.win.loader.winpe.LittleEndianFile;
 
+import java.util.Vector;
+
 public class StringUtil {
     static public String format(String format, boolean wide, int argIndex) {
         int pos = format.indexOf('%');
@@ -313,5 +315,27 @@ public class StringUtil {
 
     static public char toupperW(char w) {
         return new Character(w).toString().toUpperCase().charAt(0);
+    }
+    static public String[] parseQuotedString(String s) {
+        s = s.trim();
+        Vector results = new Vector();
+        StringBuffer buffer = new StringBuffer();
+        boolean quote = false;
+
+        for (int i=0;i<s.length();i++) {
+            char c = s.charAt(i);
+            if (c == '\"') {
+                quote = !quote;
+            } else if (quote || c !=' ') {
+                buffer.append(c);
+            } else {
+                results.add(buffer.toString());
+                buffer = new StringBuffer();
+            }
+        }
+        results.add(buffer.toString());
+        String[] r = new String[results.size()];
+        results.copyInto(r);
+        return r;
     }
 }

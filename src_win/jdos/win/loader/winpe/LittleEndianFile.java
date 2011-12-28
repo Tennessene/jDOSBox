@@ -30,6 +30,12 @@ public class LittleEndianFile {
         return result.toString();
     }
 
+    public static void writeCString(int address, String s) {
+        byte[] b = s.getBytes();
+        Memory.mem_memcpy(address, b, 0, b.length);
+        Memory.mem_writeb(address+b.length, 0);
+    }
+
     public String readCString(int len) {
         StringBuffer result = new StringBuffer();
         for (int i=0;i<len && pos+1<=this.len;i++) {

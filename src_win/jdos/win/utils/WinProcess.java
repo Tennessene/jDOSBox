@@ -14,8 +14,8 @@ public class WinProcess extends WaitObject {
     private int nextStackAddress = 0xE0000000;
     private Heap heap;
     private int heapHandle;
-    private String[] args;
-    private int commandLine = 0;
+    private String commandLine;
+    private int commandLineA = 0;
     private int commandLineW = 0;
     private WinMemory memory;
     private int envHandle = 0;
@@ -23,15 +23,22 @@ public class WinProcess extends WaitObject {
     private Hashtable env = new Hashtable();
     private Loader loader;
     private Vector threads = new Vector();
+    public String currentWorkingDirectory;
+    public Vector paths;
 
     public boolean console = true;
     private NativeModule mainModule;
     public int page_directory;
     public KernelMemory kernelMemory;
-    public WinProcess(int handle, KernelMemory memory) {
+    public WinProcess(int handle, KernelMemory memory, String workingDirectory) {
         super(handle);
         page_directory = memory.createNewDirectory();
         this.kernelMemory = memory;
+        this.currentWorkingDirectory = workingDirectory;
+    }
+
+    public WinThread getMainThread() {
+        return (WinThread)threads.elementAt(0);
     }
 
     public int getStackAddress(int size) {
@@ -43,7 +50,9 @@ public class WinProcess extends WaitObject {
         kernelMemory.switch_page_directory(page_directory);
     }
 
-    public boolean load(String exe, String[] args, Vector paths) {
+    public boolean load(String exe, String commandLine, Vector paths) {
+        this.paths = paths;
+        this.commandLine = commandLine;
         // by now we should be running in this process' memory space
         this.heap = new Heap(new KernelHeap(kernelMemory, page_directory, 0x70000000, 0x70001000, 0x80000000, false, false));
         loader = new Loader(kernelMemory, page_directory, paths);
@@ -51,7 +60,6 @@ public class WinProcess extends WaitObject {
         if (mainModule == null)
             return false;
 
-        this.args = args;
         this.heapHandle = heap.createHeap(0, 0);
 
         memory = new WinMemory(heap);
@@ -84,6 +92,7 @@ public class WinProcess extends WaitObject {
     }
 
     public void exit() {
+        release();
         loader.unload();
         for (int i=0;i<threads.size();i++) {
             WinThread thread = (WinThread)threads.elementAt(i);
@@ -159,21 +168,19 @@ public class WinProcess extends WaitObject {
     }
 
     public int getCommandLine() {
-        if (commandLine == 0) {
-            String path = "'"+mainModule.getFileName(true)+"'";
-            commandLine = heap.allocateHeap(heapHandle, path.length()+1);
-            StringUtil.strcpy(commandLine, path);
+        if (commandLineA == 0) {
+            commandLineA = heap.allocateHeap(heapHandle, commandLine.length()+1);
+            StringUtil.strcpy(commandLineA, commandLine);
         }
-        return commandLine;
+        return commandLineA;
     }
 
     public int getCommandLineW() {
         if (commandLineW == 0) {
-            String path = mainModule.getFileName(true);
-            commandLineW = heap.allocateHeap(heapHandle, path.length()+1);
-            StringUtil.strcpy(commandLineW, path);
+            commandLineW = heap.allocateHeap(heapHandle, commandLine.length()+1);
+            StringUtil.strcpy(commandLineW, commandLine);
         }
-        return commandLine;
+        return commandLineW;
     }
     public Heap getHeap() {
         return heap;

@@ -56,7 +56,12 @@ public class WinSystem {
     }
 
     static public WinProcess getCurrentProcess() {
-        return scheduler.getCurrentThread().getProcess();
+        if (scheduler != null) {
+            WinThread currentThread = scheduler.getCurrentThread();
+            if (currentThread!=null)
+                return currentThread.getProcess();
+        }
+        return null;
     }
 
     static public WinThread getCurrentThread() {
@@ -64,19 +69,23 @@ public class WinSystem {
     }
 
     static public WinThread createThread(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve) {
-        WinThread thread = new WinThread(nextObjectId++, process, startAddress, stackSizeCommit, stackSizeCommit);
+        WinThread thread = new WinThread(nextObjectId++, process, startAddress, stackSizeCommit, stackSizeReserve);
         scheduler.addThread(thread);
         objects.put(new Integer(thread.handle), thread);
         return thread;
     }
 
-    static public int createProcess(String path, String[] args, Vector paths) {
-        WinProcess process = new WinProcess(nextObjectId++, memory);
+    static public WinProcess createProcess(String path, String commandLine, Vector paths, String workingDirectory) {
+        WinProcess currentProcess = WinSystem.getCurrentProcess();
+        WinProcess process = new WinProcess(nextObjectId++, memory, workingDirectory);
         process.switchPageDirectory();
-        if (!process.load(path, args, paths))
-            return 0;
+        if (!process.load(path, commandLine, paths))
+            return null;
         objects.put(new Integer(process.handle), process);
         processes.put(new Integer(process.getHandle()), process);
-        return process.getHandle();
+        if (currentProcess != null) {
+            currentProcess.switchPageDirectory();
+        }
+        return process;
     }
 }

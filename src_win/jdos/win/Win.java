@@ -93,7 +93,7 @@ public class Win {
         CPU.Segs_CSval = 0x08;
 
         WinSystem.start();
-        if (WinSystem.createProcess(name, null, paths) > 0) {
+        if (WinSystem.createProcess(name, winPath+name, paths, winPath) != null) {
             return true;
         }
         return true;

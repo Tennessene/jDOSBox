@@ -33,8 +33,10 @@ public class Kernel32 extends BuiltinModule {
         files.put(new Integer(STD_IN), new File(File.FILE_TYPE_CHAR, STD_IN));
         files.put(new Integer(STD_ERROR), new File(File.FILE_TYPE_CHAR, STD_ERROR));
 
+        add(CloseHandle);
         add(CreateFileMappingA);
         add(CreateFileMappingW);
+        add(CreateProcessA);
         add(CreateThread);
         add(DebugBreak);
         add(DecodePointer);
@@ -140,6 +142,31 @@ public class Kernel32 extends BuiltinModule {
         add(WriteFile);
     }
 
+    // BOOL WINAPI CloseHandle(HANDLE hObject)
+    private Callback.Handler CloseHandle = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.CloseHandle";
+        }
+        public void onCall() {
+            int hObject = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hObject);
+            if (object == null) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                return;
+            }
+            if (object instanceof WinProcess) {
+
+            } else if (object instanceof WinThread) {
+
+            } else {
+                Console.out("CloseHandle not implemented for type: "+object);
+                notImplemented();
+            }
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+        }
+    };
+
     // HANDLE WINAPI CreateFileMapping(HANDLE hFile, LPSECURITY_ATTRIBUTES lpAttributes, DWORD flProtect, DWORD dwMaximumSizeHigh, DWORD dwMaximumSizeLow, LPCTSTR lpName)
     private Callback.Handler CreateFileMappingA = new HandlerBase() {
         public java.lang.String getName() {
@@ -243,6 +270,64 @@ public class Kernel32 extends BuiltinModule {
                 Memory.mem_writed(id, thread.getHandle());
             }
             CPU_Regs.reg_eax.dword = thread.getHandle();
+        }
+    };
+
+    // BOOL WINAPI CreateProcess(LPCTSTR lpApplicationName, LPTSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCTSTR lpCurrentDirectory, LPSTARTUPINFO lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
+    private Callback.Handler CreateProcessA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.CreateProcessA";
+        }
+        public void onCall() {
+            int lpApplicationName = CPU.CPU_Pop32();
+            int lpCommandLine = CPU.CPU_Pop32();
+            int lpProcessAttributes = CPU.CPU_Pop32();
+            int lpThreadAttributes = CPU.CPU_Pop32();
+            int bInheritHandles = CPU.CPU_Pop32();
+            int dwCreationFlags = CPU.CPU_Pop32();
+            int lpEnvironment = CPU.CPU_Pop32();
+            int lpCurrentDirectory = CPU.CPU_Pop32();
+            int lpStartupInfo = CPU.CPU_Pop32();
+            int lpProcessInformation = CPU.CPU_Pop32();
+            String name = null;
+            String cwd = null;
+
+            String commandLine = null;
+            WinProcess currentProcess = WinSystem.getCurrentProcess();
+            if ((lpApplicationName == 0 && lpCommandLine == 0) || lpStartupInfo == 0 || lpProcessInformation == 0) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+            }
+            if (lpCommandLine != 0) {
+                commandLine = new LittleEndianFile(lpCommandLine).readCString();
+            }
+            if (lpApplicationName != 0) {
+                name = new LittleEndianFile(lpApplicationName).readCString();
+            } else {
+                name = StringUtil.parseQuotedString(commandLine)[0];
+            }
+            if (lpCurrentDirectory != 0) {
+                cwd = new LittleEndianFile(lpCurrentDirectory).readCString();
+            } else {
+                cwd = currentProcess.currentWorkingDirectory;
+            }
+            WinProcess process = WinSystem.createProcess(name, commandLine, currentProcess.paths, currentProcess.currentWorkingDirectory);
+            if (process == null) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_FILE_NOT_FOUND);
+            } else {
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+//                typedef struct _PROCESS_INFORMATION {
+//                  HANDLE hProcess;
+//                  HANDLE hThread;
+//                  DWORD  dwProcessId;
+//                  DWORD  dwThreadId;
+//                }
+                Memory.mem_writed(lpProcessInformation, process.getHandle());
+                Memory.mem_writed(lpProcessInformation+4, process.getMainThread().getHandle());
+                Memory.mem_writed(lpProcessInformation+8, process.getHandle());
+                Memory.mem_writed(lpProcessInformation+12, process.getMainThread().getHandle());
+            }
         }
     };
 

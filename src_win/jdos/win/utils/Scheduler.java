@@ -52,6 +52,8 @@ public class Scheduler {
     }
 
     public WinThread getCurrentThread() {
+        if (currentThread == null)
+            return null;
         return currentThread.thread;
     }
 

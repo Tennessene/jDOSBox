@@ -7,7 +7,9 @@ import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.Win;
+import jdos.win.kernel.WinCallback;
 import jdos.win.loader.BuiltinModule;
+import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Error;
@@ -23,16 +25,9 @@ public class Kernel32 extends BuiltinModule {
 
     private Hashtable files = new Hashtable();
     private long startTime = System.currentTimeMillis();
-    private Hashtable namedObjects = new Hashtable();
-    private Hashtable objects = new Hashtable();
-    private int nextObjectHandle = 0x1000;
 
-    public int getNewObjectHandle() {
-        return nextObjectHandle++;
-    }
-
-    public Kernel32(int handle) {
-        super("kernel32.dll", handle);
+    public Kernel32(Loader loader, int handle) {
+        super(loader, "kernel32.dll", handle);
 
         files.put(new Integer(STD_OUT), new File(File.FILE_TYPE_CHAR, STD_OUT));
         files.put(new Integer(STD_IN), new File(File.FILE_TYPE_CHAR, STD_IN));
@@ -40,6 +35,7 @@ public class Kernel32 extends BuiltinModule {
 
         add(CreateFileMappingA);
         add(CreateFileMappingW);
+        add(CreateThread);
         add(DebugBreak);
         add(DecodePointer);
         add(DeleteCriticalSection);
@@ -137,6 +133,7 @@ public class Kernel32 extends BuiltinModule {
         add(VirtualAlloc);
         add(VirtualFree);
         add(VirtualQuery);
+        add(WaitForSingleObject);
         add(WideCharToMultiByte);
         add(WriteConsoleA);
         add(WriteConsoleW);
@@ -163,7 +160,7 @@ public class Kernel32 extends BuiltinModule {
                 notImplemented();
             }
             if (name != null) {
-                WinObject object = (WinObject)namedObjects.get(name);
+                WinObject object = (WinObject)WinSystem.getNamedObject(name);
                 if (object != null) {
                     if (object instanceof FileMapping) {
                         FileMapping mapping = (FileMapping)object;
@@ -176,10 +173,7 @@ public class Kernel32 extends BuiltinModule {
                     return;
                 }
             }
-            FileMapping mapping = new FileMapping(hFile, name, getNewObjectHandle());
-            if (name != null)
-                namedObjects.put(name, mapping);
-            objects.put(new Integer(mapping.handle), mapping);
+            FileMapping mapping = WinSystem.createFileMapping(hFile, name);
             CPU_Regs.reg_eax.dword = mapping.handle;
         }
     };
@@ -195,6 +189,60 @@ public class Kernel32 extends BuiltinModule {
             int sizeLow = CPU.CPU_Pop32();
             int name = CPU.CPU_Pop32();
             notImplemented();
+        }
+    };
+
+    private Callback.Handler CreateThreadCleanup = new HandlerBase() {
+        public String getName() {
+            return "Kernel32.CreateThread - Cleanup";
+        }
+        public void onCall() {
+            int handle = CPU.CPU_Pop32();
+            WinThread thread = (WinThread)WinSystem.getObject(handle);
+            thread.exit(CPU_Regs.reg_eax.dword);
+        }
+    };
+
+    private int threadCleanup = -1;
+
+    // HANDLE WINAPI CreateThread(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId)
+    private Callback.Handler CreateThread = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.CreateThread";
+        }
+        public void onCall() {
+            int attributes = CPU.CPU_Pop32();
+            int stackSizeCommit = CPU.CPU_Pop32();
+            int stackSizeReserved = stackSizeCommit;
+            int start = CPU.CPU_Pop32();
+            int params = CPU.CPU_Pop32();
+            int flags = CPU.CPU_Pop32();
+            int id = CPU.CPU_Pop32();
+
+            if ((flags & 0x00010000)!=0) {
+                stackSizeCommit = 0;
+            }
+            if ((flags & 0x00000004)!=0) {
+                System.out.println("CreateThread with suspend flags not supported yet");
+                Win.exit();
+            }
+            if (attributes != 0) {
+                System.out.println("***WARNING*** attributes are not supported for CreateThread");
+            }
+            WinThread thread = WinSystem.getCurrentProcess().createThread(start, stackSizeCommit, stackSizeReserved);
+            if (threadCleanup<0) {
+                int cb = WinCallback.addCallback(CreateThreadCleanup);
+                threadCleanup =  loader.registerFunction(cb);
+            }
+            thread.pushStack32(thread.handle);
+            thread.pushStack32(0);  // what's this?
+            thread.pushStack32(params);
+            thread.pushStack32(threadCleanup);
+
+            if (id != 0) {
+                Memory.mem_writed(id, thread.getHandle());
+            }
+            CPU_Regs.reg_eax.dword = thread.getHandle();
         }
     };
 
@@ -276,8 +324,19 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             int exitCode = CPU.CPU_Pop32();
-            System.out.println("Win32 app called ExitProcess: exit code = " + exitCode);
-            Win.exit();
+            System.out.println("Win32 Process has exited (PID "+WinSystem.getCurrentProcess().getHandle()+"): code = " + exitCode);
+            WinSystem.getCurrentProcess().exit();
+        }
+    };
+
+    // VOID WINAPI ExitThread(DWORD dwExitCode)
+    private Callback.Handler ExitThread = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.ExitThread";
+        }
+        public void onCall() {
+            int exitCode = CPU.CPU_Pop32();
+            WinSystem.getCurrentThread().exit(exitCode);
         }
     };
 
@@ -599,9 +658,6 @@ public class Kernel32 extends BuiltinModule {
             if (CPU_Regs.reg_eax.dword == 0)
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
             System.out.println("    "+name);
-            if (CPU_Regs.reg_eax.dword != 1) {
-                int ii=0;
-            }
         }
     };
     static private Callback.Handler GetModuleHandleW = new HandlerBase() {
@@ -1381,7 +1437,7 @@ public class Kernel32 extends BuiltinModule {
             int dwFileOffsetHigh = CPU.CPU_Pop32();
             int dwFileOffsetLow = CPU.CPU_Pop32();
             int dwNumberOfBytesToMap = CPU.CPU_Pop32();
-            WinObject object = (WinObject)objects.get(new Integer(hFileMappingObject));
+            WinObject object = WinSystem.getObject(hFileMappingObject);
             if (object == null || !(object instanceof FileMapping)) {
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
                 CPU_Regs.reg_eax.dword = 0;
@@ -1651,6 +1707,25 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             notImplemented();
+        }
+    };
+
+    // DWORD WINAPI WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds)
+    private Callback.Handler WaitForSingleObject = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.WaitForSingleObject";
+        }
+        public void onCall() {
+            int handle = CPU.CPU_Pop32();
+            int timeout = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(handle);
+            if (object == null || !(object instanceof WaitObject)) {
+                CPU_Regs.reg_eax.dword = -1;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                WaitObject waitObject = (WaitObject)object;
+                waitObject.wait(WinSystem.getCurrentThread(), timeout);
+            }
         }
     };
 

@@ -2,22 +2,46 @@ package jdos.win.utils;
 
 import jdos.hardware.Memory;
 import jdos.win.builtin.WinAPI;
-import jdos.win.loader.Loader;
+import jdos.win.kernel.KernelHeap;
 
 import java.util.Vector;
 
-public class WinThread {
+public class WinThread extends WaitObject {
     private Vector tls = new Vector();
-    private int handle;
-    private WinProcess process;
+        private WinProcess process;
     private int lastError = Error.ERROR_SUCCESS;
     private CpuState cpuState = new CpuState();
+    private KernelHeap stack;
 
-    public WinThread(int handle, WinProcess proces, long startAddress) {
-        this.process = proces;
-        this.handle = handle;
+    public WinThread(int handle, WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve) {
+        super(handle);
+        final int guard = 0x1000;
+
+        if (stackSizeCommit <= 0)
+            stackSizeCommit = stackSizeReserve;
+        if (stackSizeCommit <= 0)
+            stackSizeCommit = 0x1000;
+        if (stackSizeReserve<stackSizeCommit)
+            stackSizeReserve = stackSizeCommit;
+        this.cpuState.esp = process.getStackAddress(stackSizeCommit+guard*2) - guard;
+        // :TODO: implement a page fault handler to grow stack as necessary
+        int start = this.cpuState.esp - stackSizeCommit - guard;
+        int stop = this.cpuState.esp + guard;
+        System.out.println("Creating Thread: stack size: "+stackSizeCommit+" ("+Integer.toHexString(start)+"-"+Integer.toHexString(stop)+")");
+        this.stack = new KernelHeap(process.kernelMemory, process.page_directory, start, stop, this.cpuState.esp - stackSizeCommit + stackSizeReserve + guard, false, false);
+        this.process = process;
         this.cpuState.eip = (int)startAddress;
-        this.cpuState.esp = Loader.getStackAddress();// :TODO:
+    }
+
+    public void pushStack32(int value) {
+        cpuState.esp-=4;
+        Memory.mem_writed(cpuState.esp, value);
+    }
+
+    public void exit(int exitCode) {
+        release();
+        WinSystem.scheduler.removeThread(this);
+        stack.deallocate();
     }
 
     public void loadCPU() {

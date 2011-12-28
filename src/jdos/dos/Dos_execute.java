@@ -314,7 +314,6 @@ public class Dos_execute {
         if (Dos_files.Files[Dos.RealHandle(fhandle.value)] instanceof Drive_local.localFile) {
             String path = ((Drive_local.localFile)Dos_files.Files[Dos.RealHandle(fhandle.value)]).GetPath();
             if (winRun(path)) {
-                Dos_files.DOS_CloseFile(fhandle.value);
                 return true;
             }
         }

@@ -4,11 +4,13 @@ import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
+import jdos.win.kernel.KernelHeap;
 import jdos.win.loader.winpe.HeaderImageExportDirectory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderPE;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Path;
+import jdos.win.utils.WinSystem;
 
 import java.io.RandomAccessFile;
 import java.util.Vector;
@@ -18,9 +20,12 @@ public class NativeModule extends Module {
 
     private Path path;
     private String name;
+    private KernelHeap heap;
+    private Loader loader;
 
-    public NativeModule(int handle) {
+    public NativeModule(Loader loader, int handle) {
         super(handle);
+        this.loader = loader;
     }
 
     public String getFileName(boolean fullPath) {
@@ -35,26 +40,41 @@ public class NativeModule extends Module {
 
     private HeaderImageExportDirectory exports = null;
 
-    public boolean load(int address, String name, Path path) {
+    public boolean load(int page_directory, int address, String name, Path path) {
         RandomAccessFile fis = null;
         this.path = path;
         this.name = name;
         try {
             fis = new RandomAccessFile(path.nativePath+name, "r");
+            int allocated = (int)fis.length();
+            allocated = (allocated + 0xFFF) & ~0xFFF;
+            heap = new KernelHeap(WinSystem.memory, page_directory, address, address+allocated, address+0x1000000, false, false);
+            heap.alloc(allocated, false);
             int topAddress = header.load(address, fis);
-
+            int base = address;
+            System.out.println("Loaded "+name+" at 0x"+Integer.toHexString(address)+" - 0x"+Integer.toHexString(topAddress));
             // Load code, data, import, etc sections
             for (int i=0;i<header.imageSections.length;i++) {
                 address = (int)header.imageSections[i].VirtualAddress+header.baseAddress;
                 fis.seek(header.imageSections[i].PointerToRawData);
                 byte[] buffer = new byte[(int)header.imageSections[i].SizeOfRawData];
+                System.out.println("   "+new String(header.imageSections[i].Name)+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Integer.toHexString(address+buffer.length));
                 fis.read(buffer);
-                Memory.host_memcpy(address, buffer, 0, buffer.length);
+                int size = buffer.length;
+                if (header.imageSections[i].PhysicalAddress_or_VirtualSize>size)
+                    size = (int)header.imageSections[i].PhysicalAddress_or_VirtualSize;
+                if (address-base+size>allocated) {
+                    int add = address-base+size - allocated;
+                    add = (add + 0xFFF) & ~0xFFF;
+                    allocated+=add;
+                    heap.alloc(add, false);
+                }
+                Memory.mem_memcpy(address, buffer, 0, buffer.length);
                 if (address+buffer.length>topAddress)
                     topAddress = address+buffer.length;
             }
-            if (topAddress>Loader.topAddress)
-                Loader.topAddress = topAddress;
+            if (topAddress>loader.topAddress)
+                loader.topAddress = topAddress;
             return true;
         } catch (Exception e) {
         } finally {
@@ -101,7 +121,7 @@ public class NativeModule extends Module {
     }
 
     public void writeThunk(HeaderImageImportDescriptor desc, int index, long value) {
-        Memory.host_writed((int)(header.baseAddress+desc.FirstThunk)+4*index, (int)value);
+        Memory.mem_writed((int) (header.baseAddress + desc.FirstThunk) + 4 * index, (int) value);
     }
 
     public void unload() {

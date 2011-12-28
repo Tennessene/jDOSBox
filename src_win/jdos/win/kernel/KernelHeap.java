@@ -5,7 +5,7 @@ import java.util.Hashtable;
 
 // Based heavily on James Molloy's work at http://www.jamesmolloy.co.uk/tutorial_html/7.-The%20Heap.html
 
-public class Heap {
+public class KernelHeap {
     static private final int SMALLEST_SIZE_FOR_SPLIT = 4;
 
     private boolean kernel;
@@ -32,7 +32,7 @@ public class Heap {
         public int size;
     }
 
-    public Heap(KernelMemory memory, int directory, int start, int end, int max, boolean kernel, boolean readonly) {
+    public KernelHeap(KernelMemory memory, int directory, int start, int end, int max, boolean kernel, boolean readonly) {
         this.memory = memory;
         this.directory = directory;
         this.kernel = kernel;
@@ -41,10 +41,16 @@ public class Heap {
         this.end = start & 0xFFFFFFFFl;
         this.max = max & 0xFFFFFFFFl;
         if ((start & 0xFFF)!=0 || (end & 0xFFF)!=0) {
-            System.out.println("Heap requires addresses to b 4k aligned");
+            System.out.println("Heap requires addresses to be 4k aligned");
             System.exit(0);
         }
         expand(end - start, true);
+    }
+
+    public void deallocate() {
+        for (long i=start;i<end;i+=4096) {
+            memory.free_frame(memory.get_page((int)i, false, directory));
+        }
     }
 
     int getFreeItemCount() {

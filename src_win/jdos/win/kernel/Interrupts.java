@@ -2,8 +2,10 @@ package jdos.win.kernel;
 
 import jdos.cpu.CPU;
 import jdos.cpu.Callback;
+import jdos.cpu.Paging;
 import jdos.hardware.IO;
 import jdos.hardware.Memory;
+import jdos.win.Win;
 
 public class Interrupts {
 
@@ -88,6 +90,12 @@ public class Interrupts {
             }
             if (interrupt_handlers[index]!=null)
                 return interrupt_handlers[index].call();
+            else {
+                if (index == 14) {
+                    System.out.println("Page Fault at "+Integer.toHexString(Paging.paging.cr2));
+                    Win.exit();
+                }
+            }
             return 0;
         }
         public String getName() {

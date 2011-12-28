@@ -2,17 +2,15 @@ package jdos.win;
 
 import jdos.Dosbox;
 import jdos.cpu.CPU;
-import jdos.cpu.Core_normal;
 import jdos.cpu.Paging;
 import jdos.dos.Dos_files;
+import jdos.dos.Dos_programs;
 import jdos.hardware.Keyboard;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.misc.setup.Section;
 import jdos.util.StringRef;
-import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.HeaderPE;
-import jdos.win.utils.CpuState;
 import jdos.win.utils.Path;
 import jdos.win.utils.WinSystem;
 
@@ -28,22 +26,18 @@ public class Win {
         dos_sec.ExecuteInit(false);
      }
 
-    static private CpuState cpu = null;
-    static private int[] saveDosMemory;
-
     public static void panic(String msg) {
         Console.out("PANIC: "+msg);
         Win.exit();
     }
+
     public static void exit() {
-        WinCallback.doIdle();
-        WinSystem.exit();
-        Keyboard.KEYBOARD_Init.call(null);
-        cpu.load();
-        CPU.cpu.code.big = false;
-        Core_normal.log = true;
-        System.arraycopy(saveDosMemory, 0, Memory.direct, 0, saveDosMemory.length);
-        saveDosMemory = null;
+        Console.out("The Windows program has finished.  Rebooting in .. ");
+        for (int i=5;i>0;i--) {
+            System.out.println(i);
+            try {Thread.sleep(1000);} catch (Exception e) {}
+        }
+        throw new Dos_programs.RebootException();
     }
 
     static public boolean run(String path) {
@@ -73,11 +67,6 @@ public class Win {
         Vector paths = new Vector();
         paths.add(new Path(path, winPath));
 
-        cpu = new CpuState();
-        cpu.save();
-        saveDosMemory = new int[1024*256];
-        System.arraycopy(Memory.direct, 0, saveDosMemory, 0, saveDosMemory.length);
-
         // This references old callbacks, like video card timers, etc
         Pic.PIC_Destroy.call(null);
         Pic.PIC_Init.call(null);
@@ -104,7 +93,6 @@ public class Win {
         CPU.Segs_CSval = 0x08;
 
         WinSystem.start();
-
         if (WinSystem.createProcess(name, null, paths) > 0) {
             return true;
         }

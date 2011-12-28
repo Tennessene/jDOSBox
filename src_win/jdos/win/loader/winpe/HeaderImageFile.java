@@ -20,7 +20,7 @@ public class HeaderImageFile {
     public void load(int address, RandomAccessFile fis) throws IOException {
         byte[] buffer = new byte[SIZE];
         fis.read(buffer);
-        Memory.host_memcpy(address, buffer, 0, SIZE);
+        Memory.mem_memcpy(address, buffer, 0, SIZE);
         LittleEndianFile is = new LittleEndianFile(address, SIZE);
         Machine = is.readUnsignedShort();
         NumberOfSections = is.readUnsignedShort();

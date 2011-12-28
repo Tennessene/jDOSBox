@@ -1,23 +1,21 @@
 package jdos.win.utils;
 
 import jdos.win.builtin.WinAPI;
+import jdos.win.kernel.KernelHeap;
 
-import java.util.BitSet;
 import java.util.Hashtable;
 import java.util.Vector;
 
 public class Heap {
-    private int startingAddress;
-    private int size;
-    private BitSet set;
     private Vector heaps = new Vector();
+    private KernelHeap heap;
 
-    private int BLOCK_SIZE = 256;
+    public Heap(KernelHeap heap) {
+        this.heap = heap;
+    }
 
-    public Heap(int startingAddress, int size) {
-        this.startingAddress = (startingAddress + BLOCK_SIZE - 1) & ~(BLOCK_SIZE-1); // round up to the nearest block size
-        this.size = size - (this.startingAddress-startingAddress);
-        set = new BitSet(size/BLOCK_SIZE);
+    public void deallocate() {
+        heap.deallocate();
     }
 
     public int validateHeap(int handle, int flags, int address) {
@@ -49,7 +47,7 @@ public class Heap {
         if (handle-1>=heaps.size())
             return 0;
         HeapItem item = (HeapItem)heaps.elementAt(handle-1);
-        return item.allocateHeap(size);
+        return item.alloc(size);
     }
 
     public int freeHeap(int handle, int memory) {
@@ -58,66 +56,37 @@ public class Heap {
             WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
             return WinAPI.FALSE;
         }
-        return item.freeHeap(memory);
+        return item.free(memory);
     }
 
     private class HeapItem {
         int initialSize;
         int maxSize;
         int currentSize = 0;
-        Hashtable memory = new Hashtable();
+        Hashtable allocs = new Hashtable();
 
         public HeapItem(int initialSize, int maxSize) {
             this.initialSize = initialSize;
             this.maxSize = maxSize;
         }
 
-        public int freeHeap(int add) {
-            Integer blockCount = (Integer)memory.get(new Integer(add));
-            if (blockCount == null) {
+        public int free(int add) {
+            Integer size = (Integer)allocs.get(new Integer(add));
+            if (size == null) {
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
                 return WinAPI.FALSE;
             }
-            int startingBlock = (add-startingAddress)/BLOCK_SIZE;
-            for (int i=0;i<blockCount.intValue();i++) {
-                if (!set.get(startingBlock+i)) {
-                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
-                    return WinAPI.FALSE;
-                }
-            }
-            for (int i=0;i<blockCount.intValue();i++) {
-                set.clear(startingBlock+i);
-            }
-            // :TODO: currentSize-=size
+            heap.free(add);
+            currentSize-=size.intValue();
             return WinAPI.TRUE;
         }
 
-        public int allocateHeap(int size) {
-            // :TODO:
-            //if (maxSize!=0 && (currentSize+size)>maxSize)
-            //    return 0;
-            int blockCount = (size+BLOCK_SIZE-1) / BLOCK_SIZE;
-            // Yes I know this is slow, please someone else write a better one :)
-            for (int i=0;i<set.size();i++) {
-                if (!set.get(i)) {
-                    boolean found = true;
-                    for (int j=1;j<blockCount;j++) {
-                        if (set.get(i+j)) {
-                            found = false;
-                            break;
-                        }
-                    }
-                    if (found) {
-                        int result = startingAddress+i*BLOCK_SIZE;
-                        memory.put(new Integer(result), new Integer(blockCount));
-                        for (int j=0;j<blockCount;j++)
-                            set.set(j+i);
-                        currentSize+=size;
-                        return result;
-                    }
-                }
-            }
-            return 0;
+        public int alloc(int size) {
+            if (maxSize!=0 && (currentSize+size)>maxSize)
+                return 0;
+            int result = heap.alloc(size, false);
+            allocs.put(new Integer(result), new Integer(size));
+            return result;
         }
     }
 }

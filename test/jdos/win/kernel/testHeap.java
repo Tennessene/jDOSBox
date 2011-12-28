@@ -63,7 +63,7 @@ public class testHeap extends InstructionsTestCase {
 
     public void testPageFault() {
         CPU_Regs.reg_esp.dword = memory.kmalloc(1024)+1024;
-        final Heap heap = new Heap(memory, memory.kernel_directory, 0xD0000000, 0xD0001000, 0xD0002000, false, false);
+        final KernelHeap heap = new KernelHeap(memory, memory.kernel_directory, 0xD0000000, 0xD0001000, 0xD0002000, false, false);
         Callback.Handler cb = new Callback.Handler() {
             public int call() {
                 int p = heap.alloc(0x1004, false);

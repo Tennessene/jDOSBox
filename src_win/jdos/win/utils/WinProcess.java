@@ -1,6 +1,7 @@
 package jdos.win.utils;
 
-import jdos.hardware.Memory;
+import jdos.win.kernel.KernelHeap;
+import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
@@ -9,7 +10,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-public class WinProcess {
+public class WinProcess extends WaitObject {
+    private int nextStackAddress = 0xE0000000;
     private Heap heap;
     private int heapHandle;
     private String[] args;
@@ -20,19 +22,35 @@ public class WinProcess {
     private int envHandleW = 0;
     private Hashtable env = new Hashtable();
     private Loader loader;
+    private Vector threads = new Vector();
 
     public boolean console = true;
-    private int handle;
     private NativeModule mainModule;
+    public int page_directory;
+    public KernelMemory kernelMemory;
+    public WinProcess(int handle, KernelMemory memory) {
+        super(handle);
+        page_directory = memory.createNewDirectory();
+        this.kernelMemory = memory;
+    }
 
-    public boolean load(int handle, String exe, String[] args, Vector paths) {
-        loader = new Loader(paths);
+    public int getStackAddress(int size) {
+        nextStackAddress+=size;
+        return nextStackAddress;
+    }
+
+    public void switchPageDirectory() {
+        kernelMemory.switch_page_directory(page_directory);
+    }
+
+    public boolean load(String exe, String[] args, Vector paths) {
+        // by now we should be running in this process' memory space
+        this.heap = new Heap(new KernelHeap(kernelMemory, page_directory, 0x70000000, 0x70001000, 0x80000000, false, false));
+        loader = new Loader(kernelMemory, page_directory, paths);
         mainModule = (NativeModule)loader.loadModule(exe);
         if (mainModule == null)
             return false;
 
-        this.heap = new Heap(loader.topAddress, Memory.MEM_SIZE*1024*1024-loader.topAddress); // :TODO: we really need virtual memory
-        this.handle = handle;
         this.args = args;
         this.heapHandle = heap.createHeap(0, 0);
 
@@ -46,8 +64,14 @@ public class WinProcess {
         env.put("windir", "C:\\WINDOWS");
         env.put("PATH", "C:\\;C:\\WINDOWS");
 
-        WinSystem.createThread(this, mainModule.getEntryPoint());
+        createThread(mainModule.getEntryPoint(), (int)mainModule.header.imageOptional.SizeOfStackCommit, (int)mainModule.header.imageOptional.SizeOfStackReserve);
         return true;
+    }
+
+    public WinThread createThread(long startAddress, int stackSizeCommit, int stackSizeReserve) {
+        WinThread thread = WinSystem.createThread(this, startAddress, stackSizeCommit, stackSizeReserve);
+        threads.add(thread);
+        return thread;
     }
 
     public int loadModule(String name) {
@@ -58,12 +82,14 @@ public class WinProcess {
         WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
         return 0;
     }
+
     public void exit() {
         loader.unload();
-    }
-
-    public int getHandle() {
-        return handle;
+        for (int i=0;i<threads.size();i++) {
+            WinThread thread = (WinThread)threads.elementAt(i);
+            thread.exit(0);
+        }
+        heap.deallocate();
     }
 
     private String buildEnvString() {

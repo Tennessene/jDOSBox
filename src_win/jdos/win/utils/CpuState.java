@@ -67,19 +67,19 @@ public class CpuState {
         CPU_Regs.reg_esi.dword = esi;
         CPU_Regs.reg_edi.dword = edi;
         CPU_Regs.reg_eip = eip;
-        CPU.Segs_ESval = es;
-        CPU.Segs_CSval = cs;
-        CPU.Segs_DSval = ds;
-        CPU.Segs_SSval = ss;
-        CPU.Segs_FSval = fs;
-        CPU.Segs_GSval = gs;
-        CPU.Segs_ESphys = esPhys;
-        CPU.Segs_CSphys = csPhys;
-        CPU.Segs_DSphys = dsPhys;
-        CPU.Segs_SSphys = ssPhys;
-        CPU.Segs_FSphys = fsPhys;
-        CPU.Segs_GSphys = gsPhys;
-        CPU.cpu.stack.mask=stackMask;
-        CPU.cpu.stack.notmask=stackNotMask;
+        //CPU.Segs_ESval = es;
+        //CPU.Segs_CSval = cs;
+        //CPU.Segs_DSval = ds;
+        //CPU.Segs_SSval = ss;
+        //CPU.Segs_FSval = fs;
+        //CPU.Segs_GSval = gs;
+        //CPU.Segs_ESphys = esPhys;
+        //CPU.Segs_CSphys = csPhys;
+        //CPU.Segs_DSphys = dsPhys;
+        //CPU.Segs_SSphys = ssPhys;
+        //CPU.Segs_FSphys = fsPhys;
+        //CPU.Segs_GSphys = gsPhys;
+        //CPU.cpu.stack.mask=stackMask;
+        //CPU.cpu.stack.notmask=stackNotMask;
     }
 }

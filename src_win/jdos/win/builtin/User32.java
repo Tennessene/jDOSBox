@@ -4,12 +4,13 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.win.loader.BuiltinModule;
+import jdos.win.loader.Loader;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.StringUtil;
 
 public class User32 extends BuiltinModule {
-    public User32(int handle) {
-        super("user32.dll", handle);
+    public User32(Loader loader, int handle) {
+        super(loader, "user32.dll", handle);
         add(wsprintfA);
     }
 

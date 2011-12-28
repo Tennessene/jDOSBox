@@ -10,7 +10,7 @@ import jdos.win.Win;
 
 public class KernelMemory {
     int placement_address = 0x001000;
-    Heap heap = null;
+    KernelHeap heap = null;
     static private final int KHEAP_INITIAL_SIZE = 0x10000;
     static private final int KHEAP_START = 0xC0000000;
     static private final int KHEAP_END = 0xCFFFF000;
@@ -176,7 +176,7 @@ public class KernelMemory {
     }
 
     // Function to deallocate a frame.
-    private void free_frame(int pagePtr) {
+    public void free_frame(int pagePtr) {
         int page = Memory.mem_readd(pagePtr);
         int frame = Page.getFrame(page);
         if (frame != 0) {
@@ -184,6 +184,21 @@ public class KernelMemory {
             page = Page.setFrame(page, 0); // Page now doesn't have a frame.
             Memory.mem_writed(pagePtr, page);
         }
+    }
+
+    public int createNewDirectory() {
+        IntRef result = new IntRef(0);
+        int vresult = kmalloc(PageDirectory.SIZE, true, result);
+        Memory.mem_zero(vresult, PageDirectory.SIZE);
+        for (int i=0;i<1024;i++) {
+            int tablePtr = Memory.phys_readd(kernel_directory + PageDirectory.TABLES_OFFSET + i * PageDirectory.TABLES_ENTRY_SIZE);
+            if (tablePtr != 0) {
+                int physicalPtr = Memory.phys_readd(kernel_directory + PageDirectory.TABLES_PHYSICAL_OFFSET + i * PageDirectory.TABLES_PHYSICAL_SIZE);
+                Memory.phys_writed(result.value + PageDirectory.TABLES_OFFSET + i * PageDirectory.TABLES_ENTRY_SIZE, tablePtr);
+                Memory.phys_writed(result.value + PageDirectory.TABLES_PHYSICAL_OFFSET + i * PageDirectory.TABLES_PHYSICAL_SIZE, physicalPtr);
+            }
+        }
+        return result.value;
     }
 
     public void initialise_paging() {
@@ -195,7 +210,7 @@ public class KernelMemory {
 
         // Let's make a page directory.
         kernel_directory = kmalloc(PageDirectory.SIZE, true, null);
-        jdos.hardware.Memory.mem_zero(kernel_directory, PageDirectory.SIZE);
+        Memory.mem_zero(kernel_directory, PageDirectory.SIZE);
         current_directory = kernel_directory;
 
         // We need to identity map (phys addr = virt addr) from
@@ -222,10 +237,10 @@ public class KernelMemory {
         // Now, enable paging!
         switch_page_directory(kernel_directory);
 
-        heap = new Heap(this, kernel_directory, KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, KHEAP_END, false, false);
+        heap = new KernelHeap(this, kernel_directory, KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, KHEAP_END, false, false);
     }
 
-    void switch_page_directory(int dir) {
+    public void switch_page_directory(int dir) {
         current_directory = dir;
         CPU.CPU_SET_CRX(3, dir + PageDirectory.TABLES_PHYSICAL_OFFSET);
         CPU.CPU_SET_CRX(0, CPU.cpu.cr0 | CPU.CR0_PAGING); // Enable paging!
@@ -237,16 +252,16 @@ public class KernelMemory {
         // Find the page table containing this address.
         int table_idx = address >> 10;
         // dir->tables[idx]
-        int tablePtr = Memory.mem_readd(dir + PageDirectory.TABLES_OFFSET + table_idx * PageDirectory.TABLES_ENTRY_SIZE);
+        int tablePtr = Memory.phys_readd(dir + PageDirectory.TABLES_OFFSET + table_idx * PageDirectory.TABLES_ENTRY_SIZE);
         if (tablePtr != 0) { // If this table is already assigned
             return tablePtr + (address % 1024) * PageDirectory.TABLES_ENTRY_SIZE;
         } else if (make) {
             IntRef phys = new IntRef(0);
             tablePtr = kmalloc(PageDirectory.PAGE_TABLE_COUNT * PageDirectory.TABLES_ENTRY_SIZE, true, phys);
             Memory.mem_zero(tablePtr, PageDirectory.PAGE_TABLE_COUNT * PageDirectory.TABLES_ENTRY_SIZE);
-            Memory.mem_writed(dir + PageDirectory.TABLES_OFFSET + table_idx * PageDirectory.TABLES_ENTRY_SIZE, tablePtr);
+            Memory.phys_writed(dir + PageDirectory.TABLES_OFFSET + table_idx * PageDirectory.TABLES_ENTRY_SIZE, tablePtr);
 
-            Memory.mem_writed(dir + PageDirectory.TABLES_PHYSICAL_OFFSET + table_idx * PageDirectory.TABLES_PHYSICAL_SIZE, phys.value | 0x7); // PRESENT, RW, US.
+            Memory.phys_writed(dir + PageDirectory.TABLES_PHYSICAL_OFFSET + table_idx * PageDirectory.TABLES_PHYSICAL_SIZE, phys.value | 0x7); // PRESENT, RW, US.
             return tablePtr + (address % 1024) * PageDirectory.TABLES_ENTRY_SIZE;
         } else {
             return 0;

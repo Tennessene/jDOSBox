@@ -18,20 +18,19 @@ public class BuiltinModule extends Module {
     private String name;
     private String fileName;
     private Hashtable registeredCallbacks = new Hashtable();
+    protected Loader loader;
 
-    public BuiltinModule(String name, int handle) {
+    public BuiltinModule(Loader loader, String name, int handle) {
         super(handle);
         this.name = name.substring(0, name.lastIndexOf("."));
         this.fileName = name;
+        this.loader = loader;
     }
     protected void add(Callback.Handler handler) {
         functions.put(handler.getName().substring(name.length() + 1), handler);
     }
 
     public int getProcAddress(final String functionName, boolean loadFake) {
-        if (functionName.startsWith("GetVersion")) {
-            int ii=0;
-        }
         Integer result = (Integer)registeredCallbacks.get(functionName);
         if (result != null)
             return result.intValue();
@@ -53,7 +52,7 @@ public class BuiltinModule extends Module {
         }
         if (handler != null) {
             int cb = WinCallback.addCallback(handler);
-            int address =  Loader.registerFunction(cb);
+            int address =  loader.registerFunction(cb);
             registeredCallbacks.put(functionName, new Integer(address));
             return address;
         }
@@ -67,7 +66,6 @@ public class BuiltinModule extends Module {
     }
 
     public void unload() {
-        functions.clear();
     }
 
     public boolean RtlImageDirectoryEntryToData(int dir, LongRef address, LongRef size) {

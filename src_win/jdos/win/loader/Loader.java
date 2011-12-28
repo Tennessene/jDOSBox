@@ -7,6 +7,8 @@ import jdos.util.LongRef;
 import jdos.util.StringRef;
 import jdos.win.Console;
 import jdos.win.builtin.*;
+import jdos.win.kernel.KernelHeap;
+import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
 import jdos.win.utils.Path;
@@ -17,31 +19,32 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class Loader {
-    public static int topAddress = 0;
-    static int nextFunctionAddress = 0x400000;
-    static int maxFunctionAddress = 0x380000;
+    int nextFunctionAddress = 0x398000;
+    int maxFunctionAddress = 0x400000;
 
-    static public int registerFunction(int cb) {
-        nextFunctionAddress-=4;
-        if (nextFunctionAddress<maxFunctionAddress) {
+    public int registerFunction(int cb) {
+        if (nextFunctionAddress>=maxFunctionAddress) {
             Log.exit("Need to increase maximum number of dll function lookups to more than "+(nextFunctionAddress-maxFunctionAddress));
         }
-        Memory.host_writed(nextFunctionAddress, (cb << 16) + 0x38FE);
-        return nextFunctionAddress;
-    }
-
-    public static int getStackAddress() {
-        return maxFunctionAddress;
+        Memory.mem_writed(nextFunctionAddress, (cb << 16) + 0x38FE);
+        int result = nextFunctionAddress;
+        nextFunctionAddress+=4;
+        return result;
     }
 
     private Hashtable modulesByName = new Hashtable();
     private Hashtable modulesByHandle = new Hashtable();
     private Vector paths;
     private Module main = null;
+    private int page_directory;
+    public int topAddress = 0;
+    private KernelHeap callbackHeap;
 
-    public Loader(Vector paths) {
+    public Loader(KernelMemory memory, int page_directory, Vector paths) {
         this.paths = paths;
+        this.page_directory = page_directory;
         topAddress = 0;
+        callbackHeap = new KernelHeap(memory, page_directory, nextFunctionAddress, maxFunctionAddress, maxFunctionAddress, false, true);
     }
 
     public void unload() {
@@ -50,6 +53,7 @@ public class Loader {
             Module module = (Module)e.nextElement();
             module.unload();
         }
+        callbackHeap.deallocate();
     }
 
     private int getNextModuleHandle() {
@@ -57,7 +61,7 @@ public class Loader {
     }
     private Module load_native_module(String name) {
         try {
-            NativeModule module = new NativeModule(getNextModuleHandle());
+            NativeModule module = new NativeModule(this, getNextModuleHandle());
             int address;
 
             if (main == null)
@@ -67,7 +71,7 @@ public class Loader {
 
             for (int i=0;i<paths.size();i++) {
                 Path path = (Path)paths.elementAt(i);
-                if (module.load(address, name, path)) {
+                if (module.load(page_directory, address, name, path)) {
                     if (main == null)
                         main = module;
                     // :TODO: reloc dll
@@ -88,21 +92,21 @@ public class Loader {
     private Module load_builtin_module(String name) {
         BuiltinModule module = null;
         if (name.equalsIgnoreCase("kernel32.dll")) {
-            module = new Kernel32(getNextModuleHandle());
+            module = new Kernel32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("advapi32.dll")) {
-            module = new Advapi32(getNextModuleHandle());
+            module = new Advapi32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("user32.dll")) {
-            module = new User32(getNextModuleHandle());
+            module = new User32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("gdi32.dll")) {
-            module = new Gdi32(getNextModuleHandle());
+            module = new Gdi32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("shell32.dll")) {
-            module = new Shell32(getNextModuleHandle());
+            module = new Shell32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("comdlg32.dll")) {
-            module = new Comdlg32(getNextModuleHandle());
+            module = new Comdlg32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("version.dll")) {
-            module = new Version(getNextModuleHandle());
+            module = new Version(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("crtdll.dll")) {
-            module = new Crtdll(getNextModuleHandle());
+            module = new Crtdll(this, getNextModuleHandle());
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);

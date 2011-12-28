@@ -40,7 +40,7 @@ public class HeaderPE {
         dos.load(address, fis);
         byte[] buffer = new byte[(int)dos.e_lfanew - HeaderDOS.SIZE];
         fis.read(buffer);
-        Memory.host_memcpy(address + HeaderDOS.SIZE, buffer, 0, buffer.length);
+        Memory.mem_memcpy(address + HeaderDOS.SIZE, buffer, 0, buffer.length);
         address+=dos.e_lfanew;
         buffer = new byte[4];
         fis.read(buffer);
@@ -48,7 +48,7 @@ public class HeaderPE {
             System.out.println("Not Windows EXE format");
             return 0;
         }
-        Memory.host_memcpy(address, buffer, 0, buffer.length);
+        Memory.mem_memcpy(address, buffer, 0, buffer.length);
         address+=4;
         imageFile.load(address, fis);
         if (imageFile.Machine != 0x14C) { // Intel 80386

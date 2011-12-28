@@ -12,7 +12,7 @@ public class Timer {
     Callback.Handler handler = new Callback.Handler() {
         int tickCount;
         public int call() {
-            System.out.println("Tick: "+tickCount++);
+            WinSystem.scheduler.tick();
             return 0;
         }
 

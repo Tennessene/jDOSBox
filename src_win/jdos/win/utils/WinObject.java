@@ -5,6 +5,16 @@ public class WinObject {
         this.name = name;
         this.handle = handle;
     }
+
+    public WinObject(int handle) {
+        this.handle = handle;
+        this.name = null;
+    }
+
+    public int getHandle() {
+        return handle;
+    }
+
     public String name;
     public int handle;
 }

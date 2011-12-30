@@ -5,15 +5,17 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.win.Win;
+import jdos.win.utils.WinProcess;
 
 // Based heavily on James Molloy's work at http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html
 
 public class KernelMemory {
-    int placement_address = 0x001000;
+    static final private int PLACEMENT_START = 0x001000;
+    int placement_address = PLACEMENT_START;
     KernelHeap heap = null;
     static private final int KHEAP_INITIAL_SIZE = 0x10000;
-    static private final int KHEAP_START = 0xC0000000;
-    static private final int KHEAP_END = 0xCFFFF000;
+    private long KHEAP_START = WinProcess.ADDRESS_KHEAP_START;
+    private long KHEAP_END = WinProcess.ADDRESS_KHEAP_END;
 
     public int kmalloc(int sz) {
         return kmalloc(sz, false, null);
@@ -115,16 +117,14 @@ public class KernelMemory {
         return a % (8 * 4);
     }
 
-    private void set_frame(int frame_addr) {
-        int frame = frame_addr / 0x1000;
+    private void set_frame(int frame) {
         int idx = INDEX_FROM_BIT(frame);
         int off = OFFSET_FROM_BIT(frame);
         frames[idx] |= (0x1 << off);
     }
 
     // Static function to clear a bit in the frames bitset
-    private void clear_frame(int frame_addr) {
-        int frame = frame_addr / 0x1000;
+    private void clear_frame(int frame) {
         int idx = INDEX_FROM_BIT(frame);
         int off = OFFSET_FROM_BIT(frame);
         frames[idx] &= ~(0x1 << off);
@@ -155,18 +155,62 @@ public class KernelMemory {
         return -1;
     }
 
+    public void getInfo(IntRef free, IntRef used) {
+        free.value = 0;
+        used.value = 0;
+        for (int i = 0; i < INDEX_FROM_BIT(nframes); i++) {
+            for (int j = 0; j < 32; j++) {
+                int toTest = 0x1 << j;
+                if ((frames[i] & toTest) == 0) {
+                    free.value++;
+                } else {
+                    used.value++;
+                }
+            }
+        }
+    }
+
+    public void printInfo() {
+        IntRef free = new IntRef(0);
+        IntRef used = new IntRef(0);
+
+        getInfo(free, used);
+        System.out.print((used.value*4)+"/"+((used.value+free.value)*4)+"KB");
+    }
+    public int getNextFrame() {
+        int frame = first_frame();
+        set_frame(frame);
+        return frame;
+    }
+
+    public void freeFrame(int frame) {
+        clear_frame(frame * 0x1000);
+    }
+
+    static public void clearPage(int pagePtr) {
+        Memory.mem_writed(pagePtr,0);
+    }
+
+    static public void setPage(int pagePtr, int frame, boolean is_kernel, boolean is_writeable) {
+        int page = Memory.mem_readd(pagePtr);
+        page = Page.set(page, true, Page.PRESENT_MASK); // Mark it as present.
+        page = Page.set(page, is_writeable, Page.RW_MASK); // Should the page be writeable?
+        page = Page.set(page, !is_kernel, Page.RW_MASK); // Should the page be user-mode?
+        page = Page.setFrame(page, frame);
+        Memory.mem_writed(pagePtr, page);
+    }
+
     // Function to allocate a frame.
     void alloc_frame(int pagePtr, boolean is_kernel, boolean is_writeable) {
         int page = Memory.mem_readd(pagePtr);
         if (Page.getFrame(page) != 0) {
-            return; // Frame was already allocated, return straight away.
+            return; // Frame was already allocated, return straight away.  This will only happen during initialization of paging
         } else {
             int idx = first_frame(); // idx is now the index of the first free frame.
             if (idx == -1) {
-                // PANIC is just a macro that prints a message to the screen then hits an infinite loop.
                 Win.panic("No free frames!");
             }
-            set_frame(idx * 0x1000); // this frame is now ours!
+            set_frame(idx); // this frame is now ours!
             page = Page.set(page, true, Page.PRESENT_MASK); // Mark it as present.
             page = Page.set(page, is_writeable, Page.RW_MASK); // Should the page be writeable?
             page = Page.set(page, !is_kernel, Page.RW_MASK); // Should the page be user-mode?
@@ -220,15 +264,15 @@ public class KernelMemory {
         // inside the loop body we actually change placement_address
         // by calling kmalloc(). A while loop causes this to be
         // computed on-the-fly rather than once at the start.
-        int i = 0;
+        long i = 0;
         while (i < placement_address+0x1000) {
             // Kernel code is readable but not writeable from userspace.
-            alloc_frame(get_page(i, true, kernel_directory), false, false);
+            alloc_frame(get_page((int)i, true, kernel_directory), false, false);
             i += 0x1000;
         }
         int oldPlacement = placement_address;
         for (i = KHEAP_START;i<KHEAP_START+KHEAP_INITIAL_SIZE;i+=0x1000) {
-            alloc_frame(get_page(i, true, kernel_directory), false, false);
+            alloc_frame(get_page((int)i, true, kernel_directory), false, false);
         }
         if (placement_address>oldPlacement+0x1000) {
             System.out.println("Kernel Heap padding was not large enough");
@@ -246,7 +290,7 @@ public class KernelMemory {
         CPU.CPU_SET_CRX(0, CPU.cpu.cr0 | CPU.CR0_PAGING); // Enable paging!
     }
 
-    int get_page(int address, boolean make, int dir) {
+    public int get_page(int address, boolean make, int dir) {
         // Turn the address into an index.
         address >>>= 12;
         // Find the page table containing this address.

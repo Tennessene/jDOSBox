@@ -32,19 +32,19 @@ public class KernelHeap {
         public int size;
     }
 
-    public KernelHeap(KernelMemory memory, int directory, int start, int end, int max, boolean kernel, boolean readonly) {
+    public KernelHeap(KernelMemory memory, int directory, long start, long end, long max, boolean kernel, boolean readonly) {
         this.memory = memory;
         this.directory = directory;
         this.kernel = kernel;
         this.readonly = readonly;
-        this.start = start & 0xFFFFFFFFl;
-        this.end = start & 0xFFFFFFFFl;
-        this.max = max & 0xFFFFFFFFl;
+        this.start = start;
+        this.end = start;
+        this.max = max;
         if ((start & 0xFFF)!=0 || (end & 0xFFF)!=0) {
             System.out.println("Heap requires addresses to be 4k aligned");
             System.exit(0);
         }
-        expand(end - start, true);
+        expand((int)(end - start), true);
     }
 
     public void deallocate() {

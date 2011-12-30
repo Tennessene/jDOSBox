@@ -1,8 +1,9 @@
 package jdos.win.loader.winpe;
 
-import jdos.hardware.Memory;
+import jdos.win.utils.LittleEndian;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 public class HeaderImageSection {
@@ -21,11 +22,11 @@ public class HeaderImageSection {
     public int  NumberOfLinenumbers;
     public long Characteristics;
 
-    public void load(int address, RandomAccessFile fis) throws IOException {
+    public void load(OutputStream os, RandomAccessFile fis) throws IOException {
         byte[] buffer = new byte[SIZE];
         fis.read(buffer);
-        Memory.mem_memcpy(address, buffer, 0, SIZE);
-        LittleEndianFile is = new LittleEndianFile(address, SIZE);
+        os.write(buffer);
+        LittleEndian is = new LittleEndian(buffer);
         is.read(Name);
         PhysicalAddress_or_VirtualSize = is.readUnsignedInt();
         VirtualAddress = is.readUnsignedInt();

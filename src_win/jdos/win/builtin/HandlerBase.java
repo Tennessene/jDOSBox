@@ -9,9 +9,17 @@ import jdos.win.utils.Error;
 import jdos.win.utils.WinSystem;
 
 abstract public class HandlerBase implements Callback.Handler {
+    boolean resetError = true;
+    public HandlerBase() {
+    }
+    public HandlerBase(boolean resetError) {
+        this.resetError = resetError;
+    }
     public int call() {
         CPU_Regs.reg_eip = CPU.CPU_Pop32();
-        WinSystem.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
+        if (resetError)
+            WinSystem.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
+        System.out.println(getName());
         onCall();
         return 0;
     }

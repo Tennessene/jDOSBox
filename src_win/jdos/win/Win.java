@@ -67,6 +67,9 @@ public class Win {
         Vector paths = new Vector();
         paths.add(new Path(path, winPath));
 
+        path = path.substring(0, path.length()-winPath.length()+3);
+        paths.add(new Path(path, "c:\\"));
+        paths.add(new Path(path+"windows\\", "c:\\windows\\"));
         // This references old callbacks, like video card timers, etc
         Pic.PIC_Destroy.call(null);
         Pic.PIC_Init.call(null);
@@ -93,7 +96,7 @@ public class Win {
         CPU.Segs_CSval = 0x08;
 
         WinSystem.start();
-        if (WinSystem.createProcess(name, winPath+name, paths, winPath) != null) {
+        if (WinSystem.createProcess(name, "\""+winPath+name+"\"", paths, winPath) != null) {
             return true;
         }
         return true;

@@ -12,6 +12,7 @@ import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Path;
 import jdos.win.utils.WinSystem;
 
+import java.io.ByteArrayOutputStream;
 import java.io.RandomAccessFile;
 import java.util.Vector;
 
@@ -22,6 +23,7 @@ public class NativeModule extends Module {
     private String name;
     private KernelHeap heap;
     private Loader loader;
+    private int baseAddress;
 
     public NativeModule(Loader loader, int handle) {
         super(handle);
@@ -40,41 +42,41 @@ public class NativeModule extends Module {
 
     private HeaderImageExportDirectory exports = null;
 
-    public boolean load(int page_directory, int address, String name, Path path) {
+    public boolean load(int page_directory, String name, Path path) {
         RandomAccessFile fis = null;
         this.path = path;
         this.name = name;
         try {
             fis = new RandomAccessFile(path.nativePath+name, "r");
-            int allocated = (int)fis.length();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            if (!header.load(os, fis))
+                return false;
+            baseAddress = (int)header.imageOptional.ImageBase;
+            byte[] headerImage = os.toByteArray();
+            int allocated = headerImage.length;
             allocated = (allocated + 0xFFF) & ~0xFFF;
-            heap = new KernelHeap(WinSystem.memory, page_directory, address, address+allocated, address+0x1000000, false, false);
+            heap = new KernelHeap(WinSystem.memory, page_directory, baseAddress, baseAddress+allocated, baseAddress+0x1000000, false, false);
             heap.alloc(allocated, false);
-            int topAddress = header.load(address, fis);
-            int base = address;
-            System.out.println("Loaded "+name+" at 0x"+Integer.toHexString(address)+" - 0x"+Integer.toHexString(topAddress));
+            Memory.mem_memcpy(baseAddress, headerImage, 0, headerImage.length);
+            System.out.println("Loaded "+name+" at 0x"+Integer.toHexString(baseAddress)+" - 0x"+Integer.toHexString(baseAddress+headerImage.length));
             // Load code, data, import, etc sections
             for (int i=0;i<header.imageSections.length;i++) {
-                address = (int)header.imageSections[i].VirtualAddress+header.baseAddress;
+                int address = (int)header.imageSections[i].VirtualAddress+baseAddress;
                 fis.seek(header.imageSections[i].PointerToRawData);
                 byte[] buffer = new byte[(int)header.imageSections[i].SizeOfRawData];
-                System.out.println("   "+new String(header.imageSections[i].Name)+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Integer.toHexString(address+buffer.length));
+                System.out.println("   "+new String(header.imageSections[i].Name)+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Long.toHexString(address+header.imageSections[i].PhysicalAddress_or_VirtualSize));
                 fis.read(buffer);
                 int size = buffer.length;
                 if (header.imageSections[i].PhysicalAddress_or_VirtualSize>size)
                     size = (int)header.imageSections[i].PhysicalAddress_or_VirtualSize;
-                if (address-base+size>allocated) {
-                    int add = address-base+size - allocated;
+                if (address-baseAddress+size>allocated) {
+                    int add = address-baseAddress+size - allocated;
                     add = (add + 0xFFF) & ~0xFFF;
                     allocated+=add;
                     heap.alloc(add, false);
                 }
                 Memory.mem_memcpy(address, buffer, 0, buffer.length);
-                if (address+buffer.length>topAddress)
-                    topAddress = address+buffer.length;
             }
-            if (topAddress>loader.topAddress)
-                loader.topAddress = topAddress;
             return true;
         } catch (Exception e) {
         } finally {
@@ -84,7 +86,7 @@ public class NativeModule extends Module {
     }
 
     public long getEntryPoint() {
-        return header.baseAddress+header.imageOptional.AddressOfEntryPoint;
+        return baseAddress+header.imageOptional.AddressOfEntryPoint;
     }
 
     public boolean RtlImageDirectoryEntryToData(int dir, LongRef address, LongRef size) {
@@ -100,7 +102,7 @@ public class NativeModule extends Module {
     public Vector getImportDescriptors(long address) {
         Vector importDescriptors = new Vector();
         try {
-            LittleEndianFile file = new LittleEndianFile((int)(header.baseAddress+address));
+            LittleEndianFile file = new LittleEndianFile((int)(baseAddress+address));
             while (true) {
                 HeaderImageImportDescriptor desc = new HeaderImageImportDescriptor();
                 desc.load(file);
@@ -116,12 +118,12 @@ public class NativeModule extends Module {
     }
 
     public String getVirtualString(long address) {
-        LittleEndianFile file = new LittleEndianFile(header.baseAddress+(int)address);
+        LittleEndianFile file = new LittleEndianFile(baseAddress+(int)address);
         return file.readCString();
     }
 
     public void writeThunk(HeaderImageImportDescriptor desc, int index, long value) {
-        Memory.mem_writed((int) (header.baseAddress + desc.FirstThunk) + 4 * index, (int) value);
+        Memory.mem_writed((int)(baseAddress + desc.FirstThunk) + 4 * index, (int) value);
     }
 
     public void unload() {
@@ -134,7 +136,7 @@ public class NativeModule extends Module {
             if (desc.Characteristics_or_OriginalFirstThunk!=0) {
                 import_list = desc.Characteristics_or_OriginalFirstThunk;
             }
-            LittleEndianFile file = new LittleEndianFile(header.baseAddress+(int)import_list);
+            LittleEndianFile file = new LittleEndianFile(baseAddress+(int)import_list);
             Vector importOrdinals = new Vector();
             while (true) {
                 long ord = file.readUnsignedInt();
@@ -158,7 +160,7 @@ public class NativeModule extends Module {
         if (exports == null) {
             exports = new HeaderImageExportDirectory();
             try {
-                LittleEndianFile file = new LittleEndianFile(header.baseAddress+(int)address);
+                LittleEndianFile file = new LittleEndianFile(baseAddress+(int)address);
                 exports.load(file);
             } catch (Exception e) {
                 exports = null;
@@ -170,11 +172,11 @@ public class NativeModule extends Module {
     public long findNameExport(long exportAddress, long exportsSize, String name, int hint) {
         loadExports(exportAddress);
         if (hint>=0 && hint<exports.NumberOfFunctions) {
-            int address = (int)(header.baseAddress+exports.AddressOfNames+4*hint);
-            int nameAddress = Memory.mem_readd(address)+header.baseAddress;
+            int address = (int)(baseAddress+exports.AddressOfNames+4*hint);
+            int nameAddress = Memory.mem_readd(address)+baseAddress;
             String possibleMatch = new LittleEndianFile(nameAddress).readCString();
             if (possibleMatch.equalsIgnoreCase(name)) {
-                int ordinal = Memory.mem_readw((int) (header.baseAddress + exports.AddressOfNameOrdinals + 2 * hint));
+                int ordinal = Memory.mem_readw((int) (baseAddress + exports.AddressOfNameOrdinals + 2 * hint));
                 return findOrdinalExport(exportAddress, exportsSize, ordinal);
             }
         }
@@ -182,11 +184,11 @@ public class NativeModule extends Module {
         int max = (int)exports.NumberOfFunctions-1;
         while (min <= max) {
             int res, pos = (min + max) / 2;
-            int address = (int)(header.baseAddress+exports.AddressOfNames+4*pos);
-            int nameAddress = Memory.mem_readd(address)+header.baseAddress;
+            int address = (int)(baseAddress+exports.AddressOfNames+4*pos);
+            int nameAddress = Memory.mem_readd(address)+baseAddress;
             String possibleMatch = new LittleEndianFile(nameAddress).readCString();
             if ((res = possibleMatch.compareTo(name))==0) {
-                int ordinal = Memory.mem_readw((int) (header.baseAddress + exports.AddressOfNameOrdinals + 2 * pos));
+                int ordinal = Memory.mem_readw((int)(baseAddress + exports.AddressOfNameOrdinals + 2 * pos));
                 return findOrdinalExport(exportAddress, exportsSize, ordinal);
             }
             if (res > 0)
@@ -198,7 +200,7 @@ public class NativeModule extends Module {
     }
 
     private long findForwardExport(long proc) {
-        String mod = new LittleEndianFile((int)proc+header.baseAddress).readCString();
+        String mod = new LittleEndianFile((int)proc+baseAddress).readCString();
         System.out.println("Tried to foward export "+mod+".  This is not supported yet.");
         return 0;
 
@@ -209,16 +211,16 @@ public class NativeModule extends Module {
             System.out.println("Error: tried to look up ordinal "+ordinal+" in "+name+" but only "+exports.NumberOfFunctions+" functions are available.");
             return 0;
         }
-        long proc = Memory.mem_readd((int)(header.baseAddress+exports.AddressOfFunctions+4*ordinal));
+        long proc = Memory.mem_readd((int)(baseAddress+exports.AddressOfFunctions+4*ordinal));
         if (proc>=exportAddress && proc<exportAddress+exportsSize) {
             return findForwardExport(proc);
         }
-        return proc+header.baseAddress;
+        return proc+baseAddress;
     }
 
     public void getImportFunctionName(long address, StringRef name, IntRef hint) {
         try {
-            LittleEndianFile file = new LittleEndianFile(header.baseAddress+(int)address);
+            LittleEndianFile file = new LittleEndianFile(baseAddress+(int)address);
             hint.value = file.readUnsignedShort();
             name.value = file.readCString();
         } catch (Exception e) {

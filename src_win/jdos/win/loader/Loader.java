@@ -12,6 +12,7 @@ import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
 import jdos.win.utils.Path;
+import jdos.win.utils.WinProcess;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -19,17 +20,17 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class Loader {
-    int nextFunctionAddress = 0x398000;
-    int maxFunctionAddress = 0x400000;
+    long nextFunctionAddress = WinProcess.ADDRESS_CALLBACK_START;
+    long maxFunctionAddress = WinProcess.ADDRESS_CALLBACK_END;
 
     public int registerFunction(int cb) {
         if (nextFunctionAddress>=maxFunctionAddress) {
-            Log.exit("Need to increase maximum number of dll function lookups to more than "+(nextFunctionAddress-maxFunctionAddress));
+            Log.exit("Need to increase maximum number of function lookups to more than "+(nextFunctionAddress-maxFunctionAddress));
         }
-        Memory.mem_writed(nextFunctionAddress, (cb << 16) + 0x38FE);
-        int result = nextFunctionAddress;
+        Memory.mem_writed((int)nextFunctionAddress, (cb << 16) + 0x38FE);
+        long result = nextFunctionAddress;
         nextFunctionAddress+=4;
-        return result;
+        return (int)result;
     }
 
     private Hashtable modulesByName = new Hashtable();
@@ -37,13 +38,12 @@ public class Loader {
     private Vector paths;
     private Module main = null;
     private int page_directory;
-    public int topAddress = 0;
     private KernelHeap callbackHeap;
+    private int nextModuleHandle = 1;
 
     public Loader(KernelMemory memory, int page_directory, Vector paths) {
         this.paths = paths;
         this.page_directory = page_directory;
-        topAddress = 0;
         callbackHeap = new KernelHeap(memory, page_directory, nextFunctionAddress, maxFunctionAddress, maxFunctionAddress, false, true);
     }
 
@@ -57,21 +57,16 @@ public class Loader {
     }
 
     private int getNextModuleHandle() {
-        return modulesByName.size(); // first module should be 0
+        return nextModuleHandle++;
     }
+
     private Module load_native_module(String name) {
         try {
             NativeModule module = new NativeModule(this, getNextModuleHandle());
-            int address;
-
-            if (main == null)
-                address = 0x400000;
-            else
-                address = topAddress;
 
             for (int i=0;i<paths.size();i++) {
                 Path path = (Path)paths.elementAt(i);
-                if (module.load(page_directory, address, name, path)) {
+                if (module.load(page_directory, name, path)) {
                     if (main == null)
                         main = module;
                     // :TODO: reloc dll
@@ -107,10 +102,12 @@ public class Loader {
             module = new Version(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("crtdll.dll")) {
             module = new Crtdll(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("ddraw.dll")) {
+            module = new DDraw(this, getNextModuleHandle());
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);
-            modulesByHandle.put(name.toLowerCase(), module);
+            modulesByHandle.put(new Integer(module.getHandle()), module);
         }
         return module;
     }

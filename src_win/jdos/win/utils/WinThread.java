@@ -8,10 +8,11 @@ import java.util.Vector;
 
 public class WinThread extends WaitObject {
     private Vector tls = new Vector();
-        private WinProcess process;
+    private WinProcess process;
     private int lastError = Error.ERROR_SUCCESS;
     private CpuState cpuState = new CpuState();
     private KernelHeap stack;
+    private int stackAddress;
 
     public WinThread(int handle, WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve) {
         super(handle);
@@ -23,14 +24,22 @@ public class WinThread extends WaitObject {
             stackSizeCommit = 0x1000;
         if (stackSizeReserve<stackSizeCommit)
             stackSizeReserve = stackSizeCommit;
-        this.cpuState.esp = process.getStackAddress(stackSizeCommit+guard*2) - guard;
+        stackAddress = process.reserveStackAddress(stackSizeReserve+guard*2);
+        int start = stackAddress;
+        int end = start+stackSizeReserve+guard*2;
+
+        this.cpuState.esp = end - guard;
+        start = end-stackSizeCommit-guard*2;
+        System.out.println("Creating Thread: stack size: "+stackSizeCommit+" ("+Integer.toHexString(start)+"-"+Integer.toHexString(end)+")");
         // :TODO: implement a page fault handler to grow stack as necessary
-        int start = this.cpuState.esp - stackSizeCommit - guard;
-        int stop = this.cpuState.esp + guard;
-        System.out.println("Creating Thread: stack size: "+stackSizeCommit+" ("+Integer.toHexString(start)+"-"+Integer.toHexString(stop)+")");
-        this.stack = new KernelHeap(process.kernelMemory, process.page_directory, start, stop, this.cpuState.esp - stackSizeCommit + stackSizeReserve + guard, false, false);
+        // :TODO: need a stack heap that grows down
+        this.stack = new KernelHeap(process.kernelMemory, process.page_directory, start, end, end, false, false);
         this.process = process;
         this.cpuState.eip = (int)startAddress;
+    }
+
+    public void sleep(int ms) {
+        WinSystem.scheduler.sleep(this, ms);
     }
 
     public void pushStack32(int value) {
@@ -40,8 +49,10 @@ public class WinThread extends WaitObject {
 
     public void exit(int exitCode) {
         release();
-        WinSystem.scheduler.removeThread(this);
+        WinSystem.scheduler.removeThread(this, false);
         stack.deallocate();
+        close();
+        getProcess().freeAddress(stackAddress);
     }
 
     public void loadCPU() {

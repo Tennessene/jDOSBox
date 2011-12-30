@@ -1,6 +1,8 @@
 package jdos.win.loader.winpe;
 
 import jdos.hardware.Memory;
+import jdos.win.Console;
+import jdos.win.Win;
 
 public class LittleEndianFile {
     private byte w[];
@@ -10,6 +12,10 @@ public class LittleEndianFile {
 
     public LittleEndianFile(int address) {
         this(address, 0xFFFFFFF);
+        if (address == 0) {
+            Console.out("Tried to access a NULL pointer\n");
+            Win.exit();
+        }
     }
 
     public LittleEndianFile(int address, int len) {
@@ -77,25 +83,25 @@ public class LittleEndianFile {
     }
 
     public final short readShort() {
-        short result = (short)Memory.mem_readw(address+pos);
+        short result = (short)Memory.mem_readw(address + pos);
         pos+=2;
         return result;
     }
 
     public final int readUnsignedShort() {
-        int result = Memory.mem_readw(address+pos);
+        int result = Memory.mem_readw(address + pos);
         pos+=2;
         return result;
     }
 
     public final int readInt() {
-        int result = Memory.mem_readd(address+pos);
+        int result = Memory.mem_readd(address + pos);
         pos+=4;
         return result;
     }
 
     public final long readUnsignedInt() {
-        int result = Memory.mem_readd(address+pos);
+        int result = Memory.mem_readd(address + pos);
         pos+=4;
         return result & 0xFFFFFFFFl;
     }
@@ -103,7 +109,7 @@ public class LittleEndianFile {
     public final int read(byte b[], int off, int len) {
         if (len>available())
             len=available();
-        Memory.mem_memcpy(b, off, address+pos, len);
+        Memory.mem_memcpy(b, off, address + pos, len);
         pos+=len;
         return len;
     }
@@ -120,13 +126,13 @@ public class LittleEndianFile {
     }
 
     public final byte readByte() {
-        byte result = (byte)Memory.mem_readb(address+pos);
+        byte result = (byte)Memory.mem_readb(address + pos);
         pos+=1;
         return result;
     }
 
     public final short readUnsignedByte() {
-        short result = Memory.mem_readb(address+pos);
+        short result = Memory.mem_readb(address + pos);
         pos+=1;
         return result;
     }

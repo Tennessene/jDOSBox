@@ -26,16 +26,16 @@ public class WinMemory {
     static public final int PAGE_NOCACHE = 0x200;
     static public final int PAGE_WRITECOMBINE = 0x400;
 
-    private Heap heap;
+    private WinHeap heap;
     private int heapHandle;
 
-    public WinMemory(Heap heap) {
+    public WinMemory(WinHeap heap) {
         this.heap = heap;
         heapHandle = heap.createHeap(0, 0);
-        //initialise_paging();
     }
 
     public int virtualAlloc(int address, int size, int flags, int protect) {
+        // :TODO: could be implemented better with virtual memory
         if ((flags & MEM_RESERVE) != 0) {
             address = heap.allocateHeap(heapHandle, size);
         }

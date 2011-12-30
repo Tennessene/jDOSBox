@@ -22,7 +22,7 @@ public class WaitObject extends WinObject {
         CPU_Regs.reg_eax.dword = WAIT_TIMEOUT;
         if (timeout !=0) {
             waiting.add(thread);
-            WinSystem.scheduler.removeThread(thread);
+            WinSystem.scheduler.removeThread(thread, true);
         }
     }
 

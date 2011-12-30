@@ -1,8 +1,9 @@
 package jdos.win.loader.winpe;
 
-import jdos.hardware.Memory;
+import jdos.win.utils.LittleEndian;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 // From Wine project
@@ -29,11 +30,11 @@ public class HeaderDOS {
     int[]  e_res2 = new int[10];/* 28: Reserved words */
     long e_lfanew;              /* 3c: Offset to extended header */
 
-    public void load(int address, RandomAccessFile fis) throws IOException {
+    public void load(OutputStream os, RandomAccessFile fis) throws IOException {
         byte[] buffer = new byte[SIZE];
         fis.read(buffer);
-        Memory.mem_memcpy(address, buffer, 0, SIZE);
-        LittleEndianFile is = new LittleEndianFile(address, SIZE);
+        os.write(buffer);
+        LittleEndian is = new LittleEndian(buffer);
         e_magic = is.readUnsignedShort();
         e_cblp = is.readUnsignedShort();
         e_cp = is.readUnsignedShort();

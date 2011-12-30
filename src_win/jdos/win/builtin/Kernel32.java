@@ -15,25 +15,19 @@ import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
 
-import java.util.Hashtable;
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.Random;
 
 public class Kernel32 extends BuiltinModule {
-    private static final int STD_OUT = 1;
-    private static final int STD_IN = 2;
-    private static final int STD_ERROR = 3;
-
-    private Hashtable files = new Hashtable();
     private long startTime = System.currentTimeMillis();
 
     public Kernel32(Loader loader, int handle) {
         super(loader, "kernel32.dll", handle);
 
-        files.put(new Integer(STD_OUT), new File(File.FILE_TYPE_CHAR, STD_OUT));
-        files.put(new Integer(STD_IN), new File(File.FILE_TYPE_CHAR, STD_IN));
-        files.put(new Integer(STD_ERROR), new File(File.FILE_TYPE_CHAR, STD_ERROR));
-
         add(CloseHandle);
+        add(CreateEventA);
+        add(CreateFileA);
         add(CreateFileMappingA);
         add(CreateFileMappingW);
         add(CreateProcessA);
@@ -41,12 +35,14 @@ public class Kernel32 extends BuiltinModule {
         add(DebugBreak);
         add(DecodePointer);
         add(DeleteCriticalSection);
+        add(DeleteFileA);
         add(EncodePointer);
         add(EnterCriticalSection);
         add(EnumSystemLocalesA);
         add(EnumSystemLocalesW);
         add(ExitProcess);
         add(FatalAppExitA);
+        add(FormatMessageA);
         add(FreeEnvironmentStringsA);
         add(FreeEnvironmentStringsW);
         add(FreeLibrary);
@@ -63,6 +59,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetCurrentThreadId);
         add(GetDateFormatA);
         add(GetDateFormatW);
+        add(GetDiskFreeSpaceA);
         add(GetEnvironmentStrings);
         add(GetEnvironmentStringsW);
         add(GetFileType);
@@ -91,6 +88,8 @@ public class Kernel32 extends BuiltinModule {
         add(GetVersion);
         add(GetVersionExA);
         add(GetVersionExW);
+        add(GetWindowsDirectoryA);
+        add(GetWindowsDirectoryW);
         add(HeapAlloc);
         add(HeapCreate);
         add(HeapDestroy);
@@ -126,12 +125,14 @@ public class Kernel32 extends BuiltinModule {
         add(SetLastError);
         add(SetStdHandle);
         add(SetUnhandledExceptionFilter);
+        add(Sleep);
         add(TerminateProcess);
         add(TlsAlloc);
         add(TlsFree);
         add(TlsGetValue);
         add(TlsSetValue);
         add(UnhandledExceptionFilter);
+        add(UnmapViewOfFile);
         add(VirtualAlloc);
         add(VirtualFree);
         add(VirtualQuery);
@@ -156,14 +157,156 @@ public class Kernel32 extends BuiltinModule {
                 return;
             }
             if (object instanceof WinProcess) {
-
+                object.close();
             } else if (object instanceof WinThread) {
-
+                object.close();
+            } else if (object instanceof FileMapping) {
+                object.close();
+            } else if (object instanceof WinFile) {
+                object.close();
+            } else if (object instanceof WinEvent) {
+                object.close();
+            } else if (object instanceof WinIcon) {
+                object.close();
+            } else if (object instanceof WinCursor) {
+                object.close();
             } else {
                 Console.out("CloseHandle not implemented for type: "+object);
                 notImplemented();
             }
             CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+        }
+    };
+
+    // HANDLE WINAPI CreateEvent(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpName)
+    private Callback.Handler CreateEventA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.CreateEventA";
+        }
+        public void onCall() {
+            int lpEventAttributes = CPU.CPU_Pop32();
+            int bManualReset = CPU.CPU_Pop32();
+            int bInitialState = CPU.CPU_Pop32();
+            int lpName = CPU.CPU_Pop32();
+            String name = null;
+
+            if (lpName != 0) {
+                name = new LittleEndianFile(lpName).readCString();
+                WinObject object = WinSystem.getNamedObject(name);
+                if (object != null) {
+                    if (object instanceof WinEvent) {
+                        WinSystem.getCurrentThread().setLastError(Error.ERROR_ALREADY_EXISTS);
+                        object.open();
+                        CPU_Regs.reg_eax.dword = object.getHandle();
+                    } else {
+                        WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                        CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                    }
+                    return;
+                }
+            }
+            WinEvent event = WinSystem.createEvent(name, bManualReset!=0, bInitialState!=0);
+            CPU_Regs.reg_eax.dword = event.getHandle();
+        }
+    };
+
+    // HANDLE WINAPI CreateFile(LPCTSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
+    private Callback.Handler CreateFileA = new HandlerBase() {
+        private boolean create(File file) {
+            try {
+                if (!file.createNewFile()) {
+                    CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
+                    return false;
+                }
+            } catch (Exception e) {
+                CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
+                return false;
+            }
+            return true;
+        }
+
+        public java.lang.String getName() {
+            return "Kernel32.CreateFileA";
+        }
+        public void onCall() {
+            int lpFileName = CPU.CPU_Pop32();
+            int dwDesiredAccess = CPU.CPU_Pop32();
+            int dwShareMode = CPU.CPU_Pop32();
+            int lpSecurityAttributes = CPU.CPU_Pop32();
+            int dwCreationDisposition = CPU.CPU_Pop32();
+            int dwFlagsAndAttributes = CPU.CPU_Pop32();
+            int hTemplateFile = CPU.CPU_Pop32();
+            String name = new LittleEndianFile(lpFileName).readCString();
+            boolean write = (dwDesiredAccess & WinAPI.GENERIC_WRITE) != 0;
+            boolean read = (dwDesiredAccess & WinAPI.GENERIC_READ) != 0;
+
+            File file = WinSystem.getCurrentProcess().getFile(name);
+            WinThread thread = WinSystem.getCurrentThread();
+
+            if (!file.getParentFile().exists()) {
+                if (file.getParentFile().getName().equalsIgnoreCase("windows")) {
+                    file.getParentFile().mkdirs();
+                }
+                if (!file.getParentFile().exists()) {
+                    CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                    thread.setLastError(Error.ERROR_PATH_NOT_FOUND);
+                    return;
+                }
+            }
+            switch (dwCreationDisposition) {
+                case 1: // CREATE_NEW
+                    if (file.exists()) {
+                        CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                        thread.setLastError(Error.ERROR_FILE_EXISTS);
+                        return;
+                    }
+                    if (!create(file)) {
+                        return;
+                    }
+                    break;
+                case 2: // CREATE_ALWAYS
+                    if (file.exists()) {
+                        thread.setLastError(Error.ERROR_ALREADY_EXISTS);
+                        file.delete();
+                    }
+                    if (!create(file)) {
+                        return;
+                    }
+                    break;
+                case 3: // OPEN_EXISTING
+                    if (!file.exists()) {
+                        thread.setLastError(Error.ERROR_FILE_NOT_FOUND);
+                        CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                    }
+                    break;
+                case 4: // OPEN_ALWAYS
+                    if (file.exists())
+                        thread.setLastError(Error.ERROR_ALREADY_EXISTS);
+                    else if (!create(file)) {
+                        return;
+                    }
+                    break;
+                case 5: // TRUNCATE_EXISTING
+                    if (!file.exists()) {
+                        thread.setLastError(Error.ERROR_FILE_NOT_FOUND);
+                        CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                    }
+                    file.delete();
+                    if (!create(file)) {
+                        return;
+                    }
+                    break;
+            }
+            try {
+                RandomAccessFile r = new RandomAccessFile(file, write?"rw":"r");
+                WinFile winFile = WinSystem.createFile(r, dwShareMode, dwFlagsAndAttributes);
+                CPU_Regs.reg_eax.dword = winFile.getHandle();
+            } catch (Exception e) {
+                CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
+            }
         }
     };
 
@@ -187,7 +330,7 @@ public class Kernel32 extends BuiltinModule {
                 notImplemented();
             }
             if (name != null) {
-                WinObject object = (WinObject)WinSystem.getNamedObject(name);
+                WinObject object = WinSystem.getNamedObject(name);
                 if (object != null) {
                     if (object instanceof FileMapping) {
                         FileMapping mapping = (FileMapping)object;
@@ -200,7 +343,7 @@ public class Kernel32 extends BuiltinModule {
                     return;
                 }
             }
-            FileMapping mapping = WinSystem.createFileMapping(hFile, name);
+            FileMapping mapping = WinSystem.createFileMapping(hFile, name, sizeLow | (((long)sizeHigh)<<32));
             CPU_Regs.reg_eax.dword = mapping.handle;
         }
     };
@@ -230,7 +373,7 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
-    private int threadCleanup = -1;
+    private long threadCleanup = 0;
 
     // HANDLE WINAPI CreateThread(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId)
     private Callback.Handler CreateThread = new HandlerBase() {
@@ -257,14 +400,14 @@ public class Kernel32 extends BuiltinModule {
                 System.out.println("***WARNING*** attributes are not supported for CreateThread");
             }
             WinThread thread = WinSystem.getCurrentProcess().createThread(start, stackSizeCommit, stackSizeReserved);
-            if (threadCleanup<0) {
+            if (threadCleanup==0) {
                 int cb = WinCallback.addCallback(CreateThreadCleanup);
                 threadCleanup =  loader.registerFunction(cb);
             }
             thread.pushStack32(thread.handle);
             thread.pushStack32(0);  // what's this?
             thread.pushStack32(params);
-            thread.pushStack32(threadCleanup);
+            thread.pushStack32((int)threadCleanup);
 
             if (id != 0) {
                 Memory.mem_writed(id, thread.getHandle());
@@ -273,6 +416,76 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    /*
+    typedef struct _STARTUPINFO {
+      DWORD  cb;
+      LPTSTR lpReserved;
+      LPTSTR lpDesktop;
+      LPTSTR lpTitle;
+      DWORD  dwX;
+      DWORD  dwY;
+      DWORD  dwXSize;
+      DWORD  dwYSize;
+      DWORD  dwXCountChars;
+      DWORD  dwYCountChars;
+      DWORD  dwFillAttribute;
+      DWORD  dwFlags;
+      WORD   wShowWindow;
+      WORD   cbReserved2;
+      LPBYTE lpReserved2;
+      HANDLE hStdInput;
+      HANDLE hStdOutput;
+      HANDLE hStdError;
+    }
+    */
+    private static class StartupInfo {
+        public StartupInfo(int address) {
+            LittleEndianFile mem = new LittleEndianFile(address);
+            cb = mem.readInt();
+            lpReserved = mem.readUnsignedInt();
+            lpDesktop = mem.readUnsignedInt();
+            lpTitle = mem.readUnsignedInt();
+            dwX = mem.readInt();
+            dwY = mem.readInt();
+            dwXSize = mem.readInt();
+            dwYSize = mem.readInt();
+            dwXCountChars = mem.readInt();
+            dwYCountChars = mem.readInt();
+            dwFillAttribute = mem.readInt();
+            dwFlags = mem.readInt();
+            wShowWindow = mem.readUnsignedShort();
+            cbReserved2 = mem.readUnsignedShort();
+            lpReserved2 = mem.readUnsignedInt();
+            hStdInput = mem.readUnsignedInt();
+            hStdOutput = mem.readUnsignedInt();
+            hStdError = mem.readUnsignedInt();
+            if (lpDesktop != 0)
+                desktop = new LittleEndianFile((int)lpDesktop).readCString();
+            if (lpTitle != 0)
+                title = new LittleEndianFile((int)lpTitle).readCString();
+        }
+        public String desktop;
+        public String title;
+
+        public int cb;
+        public long lpReserved;
+        public long lpDesktop;
+        public long lpTitle;
+        public int dwX;
+        public int dwY;
+        public int dwXSize;
+        public int dwYSize;
+        public int dwXCountChars;
+        public int dwYCountChars;
+        public int dwFillAttribute;
+        public int dwFlags;
+        public int wShowWindow;
+        public int cbReserved2;
+        public long lpReserved2;
+        public long hStdInput;
+        public long hStdOutput;
+        public long hStdError;
+    }
     // BOOL WINAPI CreateProcess(LPCTSTR lpApplicationName, LPTSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCTSTR lpCurrentDirectory, LPSTARTUPINFO lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
     private Callback.Handler CreateProcessA = new HandlerBase() {
         public java.lang.String getName() {
@@ -292,7 +505,7 @@ public class Kernel32 extends BuiltinModule {
             String name = null;
             String cwd = null;
 
-            String commandLine = null;
+            String commandLine = "";
             WinProcess currentProcess = WinSystem.getCurrentProcess();
             if ((lpApplicationName == 0 && lpCommandLine == 0) || lpStartupInfo == 0 || lpProcessInformation == 0) {
                 CPU_Regs.reg_eax.dword = WinAPI.FALSE;
@@ -311,6 +524,14 @@ public class Kernel32 extends BuiltinModule {
             } else {
                 cwd = currentProcess.currentWorkingDirectory;
             }
+            StartupInfo info = new StartupInfo(lpStartupInfo);
+            int pos = name.lastIndexOf("\\");
+            if (pos>=0) {
+                if (!name.substring(0, pos+1).equalsIgnoreCase(cwd)) {
+                    Console.out("***WARNING*** Creating process using full path where path is not current working directory.  This may not work");
+                }
+                name = name.substring(pos+1);
+            }
             WinProcess process = WinSystem.createProcess(name, commandLine, currentProcess.paths, currentProcess.currentWorkingDirectory);
             if (process == null) {
                 CPU_Regs.reg_eax.dword = WinAPI.FALSE;
@@ -323,6 +544,8 @@ public class Kernel32 extends BuiltinModule {
 //                  DWORD  dwProcessId;
 //                  DWORD  dwThreadId;
 //                }
+                process.open();
+                process.getMainThread().open();
                 Memory.mem_writed(lpProcessInformation, process.getHandle());
                 Memory.mem_writed(lpProcessInformation+4, process.getMainThread().getHandle());
                 Memory.mem_writed(lpProcessInformation+8, process.getHandle());
@@ -359,6 +582,35 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             notImplemented();
+        }
+    };
+
+    // BOOL WINAPI DeleteFile(LPCTSTR lpFileName)
+    static private Callback.Handler DeleteFileA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.DeleteFileA";
+        }
+        public void onCall() {
+            int lpFileName = CPU.CPU_Pop32();
+            if (lpFileName == 0) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_PATH_NOT_FOUND);
+                return;
+            }
+            String name = new LittleEndianFile(lpFileName).readCString();
+            File file = WinSystem.getCurrentProcess().getFile(name);
+            if (file.exists()) {
+                file.delete();
+                if (file.exists()) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED); // :TODO: is this right
+                    return;
+                }
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+            } else {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_PATH_NOT_FOUND);
+            }
         }
     };
 
@@ -410,7 +662,11 @@ public class Kernel32 extends BuiltinModule {
         public void onCall() {
             int exitCode = CPU.CPU_Pop32();
             System.out.println("Win32 Process has exited (PID "+WinSystem.getCurrentProcess().getHandle()+"): code = " + exitCode);
+            WinSystem.memory.printInfo();
             WinSystem.getCurrentProcess().exit();
+            System.out.print(" -> ");
+            WinSystem.memory.printInfo();
+            System.out.println();
         }
     };
 
@@ -440,6 +696,35 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             notImplemented();
+        }
+    };
+
+    // DWORD WINAPI FormatMessage(DWORD dwFlags, LPCVOID lpSource, DWORD dwMessageId, DWORD dwLanguageId, LPTSTR lpBuffer, DWORD nSize, va_list *Arguments)
+    static private Callback.Handler FormatMessageA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.FormatMessageA";
+        }
+        public void onCall() {
+            int dwFlags = CPU.CPU_Pop32();
+            int lpSource = CPU.CPU_Pop32();
+            int dwMessageId = CPU.CPU_Pop32();
+            int dwLanguageId = CPU.CPU_Pop32();
+            int lpBuffer = CPU.CPU_Pop32();
+            int nSize = CPU.CPU_Pop32();
+            int Arguments = CPU.CPU_Pop32();
+            if (dwFlags == 0x1000) {
+                String msg = Error.getError(dwMessageId);
+                if (msg == null) {
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_MR_MID_NOT_FOUND);
+                    CPU_Regs.reg_eax.dword = 0;
+                } else {
+                    StringUtil.strncpy(lpBuffer, msg, nSize);
+                    CPU_Regs.reg_eax.dword = msg.length();
+                }
+            } else {
+                Console.out("FormatMessage currently only supports the FORMAT_MESSAGE_FROM_SYSTEM flags");
+                notImplemented();
+            }
         }
     };
 
@@ -618,6 +903,26 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI GetDiskFreeSpace(LPCTSTR lpRootPathName, LPDWORD lpSectorsPerCluster, LPDWORD lpBytesPerSector, LPDWORD lpNumberOfFreeClusters, LPDWORD lpTotalNumberOfClusters)
+    static private Callback.Handler GetDiskFreeSpaceA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.GetDiskFreeSpaceA";
+        }
+        public void onCall() {
+            int lpRootPathName = CPU.CPU_Pop32();
+            int lpSectorsPerCluster = CPU.CPU_Pop32();
+            int lpBytesPerSector = CPU.CPU_Pop32();
+            int lpNumberOfFreeClusters = CPU.CPU_Pop32();
+            int lpTotalNumberOfClusters = CPU.CPU_Pop32();
+            String path = new LittleEndianFile(lpRootPathName).readCString();
+            Memory.mem_writed(lpSectorsPerCluster, 8);
+            Memory.mem_writed(lpBytesPerSector, 512);
+            // Maybe when Java 6 is required we can do this, for now just fake it
+            Memory.mem_writed(lpNumberOfFreeClusters, 32746501);
+            Memory.mem_writed(lpTotalNumberOfClusters, 33551744);
+        }
+    };
+
     // LPTCH WINAPI GetEnvironmentStrings(void)
     private Callback.Handler GetEnvironmentStrings = new HandlerBase() {
         public java.lang.String getName() {
@@ -643,7 +948,7 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             int hFile = CPU.CPU_Pop32();
-            File file = (File)files.get(new Integer(hFile));
+            WinFile file = (WinFile)WinSystem.getObject(hFile);
             if (file == null) {
                 CPU_Regs.reg_eax.dword = 0;
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
@@ -654,7 +959,7 @@ public class Kernel32 extends BuiltinModule {
     };
 
     // DWORD WINAPI GetLastError(void)
-    private Callback.Handler GetLastError = new HandlerBase() {
+    private Callback.Handler GetLastError = new HandlerBase(false) {
         public java.lang.String getName() {
             return "Kernel32.GetLastError";
         }
@@ -738,11 +1043,14 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             int add = CPU.CPU_Pop32();
-            String name = new LittleEndianFile(add).readCString();
-            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getModuleByName(name);
-            if (CPU_Regs.reg_eax.dword == 0)
-                WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
-            System.out.println("    "+name);
+            if (add == 0) {
+                CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().mainModule.getHandle();
+            } else {
+                String name = new LittleEndianFile(add).readCString();
+                CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getModuleByName(name);
+                if (CPU_Regs.reg_eax.dword == 0)
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
+            }
         }
     };
     static private Callback.Handler GetModuleHandleW = new HandlerBase() {
@@ -773,7 +1081,7 @@ public class Kernel32 extends BuiltinModule {
             int handle = CPU.CPU_Pop32();
             int procName = CPU.CPU_Pop32();
             String name = new LittleEndianFile(procName).readCString();
-            System.out.println("    "+name);
+            System.out.println("    Proc: "+name);
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getProcAddress(handle, name);
         }
     };
@@ -834,12 +1142,13 @@ public class Kernel32 extends BuiltinModule {
                 Memory.mem_writed(add, 0); add+=4; // dwYCountChars
             }
             Memory.mem_writed(add, 0); add+=4; // dwFillAttribute
+            Memory.mem_writed(add, 0); add+=4; // dwFlags
             Memory.mem_writew(add, 0); add+=2; // wShowWindow
             Memory.mem_writew(add, 0); add+=2; // cbReserved2
             Memory.mem_writed(add, 0); add+=4; // lpReserved2
-            Memory.mem_writed(add, STD_IN); add+=4; // hStdInput
-            Memory.mem_writed(add, STD_OUT); add+=4; // hStdOutput
-            Memory.mem_writed(add, STD_ERROR); add+=4; // hStdError
+            Memory.mem_writed(add, WinFile.STD_IN); add+=4; // hStdInput
+            Memory.mem_writed(add, WinFile.STD_OUT); add+=4; // hStdOutput
+            Memory.mem_writed(add, WinFile.STD_ERROR); add+=4; // hStdError
         }
     };
     static private Callback.Handler GetStartupInfoW = new HandlerBase() {
@@ -864,13 +1173,13 @@ public class Kernel32 extends BuiltinModule {
             int param = CPU.CPU_Pop32();
             switch (param) {
                 case STD_INPUT_HANDLE:
-                    CPU_Regs.reg_eax.dword = STD_IN;
+                    CPU_Regs.reg_eax.dword = WinFile.STD_IN;
                     break;
                 case STD_OUTPUT_HANDLE:
-                    CPU_Regs.reg_eax.dword = STD_OUT;
+                    CPU_Regs.reg_eax.dword = WinFile.STD_OUT;
                     break;
                 case STD_ERROR_HANDLE:
-                    CPU_Regs.reg_eax.dword = STD_ERROR;
+                    CPU_Regs.reg_eax.dword = WinFile.STD_ERROR;
                     break;
                 default:
                     CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
@@ -957,7 +1266,7 @@ public class Kernel32 extends BuiltinModule {
             Memory.mem_writew(add, 0); // PROCESSOR_ARCHITECTURE_INTEL
             Memory.mem_writew(add + 2, 0); // Reserved
             Memory.mem_writed(add + 4, 4096); // Page Size
-            Memory.mem_writed(add+8, 0x00010000); // :TODO: not sure if this matter, this is just what I say Windows 7 return
+            Memory.mem_writed(add+8, 0x0001000); // :TODO: not sure if this matter, this is just what I say Windows 7 return
             Memory.mem_writed(add+12, 0x7ffeffff); // :TODO: not sure if this matter, this is just what I say Windows 7 return
             Memory.mem_writed(add+16, 255);
             Memory.mem_writed(add+20, 1); // Processor count
@@ -1111,6 +1420,32 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // UINT WINAPI GetWindowsDirectory(LPTSTR lpBuffer, UINT uSize)
+    static private Callback.Handler GetWindowsDirectoryA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.GetWindowsDirectoryA";
+        }
+        public void onCall() {
+            int lpBuffer = CPU.CPU_Pop32();
+            int uSize = CPU.CPU_Pop32();
+            String result = "C:\\WINDOWS";
+            StringUtil.strncpy(lpBuffer, result, uSize);
+            CPU_Regs.reg_eax.dword = result.length()+1;
+        }
+    };
+    static private Callback.Handler GetWindowsDirectoryW = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.GetWindowsDirectoryW";
+        }
+        public void onCall() {
+            int lpBuffer = CPU.CPU_Pop32();
+            int uSize = CPU.CPU_Pop32();
+            String result = "C:\\WINDOWS";
+            StringUtil.strncpyW(lpBuffer, result, uSize);
+            CPU_Regs.reg_eax.dword = result.length()+1;
+        }
+    };
+
     // LPVOID WINAPI HeapAlloc(HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes)
     private Callback.Handler HeapAlloc = new HandlerBase() {
         static final int HEAP_GENERATE_EXCEPTIONS = 0x00000004;
@@ -1128,7 +1463,7 @@ public class Kernel32 extends BuiltinModule {
                 Console.out(getName()+" option HEAP_GENERATE_EXCEPTIONS not implemented yet");
                 Win.exit();
             }
-            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getHeap().allocateHeap(hHeap, dwBytes);
+            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().allocateHeap(hHeap, dwBytes);
         }
     };
 
@@ -1151,7 +1486,7 @@ public class Kernel32 extends BuiltinModule {
             } else {
                 if (dwInitialSize==0)
                     dwInitialSize = Paging.MEM_PAGE_SIZE;
-                CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getHeap().createHeap(dwInitialSize, dwMaximumSize);
+                CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().createHeap(dwInitialSize, dwMaximumSize);
             }
         }
     };
@@ -1175,7 +1510,7 @@ public class Kernel32 extends BuiltinModule {
             int hHeap = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
             int lpMem = CPU.CPU_Pop32();
-            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getHeap().freeHeap(hHeap, lpMem);
+            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().freeHeap(hHeap, lpMem);
         }
     };
 
@@ -1518,7 +1853,7 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             int hFileMappingObject = CPU.CPU_Pop32();
-            int dwDesiredAccess = CPU.CPU_Pop32();
+            int dwDesiredAccess = CPU.CPU_Pop32(); // 0x01 Query, 0x02 Write, 0x04 Read, 0x08 Write, 0x10 Extend
             int dwFileOffsetHigh = CPU.CPU_Pop32();
             int dwFileOffsetLow = CPU.CPU_Pop32();
             int dwNumberOfBytesToMap = CPU.CPU_Pop32();
@@ -1526,15 +1861,11 @@ public class Kernel32 extends BuiltinModule {
             if (object == null || !(object instanceof FileMapping)) {
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
                 CPU_Regs.reg_eax.dword = 0;
+                return;
             }
             FileMapping mapping = (FileMapping)object;
-            if (mapping.fileHandle != -1) {
-                Console.out("MapViewOfFile does not support working against real files yet");
-                notImplemented();
-            }
-            mapping.heapHandle = WinSystem.getCurrentProcess().getHeap().allocateHeap(WinSystem.getCurrentProcess().getHeapHandle(), dwNumberOfBytesToMap);
-            mapping.heapSize = dwNumberOfBytesToMap;
-            CPU_Regs.reg_eax.dword = mapping.heapHandle;
+
+            CPU_Regs.reg_eax.dword = mapping.map((int)(dwFileOffsetLow | (long)dwFileOffsetHigh << 32), dwNumberOfBytesToMap, (dwDesiredAccess & 0x02) != 0);
         }
     };
 
@@ -1699,6 +2030,17 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // VOID WINAPI Sleep(DWORD dwMilliseconds)
+    private Callback.Handler Sleep = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.Sleep";
+        }
+        public void onCall() {
+            int dwMilliseconds = CPU.CPU_Pop32();
+            WinSystem.getCurrentThread().sleep(dwMilliseconds);
+        }
+    };
+
     // BOOL WINAPI TerminateProcess(HANDLE hProcess, UINT uExitCode)
     static private Callback.Handler TerminateProcess = new HandlerBase() {
         public java.lang.String getName() {
@@ -1758,6 +2100,17 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             notImplemented();
+        }
+    };
+
+    // BOOL WINAPI UnmapViewOfFile(LPCVOID lpBaseAddress)
+    private Callback.Handler UnmapViewOfFile = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.UnmapViewOfFile";
+        }
+        public void onCall() {
+            int lpBaseAddress = CPU.CPU_Pop32();
+            CPU_Regs.reg_eax.dword = FileMapping.unmap(lpBaseAddress)?WinAPI.TRUE:WinAPI.FALSE;
         }
     };
 

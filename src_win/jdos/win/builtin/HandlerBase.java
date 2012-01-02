@@ -19,7 +19,7 @@ abstract public class HandlerBase implements Callback.Handler {
         CPU_Regs.reg_eip = CPU.CPU_Pop32();
         if (resetError)
             WinSystem.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
-        System.out.println(getName());
+        System.out.println(Integer.toHexString(CPU_Regs.reg_eip)+": "+getName());
         onCall();
         return 0;
     }

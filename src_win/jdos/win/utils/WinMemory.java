@@ -1,10 +1,13 @@
 package jdos.win.utils;
 
 import jdos.hardware.Memory;
+import jdos.win.builtin.WinAPI;
 
 public class WinMemory {
     static public final int MEM_COMMIT = 0x1000;
     static public final int MEM_RESERVE = 0x2000;
+    static public final int MEM_DECOMMIT = 0x4000;
+    static public final int MEM_RELEASE = 0x8000;
     static public final int MEM_RESET = 0x80000;
 
     static public final int MEM_LARGE_PAGES = 0x20000000;
@@ -38,11 +41,25 @@ public class WinMemory {
         // :TODO: could be implemented better with virtual memory
         if ((flags & MEM_RESERVE) != 0) {
             address = heap.allocateHeap(heapHandle, size);
-        }
-        if ((flags & MEM_COMMIT) != 0) {
             for (int i = 0; i < size; i++)
                 Memory.mem_writeb(address + i, 0);
         }
+        if ((flags & MEM_COMMIT) != 0) {
+            if (address == 0) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_ADDRESS);
+                return 0;
+            }
+        }
         return address;
+    }
+
+    public int virtualFree(int address, int size, int flags) {
+        if ((flags & MEM_RELEASE)!=0) {
+            heap.freeHeap(heapHandle, address);
+        }
+        if ((flags & MEM_DECOMMIT)!=0) {
+            System.out.println("***WARN*** Kernel32.VirtualFree called with MEM_DECOMMIT flags.  This currently does nothing.");
+        }
+        return WinAPI.TRUE;
     }
 }

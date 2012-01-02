@@ -12,15 +12,16 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class WinProcess extends WaitObject {
-    public static final long ADDRESS_HEAP_START =     0x80000000l;
-    public static final long ADDRESS_HEAP_END =       0x90000000l;
+    public static final long ADDRESS_HEAP_START =     0x0BA00000l;
+    public static final long ADDRESS_HEAP_END =       0x0FFFF000l;
     public static final long ADDRESS_KHEAP_START =    0x90000000l;
     public static final long ADDRESS_KHEAP_END =      0xA0000000l;
-    public static final long ADDRESS_STACK_START =    0xA0000000l;
-    public static final long ADDRESS_STACK_END =      0xA4000000l;
+    public static final long ADDRESS_STACK_START =    0x00100000l;
+    public static final long ADDRESS_STACK_END =      0x01000000l;
     public static final long ADDRESS_CALLBACK_START = 0xA4000000l;
     public static final long ADDRESS_CALLBACK_END =   0xA4010000l;
     public static final long ADDRESS_EXTRA_START =    0xB0000000l;
+    public static final long ADDRESS_VIDEO_START =    0xE0000000l;
 
     private WinHeap winHeap;
     public KernelHeap heap;
@@ -92,14 +93,13 @@ public class WinProcess extends WaitObject {
         // by now we should be running in this process' memory space
         this.heap = new KernelHeap(kernelMemory, page_directory, ADDRESS_HEAP_START, ADDRESS_HEAP_START+0x1000, ADDRESS_HEAP_END, false, false);
         this.winHeap = new WinHeap(this.heap);
-        loader = new Loader(kernelMemory, page_directory, paths);
-        mainModule = (NativeModule)loader.loadModule(exe);
-        if (mainModule == null)
+        loader = new Loader(this, kernelMemory, page_directory, paths);
+        this.heapHandle = winHeap.createHeap(0, 0);
+        memory = new WinMemory(winHeap);
+
+        if (loader.loadModule(exe) == null)
             return false;
 
-        this.heapHandle = winHeap.createHeap(0, 0);
-
-        memory = new WinMemory(winHeap);
         env.put("HOMEDRIVE", "C:");
         env.put("NUMBER_OF_PROCESSORS", "1");
         env.put("SystemDrive", "C:");
@@ -109,12 +109,11 @@ public class WinProcess extends WaitObject {
         env.put("windir", "C:\\WINDOWS");
         env.put("PATH", "C:\\;C:\\WINDOWS");
 
-        createThread(mainModule.getEntryPoint(), (int)mainModule.header.imageOptional.SizeOfStackCommit, (int)mainModule.header.imageOptional.SizeOfStackReserve);
         return true;
     }
 
     public WinThread createThread(long startAddress, int stackSizeCommit, int stackSizeReserve) {
-        WinThread thread = WinSystem.createThread(this, startAddress, stackSizeCommit, stackSizeReserve);
+        WinThread thread = WinSystem.createThread(this, startAddress, stackSizeCommit, stackSizeReserve, false);
         threads.add(thread);
         return thread;
     }

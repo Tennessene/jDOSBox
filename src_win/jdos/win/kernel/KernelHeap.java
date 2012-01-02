@@ -157,6 +157,7 @@ public class KernelHeap {
     }
 
     public int alloc(int size, boolean pageAlign) {
+        size = (size + 3) & ~3;
         int index = findIndexBySize(size);
         if (index<0) {
             return expandAndAlloc(size, pageAlign);

@@ -413,6 +413,9 @@ public class Kernel32 extends BuiltinModule {
                 Memory.mem_writed(id, thread.getHandle());
             }
             CPU_Regs.reg_eax.dword = thread.getHandle();
+
+            // :TODO: run DllMain DLL_THREAD_ATTACH on all loaded Dll's
+            System.out.println("***WARNING*** CreateThread will not initialize loaded DLL's yet");
         }
     };
 
@@ -2124,7 +2127,16 @@ public class Kernel32 extends BuiltinModule {
             int size = CPU.CPU_Pop32();
             int flags = CPU.CPU_Pop32();
             int protect = CPU.CPU_Pop32();
+            System.out.println("    Address="+Integer.toHexString(address));
+            System.out.println("    Size="+size);
+            System.out.println("    Protect="+protect);
+            if ((flags & 0x1000)!=0)
+                System.out.println("    Commit");
+            if ((flags & 0x80000)!=0)
+                System.out.println("    Reset");
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getMemory().virtualAlloc(address, size, flags, protect);
+            if ((flags & 0x2000)!=0)
+                System.out.println("    Reserve: "+Integer.toHexString(CPU_Regs.reg_eax.dword));
         }
     };
 
@@ -2134,7 +2146,10 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.VirtualFree";
         }
         public void onCall() {
-            notImplemented();
+            int address = CPU.CPU_Pop32();
+            int dwSize = CPU.CPU_Pop32();
+            int dwFreeType = CPU.CPU_Pop32();
+            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getMemory().virtualFree(address, dwSize, dwFreeType);
         }
     };
 

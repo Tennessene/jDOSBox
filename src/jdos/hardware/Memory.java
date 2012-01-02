@@ -542,6 +542,10 @@ public class Memory extends Module_base {
         return memory.pages;
     }
 
+    static public /*Bitu*/int MEM_ExtraPages() {
+        return direct.length*4/4096 - memory.pages;
+    }
+
     static public /*Bitu*/int MEM_FreeLargest() {
         /*Bitu*/int size=0;/*Bitu*/int largest=0;
         /*Bitu*/int index=Paging.XMS_START;

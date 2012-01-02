@@ -53,11 +53,11 @@ public class Main {
     
     static private final String MAPPERFILE = "mapper-" + Config.MAJOR_VERSION + ".map";
 
-    static public void GFX_SetPalette(/*Bitu*/int start,/*Bitu*/int count, Render.RenderPal_t.RGB[] entries, int entriesOffset) {
+    static public void GFX_SetPalette(/*Bitu*/int start,/*Bitu*/int count, Render.RenderPal_t.RGB[] entries, int entriesOffset, int bpp) {
         for (int i=start;i<start+count;i++) {
             cmap[i] = GFX_GetRGB(entries[i].red, entries[i].green, entries[i].blue);
         }
-        updateBuffers();
+        updateBuffers(bpp);
     }
 
     static public /*Bitu*/int GFX_GetRGB(/*Bit8u*/short red,/*Bit8u*/short green,/*Bit8u*/short blue) {
@@ -486,7 +486,7 @@ public class Main {
         }
     }
     static BufferedImage buffer;
-    static public /*Bitu*/void GFX_SetSize(/*Bitu*/int width,/*Bitu*/int height,GFX_CallBack_t callback) {
+    static public /*Bitu*/void GFX_SetSize(/*Bitu*/int width,/*Bitu*/int height,boolean aspect, boolean dblh, boolean dblw, int bpp) {
         buffer_width = screen_width = width;
         buffer_height = screen_height = height;
         if (Render.render.aspect) {
@@ -497,11 +497,11 @@ public class Main {
             buffer_height /= 2;
         if (Render.render.src.dblw)
             buffer_width /= 2;
-        updateBuffers();
+        updateBuffers(bpp);
     }
 
-    static private void updateBuffers() {
-        switch (Render.render.src.bpp) {
+    static private void updateBuffers(int bpp) {
+        switch (bpp) {
             case 8:
             {
                 colorModel = new IndexColorModel(8, 256, cmap, 0, false, -1, DataBuffer.TYPE_BYTE);

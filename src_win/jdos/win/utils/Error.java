@@ -10,12 +10,18 @@ public class Error {
     public static final int ERROR_INVALID_PARAMETER = 87;
     public static final int ERROR_INSUFFICIENT_BUFFER = 122;
     public static final int ERROR_MOD_NOT_FOUND = 126;
+    public static final int ERROR_BAD_PATHNAME = 161;
     public static final int ERROR_ALREADY_EXISTS = 183;
     public static final int ERROR_MR_MID_NOT_FOUND = 317;
+    public static final int ERROR_INVALID_ADDRESS = 487;
     public static final int ERROR_INVALID_FLAGS = 1004;
     public static final int ERROR_INVALID_WINDOW_HANDLE = 1400;
     public static final int ERROR_CANNOT_FIND_WND_CLASS = 1407;
     public static final int ERROR_CLASS_ALREADY_EXISTS = 1410;
+
+    public static final int S_OK = 0x00000000;
+    public static final int E_NOINTERFACE = 0x80004002;
+    public static final int E_POINTER = 0x80004003;
 
     public static String getError(int e) {
         switch (e) {

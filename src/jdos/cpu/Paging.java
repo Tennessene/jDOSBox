@@ -591,8 +591,9 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
             /*PhysPt*/
             int tableEntryAddr = GetPageTableEntryAddr(addr, dir_entry);
-            table_entry.load((int) Memory.phys_readd(tableEntryAddr));
-            if (table_entry.block.p == 0) Log.exit("Undesired situation 2 in page foiler.");
+            table_entry.load(Memory.phys_readd(tableEntryAddr));
+            if (table_entry.block.p == 0)
+                Log.exit("Undesired situation 2 in page foiler.");
 
             // for debugging...
             if (table_entry.block.base != phys_page)

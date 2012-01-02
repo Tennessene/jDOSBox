@@ -46,8 +46,50 @@ public class WinClass extends WinObject {
         hIcon = in.readInt();
         hCursor = in.readInt();
         hbrBackground = in.readInt();
+        int menu = in.readInt();
+        if (menu>0)
+            menuName = new LittleEndianFile(menu).readCString();
         className = new LittleEndianFile(in.readInt()).readCString();
         hIconSm = in.readInt();
+        if (WinSystem.getCurrentProcess().classNames.containsKey(className)) {
+            return false;
+        }
+        WinSystem.getCurrentProcess().classNames.put(className, this);
+
+        // :TODO: this will leak
+        int callback = WinCallback.addCallback(WinProc);
+        returnEip =  WinSystem.getCurrentProcess().loader.registerFunction(callback);
+        return true;
+    }
+
+    /*
+    typedef struct tagWNDCLASS {
+      UINT      style;
+      WNDPROC   lpfnWndProc;
+      int       cbClsExtra;
+      int       cbWndExtra;
+      HINSTANCE hInstance;
+      HICON     hIcon;
+      HCURSOR   hCursor;
+      HBRUSH    hbrBackground;
+      LPCTSTR   lpszMenuName;
+      LPCTSTR   lpszClassName;
+    }
+     */
+    public boolean load(int address) {
+        LittleEndianFile in = new LittleEndianFile(address);
+        style = in.readInt();
+        eip = in.readInt();
+        int cbClsExtra = in.readInt();
+        int cbWndExtra = in.readInt();
+        hInstance = in.readInt();
+        hIcon = in.readInt();
+        hCursor = in.readInt();
+        hbrBackground = in.readInt();
+        int menu = in.readInt();
+        if (menu>0)
+            menuName = new LittleEndianFile(menu).readCString();
+        className = new LittleEndianFile(in.readInt()).readCString();
         if (WinSystem.getCurrentProcess().classNames.containsKey(className)) {
             return false;
         }
@@ -72,5 +114,6 @@ public class WinClass extends WinObject {
     public int hCursor;
     public int hbrBackground;
     public String className;
+    public String menuName;
     public int hIconSm;
 }

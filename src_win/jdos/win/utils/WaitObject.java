@@ -29,7 +29,7 @@ public class WaitObject extends WinObject {
     public void release() {
         for (int i=0;i<waiting.size();i++) {
             WinThread thread = (WinThread)waiting.elementAt(i);
-            WinSystem.scheduler.addThread(thread);
+            WinSystem.scheduler.addThread(thread, false);
         }
     }
 

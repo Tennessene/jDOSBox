@@ -316,6 +316,16 @@ public class StringUtil {
     static public char toupperW(char w) {
         return new Character(w).toString().toUpperCase().charAt(0);
     }
+    static public void _strupr(int str) {
+        while (true) {
+            char c = (char)Memory.mem_readb(str);
+            if (c==0)
+                break;
+            c = toupperW(c);
+            Memory.mem_writeb(str++, c);
+        }
+    }
+
     static public String[] parseQuotedString(String s) {
         s = s.trim();
         Vector results = new Vector();

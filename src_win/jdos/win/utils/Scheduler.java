@@ -19,7 +19,7 @@ public class Scheduler {
 
     private int tickCount = 0;
 
-    public void addThread(WinThread thread) {
+    public void addThread(WinThread thread, boolean schedule) {
         SchedulerItem item = new SchedulerItem();
         item.thread = thread;
         if (first == null) {
@@ -29,7 +29,7 @@ public class Scheduler {
             first.prev = item;
             first = item;
         }
-        if (currentThread == null) {
+        if (currentThread == null || schedule) {
             scheduleThread(item);
         }
         threadMap.put(thread, item);

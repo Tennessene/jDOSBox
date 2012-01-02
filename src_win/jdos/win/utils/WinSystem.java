@@ -103,9 +103,9 @@ public class WinSystem {
         return scheduler.getCurrentThread();
     }
 
-    static public WinThread createThread(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve) {
+    static public WinThread createThread(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve, boolean schedule) {
         WinThread thread = new WinThread(nextObjectId++, process, startAddress, stackSizeCommit, stackSizeReserve);
-        scheduler.addThread(thread);
+        scheduler.addThread(thread, schedule);
         return thread;
     }
 
@@ -113,6 +113,7 @@ public class WinSystem {
         WinProcess currentProcess = WinSystem.getCurrentProcess();
         WinProcess process = new WinProcess(nextObjectId++, memory, workingDirectory);
         process.switchPageDirectory();
+
         if (!process.load(path, commandLine, paths)) {
             process.close();
             return null;

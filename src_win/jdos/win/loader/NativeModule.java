@@ -64,7 +64,7 @@ public class NativeModule extends Module {
                 int address = (int)header.imageSections[i].VirtualAddress+baseAddress;
                 fis.seek(header.imageSections[i].PointerToRawData);
                 byte[] buffer = new byte[(int)header.imageSections[i].SizeOfRawData];
-                System.out.println("   "+new String(header.imageSections[i].Name)+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Long.toHexString(address+header.imageSections[i].PhysicalAddress_or_VirtualSize));
+                System.out.println("   "+new String(header.imageSections[i].Name)+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Long.toHexString(address+header.imageSections[i].PhysicalAddress_or_VirtualSize)+"("+Long.toHexString(address+buffer.length)+")");
                 fis.read(buffer);
                 int size = buffer.length;
                 if (header.imageSections[i].PhysicalAddress_or_VirtualSize>size)
@@ -177,7 +177,7 @@ public class NativeModule extends Module {
             String possibleMatch = new LittleEndianFile(nameAddress).readCString();
             if (possibleMatch.equalsIgnoreCase(name)) {
                 int ordinal = Memory.mem_readw((int) (baseAddress + exports.AddressOfNameOrdinals + 2 * hint));
-                return findOrdinalExport(exportAddress, exportsSize, ordinal);
+                return findOrdinalExport(exportAddress, exportsSize, ordinal+(int)exports.Base);
             }
         }
         int min = 0;
@@ -189,7 +189,7 @@ public class NativeModule extends Module {
             String possibleMatch = new LittleEndianFile(nameAddress).readCString();
             if ((res = possibleMatch.compareTo(name))==0) {
                 int ordinal = Memory.mem_readw((int)(baseAddress + exports.AddressOfNameOrdinals + 2 * pos));
-                return findOrdinalExport(exportAddress, exportsSize, ordinal);
+                return findOrdinalExport(exportAddress, exportsSize, ordinal+(int)exports.Base);
             }
             if (res > 0)
                 max = pos - 1;
@@ -207,11 +207,11 @@ public class NativeModule extends Module {
     }
     public long findOrdinalExport(long exportAddress, long exportsSize, int ordinal) {
         loadExports(exportAddress);
-        if (ordinal >= exports.NumberOfFunctions) {
+        if (ordinal >= exports.NumberOfFunctions+exports.Base) {
             System.out.println("Error: tried to look up ordinal "+ordinal+" in "+name+" but only "+exports.NumberOfFunctions+" functions are available.");
             return 0;
         }
-        long proc = Memory.mem_readd((int)(baseAddress+exports.AddressOfFunctions+4*ordinal));
+        long proc = Memory.mem_readd((int)(baseAddress+exports.AddressOfFunctions+4*(ordinal-exports.Base)));
         if (proc>=exportAddress && proc<exportAddress+exportsSize) {
             return findForwardExport(proc);
         }

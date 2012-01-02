@@ -10,8 +10,22 @@ import jdos.win.loader.Loader;
 public class Gdi32 extends BuiltinModule {
     public Gdi32(Loader loader, int handle) {
         super(loader, "Gdi32.dll", handle);
+
+        add(GdiSetBatchLimit);
         add(GetStockObject);
     }
+
+    // DWORD GdiSetBatchLimit(DWORD dwLimit)
+    private Callback.Handler GdiSetBatchLimit = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.GdiSetBatchLimit";
+        }
+        public void onCall() {
+            int dwLimit = CPU.CPU_Pop32();
+            System.out.println("Faking "+getName());
+            CPU_Regs.reg_eax.dword = 0;
+        }
+    };
 
     // HGDIOBJ GetStockObject(int fnObject)
     private Callback.Handler GetStockObject = new HandlerBase() {

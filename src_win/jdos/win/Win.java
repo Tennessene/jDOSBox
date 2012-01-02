@@ -10,6 +10,7 @@ import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.misc.setup.Section;
 import jdos.util.StringRef;
+import jdos.win.kernel.VideoMemory;
 import jdos.win.loader.winpe.HeaderPE;
 import jdos.win.utils.Path;
 import jdos.win.utils.WinSystem;
@@ -78,8 +79,24 @@ public class Win {
         Paging.PAGING_ShutDown.call(null);
         Paging.LINK_START = 0;
         Paging.PAGING_Init.call(null);
-
         Memory.clear();
+
+        int videoMemory = Memory.MEM_ExtraPages();
+        VideoMemory.SIZE = videoMemory*4096/1024/1024/2*2;
+        if (VideoMemory.SIZE<2) {
+            panic("Video memory needs to be at least 2MB");
+        }
+        Paging.PageHandler handler = new Paging.PageHandler() {
+            public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
+                return phys_page << 12;
+            }
+
+            public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
+                return phys_page << 12;
+            }
+        };
+        handler.flags = Paging.PFLAG_READABLE | Paging.PFLAG_WRITEABLE;
+        Memory.MEM_SetLFB(Memory.MEM_TotalPages(), videoMemory, handler, null);
 
         Keyboard.KEYBOARD_ShutDown.call(null);
         CPU.cpu.code.big = true;

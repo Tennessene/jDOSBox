@@ -111,8 +111,8 @@ public class Heap {
         int first = index;
         while (index<itemsByAddress.size()) {
             HeapItem next = (HeapItem)itemsByAddress.get(index++);
-            if (next.address>=address && next.address+next.size<address+size) {
-                return address;
+            if (next.address>=address && next.address+next.size>=address+size) {
+                return next.address;
             }
         }
         index = first;
@@ -122,7 +122,7 @@ public class Heap {
             if (pageAlign) {
                 a = (a + 0xFFF) & ~0xFFF;
             }
-            if (a+next.size<address+size) {
+            if (a-next.address+next.size>=size) {
                 return a;
             }
         }

@@ -194,7 +194,7 @@ public class FPU {
         fpu.tags[fpu.top] = TAG_Valid;
     }
 
-    static private void FPU_FPOP(){
+    static public void FPU_FPOP(){
         fpu.tags[fpu.top]=TAG_Empty;
         //maybe set zero in it as well
         fpu.top = ((fpu.top+1)&7);

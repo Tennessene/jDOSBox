@@ -22,6 +22,7 @@ public class User32 extends BuiltinModule {
         add(LoadCursorA);
         add(LoadIconA);
         add(LoadImageA);
+        add(RegisterClassA);
         add(RegisterClassExA);
         add(SetFocus);
         add(ShowCursor);
@@ -180,6 +181,21 @@ public class User32 extends BuiltinModule {
             int fuLoad = CPU.CPU_Pop32();
             Console.out("LoadImage faked");
             CPU_Regs.reg_eax.dword = 1;
+        }
+    };
+
+    // ATOM WINAPI RegisterClass(const WNDCLASS *lpWndClass)
+    private Callback.Handler RegisterClassA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.RegisterClassA";
+        }
+        public void onCall() {
+            int lpWndClass = CPU.CPU_Pop32();
+            WinClass c = WinSystem.createClass();
+            if (!c.load(lpWndClass)) {
+                CPU_Regs.reg_eax.dword = 0;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_CLASS_ALREADY_EXISTS);
+            }
         }
     };
 

@@ -84,7 +84,7 @@ public class Render {
         /*Bitu*/int i;
         switch (render.src.bpp) {
         case 8:
-            Main.GFX_SetPalette(render.pal.first,render.pal.last-render.pal.first+1,render.pal.rgb, render.pal.first);
+            Main.GFX_SetPalette(render.pal.first,render.pal.last-render.pal.first+1,render.pal.rgb, render.pal.first,Render.render.src.bpp);
             break;
         case 15:
         case 16:
@@ -202,7 +202,7 @@ public class Render {
             width*=2;
         if (render.src.dblh)
             height*=2;
-        Main.GFX_SetSize(width,height,RENDER_CallBack);
+        Main.GFX_SetSize(width,height,Render.render.aspect,Render.render.src.dblh,Render.render.src.dblw,Render.render.src.bpp);
 
         /* Reset the palette change detection to it's initial value */
         render.pal.first= 0;

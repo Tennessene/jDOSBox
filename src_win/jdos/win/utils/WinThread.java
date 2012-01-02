@@ -24,6 +24,8 @@ public class WinThread extends WaitObject {
             stackSizeCommit = 0x1000;
         if (stackSizeReserve<stackSizeCommit)
             stackSizeReserve = stackSizeCommit;
+        // :TODO: remove this line once we have a stack that can grow
+        stackSizeCommit = stackSizeReserve;
         stackAddress = process.reserveStackAddress(stackSizeReserve+guard*2);
         int start = stackAddress;
         int end = start+stackSizeReserve+guard*2;

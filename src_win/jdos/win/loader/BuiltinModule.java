@@ -18,7 +18,7 @@ public class BuiltinModule extends Module {
     private String name;
     private String fileName;
     private Hashtable registeredCallbacks = new Hashtable();
-    protected Loader loader;
+    public Loader loader;
 
     public BuiltinModule(Loader loader, String name, int handle) {
         super(handle);

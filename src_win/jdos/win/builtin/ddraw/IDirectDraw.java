@@ -8,11 +8,22 @@ import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.utils.Error;
+import jdos.win.utils.WinSystem;
 
 public class IDirectDraw extends IUnknown {
+    static final int DDSCL_FULLSCREEN = 0x00000001;
+    static final int DDSCL_ALLOWREBOOT = 0x00000002;
+    static final int  DDSCL_EXCLUSIVE = 0x00000010;
+
+    static final int VTABLE_SIZE = 20;
+
     private static int createVTable() {
-        int address = allocateVTable("IDirectDraw", 20);
-        int result = address;
+        int address = allocateVTable("IDirectDraw", VTABLE_SIZE);
+        addIDirectDraw(address);
+        return address;
+    }
+
+    static int addIDirectDraw(int address) {
         address = addIUnknown(address);
         address = add(address, Compact);
         address = add(address, CreateClipper);
@@ -34,12 +45,20 @@ public class IDirectDraw extends IUnknown {
         address = add(address, SetCooperativeLevel);
         address = add(address, SetDisplayMode);
         address = add(address, WaitForVerticalBlank);
-        return result;
+        return address;
     }
 
-    static private final int OFFSET_CX = 0;
-    static private final int OFFSET_CY = 4;
-    static private final int OFFSET_BPP = 8;
+    static int FLAGS_CALLBACK2 = 0x00000001;
+    static int FLAGS_DESC2 = 0x00000002;
+    static int FLAGS_V7 = 0x00000004;
+
+    static int OFFSET_FLAGS = 0;
+
+    static final int OFFSET_CX = 4;
+    static final int OFFSET_CY = 8;
+    static final int OFFSET_BPP = 12;
+
+    static final int DATA_SIZE = 16;
 
     public static int getWidth(int This) {
         return getData(This, OFFSET_CX);
@@ -52,10 +71,16 @@ public class IDirectDraw extends IUnknown {
     }
 
     public static int create() {
-        int vtable = getVTable("IDirectDraw");
+        return create("IDirectDraw", 0);
+    }
+
+    public static int create(String name, int flags) {
+        int vtable = getVTable(name);
         if (vtable == 0)
             vtable = createVTable();
-        return allocate(vtable, 12);
+        int address = allocate(vtable, DATA_SIZE, 0);
+        setData(address, OFFSET_FLAGS, flags);
+        return address;
     }
 
     /*** IDirectDraw methods ***/
@@ -117,7 +142,13 @@ public class IDirectDraw extends IUnknown {
             if (lplpDDSurface == 0)
                 CPU_Regs.reg_eax.dword = Error.E_POINTER;
             else {
-                Memory.mem_writed(lplpDDSurface, IDirectDrawSurface.create(This, lpDDSurfaceDesc));
+                int result;
+                if ((getData(This, OFFSET_FLAGS) & FLAGS_V7)!=0) {
+                    result = IDirectDrawSurface7.create(This, lpDDSurfaceDesc);
+                } else {
+                    result = IDirectDrawSurface.create(This, lpDDSurfaceDesc);
+                }
+                Memory.mem_writed(lplpDDSurface, result);
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
         }
@@ -288,10 +319,6 @@ public class IDirectDraw extends IUnknown {
 
     // HRESULT SetCooperativeLevel(this, HWND hWnd, DWORD dwFlags)
     static private Callback.Handler SetCooperativeLevel = new HandlerBase() {
-        static private final int DDSCL_FULLSCREEN = 0x00000001;
-        static private final int DDSCL_ALLOWREBOOT = 0x00000002;
-        static private final int  DDSCL_EXCLUSIVE = 0x00000010;
-
         public java.lang.String getName() {
             return "IDirectDraw.SetCooperativeLevel";
         }
@@ -317,9 +344,16 @@ public class IDirectDraw extends IUnknown {
             int dwWidth = CPU.CPU_Pop32();
             int dwHeight = CPU.CPU_Pop32();
             int dwBPP = CPU.CPU_Pop32();
+            if ((getData(This, OFFSET_FLAGS) & FLAGS_V7)!=0) {
+                int dwRefreshRate = CPU.CPU_Pop32();
+                int dwFlags = CPU.CPU_Pop32();
+            }
             setData(This, OFFSET_CX, dwWidth);
             setData(This, OFFSET_CY, dwHeight);
             setData(This, OFFSET_BPP, dwBPP);
+            WinSystem.screenBpp = dwBPP;
+            WinSystem.screenHeight = dwHeight;
+            WinSystem.screenWidth = dwWidth;
             Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, dwBPP);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }

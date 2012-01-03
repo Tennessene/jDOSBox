@@ -4,16 +4,72 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.win.Console;
+import jdos.win.Win;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
+import jdos.win.utils.Error;
+import jdos.win.utils.*;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Gdi32 extends BuiltinModule {
     public Gdi32(Loader loader, int handle) {
         super(loader, "Gdi32.dll", handle);
 
+        add(CreateCompatibleDC);
+        add(DeleteDC);
+        add(GetObjectA);
         add(GdiSetBatchLimit);
         add(GetStockObject);
+        add(SelectObject);
+        add(StretchBlt);
     }
+
+    // HDC CreateCompatibleDC(HDC hdc)
+    private Callback.Handler CreateCompatibleDC = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.CreateCompatibleDC";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            WinDC dc = null;
+            if (hdc != 0) {
+                WinObject object = WinSystem.getObject(hdc);
+                if (object == null || !(object instanceof WinDC)) {
+                    CPU_Regs.reg_eax.dword = 0;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                    return;
+                }
+                dc = (WinDC)object;
+            }
+            CPU_Regs.reg_eax.dword = WinSystem.createDC(dc, 0, 0, 0, null).getHandle();
+        }
+    };
+
+    // BOOL DeleteDC(HDC hdc)
+    private Callback.Handler DeleteDC = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.DeleteDC";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            if (hdc == 0) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+            } else {
+                WinDC dc = null;
+                WinObject object = WinSystem.getObject(hdc);
+                if (object == null || !(object instanceof WinDC)) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                    return;
+                }
+                dc = (WinDC)object;
+                dc.close();
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+            }
+        }
+    };
 
     // DWORD GdiSetBatchLimit(DWORD dwLimit)
     private Callback.Handler GdiSetBatchLimit = new HandlerBase() {
@@ -24,6 +80,28 @@ public class Gdi32 extends BuiltinModule {
             int dwLimit = CPU.CPU_Pop32();
             System.out.println("Faking "+getName());
             CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
+    // int GetObject(HGDIOBJ hgdiobj, int cbBuffer, LPVOID lpvObject)
+    private Callback.Handler GetObjectA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.GetObjectA";
+        }
+        public void onCall() {
+            int hgdiobj = CPU.CPU_Pop32();
+            int cbBuffer = CPU.CPU_Pop32();
+            int lpvObject = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hgdiobj);
+            if (object == null || !(object instanceof WinGDI)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = 0;
+            } else if (object instanceof WinBitmap) {
+                WinBitmap bitmap = (WinBitmap)object;
+                CPU_Regs.reg_eax.dword = bitmap.get(lpvObject, cbBuffer);
+            } else {
+                Win.panic(getName()+" not implemented yet for type "+object);
+            }
         }
     };
 
@@ -58,6 +136,77 @@ public class Gdi32 extends BuiltinModule {
                     notImplemented();
             }
             CPU_Regs.reg_eax.dword = 1;
+        }
+    };
+
+    // HGDIOBJ SelectObject(HDC hdc, HGDIOBJ hgdiobj)
+    private Callback.Handler SelectObject = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.SelectObject";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int hgdiobj = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            WinDC dc = (WinDC)object;
+            object = WinSystem.getObject(hgdiobj);
+            if (object == null || !(object instanceof WinGDI)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            WinGDI gdi = (WinGDI)object;
+            CPU_Regs.reg_eax.dword = dc.select(gdi);
+        }
+    };
+
+    // BOOL StretchBlt(HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, HDC hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, DWORD dwRop)
+    private Callback.Handler StretchBlt = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.StretchBlt";
+        }
+        public void onCall() {
+            int hdcDest = CPU.CPU_Pop32();
+            int nXOriginDest = CPU.CPU_Pop32();
+            int nYOriginDest = CPU.CPU_Pop32();
+            int nWidthDest = CPU.CPU_Pop32();
+            int nHeightDest = CPU.CPU_Pop32();
+            int hdcSrc = CPU.CPU_Pop32();
+            int nXOriginSrc = CPU.CPU_Pop32();
+            int nYOriginSrc = CPU.CPU_Pop32();
+            int nWidthSrc = CPU.CPU_Pop32();
+            int nHeightSrc = CPU.CPU_Pop32();
+            int dwRop = CPU.CPU_Pop32();
+
+            WinObject object = WinSystem.getObject(hdcDest);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            WinDC dest = (WinDC)object;
+            object = WinSystem.getObject(hdcSrc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            WinDC src = (WinDC)object;
+
+            if (dwRop != 0x00CC0020) { // SRCCOPY
+                Win.panic(getName()+" only supports SRCCOPY");
+            }
+            BufferedImage d = dest.getImage();
+            BufferedImage s = src.getImage();
+            Graphics g = d.getGraphics();
+            g.drawImage(s, nXOriginDest, nYOriginDest, nXOriginDest+nWidthDest, nYOriginDest+nHeightDest, nXOriginSrc, nYOriginSrc, nXOriginSrc+nWidthSrc, nYOriginSrc+nHeightSrc, null);
+            dest.writeImage(d);
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
 }

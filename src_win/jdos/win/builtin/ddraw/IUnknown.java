@@ -12,8 +12,10 @@ import jdos.win.utils.WinSystem;
 import java.util.Hashtable;
 
 public class IUnknown {
+    // static private final int OFFSET_VTABLE = 0;
     static private final int OFFSET_REF = 4;
-    static public final int OFFSET_IUNKNOWN = 8;
+    static private final int OFFSET_CLEANUP = 8;
+    static public final int OFFSET_DATA_START = 12;
 
     static private Hashtable vtables = new Hashtable();
     static private Hashtable names = new Hashtable();
@@ -26,11 +28,11 @@ public class IUnknown {
     }
 
     static protected int getData(int This, int offset) {
-        return Memory.mem_readd(This+OFFSET_IUNKNOWN+offset);
+        return Memory.mem_readd(This+ OFFSET_DATA_START +offset);
     }
 
     static protected void setData(int This, int offset, int data) {
-        Memory.mem_writed(This+OFFSET_IUNKNOWN+offset, data);
+        Memory.mem_writed(This+ OFFSET_DATA_START +offset, data);
     }
 
     private static void setRefCount(int address, int i) {
@@ -58,10 +60,11 @@ public class IUnknown {
         return result;
     }
 
-    static protected int allocate(int vtable, int extra) {
-        int result = WinSystem.getCurrentProcess().heap.alloc(8+extra, false);
-        Memory.mem_zero(result, 8+extra);
+    static protected int allocate(int vtable, int extra, int cleanup) {
+        int result = WinSystem.getCurrentProcess().heap.alloc(OFFSET_DATA_START+extra, false);
+        Memory.mem_zero(result, OFFSET_DATA_START+extra);
         Memory.mem_writed(result, vtable);
+        Memory.mem_writed(result+OFFSET_CLEANUP, cleanup);
         setRefCount(result, 1);
         return result;
     }
@@ -107,6 +110,23 @@ public class IUnknown {
         }
     };
 
+    static public int Release(int This) {
+        System.out.println(names.get(new Integer(getVTable(This)))+".Release");
+        int refCount = getRefCount(This);
+        refCount--;
+        setRefCount(This, refCount);
+        if (refCount == 0) {
+            System.out.println("    Freed");
+            int cb = Memory.mem_readd(This+OFFSET_CLEANUP);
+            if (cb != 0) {
+                CPU.CPU_Push32(This);
+                Callback.CallBack_Handlers[cb].call();
+            }
+            WinSystem.getCurrentProcess().heap.free(This);
+        }
+        return refCount;
+    }
+
     // ULONG Release(this)
     static private Callback.Handler Release = new HandlerBase() {
         public java.lang.String getName() {
@@ -114,15 +134,7 @@ public class IUnknown {
         }
         public void onCall() {
             int This = CPU.CPU_Pop32();
-            System.out.println(names.get(new Integer(getVTable(This)))+".Release");
-            int refCount = getRefCount(This);
-            refCount--;
-            setRefCount(This, refCount);
-            if (refCount == 0) {
-                System.out.println("    Freed");
-                WinSystem.getCurrentProcess().heap.free(This);
-            }
-            CPU_Regs.reg_eax.dword = refCount;
+            CPU_Regs.reg_eax.dword = Release(This);
         }
     };
 }

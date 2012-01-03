@@ -5,8 +5,11 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.misc.Log;
 import jdos.win.Console;
+import jdos.win.Win;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
+import jdos.win.loader.Module;
+import jdos.win.loader.NativeModule;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
@@ -22,6 +25,7 @@ public class User32 extends BuiltinModule {
         add(LoadCursorA);
         add(LoadIconA);
         add(LoadImageA);
+        add(PeekMessageA);
         add(RegisterClassA);
         add(RegisterClassExA);
         add(SetFocus);
@@ -179,8 +183,44 @@ public class User32 extends BuiltinModule {
             int cxDesired = CPU.CPU_Pop32();
             int cyDesired = CPU.CPU_Pop32();
             int fuLoad = CPU.CPU_Pop32();
-            Console.out("LoadImage faked");
+            if (fuLoad != 0) {
+                Win.panic(getName()+" fuLoad flags are not currently supported: fuLoad = 0x"+Integer.toString(fuLoad, 16));
+            }
+            if (uType == 0) { // IMAGE_BITMAP
+                Module m = WinSystem.getCurrentProcess().loader.getModuleByHandle(hinst);
+                if (m instanceof NativeModule) {
+                    NativeModule module = (NativeModule)m;
+                    int bitmapAddress = module.getAddressOfResource(NativeModule.RT_BITMAP, lpszName);
+                    if (bitmapAddress != 0) {
+                        CPU_Regs.reg_eax.dword = WinSystem.createBitmap(bitmapAddress).getHandle();
+                    } else {
+                        // :TODO: what should the error be
+                        CPU_Regs.reg_eax.dword = 0;
+                    }
+                    return;
+                } else {
+                    Win.panic(getName()+" currently does not support loading a image from a builtin module");
+                }
+            } else {
+                Console.out("LoadImage type="+uType+" faked");
+            }
             CPU_Regs.reg_eax.dword = 1;
+        }
+    };
+
+    // BOOL WINAPI PeekMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
+    private Callback.Handler PeekMessageA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.PeekMessageA";
+        }
+        public void onCall() {
+            int lpMsg = CPU.CPU_Pop32();
+            int hWnd = CPU.CPU_Pop32();
+            int wMsgFilterMin = CPU.CPU_Pop32();
+            int wMsgFilterMax = CPU.CPU_Pop32();
+            int wRemoveMsg = CPU.CPU_Pop32();
+            System.out.println(getName()+" faked");
+            CPU_Regs.reg_eax.dword = WinAPI.FALSE;
         }
     };
 

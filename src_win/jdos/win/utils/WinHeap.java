@@ -59,6 +59,14 @@ public class WinHeap {
         return item.free(memory);
     }
 
+    public int heapSize(int handle, int memory) {
+        HeapItem item = (HeapItem)heaps.elementAt(handle-1);
+        if (item == null) {
+            return -1;
+        }
+        return item.size(memory);
+    }
+
     private class HeapItem {
         int initialSize;
         int maxSize;
@@ -81,6 +89,13 @@ public class WinHeap {
             return WinAPI.TRUE;
         }
 
+        public int size(int add) {
+            Integer size = (Integer)allocs.get(new Integer(add));
+            if (size == null) {
+                return -1;
+            }
+            return size.intValue();
+        }
         public int alloc(int size) {
             if (maxSize!=0 && (currentSize+size)>maxSize)
                 return 0;

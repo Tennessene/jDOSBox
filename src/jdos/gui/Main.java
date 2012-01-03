@@ -459,6 +459,13 @@ public class Main {
         return true;
     }
 
+    static public void drawImage(Image image) {
+        Graphics graphics = buffer.getGraphics();
+        graphics.clearRect(0, 0, screen_width, screen_width);
+        graphics.drawImage(image, 0, 0, null);
+        gui.dopaint();
+    }
+
     static int screen_width;
     static int screen_height;
     static int buffer_width;

@@ -21,16 +21,18 @@ public class IDirectDrawPalette extends IUnknown {
     static final private int DDPCAPS_2BIT =                 0x00000200;
     static final private int DDPCAPS_ALPHA =                0x00000400;
 
+    static final public int OFFSET_COLOR_DATA = 0;
+
     public static int create(int flags, int lpColorTable) {
         int vtable = getVTable("IDirectDrawPalette");
         if (vtable == 0)
             vtable = createVTable();
-        int result = allocate(vtable, 256*4);
+        int result = allocate(vtable, 256*4, 0);
         if ((flags & DDPCAPS_INITIALIZE)!=0) {
             if ((flags & DDPCAPS_8BIT)==0) {
                 Win.panic("DirectDraw create palette without DDPCAPS_8BIT");
             }
-            Memory.mem_memcpy(result+OFFSET_IUNKNOWN, lpColorTable, 256*4);
+            Memory.mem_memcpy(result+ OFFSET_DATA_START, lpColorTable, 256*4);
         }
         return result;
     }

@@ -4,6 +4,7 @@ import jdos.hardware.Memory;
 
 public class DDSurfaceDesc {
     static public final int SIZE = 0x6C;
+    static public final int SIZE2 = 0x7C;
 
     static public final int DDSD_CAPS =             0x00000001;
     static public final int	DDSD_HEIGHT =           0x00000002;
@@ -44,9 +45,16 @@ public class DDSurfaceDesc {
 	public DDColorKey ddckCKSrcOverlay;     /* 38: CK for source overlay use*/
 	public DDColorKey ddckCKSrcBlt;	        /* 40: CK for source blt use*/
 	public DDPixelFormat ddpfPixelFormat;   /* 48: pixel format description of the surface*/
-	public int  ddsCaps;	                /* 68: direct draw surface caps */
+	public int ddsCaps;	                /* 68: direct draw surface caps */
 
-    public DDSurfaceDesc(int address) {
+    // DDSurfaceDesc2
+        // DDSCAPS2
+        public int dwCaps2; /* additional capabilities */
+        public int dwCaps3; /* reserved capabilities */
+        public int dwCaps4; /* more reserved capabilities */
+    public int dwTextureStage;              /* 78: stage in multitexture cascade */
+
+    public DDSurfaceDesc(int address, boolean version2) {
         dwSize = Memory.mem_readd(address);
         dwFlags = Memory.mem_readd(address+0x4);
         dwHeight = Memory.mem_readd(address+0x8);
@@ -63,5 +71,11 @@ public class DDSurfaceDesc {
         ddckCKSrcBlt = new DDColorKey(address+0x40);
         ddpfPixelFormat = new DDPixelFormat(address+0x48);
         ddsCaps = Memory.mem_readd(address+0x68);
+        if (version2) {
+            dwCaps2 = Memory.mem_readd(address+0x6C);
+            dwCaps3 = Memory.mem_readd(address+0x70);
+            dwCaps4 = Memory.mem_readd(address+0x74);
+            dwTextureStage = Memory.mem_readd(address+0x78);
+        }
     }
 }

@@ -36,4 +36,5 @@ public class WinObject {
     public String name;
     public int handle;
     private int refCount = 0;
+    public Object data;
 }

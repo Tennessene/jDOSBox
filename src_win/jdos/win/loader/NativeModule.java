@@ -4,6 +4,7 @@ import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
+import jdos.win.Win;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.loader.winpe.HeaderImageExportDirectory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
@@ -24,6 +25,7 @@ public class NativeModule extends Module {
     private KernelHeap heap;
     private Loader loader;
     private int baseAddress;
+    private int resourceStartAddress;
 
     public NativeModule(Loader loader, int handle) {
         super(handle);
@@ -64,7 +66,11 @@ public class NativeModule extends Module {
                 int address = (int)header.imageSections[i].VirtualAddress+baseAddress;
                 fis.seek(header.imageSections[i].PointerToRawData);
                 byte[] buffer = new byte[(int)header.imageSections[i].SizeOfRawData];
-                System.out.println("   "+new String(header.imageSections[i].Name)+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Long.toHexString(address+header.imageSections[i].PhysicalAddress_or_VirtualSize)+"("+Long.toHexString(address+buffer.length)+")");
+                String segmentName = new String(header.imageSections[i].Name);
+                if (segmentName.startsWith(".rsrc")) {
+                    resourceStartAddress = address;
+                }
+                System.out.println("   "+segmentName+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Long.toHexString(address+header.imageSections[i].PhysicalAddress_or_VirtualSize)+"("+Long.toHexString(address+buffer.length)+")");
                 fis.read(buffer);
                 int size = buffer.length;
                 if (header.imageSections[i].PhysicalAddress_or_VirtualSize>size)
@@ -83,6 +89,105 @@ public class NativeModule extends Module {
             if (fis != null) try {fis.close();} catch (Exception e) {}
         }
         return false;
+    }
+
+    static public final int RT_CURSOR = 1;
+    static public final int RT_BITMAP = 2;
+    static public final int RT_ICON = 3;
+    static public final int RT_MENU = 4;
+    static public final int RT_DIALOG = 5;
+    static public final int RT_STRING = 6;
+    static public final int RT_FONTDIR = 7;
+    static public final int RT_FONT = 8;
+    static public final int RT_ACCELERATOR = 9;
+    static public final int RT_RCDATA = 10;
+    static public final int RT_MESSAGETABLE = 11;
+
+    static public class ResourceDirectory {
+        public static final int SIZE = 16;
+
+        public ResourceDirectory(int address) {
+            LittleEndianFile is = new LittleEndianFile(address);
+            Characteristics = is.readInt();
+            TimeDateStamp = is.readInt();
+            MajorVersion = is.readUnsignedShort();
+            MinorVersion = is.readUnsignedShort();
+            NumberOfNamedEntries = is.readUnsignedShort();
+            NumberOfIdEntries = is.readUnsignedShort();
+        }
+        public int Characteristics;
+        public int TimeDateStamp;
+        public int MajorVersion;
+        public int MinorVersion;
+        public int NumberOfNamedEntries;
+        public int NumberOfIdEntries;
+    }
+    public int getAddressOfResource(int type, int id) {
+        if (resourceStartAddress == 0)
+            return 0;
+
+        ResourceDirectory root = new ResourceDirectory(resourceStartAddress);
+        if (id <0) {
+            Win.panic("Loading a resource by type name is not supported yet");
+        } else {
+            int address = resourceStartAddress +ResourceDirectory.SIZE+root.NumberOfNamedEntries*8;
+
+            for (int i=0;i<root.NumberOfIdEntries;i++) {
+                int name = Memory.mem_readd(address);
+                address+=4;
+                int offset = Memory.mem_readd(address);
+                address+=4;
+                if (name == type) {
+                    if (offset<0)
+                        return getResourceById(resourceStartAddress + (offset & 0x7FFFFFFF), id);
+                    return  getResource(resourceStartAddress + offset);
+                }
+            }
+        }
+        int ii=0;
+        return 0;
+    }
+    private int getResource(int address) {
+        int offset = Memory.mem_readd(address);
+        int size = Memory.mem_readd(address+4);
+        return offset + baseAddress;
+        //int CodePage = Memory.mem_readd(address+8);
+        //int Reserved = Memory.mem_readd(address+12);
+    }
+
+    private int getResourceById(int resourceAddress, int id) {
+        ResourceDirectory root = new ResourceDirectory(resourceAddress);
+
+        int address = resourceAddress+ResourceDirectory.SIZE+root.NumberOfNamedEntries*8;
+
+        for (int i=0;i<root.NumberOfIdEntries;i++) {
+            int name = Memory.mem_readd(address);
+            address+=4;
+            int offset = Memory.mem_readd(address);
+            address+=4;
+            if (name == id) {
+                if (offset<0)
+                    return getResourceByCodePage(resourceStartAddress + (offset & 0x7FFFFFFF));
+                return getResource(resourceStartAddress + offset);
+            }
+        }
+        return 0;
+    }
+
+    private int getResourceByCodePage(int resourceAddress) {
+         ResourceDirectory root = new ResourceDirectory(resourceAddress);
+        int address = resourceAddress+ResourceDirectory.SIZE+root.NumberOfNamedEntries*8;
+
+        for (int i=0;i<root.NumberOfIdEntries;i++) {
+            int name = Memory.mem_readd(address);
+            address+=4;
+            int offset = Memory.mem_readd(address);
+            address+=4;
+            if (name == 1033) {
+                return getResource(resourceStartAddress + offset);
+            }
+        }
+        return 0;
     }
 
     public long getEntryPoint() {

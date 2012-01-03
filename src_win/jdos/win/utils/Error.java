@@ -22,6 +22,9 @@ public class Error {
     public static final int S_OK = 0x00000000;
     public static final int E_NOINTERFACE = 0x80004002;
     public static final int E_POINTER = 0x80004003;
+    public static final int E_INVALIDARG = 0x80070057;
+
+    public static final int DDERR_INVALIDPARAMS = E_INVALIDARG;
 
     public static String getError(int e) {
         switch (e) {

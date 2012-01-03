@@ -20,6 +20,10 @@ public class WinSystem {
     static private Hashtable namedObjects;
     static Hashtable objects;
 
+    static public int screenWidth;
+    static public int screenHeight;
+    static public int screenBpp;
+
     static public void start() {
         nextObjectId = 0x2000;
         scheduler = new Scheduler();
@@ -74,6 +78,23 @@ public class WinSystem {
 
     static public WinClass createClass() {
         return new WinClass(nextObjectId++);
+    }
+
+    static public WinBitmap createBitmap(int address) {
+        return new WinBitmap(nextObjectId++, address);
+    }
+
+    static public WinObject createWinObject() {
+        return new WinObject(nextObjectId++);
+    }
+
+    static public WinDC createDC(WinDC dc, int address, int width, int height, int[] palette) {
+        int bpp = screenBpp;
+        if (dc != null) {
+            bpp = dc.bpp;
+            palette = dc.palette;
+        }
+        return new WinDC(nextObjectId++, bpp, address, width, height, palette);
     }
 
     static public WinWindow createWindow(int dwExStyle, WinClass winClass, String name, int dwStyle, int x, int y, int cx, int cy, int hParent, int hMenu, int hInstance, int lpParam) {

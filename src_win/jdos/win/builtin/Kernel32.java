@@ -95,6 +95,7 @@ public class Kernel32 extends BuiltinModule {
         add(HeapDestroy);
         add(HeapFree);
         add(HeapReAlloc);
+        add(HeapSize);
         add(HeapValidate);
         add(InitializeCriticalSection);
         add(InitializeCriticalSectionAndSpinCount);
@@ -1524,6 +1525,19 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             notImplemented();
+        }
+    };
+
+    // SIZE_T WINAPI HeapSize(HANDLE hHeap, DWORD dwFlags, LPCVOID lpMem)
+    static private Callback.Handler HeapSize = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.HeapSize";
+        }
+        public void onCall() {
+            int hHeap = CPU.CPU_Pop32();
+            int dwFlags = CPU.CPU_Pop32();
+            int lpMem = CPU.CPU_Pop32();
+            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().heapSize(hHeap, lpMem);
         }
     };
 

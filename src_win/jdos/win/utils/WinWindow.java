@@ -1,8 +1,11 @@
 package jdos.win.utils;
 
 import jdos.cpu.CPU_Regs;
+import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.builtin.WinAPI;
+
+import java.awt.*;
 
 public class WinWindow extends WinObject {
     static public final int WM_CREATE =                      0x0001;
@@ -26,6 +29,8 @@ public class WinWindow extends WinObject {
     static public final int WM_SYSCOLORCHANGE =              0x0015;
     static public final int WM_ENDSESSION =                  0x0016;
     static public final int WM_SHOWWINDOW =                  0x0018;
+
+    static public final int WM_ACTIVATEAPP =                 0x001C;
 
     static public final int WM_KEYFIRST =                    0x0100;
     static public final int WM_KEYDOWN =                     0x0100;
@@ -114,8 +119,39 @@ public class WinWindow extends WinObject {
         }
     }
 
+    public int beginPaint(int lpPaint) {
+        int dc = getDC();
+        if (lpPaint != 0) {  // :TODO: does windows allow this?
+            int erase = WinAPI.TRUE;
+            if (winClass.hbrBackground != 0) {
+                WinObject object = WinSystem.getObject(winClass.hbrBackground);
+                if (object != null && object instanceof WinBrush) {
+                    WinDC winDC = (WinDC)WinSystem.getObject(dc);
+                    Graphics g = winDC.getImage().getGraphics();
+                    g.setColor(new Color(((WinBrush)object).color));
+                    g.fillRect(0, 0, width, height);
+                    erase = WinAPI.FALSE;
+                }
+            }
+            Memory.mem_writed(lpPaint, dc);lpPaint+=4; // hdc
+            Memory.mem_writed(lpPaint, erase);lpPaint+=4; // fErase
+            WinRect.write(lpPaint, 0, 0, width, height);lpPaint+=16; // rcPaint
+            Memory.mem_writed(lpPaint, 0);lpPaint+=4; // fRestore - reserved
+            Memory.mem_writed(lpPaint, 0);lpPaint+=4; // fIncUpdate - reserved
+            Memory.mem_zero(lpPaint, 32); // rgbReserved - reserved
+        }
+        return dc;
+    }
+
+    public int endPaint(int lpPaint) {
+        WinDC dc = (WinDC)WinSystem.getObject(Memory.mem_readd(lpPaint));
+        Main.drawImage(dc.address, dc.bpp, dc.width, dc.height);
+        releaseDC(dc);
+        return WinAPI.TRUE;
+    }
+
     public int getDC() {
-        return WinSystem.createDC(null, 0, width, height, null).getHandle();
+        return WinSystem.createDC(null, WinSystem.getScreenAddress(), width, height, null).getHandle();
     }
 
     public int releaseDC(WinDC dc) {
@@ -157,8 +193,13 @@ public class WinWindow extends WinObject {
         return WinAPI.TRUE;
     }
 
+    public boolean isActive = false;
     public void showWindow(boolean show) {
         if (show) {
+            if (!isActive) {
+                postMessage(WM_ACTIVATEAPP, WinAPI.TRUE, 0);
+                isActive = true;
+            }
             postMessage(WM_SHOWWINDOW, WinAPI.TRUE, 0);
             postMessage(WM_ACTIVATE, 1 /* WA_ACTIVE */, 0);
             postMessage(WM_SETFOCUS, 0, 0);

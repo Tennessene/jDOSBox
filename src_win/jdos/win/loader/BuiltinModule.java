@@ -9,6 +9,7 @@ import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
+import jdos.win.utils.WinSystem;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -28,6 +29,12 @@ public class BuiltinModule extends Module {
     }
     protected void add(Callback.Handler handler) {
         functions.put(handler.getName().substring(name.length() + 1), handler);
+    }
+
+    protected int addData(String name, int size) {
+        int result = WinSystem.getCurrentProcess().heap.alloc(size, false);
+        registeredCallbacks.put(name, new Integer(result));
+        return result;
     }
 
     public int getProcAddress(final String functionName, boolean loadFake) {

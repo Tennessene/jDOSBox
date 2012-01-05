@@ -56,6 +56,12 @@ public class IDirectDrawSurface extends IUnknown {
     static final int DDLOCK_NOOVERWRITE =       0x00001000;
     static final int DDLOCK_DISCARDCONTENTS =   0x00002000;
 
+    static final int DDCKEY_COLORSPACE =    0x00000001;  /* Struct is single colour space */
+    static final int DDCKEY_DESTBLT =       0x00000002;  /* To be used as dest for blt */
+    static final int DDCKEY_DESTOVERLAY =   0x00000004;  /* To be used as dest for CK overlays */
+    static final int DDCKEY_SRCBLT =        0x00000008;  /* To be used as src for blt */
+    static final int DDCKEY_SRCOVERLAY =    0x00000010;  /* To be used as src for CK overlays */
+
     static int FLAGS_CAPS2 =    0x00000001;
     static int FLAGS_DESC2 =    0x00000002;
     static int FLAGS_LOCKED =   0x00000004;
@@ -66,9 +72,11 @@ public class IDirectDrawSurface extends IUnknown {
     static int OFFSET_BACK_BUFFER = 12;
     static int OFFSET_DC = 16;
     static int OFFSET_IMAGE_CACHE = 20;
+    static int OFFSET_IMAGE_CACHE_CKSRC = 24;
+    static int OFFSET_DIRECT_DRAW = 28;
 
     // doesn't include description since that gets computed on the fly
-    static int DATA_SIZE = 24;
+    static int DATA_SIZE = 32;
 
     static int OFFSET_DESC = DATA_SIZE;
 
@@ -83,8 +91,40 @@ public class IDirectDrawSurface extends IUnknown {
         return (flags & FLAGS_DESC2) != 0;
     }
 
+    public static BufferedImage getImageSrcColorKey(int This, boolean create) {
+        BufferedImage result = getImage(This, false, OFFSET_IMAGE_CACHE_CKSRC);
+        if (result == null && create) {
+            result = getImage(This, true, OFFSET_IMAGE_CACHE);
+            if ((getData(This, OFFSET_DESC+0x04) & DDSurfaceDesc.DDSD_CKSRCBLT) != 0) {
+                int colorKey = getData(This, OFFSET_DESC + 0x40);
+                if (getBpp(This)==8)
+                    colorKey = getPaletteEntry(This, colorKey);
+                result = Pixel.makeColorTransparent(result, new Color(colorKey));
+                if ((getData(This, OFFSET_FLAGS) & FLAGS_LOCKED)==0) {
+                    WinObject object = WinSystem.createWinObject();
+                    object.data = result;
+                    setData(This, OFFSET_IMAGE_CACHE_CKSRC, object.getHandle());
+                }
+            }
+        }
+        return result;
+    }
+
     public static BufferedImage getImage(int This, boolean create) {
-        int index = getData(This, OFFSET_IMAGE_CACHE);
+        return getImage(This, create, OFFSET_IMAGE_CACHE);
+    }
+
+    public static int getPaletteEntry(int This, int entry) {
+        int lpDDPalette = getData(This, OFFSET_PALETTE);
+        if (lpDDPalette != 0) {
+            return getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*entry);
+        }
+        Win.panic("Unexpected getPaletteEntry call");
+        return 0;
+    }
+
+    public static BufferedImage getImage(int This, boolean create, int offset) {
+        int index = getData(This, offset);
         BufferedImage image = null;
         if (index == 0) {
             if (create) {
@@ -101,7 +141,7 @@ public class IDirectDrawSurface extends IUnknown {
                 if ((getData(This, OFFSET_FLAGS) & FLAGS_LOCKED)==0) {
                     WinObject object = WinSystem.createWinObject();
                     object.data = image;
-                    setData(This, OFFSET_IMAGE_CACHE, object.getHandle());
+                    setData(This, offset, object.getHandle());
                 }
             }
         } else {
@@ -115,6 +155,12 @@ public class IDirectDrawSurface extends IUnknown {
         int index = getData(This, OFFSET_IMAGE_CACHE);
         if (index>0) {
             setData(This, OFFSET_IMAGE_CACHE, 0);
+            WinObject object = WinSystem.getObject(index);
+            object.close();
+        }
+        index = getData(This, OFFSET_IMAGE_CACHE_CKSRC);
+        if (index>0) {
+            setData(This, OFFSET_IMAGE_CACHE_CKSRC, 0);
             WinObject object = WinSystem.getObject(index);
             object.close();
         }
@@ -143,8 +189,16 @@ public class IDirectDrawSurface extends IUnknown {
         return getData(This, OFFSET_DESC+0x0C);
     }
 
+    public static int getBpp(int This) {
+        return getData(This, OFFSET_DESC+0x54);
+    }
+
     public static int getHeight(int This) {
         return getData(This, OFFSET_DESC+0x08);
+    }
+
+    public static int getBits(int This) {
+        return getData(This, OFFSET_MEMORY);
     }
 
     public static int create(int pDirectDraw, int pDesc) {
@@ -176,13 +230,20 @@ public class IDirectDrawSurface extends IUnknown {
 
     public static int cleanupCallback;
 
+    public static int getCaps(int This) {
+        return getData(This, OFFSET_DESC+0x68);
+    }
+    public static int getDirectDraw(int This) {
+        return getData(This, OFFSET_DIRECT_DRAW);
+    }
+
     public static int create(String name, int pDirectDraw, int pDesc, int flags) {
         int vtable = getVTable(name);
         if (vtable == 0) {
             vtable = createVTable();
             cleanupCallback = WinCallback.addCallback(CleanUp);
         }
-        int result = allocate(vtable, DDSurfaceDesc.SIZE2+12, cleanupCallback);
+        int result = allocate(vtable, DDSurfaceDesc.SIZE2+DATA_SIZE, cleanupCallback);
         int descSize =  (flags & FLAGS_DESC2)!=0?DDSurfaceDesc.SIZE2:DDSurfaceDesc.SIZE;
         Memory.mem_memcpy(result+ OFFSET_DATA_START +OFFSET_DESC, pDesc, descSize);
 
@@ -280,6 +341,15 @@ public class IDirectDrawSurface extends IUnknown {
             }
         }
         setData(result, OFFSET_DESC+0x68, caps);
+        setData(result, OFFSET_DIRECT_DRAW, pDirectDraw);
+
+        if ((caps & DDSCAPS_PALETTE) != 0) {
+            int palette = IDirectDraw.getPalette(getDirectDraw(result));
+            if (palette != 0) {
+                AddRef(palette);
+                setData(result, OFFSET_PALETTE, palette);
+            }
+        }
         return result;
     }
 
@@ -465,17 +535,28 @@ public class IDirectDrawSurface extends IUnknown {
             int lpDDSrcSurface = CPU.CPU_Pop32();
             int lpSrcRect = CPU.CPU_Pop32();
             int dwTrans = CPU.CPU_Pop32();
-            BufferedImage dest = getImage(This, true);
-            BufferedImage src = getImage(lpDDSrcSurface, true);
 
-            Graphics g = dest.getGraphics();
             int srcX1 = Memory.mem_readd(lpSrcRect);
             int srcY1 = Memory.mem_readd(lpSrcRect+4);
             int srcX2 = Memory.mem_readd(lpSrcRect+8);
             int srcY2 = Memory.mem_readd(lpSrcRect+12);
             int width = srcX2-srcX1;
             int height = srcY2-srcY1;
-            g.drawImage(src, dwX, dwY, dwX+width, dwY+height, srcX1, srcY1, srcX2, srcY2, null);
+
+            BufferedImage dest = getImage(This, true);
+            Graphics g = dest.getGraphics();
+
+            if ((dwTrans & 0xF) == DDBLTFAST_NOCOLORKEY) {
+                BufferedImage src = getImage(lpDDSrcSurface, true);
+                g.drawImage(src, dwX, dwY, dwX+width, dwY+height, srcX1, srcY1, srcX2, srcY2, null);
+            } else if ((dwTrans & 0xF) == DDBLTFAST_SRCCOLORKEY) {
+                BufferedImage src = getImageSrcColorKey(lpDDSrcSurface, true);
+                g.drawImage(src, dwX, dwY, dwX+width, dwY+height, srcX1, srcY1, srcX2, srcY2, null);
+            } else if ((dwTrans & 0xF) == DDBLTFAST_DESTCOLORKEY) {
+                System.out.println(getName()+" DDBLTFAST_DESTCOLORKEY not implemented yet");
+                notImplemented();
+            }
+            g.dispose();
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
@@ -535,7 +616,6 @@ public class IDirectDrawSurface extends IUnknown {
 
             BufferedImage src = getImage(backBuffer, true);
             Main.drawImage(src);
-
             // swap caches and memory
             int frontCache = getData(This, OFFSET_IMAGE_CACHE);
             int backCache = getData(backBuffer, OFFSET_IMAGE_CACHE);
@@ -863,7 +943,51 @@ public class IDirectDrawSurface extends IUnknown {
             int This = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
             int lpDDColorKey = CPU.CPU_Pop32();
-            notImplemented();
+            boolean single = (dwFlags & DDCKEY_COLORSPACE) == 0;
+
+            if (lpDDColorKey == 0) {
+                switch (dwFlags & ~DDCKEY_COLORSPACE) {
+                    case DDCKEY_DESTBLT:
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) & ~DDSurfaceDesc.DDSD_CKDESTBLT);
+                        break;
+                    case DDCKEY_DESTOVERLAY:
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) & ~DDSurfaceDesc.DDSD_CKDESTOVERLAY);
+                        break;
+                    case DDCKEY_SRCBLT:
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) & ~DDSurfaceDesc.DDSD_CKSRCBLT);
+                        break;
+                    case DDCKEY_SRCOVERLAY:
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) & ~DDSurfaceDesc.DDSD_CKSRCOVERLAY);
+                        break;
+                }
+            } else {
+                int c1 = Memory.mem_readd(lpDDColorKey);
+                int c2 = 0;
+                if (!single) {
+                    c2 = Memory.mem_readd(lpDDColorKey+4);
+                    System.out.println(getName()+" color space not implemented yet");
+                    notImplemented();
+                }
+
+                switch (dwFlags & ~DDCKEY_COLORSPACE) {
+                    case DDCKEY_DESTBLT:
+                        setData(This, OFFSET_DESC+0x30, c1);
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) | DDSurfaceDesc.DDSD_CKDESTBLT);
+                        break;
+                    case DDCKEY_DESTOVERLAY:
+                        setData(This, OFFSET_DESC+0x28, c1);
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) | DDSurfaceDesc.DDSD_CKDESTOVERLAY);
+                        break;
+                    case DDCKEY_SRCBLT:
+                        setData(This, OFFSET_DESC+0x40, c1);
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) | DDSurfaceDesc.DDSD_CKSRCBLT);
+                        break;
+                    case DDCKEY_SRCOVERLAY:
+                        setData(This, OFFSET_DESC+0x48, c1);
+                        setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) | DDSurfaceDesc.DDSD_CKSRCOVERLAY);
+                        break;
+                }
+            }
         }
     };
 
@@ -888,8 +1012,12 @@ public class IDirectDrawSurface extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpDDPalette = CPU.CPU_Pop32();
+            int oldPalette = getData(This, OFFSET_PALETTE);
+            if (oldPalette != 0) {
+                Release(oldPalette);
+            }
             if (lpDDPalette == 0) {
-                CPU_Regs.reg_eax.dword = Error.E_POINTER;
+                setData(This, OFFSET_PALETTE, 0);
             } else {
                 // :TODO: not sure if I should copy the palette or reference it
                 AddRef(lpDDPalette); // :TODO: this will be leaked
@@ -899,8 +1027,13 @@ public class IDirectDrawSurface extends IUnknown {
                     AddRef(lpDDPalette);
                     setData(backBuffer, OFFSET_PALETTE, lpDDPalette);
                 }
-                CPU_Regs.reg_eax.dword = Error.S_OK;
+                if ((getCaps(This) & DDSCAPS_PRIMARYSURFACE)!=0) {
+                    AddRef(lpDDPalette);
+                    IDirectDraw.setPalette(getDirectDraw(This), lpDDPalette);
+                    WinSystem.screenPalette = lpDDPalette+IUnknown.OFFSET_DATA_START+IDirectDrawPalette.OFFSET_COLOR_DATA;
+                }
             }
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 

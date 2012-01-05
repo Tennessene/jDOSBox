@@ -7,6 +7,7 @@ import jdos.cpu.core_dynamic.Loader;
 import jdos.dos.Dos_execute;
 import jdos.dos.Dos_programs;
 import jdos.hardware.Keyboard;
+import jdos.hardware.Memory;
 import jdos.ints.Mouse;
 import jdos.misc.Cross;
 import jdos.misc.Log;
@@ -461,8 +462,14 @@ public class Main {
 
     static public void drawImage(Image image) {
         Graphics graphics = buffer.getGraphics();
-        graphics.clearRect(0, 0, screen_width, screen_height);
         graphics.drawImage(image, 0, 0, null);
+        gui.dopaint();
+    }
+
+    static public void drawImage(int address, int bpp, int width, int height) {
+        if (bpp == 8) {
+            Memory.mem_memcpy(byte_rawImageData, 0, address, width * height);
+        }
         gui.dopaint();
     }
 

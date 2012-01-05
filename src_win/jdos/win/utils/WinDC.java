@@ -21,9 +21,13 @@ public class WinDC extends WinObject {
     int[] palette;
     boolean addressOwner = false;
     int hPalette = 0;
+    BufferedImage image;
 
     public WinDC(int handle, int bpp, int address, int width, int height, int[] palette) {
         super(handle);
+        if (bpp == 8 && palette == null) {
+            Win.panic("WinDC got a request for an 8-bit display but the palette was null");
+        }
         this.bpp = bpp;
         this.address = address;
         this.width = width;
@@ -43,9 +47,8 @@ public class WinDC extends WinObject {
         return oldColor;
     }
 
-    public int gtTextExtent(String text, int lpSize) {
-        // :TODO: this is expensive, need to investigate caching this
-        BufferedImage bi = Pixel.createImage(address, bpp, palette, width, height);
+    public int getTextExtent(String text, int lpSize) {
+        BufferedImage bi = getImage();
         Graphics2D g = (Graphics2D)bi.getGraphics();
         FontRenderContext frc = g.getFontRenderContext();
         Font font = g.getFont().deriveFont(16f);
@@ -59,8 +62,7 @@ public class WinDC extends WinObject {
     }
 
     public int textOut(int x, int y, String text) {
-        // :TODO: this is expensive, need to investigate caching this
-        BufferedImage bi = Pixel.createImage(address, bpp, palette, width, height);
+        BufferedImage bi = getImage();
         Graphics2D g = (Graphics2D)bi.getGraphics();
 
         FontRenderContext frc = g.getFontRenderContext();
@@ -78,6 +80,17 @@ public class WinDC extends WinObject {
         return WinAPI.TRUE;
     }
 
+    public int getPixel(int x, int y) {
+        BufferedImage bi = getImage();
+        return bi.getRGB(x, y);
+    }
+
+    public int setPixel(int x, int y, int color) {
+        BufferedImage bi = getImage();
+        bi.setRGB(x, y, color);
+        return bi.getRGB(x, y);
+    }
+
     protected void onFree() {
         if (address != 0 && addressOwner) {
             WinSystem.getCurrentProcess().heap.free(address);
@@ -86,7 +99,9 @@ public class WinDC extends WinObject {
     }
 
     public BufferedImage getImage() {
-        return Pixel.createImage(address, bpp, palette, width, height);
+        if (image == null)
+            image = Pixel.createImage(address, bpp, palette, width, height);
+        return image;
     }
 
     public void writeImage(BufferedImage image) {

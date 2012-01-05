@@ -71,6 +71,14 @@ public class IDirectDraw extends IUnknown {
         return getData(This, OFFSET_BPP);
     }
 
+    public static void setPalette(int This, int palette) {
+        setData(This, OFFSET_PALETTE, palette);
+    }
+
+    public static int getPalette(int This) {
+        return getData(This, OFFSET_PALETTE);
+    }
+
     public static int create() {
         return create("IDirectDraw", 0);
     }
@@ -344,8 +352,6 @@ public class IDirectDraw extends IUnknown {
             int dwWidth = CPU.CPU_Pop32();
             int dwHeight = CPU.CPU_Pop32();
             int dwBPP = CPU.CPU_Pop32();
-            // :TODO: 8-bit doesn't work, need to debug
-            dwBPP = 32;
             if ((getData(This, OFFSET_FLAGS) & FLAGS_V7)!=0) {
                 int dwRefreshRate = CPU.CPU_Pop32();
                 int dwFlags = CPU.CPU_Pop32();
@@ -356,7 +362,7 @@ public class IDirectDraw extends IUnknown {
             WinSystem.screenBpp = dwBPP;
             WinSystem.screenHeight = dwHeight;
             WinSystem.screenWidth = dwWidth;
-            Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, dwBPP);
+            Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };

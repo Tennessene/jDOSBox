@@ -28,11 +28,14 @@ public class DSBufferDesc {
         dwFlags = Memory.mem_readd(address);address+=4;
         dwBufferBytes = Memory.mem_readd(address);address+=4;
         dwReserved = Memory.mem_readd(address);address+=4;
-        lpwfxFormat = new WaveFormatEx(address);
+        address = Memory.mem_readd(address);
+        if (address != 0)
+            lpwfxFormat = new WaveFormatEx(address);
     }
+
     public int dwSize;
     public int dwFlags;
     public int dwBufferBytes;
     public int dwReserved;
-    public WaveFormatEx lpwfxFormat;
+    public WaveFormatEx lpwfxFormat = null;
 }

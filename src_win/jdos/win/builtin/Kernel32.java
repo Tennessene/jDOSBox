@@ -123,6 +123,7 @@ public class Kernel32 extends BuiltinModule {
         add(QueryPerformanceCounter);
         add(RaiseException);
         add(RtlUnwind);
+        add(RtlZeroMemory);
         add(SetConsoleCtrlHandler);
         add(SetFilePointer);
         add(SetHandleCount);
@@ -2048,6 +2049,18 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             notImplemented();
+        }
+    };
+
+    // VOID RtlZeroMemory(VOID UNALIGNED *Destination, SIZE_T Length)
+    private Callback.Handler RtlZeroMemory = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.RtlZeroMemory";
+        }
+        public void onCall() {
+            int Destination = CPU.CPU_Pop32();
+            int Length = CPU.CPU_Pop32();
+            Memory.mem_zero(Destination, Length);
         }
     };
 

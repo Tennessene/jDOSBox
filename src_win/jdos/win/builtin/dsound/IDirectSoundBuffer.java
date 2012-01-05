@@ -1,16 +1,21 @@
 package jdos.win.builtin.dsound;
 
 import jdos.cpu.CPU;
+import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.ddraw.IUnknown;
+import jdos.win.utils.Error;
 
 public class IDirectSoundBuffer extends IUnknown {
     static final int VTABLE_SIZE = 18;
 
-    static int OFFSET_FLAGS = 0;
-    static int OFFSET_DESC = 4;
+    final static int DSBSIZE_MIN = 4;
+    final static int DSBSIZE_MAX = 0xFFFFFFF;
+
+    final static int OFFSET_FLAGS = 0;
+    final static int OFFSET_DESC = 4;
 
     static final int DATA_SIZE = OFFSET_DESC;
 
@@ -43,21 +48,35 @@ public class IDirectSoundBuffer extends IUnknown {
         return address;
     }
 
-    public static int create(int lpcDSBufferDesc) {
-        return create("IDirectSoundBuffer", lpcDSBufferDesc, 0);
+    public static int create(int lplpDirectSoundBuffer, int lpcDSBufferDesc) {
+        return create("IDirectSoundBuffer", lplpDirectSoundBuffer, lpcDSBufferDesc, 0);
     }
 
-    public static int create(String name, int lpcDSBufferDesc, int flags) {
+    public static int create(String name, int lplpDirectSoundBuffer, int lpcDSBufferDesc, int flags) {
         int vtable = getVTable(name);
         if (vtable == 0)
             vtable = createVTable();
-        // DSBufferDesc desc = new DSBufferDesc(lpcDSBufferDesc);
+        DSBufferDesc desc = new DSBufferDesc(lpcDSBufferDesc);
+        if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER)==0 && (desc.dwBufferBytes<DSBSIZE_MIN || desc.dwBufferBytes>DSBSIZE_MAX)) {
+            return Error.DDERR_INVALIDPARAMS;
+        }
         int address = allocate(vtable, DATA_SIZE+DSBufferDesc.SIZE, 0);
         setData(address, OFFSET_FLAGS, flags);
         Memory.mem_memcpy(address+OFFSET_DATA_START+OFFSET_DESC, lpcDSBufferDesc, DSBufferDesc.SIZE);
-        return address;
+        Memory.mem_writed(lplpDirectSoundBuffer, address);
+        if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER)!=0) {
+            setData(address, OFFSET_DESC + 8, 256 * 1024); // :TODO: is 256kb a good audio buffer size?
+        }
+        return Error.S_OK;
     }
-    
+
+    static public int getFlags(int This) {
+        return getData(This, OFFSET_DESC+4);
+    }
+    static public int getBufferBytes(int This) {
+        return getData(This, OFFSET_DESC+8);
+    }
+
     // HRESULT GetCaps(this, LPDSBCAPS lpDSBufferCaps)
     static private Callback.Handler GetCaps = new HandlerBase() {
         public java.lang.String getName() {
@@ -66,7 +85,11 @@ public class IDirectSoundBuffer extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpDSBufferCaps = CPU.CPU_Pop32();
-            notImplemented();
+            if (lpDSBufferCaps == 0 || Memory.mem_readd(lpDSBufferCaps)<DSBCaps.SIZE) {
+                CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
+                return;
+            }
+            DSBCaps.write(lpDSBufferCaps,  getFlags(This) | DSBufferDesc.DSBCAPS_LOCSOFTWARE, getBufferBytes(This), 0, 0);
         }
     };
 

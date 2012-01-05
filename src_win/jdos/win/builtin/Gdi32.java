@@ -24,6 +24,7 @@ public class Gdi32 extends BuiltinModule {
         add(DeleteDC);
         add(DeleteObject);
         add(GetObjectA);
+        add(GetPixel);
         add(GdiSetBatchLimit);
         add(GetStockObject);
         add(GetTextExtentPointA);
@@ -32,6 +33,7 @@ public class Gdi32 extends BuiltinModule {
         add(SelectPalette);
         add(SetBkColor);
         add(SetPaletteEntries);
+        add(SetPixel);
         add(SetTextColor);
         add(StretchBlt);
         add(TextOutA);
@@ -162,6 +164,25 @@ public class Gdi32 extends BuiltinModule {
         }
     };
 
+    // COLORREF GetPixel(HDC hdc, int nXPos, int nYPos)
+    private Callback.Handler GetPixel = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.GetPixel";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int nXPos = CPU.CPU_Pop32();
+            int nYPos = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = WinAPI.CLR_INVALID;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinDC)object).getPixel(nXPos, nYPos);
+        }
+    };
+
     // HGDIOBJ GetStockObject(int fnObject)
     private Callback.Handler GetStockObject = new HandlerBase() {
         public java.lang.String getName() {
@@ -171,11 +192,23 @@ public class Gdi32 extends BuiltinModule {
             int fnObject = CPU.CPU_Pop32();
             switch (fnObject) {
                 case 0: // WHITE_BRUSH
+                    CPU_Regs.reg_eax.dword = WinSystem.createBrush(0xFFFFFFFF).getHandle();
+                    return;
                 case 1: // LTGRAY_BRUSH
+                    CPU_Regs.reg_eax.dword = WinSystem.createBrush(0xFFD3D3D3).getHandle();
+                    return;
                 case 2: // GRAY_BRUSH
+                    CPU_Regs.reg_eax.dword = WinSystem.createBrush(0xFF808080).getHandle();
+                    return;
                 case 3: // DKGRAY_BRUSH
+                    CPU_Regs.reg_eax.dword = WinSystem.createBrush(0xFFA9A9A9).getHandle();
+                    return;
                 case 4: // BLACK_BRUSH
+                    CPU_Regs.reg_eax.dword = WinSystem.createBrush(0xFF000000).getHandle();
+                    return;
                 case 5: // NULL_BRUSH
+                    CPU_Regs.reg_eax.dword = WinSystem.createBrush(0x00000000).getHandle();
+                    return;
                 case 6: // WHITE_PEN
                 case 7: // BLACK_PEN
                 case 8: // NULL_PEN
@@ -212,7 +245,7 @@ public class Gdi32 extends BuiltinModule {
                 CPU_Regs.reg_eax.dword = 0;
                 return;
             }
-            CPU_Regs.reg_eax.dword = ((WinDC)object).gtTextExtent(new LittleEndianFile(lpString).readCString(cbString), lpSize);
+            CPU_Regs.reg_eax.dword = ((WinDC)object).getTextExtent(new LittleEndianFile(lpString).readCString(cbString), lpSize);
         }
     };
 
@@ -324,6 +357,26 @@ public class Gdi32 extends BuiltinModule {
                 return;
             }
             CPU_Regs.reg_eax.dword = ((WinPalette)object).setEntries(iStart, cEntries, lppe);
+        }
+    };
+
+    // COLORREF SetPixel(HDC hdc, int X, int Y, COLORREF crColor)
+    private Callback.Handler SetPixel = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.SetPixel";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int nXPos = CPU.CPU_Pop32();
+            int nYPos = CPU.CPU_Pop32();
+            int crColor = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = WinAPI.CLR_INVALID;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinDC)object).setPixel(nXPos, nYPos, crColor);
         }
     };
 

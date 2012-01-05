@@ -3,7 +3,6 @@ package jdos.win.builtin.dsound;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
-import jdos.hardware.Memory;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.ddraw.IUnknown;
 import jdos.win.utils.Error;
@@ -57,8 +56,7 @@ public class IDirectSound extends IUnknown {
             int lpcDSBufferDesc = CPU.CPU_Pop32();
             int lplpDirectSoundBuffer = CPU.CPU_Pop32();
             int pUnkOuter = CPU.CPU_Pop32();
-            Memory.mem_writed(lplpDirectSoundBuffer, IDirectSoundBuffer.create(lpcDSBufferDesc));
-            CPU_Regs.reg_eax.dword = Error.S_OK;
+            CPU_Regs.reg_eax.dword = IDirectSoundBuffer.create(lplpDirectSoundBuffer, lpcDSBufferDesc);
         }
     };
 

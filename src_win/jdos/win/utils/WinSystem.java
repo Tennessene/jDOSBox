@@ -4,6 +4,8 @@ import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
+import jdos.gui.Main;
+import jdos.hardware.Memory;
 import jdos.win.kernel.*;
 
 import java.io.RandomAccessFile;
@@ -23,9 +25,11 @@ public class WinSystem {
     static private Hashtable namedObjects;
     static Hashtable objects;
 
-    static public int screenWidth;
-    static public int screenHeight;
-    static public int screenBpp;
+    static public int screenWidth = 640;
+    static public int screenHeight = 480;
+    static public int screenBpp = 32;
+    static public int screenAddress;
+    static public int screenPalette;
 
     static private long startTime = System.currentTimeMillis();
 
@@ -53,6 +57,13 @@ public class WinSystem {
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_IN);
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_ERROR);
         startTime = System.currentTimeMillis();
+        Main.GFX_SetSize(screenWidth, screenHeight, false, false, false, 32);
+    }
+
+    static public int getScreenAddress() {
+        if (screenAddress == 0)
+            screenAddress = VideoMemory.mapVideoRAM(Pixel.getPitch(screenWidth, screenBpp)*screenWidth);
+        return screenAddress;
     }
 
     static public int getMouseX() {
@@ -106,6 +117,10 @@ public class WinSystem {
         return (WinObject)objects.get(new Integer(handle));
     }
 
+    static public WinBrush createBrush(int color) {
+        return new WinBrush(nextObjectId++, color);
+    }
+
     static public FileMapping createFileMapping(int hFile, String name, long size) {
         FileMapping mapping = new FileMapping(hFile, name, size, nextObjectId++);
         if (name != null)
@@ -132,8 +147,20 @@ public class WinSystem {
         return new WinObject(nextObjectId++);
     }
 
+    static int[] getScreenPalette() {
+        if (screenPalette == 0)
+            return null;
+        int[] result = new int[256];
+        for (int i=0;i<result.length;i++) {
+            result[i] = Memory.mem_readd(screenPalette+i*4);
+        }
+        return result;
+    }
+
     static public WinDC createDC(WinDC dc, int address, int width, int height, int[] palette) {
         int bpp = screenBpp;
+        if (palette == null)
+            palette = getScreenPalette();
         if (dc != null) {
             bpp = dc.bpp;
             palette = dc.palette;

@@ -11,6 +11,38 @@ public class Pixel {
         return ((width * ((bpp + 7) / 8) + 3) / 4) * 4;
     }
 
+    private static BufferedImage imageToBufferedImage(Image image) {
+
+        BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = bufferedImage.createGraphics();
+        g2.drawImage(image, 0, 0, null);
+        g2.dispose();
+
+        return bufferedImage;
+
+    }
+
+    public static BufferedImage makeColorTransparent(BufferedImage im, final Color color) {
+        ImageFilter filter = new RGBImageFilter() {
+
+            // the color we are looking for... Alpha bits are set to opaque
+            public int markerRGB = color.getRGB() | 0xFF000000;
+
+            public final int filterRGB(int x, int y, int rgb) {
+                if ((rgb | 0xFF000000) == markerRGB) {
+                    // Mark the alpha bits as zero - transparent
+                    return 0x00FFFFFF & rgb;
+                } else {
+                    // nothing to do
+                    return rgb;
+                }
+            }
+        };
+
+        ImageProducer ip = new FilteredImageSource(im.getSource(), filter);
+        return imageToBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
+    }
+
     static public BufferedImage createImage(int src, int srcBpp, int[] srcPalette, int width, int height) {
         if (srcPalette != null && srcBpp<=8) {
             byte[] r = new byte[srcPalette.length];
@@ -18,9 +50,9 @@ public class Pixel {
             byte[] b = new byte[srcPalette.length];
 
             for (int i=0;i<srcPalette.length;i++) {
-                b[i] = (byte)srcPalette[i];
+                r[i] = (byte)srcPalette[i];
                 g[i] = (byte)(srcPalette[i] >> 8);
-                r[i] = (byte)(srcPalette[i] >> 16);
+                b[i] = (byte)(srcPalette[i] >> 16);
             }
             IndexColorModel sp = new IndexColorModel(8, srcPalette.length, r, g, b);
 
@@ -43,8 +75,7 @@ public class Pixel {
                     Win.panic("Currently only 24-bit, 16-bit, 8-bit and 4-bit bitmaps are supported");
                 WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, null);
                 BufferedImage bi = new BufferedImage(sp, raster, false, null);
-                //Main.drawImage(bi);
-                //try {Thread.sleep(1000*60);} catch (Exception e) {}
+                //Main.drawImage(bi);try {Thread.sleep(1000*60);} catch (Exception e) {}
                 return bi;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -115,9 +146,17 @@ public class Pixel {
 
         switch (buffer.getDataType()) {
             case DataBuffer.TYPE_BYTE:
+            {
                 DataBufferByte bb = (DataBufferByte)buffer;
-                Win.panic("8-bit bitmap destination not implemented yet");
+                byte[] data = bb.getData();
+                for (int y=0;y<height;y++) {
+                    int address = dst+ pitch * (height-y-1); // Windows bitmaps are bottom up
+                    for (int x=0;x<width;x++) {
+                        Memory.mem_writeb(address + x, data[y * width + x]);
+                    }
+                }
                 break;
+            }
             case DataBuffer.TYPE_USHORT:
             {
                 DataBufferUShort sb = (DataBufferUShort)buffer;
@@ -179,7 +218,7 @@ public class Pixel {
                 Win.panic("Cannot create "+dstBpp+"-bit destination bitmap");
                 biDest = null;
         }
-        //Main.drawImage(biSrc);try {Thread.sleep(1000*60);} catch (Exception e) {}
+
         Graphics graphics = biDest.getGraphics();
         graphics.drawImage(biSrc, 0, 0, width, height, null);
         writeImage(dst, biDest, dstBpp, width, height);
@@ -187,5 +226,66 @@ public class Pixel {
 
     static public int BGRtoRGB(int color) {
         return (color & 0xFF000000) | (color>>>16 & 0xFF) | ((color << 16) & 0xFF0000) | (color & 0x0000FF00);
+    }
+
+    private static int findNearestColor(int color, int[] palette) {
+        int minDistanceSquared = 255*255 + 255*255 + 255*255 + 1;
+        int bestIndex = 0;
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+        for (int i = 0; i < palette.length; i++) {
+            int Rdiff = r - ((palette[i] >> 16) & 0xff);
+            int Gdiff = g - ((palette[i] >> 8) & 0xff);
+            int Bdiff = b - (palette[i] & 0xff);
+            int distanceSquared = Rdiff*Rdiff + Gdiff*Gdiff + Bdiff*Bdiff;
+            if (distanceSquared < minDistanceSquared) {
+                minDistanceSquared = distanceSquared;
+                bestIndex = i;
+            }
+        }
+        return bestIndex;
+    }
+
+    static public void blt8(int dst, int dstX, int dstY, int dstPitch, int src, int srcX, int srcY, int srcPitch, int width, int height) {
+        for (int y=0;y<height;y++) {
+            Memory.mem_memcpy(dst+dstPitch*(dstY+y)+dstX, src+srcPitch*(srcY+y)+srcX, width);
+        }
+    }
+
+    static public void fill(int bpp, int dst, int dstX, int dstY, int dstPitch, int width, int height, int color) {
+
+    }
+
+    static public void copy2(int src, int srcBpp, int[] srcPalette, int dst, int dstBpp, int[] dstPalette, int width, int height) {
+        for (int i=0;i<srcPalette.length;i++) {
+            System.out.println(Integer.toHexString(srcPalette[i]) + " "+Integer.toHexString(dstPalette[i]));
+        }
+        for (int i=0;i<srcPalette.length;i++) {
+            System.out.println(Integer.toHexString(srcPalette[i]) + " "+Integer.toHexString(dstPalette[srcPalette.length-i-1]));
+        }
+        // This will prevent dithering
+        if (dstBpp == 8 && (srcBpp == 8 || srcBpp == 32)) {
+            int dstPitch = getPitch(width, dstBpp);
+            int srcPitch = getPitch(width, srcBpp);
+
+            for (int y=0;y<height;y++) {
+                int s = src + y*srcPitch;
+                int d = dst + y*dstPitch;
+                for (int x=0;x<width;x++) {
+                    int srcColor;
+
+                    if (srcBpp == 8) {
+                        srcColor = srcPalette[Memory.mem_readb(s)];s++;
+                    } else {
+                        srcColor = Memory.mem_readd(s);s+=4;
+                    }
+                    int dstIndex = findNearestColor(srcColor, dstPalette);
+                    Memory.mem_writeb(d, dstIndex); d++;
+                }
+            }
+        } else {
+            copy2(src, srcBpp, srcPalette, dst, dstBpp, dstPalette, width, height);
+        }
     }
 }

@@ -56,13 +56,27 @@ public class WinThread extends WaitObject {
     }
 
     private int getMessage(int msgAddress, int msgIndex, boolean remove) {
-        WinMsg msg = (WinMsg)msgQueue.remove(msgIndex);
+        if (msgAddress == 0)
+            return WinAPI.TRUE;
+        WinMsg msg;
+        if (remove)
+            msg = (WinMsg)msgQueue.remove(msgIndex);
+        else
+            msg = (WinMsg)msgQueue.get(msgIndex);
         setMessage(msgAddress, msg.hwnd, msg.message, msg.wParam, msg.lParam, msg.time, msg.x, msg.y);
         return WinAPI.TRUE;
     }
 
     public void postMessage(int hWnd, int message, int wParam, int lParam) {
         msgQueue.add(new WinMsg(hWnd, message, wParam, lParam));
+    }
+
+    public int waitMessage() {
+        while (peekMessage(0, 0, 0, 0, 0) == WinAPI.FALSE) {
+            // :TODO: put thread to sleep until new msg or timer or paint or quit
+            try {Thread.sleep(25);} catch (Exception e) {}
+        }
+        return WinAPI.TRUE;
     }
 
     public int peekMessage(int msgAddress, int hWnd, int minMsg, int maxMsg, int wRemoveMsg) {

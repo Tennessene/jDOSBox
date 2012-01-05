@@ -51,7 +51,7 @@ public class WinBitmap extends WinGDI {
         bits+=4*biClrUsed;
         palette = new int[biClrUsed];
         for (int i=0;i<palette.length;i++) {
-            palette[i] = is.readInt();
+            palette[i] = Pixel.BGRtoRGB(is.readInt());
         }
     }
     /*

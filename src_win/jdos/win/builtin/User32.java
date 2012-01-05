@@ -18,9 +18,11 @@ import jdos.win.utils.*;
 public class User32 extends BuiltinModule {
     public User32(Loader loader, int handle) {
         super(loader, "user32.dll", handle);
+        add(BeginPaint);
         add(CreateWindowExA);
         add(DefWindowProcA);
         add(DispatchMessageA);
+        add(EndPaint);
         add(FindWindowA);
         add(GetClientRect);
         add(GetDC);
@@ -45,8 +47,26 @@ public class User32 extends BuiltinModule {
         add(TranslateMessage);
         add(UpdateWindow);
         add(WaitForInputIdle);
+        add(WaitMessage);
         add(wsprintfA);
     }
+
+    // HDC BeginPaint(HWND hwnd, LPPAINTSTRUCT lpPaint)
+    private Callback.Handler BeginPaint = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.BeginPaint";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpPaint = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                Log.exit("Weird state: BeginPaint couldn't find hWn");
+            }
+            WinWindow wnd = (WinWindow)object;
+            CPU_Regs.reg_eax.dword = wnd.beginPaint(lpPaint);
+        }
+    };
 
     // HWND WINAPI CreateWindowEx(DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
     private Callback.Handler CreateWindowExA = new HandlerBase() {
@@ -123,6 +143,23 @@ public class User32 extends BuiltinModule {
                 }
             }
             CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
+    // BOOL EndPaint(HWND hWnd, const PAINTSTRUCT *lpPaint)
+    private Callback.Handler EndPaint = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.EndPaint";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpPaint = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                Log.exit("Weird state: EndPaint couldn't find hWn");
+            }
+            WinWindow wnd = (WinWindow)object;
+            CPU_Regs.reg_eax.dword = wnd.endPaint(lpPaint);
         }
     };
 
@@ -544,7 +581,18 @@ public class User32 extends BuiltinModule {
             int hProcess = CPU.CPU_Pop32();
             int dwMilliseconds = CPU.CPU_Pop32();
             CPU_Regs.reg_eax.dword = 0;
+            System.out.println(getName()+" faked");
             //WinSystem.getCurrentThread().sleep(500); // fake it
+        }
+    };
+
+    // BOOL WINAPI WaitMessage(void)
+    private Callback.Handler WaitMessage = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.WaitMessage";
+        }
+        public void onCall() {
+            CPU_Regs.reg_eax.dword = WinSystem.getCurrentThread().waitMessage();
         }
     };
 

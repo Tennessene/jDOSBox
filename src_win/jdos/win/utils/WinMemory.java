@@ -46,8 +46,9 @@ public class WinMemory {
         }
         if ((flags & MEM_COMMIT) != 0) {
             if (address == 0) {
-                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_ADDRESS);
-                return 0;
+                address = heap.allocateHeap(heapHandle, size);
+                for (int i = 0; i < size; i++)
+                    Memory.mem_writeb(address + i, 0);
             }
         }
         return address;

@@ -1,6 +1,9 @@
 package jdos.win.utils;
 
+import jdos.Dosbox;
+import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
+import jdos.cpu.Callback;
 import jdos.win.kernel.*;
 
 import java.io.RandomAccessFile;
@@ -23,6 +26,8 @@ public class WinSystem {
     static public int screenWidth;
     static public int screenHeight;
     static public int screenBpp;
+
+    static private long startTime = System.currentTimeMillis();
 
     static public void start() {
         nextObjectId = 0x2000;
@@ -47,11 +52,50 @@ public class WinSystem {
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_OUT);
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_IN);
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_ERROR);
+        startTime = System.currentTimeMillis();
+    }
+
+    static public int getMouseX() {
+        return 0;
+    }
+
+    static public int getMouseY() {
+        return 0;
+    }
+    static public int getTickCount() {
+        return (int)(System.currentTimeMillis() - startTime);
     }
 
     static public void removeObject(WinObject object) {
         namedObjects.remove(object);
         objects.remove(object);
+    }
+
+    static private Callback.Handler returnCallback = new Callback.Handler() {
+        public String getName() {
+            return "WinProc";
+        }
+        public int call() {
+            return 1; // return from SendMessage
+        }
+    };
+
+    private static int returnEip = 0;
+
+    static public void call(int eip, int param1, int param2, int param3, int param4) {
+        if (returnEip == 0) {
+            int callback = WinCallback.addCallback(returnCallback);
+            returnEip =  WinSystem.getCurrentProcess().loader.registerFunction(callback);
+        }
+        CPU.CPU_Push32(param4);
+        CPU.CPU_Push32(param3);
+        CPU.CPU_Push32(param2);
+        CPU.CPU_Push32(param1);
+        CPU.CPU_Push32(returnEip);
+        int saveEip = CPU_Regs.reg_eip;
+        CPU_Regs.reg_eip = eip;
+        Dosbox.DOSBOX_RunMachine();
+        CPU_Regs.reg_eip = saveEip;
     }
 
     static public WinObject getNamedObject(String name) {
@@ -99,6 +143,10 @@ public class WinSystem {
 
     static public WinWindow createWindow(int dwExStyle, WinClass winClass, String name, int dwStyle, int x, int y, int cx, int cy, int hParent, int hMenu, int hInstance, int lpParam) {
         return new WinWindow(nextObjectId++, dwExStyle, winClass, name, dwStyle, x, y, cx, cy, hParent, hMenu, hInstance, lpParam);
+    }
+
+    static public WinPalette createPalette(int[] palette) {
+        return new WinPalette(nextObjectId++, palette);
     }
 
     static public WinCursor loadCursor(int instance, int name) {

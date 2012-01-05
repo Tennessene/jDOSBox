@@ -11,6 +11,7 @@ import jdos.win.kernel.WinCallback;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
+import jdos.win.loader.NativeModule;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
@@ -20,8 +21,6 @@ import java.io.RandomAccessFile;
 import java.util.Random;
 
 public class Kernel32 extends BuiltinModule {
-    private long startTime = System.currentTimeMillis();
-
     public Kernel32(Loader loader, int handle) {
         super(loader, "kernel32.dll", handle);
 
@@ -42,6 +41,7 @@ public class Kernel32 extends BuiltinModule {
         add(EnumSystemLocalesW);
         add(ExitProcess);
         add(FatalAppExitA);
+        add(FindResourceA);
         add(FormatMessageA);
         add(FreeEnvironmentStringsA);
         add(FreeEnvironmentStringsW);
@@ -53,6 +53,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetConsoleMode);
         add(GetConsoleOutputCP);
         add(GetCPInfo);
+        add(GetCurrentDirectoryA);
         add(GetCurrentProcess);
         add(GetCurrentProcessId);
         add(GetCurrentThread);
@@ -60,7 +61,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetDateFormatA);
         add(GetDateFormatW);
         add(GetDiskFreeSpaceA);
-        add(GetEnvironmentStrings);
+        add(GetEnvironmentStringsA);
         add(GetEnvironmentStringsW);
         add(GetFileType);
         add(GetLastError);
@@ -111,6 +112,8 @@ public class Kernel32 extends BuiltinModule {
         add(LeaveCriticalSection);
         add(LoadLibraryA);
         add(LoadLibraryW);
+        add(LoadResource);
+        add(LockResource);
         add(lstrlenA);
         add(lstrlenW);
         add(MapViewOfFile);
@@ -703,6 +706,27 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // HRSRC WINAPI FindResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType)
+    static private Callback.Handler FindResourceA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.FindResourceA";
+        }
+        public void onCall() {
+            int hModule = CPU.CPU_Pop32();
+            int lpName = CPU.CPU_Pop32();
+            int lpType = CPU.CPU_Pop32();
+            if (hModule == 0)
+                hModule = WinSystem.getCurrentProcess().mainModule.getHandle();
+            Module m = WinSystem.getCurrentProcess().loader.getModuleByHandle(hModule);
+            if (m instanceof NativeModule) {
+                NativeModule module = (NativeModule)m;
+                CPU_Regs.reg_eax.dword = module.getAddressOfResource(lpType, lpName);
+            } else {
+                Win.panic(getName()+" currently does not support loading a image from a builtin module");
+            }
+        }
+    };
+
     // DWORD WINAPI FormatMessage(DWORD dwFlags, LPCVOID lpSource, DWORD dwMessageId, DWORD dwLanguageId, LPTSTR lpBuffer, DWORD nSize, va_list *Arguments)
     static private Callback.Handler FormatMessageA = new HandlerBase() {
         public java.lang.String getName() {
@@ -849,6 +873,26 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // DWORD WINAPI GetCurrentDirectory(DWORD nBufferLength, LPTSTR lpBuffer)
+    static private Callback.Handler GetCurrentDirectoryA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.GetCurrentDirectoryA";
+        }
+        public void onCall() {
+            int nBufferLength = CPU.CPU_Pop32();
+            int lpBuffer = CPU.CPU_Pop32();
+            String cwd = WinSystem.getCurrentProcess().currentWorkingDirectory;
+            int len = cwd.getBytes().length;
+
+            if (lpBuffer == 0 || nBufferLength<len+1)
+                CPU_Regs.reg_eax.dword = len+1;
+            else {
+                StringUtil.strcpy(lpBuffer, cwd);
+                CPU_Regs.reg_eax.dword = len;
+            }
+        }
+    };
+
     // HANDLE WINAPI GetCurrentProcess(void)
     static private Callback.Handler GetCurrentProcess = new HandlerBase() {
         public java.lang.String getName() {
@@ -928,9 +972,9 @@ public class Kernel32 extends BuiltinModule {
     };
 
     // LPTCH WINAPI GetEnvironmentStrings(void)
-    private Callback.Handler GetEnvironmentStrings = new HandlerBase() {
+    private Callback.Handler GetEnvironmentStringsA = new HandlerBase() {
         public java.lang.String getName() {
-            return "Kernel32.GetEnvironmentStrings";
+            return "Kernel32.GetEnvironmentStringsA";
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getEnvironment();
@@ -1272,11 +1316,11 @@ public class Kernel32 extends BuiltinModule {
             Memory.mem_writed(add + 4, 4096); // Page Size
             Memory.mem_writed(add+8, 0x0001000); // :TODO: not sure if this matter, this is just what I say Windows 7 return
             Memory.mem_writed(add+12, 0x7ffeffff); // :TODO: not sure if this matter, this is just what I say Windows 7 return
-            Memory.mem_writed(add+16, 255);
+            Memory.mem_writed(add+16, 1);
             Memory.mem_writed(add+20, 1); // Processor count
             Memory.mem_writed(add+24, 586); // Processor Type
             Memory.mem_writed(add+28, 4096); // Allocation Granulatiry Win 7 64-bit said 65536, but I think this might be better for here
-            Memory.mem_writew(add + 32, 6); // :TODO: no idea
+            Memory.mem_writew(add+32, 6); // :TODO: no idea
             Memory.mem_writew(add+34, 6660); // :TODO: no idea
         }
     };
@@ -1308,7 +1352,7 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.GetTickCount";
         }
         public void onCall() {
-            CPU_Regs.reg_eax.dword = (int)(System.currentTimeMillis() - startTime);
+            CPU_Regs.reg_eax.dword = WinSystem.getTickCount();
         }
     };
 
@@ -1839,19 +1883,41 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // HGLOBAL WINAPI LoadResource(HMODULE hModule, HRSRC hResInfo)
+    static private Callback.Handler LoadResource = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.LoadResource";
+        }
+
+        public void onCall() {
+            int hModule = CPU.CPU_Pop32();
+            int hResInfo = CPU.CPU_Pop32();
+            // Find resource just returns the address of it in memory
+            CPU_Regs.reg_eax.dword = hResInfo;
+        }
+    };
+
+    // LPVOID WINAPI LockResource(HGLOBAL hResData)
+    static private Callback.Handler LockResource = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.LockResource";
+        }
+
+        public void onCall() {
+            int hResData = CPU.CPU_Pop32();
+            // Find/Load resource just returns the address of it in memory
+            CPU_Regs.reg_eax.dword = hResData;
+        }
+    };
+
     // int WINAPI lstrlen(LPCTSTR lpString)
     static private Callback.Handler lstrlenA = new HandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.lstrlenA";
         }
         public void onCall() {
-            notImplemented(); // Needs testing
             int lpString = CPU.CPU_Pop32();
-            int len = 0;
-            while (Memory.mem_readb(lpString++)!=0) {
-                len++;
-            }
-            CPU_Regs.reg_eax.dword = len;
+            CPU_Regs.reg_eax.dword = StringUtil.strlenA(lpString);
         }
     };
     static private Callback.Handler lstrlenW = new HandlerBase() {

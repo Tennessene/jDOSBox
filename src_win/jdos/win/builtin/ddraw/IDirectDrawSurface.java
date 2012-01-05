@@ -56,16 +56,16 @@ public class IDirectDrawSurface extends IUnknown {
     static final int DDLOCK_NOOVERWRITE =       0x00001000;
     static final int DDLOCK_DISCARDCONTENTS =   0x00002000;
 
-    static int FLAGS_CAPS2 = 0x00000001;
-    static int FLAGS_DESC2 = 0x00000002;
-    static int FLAGS_LOCKED = 0x00000004;
+    static int FLAGS_CAPS2 =    0x00000001;
+    static int FLAGS_DESC2 =    0x00000002;
+    static int FLAGS_LOCKED =   0x00000004;
 
     static int OFFSET_FLAGS = 0;
     static int OFFSET_PALETTE = 4;
     static int OFFSET_MEMORY = 8;
     static int OFFSET_BACK_BUFFER = 12;
     static int OFFSET_DC = 16;
-    static int OFFSET_IMAGE = 20;
+    static int OFFSET_IMAGE_CACHE = 20;
 
     // doesn't include description since that gets computed on the fly
     static int DATA_SIZE = 24;
@@ -84,7 +84,7 @@ public class IDirectDrawSurface extends IUnknown {
     }
 
     public static BufferedImage getImage(int This, boolean create) {
-        int index = getData(This, OFFSET_IMAGE);
+        int index = getData(This, OFFSET_IMAGE_CACHE);
         BufferedImage image = null;
         if (index == 0) {
             if (create) {
@@ -97,11 +97,11 @@ public class IDirectDrawSurface extends IUnknown {
                         palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
                     }
                 }
-                image = Pixel.createImage(address, getData(This, OFFSET_DESC+0x54),  palette, getData(This, OFFSET_DESC+0x0C), getData(This, OFFSET_DESC+0x08));
+                image = Pixel.createImage(address, getData(This, OFFSET_DESC+0x54),  palette, getWidth(This), getHeight(This));
                 if ((getData(This, OFFSET_FLAGS) & FLAGS_LOCKED)==0) {
                     WinObject object = WinSystem.createWinObject();
                     object.data = image;
-                    setData(This, OFFSET_IMAGE, object.getHandle());
+                    setData(This, OFFSET_IMAGE_CACHE, object.getHandle());
                 }
             }
         } else {
@@ -112,17 +112,21 @@ public class IDirectDrawSurface extends IUnknown {
     }
 
     public static void clearImage(int This) {
-        int index = getData(This, OFFSET_IMAGE);
+        int index = getData(This, OFFSET_IMAGE_CACHE);
         if (index>0) {
-            setData(This, OFFSET_IMAGE, 0);
+            setData(This, OFFSET_IMAGE_CACHE, 0);
             WinObject object = WinSystem.getObject(index);
             object.close();
+        }
+        int backBuffer = getData(This, OFFSET_BACK_BUFFER);
+        if (backBuffer != 0) {
+            clearImage(backBuffer);
         }
     }
 
     public static void saveImage(int This, BufferedImage image) {
         int address = getData(This, OFFSET_MEMORY);
-        Pixel.writeImage(address, image, getData(This, OFFSET_DESC+0x54), getData(This, OFFSET_DESC+0x0C), getData(This, OFFSET_DESC+0x08));
+        Pixel.writeImage(address, image, getData(This, OFFSET_DESC+0x54), getWidth(This), getHeight(This));
     }
 
     // while locked the surface will not cache a BufferedImage object, this will really slow things down, but allows
@@ -133,6 +137,14 @@ public class IDirectDrawSurface extends IUnknown {
 
     public static void unlock(int This) {
         setData(This, OFFSET_FLAGS, getData(This, OFFSET_FLAGS) & ~FLAGS_LOCKED);
+    }
+
+    public static int getWidth(int This) {
+        return getData(This, OFFSET_DESC+0x0C);
+    }
+
+    public static int getHeight(int This) {
+        return getData(This, OFFSET_DESC+0x08);
     }
 
     public static int create(int pDirectDraw, int pDesc) {
@@ -200,14 +212,18 @@ public class IDirectDrawSurface extends IUnknown {
             height = d.dwHeight;
             caps &= ~DDSCAPS_VISIBLE;
         } else {
-            Win.panic(name+".CreateSurface currently DDSCAPS_PRIMARYSURFACE or DDSCAPS_OFFSCREENPLAIN must be specified");
+            Win.panic(name+".CreateSurface currently DDSCAPS_PRIMARYSURFACE or DDSCAPS_OFFSCREENPLAIN must be specified. ddsCaps = 0x"+Integer.toString(d.ddsCaps, 16));
         }
 
-        int bpp = IDirectDraw.getBPP(pDirectDraw);
+        int bpp;
+        if ((d.dwFlags & DDSurfaceDesc.DDSD_PIXELFORMAT) != 0 && (d.ddpfPixelFormat.dwFlags & DDPixelFormat.DDPF_RGB)!=0 && d.ddpfPixelFormat.dwRGBBitCount!=0)
+            bpp = d.ddpfPixelFormat.dwRGBBitCount;
+        else
+            bpp = IDirectDraw.getBPP(pDirectDraw);
         int amount = width*height*bpp/8;
         int memory;
 
-        if ((d.ddsCaps & DDSCAPS_VIDEOMEMORY)!=0) {
+        if ((caps & DDSCAPS_VIDEOMEMORY)!=0) {
             if ((d.ddsCaps & DDSCAPS_PRIMARYSURFACE)!=0) {
                 memory = VideoMemory.mapVideoRAM(amount);
             } else {
@@ -340,6 +356,34 @@ public class IDirectDrawSurface extends IUnknown {
 
     // HRESULT Blt(this, LPRECT lpDestRect, LPDIRECTDRAWSURFACE lpDDSrcSurface, LPRECT lpSrcRect, DWORD dwFlags, LPDDBLTFX lpDDBltFx)
     static private Callback.Handler Blt = new HandlerBase() {
+        static public final int DDBLT_ALPHADEST =                   0x00000001;
+        static public final int DDBLT_ALPHADESTCONSTOVERRIDE =      0x00000002;
+        static public final int DDBLT_ALPHADESTNEG =                0x00000004;
+        static public final int DDBLT_ALPHADESTSURFACEOVERRIDE =    0x00000008;
+        static public final int DDBLT_ALPHAEDGEBLEND =              0x00000010;
+        static public final int DDBLT_ALPHASRC =                    0x00000020;
+        static public final int DDBLT_ALPHASRCCONSTOVERRIDE =       0x00000040;
+        static public final int DDBLT_ALPHASRCNEG =                 0x00000080;
+        static public final int DDBLT_ALPHASRCSURFACEOVERRIDE =     0x00000100;
+        static public final int DDBLT_ASYNC =                       0x00000200;
+        static public final int DDBLT_COLORFILL =                   0x00000400;
+        static public final int DDBLT_DDFX =                        0x00000800;
+        static public final int DDBLT_DDROPS =                      0x00001000;
+        static public final int DDBLT_KEYDEST =                     0x00002000;
+        static public final int DDBLT_KEYDESTOVERRIDE =             0x00004000;
+        static public final int DDBLT_KEYSRC =                      0x00008000;
+        static public final int DDBLT_KEYSRCOVERRIDE =              0x00010000;
+        static public final int DDBLT_ROP =                         0x00020000;
+        static public final int DDBLT_ROTATIONANGLE =               0x00040000;
+        static public final int DDBLT_ZBUFFER =                     0x00080000;
+        static public final int DDBLT_ZBUFFERDESTCONSTOVERRIDE =    0x00100000;
+        static public final int DDBLT_ZBUFFERDESTOVERRIDE =         0x00200000;
+        static public final int DDBLT_ZBUFFERSRCCONSTOVERRIDE =     0x00400000;
+        static public final int DDBLT_ZBUFFERSRCOVERRIDE =          0x00800000;
+        static public final int DDBLT_WAIT =                        0x01000000;
+        static public final int DDBLT_DEPTHFILL =                   0x02000000;
+        static public final int DDBLT_DONOTWAIT =                   0x08000000;
+
         public java.lang.String getName() {
             return "IDirectDrawSurface.Blt";
         }
@@ -350,7 +394,42 @@ public class IDirectDrawSurface extends IUnknown {
             int lpSrcRect = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
             int lpDDBltFx = CPU.CPU_Pop32();
-            notImplemented();
+            DDBltFx fx = null;
+
+            if (lpDDBltFx != 0) {
+                fx = new DDBltFx(lpDDBltFx);
+            }
+            int destX1 = 0;
+            int destY1 = 0;
+            int destX2;
+            int destY2;
+
+            if (lpDestRect == 0) {
+                destX2 = getWidth(This);
+                destY2 = getHeight(This);
+            } else {
+                destX1 = Memory.mem_readd(lpDestRect);
+                destY1 = Memory.mem_readd(lpDestRect+4);
+                destX2 = Memory.mem_readd(lpDestRect+8);
+                destY2 = Memory.mem_readd(lpDestRect+12);
+            }
+
+            BufferedImage dest = getImage(This, true);
+
+            Graphics g = dest.getGraphics();
+            if ((dwFlags & DDBLT_COLORFILL)!=0) {
+                g.setColor(new Color(fx.dwFillColor));
+                g.fillRect(destX1, destY1, destX2-destX1, destY2-destY1);
+            } else {
+                notImplemented();
+                BufferedImage src = getImage(lpDDSrcSurface, true);
+                int srcX1 = Memory.mem_readd(lpSrcRect);
+                int srcY1 = Memory.mem_readd(lpSrcRect+4);
+                int srcX2 = Memory.mem_readd(lpSrcRect+8);
+                int srcY2 = Memory.mem_readd(lpSrcRect+12);
+                g.drawImage(src, destX1, destY1, destX2, destY2, srcX1, srcY1, srcX2, srcY2, null);
+            }
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 
@@ -452,8 +531,27 @@ public class IDirectDrawSurface extends IUnknown {
             int dwFlags = CPU.CPU_Pop32();
 
             // :TODO: this needs more work
-            BufferedImage src = getImage(getData(This, OFFSET_BACK_BUFFER), true);
+            int backBuffer = getData(This, OFFSET_BACK_BUFFER);
+
+            BufferedImage src = getImage(backBuffer, true);
             Main.drawImage(src);
+
+            // swap caches and memory
+            int frontCache = getData(This, OFFSET_IMAGE_CACHE);
+            int backCache = getData(backBuffer, OFFSET_IMAGE_CACHE);
+            setData(This, OFFSET_IMAGE_CACHE, backCache);
+            setData(backBuffer, OFFSET_IMAGE_CACHE, frontCache);
+
+            int frontMemory = getData(This, OFFSET_MEMORY);
+            int backMemory = getData(backBuffer, OFFSET_MEMORY);
+            setData(This, OFFSET_MEMORY, backMemory);
+            setData(backBuffer, OFFSET_MEMORY, frontMemory);
+
+            int frontDC = getData(This, OFFSET_DC);
+            int backDC = getData(backBuffer, OFFSET_DC);
+            if (frontDC != 0 || backDC != 0) {
+                Win.panic(getName()+" wans't expecting this call while a DC was open");
+            }
         }
     };
 
@@ -560,7 +658,7 @@ public class IDirectDrawSurface extends IUnknown {
                             palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
                         }
                     }
-                    WinDC dc = WinSystem.createDC(null, getData(This, OFFSET_MEMORY), getData(This, OFFSET_DESC+0x0C), getData(This, OFFSET_DESC+0x08), palette);
+                    WinDC dc = WinSystem.createDC(null, getData(This, OFFSET_MEMORY), getWidth(This), getHeight(This), palette);
                     hdc = dc.getHandle();
                     setData(This, OFFSET_DC, hdc);
                 } else {
@@ -568,6 +666,7 @@ public class IDirectDrawSurface extends IUnknown {
                     dc.open();
                 }
                 Memory.mem_writed(lphDC, hdc);
+                clearImage(This);
                 lock(This);
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
@@ -726,6 +825,7 @@ public class IDirectDrawSurface extends IUnknown {
                 WinDC dc = (WinDC)WinSystem.getObject(hDC);
                 dc.close();
                 unlock(This);
+                setData(This, OFFSET_DC, 0);
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
         }
@@ -794,6 +894,11 @@ public class IDirectDrawSurface extends IUnknown {
                 // :TODO: not sure if I should copy the palette or reference it
                 AddRef(lpDDPalette); // :TODO: this will be leaked
                 setData(This, OFFSET_PALETTE, lpDDPalette);
+                int backBuffer = getData(This, OFFSET_BACK_BUFFER);
+                if (backBuffer != 0) {
+                    AddRef(lpDDPalette);
+                    setData(backBuffer, OFFSET_PALETTE, lpDDPalette);
+                }
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
         }

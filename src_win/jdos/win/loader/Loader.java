@@ -154,6 +154,10 @@ public class Loader {
             module = new Crtdll(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("ddraw.dll")) {
             module = new DDraw(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("winmm.dll")) {
+            module = new WinMM(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("dsound.dll")) {
+            module = new DSound(this, getNextModuleHandle());
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);

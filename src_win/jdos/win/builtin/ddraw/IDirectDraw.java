@@ -57,8 +57,9 @@ public class IDirectDraw extends IUnknown {
     static final int OFFSET_CX = 4;
     static final int OFFSET_CY = 8;
     static final int OFFSET_BPP = 12;
+    static final int OFFSET_PALETTE = 16;
 
-    static final int DATA_SIZE = 16;
+    static final int DATA_SIZE = 20;
 
     public static int getWidth(int This) {
         return getData(This, OFFSET_CX);
@@ -83,7 +84,6 @@ public class IDirectDraw extends IUnknown {
         return address;
     }
 
-    /*** IDirectDraw methods ***/
     // HRESULT Compact(this)
     static private Callback.Handler Compact = new HandlerBase() {
         public java.lang.String getName() {
@@ -344,6 +344,8 @@ public class IDirectDraw extends IUnknown {
             int dwWidth = CPU.CPU_Pop32();
             int dwHeight = CPU.CPU_Pop32();
             int dwBPP = CPU.CPU_Pop32();
+            // :TODO: 8-bit doesn't work, need to debug
+            dwBPP = 32;
             if ((getData(This, OFFSET_FLAGS) & FLAGS_V7)!=0) {
                 int dwRefreshRate = CPU.CPU_Pop32();
                 int dwFlags = CPU.CPU_Pop32();
@@ -361,6 +363,10 @@ public class IDirectDraw extends IUnknown {
 
     // HRESULT WaitForVerticalBlank(this, DWORD dwFlags, HANDLE hEvent)
     static private Callback.Handler WaitForVerticalBlank = new HandlerBase() {
+        static final public int DDWAITVB_BLOCKBEGIN =       0x00000001;
+        static final public int DDWAITVB_BLOCKBEGINEVENT =  0x00000002;
+        static final public int DDWAITVB_BLOCKEND =         0x00000004;
+
         public java.lang.String getName() {
             return "IDirectDraw.WaitForVerticalBlank";
         }
@@ -368,7 +374,6 @@ public class IDirectDraw extends IUnknown {
             int This = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
             int hEvent = CPU.CPU_Pop32();
-            notImplemented();
         }
     };
 }

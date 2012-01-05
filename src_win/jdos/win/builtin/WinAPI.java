@@ -4,6 +4,8 @@ public class WinAPI {
     static final public int TRUE = 1;
     static final public int FALSE = 0;
 
+    static final public int CLR_INVALID = -1;
+
     static final public int INVALID_HANDLE_VALUE = -1;
 
     /* Unicode char type flags */

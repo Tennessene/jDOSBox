@@ -36,9 +36,9 @@ public class Scheduler {
     }
 
     public void sleep(WinThread thread, int ms) {
-        SchedulerItem item = (SchedulerItem)threadMap.get(thread);
-        item.sleepUntil = tickCount+ms / TICK_MS + 1;
-        tick(false);
+        //SchedulerItem item = (SchedulerItem)threadMap.get(thread);
+        //item.sleepUntil = tickCount+ms / TICK_MS + 1;
+        //tick(false);
     }
 
     public void removeThread(WinThread thread, boolean canSwitchProcess) {

@@ -461,7 +461,7 @@ public class Main {
 
     static public void drawImage(Image image) {
         Graphics graphics = buffer.getGraphics();
-        graphics.clearRect(0, 0, screen_width, screen_width);
+        graphics.clearRect(0, 0, screen_width, screen_height);
         graphics.drawImage(image, 0, 0, null);
         gui.dopaint();
     }

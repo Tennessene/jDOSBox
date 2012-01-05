@@ -77,7 +77,9 @@ public class IDirectDrawPalette extends IUnknown {
             int dwBase = CPU.CPU_Pop32();
             int dwNumEntries = CPU.CPU_Pop32();
             int lpEntries = CPU.CPU_Pop32();
-            notImplemented();
+            for (int i=dwBase;i<dwNumEntries;i++) {
+                Memory.mem_writed(lpEntries+i*4, getData(This, OFFSET_COLOR_DATA+i*4));
+            }
         }
     };
 
@@ -106,7 +108,9 @@ public class IDirectDrawPalette extends IUnknown {
             int dwStartingEntry = CPU.CPU_Pop32();
             int dwCount = CPU.CPU_Pop32();
             int lpEntries = CPU.CPU_Pop32();
-            notImplemented();
+            for (int i=dwStartingEntry;i<dwCount;i++) {
+                setData(This, OFFSET_COLOR_DATA+i*4, Memory.mem_readd(lpEntries+i*4));
+            }
         }
     };
 }

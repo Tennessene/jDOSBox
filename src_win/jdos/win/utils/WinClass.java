@@ -1,19 +1,8 @@
 package jdos.win.utils;
 
-import jdos.cpu.Callback;
-import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.LittleEndianFile;
 
 public class WinClass extends WinObject {
-    private Callback.Handler WinProc = new Callback.Handler() {
-        public String getName() {
-            return "WinProc";
-        }
-        public int call() {
-            return 1; // return from SendMessage
-        }
-    };
-
     public WinClass(int id) {
         super(id);
         this.id = id;
@@ -55,10 +44,6 @@ public class WinClass extends WinObject {
             return false;
         }
         WinSystem.getCurrentProcess().classNames.put(className, this);
-
-        // :TODO: this will leak
-        int callback = WinCallback.addCallback(WinProc);
-        returnEip =  WinSystem.getCurrentProcess().loader.registerFunction(callback);
         return true;
     }
 
@@ -94,10 +79,6 @@ public class WinClass extends WinObject {
             return false;
         }
         WinSystem.getCurrentProcess().classNames.put(className, this);
-
-        // :TODO: this will leak
-        int callback = WinCallback.addCallback(WinProc);
-        returnEip =  WinSystem.getCurrentProcess().loader.registerFunction(callback);
         return true;
     }
 
@@ -108,7 +89,6 @@ public class WinClass extends WinObject {
     public int id;
     public int style;
     public int eip;
-    public int returnEip;
     public int hInstance;
     public int hIcon;
     public int hCursor;

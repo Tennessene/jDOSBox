@@ -3,10 +3,12 @@ package jdos.win.builtin;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
+import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
+import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
 
@@ -18,12 +20,21 @@ public class Gdi32 extends BuiltinModule {
         super(loader, "Gdi32.dll", handle);
 
         add(CreateCompatibleDC);
+        add(CreatePalette);
         add(DeleteDC);
+        add(DeleteObject);
         add(GetObjectA);
         add(GdiSetBatchLimit);
         add(GetStockObject);
+        add(GetTextExtentPointA);
+        add(RealizePalette);
         add(SelectObject);
+        add(SelectPalette);
+        add(SetBkColor);
+        add(SetPaletteEntries);
+        add(SetTextColor);
         add(StretchBlt);
+        add(TextOutA);
     }
 
     // HDC CreateCompatibleDC(HDC hdc)
@@ -47,6 +58,28 @@ public class Gdi32 extends BuiltinModule {
         }
     };
 
+    // HPALETTE CreatePalette(const LOGPALETTE *lplgpl)
+    private Callback.Handler CreatePalette = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.CreatePalette";
+        }
+        public void onCall() {
+            int lplgpl = CPU.CPU_Pop32();
+            if (lplgpl == 0) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            int count = Memory.mem_readw(lplgpl+2);
+            int[] palette = new int[count];
+            for (int i=0;i<count;i++) {
+                int address = lplgpl+4+4*i;
+                palette[i] = Memory.mem_readd(address) & 0xFFFFFF; // strip out the flag
+            }
+            CPU_Regs.reg_eax.dword = WinSystem.createPalette(palette).getHandle();
+        }
+    };
+
     // BOOL DeleteDC(HDC hdc)
     private Callback.Handler DeleteDC = new HandlerBase() {
         public java.lang.String getName() {
@@ -66,6 +99,30 @@ public class Gdi32 extends BuiltinModule {
                 }
                 dc = (WinDC)object;
                 dc.close();
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+            }
+        }
+    };
+
+    // BOOL DeleteObject(HGDIOBJ hObject)
+    private Callback.Handler DeleteObject = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.DeleteObject";
+        }
+        public void onCall() {
+            int hObject = CPU.CPU_Pop32();
+            if (hObject == 0) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+            } else {
+                WinGDI gdi = null;
+                WinObject object = WinSystem.getObject(hObject);
+                if (object == null || !(object instanceof WinGDI)) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                    return;
+                }
+                gdi = (WinGDI)object;
+                gdi.close();
                 CPU_Regs.reg_eax.dword = WinAPI.TRUE;
             }
         }
@@ -139,6 +196,43 @@ public class Gdi32 extends BuiltinModule {
         }
     };
 
+    // BOOL GetTextExtentPoint(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize)
+    private Callback.Handler GetTextExtentPointA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.GetTextExtentPointA";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int lpString = CPU.CPU_Pop32();
+            int cbString = CPU.CPU_Pop32();
+            int lpSize = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinDC)object).gtTextExtent(new LittleEndianFile(lpString).readCString(cbString), lpSize);
+        }
+    };
+
+    // UINT RealizePalette(HDC hdc)
+    private Callback.Handler RealizePalette = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.RealizePalette";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinDC)object).realizePalette();
+        }
+    };
+
     // HGDIOBJ SelectObject(HDC hdc, HGDIOBJ hgdiobj)
     private Callback.Handler SelectObject = new HandlerBase() {
         public java.lang.String getName() {
@@ -162,6 +256,93 @@ public class Gdi32 extends BuiltinModule {
             }
             WinGDI gdi = (WinGDI)object;
             CPU_Regs.reg_eax.dword = dc.select(gdi);
+        }
+    };
+
+    // HPALETTE SelectPalette(HDC hdc, HPALETTE hpal, BOOL bForceBackground)
+    private Callback.Handler SelectPalette = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.SelectPalette";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int hpal = CPU.CPU_Pop32();
+            int bForceBackground = CPU.CPU_Pop32();
+
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            WinDC dc = (WinDC)object;
+            object = WinSystem.getObject(hpal);
+            if (object == null || !(object instanceof WinPalette)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+                return;
+            }
+            System.out.println(getName()+" faked");
+            CPU_Regs.reg_eax.dword = dc.selectPalette((WinPalette)object, bForceBackground!=0);
+        }
+    };
+
+    // COLORREF SetBkColor(HDC hdc, COLORREF crColor)
+    private Callback.Handler SetBkColor = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.SetBkColor";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int crColor = CPU.CPU_Pop32();
+
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = WinAPI.CLR_INVALID;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinDC)object).setBkColor(crColor);
+        }
+    };
+
+    // UINT SetPaletteEntries(HPALETTE hpal, UINT iStart, UINT cEntries, const PALETTEENTRY *lppe)
+    private Callback.Handler SetPaletteEntries = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.SetPaletteEntries";
+        }
+        public void onCall() {
+            int hpal = CPU.CPU_Pop32();
+            int iStart = CPU.CPU_Pop32();
+            int cEntries = CPU.CPU_Pop32();
+            int lppe = CPU.CPU_Pop32();
+
+            WinObject object = WinSystem.getObject(hpal);
+            if (object == null || !(object instanceof WinPalette)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = WinAPI.CLR_INVALID;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinPalette)object).setEntries(iStart, cEntries, lppe);
+        }
+    };
+
+    // COLORREF SetTextColor(HDC hdc, COLORREF crColor)
+    private Callback.Handler SetTextColor = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.SetTextColor";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int crColor = CPU.CPU_Pop32();
+
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = WinAPI.CLR_INVALID;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinDC)object).setTextColor(crColor);
         }
     };
 
@@ -207,6 +388,28 @@ public class Gdi32 extends BuiltinModule {
             g.drawImage(s, nXOriginDest, nYOriginDest, nXOriginDest+nWidthDest, nYOriginDest+nHeightDest, nXOriginSrc, nYOriginSrc, nXOriginSrc+nWidthSrc, nYOriginSrc+nHeightSrc, null);
             dest.writeImage(d);
             CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+        }
+    };
+
+    // BOOL TextOut(HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cchString)
+    private Callback.Handler TextOutA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Gdi32.TextOutA";
+        }
+        public void onCall() {
+            int hdc = CPU.CPU_Pop32();
+            int nXStart = CPU.CPU_Pop32();
+            int nYStart = CPU.CPU_Pop32();
+            int lpString = CPU.CPU_Pop32();
+            int cchString = CPU.CPU_Pop32();
+
+            WinObject object = WinSystem.getObject(hdc);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = WinAPI.CLR_INVALID;
+                return;
+            }
+            CPU_Regs.reg_eax.dword = ((WinDC)object).textOut(nXStart, nYStart, new LittleEndianFile(lpString).readCString(cchString));
         }
     };
 }

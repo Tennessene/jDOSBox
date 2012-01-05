@@ -273,6 +273,12 @@ public class StringUtil {
             return format;
         }
     }
+    static public int strlenA(int str ) {
+        int s = str;
+        while (Memory.mem_readb(s)!=0) s++;
+        return (s - str);
+    }
+
     static public int strlenW(int str ) {
         int s = str;
         while (Memory.mem_readw(s)!=0) s+=2;
@@ -347,5 +353,12 @@ public class StringUtil {
         String[] r = new String[results.size()];
         results.copyInto(r);
         return r;
+    }
+
+    static public int allocateA(String s) {
+        byte[] b = s.getBytes();
+        int address = WinSystem.getCurrentProcess().heap.alloc(b.length+1, false);
+        strcpy(address, s);
+        return address;
     }
 }

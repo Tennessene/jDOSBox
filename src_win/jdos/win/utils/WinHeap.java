@@ -81,6 +81,7 @@ public class WinHeap {
         public int free(int add) {
             Integer size = (Integer)allocs.get(new Integer(add));
             if (size == null) {
+                System.out.println("VirtualFree could not find address: 0x"+Integer.toString(add, 16));
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
                 return WinAPI.FALSE;
             }

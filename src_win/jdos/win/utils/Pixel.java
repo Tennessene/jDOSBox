@@ -12,15 +12,15 @@ public class Pixel {
     }
 
     static public BufferedImage createImage(int src, int srcBpp, int[] srcPalette, int width, int height) {
-        if (srcPalette != null) {
+        if (srcPalette != null && srcBpp<=8) {
             byte[] r = new byte[srcPalette.length];
             byte[] g = new byte[srcPalette.length];
             byte[] b = new byte[srcPalette.length];
 
             for (int i=0;i<srcPalette.length;i++) {
-                r[i] = (byte)srcPalette[i];
+                b[i] = (byte)srcPalette[i];
                 g[i] = (byte)(srcPalette[i] >> 8);
-                b[i] = (byte)(srcPalette[i] >> 16);
+                r[i] = (byte)(srcPalette[i] >> 16);
             }
             IndexColorModel sp = new IndexColorModel(8, srcPalette.length, r, g, b);
 
@@ -71,7 +71,37 @@ public class Pixel {
                     e.printStackTrace();
                 }
             } else if (srcBpp == 24) {
-                Win.panic("24-bit bitmaps not implemented yet");
+                try {
+                    BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                    int pitch = getPitch(width, srcBpp);
+                    for (int y=0;y<height;y++) {
+                        int address = src + pitch * (height-y-1); // Windows bitmaps are bottom up
+                        for (int x=0;x<width;x++) {
+                            bi.setRGB(x, y, Memory.mem_readb(address + x * 3)|(Memory.mem_readb(address + x * 3+1)<<8)|(Memory.mem_readb(address + x * 3+2)<<16));
+                        }
+                    }
+
+                    // Main.drawImage(bi);try {Thread.sleep(1000*60);} catch (Exception e) {}
+                    return bi;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (srcBpp == 32) {
+                try {
+                    BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                    int pitch = getPitch(width, srcBpp);
+                    for (int y=0;y<height;y++) {
+                        int address = src + pitch * (height-y-1); // Windows bitmaps are bottom up
+                        for (int x=0;x<width;x++) {
+                            bi.setRGB(x, y, Memory.mem_readd(address + x * 4));
+                        }
+                    }
+
+                    // Main.drawImage(bi);try {Thread.sleep(1000*60);} catch (Exception e) {}
+                    return bi;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else {
                 Win.panic("Currently only 24-bit, 16-bit, 8-bit and 4-bit bitmaps are supported");
             }
@@ -102,20 +132,36 @@ public class Pixel {
             }
             case DataBuffer.TYPE_INT:
                 DataBufferInt ib = (DataBufferInt)buffer;
-                Win.panic("24-bit bitmap destination not implemented yet");
+                int[] data = ib.getData();
+                if (dstBpp==24) {
+                    for (int y=0;y<height;y++) {
+                        int address = dst+ pitch * (height-y-1); // Windows bitmaps are bottom up
+                        for (int x=0;x<width;x++) {
+                            Memory.mem_writeb(address+x*3, data[y*width+x]);
+                            Memory.mem_writeb(address+x*3+1, data[y*width+x] >> 8);
+                            Memory.mem_writeb(address+x*3+2, data[y*width+x] >> 16);
+                        }
+                    }
+                } else if (dstBpp==32) {
+                    for (int y=0;y<height;y++) {
+                        int address = dst+ pitch * (height-y-1); // Windows bitmaps are bottom up
+                        for (int x=0;x<width;x++) {
+                            Memory.mem_writed(address+x*4, data[y*width+x]);
+                        }
+                    }
+                }
                 break;
         }
         // Debug what was written to the dst address
         // BufferedImage bi = createImage(dst, dstBpp, null, width, height);
-        // Main.drawImage(bi);
-        // try {Thread.sleep(1000*60);} catch (Exception e) {}
+        // Main.drawImage(biDest);try {Thread.sleep(1000*60);} catch (Exception e) {}
     }
     static public void copy(int src, int srcBpp, int[] srcPalette, int dst, int dstBpp, int[] dstPalette, int width, int height) {
         BufferedImage biSrc = createImage(src, srcBpp, srcPalette, width, height);
         BufferedImage biDest;
         switch (dstBpp) {
             case 8:
-                biDest = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_INDEXED);
+                biDest = createImage(dst, dstBpp, dstPalette, width, height);
                 break;
             case 15:
                 biDest = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_555_RGB);
@@ -124,16 +170,22 @@ public class Pixel {
                 biDest = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_565_RGB);
                 break;
             case 24:
-            case 32:
                 biDest = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                break;
+            case 32:
+                biDest = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 break;
             default:
                 Win.panic("Cannot create "+dstBpp+"-bit destination bitmap");
                 biDest = null;
         }
-
+        //Main.drawImage(biSrc);try {Thread.sleep(1000*60);} catch (Exception e) {}
         Graphics graphics = biDest.getGraphics();
         graphics.drawImage(biSrc, 0, 0, width, height, null);
         writeImage(dst, biDest, dstBpp, width, height);
+    }
+
+    static public int BGRtoRGB(int color) {
+        return (color & 0xFF000000) | (color>>>16 & 0xFF) | ((color << 16) & 0xFF0000) | (color & 0x0000FF00);
     }
 }

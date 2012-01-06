@@ -40,6 +40,7 @@ public class User32 extends BuiltinModule {
         add(RegisterClassA);
         add(RegisterClassExA);
         add(ReleaseDC);
+        add(SetCursor);
         add(SetFocus);
         add(SetTimer);
         add(ShowCursor);
@@ -460,6 +461,20 @@ public class User32 extends BuiltinModule {
                 return;
             }
             CPU_Regs.reg_eax.dword = window.releaseDC((WinDC)object);
+        }
+    };
+
+    // HCURSOR WINAPI SetCursor(HCURSOR hCursor)
+    private Callback.Handler SetCursor = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SetCursor";
+        }
+        public void onCall() {
+            int hCursor = CPU.CPU_Pop32();
+            if (hCursor != 0) {
+                System.out.println(getName()+" faked");
+            }
+            CPU_Regs.reg_eax.dword = 0;
         }
     };
 

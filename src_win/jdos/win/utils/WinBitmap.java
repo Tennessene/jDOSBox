@@ -87,7 +87,7 @@ public class WinBitmap extends WinGDI {
         int pitch = Pixel.getPitch(width, bpp);
         int size = pitch * height;
         int result = WinSystem.getCurrentProcess().heap.alloc(size, true);
-        Pixel.copy(bits, bitCount, palette, result, bpp, dstPalette, width, height);
+        Pixel.copy(bits, bitCount, palette, result, bpp, dstPalette, width, height, true);
         return result;
     }
 }

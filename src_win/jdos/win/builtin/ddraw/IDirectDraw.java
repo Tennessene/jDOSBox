@@ -76,7 +76,13 @@ public class IDirectDraw extends IUnknown {
     }
 
     public static int getPalette(int This) {
-        return getData(This, OFFSET_PALETTE);
+        int result = getData(This, OFFSET_PALETTE);
+        if (result == 0) {
+            result = IDirectDrawPalette.createDefault();
+            setData(This, OFFSET_PALETTE, result);
+            WinSystem.screenPalette = result;
+        }
+        return result;
     }
 
     public static int create() {
@@ -336,7 +342,6 @@ public class IDirectDraw extends IUnknown {
             int dwFlags = CPU.CPU_Pop32();
             if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE))!=0) {
                 Console.out("DDraw.SetCooperativeLevel: unsupported flags: "+Integer.toString(dwFlags, 16));
-                notImplemented();
             }
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }

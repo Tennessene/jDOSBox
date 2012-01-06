@@ -145,7 +145,7 @@ public class WinWindow extends WinObject {
 
     public int endPaint(int lpPaint) {
         WinDC dc = (WinDC)WinSystem.getObject(Memory.mem_readd(lpPaint));
-        Main.drawImage(dc.address, dc.bpp, dc.width, dc.height);
+        Main.drawImage(dc.getImage());
         releaseDC(dc);
         return WinAPI.TRUE;
     }

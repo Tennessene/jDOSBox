@@ -95,12 +95,14 @@ public class WinDC extends WinObject {
         if (address != 0 && addressOwner) {
             WinSystem.getCurrentProcess().heap.free(address);
         }
+        if (image != null)
+            writeImage(image);
         super.onFree();
     }
 
     public BufferedImage getImage() {
         if (image == null)
-            image = Pixel.createImage(address, bpp, palette, width, height);
+            image = Pixel.createImage(address, bpp, palette, width, height, false);
         return image;
     }
 

@@ -1,8 +1,11 @@
 package jdos.win.utils;
 
+import jdos.gui.Main;
 import jdos.win.Console;
 import jdos.win.Win;
+import jdos.win.builtin.ddraw.IDirectDrawSurface;
 
+import java.awt.image.BufferedImage;
 import java.util.Hashtable;
 
 public class Scheduler {
@@ -18,6 +21,9 @@ public class Scheduler {
     static public final int TICK_MS = 50;
 
     private int tickCount = 0;
+
+    // DirectX surface to force to the screen
+    public int monitor;
 
     public void addThread(WinThread thread, boolean schedule) {
         SchedulerItem item = new SchedulerItem();
@@ -92,6 +98,10 @@ public class Scheduler {
 
     // :TODO: run them in order of process to minimize page swapping
     public void tick(boolean incrementTickCount) {
+        if (monitor != 0) {
+            BufferedImage src = IDirectDrawSurface.getImage(monitor, true);
+            Main.drawImage(src);
+        }
         if (incrementTickCount) {
             tickCount++;
         }

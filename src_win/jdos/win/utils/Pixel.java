@@ -43,7 +43,7 @@ public class Pixel {
         return imageToBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
     }
 
-    static public BufferedImage createImage(int src, int srcBpp, int[] srcPalette, int width, int height) {
+    static public BufferedImage createImage(int src, int srcBpp, int[] srcPalette, int width, int height, boolean flip) {
         if (srcPalette != null && srcBpp<=8) {
             byte[] r = new byte[srcPalette.length];
             byte[] g = new byte[srcPalette.length];
@@ -59,7 +59,7 @@ public class Pixel {
             byte[] pixels = new byte[width * height];
             int pitch = getPitch(width, srcBpp);
             for (int y=0;y<height;y++) {
-                int address = src + pitch * (height-y-1); // Windows bitmaps are bottom up
+                int address = src + pitch * (flip?height - y -1:y);
                 for (int x=0;x<width;x++) {
                     pixels[y*width+x] = (byte)Memory.mem_readb(address+x);
                 }
@@ -75,7 +75,7 @@ public class Pixel {
                     Win.panic("Currently only 24-bit, 16-bit, 8-bit and 4-bit bitmaps are supported");
                 WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, null);
                 BufferedImage bi = new BufferedImage(sp, raster, false, null);
-                //Main.drawImage(bi);try {Thread.sleep(1000*60);} catch (Exception e) {}
+                // Main.drawImage(bi);try {Thread.sleep(1000*5);} catch (Exception e) {}
                 return bi;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -85,7 +85,7 @@ public class Pixel {
                 short[] pixels = new short[width * height];
                 int pitch = getPitch(width, srcBpp);
                 for (int y=0;y<height;y++) {
-                    int address = src + pitch * (height-y-1); // Windows bitmaps are bottom up
+                    int address = src + pitch * y;
                     for (int x=0;x<width;x++) {
                         pixels[y*width+x] = (short)Memory.mem_readw(address + x * 2);
                     }
@@ -106,7 +106,7 @@ public class Pixel {
                     BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                     int pitch = getPitch(width, srcBpp);
                     for (int y=0;y<height;y++) {
-                        int address = src + pitch * (height-y-1); // Windows bitmaps are bottom up
+                        int address = src + pitch * y;
                         for (int x=0;x<width;x++) {
                             bi.setRGB(x, y, Memory.mem_readb(address + x * 3)|(Memory.mem_readb(address + x * 3+1)<<8)|(Memory.mem_readb(address + x * 3+2)<<16));
                         }
@@ -122,7 +122,7 @@ public class Pixel {
                     BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                     int pitch = getPitch(width, srcBpp);
                     for (int y=0;y<height;y++) {
-                        int address = src + pitch * (height-y-1); // Windows bitmaps are bottom up
+                        int address = src + pitch * y;
                         for (int x=0;x<width;x++) {
                             bi.setRGB(x, y, Memory.mem_readd(address + x * 4));
                         }
@@ -150,7 +150,7 @@ public class Pixel {
                 DataBufferByte bb = (DataBufferByte)buffer;
                 byte[] data = bb.getData();
                 for (int y=0;y<height;y++) {
-                    int address = dst+ pitch * (height-y-1); // Windows bitmaps are bottom up
+                    int address = dst+ pitch * y;
                     for (int x=0;x<width;x++) {
                         Memory.mem_writeb(address + x, data[y * width + x]);
                     }
@@ -162,7 +162,7 @@ public class Pixel {
                 DataBufferUShort sb = (DataBufferUShort)buffer;
                 short[] data = sb.getData();
                 for (int y=0;y<height;y++) {
-                    int address = dst+ pitch * (height-y-1); // Windows bitmaps are bottom up
+                    int address = dst+ pitch * y;
                     for (int x=0;x<width;x++) {
                         Memory.mem_writew(address+x*2, data[y*width+x]);
                     }
@@ -174,7 +174,7 @@ public class Pixel {
                 int[] data = ib.getData();
                 if (dstBpp==24) {
                     for (int y=0;y<height;y++) {
-                        int address = dst+ pitch * (height-y-1); // Windows bitmaps are bottom up
+                        int address = dst+ pitch * y;
                         for (int x=0;x<width;x++) {
                             Memory.mem_writeb(address+x*3, data[y*width+x]);
                             Memory.mem_writeb(address+x*3+1, data[y*width+x] >> 8);
@@ -183,7 +183,7 @@ public class Pixel {
                     }
                 } else if (dstBpp==32) {
                     for (int y=0;y<height;y++) {
-                        int address = dst+ pitch * (height-y-1); // Windows bitmaps are bottom up
+                        int address = dst+ pitch * y;
                         for (int x=0;x<width;x++) {
                             Memory.mem_writed(address+x*4, data[y*width+x]);
                         }
@@ -195,12 +195,12 @@ public class Pixel {
         // BufferedImage bi = createImage(dst, dstBpp, null, width, height);
         // Main.drawImage(biDest);try {Thread.sleep(1000*60);} catch (Exception e) {}
     }
-    static public void copy(int src, int srcBpp, int[] srcPalette, int dst, int dstBpp, int[] dstPalette, int width, int height) {
-        BufferedImage biSrc = createImage(src, srcBpp, srcPalette, width, height);
+    static public void copy(int src, int srcBpp, int[] srcPalette, int dst, int dstBpp, int[] dstPalette, int width, int height, boolean flip) {
+        BufferedImage biSrc = createImage(src, srcBpp, srcPalette, width, height, flip);
         BufferedImage biDest;
         switch (dstBpp) {
             case 8:
-                biDest = createImage(dst, dstBpp, dstPalette, width, height);
+                biDest = createImage(dst, dstBpp, dstPalette, width, height, false);
                 break;
             case 15:
                 biDest = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_555_RGB);
@@ -275,17 +275,20 @@ public class Pixel {
                 for (int x=0;x<width;x++) {
                     int srcColor;
 
-                    if (srcBpp == 8) {
-                        srcColor = srcPalette[Memory.mem_readb(s)];s++;
-                    } else {
-                        srcColor = Memory.mem_readd(s);s+=4;
-                    }
-                    int dstIndex = findNearestColor(srcColor, dstPalette);
+                    int dstIndex = Memory.mem_readb(s);s++;
                     Memory.mem_writeb(d, dstIndex); d++;
+
+//                    if (srcBpp == 8) {
+//                        srcColor = srcPalette[Memory.mem_readb(s)];s++;
+//                    } else {
+//                        srcColor = Memory.mem_readd(s);s+=4;
+//                    }
+//                    int dstIndex = findNearestColor(srcColor, dstPalette);
+//                    Memory.mem_writeb(d, dstIndex); d++;
                 }
             }
         } else {
-            copy2(src, srcBpp, srcPalette, dst, dstBpp, dstPalette, width, height);
+            copy(src, srcBpp, srcPalette, dst, dstBpp, dstPalette, width, height, false);
         }
     }
 }

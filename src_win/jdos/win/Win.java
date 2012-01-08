@@ -5,6 +5,7 @@ import jdos.cpu.CPU;
 import jdos.cpu.Paging;
 import jdos.dos.Dos_files;
 import jdos.dos.Dos_programs;
+import jdos.gui.Main;
 import jdos.hardware.Keyboard;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
@@ -13,6 +14,7 @@ import jdos.util.StringRef;
 import jdos.win.kernel.VideoMemory;
 import jdos.win.loader.winpe.HeaderPE;
 import jdos.win.utils.Path;
+import jdos.win.utils.WinKeyboard;
 import jdos.win.utils.WinSystem;
 
 import java.util.Vector;
@@ -99,6 +101,8 @@ public class Win {
         Memory.MEM_SetLFB(Memory.MEM_TotalPages(), videoMemory, handler, null);
 
         Keyboard.KEYBOARD_ShutDown.call(null);
+        Main.defaultKeyboardHandler = WinKeyboard.defaultKeyboardHandler;
+
         CPU.cpu.code.big = true;
 
         CPU.CPU_SetSegGeneralCS(0);

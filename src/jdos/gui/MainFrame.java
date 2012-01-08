@@ -261,12 +261,12 @@ public class MainFrame implements GUI {
 
         /** Handle the key pressed event from the text field. */
         public void keyPressed(KeyEvent e) {
-            Main.addEvent(e);
+            Main.addKeyEvent(e);
         }
 
         /** Handle the key released event from the text field. */
         public void keyReleased(KeyEvent e) {
-            Main.addEvent(e);
+            Main.addKeyEvent(e);
         }
 
         public void windowGainedFocus(WindowEvent e) {

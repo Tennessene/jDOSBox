@@ -249,7 +249,17 @@ public class Main {
             }
         }
     }
-    static private void handle(KeyEvent key) {
+    static public interface KeyboardHandler {
+        public void handle(KeyEvent key);
+    }
+    static public KeyboardHandler defaultKeyboardHandler;
+
+    static public void addKeyEvent(KeyEvent key) {
+        if (defaultKeyboardHandler != null)
+            defaultKeyboardHandler.handle(key);
+        events.add(key);
+    }
+    static public void handle(KeyEvent key) {
         int result;
 
         switch (key.getKeyCode()) {

@@ -44,6 +44,9 @@ public class WinClass extends WinObject {
             return false;
         }
         WinSystem.getCurrentProcess().classNames.put(className, this);
+        if (hbrBackground == 5+1) { // COLOR_WINDOW
+            hbrBackground = WinSystem.createBrush(0xFFFFFFFF).getHandle();
+        }
         return true;
     }
 

@@ -11,14 +11,18 @@ import jdos.win.loader.Loader;
 import jdos.win.utils.StringUtil;
 import jdos.win.utils.WinSystem;
 
+import java.util.Random;
+
 public class Crtdll extends BuiltinModule {
     int _acmdln_dll;
 
     public Crtdll(Loader loader, int handle) {
         super(loader, "Crtdll.dll", handle);
         add(_CIpow);
+        add(_ftol);
         add(__GetMainArgs);
         add(_initterm);
+        add(rand);
         add(_strupr);
         _acmdln_dll = addData("_acmdln_dll", 4);
         Memory.mem_writed(_acmdln_dll, WinSystem.getCurrentProcess().getCommandLine());
@@ -38,6 +42,19 @@ public class Crtdll extends BuiltinModule {
             long x = FPU.fpu.regs[FPU.fpu.top].d;
             FPU.fpu.regs[FPU.fpu.top].d = MicroDouble.pow(x, y);
             System.out.println("Crtdll._CIpow "+MicroDouble.toString(x)+"^"+MicroDouble.toString(y)+"="+MicroDouble.toString(FPU.fpu.regs[FPU.fpu.top].d));
+        }
+    };
+
+    private Callback.Handler _ftol = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Crtdll._ftol";
+        }
+        public void onCall() {
+            // :TODO: is this right?
+            long result = MicroDouble.longValue(FPU.fpu.regs[FPU.fpu.top].d);
+            FPU.FPU_FPOP();
+            CPU_Regs.reg_eax.dword = (int)result;
+            CPU_Regs.reg_edx.dword = (int)(result >>> 32);
         }
     };
 
@@ -78,6 +95,17 @@ public class Crtdll extends BuiltinModule {
                 }
                 start+=4;
             }
+        }
+    };
+
+    private static Random random = new Random();
+
+    private Callback.Handler rand = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Crtdll.rand";
+        }
+        public void onCall() {
+            CPU_Regs.reg_eax.dword = random.nextInt() & 0x7FFF;
         }
     };
 

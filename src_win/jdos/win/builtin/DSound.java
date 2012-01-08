@@ -11,7 +11,7 @@ import jdos.win.loader.Loader;
 public class DSound extends BuiltinModule {
     public DSound(Loader loader, int handle) {
         super(loader, "DSound.dll", handle);
-        add(DirectSoundCreate);
+        add(DirectSoundCreate, 1);
     }
 
     // HRESULT DirectSoundCreate(LPCGUID lpGUID,LPDIRECTSOUND *ppDS,LPUNKNOWN pUnkOuter);

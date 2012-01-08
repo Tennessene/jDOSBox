@@ -5,6 +5,8 @@ import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelHeap;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 public class WinThread extends WaitObject {
@@ -14,7 +16,7 @@ public class WinThread extends WaitObject {
     private CpuState cpuState = new CpuState();
     private KernelHeap stack;
     private int stackAddress;
-    private ArrayList msgQueue = new ArrayList();
+    private List msgQueue = Collections.synchronizedList(new ArrayList()); // synchronized since the keyboard will post message from another thread
     Vector windows = new Vector();
     private boolean quit = false;
     private WinTimer timer = new WinTimer(0);

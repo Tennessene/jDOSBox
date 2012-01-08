@@ -20,6 +20,7 @@ public class BuiltinModule extends Module {
     private String fileName;
     private Hashtable registeredCallbacks = new Hashtable();
     public Loader loader;
+    private Hashtable ordinalToName = new Hashtable();
 
     public BuiltinModule(Loader loader, String name, int handle) {
         super(handle);
@@ -30,7 +31,11 @@ public class BuiltinModule extends Module {
     protected void add(Callback.Handler handler) {
         functions.put(handler.getName().substring(name.length() + 1), handler);
     }
-
+    protected void add(Callback.Handler handler, int ordinal) {
+        String name = handler.getName().substring(this.name.length() + 1);
+        functions.put(name, handler);
+        ordinalToName.put(new Integer(ordinal), name);
+    }
     protected int addData(String name, int size) {
         int result = WinSystem.getCurrentProcess().heap.alloc(size, false);
         registeredCallbacks.put(name, new Integer(result));
@@ -98,6 +103,9 @@ public class BuiltinModule extends Module {
     }
 
     public long findOrdinalExport(long exportAddress, long exportsSize, int ordinal) {
+        String name = (String)ordinalToName.get(new Integer(ordinal));
+        if (name != null)
+            return getProcAddress(name, true);
         return 0;
     }
 

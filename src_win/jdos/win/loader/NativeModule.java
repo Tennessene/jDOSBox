@@ -4,7 +4,6 @@ import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
-import jdos.win.Win;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.loader.winpe.HeaderImageExportDirectory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
@@ -128,7 +127,19 @@ public class NativeModule extends Module {
 
         ResourceDirectory root = new ResourceDirectory(resourceStartAddress);
         if (type > 0xFFFF) {
-            Win.panic("Loading a resource by type name is not supported yet");
+            int address = resourceStartAddress +ResourceDirectory.SIZE;
+            String strId = new LittleEndianFile(type).readCString();
+            for (int i=0;i<root.NumberOfIdEntries;i++) {
+                String itemName = getResourceName(address);
+                address+=4;
+                int offset = Memory.mem_readd(address);
+                address+=4;
+                if (strId.equalsIgnoreCase(itemName)) {
+                    if (offset<0)
+                        return getResourceById(resourceStartAddress + (offset & 0x7FFFFFFF), id);
+                    return  getResource(resourceStartAddress + offset);
+                }
+            }
         } else {
             int address = resourceStartAddress +ResourceDirectory.SIZE+root.NumberOfNamedEntries*8;
 
@@ -155,6 +166,11 @@ public class NativeModule extends Module {
         //int Reserved = Memory.mem_readd(address+12);
     }
 
+    private String getResourceName(int address) {
+        int name = Memory.mem_readd(address);
+        return new LittleEndianFile(resourceStartAddress+ (name & 0x7FFFFFFF)+2).readCStringW(Memory.mem_readw(resourceStartAddress+ (name & 0x7FFFFFFF)));
+    }
+
     private int getResourceById(int resourceAddress, int id) {
         ResourceDirectory root = new ResourceDirectory(resourceAddress);
 
@@ -162,8 +178,7 @@ public class NativeModule extends Module {
         if (id>0xFFFF) {
             String strId = new LittleEndianFile(id).readCString();
             for (int i=0;i<root.NumberOfNamedEntries;i++) {
-                int name = Memory.mem_readd(address);
-                String itemName = new LittleEndianFile(resourceStartAddress+ (name & 0x7FFFFFFF)+2).readCStringW(Memory.mem_readw(resourceStartAddress+ (name & 0x7FFFFFFF)));
+                String itemName = getResourceName(address);
                 address+=4;
                 int offset = Memory.mem_readd(address);
                 address+=4;

@@ -1,6 +1,7 @@
 package jdos.win.utils;
 
 import jdos.cpu.CPU_Regs;
+import jdos.dos.Dos_programs;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.builtin.WinAPI;
@@ -68,8 +69,7 @@ public class WinWindow extends WinObject {
     static public final int WS_MAXIMIZEBOX =    0x00010000;
 
     public WinTimer timer;
-
-    public boolean needsPainting = false;
+    public static int currentFocus;
 
     private int width;
     private int height;
@@ -79,6 +79,10 @@ public class WinWindow extends WinObject {
     private int data = 0;
     private int hInstance;
     private WinDC dc;
+    private WinClass winClass;
+
+    public boolean isActive = false;
+    public boolean needsPainting = false;
 
     public WinWindow(int id, int dwExStyle, WinClass winClass, String name, int dwStyle, int x, int y, int cx, int cy, int hParent, int hMenu, int hInstance, int lpParam) {
         super(id);
@@ -94,6 +98,8 @@ public class WinWindow extends WinObject {
         this.style = dwStyle;
         this.exStyle = dwExStyle;
         this.hInstance = hInstance;
+
+        currentFocus = id;
 
         WinSystem.getCurrentThread().windows.add(this);
 
@@ -150,6 +156,11 @@ public class WinWindow extends WinObject {
         return WinAPI.TRUE;
     }
 
+    public int invalidateRect(int lpRect, int bErase) {
+        needsPainting = true;
+        return WinAPI.TRUE;
+    }
+
     public int getDC() {
         return WinSystem.createDC(null, WinSystem.getScreenAddress(), width, height, null).getHandle();
     }
@@ -193,7 +204,6 @@ public class WinWindow extends WinObject {
         return WinAPI.TRUE;
     }
 
-    public boolean isActive = false;
     public void showWindow(boolean show) {
         if (show) {
             if (!isActive) {
@@ -218,9 +228,9 @@ public class WinWindow extends WinObject {
     public int defWindowProc(int msg, int wParam, int lParam) {
         if (msg == WM_TIMER) {
             timer.execute(wParam);
+        } else if (msg == WM_CLOSE) {
+            throw new Dos_programs.RebootException();
         }
         return 0;
     }
-
-    private WinClass winClass;
 }

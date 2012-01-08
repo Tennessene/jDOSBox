@@ -81,7 +81,7 @@ public class IDirectSound extends IUnknown {
             int This = CPU.CPU_Pop32();
             int lpDsbOriginal = CPU.CPU_Pop32();
             int lplpDsbDuplicate = CPU.CPU_Pop32();
-            notImplemented();
+            CPU_Regs.reg_eax.dword = IDirectSoundBuffer.duplicate(lpDsbOriginal, lplpDsbDuplicate);
         }
     };
 

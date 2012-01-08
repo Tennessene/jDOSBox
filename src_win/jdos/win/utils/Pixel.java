@@ -222,6 +222,7 @@ public class Pixel {
         Graphics graphics = biDest.getGraphics();
         graphics.drawImage(biSrc, 0, 0, width, height, null);
         writeImage(dst, biDest, dstBpp, width, height);
+        graphics.dispose();
     }
 
     static public int BGRtoRGB(int color) {

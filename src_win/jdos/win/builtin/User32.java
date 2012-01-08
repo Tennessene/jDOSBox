@@ -22,6 +22,7 @@ public class User32 extends BuiltinModule {
         add(CreateWindowExA);
         add(DefWindowProcA);
         add(DispatchMessageA);
+        add(DrawTextA);
         add(EndPaint);
         add(FindWindowA);
         add(GetClientRect);
@@ -31,12 +32,16 @@ public class User32 extends BuiltinModule {
         add(GetSysColor);
         add(GetSystemMetrics);
         add(GetWindowLongA);
+        add(InvalidateRect);
         add(IsIconic);
         add(IsWindowVisible);
+        add(LoadAcceleratorsA);
         add(LoadCursorA);
         add(LoadIconA);
         add(LoadImageA);
+        add(LoadStringA);
         add(PeekMessageA);
+        add(PostMessageA);
         add(RegisterClassA);
         add(RegisterClassExA);
         add(ReleaseDC);
@@ -45,6 +50,7 @@ public class User32 extends BuiltinModule {
         add(SetTimer);
         add(ShowCursor);
         add(ShowWindow);
+        add(TranslateAcceleratorA);
         add(TranslateMessage);
         add(UpdateWindow);
         add(WaitForInputIdle);
@@ -104,7 +110,7 @@ public class User32 extends BuiltinModule {
                 CPU_Regs.reg_eax.dword = 0;
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_CANNOT_FIND_WND_CLASS);
             }
-            CPU_Regs.reg_eax.dword = WinSystem.createWindow(dwExStyle, winClass, name, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam).getHandle();
+            CPU_Regs.reg_eax.dword = WinSystem.createWindow(dwExStyle, winClass, name, dwStyle, 0, 0, WinSystem.screenWidth, WinSystem.screenHeight, hWndParent, hMenu, hInstance, lpParam).getHandle();
         }
     };
 
@@ -144,6 +150,28 @@ public class User32 extends BuiltinModule {
                 }
             }
             CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
+    // int DrawText(HDC hDC, LPCTSTR lpchText, int nCount, LPRECT lpRect, UINT uFormat)
+    private Callback.Handler DrawTextA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.DrawTextA";
+        }
+        public void onCall() {
+            int hDC = CPU.CPU_Pop32();
+            int lpchText = CPU.CPU_Pop32();
+            int nCount = CPU.CPU_Pop32();
+            int lpRect = CPU.CPU_Pop32();
+            int uFormat = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hDC);
+            if (object == null || !(object instanceof WinDC)) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = 0;
+            } else {
+                CPU_Regs.reg_eax.dword = ((WinDC)object).drawText(lpchText, nCount, lpRect, uFormat);
+            }
         }
     };
 
@@ -279,6 +307,25 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // BOOL InvalidateRect(HWND hWnd, const RECT *lpRect, BOOL bErase)
+    private Callback.Handler InvalidateRect = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.InvalidateRect";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpRect = CPU.CPU_Pop32();
+            int bErase = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                CPU_Regs.reg_eax.dword = 0;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                CPU_Regs.reg_eax.dword = ((WinWindow)object).invalidateRect(lpRect, bErase);
+            }
+        }
+    };
+
     // BOOL WINAPI IsIconic(HWND hWnd)
     private Callback.Handler IsIconic = new HandlerBase() {
         public java.lang.String getName() {
@@ -330,6 +377,19 @@ public class User32 extends BuiltinModule {
             } else {
                 CPU_Regs.reg_eax.dword = ((WinWindow)object).getWindowLong(nIndex);
             }
+        }
+    };
+
+    // HACCEL WINAPI LoadAccelerators(HINSTANCE hInstance, LPCTSTR lpTableName)
+    private Callback.Handler LoadAcceleratorsA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.LoadAcceleratorsA";
+        }
+        public void onCall() {
+            int hInstance = CPU.CPU_Pop32();
+            int lpTableName = CPU.CPU_Pop32();
+            System.out.println(getName()+" faked");
+            CPU_Regs.reg_eax.dword = 0xAAAA;
         }
     };
 
@@ -394,6 +454,35 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // int WINAPI LoadString(HINSTANCE hInstance, UINT uID, LPTSTR lpBuffer, int nBufferMax)
+    private Callback.Handler LoadStringA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.LoadStringA";
+        }
+        public void onCall() {
+            int hInstance = CPU.CPU_Pop32();
+            int uID = CPU.CPU_Pop32();
+            int lpBuffer = CPU.CPU_Pop32();
+            int nBufferMax = CPU.CPU_Pop32();
+            Module m = WinSystem.getCurrentProcess().loader.getModuleByHandle(hInstance);
+            if (m instanceof NativeModule) {
+                NativeModule module = (NativeModule)m;
+                int stringAddress = module.getAddressOfResource(NativeModule.RT_STRING, (uID >> 4)+1);
+                if (stringAddress != 0) {
+                    int index = uID & 0xf;
+                    for (int i = 0; i < index; i++)
+                        stringAddress += Memory.mem_readw(stringAddress)*2 + 2;
+                    stringAddress+=2;
+                    String result = new LittleEndianFile(stringAddress).readCStringW();
+                    StringUtil.strncpy(lpBuffer, result, nBufferMax);
+                    CPU_Regs.reg_eax.dword = Math.min(result.length(), nBufferMax);
+                    return;
+                }
+            }
+            CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
     // BOOL WINAPI PeekMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
     private Callback.Handler PeekMessageA = new HandlerBase() {
         public java.lang.String getName() {
@@ -406,6 +495,21 @@ public class User32 extends BuiltinModule {
             int wMsgFilterMax = CPU.CPU_Pop32();
             int wRemoveMsg = CPU.CPU_Pop32();
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentThread().peekMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+        }
+    };
+
+    // BOOL WINAPI PostMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+    private Callback.Handler PostMessageA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.PostMessageA";
+        }
+        public void onCall() {
+            int lpMsg = CPU.CPU_Pop32();
+            int Msg = CPU.CPU_Pop32();
+            int wParam = CPU.CPU_Pop32();
+            int lParam = CPU.CPU_Pop32();
+            WinSystem.getCurrentThread().postMessage(lpMsg, Msg, wParam, lParam);
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
 
@@ -548,6 +652,19 @@ public class User32 extends BuiltinModule {
                 ((WinWindow)object).showWindow(nCmdShow != 0);
                 CPU_Regs.reg_eax.dword = WinAPI.TRUE;
             }
+        }
+    };
+
+    // int WINAPI TranslateAccelerator(HWND hWnd, HACCEL hAccTable, LPMSG lpMsg)
+    private Callback.Handler TranslateAcceleratorA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.TranslateAcceleratorA";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int hAccTable = CPU.CPU_Pop32();
+            int lpMsg = CPU.CPU_Pop32();
+            CPU_Regs.reg_eax.dword = 0;
         }
     };
 

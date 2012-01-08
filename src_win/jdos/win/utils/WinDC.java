@@ -3,6 +3,7 @@ package jdos.win.utils;
 import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
+import jdos.win.loader.winpe.LittleEndianFile;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -16,8 +17,8 @@ public class WinDC extends WinObject {
     int width;
     int height;
     int bpp;
-    int bkColor = 0;
-    int textColor = 0xFFFFFF;
+    int bkColor = 0xFFFFFFFF;
+    int textColor = 0xFF000000;
     int[] palette;
     boolean addressOwner = false;
     int hPalette = 0;
@@ -59,6 +60,30 @@ public class WinDC extends WinObject {
         Memory.mem_writed(lpSize, sw);
         Memory.mem_writed(lpSize+4, sh);
         return WinAPI.TRUE;
+    }
+
+    public int drawText(int pText, int count, int pRect, int flags) {
+        WinRect rect = new WinRect(pRect);
+        String text = new LittleEndianFile(pText).readCString(count);
+
+        BufferedImage bi = getImage();
+        Graphics2D g = (Graphics2D)bi.getGraphics();
+        FontRenderContext frc = g.getFontRenderContext();
+        Font font = g.getFont().deriveFont(16f);
+        g.setFont(font);
+        int sw = (int)font.getStringBounds(text, frc).getWidth();
+        LineMetrics lm = font.getLineMetrics(text, frc);
+        int sh = (int)(lm.getAscent() + lm.getDescent());
+
+        if ((flags & 0x1)!=0) { // DT_CENTER
+            int x = (rect.right-rect.left)/2 - sw/2;
+            int y = rect.top;
+            textOut(x, y, text);
+        } else {
+            textOut(rect.left, rect.top, text);
+        }
+        System.out.println("drawText not fully implemented");
+        return sh;
     }
 
     public int textOut(int x, int y, String text) {
@@ -108,6 +133,7 @@ public class WinDC extends WinObject {
 
     public void writeImage(BufferedImage image) {
         Pixel.writeImage(address, image, bpp, width, height);
+        this.image = null;
     }
 
     public int selectPalette(WinPalette palette, boolean bForceBackground) {

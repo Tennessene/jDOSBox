@@ -148,7 +148,7 @@ public class IDirectDrawSurface extends IUnknown {
                         palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
                     }
                 }
-                image = Pixel.createImage(address, getData(This, OFFSET_DESC+0x54),  palette, getWidth(This), getHeight(This), false);
+                image = Pixel.createImage(address, getBpp(This),  palette, getWidth(This), getHeight(This), false);
                 if ((getData(This, OFFSET_FLAGS) & FLAGS_LOCKED)==0) {
                     WinObject object = WinSystem.createWinObject();
                     object.data = image;
@@ -507,7 +507,10 @@ public class IDirectDrawSurface extends IUnknown {
 
             Graphics g = dest.getGraphics();
             if ((dwFlags & DDBLT_COLORFILL)!=0) {
-                g.setColor(new Color(fx.dwFillColor));
+                int color = fx.dwFillColor;
+                if (getBits(This)<=8)
+                    color = getPaletteEntry(This, color);
+                g.setColor(new Color(color));
                 g.fillRect(destX1, destY1, destX2-destX1, destY2-destY1);
             } else {
                 notImplemented();
@@ -561,13 +564,6 @@ public class IDirectDrawSurface extends IUnknown {
             int srcY2 = Memory.mem_readd(lpSrcRect+12);
             int width = srcX2-srcX1;
             int height = srcY2-srcY1;
-
-            int srcHeight = getHeight(lpDDSrcSurface);
-            int dstHeight = getHeight(This);
-
-            //dwY = dstHeight - dwY - 1;
-            //srcY1 = srcHeight - srcY1 - 1;
-            //srcY1 = srcHeight - srcY1 - 1 - height;
 
             BufferedImage dest = getImage(This, true);
             Graphics g = dest.getGraphics();
@@ -906,6 +902,7 @@ public class IDirectDrawSurface extends IUnknown {
             int address = getData(This, OFFSET_MEMORY);
             Memory.mem_memcpy(lpDDSurfaceDesc, This+ OFFSET_DATA_START +OFFSET_DESC, isDesc2(This)?DDSurfaceDesc.SIZE2:DDSurfaceDesc.SIZE);
             Memory.mem_writed(lpDDSurfaceDesc+0x24, address);
+            System.out.println("Lock: bitcount="+Memory.mem_readb(lpDDSurfaceDesc+0x48+0x0c));
             lock(This);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
@@ -1040,15 +1037,19 @@ public class IDirectDrawSurface extends IUnknown {
             if (lpDDPalette == 0) {
                 setData(This, OFFSET_PALETTE, 0);
             } else {
-                // :TODO: not sure if I should copy the palette or reference it
-                AddRef(lpDDPalette); // :TODO: this will be leaked
+                AddRef(lpDDPalette);
                 setData(This, OFFSET_PALETTE, lpDDPalette);
                 int backBuffer = getData(This, OFFSET_BACK_BUFFER);
                 if (backBuffer != 0) {
+                    oldPalette = getData(backBuffer, OFFSET_PALETTE);
+                    if (oldPalette != 0) {
+                        Release(oldPalette);
+                    }
                     AddRef(lpDDPalette);
                     setData(backBuffer, OFFSET_PALETTE, lpDDPalette);
                 }
                 if ((getCaps(This) & DDSCAPS_PRIMARYSURFACE)!=0) {
+                    // :TODO: this will leak
                     AddRef(lpDDPalette);
                     IDirectDraw.setPalette(getDirectDraw(This), lpDDPalette);
                     WinSystem.screenPalette = lpDDPalette+IUnknown.OFFSET_DATA_START+IDirectDrawPalette.OFFSET_COLOR_DATA;

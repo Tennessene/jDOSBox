@@ -113,6 +113,8 @@ public class Kernel32 extends BuiltinModule {
         add(LoadLibraryA);
         add(LoadLibraryW);
         add(LoadResource);
+        add(LocalAlloc);
+        add(LocalFree);
         add(LockResource);
         add(lstrlenA);
         add(lstrlenW);
@@ -122,6 +124,7 @@ public class Kernel32 extends BuiltinModule {
         add(OutputDebugStringA);
         add(QueryPerformanceCounter);
         add(RaiseException);
+        add(RtlMoveMemory);
         add(RtlUnwind);
         add(RtlZeroMemory);
         add(SetConsoleCtrlHandler);
@@ -1898,6 +1901,37 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // HLOCAL WINAPI LocalAlloc(UINT uFlags, SIZE_T uBytes)
+    static private Callback.Handler LocalAlloc = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.LocalAlloc";
+        }
+
+        public void onCall() {
+            int uFlags = CPU.CPU_Pop32();
+            int uBytes = CPU.CPU_Pop32();
+
+            int result = WinSystem.getCurrentProcess().heap.alloc(uBytes+4, false);
+            if ((uFlags & 0x0040)!=0)
+                Memory.mem_zero(result, uBytes+4);
+            Memory.mem_writed(result, uBytes);
+            CPU_Regs.reg_eax.dword = result+4;
+        }
+    };
+
+    // HLOCAL WINAPI LocalFree(HLOCAL hMem)
+    static private Callback.Handler LocalFree = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.LocalFree";
+        }
+
+        public void onCall() {
+            int hMem = CPU.CPU_Pop32();
+            WinSystem.getCurrentProcess().heap.free(hMem-4);
+            CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
     // LPVOID WINAPI LockResource(HGLOBAL hResData)
     static private Callback.Handler LockResource = new HandlerBase() {
         public java.lang.String getName() {
@@ -2039,6 +2073,19 @@ public class Kernel32 extends BuiltinModule {
         public void onCall() {
             Console.out("RaiseException was called\n");
             Win.exit();
+        }
+    };
+
+    // VOID RtlMoveMemory(VOID UNALIGNED *Destination, const VOID UNALIGNED *Source, SIZE_T Length)
+    private Callback.Handler RtlMoveMemory = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.RtlMoveMemory";
+        }
+        public void onCall() {
+            int Destination = CPU.CPU_Pop32();
+            int Source = CPU.CPU_Pop32();
+            int Length = CPU.CPU_Pop32();
+            Memory.mem_memcpy(Destination, Source, Length);
         }
     };
 

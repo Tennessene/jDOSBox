@@ -24,6 +24,7 @@ public class Crtdll extends BuiltinModule {
         add(_initterm);
         add(rand);
         add(_strupr);
+        add(toupper);
         _acmdln_dll = addData("_acmdln_dll", 4);
         Memory.mem_writed(_acmdln_dll, WinSystem.getCurrentProcess().getCommandLine());
     }
@@ -118,6 +119,16 @@ public class Crtdll extends BuiltinModule {
             int str = CPU.CPU_Peek32(0);
             StringUtil._strupr(str);
             CPU_Regs.reg_eax.dword = str;
+        }
+    };
+
+    private Callback.Handler toupper = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Crtdll.toupper";
+        }
+        public void onCall() {
+            int c = CPU.CPU_Peek32(0);
+            CPU_Regs.reg_eax.dword = (int)Character.toUpperCase((char)c);
         }
     };
 }

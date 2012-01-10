@@ -1,5 +1,6 @@
 package jdos.win.utils;
 
+import jdos.hardware.Memory;
 import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelHeap;
 
@@ -67,6 +68,13 @@ public class WinHeap {
         return item.size(memory);
     }
 
+    public int realloc(int handle, int memory, int size, boolean zero) {
+        HeapItem item = (HeapItem)heaps.elementAt(handle-1);
+        if (item == null) {
+            return -1;
+        }
+        return item.realloc(memory, size, zero);
+    }
     private class HeapItem {
         int initialSize;
         int maxSize;
@@ -102,6 +110,20 @@ public class WinHeap {
                 return 0;
             int result = heap.alloc(size, false);
             allocs.put(new Integer(result), new Integer(size));
+            return result;
+        }
+        public int realloc(int add, int size, boolean zero) {
+            // :TODO: This could be done without a copy
+            int result = alloc(size);
+            int oldSize = size(add);
+            if (size>oldSize) {
+                Memory.mem_memcpy(result, add, oldSize);
+                if (zero)
+                    Memory.mem_zero(result+oldSize, size-oldSize);
+            } else {
+                Memory.mem_memcpy(result, add, size);
+            }
+            free(add);
             return result;
         }
     }

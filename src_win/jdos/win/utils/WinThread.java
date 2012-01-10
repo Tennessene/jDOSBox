@@ -1,8 +1,13 @@
 package jdos.win.utils;
 
+import jdos.cpu.CPU_Regs;
+import jdos.cpu.Callback;
 import jdos.hardware.Memory;
+import jdos.win.Win;
+import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelHeap;
+import jdos.win.kernel.WinCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,25 +15,53 @@ import java.util.List;
 import java.util.Vector;
 
 public class WinThread extends WaitObject {
+    static public final int THREAD_PRIORITY_IDLE = -15;
+    static public final int THREAD_PRIORITY_LOWEST = -2;
+    static public final int THREAD_PRIORITY_BELOW_NORMAL = -1;
+    static public final int THREAD_PRIORITY_NORMAL = 0;
+    static public final int THREAD_PRIORITY_ABOVE_NORMAL = 1;
+    static public final int THREAD_PRIORITY_HIGHEST = 2;
+    static public final int THREAD_PRIORITY_TIME_CRITICAL = 15;
+
     private Vector tls = new Vector();
     private WinProcess process;
     private int lastError = Error.ERROR_SUCCESS;
-    private CpuState cpuState = new CpuState();
+    public CpuState cpuState = new CpuState();
     private KernelHeap stack;
     private int stackAddress;
     private List msgQueue = Collections.synchronizedList(new ArrayList()); // synchronized since the keyboard will post message from another thread
     Vector windows = new Vector();
     private boolean quit = false;
     private WinTimer timer = new WinTimer(0);
+    public int priority = THREAD_PRIORITY_NORMAL;
 
-    public WinThread(int handle, WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve) {
+    private Callback.Handler startUp = new HandlerBase() {
+        public String getName() {
+            return "WinThread.start";
+        }
+        public void onCall() {
+            process.loader.attachThread();
+            if (CPU_Regs.reg_esp.dword != cpuState.esp) {
+                Win.panic("Wasn't expecting DllMain to mess up stack");
+            }
+            CPU_Regs.reg_eip = stackAddress;
+        }
+    };
+
+    private int threadStarup = 0;
+
+    public WinThread(int handle, WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve, boolean primary) {
         super(handle);
         final int guard = 0x1000;
 
         if (stackSizeCommit <= 0)
             stackSizeCommit = stackSizeReserve;
-        if (stackSizeCommit <= 0)
-            stackSizeCommit = 0x1000;
+        if (stackSizeCommit <= 0) {
+            stackSizeCommit = (int)process.loader.main.header.imageOptional.SizeOfStackCommit;
+            stackSizeReserve = (int)process.loader.main.header.imageOptional.SizeOfStackReserve;
+            if (stackSizeCommit <= 0)
+                stackSizeCommit = stackSizeReserve;
+        }
         if (stackSizeReserve<stackSizeCommit)
             stackSizeReserve = stackSizeCommit;
         // :TODO: remove this line once we have a stack that can grow
@@ -44,7 +77,16 @@ public class WinThread extends WaitObject {
         // :TODO: need a stack heap that grows down
         this.stack = new KernelHeap(process.kernelMemory, process.page_directory, start, end, end, false, false);
         this.process = process;
-        this.cpuState.eip = (int)startAddress;
+
+        if (primary) {
+            this.cpuState.eip = (int)startAddress;
+        } else {
+            // :TODO: this will leak
+            int cb = WinCallback.addCallback(startUp);
+            threadStarup = process.loader.registerFunction(cb);
+            this.cpuState.eip = threadStarup;
+        }
+        WinSystem.scheduler.addThread(this, false);
     }
 
     static void setMessage(int address, int hWnd, int message, int wParam, int lParam, int time, int curX, int curY) {
@@ -69,6 +111,9 @@ public class WinThread extends WaitObject {
         return WinAPI.TRUE;
     }
 
+    public void setPriority(int nPriority) {
+
+    }
     public void postMessage(int hWnd, int message, int wParam, int lParam) {
         msgQueue.add(new WinMsg(hWnd, message, wParam, lParam));
     }
@@ -163,59 +208,6 @@ public class WinThread extends WaitObject {
 
     public WinProcess getProcess() {
         return process;
-    }
-
-    public class CriticalSection {
-        int DebugInfo; // pointer
-
-        //
-        //  The following three fields control entering and exiting the critical
-        //  section for the resource
-        //
-
-        public int LockCount;
-        public int RecursionCount;
-        public int OwningThread; // handle       // from the thread's ClientId->UniqueThread
-        public int LockSemaphore; // handle
-        public int SpinCount;
-    }
-
-    public void initializeCriticalSection(int address, int spinCount) {
-        Memory.mem_writed(address, 0); address+=4;
-        Memory.mem_writed(address, 0xFFFFFFFF); address+=4;
-        Memory.mem_writed(address, 0); address+=4;
-        Memory.mem_writed(address, 0); address+=4;
-        Memory.mem_writed(address, 0); address+=4;
-        Memory.mem_writed(address, spinCount); address+=4;
-    }
-
-    public void enterCriticalSection(int address) {
-        int lockCount = Memory.mem_readd(address+4);
-        lockCount++;
-        Memory.mem_writed(address+4, lockCount);
-        int threadId = Memory.mem_readd(address+12);
-        if (threadId == 0) {
-            Memory.mem_writed(address+12, handle);
-            threadId = handle;
-        }
-        if (threadId == handle) {
-            int recursionCount = Memory.mem_readb(address+8);
-            recursionCount++;
-            Memory.mem_writed(address+8, recursionCount);
-        }
-    }
-
-    public void leaveCriticalSection(int address) {
-        int lockCount = Memory.mem_readd(address+4);
-        if (lockCount == 0) {
-            Memory.mem_writed(address+12, 0);
-        }
-        lockCount--;
-        Memory.mem_writed(address+4, lockCount);
-
-        int recursionCount = Memory.mem_readb(address+8);
-        recursionCount++;
-        Memory.mem_writed(address+8, recursionCount);
     }
 
     private static class TLS {

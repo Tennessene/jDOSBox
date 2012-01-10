@@ -15,6 +15,10 @@ public class WinRect {
         bottom = Memory.mem_readd(address+12);
     }
 
+    public void write(int address) {
+        write(address, left, top, right, bottom);
+    }
+
     public static void write(int address, int left, int top, int right, int bottom) {
         Memory.mem_writed(address, left);
         Memory.mem_writed(address+4, top);

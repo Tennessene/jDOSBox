@@ -4,7 +4,6 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
-import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.ddraw.IUnknown;
 import jdos.win.kernel.WinCallback;
@@ -23,6 +22,7 @@ public class IDirectSoundBuffer extends IUnknown {
     final static int OFFSET_END_POS = 12;
     final static int OFFSET_DESC = 16;
 
+    final static int OFFSET_DESC_WAV = OFFSET_DESC+16;
     static final int DATA_SIZE = OFFSET_DESC;
 
     final static int MEMORY_HEADER_SIZE = 4;
@@ -118,12 +118,14 @@ public class IDirectSoundBuffer extends IUnknown {
         if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER)==0 && (desc.dwBufferBytes<DSBSIZE_MIN || desc.dwBufferBytes>DSBSIZE_MAX)) {
             return Error.DDERR_INVALIDPARAMS;
         }
-        int address = allocate(vtable, DATA_SIZE+DSBufferDesc.SIZE, cleanupCallback);
+        int address = allocate(vtable, DATA_SIZE+DSBufferDesc.SIZE+WaveFormatEx.SIZE-4, cleanupCallback);
         setData(address, OFFSET_FLAGS, flags);
-        Memory.mem_memcpy(address+OFFSET_DATA_START+OFFSET_DESC, lpcDSBufferDesc, DSBufferDesc.SIZE);
+        Memory.mem_memcpy(address+OFFSET_DATA_START+OFFSET_DESC, lpcDSBufferDesc, DSBufferDesc.SIZE-4);
+        if (desc.lpwfxFormat != null)
+            Memory.mem_memcpy(address+OFFSET_DATA_START+OFFSET_DESC_WAV, Memory.mem_readd(lpcDSBufferDesc+16), WaveFormatEx.SIZE);
         Memory.mem_writed(lplpDirectSoundBuffer, address);
         if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER)!=0) {
-            Win.panic("Have not implemented direct sound primary buffer yet");
+            //Win.panic("Have not implemented direct sound primary buffer yet");
         }
         int data = WinSystem.getCurrentProcess().heap.alloc(desc.dwBufferBytes+MEMORY_HEADER_SIZE, false);
         setData(address, OFFSET_MEMORY, data);
@@ -344,7 +346,8 @@ public class IDirectSoundBuffer extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpcfxFormat = CPU.CPU_Pop32();
-            notImplemented();
+            Memory.mem_memcpy(This+OFFSET_DATA_START+OFFSET_DESC_WAV, lpcfxFormat, WaveFormatEx.SIZE);
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 

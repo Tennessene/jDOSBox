@@ -130,7 +130,7 @@ public class WinSystem {
 
     static public WinEvent createEvent(String name, boolean manual, boolean set) {
         WinEvent event = new WinEvent(nextObjectId++, name, manual, set);
-        if (event != null)
+        if (name!=null)
             WinSystem.namedObjects.put(name, event);
         return event;
     }
@@ -145,6 +145,10 @@ public class WinSystem {
 
     static public WinObject createWinObject() {
         return new WinObject(nextObjectId++);
+    }
+
+    static public WaitObject createWaitObject() {
+        return new WaitObject(nextObjectId++);
     }
 
     static int[] getScreenPalette() {
@@ -199,10 +203,8 @@ public class WinSystem {
         return scheduler.getCurrentThread();
     }
 
-    static public WinThread createThread(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve, boolean schedule) {
-        WinThread thread = new WinThread(nextObjectId++, process, startAddress, stackSizeCommit, stackSizeReserve);
-        scheduler.addThread(thread, schedule);
-        return thread;
+    static public WinThread createThread(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve, boolean primary) {
+        return new WinThread(nextObjectId++, process, startAddress, stackSizeCommit, stackSizeReserve, primary);
     }
 
     static public WinProcess createProcess(String path, String commandLine, Vector paths, String workingDirectory) {

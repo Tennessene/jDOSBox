@@ -1,5 +1,6 @@
 package jdos.win.utils;
 
+import jdos.cpu.CPU_Regs;
 import jdos.gui.Main;
 import jdos.win.Console;
 import jdos.win.Win;
@@ -86,6 +87,9 @@ public class Scheduler {
     }
 
     private void scheduleThread(SchedulerItem thread) {
+        if (currentThread != null) {
+            currentThread.thread.saveCPU();
+        }
         currentThread = thread;
         currentThread.thread.loadCPU();
     }
@@ -123,6 +127,7 @@ public class Scheduler {
             next = next.next;
         }
         if (next != currentThread) {
+            System.out.println("Switching threads: "+currentThread.thread.getHandle()+"("+Integer.toString(CPU_Regs.reg_eip, 16)+") -> "+next.thread.getHandle()+"("+Integer.toString(next.thread.cpuState.eip, 16)+")");
             currentThread.thread.saveCPU();
             if (currentThread.thread.getProcess() != next.thread.getProcess()) {
                 next.thread.getProcess().switchPageDirectory();

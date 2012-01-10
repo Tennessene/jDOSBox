@@ -512,14 +512,15 @@ public class IDirectDrawSurface extends IUnknown {
                     color = getPaletteEntry(This, color);
                 g.setColor(new Color(color));
                 g.fillRect(destX1, destY1, destX2-destX1, destY2-destY1);
-            } else {
-                notImplemented();
+            } else if (dwFlags == 0) {
                 BufferedImage src = getImage(lpDDSrcSurface, true);
                 int srcX1 = Memory.mem_readd(lpSrcRect);
                 int srcY1 = Memory.mem_readd(lpSrcRect+4);
                 int srcX2 = Memory.mem_readd(lpSrcRect+8);
                 int srcY2 = Memory.mem_readd(lpSrcRect+12);
                 g.drawImage(src, destX1, destY1, destX2, destY2, srcX1, srcY1, srcX2, srcY2, null);
+            } else {
+                notImplemented();
             }
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }

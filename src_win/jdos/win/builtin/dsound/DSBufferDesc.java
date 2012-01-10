@@ -3,7 +3,7 @@ package jdos.win.builtin.dsound;
 import jdos.hardware.Memory;
 
 public class DSBufferDesc {
-    static public final int SIZE = 42;
+    static public final int SIZE = 20;
 
     public final static int DSBCAPS_PRIMARYBUFFER =     0x00000001;
     public final static int DSBCAPS_STATIC =            0x00000002;

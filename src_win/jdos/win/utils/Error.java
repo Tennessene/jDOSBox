@@ -18,6 +18,8 @@ public class Error {
     public static final int ERROR_INVALID_WINDOW_HANDLE = 1400;
     public static final int ERROR_CANNOT_FIND_WND_CLASS = 1407;
     public static final int ERROR_CLASS_ALREADY_EXISTS = 1410;
+    public static final int ERROR_RESOURCE_DATA_NOT_FOUND = 1812;
+    public static final int ERROR_RESOURCE_TYPE_NOT_FOUND = 1813;
 
     public static final int S_OK = 0x00000000;
     public static final int E_NOINTERFACE = 0x80004002;
@@ -25,6 +27,8 @@ public class Error {
     public static final int E_INVALIDARG = 0x80070057;
 
     public static final int DDERR_INVALIDPARAMS = E_INVALIDARG;
+
+    public static final int INVALID_FILE_ATTRIBUTES = -1;
 
     public static String getError(int e) {
         switch (e) {

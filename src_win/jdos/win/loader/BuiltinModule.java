@@ -16,7 +16,6 @@ import java.util.Vector;
 
 public class BuiltinModule extends Module {
     private Hashtable functions = new Hashtable();
-    private String name;
     private String fileName;
     private Hashtable registeredCallbacks = new Hashtable();
     public Loader loader;
@@ -75,6 +74,9 @@ public class BuiltinModule extends Module {
         if (fullPath)
             return WinAPI.SYSTEM32_PATH+fileName;
         return fileName;
+    }
+
+    public void callDllMain(int dwReason) {
     }
 
     public void unload() {

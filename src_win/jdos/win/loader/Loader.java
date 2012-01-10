@@ -1,9 +1,5 @@
 package jdos.win.loader;
 
-import jdos.Dosbox;
-import jdos.cpu.CPU;
-import jdos.cpu.CPU_Regs;
-import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.util.IntRef;
@@ -13,12 +9,12 @@ import jdos.win.Console;
 import jdos.win.builtin.*;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
-import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
 import jdos.win.utils.Path;
 import jdos.win.utils.WinProcess;
 import jdos.win.utils.WinSystem;
+import jdos.win.utils.WinThread;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -42,7 +38,7 @@ public class Loader {
     private Hashtable modulesByName = new Hashtable();
     private Hashtable modulesByHandle = new Hashtable();
     private Vector paths;
-    private Module main = null;
+    public NativeModule main = null;
     private int page_directory;
     private KernelHeap callbackHeap;
     private int nextModuleHandle = 1;
@@ -68,17 +64,25 @@ public class Loader {
         return nextModuleHandle++;
     }
 
-    static Callback.Handler DllMainReturn = new Callback.Handler() {
-        public String getName() {
-            return "DllMainReturn";
+    public void attachThread() {
+        Enumeration e = modulesByHandle.elements();
+        while (e.hasMoreElements()) {
+            Module module = (Module)e.nextElement();
+            if (module.threadLibraryCalls) {
+                module.callDllMain(Module.DLL_THREAD_ATTACH);
+            }
         }
+    }
 
-        public int call() {
-            return 1; // return from DOSBOX_RunMachine
+    public void detachThread() {
+        Enumeration e = modulesByHandle.elements();
+        while (e.hasMoreElements()) {
+            Module module = (Module)e.nextElement();
+            if (module.threadLibraryCalls) {
+                module.callDllMain(Module.DLL_THREAD_DETACH);
+            }
         }
-    };
-
-    private int returnEip = 0;
+    }
 
     private Module load_native_module(String name) {
         try {
@@ -90,8 +94,7 @@ public class Loader {
                     if (main == null) {
                         main = module;
                         // we need to create the main thread as soon as possible so that DllMain can run
-                        WinSystem.createThread(process, module.getEntryPoint(), (int)module.header.imageOptional.SizeOfStackCommit, (int)module.header.imageOptional.SizeOfStackReserve, true);
-
+                        WinThread thread = WinSystem.createThread(process, module.getEntryPoint(), (int)module.header.imageOptional.SizeOfStackCommit, (int)module.header.imageOptional.SizeOfStackReserve, true);
                         WinSystem.getCurrentProcess().mainModule = module;
                     }
                     // :TODO: reloc dll
@@ -99,29 +102,7 @@ public class Loader {
                     modulesByHandle.put(new Integer(module.getHandle()), module);
                     if (resolveImports(module)) {
                         if (main != module) {
-                            if (module.header.imageOptional.AddressOfEntryPoint != 0) {
-                                  // This code helps debug DllMain by giving the same stack pointer
-//                                KernelHeap stack = new KernelHeap(WinSystem.memory, WinSystem.getCurrentProcess().page_directory, 0x100000, 0x140000, 0x140000, true, false);
-//                                stack.alloc(0x40000, false);
-//                                Memory.mem_zero(0x100000, 0x40000);
-//                                CPU_Regs.reg_esp.dword = 0x13F9F4+3*4+4;
-                                CPU.CPU_Push32(0); // the spec says this is non-null, but I'm not sure what to put in here
-                                CPU.CPU_Push32(1); // DLL_PROCESS_ATTACH
-                                CPU.CPU_Push32(module.getHandle()); // HINSTANCE
-                                if (returnEip == 0) {
-                                    int callback = WinCallback.addCallback(DllMainReturn);
-                                    returnEip = registerFunction(callback);
-                                }
-                                CPU.CPU_Push32(returnEip); // return ip
-                                int currentEip = CPU_Regs.reg_eip;
-                                CPU_Regs.reg_eip = (int)module.getEntryPoint();
-                                try {
-                                    Dosbox.DOSBOX_RunMachine();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                CPU_Regs.reg_eip = currentEip;
-                            }
+                            module.callDllMain(Module.DLL_PROCESS_ATTACH);
                         }
                         return module;
                     }
@@ -174,13 +155,24 @@ public class Loader {
         return (Module) modulesByHandle.get(new Integer(handle));
     }
 
-    public Module loadModule(String name) {
+    private Module internalLoadModule(String name) {
         Module result = (Module) modulesByName.get(name.toLowerCase());
         if (result == null)
             result = load_native_module(name);
         if (result == null)
             result = load_builtin_module(name);
         return result;
+    }
+
+    public Module loadModule(String name) {
+        String path = null;
+        int pos = name.lastIndexOf("\\");
+        if (pos>=0) {
+            path = name.substring(0, pos+1);
+            name = name.substring(pos+1);
+        }
+        // :TODO: currently we only support modules in the path
+        return internalLoadModule(name);
     }
 
     private boolean resolveImports(Module module) throws IOException {

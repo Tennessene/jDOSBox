@@ -1,5 +1,7 @@
 package jdos.win.kernel;
 
+import jdos.win.Win;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -141,18 +143,34 @@ public class KernelHeap {
         end +=new_size;
 
         if (combineWithLast) {
+            removeItem(last);
             last.size+=new_size;
+            insertItem(last);
         } else {
             insertItem(new HeapItem(old_end & 0xFFFFFFFFl, new_size));
         }
         return true;
     }
 
+    private void dump() {
+        for (int i=0;i<itemsBySize.size();i++) {
+            HeapItem item = (HeapItem)itemsBySize.get(i);
+            System.out.println(item.size+"@"+Long.toString(item.address, 16));
+        }
+    }
+    private boolean inExpand = false;
+
     private int expandAndAlloc(int size, boolean pageAlign) {
         int result = 0;
+        if (inExpand) { // prevent recursion
+            dump();
+            Win.panic("Error in Kernel Heap class");
+        }
+        inExpand = true;
         if (expand(size, pageAlign)) {
             result = alloc(size, pageAlign);
         }
+        inExpand = false;
         return result;
     }
 
@@ -218,20 +236,24 @@ public class KernelHeap {
             if (index>0) {
                 HeapItem before = (HeapItem)itemsByAddress.get(index-1);
                 if (before.address+before.size==item.address) {
+                    removeItem(before);
                     before.size+=item.size;
                     item = before;
                     found = true;
+                    insertItem(before);
                 }
             }
             if (index<itemsByAddress.size()) {
                 HeapItem after = (HeapItem)itemsByAddress.get(index);
                 if (item.address+item.size==after.address) {
+                    removeItem(after);
                     after.address-=item.size;
                     after.size+=item.size;
                     if (found)
                         removeItem(item); // if we merge with the before and after items
                     else
                         found = true;
+                    insertItem(after);
                 }
             }
             if (!found) {

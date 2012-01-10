@@ -1,14 +1,16 @@
 package jdos.win.loader;
 
+import jdos.Dosbox;
+import jdos.cpu.CPU;
+import jdos.cpu.CPU_Regs;
+import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
 import jdos.win.kernel.KernelHeap;
-import jdos.win.loader.winpe.HeaderImageExportDirectory;
-import jdos.win.loader.winpe.HeaderImageImportDescriptor;
-import jdos.win.loader.winpe.HeaderPE;
-import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.kernel.WinCallback;
+import jdos.win.loader.winpe.*;
 import jdos.win.utils.Path;
 import jdos.win.utils.WinSystem;
 
@@ -20,7 +22,6 @@ public class NativeModule extends Module {
     public HeaderPE header = new HeaderPE();
 
     private Path path;
-    private String name;
     private KernelHeap heap;
     private Loader loader;
     private int baseAddress;
@@ -37,7 +38,60 @@ public class NativeModule extends Module {
         return name;
     }
 
+    static Callback.Handler DllMainReturn = new Callback.Handler() {
+        public String getName() {
+            return "DllMainReturn";
+        }
+
+        public int call() {
+            return 1; // return from DOSBOX_RunMachine
+        }
+    };
+
+    private int returnEip = 0;
+
+    public void callDllMain(int dwReason) {
+        if (header.imageOptional.AddressOfEntryPoint == 0) {
+            if (Module.LOG)
+                System.out.println(name+" has no DllMain");
+        } else {
+              // This code helps debug DllMain by giving the same stack pointer
+//                                KernelHeap stack = new KernelHeap(WinSystem.memory, WinSystem.getCurrentProcess().page_directory, 0x100000, 0x140000, 0x140000, true, false);
+//                                stack.alloc(0x40000, false);
+//                                Memory.mem_zero(0x100000, 0x40000);
+//                                CPU_Regs.reg_esp.dword = 0x13F9F4+3*4+4;
+            CPU.CPU_Push32(0); // the spec says this is non-null, but I'm not sure what to put in here
+            CPU.CPU_Push32(1); // DLL_PROCESS_ATTACH
+            CPU.CPU_Push32(getHandle()); // HINSTANCE
+            if (returnEip == 0) {
+                int callback = WinCallback.addCallback(DllMainReturn);
+                returnEip = loader.registerFunction(callback);
+            }
+            CPU.CPU_Push32(returnEip); // return ip
+            int currentEip = CPU_Regs.reg_eip;
+            CPU_Regs.reg_eip = (int)getEntryPoint();
+            try {
+                if (Module.LOG) {
+                    System.out.println(name+" calling DllMain@"+Integer.toString(CPU_Regs.reg_eip, 16)+" dwReason="+dwReason);
+                }
+                int esp = CPU_Regs.reg_esp.dword;
+                Dosbox.DOSBOX_RunMachine();
+                CPU_Regs.reg_esp.dword = esp;
+                if (Module.LOG)
+                    System.out.println(name+" calling DllMain SUCCESS");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            CPU_Regs.reg_eip = currentEip;
+        }
+    }
+
     public int getProcAddress(String name, boolean loadFake) {
+        LongRef exportAddress = new LongRef(0);
+        LongRef exportSize = new LongRef(0);
+        if (RtlImageDirectoryEntryToData(HeaderImageOptional.IMAGE_DIRECTORY_ENTRY_EXPORT, exportAddress, exportSize)) {
+            return (int)findNameExport(exportAddress.value, exportSize.value, name, -1);
+        }
         return 0;
     }
 
@@ -81,6 +135,8 @@ public class NativeModule extends Module {
                     heap.alloc(add, false);
                 }
                 Memory.mem_memcpy(address, buffer, 0, buffer.length);
+                if (size>buffer.length)
+                    Memory.mem_zero(address+buffer.length, size-buffer.length);
             }
             return true;
         } catch (Exception e) {
@@ -101,6 +157,7 @@ public class NativeModule extends Module {
     static public final int RT_ACCELERATOR = 9;
     static public final int RT_RCDATA = 10;
     static public final int RT_MESSAGETABLE = 11;
+    static public final int RT_VERSION = 16;
 
     static public class ResourceDirectory {
         public static final int SIZE = 16;
@@ -122,6 +179,9 @@ public class NativeModule extends Module {
         public int NumberOfIdEntries;
     }
     public int getAddressOfResource(int type, int id) {
+        return getAddressOfResource(type, id, null);
+    }
+    public int getAddressOfResource(int type, int id, IntRef size) {
         if (resourceStartAddress == 0)
             return 0;
 
@@ -136,8 +196,8 @@ public class NativeModule extends Module {
                 address+=4;
                 if (strId.equalsIgnoreCase(itemName)) {
                     if (offset<0)
-                        return getResourceById(resourceStartAddress + (offset & 0x7FFFFFFF), id);
-                    return  getResource(resourceStartAddress + offset);
+                        return getResourceById(resourceStartAddress + (offset & 0x7FFFFFFF), id, size);
+                    return getResource(resourceStartAddress + offset, size);
                 }
             }
         } else {
@@ -150,17 +210,17 @@ public class NativeModule extends Module {
                 address+=4;
                 if (name == type) {
                     if (offset<0)
-                        return getResourceById(resourceStartAddress + (offset & 0x7FFFFFFF), id);
-                    return  getResource(resourceStartAddress + offset);
+                        return getResourceById(resourceStartAddress + (offset & 0x7FFFFFFF), id, size);
+                    return  getResource(resourceStartAddress + offset, size);
                 }
             }
         }
-        int ii=0;
         return 0;
     }
-    private int getResource(int address) {
+    private int getResource(int address, IntRef size) {
         int offset = Memory.mem_readd(address);
-        int size = Memory.mem_readd(address+4);
+        if (size != null)
+            size.value = Memory.mem_readd(address+4);
         return offset + baseAddress;
         //int CodePage = Memory.mem_readd(address+8);
         //int Reserved = Memory.mem_readd(address+12);
@@ -171,7 +231,7 @@ public class NativeModule extends Module {
         return new LittleEndianFile(resourceStartAddress+ (name & 0x7FFFFFFF)+2).readCStringW(Memory.mem_readw(resourceStartAddress+ (name & 0x7FFFFFFF)));
     }
 
-    private int getResourceById(int resourceAddress, int id) {
+    private int getResourceById(int resourceAddress, int id, IntRef size) {
         ResourceDirectory root = new ResourceDirectory(resourceAddress);
 
         int address = resourceAddress+ResourceDirectory.SIZE;
@@ -184,8 +244,8 @@ public class NativeModule extends Module {
                 address+=4;
                 if (itemName.equalsIgnoreCase(strId)) {
                     if (offset<0)
-                        return getResourceByCodePage(resourceStartAddress + (offset & 0x7FFFFFFF));
-                    return getResource(resourceStartAddress + offset);
+                        return getResourceByCodePage(resourceStartAddress + (offset & 0x7FFFFFFF), size);
+                    return getResource(resourceStartAddress + offset, size);
                 }
             }
         } else {
@@ -197,15 +257,15 @@ public class NativeModule extends Module {
                 address+=4;
                 if (name == id) {
                     if (offset<0)
-                        return getResourceByCodePage(resourceStartAddress + (offset & 0x7FFFFFFF));
-                    return getResource(resourceStartAddress + offset);
+                        return getResourceByCodePage(resourceStartAddress + (offset & 0x7FFFFFFF), size);
+                    return getResource(resourceStartAddress + offset, size);
                 }
             }
         }
         return 0;
     }
 
-    private int getResourceByCodePage(int resourceAddress) {
+    private int getResourceByCodePage(int resourceAddress, IntRef size) {
          ResourceDirectory root = new ResourceDirectory(resourceAddress);
         int address = resourceAddress+ResourceDirectory.SIZE+root.NumberOfNamedEntries*8;
 
@@ -215,7 +275,7 @@ public class NativeModule extends Module {
             int offset = Memory.mem_readd(address);
             address+=4;
             if (name == 1033) {
-                return getResource(resourceStartAddress + offset);
+                return getResource(resourceStartAddress + offset, size);
             }
         }
         return 0;

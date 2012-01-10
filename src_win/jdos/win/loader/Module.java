@@ -9,6 +9,10 @@ import java.util.Vector;
 
 public abstract class Module {
     private int handle;
+    public String name;
+    protected boolean threadLibraryCalls = true;
+
+    public static final boolean LOG = true;
 
     public Module(int handle) {
         this.handle = handle;
@@ -17,6 +21,15 @@ public abstract class Module {
     public int getHandle() {
         return handle;
     }
+
+    public void disableThreadLibraryCalls() {
+        threadLibraryCalls = false;
+    }
+
+    public static final int DLL_PROCESS_DETACH = 0;
+    public static final int DLL_PROCESS_ATTACH = 1;
+    public static final int DLL_THREAD_ATTACH = 2;
+    public static final int DLL_THREAD_DETACH = 3;
 
     abstract public boolean RtlImageDirectoryEntryToData(int dir, LongRef address, LongRef size);
     abstract public Vector getImportDescriptors(long address);
@@ -29,4 +42,5 @@ public abstract class Module {
     abstract public void unload();
     abstract public int getProcAddress(String name, boolean loadFake);
     abstract public String getFileName(boolean fullPath);
+    abstract public void callDllMain(int dwReason);
 }

@@ -21,6 +21,11 @@ import java.io.RandomAccessFile;
 import java.util.Random;
 
 public class Kernel32 extends BuiltinModule {
+    static private final int HEAP_CREATE_ENABLE_EXECUTE = 0x00040000;
+    static private final int HEAP_GENERATE_EXCEPTIONS = 0x00000004;
+    static private final int HEAP_ZERO_MEMORY = 0x00000008;
+    static private final int HEAP_NO_SERIALIZE = 0x00000001;
+
     public Kernel32(Loader loader, int handle) {
         super(loader, "kernel32.dll", handle);
 
@@ -35,6 +40,7 @@ public class Kernel32 extends BuiltinModule {
         add(DecodePointer);
         add(DeleteCriticalSection);
         add(DeleteFileA);
+        add(DisableThreadLibraryCalls);
         add(EncodePointer);
         add(EnterCriticalSection);
         add(EnumSystemLocalesA);
@@ -46,6 +52,7 @@ public class Kernel32 extends BuiltinModule {
         add(FreeEnvironmentStringsA);
         add(FreeEnvironmentStringsW);
         add(FreeLibrary);
+        add(FreeResource);
         add(GetACP);
         add(GetCommandLineA);
         add(GetCommandLineW);
@@ -61,8 +68,11 @@ public class Kernel32 extends BuiltinModule {
         add(GetDateFormatA);
         add(GetDateFormatW);
         add(GetDiskFreeSpaceA);
+        add(GetDriveTypeA);
         add(GetEnvironmentStringsA);
         add(GetEnvironmentStringsW);
+        add(GetFileAttributesA);
+        add(GetFileSize);
         add(GetFileType);
         add(GetLastError);
         add(GetLocaleInfoA);
@@ -89,6 +99,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetVersion);
         add(GetVersionExA);
         add(GetVersionExW);
+        add(GetVolumeInformationA);
         add(GetWindowsDirectoryA);
         add(GetWindowsDirectoryW);
         add(HeapAlloc);
@@ -124,14 +135,17 @@ public class Kernel32 extends BuiltinModule {
         add(OutputDebugStringA);
         add(QueryPerformanceCounter);
         add(RaiseException);
+        add(ReadFile);
         add(RtlMoveMemory);
         add(RtlUnwind);
         add(RtlZeroMemory);
         add(SetConsoleCtrlHandler);
+        add(SetErrorMode);
         add(SetFilePointer);
         add(SetHandleCount);
         add(SetLastError);
         add(SetStdHandle);
+        add(SetThreadPriority);
         add(SetUnhandledExceptionFilter);
         add(Sleep);
         add(TerminateProcess);
@@ -183,6 +197,8 @@ public class Kernel32 extends BuiltinModule {
                 notImplemented();
             }
             CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+            if (LOG)
+                log("hObject="+hObject+" type="+object);
         }
     };
 
@@ -215,6 +231,8 @@ public class Kernel32 extends BuiltinModule {
             }
             WinEvent event = WinSystem.createEvent(name, bManualReset!=0, bInitialState!=0);
             CPU_Regs.reg_eax.dword = event.getHandle();
+            if (LOG)
+                log("lpEventAttributes=@0x"+Integer.toString(lpEventAttributes, 16)+" bManualReset="+bManualReset+" bInitialState="+bInitialState+" lpName="+name+"@"+Integer.toString(lpName, 16));
         }
     };
 
@@ -421,9 +439,6 @@ public class Kernel32 extends BuiltinModule {
                 Memory.mem_writed(id, thread.getHandle());
             }
             CPU_Regs.reg_eax.dword = thread.getHandle();
-
-            // :TODO: run DllMain DLL_THREAD_ATTACH on all loaded Dll's
-            System.out.println("***WARNING*** CreateThread will not initialize loaded DLL's yet");
         }
     };
 
@@ -592,7 +607,7 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.DeleteCriticalSection";
         }
         public void onCall() {
-            notImplemented();
+            WinCriticalException.delete(CPU.CPU_Pop32());
         }
     };
 
@@ -625,6 +640,27 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI DisableThreadLibraryCalls(HMODULE hModule)
+    static private Callback.Handler DisableThreadLibraryCalls = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.DisableThreadLibraryCalls";
+        }
+        public void onCall() {
+            int hModule = CPU.CPU_Pop32();
+            Module module = WinSystem.getCurrentProcess().loader.getModuleByHandle(hModule);
+            if (module == null) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                if (LOG)
+                    log("hModule="+hModule+" result=FALSE");
+            } else {
+                module.disableThreadLibraryCalls();
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+                if (LOG)
+                    log("hModule="+hModule+"("+module.name+") result=TRUE");
+            }
+        }
+    };
     static int pointerObfuscator = new Random().nextInt();
 
     // PVOID EncodePointer(PVOID Ptr)
@@ -643,7 +679,7 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.EnterCriticalSection";
         }
         public void onCall() {
-            WinSystem.getCurrentThread().enterCriticalSection(CPU.CPU_Pop32());
+            WinCriticalException.enter(CPU.CPU_Pop32());
         }
     };
 
@@ -790,6 +826,17 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI FreeResource(HGLOBAL hglbResource)
+    static private Callback.Handler FreeResource = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.FreeResource";
+        }
+        public void onCall() {
+            int hglbResource = CPU.CPU_Pop32();
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+        }
+    };
+
     // UINT GetACP(void)
     static private Callback.Handler GetACP = new HandlerBase() {
         public java.lang.String getName() {
@@ -797,6 +844,8 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = 1252; // ANSI Latin 1; Western European (Windows)
+            if (LOG)
+                log("result="+CPU_Regs.reg_eax.dword);
         }
     };
 
@@ -807,6 +856,8 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getCommandLine();
+            if (LOG)
+                log("result="+new LittleEndianFile(CPU_Regs.reg_eax.dword).readCString()+"@"+Integer.toString(CPU_Regs.reg_eax.dword, 16));
         }
     };
     private Callback.Handler GetCommandLineW = new HandlerBase() {
@@ -874,6 +925,8 @@ public class Kernel32 extends BuiltinModule {
                 CPU_Regs.reg_eax.dword = WinAPI.FALSE;
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
             }
+            if (LOG)
+                log("CodePage="+CodePage+" lpCPInfo=0x"+Integer.toString(add,16)+" result="+CPU_Regs.reg_eax.dword);
         }
     };
 
@@ -975,6 +1028,28 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // UINT WINAPI GetDriveType(LPCTSTR lpRootPathName)
+    private Callback.Handler GetDriveTypeA = new HandlerBase() {
+            public java.lang.String getName() {
+                return "Kernel32.GetDriveTypeA";
+            }
+            public void onCall() {
+                int lpFileName = CPU.CPU_Pop32();
+                String dir;
+                if (lpFileName == 0) {
+                    dir = WinSystem.getCurrentProcess().currentWorkingDirectory;
+                } else {
+                    dir = new LittleEndianFile(lpFileName).readCString();
+                }
+                File file = WinSystem.getCurrentProcess().getFile(dir);
+                if (file.exists()) {
+                    CPU_Regs.reg_eax.dword = 3; // DRIVE_FIXED
+                } else {
+                    CPU_Regs.reg_eax.dword = 1; // DRIVE_NO_ROOT_DIR
+                }
+            }
+    };
+
     // LPTCH WINAPI GetEnvironmentStrings(void)
     private Callback.Handler GetEnvironmentStringsA = new HandlerBase() {
         public java.lang.String getName() {
@@ -993,6 +1068,55 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // DWORD WINAPI GetFileAttributes(LPCTSTR lpFileName)
+    private Callback.Handler GetFileAttributesA = new HandlerBase() {
+            public java.lang.String getName() {
+                return "Kernel32.GetFileAttributesA";
+            }
+            public void onCall() {
+                int lpFileName = CPU.CPU_Pop32();
+                if (lpFileName == 0) {
+                    CPU_Regs.reg_eax.dword = Error.INVALID_FILE_ATTRIBUTES;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                } else {
+                    String fileName = new LittleEndianFile(lpFileName).readCString();
+                    File file = WinSystem.getCurrentProcess().getFile(fileName);
+                    if (file.exists()) {
+                        if (file.isDirectory())
+                            CPU_Regs.reg_eax.dword = WinFile.FILE_ATTRIBUTE_DIRECTORY;
+                        else
+                            CPU_Regs.reg_eax.dword = WinFile.FILE_ATTRIBUTE_NORMAL;
+                    } else {
+                        CPU_Regs.reg_eax.dword = Error.INVALID_FILE_ATTRIBUTES;
+                        WinSystem.getCurrentThread().setLastError(Error.ERROR_BAD_PATHNAME);
+                    }
+                }
+            }
+    };
+
+    // DWORD WINAPI GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh)
+    private Callback.Handler GetFileSize = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.GetFileSize";
+        }
+        public void onCall() {
+            int hFile = CPU.CPU_Pop32();
+            int lpFileSizeHigh = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hFile);
+            if (object == null || !(object instanceof WinFile)) {
+                CPU_Regs.reg_eax.dword = -1;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                WinFile file = (WinFile)object;
+                long size = file.size();
+                CPU_Regs.reg_eax.dword = (int)size;
+                if (lpFileSizeHigh != 0) {
+                    Memory.mem_writed(lpFileSizeHigh, (int)(size >>> 32));
+                }
+            }
+        }
+    };
+
     // DWORD WINAPI GetFileType(HANDLE hFile)
     private Callback.Handler GetFileType = new HandlerBase() {
         public java.lang.String getName() {
@@ -1007,6 +1131,8 @@ public class Kernel32 extends BuiltinModule {
             } else {
                 CPU_Regs.reg_eax.dword = file.type;
             }
+            if (LOG)
+                log("hFile="+hFile+"(name="+(file==null?"NULL":file.name)+") result="+CPU_Regs.reg_eax.dword);
         }
     };
 
@@ -1060,6 +1186,8 @@ public class Kernel32 extends BuiltinModule {
                     StringUtil.strcpy(buffer, path);
                     CPU_Regs.reg_eax.dword = path.length();
                 }
+                if (LOG)
+                    log("hModule="+handle+" lpFilename="+path+"@0x"+Integer.toString(buffer, 16)+" nSize="+cb+" return="+CPU_Regs.reg_eax.dword);
             }
         }
     };
@@ -1097,11 +1225,15 @@ public class Kernel32 extends BuiltinModule {
             int add = CPU.CPU_Pop32();
             if (add == 0) {
                 CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().mainModule.getHandle();
+                if (LOG)
+                    log("lpModuleName=0 result="+CPU_Regs.reg_eax.dword);
             } else {
                 String name = new LittleEndianFile(add).readCString();
                 CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getModuleByName(name);
                 if (CPU_Regs.reg_eax.dword == 0)
                     WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
+                if (LOG)
+                    log("lpModuleName="+name+"@"+Integer.toString(add, 16)+" result="+CPU_Regs.reg_eax.dword);
             }
         }
     };
@@ -1133,8 +1265,9 @@ public class Kernel32 extends BuiltinModule {
             int handle = CPU.CPU_Pop32();
             int procName = CPU.CPU_Pop32();
             String name = new LittleEndianFile(procName).readCString();
-            System.out.println("    Proc: "+name);
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getProcAddress(handle, name);
+            if (LOG)
+                log("hModule="+handle+"("+WinSystem.getCurrentProcess().getModuleByHandle(handle).name+") lpProcName="+name+"@"+Integer.toString(procName, 16)+" result=0x"+Integer.toString(CPU_Regs.reg_eax.dword, 16));
         }
     };
     
@@ -1201,6 +1334,8 @@ public class Kernel32 extends BuiltinModule {
             Memory.mem_writed(add, WinFile.STD_IN); add+=4; // hStdInput
             Memory.mem_writed(add, WinFile.STD_OUT); add+=4; // hStdOutput
             Memory.mem_writed(add, WinFile.STD_ERROR); add+=4; // hStdError
+            if (LOG)
+                log("lpStartupInfo=0x"+Integer.toString(add, 16));
         }
     };
     static private Callback.Handler GetStartupInfoW = new HandlerBase() {
@@ -1237,6 +1372,8 @@ public class Kernel32 extends BuiltinModule {
                     CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
                     break;
             }
+            if (LOG)
+                log("nStdHandle="+param+" result="+CPU_Regs.reg_eax.dword);
         }
     };
 
@@ -1384,7 +1521,16 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.GetTimeZoneInformation";
         }
         public void onCall() {
-            notImplemented();
+            int lpTimeZoneInformation = CPU.CPU_Pop32();
+            Memory.mem_zero(lpTimeZoneInformation, 172);
+            Memory.mem_writed(lpTimeZoneInformation, 480);                          // 0 Bias
+            StringUtil.strcpy(lpTimeZoneInformation+4, "Pacific Standard Time");    // 4 StandardName
+                                                                                    // 68 StandardDate
+            Memory.mem_writed(lpTimeZoneInformation+84, 0);                         // 84 StandardBias
+            StringUtil.strcpy(lpTimeZoneInformation+88, "Pacific Daylight Time");   // 88 DaylightName
+                                                                                    // 152 DaylightDate
+            Memory.mem_writed(lpTimeZoneInformation+168, 0);                        // 168 DaylightBias
+            CPU_Regs.reg_eax.dword = 1; //TIME_ZONE_ID_STANDARD
         }
     };
 
@@ -1472,6 +1618,49 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI GetVolumeInformation(LPCTSTR lpRootPathName, LPTSTR lpVolumeNameBuffer, DWORD nVolumeNameSize, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, LPTSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize)
+    static private Callback.Handler GetVolumeInformationA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.GetVolumeInformationA";
+        }
+        public void onCall() {
+            int lpRootPathName = CPU.CPU_Pop32();
+            int lpVolumeNameBuffer = CPU.CPU_Pop32();
+            int nVolumeNameSize = CPU.CPU_Pop32();
+            int lpVolumeSerialNumber = CPU.CPU_Pop32();
+            int lpMaximumComponentLength = CPU.CPU_Pop32();
+            int lpFileSystemFlags = CPU.CPU_Pop32();
+            int lpFileSystemNameBuffer = CPU.CPU_Pop32();
+            int nFileSystemNameSize = CPU.CPU_Pop32();
+            String dir;
+            if (lpRootPathName == 0)
+                dir = WinSystem.getCurrentProcess().currentWorkingDirectory;
+            else
+                dir = new LittleEndianFile(lpRootPathName).readCString();
+            if (!WinSystem.getCurrentProcess().getFile(dir).exists()) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_BAD_PATHNAME);
+                return;
+            }
+            if (lpVolumeNameBuffer != 0) {
+                Memory.mem_writed(lpVolumeNameBuffer, 0);
+            }
+            if (lpVolumeSerialNumber != 0) {
+                Memory.mem_writed(lpVolumeNameBuffer, 0xC409F45A);
+            }
+            if (lpMaximumComponentLength != 0) {
+                Memory.mem_writed(lpMaximumComponentLength, 0xFF);
+            }
+            if (lpFileSystemFlags != 0) {
+                Memory.mem_writed(lpFileSystemFlags, 0x700FF);
+            }
+            if (lpFileSystemNameBuffer != 0) {
+                StringUtil.strcpy(lpFileSystemNameBuffer, "NTFS");
+            }
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+        }
+    };
+
     // UINT WINAPI GetWindowsDirectory(LPTSTR lpBuffer, UINT uSize)
     static private Callback.Handler GetWindowsDirectoryA = new HandlerBase() {
         public java.lang.String getName() {
@@ -1516,15 +1705,13 @@ public class Kernel32 extends BuiltinModule {
                 Win.exit();
             }
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().allocateHeap(hHeap, dwBytes);
+            if (LOG)
+                log(dwBytes+"@0x"+Integer.toString(CPU_Regs.reg_eax.dword, 16)+" dwFlags=0x"+Integer.toString(dwFlags, 16));
         }
     };
 
     // HANDLE WINAPI HeapCreate(DWORD flOptions, SIZE_T dwInitialSize, SIZE_T dwMaximumSize)
     private Callback.Handler HeapCreate = new HandlerBase() {
-        static private final int HEAP_CREATE_ENABLE_EXECUTE = 0x00040000;
-        static private final int HEAP_GENERATE_EXCEPTIONS = 0x00000004;
-        static private final int HEAP_NO_SERIALIZE = 0x00000001;
-
         public java.lang.String getName() {
             return "Kernel32.HeapCreate";
         }
@@ -1540,6 +1727,8 @@ public class Kernel32 extends BuiltinModule {
                     dwInitialSize = Paging.MEM_PAGE_SIZE;
                 CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().createHeap(dwInitialSize, dwMaximumSize);
             }
+            if (LOG)
+                log("dwInitialSize="+dwInitialSize+" dwMaximumSize="+dwMaximumSize+" flOptions=0x"+Integer.toString(flOptions, 16)+" result="+CPU_Regs.reg_eax.dword);
         }
     };
 
@@ -1563,6 +1752,8 @@ public class Kernel32 extends BuiltinModule {
             int dwFlags = CPU.CPU_Pop32();
             int lpMem = CPU.CPU_Pop32();
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().freeHeap(hHeap, lpMem);
+            if (LOG)
+                log("@0x"+Integer.toString(lpMem, 16)+" dwFlags=0x"+Integer.toString(dwFlags, 16)+" result="+CPU_Regs.reg_eax.dword);
         }
     };
 
@@ -1572,7 +1763,16 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.HeapReAlloc";
         }
         public void onCall() {
-            notImplemented();
+            int hHeap = CPU.CPU_Pop32();
+            int dwFlags = CPU.CPU_Pop32();
+            int lpMem = CPU.CPU_Pop32();
+            int dwBytes = CPU.CPU_Pop32();
+            if ((dwFlags & HEAP_GENERATE_EXCEPTIONS)!=0) {
+                Console.out(getName()+" option HEAP_GENERATE_EXCEPTIONS not implemented yet");
+                Win.exit();
+            } else {
+                CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getWinHeap().realloc(hHeap, lpMem, dwBytes, (dwFlags & HEAP_ZERO_MEMORY) != 0);
+            }
         }
     };
 
@@ -1608,7 +1808,7 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.InitializeCriticalSection";
         }
         public void onCall() {
-            WinSystem.getCurrentThread().initializeCriticalSection(CPU.CPU_Pop32(), 0);
+            WinCriticalException.initialize(CPU.CPU_Pop32(), 0);
         }
     };
 
@@ -1620,7 +1820,7 @@ public class Kernel32 extends BuiltinModule {
         public void onCall() {
             int address = CPU.CPU_Pop32();
             int spinCount = CPU.CPU_Pop32();
-            WinSystem.getCurrentThread().initializeCriticalSection(address, spinCount);
+            WinCriticalException.initialize(address, spinCount);
             CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
@@ -1862,7 +2062,7 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.LeaveCriticalSection";
         }
         public void onCall() {
-            WinSystem.getCurrentThread().leaveCriticalSection(CPU.CPU_Pop32());
+            WinCriticalException.leave(CPU.CPU_Pop32());
         }
     };
 
@@ -1873,6 +2073,8 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             String name = new LittleEndianFile(CPU.CPU_Pop32()).readCString();
+            if (LOG)
+                log(" "+name);
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().loadModule(name);
         }
     };
@@ -2076,6 +2278,35 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI ReadFile(HANDLE hFile,LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED lpOverlapped)
+    private Callback.Handler ReadFile = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.ReadFile";
+        }
+        public void onCall() {
+            int hFile = CPU.CPU_Pop32();
+            int lpBuffer = CPU.CPU_Pop32();
+            int nNumberOfBytesToRead = CPU.CPU_Pop32();
+            int lpNumberOfBytesRead = CPU.CPU_Pop32();
+            int lpOverlapped = CPU.CPU_Pop32();
+
+            if (lpOverlapped != 0) {
+                Win.panic(getName()+" does not support overlapped reads");
+            }
+            WinObject object = WinSystem.getObject(hFile);
+            if (object == null || !(object instanceof WinFile)) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                WinFile file = (WinFile)object;
+                int read = file.read(lpBuffer, nNumberOfBytesToRead);
+                if (lpNumberOfBytesRead != 0)
+                    Memory.mem_writed(lpNumberOfBytesRead, read);
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+            }
+        }
+    };
+
     // VOID RtlMoveMemory(VOID UNALIGNED *Destination, const VOID UNALIGNED *Source, SIZE_T Length)
     private Callback.Handler RtlMoveMemory = new HandlerBase() {
         public java.lang.String getName() {
@@ -2121,13 +2352,53 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // UINT WINAPI SetErrorMode(UINT uMode)
+    private Callback.Handler SetErrorMode = new HandlerBase() {
+        private int mode = 0;
+
+        public java.lang.String getName() {
+            return "Kernel32.SetErrorMode";
+        }
+        public void onCall() {
+            int uMode = CPU.CPU_Pop32();
+            int old = mode;
+            mode = uMode;
+            System.out.println(getName()+" faked");
+            if (LOG)
+                log("uMode="+uMode);
+            CPU_Regs.reg_eax.dword = old;
+        }
+    };
+
     // DWORD WINAPI SetFilePointer(HANDLE hFile, LONG lDistanceToMove, PLONG lpDistanceToMoveHigh, DWORD dwMoveMethod)
     private Callback.Handler SetFilePointer = new HandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.SetFilePointer";
         }
         public void onCall() {
-            notImplemented();
+            int hFile = CPU.CPU_Pop32();
+            int lDistanceToMove = CPU.CPU_Pop32();
+            int lpDistanceToMoveHigh = CPU.CPU_Pop32();
+            int dwMoveMethod = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hFile);
+            if (object == null || !(object instanceof WinFile)) {
+                CPU_Regs.reg_eax.dword = -1;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                WinFile file = (WinFile)object;
+                long pos = lDistanceToMove;
+                if (lpDistanceToMoveHigh != 0)
+                    pos|=(long)Memory.mem_readd(lpDistanceToMoveHigh) << 32;
+                long result = file.seek(pos, dwMoveMethod);
+                if (result == -1) {
+                    CPU_Regs.reg_eax.dword = -1;
+                } else {
+                    CPU_Regs.reg_eax.dword = (int)result;
+                    if (lpDistanceToMoveHigh != 0) {
+                        Memory.mem_writed(lpDistanceToMoveHigh, (int)(result >>> 32));
+                    }
+                }
+            }
         }
     };
 
@@ -2139,6 +2410,8 @@ public class Kernel32 extends BuiltinModule {
         public void onCall() {
             // This only did something interesting on Win32s
             CPU_Regs.reg_eax.dword = CPU.CPU_Pop32();
+            if (LOG)
+                log("uNumber="+CPU_Regs.reg_eax.dword);
         }
     };
 
@@ -2162,6 +2435,25 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI SetThreadPriority(HANDLE hThread, int nPriority)
+    private Callback.Handler SetThreadPriority = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.SetThreadPriority";
+        }
+        public void onCall() {
+            int hThread = CPU.CPU_Pop32();
+            int nPriority = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hThread);
+            if (object == null || !(object instanceof WinThread)) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                ((WinThread)object).setPriority(nPriority);
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+            }
+        }
+    };
+
     // LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
     private Callback.Handler SetUnhandledExceptionFilter = new HandlerBase() {
         public java.lang.String getName() {
@@ -2169,6 +2461,7 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             CPU.CPU_Pop32();
+            System.out.println(getName()+" faked");
             CPU_Regs.reg_eax.dword = 0;
         }
     };

@@ -14,6 +14,7 @@ public class IDirectDraw extends IUnknown {
     static final int DDSCL_FULLSCREEN = 0x00000001;
     static final int DDSCL_ALLOWREBOOT = 0x00000002;
     static final int  DDSCL_EXCLUSIVE = 0x00000010;
+    static final int DDSCL_ALLOWMODEX = 0x00000040;
 
     static final int VTABLE_SIZE = 20;
 
@@ -340,7 +341,7 @@ public class IDirectDraw extends IUnknown {
             int This = CPU.CPU_Pop32();
             int hWnd = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
-            if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE))!=0) {
+            if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE|DDSCL_ALLOWMODEX))!=0) {
                 Console.out("DDraw.SetCooperativeLevel: unsupported flags: "+Integer.toString(dwFlags, 16));
             }
             CPU_Regs.reg_eax.dword = Error.S_OK;

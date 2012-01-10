@@ -164,7 +164,7 @@ public class WinKeyboard {
                     previousState=1; // always 1
                     transitionState=1; // always 1
                 }
-                if (msg != 0)
+                if (msg != 0 && WinSystem.getCurrentThread()!=null)
                     WinSystem.getCurrentThread().postMessage(WinWindow.currentFocus, msg, result, repeatCount | (oem << 16) | (extended? 1<<24 : 0) | (contextCode << 29) | (previousState << 30) | (transitionState << 31));
             }
         }

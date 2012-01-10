@@ -3,6 +3,8 @@ package jdos.win.builtin.dsound;
 import jdos.hardware.Memory;
 
 public class WaveFormatEx {
+    public static final int SIZE = 18;
+
     public WaveFormatEx(int address) {
         wFormatTag = Memory.mem_readw(address); address+=2;
         nChannels = Memory.mem_readw(address); address+=2;

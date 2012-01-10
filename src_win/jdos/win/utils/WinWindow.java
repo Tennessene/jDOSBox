@@ -125,6 +125,10 @@ public class WinWindow extends WinObject {
         }
     }
 
+    public int clientToScreen(int lpPoint) {
+        return WinAPI.TRUE; // currently only one full screen window is supported so no conversion is necessary
+    }
+
     public int beginPaint(int lpPaint) {
         int dc = getDC();
         if (lpPaint != 0) {  // :TODO: does windows allow this?

@@ -32,6 +32,7 @@ public class User32 extends BuiltinModule {
         add(GetSysColor);
         add(GetSystemMetrics);
         add(GetWindowLongA);
+        add(ClientToScreen);
         add(InvalidateRect);
         add(IsIconic);
         add(IsWindowVisible);
@@ -40,6 +41,7 @@ public class User32 extends BuiltinModule {
         add(LoadIconA);
         add(LoadImageA);
         add(LoadStringA);
+        add(OffsetRect);
         add(PeekMessageA);
         add(PostMessageA);
         add(RegisterClassA);
@@ -72,6 +74,23 @@ public class User32 extends BuiltinModule {
             }
             WinWindow wnd = (WinWindow)object;
             CPU_Regs.reg_eax.dword = wnd.beginPaint(lpPaint);
+        }
+    };
+
+    // BOOL ClientToScreen(HWND hWnd, LPPOINT lpPoint)
+    private Callback.Handler ClientToScreen = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.ClientToScreen";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpPoint = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                Log.exit("Weird state: BeginPaint couldn't find hWn");
+            }
+            WinWindow wnd = (WinWindow)object;
+            CPU_Regs.reg_eax.dword = wnd.clientToScreen(lpPoint);
         }
     };
 
@@ -480,6 +499,25 @@ public class User32 extends BuiltinModule {
                 }
             }
             CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
+    // BOOL OffsetRect(LPRECT lprc, int dx, int dy)
+    private Callback.Handler OffsetRect = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.OffsetRect";
+        }
+        public void onCall() {
+            int lprc = CPU.CPU_Pop32();
+            int dx = CPU.CPU_Pop32();
+            int dy = CPU.CPU_Pop32();
+            WinRect rect = new WinRect(lprc);
+            rect.left+=dx;
+            rect.right+=dx;
+            rect.top+=dy;
+            rect.bottom+=dy;
+            rect.write(lprc);
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
 

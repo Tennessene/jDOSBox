@@ -221,6 +221,9 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         }
         String[] cmds = new String[params.size()];
         params.copyInto(cmds);
+
+        // should help with the tab key in a browser
+        setFocusTraversalKeysEnabled(false);
         Main.main(this, cmds);
     }
     public void init() {

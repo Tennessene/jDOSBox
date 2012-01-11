@@ -11,6 +11,9 @@ import java.awt.font.LineMetrics;
 import java.awt.image.BufferedImage;
 
 public class WinDC extends WinObject {
+    static final private int TRANSPARENT = 1;
+    static final private int OPAQUE = 2;
+
     WinBitmap bitmap;
 
     int address;
@@ -22,6 +25,7 @@ public class WinDC extends WinObject {
     int[] palette;
     boolean addressOwner = false;
     int hPalette = 0;
+    int bkMode = OPAQUE;
     BufferedImage image;
 
     public WinDC(int handle, int bpp, int address, int width, int height, int[] palette) {
@@ -34,6 +38,68 @@ public class WinDC extends WinObject {
         this.width = width;
         this.height = height;
         this.palette = palette;
+    }
+
+    private static final int DRIVERVERSION =   0;
+    private static final int TECHNOLOGY =      2;
+    private static final int HORZSIZE =        4;
+    private static final int VERTSIZE =        6;
+    private static final int HORZRES =         8;
+    private static final int VERTRES =         10;
+    private static final int BITSPIXEL =       12;
+    private static final int PLANES =          14;
+    private static final int NUMBRUSHES =      16;
+    private static final int NUMPENS =         18;
+    private static final int NUMMARKERS =      20;
+    private static final int NUMFONTS =        22;
+    private static final int NUMCOLORS =       24;
+    private static final int PDEVICESIZE =     26;
+    private static final int CURVECAPS =       28;
+    private static final int LINECAPS =        30;
+    private static final int POLYGONALCAPS =   32;
+    private static final int TEXTCAPS =        34;
+    private static final int CLIPCAPS =        36;
+    private static final int RASTERCAPS =      38;
+    private static final int ASPECTX =         40;
+    private static final int ASPECTY =         42;
+    private static final int ASPECTXY =        44;
+    private static final int LOGPIXELSX =      88;
+    private static final int LOGPIXELSY =      90;
+    private static final int CAPS1 =           94;
+    private static final int SIZEPALETTE =     104;
+    private static final int NUMRESERVED =     106;
+    private static final int COLORRES =        108;
+    
+    private static final int PHYSICALWIDTH =   110;
+    private static final int PHYSICALHEIGHT =  111;
+    private static final int PHYSICALOFFSETX = 112;
+    private static final int PHYSICALOFFSETY = 113;
+    private static final int SCALINGFACTORX =  114;
+    private static final int SCALINGFACTORY =  115;
+    private static final int VREFRESH =        116;
+    private static final int DESKTOPVERTRES =  117;
+    private static final int DESKTOPHORZRES =  118;
+    private static final int BLTALIGNMENT =    119;
+    private static final int SHADEBLENDCAPS =  120;
+    private static final int COLORMGMTCAPS =   121;
+    
+    public int getCaps(int nIndex) {
+        switch (nIndex) {
+            case RASTERCAPS:
+                int result = 0x0001|0x0008|0x0800; // RC_BITBLT | RC_BITMAP64 | RC_STRETCHBLT
+                if (bpp<=8)
+                    result |= 0x0100; //RC_PALETTE
+                return result;
+            default:
+                Win.panic("GetDevice caps +"+nIndex+" not implemented yet.");
+        }
+        return 0;
+    }
+
+    public int setBkMode(int iBkMode) {
+        int old = bkMode;
+        bkMode = iBkMode;
+        return old;
     }
 
     public int setBkColor(int color) {
@@ -97,8 +163,10 @@ public class WinDC extends WinObject {
         LineMetrics lm = font.getLineMetrics(text, frc);
         int sh = (int)(lm.getAscent() + lm.getDescent());
 
-        g.setColor(new Color(bkColor));
-        g.fillRect(x, y, sw, sh);
+        if (bkMode == OPAQUE) {
+            g.setColor(new Color(bkColor));
+            g.fillRect(x, y, sw, sh);
+        }
         g.setColor(new Color(textColor));
         g.drawString(text, x, y+sh-(int)lm.getDescent());
         Pixel.writeImage(address, bi, bpp, width, height);

@@ -130,6 +130,7 @@ public class Kernel32 extends BuiltinModule {
         add(lstrlenA);
         add(lstrlenW);
         add(MapViewOfFile);
+        add(MulDiv);
         add(MultiByteToWideChar);
         add(OutputDebugStringW);
         add(OutputDebugStringA);
@@ -2186,6 +2187,19 @@ public class Kernel32 extends BuiltinModule {
             FileMapping mapping = (FileMapping)object;
 
             CPU_Regs.reg_eax.dword = mapping.map((int)(dwFileOffsetLow | (long)dwFileOffsetHigh << 32), dwNumberOfBytesToMap, (dwDesiredAccess & 0x02) != 0);
+        }
+    };
+
+    // int MulDiv(int nNumber, int nNumerator, int nDenominator)
+    private Callback.Handler MulDiv = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.MulDiv";
+        }
+        public void onCall() {
+            int nNumber = CPU.CPU_Pop32();
+            int nNumerator = CPU.CPU_Pop32();
+            int nDenominator = CPU.CPU_Pop32();
+            CPU_Regs.reg_eax.dword = (int)((long)nNumber*nNumerator/nDenominator);
         }
     };
 

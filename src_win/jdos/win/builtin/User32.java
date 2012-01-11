@@ -18,7 +18,9 @@ import jdos.win.utils.*;
 public class User32 extends BuiltinModule {
     public User32(Loader loader, int handle) {
         super(loader, "user32.dll", handle);
+        add(AppendMenuA);
         add(BeginPaint);
+        add(CreatePopupMenu);
         add(CreateWindowExA);
         add(DefWindowProcA);
         add(DispatchMessageA);
@@ -28,6 +30,8 @@ public class User32 extends BuiltinModule {
         add(GetClientRect);
         add(GetDC);
         add(GetForegroundWindow);
+        add(GetMenu);
+        add(GetMenuItemCount);
         add(GetMessageA);
         add(GetSysColor);
         add(GetSystemMetrics);
@@ -49,6 +53,7 @@ public class User32 extends BuiltinModule {
         add(ReleaseDC);
         add(SetCursor);
         add(SetFocus);
+        add(SetMenuItemInfoA);
         add(SetTimer);
         add(ShowCursor);
         add(ShowWindow);
@@ -59,6 +64,33 @@ public class User32 extends BuiltinModule {
         add(WaitMessage);
         add(wsprintfA);
     }
+
+    // BOOL WINAPI AppendMenu(HMENU hMenu, UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem)
+    private Callback.Handler AppendMenuA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.AppendMenuA";
+        }
+        public void onCall() {
+            int hMenu = CPU.CPU_Pop32();
+            int uFlags = CPU.CPU_Pop32();
+            int uIDNewItem = CPU.CPU_Pop32();
+            int lpNewItem = CPU.CPU_Pop32();
+            if (hMenu == 0) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+            } else {
+                WinObject object = WinSystem.getObject(hMenu);
+                if (object == null || !(object instanceof WinMenu)) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                } else {
+                    CPU_Regs.reg_eax.dword = ((WinMenu)object).append(uFlags, uIDNewItem, lpNewItem);
+                }
+            }
+            if (LOG)
+                log(" uFlags=0x"+Integer.toString(uFlags, 16)+" uIDNewItem="+uIDNewItem+" lpNewItem="+((lpNewItem==0 || uFlags!=0)?Integer.toString(lpNewItem):new LittleEndianFile(lpNewItem).readCString()+"@"+Integer.toString(lpNewItem, 16))+" result="+CPU_Regs.reg_eax.dword);
+        }
+    };
 
     // HDC BeginPaint(HWND hwnd, LPPAINTSTRUCT lpPaint)
     private Callback.Handler BeginPaint = new HandlerBase() {
@@ -91,6 +123,16 @@ public class User32 extends BuiltinModule {
             }
             WinWindow wnd = (WinWindow)object;
             CPU_Regs.reg_eax.dword = wnd.clientToScreen(lpPoint);
+        }
+    };
+
+    // HMENU WINAPI CreatePopupMenu(void)
+    private Callback.Handler CreatePopupMenu = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.CreatePopupMenu";
+        }
+        public void onCall() {
+            CPU_Regs.reg_eax.dword = WinSystem.createMenu().getHandle();
         }
     };
 
@@ -274,6 +316,50 @@ public class User32 extends BuiltinModule {
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
+    // HMENU WINAPI GetMenu(HWND hWnd)
+     private Callback.Handler GetMenu = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetMenu";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            if (hWnd == 0) {
+                CPU_Regs.reg_eax.dword = 0;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+            } else {
+                WinObject object = WinSystem.getObject(hWnd);
+                if (object == null || !(object instanceof WinWindow)) {
+                    CPU_Regs.reg_eax.dword = 0;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                } else {
+                    CPU_Regs.reg_eax.dword = ((WinWindow)object).getMenu();
+                }
+            }
+        }
+    };
+
+    // int WINAPI GetMenuItemCount(HMENU hMenu)
+    private Callback.Handler GetMenuItemCount = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetMenuItemCount";
+        }
+        public void onCall() {
+            int hMenu = CPU.CPU_Pop32();
+            if (hMenu == 0) {
+                CPU_Regs.reg_eax.dword = -1;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+            } else {
+                WinObject object = WinSystem.getObject(hMenu);
+                if (object == null || !(object instanceof WinMenu)) {
+                    CPU_Regs.reg_eax.dword = -1;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                } else {
+                    CPU_Regs.reg_eax.dword = ((WinMenu)object).getItemCount();
+                }
+            }
         }
     };
 
@@ -633,6 +719,31 @@ public class User32 extends BuiltinModule {
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_WINDOW_HANDLE);
             } else {
                 CPU_Regs.reg_eax.dword = hWnd; // No other window had focus, at least not yet
+            }
+        }
+    };
+
+    // BOOL WINAPI SetMenuItemInfo(HMENU hMenu, UINT uItem, BOOL fByPosition, LPMENUITEMINFO lpmii)
+    private Callback.Handler SetMenuItemInfoA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SetMenuItemInfoA";
+        }
+        public void onCall() {
+            int hMenu = CPU.CPU_Pop32();
+            int uItem = CPU.CPU_Pop32();
+            int fByPosition = CPU.CPU_Pop32();
+            int lpmii = CPU.CPU_Pop32();
+            if (hMenu == 0) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+            } else {
+                WinObject object = WinSystem.getObject(hMenu);
+                if (object == null || !(object instanceof WinMenu)) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                } else {
+                    CPU_Regs.reg_eax.dword = ((WinMenu)object).setItemInfo(uItem, fByPosition, lpmii);
+                }
             }
         }
     };

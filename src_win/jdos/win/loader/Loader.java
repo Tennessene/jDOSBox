@@ -6,6 +6,7 @@ import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
 import jdos.win.Console;
+import jdos.win.Win;
 import jdos.win.builtin.*;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
@@ -139,6 +140,18 @@ public class Loader {
             module = new WinMM(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("dsound.dll")) {
             module = new DSound(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("dinput.dll")) {
+            module = new DInput(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("ole32.dll")) {
+            module = new Ole32(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("dplayx.dll")) {
+            module = new Dplayx(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("imm32.dll")) {
+            module = new Imm32(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("msvfw32.dll")) {
+            module = new Msvfw32(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("wsock32.dll")) {
+            module = new Wsock32(this, getNextModuleHandle());
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);
@@ -195,7 +208,7 @@ public class Loader {
         System.out.println("ImportDll: " + name);
         Module import_module = loadModule(name);
         if (import_module == null) {
-            Console.out("Could not find import: " + name);
+            Win.panic("Could not find import: " + name);
             return false;
         }
         LongRef exportAddress = new LongRef(0);

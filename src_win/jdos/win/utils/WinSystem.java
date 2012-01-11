@@ -8,6 +8,7 @@ import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.kernel.*;
 
+import java.awt.*;
 import java.io.RandomAccessFile;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -94,19 +95,31 @@ public class WinSystem {
     private static int returnEip = 0;
 
     static public void call(int eip, int param1, int param2, int param3, int param4) {
+        internalCall(eip, 4, param1, param2, param3, param4);
+    }
+    static public void call(int eip, int param1, int param2) {
+        internalCall(eip, 2, param1, param2, 0, 0);
+    }
+    static private void internalCall(int eip, int paramCount, int param1, int param2, int param3, int param4) {
         if (returnEip == 0) {
             int callback = WinCallback.addCallback(returnCallback);
             returnEip =  WinSystem.getCurrentProcess().loader.registerFunction(callback);
         }
-        CPU.CPU_Push32(param4);
-        CPU.CPU_Push32(param3);
-        CPU.CPU_Push32(param2);
-        CPU.CPU_Push32(param1);
+        int oldEsp = CPU_Regs.reg_esp.dword;
+        if (paramCount>=4)
+            CPU.CPU_Push32(param4);
+        if (paramCount>=3)
+            CPU.CPU_Push32(param3);
+        if (paramCount>=2)
+            CPU.CPU_Push32(param2);
+        if (paramCount>=1)
+            CPU.CPU_Push32(param1);
         CPU.CPU_Push32(returnEip);
         int saveEip = CPU_Regs.reg_eip;
         CPU_Regs.reg_eip = eip;
         Dosbox.DOSBOX_RunMachine();
         CPU_Regs.reg_eip = saveEip;
+        CPU_Regs.reg_esp.dword = oldEsp;
     }
 
     static public WinObject getNamedObject(String name) {
@@ -172,6 +185,10 @@ public class WinSystem {
         return new WinDC(nextObjectId++, bpp, address, width, height, palette);
     }
 
+    static public WinFont createFont(Font font) {
+        return new WinFont(nextObjectId, font);
+    }
+
     static public WinWindow createWindow(int dwExStyle, WinClass winClass, String name, int dwStyle, int x, int y, int cx, int cy, int hParent, int hMenu, int hInstance, int lpParam) {
         return new WinWindow(nextObjectId++, dwExStyle, winClass, name, dwStyle, x, y, cx, cy, hParent, hMenu, hInstance, lpParam);
     }
@@ -205,6 +222,10 @@ public class WinSystem {
 
     static public WinThread createThread(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve, boolean primary) {
         return new WinThread(nextObjectId++, process, startAddress, stackSizeCommit, stackSizeReserve, primary);
+    }
+
+    static public WinMenu createMenu() {
+        return new WinMenu(nextObjectId++);
     }
 
     static public WinProcess createProcess(String path, String commandLine, Vector paths, String workingDirectory) {

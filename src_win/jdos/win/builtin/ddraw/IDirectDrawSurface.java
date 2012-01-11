@@ -348,19 +348,18 @@ public class IDirectDrawSurface extends IUnknown {
         setData(result, OFFSET_DESC+0x54, bpp);
 
         if ((d.dwFlags & DDSurfaceDesc.DDSD_BACKBUFFERCOUNT)!=0) {
-            if (d.dwBackBufferCount == 1) {
-                if ((d.ddsCaps & DDSCAPS_COMPLEX)==0) {
-                    Win.panic(name+".CreateSurface wasn't expecting a back buffer without DDSCAPS_COMPLEX");
-                }
-                // The back buffer will not contain child surfaces and it is never visible on the screen
-                setData(result, OFFSET_DESC+0x68, caps & ~(DDSCAPS_VISIBLE | DDSCAPS_COMPLEX));  // :TODO: just guessing what the backbuffer flags look like, need to investigate
-                int backBuffer = create(name, pDirectDraw, result+OFFSET_DATA_START+OFFSET_DESC,flags);
-                setData(result, OFFSET_BACK_BUFFER, backBuffer);
-                // Set after we create the back buffer
-                setData(result, OFFSET_DESC+0x04, getData(result, OFFSET_DESC+0x04)|DDSurfaceDesc.DDSD_BACKBUFFERCOUNT);
-                setData(result, OFFSET_DESC+0x14, 1);
-            } else if (d.dwBackBufferCount != 1) {
-                Win.panic(name+".CreateSurface does not currently support more than one back buffer");
+            if ((d.ddsCaps & DDSCAPS_COMPLEX)==0) {
+                Win.panic(name+".CreateSurface wasn't expecting a back buffer without DDSCAPS_COMPLEX");
+            }
+            // The back buffer will not contain child surfaces and it is never visible on the screen
+            setData(result, OFFSET_DESC+0x68, caps & ~(DDSCAPS_VISIBLE | DDSCAPS_COMPLEX));  // :TODO: just guessing what the backbuffer flags look like, need to investigate
+            int backBuffer = create(name, pDirectDraw, result+OFFSET_DATA_START+OFFSET_DESC,flags);
+            setData(result, OFFSET_BACK_BUFFER, backBuffer);
+            // Set after we create the back buffer
+            setData(result, OFFSET_DESC+0x04, getData(result, OFFSET_DESC+0x04)|DDSurfaceDesc.DDSD_BACKBUFFERCOUNT);
+            setData(result, OFFSET_DESC+0x14, 1);
+            if (d.dwBackBufferCount != 1) {
+                System.out.println(name+".CreateSurface faking "+ d.dwBackBufferCount+" back buffers.");
             }
             WinSystem.scheduler.monitor = 0;
         } else if ((d.ddsCaps & DDSCAPS_PRIMARYSURFACE)!=0) {
@@ -865,7 +864,7 @@ public class IDirectDrawSurface extends IUnknown {
         }
         public void onCall() {
             int This = CPU.CPU_Pop32();
-            notImplemented();
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 
@@ -904,6 +903,7 @@ public class IDirectDrawSurface extends IUnknown {
             Memory.mem_memcpy(lpDDSurfaceDesc, This+ OFFSET_DATA_START +OFFSET_DESC, isDesc2(This)?DDSurfaceDesc.SIZE2:DDSurfaceDesc.SIZE);
             Memory.mem_writed(lpDDSurfaceDesc+0x24, address);
             System.out.println("Lock: bitcount="+Memory.mem_readb(lpDDSurfaceDesc+0x48+0x0c));
+            clearImage(This);
             lock(This);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }

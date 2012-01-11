@@ -184,6 +184,26 @@ public class IDirectDraw extends IUnknown {
 
     // HRESULT EnumDisplayModes(this, DWORD dwFlags, LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext, LPDDENUMMODESCALLBACK lpEnumModesCallback)
     static private Callback.Handler EnumDisplayModes = new HandlerBase() {
+        private int[][] mode = new int[][] {
+                {320, 240, 8},
+                {320, 240, 16},
+                {320, 240, 32},
+                {400, 300, 8},
+                {400, 300, 16},
+                {400, 300, 32},
+                {512, 384, 8},
+                {512, 384, 16},
+                {512, 384, 32},
+                {640, 480, 8},
+                {640, 480, 16},
+                {640, 480, 32},
+                {800, 600, 8},
+                {800, 600, 16},
+                {800, 600, 32},
+                {1024, 768, 8},
+                {1024, 768, 16},
+                {1024, 768, 32},
+        };
         public java.lang.String getName() {
             return "IDirectDraw.EnumDisplayModes";
         }
@@ -193,7 +213,35 @@ public class IDirectDraw extends IUnknown {
             int lpDDSurfaceDesc = CPU.CPU_Pop32();
             int lpContext = CPU.CPU_Pop32();
             int lpEnumModesCallback = CPU.CPU_Pop32();
-            notImplemented();
+            int address = WinSystem.getCurrentProcess().heap.alloc(DDSurfaceDesc.SIZE, false);
+            DDSurfaceDesc desc = null;
+            if (lpDDSurfaceDesc != 0)
+                desc = new DDSurfaceDesc(lpDDSurfaceDesc, false);
+            Memory.mem_zero(address, DDSurfaceDesc.SIZE);
+            Memory.mem_writed(address, DDSurfaceDesc.SIZE);
+            Memory.mem_writed(address+4, DDSurfaceDesc.DDSD_HEIGHT|DDSurfaceDesc.DDSD_WIDTH|DDSurfaceDesc.DDSD_PITCH|DDSurfaceDesc.DDSD_PIXELFORMAT);
+            Memory.mem_writed(address+0x48, DDPixelFormat.SIZE);
+            for (int i=0;i<mode.length;i++) {
+                if (desc != null) {
+                    if ((desc.dwFlags & DDSurfaceDesc.DDSD_WIDTH)!=0 && desc.dwWidth!=mode[i][0])
+                        continue;
+                    if ((desc.dwFlags & DDSurfaceDesc.DDSD_HEIGHT)!=0 && desc.dwHeight!=mode[i][1])
+                        continue;
+                    if ((desc.dwFlags & DDSurfaceDesc.DDSD_PIXELFORMAT)!=0 && desc.ddpfPixelFormat.dwRGBBitCount!=mode[i][2])
+                        continue;
+                }
+                Memory.mem_writed(address+8, mode[i][1]);
+                Memory.mem_writed(address+12, mode[i][0]);
+                Memory.mem_writed(address+16, mode[i][1]*(mode[i][1]>>3));
+                if (mode[i][2]>8)
+                    Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB);
+                else
+                    Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB|DDPixelFormat.DDPF_PALETTEINDEXED8);
+                Memory.mem_writed(address+0x48+0xC, mode[i][2]);
+                // :TODO: what about pixel formats?
+                WinSystem.call(lpEnumModesCallback, address, lpContext);
+            }
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 
@@ -342,7 +390,7 @@ public class IDirectDraw extends IUnknown {
             int hWnd = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
             if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE|DDSCL_ALLOWMODEX))!=0) {
-                Console.out("DDraw.SetCooperativeLevel: unsupported flags: "+Integer.toString(dwFlags, 16));
+                Console.out("DDraw.SetCooperativeLevel: unsupported flags: " + Integer.toString(dwFlags, 16));
             }
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }

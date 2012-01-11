@@ -30,6 +30,7 @@ public class WinWindow extends WinObject {
     static public final int WM_SYSCOLORCHANGE =              0x0015;
     static public final int WM_ENDSESSION =                  0x0016;
     static public final int WM_SHOWWINDOW =                  0x0018;
+    static public final int WM_SETCURSOR =                   0x0020;
 
     static public final int WM_ACTIVATEAPP =                 0x001C;
 
@@ -78,6 +79,8 @@ public class WinWindow extends WinObject {
     private int id = 0;
     private int data = 0;
     private int hInstance;
+    private int hMenu;
+
     private WinDC dc;
     private WinClass winClass;
 
@@ -123,6 +126,10 @@ public class WinWindow extends WinObject {
         if ((dwStyle & WS_VISIBLE) != 0) {
             showWindow(true);
         }
+    }
+
+    public int getMenu() {
+        return hMenu;
     }
 
     public int clientToScreen(int lpPoint) {
@@ -216,6 +223,7 @@ public class WinWindow extends WinObject {
             }
             postMessage(WM_SHOWWINDOW, WinAPI.TRUE, 0);
             postMessage(WM_ACTIVATE, 1 /* WA_ACTIVE */, 0);
+            postMessage(WM_SETCURSOR, handle, 1 /* HTCLIENT */);  // since this window is full screen, it will appear under the mouse
             postMessage(WM_SETFOCUS, 0, 0);
             needsPainting = true;
         }

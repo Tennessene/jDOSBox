@@ -7,6 +7,7 @@ import jdos.hardware.Memory;
 import jdos.win.builtin.WinAPI;
 
 import java.awt.*;
+import java.util.Vector;
 
 public class WinWindow extends WinObject {
     static public final int WM_CREATE =                      0x0001;
@@ -47,6 +48,7 @@ public class WinWindow extends WinObject {
 
     static public final int WM_TIMER =                       0x0113;
 
+    static public final int MM_MCINOTIFY =                   0x03B9;
 
     static public final int WS_OVERLAPPED =     0x00000000;
     static public final int WS_POPUP =          0x80000000;
@@ -80,6 +82,8 @@ public class WinWindow extends WinObject {
     private int data = 0;
     private int hInstance;
     private int hMenu;
+    private int hParent;
+    private WinThread thread;
 
     private WinDC dc;
     private WinClass winClass;
@@ -87,12 +91,27 @@ public class WinWindow extends WinObject {
     public boolean isActive = false;
     public boolean needsPainting = false;
 
+    private Vector children = new Vector();
+
+    public WinWindow(int id, int hParent, int hInstance) {
+        super(id);
+        this.hInstance = hInstance;
+        this.hParent = hParent;
+    }
+
+    // Used by desktop
+    public WinWindow(int id, WinClass winClass, String name) {
+        super(id);
+        this.winClass = winClass;
+        this.name = name;
+    }
+
     public WinWindow(int id, int dwExStyle, WinClass winClass, String name, int dwStyle, int x, int y, int cx, int cy, int hParent, int hMenu, int hInstance, int lpParam) {
         super(id);
         this.winClass = winClass;
         this.timer = new WinTimer(id);
         WinProcess process = WinSystem.getCurrentProcess();
-        int createAddress = process.heap.alloc(48, false);
+        int createAddress = 0;process.heap.alloc(48, false);
         int winName = StringUtil.allocateA(name);
         int className = StringUtil.allocateA(winClass.className);
 
@@ -101,9 +120,18 @@ public class WinWindow extends WinObject {
         this.style = dwStyle;
         this.exStyle = dwExStyle;
         this.hInstance = hInstance;
+        this.thread = WinSystem.getCurrentThread();
 
-        currentFocus = id;
+        WinWindow parent = null;
 
+        if (hParent != 0)
+            parent = (WinWindow)WinSystem.getObject(hParent);
+        else if (WinSystem.desktop != null) {
+            parent = WinSystem.desktop;
+            if (currentFocus == 0)
+                currentFocus = id;
+        }
+        parent.addChild(this);
         WinSystem.getCurrentThread().windows.add(this);
 
         Memory.mem_writed(createAddress, lpParam);
@@ -126,6 +154,33 @@ public class WinWindow extends WinObject {
         if ((dwStyle & WS_VISIBLE) != 0) {
             showWindow(true);
         }
+    }
+
+    public WinThread getThread() {
+        return thread;
+    }
+
+    public WinClass getWinClass() {
+        return winClass;
+    }
+
+    private void addChild(WinWindow window) {
+        children.add(window);
+    }
+
+    public int setFocus() {
+        return handle;
+    }
+
+    public int findWindow(String className, String windowName) {
+        if (this.winClass.className.equals(className) || this.name.equals(windowName))
+            return getHandle();
+        for (int i=0;i<children.size();i++) {
+            int result = ((WinWindow)children.elementAt(i)).findWindow(className, windowName);
+            if (result != 0)
+                return result;
+        }
+        return 0;
     }
 
     public int getMenu() {
@@ -210,8 +265,24 @@ public class WinWindow extends WinObject {
                 return 0;
         }
     }
+
+    public int setWindowPos(int hWndInsertAfter, int X, int Y, int cx, int cy, int uFlags) {
+        return WinAPI.TRUE;
+    }
+
+    public int validateRect(int lpRect) {
+        if (lpRect == 0)
+            needsPainting = false;
+        return WinAPI.TRUE;
+    }
+
     public int getClientRect(int address) {
         WinRect.write(address, 0, 0, width, height);
+        return WinAPI.TRUE;
+    }
+
+    public int getWindowRect(int lpRect) {
+        WinRect.write(lpRect, 0, 0, width, height);
         return WinAPI.TRUE;
     }
 

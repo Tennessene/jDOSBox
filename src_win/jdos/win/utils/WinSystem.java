@@ -7,11 +7,12 @@ import jdos.cpu.Callback;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.kernel.*;
+import jdos.win.kernel.Timer;
 
 import java.awt.*;
+import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 public class WinSystem {
     static public Scheduler scheduler;
@@ -34,7 +35,18 @@ public class WinSystem {
 
     static private long startTime = System.currentTimeMillis();
 
+    static public WinUser user;
+    static public WinWindow desktop;
+
+    static public class Data {
+        public int capture;
+    }
+
+    static Data data;
+
     static public void start() {
+        data = new Data();
+
         nextObjectId = 0x2000;
         scheduler = new Scheduler();
 
@@ -59,12 +71,38 @@ public class WinSystem {
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_ERROR);
         startTime = System.currentTimeMillis();
         Main.GFX_SetSize(screenWidth, screenHeight, false, false, false, 32);
+
+        user = new WinUser(nextObjectId++);
+        WinClass winClass = createClass();
+        winClass.className = "Desktop";
+        desktop = new WinWindow(nextObjectId++, winClass, "Desktop");
     }
 
     static public int getScreenAddress() {
         if (screenAddress == 0)
             screenAddress = VideoMemory.mapVideoRAM(Pixel.getPitch(screenWidth, screenBpp)*screenWidth);
         return screenAddress;
+    }
+
+    static public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    static public int getScreenHeight() {
+        return screenHeight;
+    }
+
+    static public int getCapture() {
+        return data.capture;
+    }
+
+    static public void setCapture(int hWnd) {
+        data.capture = hWnd;
+    }
+
+    static public int getSystemColor(int index) {
+        // :TODO:
+        return 0xFFFFFFFF;
     }
 
     static public int getMouseX() {
@@ -91,6 +129,19 @@ public class WinSystem {
             return 1; // return from SendMessage
         }
     };
+
+    public static void writeSystemTime(int lpSystemTime, TimeZone tz, long javaTime) {
+        Calendar c = Calendar.getInstance(tz);
+        c.setTime(new Date());
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.YEAR));lpSystemTime+=2;
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.MONTH)+1);lpSystemTime+=2;
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.DAY_OF_WEEK)-1);lpSystemTime+=2;
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.DAY_OF_MONTH));lpSystemTime+=2;
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.HOUR_OF_DAY));lpSystemTime+=2;
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.MINUTE));lpSystemTime+=2;
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.SECOND));lpSystemTime+=2;
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.MILLISECOND));lpSystemTime+=2;
+    }
 
     private static int returnEip = 0;
 
@@ -148,8 +199,16 @@ public class WinSystem {
         return event;
     }
 
+    static public WinRegion createRegion(WinRect rect) {
+        return new WinRegion(nextObjectId++, rect);
+    }
+
     static public WinClass createClass() {
         return new WinClass(nextObjectId++);
+    }
+
+    static public WinMidi createMidi() {
+        return new WinMidi(nextObjectId++);
     }
 
     static public WinBitmap createBitmap(int address) {
@@ -189,6 +248,10 @@ public class WinSystem {
         return new WinFont(nextObjectId, font);
     }
 
+    static public WinDialog createDialog(int hInstance, int hParent) {
+        return new WinDialog(nextObjectId++, hInstance, hParent);
+    }
+
     static public WinWindow createWindow(int dwExStyle, WinClass winClass, String name, int dwStyle, int x, int y, int cx, int cy, int hParent, int hMenu, int hInstance, int lpParam) {
         return new WinWindow(nextObjectId++, dwExStyle, winClass, name, dwStyle, x, y, cx, cy, hParent, hMenu, hInstance, lpParam);
     }
@@ -220,6 +283,14 @@ public class WinSystem {
         return scheduler.getCurrentThread();
     }
 
+    static public WinMutex createMutext(String name) {
+        return new WinMutex(nextObjectId++, name);
+    }
+
+    static public WinFindFile createFindFile(File[] results) {
+        return new WinFindFile(nextObjectId++, results);
+    }
+
     static public WinThread createThread(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve, boolean primary) {
         return new WinThread(nextObjectId++, process, startAddress, stackSizeCommit, stackSizeReserve, primary);
     }
@@ -243,7 +314,7 @@ public class WinSystem {
         return process;
     }
 
-    static public WinFile createFile(RandomAccessFile file, int shareMode, int attributes) {
-        return new WinFile(nextObjectId++, file, shareMode, attributes);
+    static public WinFile createFile(String name, RandomAccessFile file, int shareMode, int attributes) {
+        return new WinFile(nextObjectId++, name, file, shareMode, attributes);
     }
 }

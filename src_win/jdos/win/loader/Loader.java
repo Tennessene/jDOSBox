@@ -69,7 +69,7 @@ public class Loader {
         Enumeration e = modulesByHandle.elements();
         while (e.hasMoreElements()) {
             Module module = (Module)e.nextElement();
-            if (module.threadLibraryCalls) {
+            if (module != main &&  module.threadLibraryCalls) {
                 module.callDllMain(Module.DLL_THREAD_ATTACH);
             }
         }
@@ -79,7 +79,7 @@ public class Loader {
         Enumeration e = modulesByHandle.elements();
         while (e.hasMoreElements()) {
             Module module = (Module)e.nextElement();
-            if (module.threadLibraryCalls) {
+            if (module != main && module.threadLibraryCalls) {
                 module.callDllMain(Module.DLL_THREAD_DETACH);
             }
         }

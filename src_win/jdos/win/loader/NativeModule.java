@@ -55,6 +55,7 @@ public class NativeModule extends Module {
             if (Module.LOG)
                 System.out.println(name+" has no DllMain");
         } else {
+            int esp = CPU_Regs.reg_esp.dword;
               // This code helps debug DllMain by giving the same stack pointer
 //                                KernelHeap stack = new KernelHeap(WinSystem.memory, WinSystem.getCurrentProcess().page_directory, 0x100000, 0x140000, 0x140000, true, false);
 //                                stack.alloc(0x40000, false);
@@ -74,7 +75,6 @@ public class NativeModule extends Module {
                 if (Module.LOG) {
                     System.out.println(name+" calling DllMain@"+Integer.toString(CPU_Regs.reg_eip, 16)+" dwReason="+dwReason);
                 }
-                int esp = CPU_Regs.reg_esp.dword;
                 Dosbox.DOSBOX_RunMachine();
                 CPU_Regs.reg_esp.dword = esp;
                 if (Module.LOG)

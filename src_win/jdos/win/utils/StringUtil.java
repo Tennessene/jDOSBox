@@ -290,6 +290,10 @@ public class StringUtil {
         Memory.mem_memcpy(address, b, 0, b.length);
         Memory.mem_writeb(address+b.length, 0);
     }
+    static public void strcpy(int address, int src) {
+        int len =strlenA(src);
+        Memory.mem_memcpy(address, src, len+1);
+    }
     static public void strncpy(int address, String value, int count) {
         byte[] b = value.getBytes();
         if (b.length+1<count)
@@ -356,6 +360,8 @@ public class StringUtil {
     }
 
     static public int allocateA(String s) {
+        if (s == null)
+            return 0;
         byte[] b = s.getBytes();
         int address = WinSystem.getCurrentProcess().heap.alloc(b.length+1, false);
         strcpy(address, s);

@@ -1,7 +1,9 @@
 package jdos.win.builtin;
 
 import jdos.cpu.CPU;
+import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
+import jdos.win.builtin.directx.DError;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 
@@ -63,7 +65,9 @@ public class Dplayx extends BuiltinModule {
             int lpUnk = CPU.CPU_Pop32();
             int lpData = CPU.CPU_Pop32();
             int dwDataSize = CPU.CPU_Pop32();
-            notImplemented();
+            //Memory.mem_writed(lplpDPL, IDirectPlayLobby.create());
+            //CPU_Regs.reg_eax.dword = jdos.win.utils.Error.S_OK;
+            CPU_Regs.reg_eax.dword = DError.DPERR_UNAVAILABLE;
         }
     };
 

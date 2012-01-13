@@ -1,5 +1,6 @@
 package jdos.win.utils;
 
+import jdos.win.controls.StaticWindow;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.Loader;
@@ -84,7 +85,7 @@ public class WinProcess extends WaitObject {
                 return new File(path.nativePath+name.substring(path.winPath.length()));
             }
         }
-        return null;
+        return new File(((Path)paths.elementAt(0)).nativePath+name);
     }
 
     public boolean load(String exe, String commandLine, Vector paths) {
@@ -97,8 +98,7 @@ public class WinProcess extends WaitObject {
         this.heapHandle = winHeap.createHeap(0, 0);
         memory = new WinMemory(winHeap);
 
-        if (loader.loadModule(exe) == null)
-            return false;
+        StaticWindow.registerClass(this);
 
         env.put("HOMEDRIVE", "C:");
         env.put("NUMBER_OF_PROCESSORS", "1");
@@ -109,6 +109,8 @@ public class WinProcess extends WaitObject {
         env.put("windir", "C:\\WINDOWS");
         env.put("PATH", "C:\\;C:\\WINDOWS");
 
+        if (loader.loadModule(exe) == null)
+            return false;
         return true;
     }
 
@@ -139,7 +141,7 @@ public class WinProcess extends WaitObject {
         // This process is down, and all threads have been removed from the scheduler
         // By scheduling a thread in another process, the page directory will change
         // which is why this has to be done last
-        WinSystem.scheduler.tick(false);
+        WinSystem.scheduler.tick();
     }
 
     private String buildEnvString() {

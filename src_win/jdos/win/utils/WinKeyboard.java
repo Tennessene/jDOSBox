@@ -6,11 +6,132 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 
 import java.awt.event.KeyEvent;
+import java.util.BitSet;
 
 public class WinKeyboard {
+    static public BitSet keyState = new BitSet();
+
+    static public int win2java(int winVirtualKeyCode) {
+        switch (winVirtualKeyCode) {
+            case 0x1B: return KeyEvent.VK_ESCAPE;
+            case 0x61: return KeyEvent.VK_NUMPAD1;
+            case 0x31: return KeyEvent.VK_1;
+            case 0x62: return KeyEvent.VK_NUMPAD2;
+            case 0x32: return KeyEvent.VK_2;
+            case 0x63: return KeyEvent.VK_NUMPAD3;
+            case 0x33: return KeyEvent.VK_3;
+            case 0x64: return KeyEvent.VK_NUMPAD4;
+            case 0x34: return KeyEvent.VK_4;
+            case 0x65: return KeyEvent.VK_NUMPAD5;
+            case 0x35: return KeyEvent.VK_5;
+            case 0x66: return KeyEvent.VK_NUMPAD6;
+            case 0x36: return KeyEvent.VK_6;
+            case 0x67: return KeyEvent.VK_NUMPAD7;
+            case 0x37: return KeyEvent.VK_7;
+            case 0x68: return KeyEvent.VK_NUMPAD8;
+            case 0x38: return KeyEvent.VK_8;
+            case 0x69: return KeyEvent.VK_NUMPAD9;
+            case 0x39: return KeyEvent.VK_9;
+            case 0x60: return KeyEvent.VK_NUMPAD0;
+            case 0x30: return KeyEvent.VK_0;
+            case 0x6D: return KeyEvent.VK_SUBTRACT;
+            //case KeyEvent.VK_MINUS:break;
+            //case KeyEvent.VK_EQUALS:break;
+            case 0x08: return KeyEvent.VK_BACK_SPACE;
+            case 0x09: return KeyEvent.VK_TAB;
+
+            case 0x51: return KeyEvent.VK_Q;
+            case 0x57: return KeyEvent.VK_W;
+            case 0x45: return KeyEvent.VK_E;
+            case 0x52: return KeyEvent.VK_R;
+            case 0x54: return KeyEvent.VK_T;
+            case 0x59: return KeyEvent.VK_Y;
+            case 0x55: return KeyEvent.VK_U;
+            case 0x49: return KeyEvent.VK_I;
+            case 0x4F: return KeyEvent.VK_O;
+            case 0x50: return KeyEvent.VK_P;
+
+            //case KeyEvent.VK_OPEN_BRACKET:break;
+            //case KeyEvent.VK_CLOSE_BRACKET:break;
+            case 0x0D: return KeyEvent.VK_ENTER;
+            case 0x11: return KeyEvent.VK_CONTROL;
+            case 0x41: return KeyEvent.VK_A;
+            case 0x53: return KeyEvent.VK_S;
+            case 0x44: return KeyEvent.VK_D;
+            case 0x46: return KeyEvent.VK_F;
+            case 0x47: return KeyEvent.VK_G;
+            case 0x48: return KeyEvent.VK_H;
+            case 0x4A: return KeyEvent.VK_J;
+            case 0x4B: return KeyEvent.VK_K;
+            case 0x4C: return KeyEvent.VK_L;
+
+            //case KeyEvent.VK_SEMICOLON:break;
+            //case KeyEvent.VK_QUOTE:break;
+            //case KeyEvent.VK_BACK_QUOTE:break;
+            case 0x10: return KeyEvent.VK_SHIFT;
+
+            //case KeyEvent.VK_BACK_SLASH:break;
+            case 0x5A: return KeyEvent.VK_Z;
+            case 0x58: return KeyEvent.VK_X;
+            case 0x43: return KeyEvent.VK_C;
+            case 0x56: return KeyEvent.VK_V;
+            case 0x42: return KeyEvent.VK_B;
+            case 0x4E: return KeyEvent.VK_N;
+            case 0x4D: return KeyEvent.VK_M;
+
+            //case KeyEvent.VK_COMMA:break;
+            //case KeyEvent.VK_PERIOD:break;
+            case 0x6E: return KeyEvent.VK_DECIMAL;
+            //case KeyEvent.VK_SLASH:break;
+            case 0x6A: return KeyEvent.VK_MULTIPLY;
+            case 0x12: return KeyEvent.VK_ALT;
+            case 0x20: return KeyEvent.VK_SPACE;
+            case 0x14: return KeyEvent.VK_CAPS_LOCK;
+
+            case 0x70: return KeyEvent.VK_F1;
+            case 0x71: return KeyEvent.VK_F2;
+            case 0x72: return KeyEvent.VK_F3;
+            case 0x73: return KeyEvent.VK_F4;
+            case 0x74: return KeyEvent.VK_F5;
+            case 0x75: return KeyEvent.VK_F6;
+            case 0x76: return KeyEvent.VK_F7;
+            case 0x77: return KeyEvent.VK_F8;
+            case 0x78: return KeyEvent.VK_F9;
+            case 0x79: return KeyEvent.VK_F10;
+
+            case 0x90: return KeyEvent.VK_NUM_LOCK;
+            case 0x91: return KeyEvent.VK_SCROLL_LOCK;
+
+            // case KeyEvent.VK_PLUS:break;
+
+            // case KeyEvent.VK_LESS:break;
+            case 0x7A: return KeyEvent.VK_F11;
+            case 0x7B: return KeyEvent.VK_F12;
+
+            //The Extended keys
+
+            case 0x6F: return KeyEvent.VK_DIVIDE;
+            case 0x6B: return KeyEvent.VK_ADD;
+            case 0x24: return KeyEvent.VK_HOME;
+            case 0x26: return KeyEvent.VK_UP;
+            case 0x21: return KeyEvent.VK_PAGE_UP;
+            case 0x25: return KeyEvent.VK_LEFT;
+            case 0x27: return KeyEvent.VK_RIGHT;
+            case 0x23: return KeyEvent.VK_END;
+            case 0x28: return KeyEvent.VK_DOWN;
+            case 0x22: return KeyEvent.VK_PAGE_DOWN;
+            case 0x2D: return KeyEvent.VK_INSERT;
+            case 0x2E: return KeyEvent.VK_DELETE;
+            case 0x13: return KeyEvent.VK_PAUSE;
+            case 0x2C: return KeyEvent.VK_PRINTSCREEN;
+        }
+        return -1;
+    }
+
     static public Main.KeyboardHandler defaultKeyboardHandler = new Main.KeyboardHandler() {
         public void handle(KeyEvent key) {
             int result = 0;
+            int additional = 0;
             boolean extended = false;
 
             switch (key.getKeyCode()) {
@@ -56,10 +177,13 @@ public class WinKeyboard {
                 case KeyEvent.VK_CLOSE_BRACKET:break;
                 case KeyEvent.VK_ENTER:result=0x0D;break;
                 case KeyEvent.VK_CONTROL:
-                    if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT)
+                    if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT){
+                        additional = 0xA2;
                         extended = false;
-                    else
+                    } else {
+                        additional = 0xA3;
                         extended = true;
+                    }
                     result=0x11;
                     break;
                 case KeyEvent.VK_A:result=0x41;break;
@@ -76,10 +200,13 @@ public class WinKeyboard {
                 case KeyEvent.VK_QUOTE:break;
                 case KeyEvent.VK_BACK_QUOTE:break;
                 case KeyEvent.VK_SHIFT:
-                    if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT)
-                        ;
-                    else
-                        ;
+                    if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT) {
+                        extended = false;
+                        additional = 0xA0;
+                    } else {
+                        extended = true;
+                        additional = 0xA1;
+                    }
                     result = 0x10;
                     break;
                 case KeyEvent.VK_BACK_SLASH:break;
@@ -97,10 +224,13 @@ public class WinKeyboard {
                 case KeyEvent.VK_SLASH:break;
                 case KeyEvent.VK_MULTIPLY:result=0x6A;break;
                 case KeyEvent.VK_ALT:
-                    if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT)
+                    if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT) {
+                        additional = 0xA4;
                         extended = false;
-                    else
+                    } else {
+                        additional = 0xA5;
                         extended = true;
+                    }
                     result=0x12;
                     break;
                 case KeyEvent.VK_SPACE:result=0x20;break;
@@ -158,14 +288,20 @@ public class WinKeyboard {
                 if (key.getID() == KeyEvent.KEY_PRESSED) {
                     msg = WinWindow.WM_KEYDOWN;
                     transitionState = 0; // always 0
+                    keyState.set(result);
+                    if (additional != 0)
+                        keyState.set(additional);
                 } else if (key.getID() == KeyEvent.KEY_RELEASED) {
                     msg = WinWindow.WM_KEYUP;
                     repeatCount=1; // repeat count is always 1
                     previousState=1; // always 1
                     transitionState=1; // always 1
+                    keyState.clear(result);
+                    if (additional != 0)
+                        keyState.clear(additional);
                 }
                 if (msg != 0 && WinSystem.getCurrentThread()!=null)
-                    WinSystem.getCurrentThread().postMessage(WinWindow.currentFocus, msg, result, repeatCount | (oem << 16) | (extended? 1<<24 : 0) | (contextCode << 29) | (previousState << 30) | (transitionState << 31));
+                    WinSystem.getCurrentThread().postMessage(WinWindow.currentFocus, msg, result, repeatCount | (oem << 16) | (extended? 1<<24 : 0) | (contextCode << 29) | (previousState << 30) | (transitionState << 31), (BitSet)keyState.clone());
             }
         }
     };

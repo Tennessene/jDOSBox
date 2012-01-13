@@ -15,28 +15,35 @@ import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
 
+import javax.swing.*;
+
 public class User32 extends BuiltinModule {
     public User32(Loader loader, int handle) {
         super(loader, "user32.dll", handle);
         add(AppendMenuA);
         add(BeginPaint);
+        add(CharUpperA);
+        add(ClientToScreen);
         add(CreatePopupMenu);
         add(CreateWindowExA);
         add(DefWindowProcA);
         add(DispatchMessageA);
         add(DrawTextA);
         add(EndPaint);
+        add(FillRect);
         add(FindWindowA);
+        add(GetCapture);
         add(GetClientRect);
         add(GetDC);
         add(GetForegroundWindow);
+        add(GetKeyState);
         add(GetMenu);
         add(GetMenuItemCount);
         add(GetMessageA);
         add(GetSysColor);
         add(GetSystemMetrics);
         add(GetWindowLongA);
-        add(ClientToScreen);
+        add(GetWindowRect);
         add(InvalidateRect);
         add(IsIconic);
         add(IsWindowVisible);
@@ -45,21 +52,30 @@ public class User32 extends BuiltinModule {
         add(LoadIconA);
         add(LoadImageA);
         add(LoadStringA);
+        add(MessageBoxA);
         add(OffsetRect);
         add(PeekMessageA);
         add(PostMessageA);
         add(RegisterClassA);
         add(RegisterClassExA);
+        add(ReleaseCapture);
         add(ReleaseDC);
+        add(SendMessageA);
+        add(SetCapture);
+        add(SetClassLongA);
         add(SetCursor);
         add(SetFocus);
         add(SetMenuItemInfoA);
+        add(SetRect);
         add(SetTimer);
+        add(SetWindowPos);
         add(ShowCursor);
         add(ShowWindow);
+        add(SystemParametersInfoA);
         add(TranslateAcceleratorA);
         add(TranslateMessage);
         add(UpdateWindow);
+        add(ValidateRect);
         add(WaitForInputIdle);
         add(WaitMessage);
         add(wsprintfA);
@@ -126,6 +142,23 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // LPTSTR WINAPI CharUpper(LPTSTR lpsz)
+    private Callback.Handler CharUpperA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.CharUpperA";
+        }
+        public void onCall() {
+            int lpsz = CPU.CPU_Pop32();
+            if (lpsz<0)
+                CPU_Regs.reg_eax.dword = StringUtil.toupperW((char)lpsz);
+            else {
+                String value = new LittleEndianFile(lpsz).readCString();
+                StringUtil.strcpy(lpsz, value.toUpperCase());
+                CPU_Regs.reg_eax.dword = lpsz;
+            }
+        }
+    };
+
     // HMENU WINAPI CreatePopupMenu(void)
     private Callback.Handler CreatePopupMenu = new HandlerBase() {
         public java.lang.String getName() {
@@ -166,6 +199,9 @@ public class User32 extends BuiltinModule {
             } else {
                 String className = new LittleEndianFile(lpClassName).readCString();
                 winClass = (WinClass)WinSystem.getCurrentProcess().classNames.get(className);
+                if (winClass == null) {
+                    Win.panic(getName()+" class "+className+" could not be found.");
+                }
             }
             if (winClass == null) {
                 CPU_Regs.reg_eax.dword = 0;
@@ -191,6 +227,27 @@ public class User32 extends BuiltinModule {
             }
             WinWindow wnd = (WinWindow)object;
             CPU_Regs.reg_eax.dword = wnd.defWindowProc(Msg, wParam, lParam);
+        }
+    };
+
+    // INT_PTR WINAPI DialogBoxParam(HINSTANCE hInstance, LPCTSTR lpTemplateName, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
+    private Callback.Handler DialogBoxParam = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.DialogBoxParam";
+        }
+        public void onCall() {
+            int hInstance = CPU.CPU_Pop32();
+            int lpTemplateName = CPU.CPU_Pop32();
+            int hWndParent = CPU.CPU_Pop32();
+            int lpDialogFunc = CPU.CPU_Pop32();
+            int dwInitParam = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWndParent);
+            WinWindow parent = null;
+            if (object == null && !(object instanceof WinWindow)) {
+                hWndParent  = 0;
+            }
+            WinDialog dlg = WinSystem.createDialog(hInstance, hWndParent);
+            CPU_Regs.reg_eax.dword = dlg.doModal(lpTemplateName, lpDialogFunc, dwInitParam);
         }
     };
 
@@ -253,6 +310,25 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // int FillRect(HDC hDC, const RECT *lprc, HBRUSH hbr)
+    private Callback.Handler FillRect = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.FillRect";
+        }
+        public void onCall() {
+            int hDC = CPU.CPU_Pop32();
+            int lprc = CPU.CPU_Pop32();
+            int hbr = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hDC);
+            if (object == null || !(object instanceof WinDC)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+            } else {
+                CPU_Regs.reg_eax.dword = ((WinDC)object).fillRect(lprc, hbr);
+            }
+        }
+    };
+
     // HWND WINAPI FindWindow(LPCTSTR lpClassName, LPCTSTR lpWindowName)
     private Callback.Handler FindWindowA = new HandlerBase() {
         public java.lang.String getName() {
@@ -269,7 +345,17 @@ public class User32 extends BuiltinModule {
             if (lpWindowName != 0) {
                 windowName = new LittleEndianFile(lpWindowName).readCString();
             }
-            CPU_Regs.reg_eax.dword = 0;
+            CPU_Regs.reg_eax.dword = WinSystem.desktop.findWindow(className, windowName);
+        }
+    };
+
+    // HWND WINAPI GetCapture(void)
+    private Callback.Handler GetCapture = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetCapture";
+        }
+        public void onCall() {
+            CPU_Regs.reg_eax.dword = WinSystem.getCapture();
         }
     };
 
@@ -298,13 +384,16 @@ public class User32 extends BuiltinModule {
         }
         public void onCall() {
             int hWnd = CPU.CPU_Pop32();
-            WinObject object = WinSystem.getObject(hWnd);
-            if (object == null || !(object instanceof WinWindow)) {
-                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
-                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            if (hWnd == 0) {
+                CPU_Regs.reg_eax.dword = WinSystem.createDC(null, WinSystem.getScreenAddress(), WinSystem.getScreenWidth(), WinSystem.getScreenHeight(), null).getHandle();
             } else {
-                System.out.println(getName()+" faked");
-                CPU_Regs.reg_eax.dword = ((WinWindow)object).getDC();
+                WinObject object = WinSystem.getObject(hWnd);
+                if (object == null || !(object instanceof WinWindow)) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                } else {
+                    CPU_Regs.reg_eax.dword = ((WinWindow)object).getDC();
+                }
             }
         }
     };
@@ -316,6 +405,20 @@ public class User32 extends BuiltinModule {
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
+    // SHORT WINAPI GetKeyState(int nVirtKey)
+    private Callback.Handler GetKeyState = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetKeyState";
+        }
+        public void onCall() {
+            int nVirtKey = CPU.CPU_Pop32();
+            if (WinSystem.getCurrentThread().getKeyState().get(nVirtKey))
+                CPU_Regs.reg_eax.dword = 0x8000;
+            else
+                CPU_Regs.reg_eax.dword = 0;
         }
     };
 
@@ -364,16 +467,23 @@ public class User32 extends BuiltinModule {
     };
 
     // BOOL WINAPI GetMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax)
-    private Callback.Handler GetMessageA = new HandlerBase() {
+    private Callback.Handler GetMessageA = new WaitHandlerBase() {
         public java.lang.String getName() {
             return "User32.GetMessageA";
         }
-        public void onCall() {
+        public int onWait() {
             int lpMsg = CPU.CPU_Pop32();
             int hWnd = CPU.CPU_Pop32();
             int wMsgFilterMin = CPU.CPU_Pop32();
             int wMsgFilterMax = CPU.CPU_Pop32();
-            CPU_Regs.reg_eax.dword = WinSystem.getCurrentThread().getNextMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
+            int result = WinSystem.getCurrentThread().getNextMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
+            if (result == -2) {
+                // :TODO: figure a way to put the thread to sleep until we get input?
+                return 1; // just yield, don't remove this thread from scheduling
+            } else {
+                CPU_Regs.reg_eax.dword = result;
+                return 0;
+            }
         }
     };
 
@@ -421,6 +531,9 @@ public class User32 extends BuiltinModule {
             int hWnd = CPU.CPU_Pop32();
             int lpRect = CPU.CPU_Pop32();
             int bErase = CPU.CPU_Pop32();
+            if (hWnd == 0) {
+                Win.panic(getName()+" NULL hWnd not implemented yet");
+            }
             WinObject object = WinSystem.getObject(hWnd);
             if (object == null || !(object instanceof WinWindow)) {
                 CPU_Regs.reg_eax.dword = 0;
@@ -481,6 +594,24 @@ public class User32 extends BuiltinModule {
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
             } else {
                 CPU_Regs.reg_eax.dword = ((WinWindow)object).getWindowLong(nIndex);
+            }
+        }
+    };
+
+    // BOOL WINAPI GetWindowRect(HWND hWnd, LPRECT lpRect)
+    private Callback.Handler GetWindowRect = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetWindowRect";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpRect = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                CPU_Regs.reg_eax.dword = 0;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                CPU_Regs.reg_eax.dword = ((WinWindow)object).getWindowRect(lpRect);
             }
         }
     };
@@ -577,14 +708,45 @@ public class User32 extends BuiltinModule {
                     int index = uID & 0xf;
                     for (int i = 0; i < index; i++)
                         stringAddress += Memory.mem_readw(stringAddress)*2 + 2;
+                    int len = Memory.mem_readw(stringAddress);
                     stringAddress+=2;
-                    String result = new LittleEndianFile(stringAddress).readCStringW();
+                    String result = new LittleEndianFile(stringAddress).readCStringW(len);
                     StringUtil.strncpy(lpBuffer, result, nBufferMax);
                     CPU_Regs.reg_eax.dword = Math.min(result.length(), nBufferMax);
+                    if (LOG)
+                        log("result=0x"+Integer.toString(CPU_Regs.reg_eax.dword, 16)+" "+result);
                     return;
                 }
             }
             CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
+    // int WINAPI MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType)
+    private Callback.Handler MessageBoxA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.MessageBoxA";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpText = CPU.CPU_Pop32();
+            int lpCaption = CPU.CPU_Pop32();
+            int uType = CPU.CPU_Pop32();
+            String text = new LittleEndianFile(lpText).readCString();
+            String caption = "";
+            if (lpCaption != 0)
+                caption = new LittleEndianFile(lpCaption).readCString();
+            int type = JOptionPane.INFORMATION_MESSAGE;
+            if ((uType & 0x00000040)!=0) // MB_ICONINFORMATION
+                type = JOptionPane.INFORMATION_MESSAGE;
+            else if ((uType & 0x00000030)!=0) // MB_ICONWARNING
+                type = JOptionPane.WARNING_MESSAGE;
+            else if ((uType & 0x00000020)!=0) // MB_ICONQUESTION
+                type = JOptionPane.QUESTION_MESSAGE;
+            else if ((uType & 0x00000010)!=0) // MB_ICONERROR
+                type = JOptionPane.ERROR_MESSAGE;
+            JOptionPane.showMessageDialog(null, text, caption, type);
+            CPU_Regs.reg_eax.dword = 1; // IDOK
         }
     };
 
@@ -628,11 +790,23 @@ public class User32 extends BuiltinModule {
             return "User32.PostMessageA";
         }
         public void onCall() {
-            int lpMsg = CPU.CPU_Pop32();
+            int hWnd = CPU.CPU_Pop32();
             int Msg = CPU.CPU_Pop32();
             int wParam = CPU.CPU_Pop32();
             int lParam = CPU.CPU_Pop32();
-            WinSystem.getCurrentThread().postMessage(lpMsg, Msg, wParam, lParam);
+            if (hWnd == 0)
+                WinSystem.getCurrentThread().postMessage(hWnd, Msg, wParam, lParam);
+            else if (hWnd == 0xFFFF) {
+                Win.panic("Broadcast PostMessage not implemented yet");
+            } else {
+                WinObject object = WinSystem.getObject(hWnd);
+                if (object == null || !(object instanceof WinWindow)) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                    return;
+                }
+                ((WinWindow)object).getThread().postMessage(hWnd, Msg, wParam, lParam);
+            }
             CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
@@ -667,6 +841,17 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI ReleaseCapture(void)
+    private Callback.Handler ReleaseCapture = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.ReleaseCapture";
+        }
+        public void onCall() {
+            WinSystem.setCapture(0);
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+        }
+    };
+
     // int ReleaseDC(HWND hWnd, HDC hDC)
     private Callback.Handler ReleaseDC = new HandlerBase() {
         public java.lang.String getName() {
@@ -689,6 +874,68 @@ public class User32 extends BuiltinModule {
                 return;
             }
             CPU_Regs.reg_eax.dword = window.releaseDC((WinDC)object);
+        }
+    };
+
+    // LRESULT WINAPI SendMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+    private Callback.Handler SendMessageA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SendMessageA";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int Msg = CPU.CPU_Pop32();
+            int wParam = CPU.CPU_Pop32();
+            int lParam = CPU.CPU_Pop32();
+            if (hWnd == 0xFFFF) {
+                Win.panic("Broadcast SendMessage not implemented yet");
+            }
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                CPU_Regs.reg_eax.dword = 0;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                return;
+            }
+            // CPU_Regs.reg_eax.dword is assigned inside, since when this returns we may be executing in a new process
+            ((WinWindow)object).getThread().sendMessage(hWnd, Msg, wParam, lParam);
+        }
+    };
+
+    // HWND WINAPI SetCapture(HWND hWnd)
+    private Callback.Handler SetCapture = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SetCapture";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                CPU_Regs.reg_eax.dword = 0;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_WINDOW_HANDLE);
+            } else {
+                CPU_Regs.reg_eax.dword = WinSystem.getCapture();
+                WinSystem.setCapture(hWnd);
+            }
+        }
+    };
+
+    // DWORD WINAPI SetClassLong(HWND hWnd, int nIndex, LONG dwNewLong)
+    private Callback.Handler SetClassLongA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SetClassLongA";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int nIndex = CPU.CPU_Pop32();
+            int dwNewLong = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                CPU_Regs.reg_eax.dword = 0;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_WINDOW_HANDLE);
+            } else {
+                WinClass winClass = ((WinWindow)object).getWinClass();
+                CPU_Regs.reg_eax.dword = winClass.setLong(nIndex, dwNewLong);
+            }
         }
     };
 
@@ -718,8 +965,24 @@ public class User32 extends BuiltinModule {
                 CPU_Regs.reg_eax.dword = 0;
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_WINDOW_HANDLE);
             } else {
-                CPU_Regs.reg_eax.dword = hWnd; // No other window had focus, at least not yet
+                CPU_Regs.reg_eax.dword = ((WinWindow)object).setFocus();
             }
+        }
+    };
+
+    // BOOL SetRect(LPRECT lprc, int xLeft, int yTop, int xRight, int yBottom)
+    private Callback.Handler SetRect = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SetRect";
+        }
+        public void onCall() {
+            int lprc = CPU.CPU_Pop32();
+            int xLeft = CPU.CPU_Pop32();
+            int yTop = CPU.CPU_Pop32();
+            int xRight = CPU.CPU_Pop32();
+            int yBottom = CPU.CPU_Pop32();
+            WinRect.write(lprc, xLeft, yTop, xRight, yBottom);
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
 
@@ -769,6 +1032,32 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
+    private Callback.Handler SetWindowPos = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SetWindowPos";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int hWndInsertAfter = CPU.CPU_Pop32();
+            int X = CPU.CPU_Pop32();
+            int Y = CPU.CPU_Pop32();
+            int cx = CPU.CPU_Pop32();
+            int cy = CPU.CPU_Pop32();
+            int uFlags = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+            } else {
+                WinWindow window = (WinWindow)object;
+                CPU_Regs.reg_eax.dword = window.setWindowPos(hWndInsertAfter, X, Y, cx, cy, uFlags);
+            }
+            if (LOG)
+                log("hWnd="+hWnd+" hWndInsertAfter="+hWndInsertAfter+" X="+X+" Y="+Y+" cx="+cx+" cy="+cy+" uFlags=0x"+Integer.toString(uFlags, 16));
+        }
+    };
+
     // int WINAPI ShowCursor(BOOL bShow)
     private Callback.Handler ShowCursor = new HandlerBase() {
         public java.lang.String getName() {
@@ -801,6 +1090,31 @@ public class User32 extends BuiltinModule {
                 ((WinWindow)object).showWindow(nCmdShow != 0);
                 CPU_Regs.reg_eax.dword = WinAPI.TRUE;
             }
+        }
+    };
+
+    // BOOL WINAPI SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni)
+    private Callback.Handler SystemParametersInfoA = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SystemParametersInfoA";
+        }
+        public void onCall() {
+            int uiAction = CPU.CPU_Pop32();
+            int uiParam = CPU.CPU_Pop32();
+            int pvParam = CPU.CPU_Pop32();
+            int fWinIni = CPU.CPU_Pop32();
+            switch (uiAction) {
+                case 0x0010: // SPI_GETSCREENSAVEACTIVE
+                    Memory.mem_writed(pvParam, WinAPI.FALSE);
+                    break;
+                case 0x0053: // SPI_GETLOWPOWERACTIVE
+                    Memory.mem_writed(pvParam, WinAPI.FALSE);
+                    break;
+                default:
+                    System.out.println("uiAction 0x"+Integer.toString(uiAction, 16)+" not supported yet");
+                    notImplemented();
+            }
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
 
@@ -849,6 +1163,29 @@ public class User32 extends BuiltinModule {
             } else {
                 ((WinWindow)object).sendMessage(WinWindow.WM_PAINT, 0, 0);
                 CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+            }
+        }
+    };
+
+    // BOOL ValidateRect(HWND hWnd, const RECT *lpRect)
+    private Callback.Handler ValidateRect = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.ValidateRect";
+        }
+        public void onCall() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpRect = CPU.CPU_Pop32();
+            if (hWnd == 0) {
+                CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+                System.out.println(getName()+" hWnd=NULL faked");
+            } else {
+                WinObject object = WinSystem.getObject(hWnd);
+                if (object == null || !(object instanceof WinWindow)) {
+                    CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+                    WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_WINDOW_HANDLE);
+                } else {
+                    CPU_Regs.reg_eax.dword = ((WinWindow)object).validateRect(lpRect);
+                }
             }
         }
     };

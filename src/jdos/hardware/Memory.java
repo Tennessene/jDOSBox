@@ -462,6 +462,10 @@ public class Memory extends Module_base {
         while (len-- != 0) host_writeb(dest++, (short)0);
     }
 
+    static public void phys_memcpy(int dest, byte[] buffer, int offset, int len) {
+        while (len-- != 0) host_writeb(dest++, (short)buffer[offset++]);
+    }
+
     static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,int offset, /*Bitu*/int size) {
         for (int i=0;i<size;i++) {
             short v1 = Paging.mem_readb_inline(pt++);

@@ -6,6 +6,7 @@ public class Error {
     public static final int ERROR_PATH_NOT_FOUND = 3;
     public static final int ERROR_ACCESS_DENIED = 5;
     public static final int ERROR_INVALID_HANDLE = 6;
+    public static final int ERROR_NO_MORE_FILES = 18;
     public static final int ERROR_FILE_EXISTS = 80;
     public static final int ERROR_INVALID_PARAMETER = 87;
     public static final int ERROR_INSUFFICIENT_BUFFER = 122;
@@ -25,7 +26,7 @@ public class Error {
     public static final int E_NOINTERFACE = 0x80004002;
     public static final int E_POINTER = 0x80004003;
     public static final int E_INVALIDARG = 0x80070057;
-
+    public static final int E_OUTOFMEMORY = 0x8007000E;
     public static final int DDERR_INVALIDPARAMS = E_INVALIDARG;
 
     public static final int INVALID_FILE_ATTRIBUTES = -1;

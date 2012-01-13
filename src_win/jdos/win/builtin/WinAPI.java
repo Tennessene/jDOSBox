@@ -1,6 +1,7 @@
 package jdos.win.builtin;
 
 public class WinAPI {
+    static final public int MAX_PATH = 260;
     static final public int TRUE = 1;
     static final public int FALSE = 0;
 

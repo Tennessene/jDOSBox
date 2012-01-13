@@ -135,18 +135,19 @@ public class Heap {
             HeapItem last = getLastItem();
             if (address<last.address)
                 return 0;
+            removeItem(last);
             last.size = address - last.address;
-            if (last.size == 0)
-                removeItem(last);
+            if (last.size != 0)
+                insertItem(last);
             usedMemory.put(new Long(address), new HeapItem(address, size));
             if (address+size<end)
                 insertItem(new HeapItem(address+size, end-(address+size)));
-        } else if (index>0) {
-            index--;
+        } else {
             HeapItem free = (HeapItem)itemsByAddress.get(index);
             if (address<free.address || address+size>free.address+free.size) {
                 return 0;
             }
+            removeItem(free);
             long newAddress = address+size;
             if (free.size==newAddress-free.address)
                 removeItem(free);
@@ -157,6 +158,7 @@ public class Heap {
             if (oldAddress<address && oldAddress>=start) {
                 insertItem(new HeapItem(oldAddress, address-oldAddress));
             }
+            insertItem(free);
         }
         return address;
     }

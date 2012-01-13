@@ -1,6 +1,9 @@
 package jdos.win.utils;
 
+import jdos.win.Win;
 import jdos.win.loader.winpe.LittleEndianFile;
+
+import java.util.Hashtable;
 
 public class WinClass extends WinObject {
     public WinClass(int id) {
@@ -85,6 +88,29 @@ public class WinClass extends WinObject {
         return true;
     }
 
+    public int setLong(int nIndex, int dwNewLong) {
+        if (nIndex>=0) {
+            Integer old = (Integer)extra.get(new Integer(nIndex));
+            extra.put(new Integer(nIndex), new Integer(dwNewLong));
+            if (old != null)
+                return old.intValue();
+            return 0;
+        }
+        int result = 0;
+        switch (nIndex) {
+            case -12: // GCL_HCURSOR
+                result = hCursor;
+                hCursor = dwNewLong;
+                break;
+            case -14: // GCL_HICON
+                result = hIcon;
+                hIcon = dwNewLong;
+                break;
+            default:
+                Win.panic("SetClassLong index=" + nIndex + " not implemented yet");
+        }
+        return result;
+    }
     public void onFree() {
         WinSystem.getCurrentProcess().classNames.remove(className);
     }
@@ -99,4 +125,5 @@ public class WinClass extends WinObject {
     public String className;
     public String menuName;
     public int hIconSm;
+    private Hashtable extra;
 }

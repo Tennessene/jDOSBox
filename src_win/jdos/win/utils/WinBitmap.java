@@ -20,6 +20,9 @@ public class WinBitmap extends WinGDI {
         parseBitmap(address);
     }
 
+    public String toString() {
+        return "BITMAP "+width+"x"+height+"@"+bitCount+"bpp";
+    }
     private void parseBitmap(int address) {
         LittleEndianFile is = new LittleEndianFile(address);
         int biSize = is.readInt();

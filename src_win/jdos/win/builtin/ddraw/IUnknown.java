@@ -70,7 +70,11 @@ public class IUnknown {
     }
 
     static protected int addIUnknown(int address) {
-        address = add(address, QueryInterface);
+        return addIUnknown(address, null);
+    }
+
+    static protected int addIUnknown(int address, Callback.Handler query) {
+        address = add(address, (query==null?QueryInterface:query));
         address = add(address, AddRef);
         address = add(address, Release);
         return address;

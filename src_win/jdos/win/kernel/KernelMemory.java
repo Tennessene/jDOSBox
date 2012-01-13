@@ -179,12 +179,15 @@ public class KernelMemory {
     }
     public int getNextFrame() {
         int frame = first_frame();
+        if (frame == -1) {
+            Win.panic("No free frames!");
+        }
         set_frame(frame);
         return frame;
     }
 
     public void freeFrame(int frame) {
-        clear_frame(frame * 0x1000);
+        clear_frame(frame);
     }
 
     static public void clearPage(int pagePtr) {

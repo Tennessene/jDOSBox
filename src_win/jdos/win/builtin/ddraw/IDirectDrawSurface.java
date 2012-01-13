@@ -8,8 +8,9 @@ import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
-import jdos.win.kernel.VideoMemory;
+import jdos.win.builtin.directx.DirectCallback;
 import jdos.win.kernel.WinCallback;
+import jdos.win.loader.Module;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
 
@@ -76,9 +77,10 @@ public class IDirectDrawSurface extends IUnknown {
     static int OFFSET_IMAGE_CACHE_CKSRC = 28;
     static int OFFSET_IMAGE_CACHE_CKSRC_TIME = 32;
     static int OFFSET_DIRECT_DRAW = 36;
+    static int OFFSET_CLIPPER = 40;
 
     // doesn't include description since that gets computed on the fly
-    static int DATA_SIZE = 40;
+    static int DATA_SIZE = 44;
 
     static int OFFSET_DESC = DATA_SIZE;
 
@@ -221,10 +223,11 @@ public class IDirectDrawSurface extends IUnknown {
         return create("IDirectDrawSurface", pDirectDraw, pDesc, 0);
     }
 
-    static private Callback.Handler CleanUp = new HandlerBase() {
+    static private Callback.Handler CleanUp = new DirectCallback() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.CleanUp";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int palette = getData(This, OFFSET_PALETTE);
@@ -239,6 +242,10 @@ public class IDirectDrawSurface extends IUnknown {
             if (hdc != 0) {
                 WinDC dc = (WinDC)WinSystem.getObject(hdc);
                 dc.close();
+            }
+            int clipper = getData(This, OFFSET_CLIPPER);
+            if (clipper != 0) {
+                Release(clipper);
             }
             clearImage(This);
         }
@@ -309,7 +316,7 @@ public class IDirectDrawSurface extends IUnknown {
 
         if ((caps & DDSCAPS_VIDEOMEMORY)!=0) {
             if ((d.ddsCaps & DDSCAPS_PRIMARYSURFACE)!=0) {
-                memory = VideoMemory.mapVideoRAM(amount);
+                memory = WinSystem.getScreenAddress();
             } else {
                 memory = WinSystem.getCurrentProcess().heap.alloc(amount, true);
             }
@@ -505,12 +512,15 @@ public class IDirectDrawSurface extends IUnknown {
             BufferedImage dest = getImage(This, true);
 
             Graphics g = dest.getGraphics();
+            dwFlags=dwFlags & ~DDBLT_WAIT;
             if ((dwFlags & DDBLT_COLORFILL)!=0) {
                 int color = fx.dwFillColor;
                 if (getBits(This)<=8)
                     color = getPaletteEntry(This, color);
                 g.setColor(new Color(color));
                 g.fillRect(destX1, destY1, destX2-destX1, destY2-destY1);
+                if (Module.LOG)
+                    log("DDBLT_COLORFILL color=0x"+Integer.toString(color, 16)+" dst="+destX1+","+destY1+" - "+destX2+","+destY2);
             } else if (dwFlags == 0) {
                 BufferedImage src = getImage(lpDDSrcSurface, true);
                 int srcX1 = Memory.mem_readd(lpSrcRect);
@@ -518,6 +528,8 @@ public class IDirectDrawSurface extends IUnknown {
                 int srcX2 = Memory.mem_readd(lpSrcRect+8);
                 int srcY2 = Memory.mem_readd(lpSrcRect+12);
                 g.drawImage(src, destX1, destY1, destX2, destY2, srcX1, srcY1, srcX2, srcY2, null);
+                if (Module.LOG)
+                    log("dst="+destX1+","+destY1+" - "+destX2+","+destY2+" src="+srcX1+","+srcY1+" - "+srcX2+","+srcY2);
             } else {
                 notImplemented();
             }
@@ -750,20 +762,21 @@ public class IDirectDrawSurface extends IUnknown {
                 CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
             } else {
                 int hdc = getData(This, OFFSET_DC);
-                if (hdc == 0) {
-                    int[] palette = null;
-                    int lpDDPalette = getPalette(This);
-                    if (lpDDPalette != 0) {
-                        palette = new int[256];
-                        for (int i=0;i<palette.length;i++) {
-                            palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
-                        }
+                int[] palette = null;
+                int lpDDPalette = getPalette(This);
+                if (lpDDPalette != 0) {
+                    palette = new int[256];
+                    for (int i=0;i<palette.length;i++) {
+                        palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
                     }
+                }
+                if (hdc == 0) {
                     WinDC dc = WinSystem.createDC(null, getData(This, OFFSET_MEMORY), getWidth(This), getHeight(This), palette);
                     hdc = dc.getHandle();
                     setData(This, OFFSET_DC, hdc);
                 } else {
                     WinDC dc = (WinDC)WinSystem.getObject(hdc);
+                    dc.refresh(getData(This, OFFSET_MEMORY), getWidth(This), getHeight(This), palette);
                     dc.open();
                 }
                 Memory.mem_writed(lphDC, hdc);
@@ -899,10 +912,14 @@ public class IDirectDrawSurface extends IUnknown {
                 CPU_Regs.reg_eax.dword = Error.E_POINTER;
                 return;
             }
+            if (lpDestRect != 0) {
+                Win.panic(getName()+" lpDestRect support is not implemented yet");
+            }
             int address = getData(This, OFFSET_MEMORY);
             Memory.mem_memcpy(lpDDSurfaceDesc, This+ OFFSET_DATA_START +OFFSET_DESC, isDesc2(This)?DDSurfaceDesc.SIZE2:DDSurfaceDesc.SIZE);
             Memory.mem_writed(lpDDSurfaceDesc+0x24, address);
-            System.out.println("Lock: bitcount="+Memory.mem_readb(lpDDSurfaceDesc+0x48+0x0c));
+            if (Module.LOG)
+                log("dwFlags=0x"+Integer.toString(dwFlags, 16)+" bitcount="+Memory.mem_readb(lpDDSurfaceDesc+0x48+0x0c));
             clearImage(This);
             lock(This);
             CPU_Regs.reg_eax.dword = Error.S_OK;
@@ -921,9 +938,10 @@ public class IDirectDrawSurface extends IUnknown {
                 CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
             } else {
                 WinDC dc = (WinDC)WinSystem.getObject(hDC);
-                dc.close();
+                dc.releaseImage(); // write cached data back to memory
                 unlock(This);
-                setData(This, OFFSET_DC, 0);
+                // :TODO: not sure if I should cache this or delete it, previously select object would be removed
+                //setData(This, OFFSET_DC, 0);
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
         }
@@ -948,8 +966,10 @@ public class IDirectDrawSurface extends IUnknown {
         }
         public void onCall() {
             int This = CPU.CPU_Pop32();
-            int LPDIRECTDRAWCLIPPER = CPU.CPU_Pop32();
-            notImplemented();
+            int lpDDClipper = CPU.CPU_Pop32();
+            AddRef(lpDDClipper);
+            setData(This, OFFSET_CLIPPER, lpDDClipper);
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 

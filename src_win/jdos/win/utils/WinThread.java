@@ -9,10 +9,7 @@ import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 public class WinThread extends WaitObject {
     static public final int THREAD_PRIORITY_IDLE = -15;
@@ -29,11 +26,14 @@ public class WinThread extends WaitObject {
     public CpuState cpuState = new CpuState();
     private KernelHeap stack;
     private int stackAddress;
+    private int startAddress;
     private List msgQueue = Collections.synchronizedList(new ArrayList()); // synchronized since the keyboard will post message from another thread
+    private List sendMsgQueue = new ArrayList();
     Vector windows = new Vector();
     private boolean quit = false;
     private WinTimer timer = new WinTimer(0);
     public int priority = THREAD_PRIORITY_NORMAL;
+    public BitSet keyState;
 
     private Callback.Handler startUp = new HandlerBase() {
         public String getName() {
@@ -41,10 +41,8 @@ public class WinThread extends WaitObject {
         }
         public void onCall() {
             process.loader.attachThread();
-            if (CPU_Regs.reg_esp.dword != cpuState.esp) {
-                Win.panic("Wasn't expecting DllMain to mess up stack");
-            }
-            CPU_Regs.reg_eip = stackAddress;
+            CPU_Regs.reg_esp.dword = cpuState.esp;
+            CPU_Regs.reg_eip = startAddress;
         }
     };
 
@@ -77,6 +75,7 @@ public class WinThread extends WaitObject {
         // :TODO: need a stack heap that grows down
         this.stack = new KernelHeap(process.kernelMemory, process.page_directory, start, end, end, false, false);
         this.process = process;
+        this.startAddress = (int)startAddress;
 
         if (primary) {
             this.cpuState.eip = (int)startAddress;
@@ -107,8 +106,16 @@ public class WinThread extends WaitObject {
             msg = (WinMsg)msgQueue.remove(msgIndex);
         else
             msg = (WinMsg)msgQueue.get(msgIndex);
+        if (msg.keyState != null)
+            keyState = msg.keyState;
         setMessage(msgAddress, msg.hwnd, msg.message, msg.wParam, msg.lParam, msg.time, msg.x, msg.y);
         return WinAPI.TRUE;
+    }
+
+    public BitSet getKeyState() {
+        if (keyState == null)
+            return WinKeyboard.keyState;
+        return keyState;
     }
 
     public void setPriority(int nPriority) {
@@ -118,10 +125,28 @@ public class WinThread extends WaitObject {
         msgQueue.add(new WinMsg(hWnd, message, wParam, lParam));
     }
 
+    public void postMessage(int hWnd, int message, int wParam, int lParam, BitSet keyState) {
+        msgQueue.add(new WinMsg(hWnd, message, wParam, lParam, keyState));
+    }
+
+    public boolean isCurrent() {
+        return WinSystem.getCurrentThread()==this;
+    }
+
+    public void sendMessage(int hWnd, int message, int wParam, int lParam) {
+        if (isCurrent()) {
+            CPU_Regs.reg_eax.dword = ((WinWindow)WinSystem.getObject(hWnd)).sendMessage(message, wParam, lParam);
+        } else {
+            Win.panic("Need to implement intra thread SendMessage");
+            sendMsgQueue.add(new WinMsg(hWnd, message, wParam, lParam, WinSystem.getCurrentThread()));
+            WinSystem.scheduler.removeThread(WinSystem.getCurrentThread(), true);
+        }
+    }
+
     public int waitMessage() {
         while (peekMessage(0, 0, 0, 0, 0) == WinAPI.FALSE) {
             // :TODO: put thread to sleep until new msg or timer or paint or quit
-            try {Thread.sleep(25);} catch (Exception e) {}
+            WinSystem.scheduler.yield(this);
         }
         return WinAPI.TRUE;
     }
@@ -163,14 +188,11 @@ public class WinThread extends WaitObject {
     }
 
     public int getNextMessage(int msgAddress, int hWnd, int minMsg, int maxMsg) {
-        while (true) {
-            if (quit)
-                return WinAPI.FALSE;
-            if (peekMessage(msgAddress, hWnd, minMsg, maxMsg, 0x0001)==WinAPI.TRUE)
-                return WinAPI.TRUE;
-            // :TODO: put thread to sleep until new msg or timer or paint or quit
-            try {Thread.sleep(25);} catch (Exception e) {}
-        }
+        if (quit)
+            return WinAPI.FALSE;
+        if (peekMessage(msgAddress, hWnd, minMsg, maxMsg, 0x0001)==WinAPI.TRUE)
+            return WinAPI.TRUE;
+        return -2;
     }
 
     public void sleep(int ms) {
@@ -184,10 +206,10 @@ public class WinThread extends WaitObject {
 
     public void exit(int exitCode) {
         release();
-        WinSystem.scheduler.removeThread(this, false);
         stack.deallocate();
         close();
         getProcess().freeAddress(stackAddress);
+        WinSystem.scheduler.removeThread(this, true);
     }
 
     public void loadCPU() {

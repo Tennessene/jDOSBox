@@ -2,7 +2,6 @@ package jdos.win.utils;
 
 import jdos.cpu.CPU_Regs;
 import jdos.gui.Main;
-import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.ddraw.IDirectDrawSurface;
 
@@ -19,9 +18,7 @@ public class Scheduler {
     private SchedulerItem currentThread = null;
     private SchedulerItem first;
     private Hashtable threadMap = new Hashtable();
-    static public final int TICK_MS = 50;
-
-    private int tickCount = 0;
+    private long start = System.currentTimeMillis();
 
     // DirectX surface to force to the screen
     public int monitor;
@@ -42,10 +39,21 @@ public class Scheduler {
         threadMap.put(thread, item);
     }
 
+    private int currentTickCount() {
+        return (int)(System.currentTimeMillis()-start);
+    }
     public void sleep(WinThread thread, int ms) {
-        //SchedulerItem item = (SchedulerItem)threadMap.get(thread);
-        //item.sleepUntil = tickCount+ms / TICK_MS + 1;
-        //tick(false);
+        SchedulerItem item = (SchedulerItem)threadMap.get(thread);
+        item.sleepUntil =currentTickCount() + ms + 1;
+        tick();
+    }
+
+    public void yield(WinThread thread) {
+        tick();
+        if (WinSystem.getCurrentThread() == thread) {
+            // :TODO: should wake up early if we get some sort of input, like mouse, keyboard, network, window timer, etc
+            try {Thread.sleep(25);} catch (Exception e){}
+        }
     }
 
     public void removeThread(WinThread thread, boolean canSwitchProcess) {
@@ -63,7 +71,7 @@ public class Scheduler {
                     Win.exit();
                 if (item == currentThread) {
                     if (canSwitchProcess) {
-                        tick(false);
+                        tick();
                     } else {
                         SchedulerItem i = first;
                         // move to next thread in the same process, we don't want to change page directories here
@@ -101,16 +109,18 @@ public class Scheduler {
     }
 
     // :TODO: run them in order of process to minimize page swapping
-    public void tick(boolean incrementTickCount) {
+    public void tick() {
         if (monitor != 0) {
             BufferedImage src = IDirectDrawSurface.getImage(monitor, true);
             Main.drawImage(src);
         }
-        if (incrementTickCount) {
-            tickCount++;
-        }
         SchedulerItem next = currentThread.next;
         SchedulerItem start = currentThread;
+        int tickCount = currentTickCount();
+        int sleepAmount = 0;
+        if (threadMap.size() == 0) {
+            Win.panic("DEADLOCK out threads are waiting on an object indefinitely");
+        }
         while (true) {
             if (next == null) {
                 next = first;
@@ -118,11 +128,10 @@ public class Scheduler {
             if (next.sleepUntil <= tickCount) {
                 break;
             }
+            sleepAmount = Math.max(sleepAmount, next.sleepUntil - tickCount);
             if (next == start) {
-                // :TODO: all threads are alseep
-                tick(false);
-                Console.out("Can not handle all threads being asleep at the same time yet");
-                Win.exit();
+                try {Thread.sleep(sleepAmount);} catch (Exception e) {}
+                tickCount = currentTickCount();
             }
             next = next.next;
         }

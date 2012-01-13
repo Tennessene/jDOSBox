@@ -7,6 +7,7 @@ import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.builtin.HandlerBase;
+import jdos.win.loader.Module;
 import jdos.win.utils.Error;
 import jdos.win.utils.WinSystem;
 
@@ -81,7 +82,7 @@ public class IDirectDraw extends IUnknown {
         if (result == 0) {
             result = IDirectDrawPalette.createDefault();
             setData(This, OFFSET_PALETTE, result);
-            WinSystem.screenPalette = result;
+            WinSystem.screenPalette = result+IUnknown.OFFSET_DATA_START+IDirectDrawPalette.OFFSET_COLOR_DATA;
         }
         return result;
     }
@@ -120,7 +121,12 @@ public class IDirectDraw extends IUnknown {
             int dwFlags = CPU.CPU_Pop32();
             int lplpDDClipper = CPU.CPU_Pop32();
             int pUnkOuter = CPU.CPU_Pop32();
-            notImplemented();
+            if (lplpDDClipper == 0)
+                CPU_Regs.reg_eax.dword = Error.E_POINTER;
+            else {
+                Memory.mem_writed(lplpDDClipper, IDirectDrawClipper.create());
+                CPU_Regs.reg_eax.dword = Error.S_OK;
+            }
         }
     };
 
@@ -273,6 +279,101 @@ public class IDirectDraw extends IUnknown {
 
     // HRESULT GetCaps(this, LPDDCAPS lpDDDriverCaps, LPDDCAPS lpDDHELCaps)
     static private Callback.Handler GetCaps = new HandlerBase() {
+        static private final int DDCKEYCAPS_DESTBLT =               0x00000001;
+        static private final int DDCKEYCAPS_DESTBLTCLRSPACE =       0x00000002;
+        static private final int DDCKEYCAPS_DESTBLTCLRSPACEYUV =    0x00000004;
+        static private final int DDCKEYCAPS_DESTBLTYUV =            0x00000008;
+        static private final int DDCKEYCAPS_DESTOVERLAY =           0x00000010;
+        static private final int DDCKEYCAPS_DESTOVERLAYCLRSPACE =   0x00000020;
+        static private final int DDCKEYCAPS_DESTOVERLAYCLRSPACEYUV =0x00000040;
+        static private final int DDCKEYCAPS_DESTOVERLAYONEACTIVE =  0x00000080;
+        static private final int DDCKEYCAPS_DESTOVERLAYYUV =        0x00000100;
+        static private final int DDCKEYCAPS_SRCBLT =                0x00000200;
+        static private final int DDCKEYCAPS_SRCBLTCLRSPACE =        0x00000400;
+        static private final int DDCKEYCAPS_SRCBLTCLRSPACEYUV =     0x00000800;
+        static private final int DDCKEYCAPS_SRCBLTYUV =             0x00001000;
+        static private final int DDCKEYCAPS_SRCOVERLAY =            0x00002000;
+        static private final int DDCKEYCAPS_SRCOVERLAYCLRSPACE =    0x00004000;
+        static private final int DDCKEYCAPS_SRCOVERLAYCLRSPACEYUV = 0x00008000;
+        static private final int DDCKEYCAPS_SRCOVERLAYONEACTIVE =   0x00010000;
+        static private final int DDCKEYCAPS_SRCOVERLAYYUV =         0x00020000;
+        static private final int DDCKEYCAPS_NOCOSTOVERLAY =         0x00040000;
+        
+        static private final int DDPCAPS_4BIT =                     0x00000001;
+        static private final int DDPCAPS_8BITENTRIES =              0x00000002;
+        static private final int DDPCAPS_8BIT =                     0x00000004;
+        static private final int DDPCAPS_INITIALIZE =               0x00000008;
+        static private final int DDPCAPS_PRIMARYSURFACE =           0x00000010;
+        static private final int DDPCAPS_PRIMARYSURFACELEFT =       0x00000020;
+        static private final int DDPCAPS_ALLOW256 =                 0x00000040;
+        static private final int DDPCAPS_VSYNC =                    0x00000080;
+        static private final int DDPCAPS_1BIT =                     0x00000100;
+        static private final int DDPCAPS_2BIT =                     0x00000200;
+        static private final int DDPCAPS_ALPHA =                    0x00000400;
+
+//        /*  0*/ DWORD	dwSize;			// size of the DDDRIVERCAPS structure
+//        /*  4*/ DWORD	dwCaps;			// driver specific capabilities
+//        /*  8*/ DWORD	dwCaps2;		// more driver specific capabilites
+//        /*  c*/ DWORD	dwCKeyCaps;		// color key capabilities of the surface
+//        /* 10*/ DWORD	dwFXCaps;		// driver specific stretching and effects capabilites
+//        /* 14*/ DWORD	dwFXAlphaCaps;		// alpha driver specific capabilities
+//        /* 18*/ DWORD	dwPalCaps;		// palette capabilities
+//        /* 1c*/ DWORD	dwSVCaps;		// stereo vision capabilities
+//        /* 20*/ DWORD	dwAlphaBltConstBitDepths;	// DDBD_2,4,8
+//        /* 24*/ DWORD	dwAlphaBltPixelBitDepths;	// DDBD_1,2,4,8
+//        /* 28*/ DWORD	dwAlphaBltSurfaceBitDepths;	// DDBD_1,2,4,8
+//        /* 2c*/ DWORD	dwAlphaOverlayConstBitDepths;	// DDBD_2,4,8
+//        /* 30*/ DWORD	dwAlphaOverlayPixelBitDepths;	// DDBD_1,2,4,8
+//        /* 34*/ DWORD	dwAlphaOverlaySurfaceBitDepths; // DDBD_1,2,4,8
+//        /* 38*/ DWORD	dwZBufferBitDepths;		// DDBD_8,16,24,32
+//        /* 3c*/ DWORD	dwVidMemTotal;		// total amount of video memory
+//        /* 40*/ DWORD	dwVidMemFree;		// amount of free video memory
+//        /* 44*/ DWORD	dwMaxVisibleOverlays;	// maximum number of visible overlays
+//        /* 48*/ DWORD	dwCurrVisibleOverlays;	// current number of visible overlays
+//        /* 4c*/ DWORD	dwNumFourCCCodes;	// number of four cc codes
+//        /* 50*/ DWORD	dwAlignBoundarySrc;	// source rectangle alignment
+//        /* 54*/ DWORD	dwAlignSizeSrc;		// source rectangle byte size
+//        /* 58*/ DWORD	dwAlignBoundaryDest;	// dest rectangle alignment
+//        /* 5c*/ DWORD	dwAlignSizeDest;	// dest rectangle byte size
+//        /* 60*/ DWORD	dwAlignStrideAlign;	// stride alignment
+//        /* 64*/ DWORD	dwRops[DD_ROP_SPACE];	// ROPS supported
+//        /* 84*/ DDSCAPS	ddsCaps;		// DDSCAPS structure has all the general capabilities
+//        /* 88*/ DWORD	dwMinOverlayStretch;	// minimum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3
+//        /* 8c*/ DWORD	dwMaxOverlayStretch;	// maximum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3
+//        /* 90*/ DWORD	dwMinLiveVideoStretch;	// minimum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3
+//        /* 94*/ DWORD	dwMaxLiveVideoStretch;	// maximum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3
+//        /* 98*/ DWORD	dwMinHwCodecStretch;	// minimum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3
+//        /* 9c*/ DWORD	dwMaxHwCodecStretch;	// maximum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3
+//        /* a0*/ DWORD	dwReserved1;		// reserved
+//        /* a4*/ DWORD	dwReserved2;		// reserved
+//        /* a8*/ DWORD	dwReserved3;		// reserved
+//        /* ac*/ DWORD	dwSVBCaps;		// driver specific capabilities for System->Vmem blts
+//        /* b0*/ DWORD	dwSVBCKeyCaps;		// driver color key capabilities for System->Vmem blts
+//        /* b4*/ DWORD	dwSVBFXCaps;		// driver FX capabilities for System->Vmem blts
+//        /* b8*/ DWORD	dwSVBRops[DD_ROP_SPACE];// ROPS supported for System->Vmem blts
+//        /* d8*/ DWORD	dwVSBCaps;		// driver specific capabilities for Vmem->System blts
+//        /* dc*/ DWORD	dwVSBCKeyCaps;		// driver color key capabilities for Vmem->System blts
+//        /* e0*/ DWORD	dwVSBFXCaps;		// driver FX capabilities for Vmem->System blts
+//        /* e4*/ DWORD	dwVSBRops[DD_ROP_SPACE];// ROPS supported for Vmem->System blts
+//        /*104*/ DWORD	dwSSBCaps;		// driver specific capabilities for System->System blts
+//        /*108*/ DWORD	dwSSBCKeyCaps;		// driver color key capabilities for System->System blts
+//        /*10c*/ DWORD	dwSSBFXCaps;		// driver FX capabilities for System->System blts
+//        /*110*/ DWORD	dwSSBRops[DD_ROP_SPACE];// ROPS supported for System->System blts
+//        #if       DIRECTDRAW_VERSION >= 0x0500
+//        /*130*/ DWORD	dwMaxVideoPorts;	// maximum number of usable video ports
+//        /*134*/ DWORD	dwCurrVideoPorts;	// current number of video ports used
+//        /*138*/ DWORD	dwSVBCaps2;		// more driver specific capabilities for System->Vmem blts
+//        /*13c*/ DWORD	dwNLVBCaps;		  // driver specific capabilities for non-local->local vidmem blts
+//        /*140*/ DWORD	dwNLVBCaps2;		  // more driver specific capabilities non-local->local vidmem blts
+//        /*144*/ DWORD	dwNLVBCKeyCaps;		  // driver color key capabilities for non-local->local vidmem blts
+//        /*148*/ DWORD	dwNLVBFXCaps;		  // driver FX capabilities for non-local->local blts
+//        /*14c*/ DWORD	dwNLVBRops[DD_ROP_SPACE]; // ROPS supported for non-local->local blts
+//        #else  /* DIRECTDRAW_VERSION >= 0x0500 */
+//        /*130*/ DWORD	dwReserved4;		// reserved
+//        /*134*/ DWORD	dwReserved5;		// reserved
+//        /*138*/ DWORD	dwReserved6;		// reserved
+//        #endif /* DIRECTDRAW_VERSION >= 0x0500 */
+
         public java.lang.String getName() {
             return "IDirectDraw.GetCaps";
         }
@@ -280,7 +381,70 @@ public class IDirectDraw extends IUnknown {
             int This = CPU.CPU_Pop32();
             int lpDDDriverCaps = CPU.CPU_Pop32();
             int lpDDHELCaps = CPU.CPU_Pop32();
-            notImplemented();
+            int bpp = 0x00000D00; // 8 16 and 32
+            int size = Memory.mem_readd(lpDDDriverCaps);lpDDDriverCaps+=4;
+            Memory.mem_zero(lpDDDriverCaps+4, size-4);
+            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   4 dwCaps
+            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   8 dwCaps2
+            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   C dwCKeyCaps
+            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  10 dwFXCaps
+            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  14 dwFXAlphaCaps
+            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  18 dwPalCaps
+            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  1C dwSVCaps
+            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  20 dwAlphaBltConstBitDepths
+            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  24 dwAlphaBltPixelBitDepths
+            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  28 dwAlphaBltSurfaceBitDepths
+            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  2C dwAlphaOverlayConstBitDepths
+            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  30 dwAlphaOverlayPixelBitDepths
+            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  34 dwAlphaOverlaySurfaceBitDepths
+            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  38 dwZBufferBitDepths
+            Memory.mem_writed(lpDDDriverCaps, 0x02000000);lpDDDriverCaps+=4;//  3C dwVidMemTotal
+            Memory.mem_writed(lpDDDriverCaps, 0x02000000);lpDDDriverCaps+=4;//  40 dwVidMemFree
+            Memory.mem_writed(lpDDDriverCaps, 0x00000020);lpDDDriverCaps+=4;//  44 dwMaxVisibleOverlays
+            Memory.mem_writed(lpDDDriverCaps, 0x00000000);lpDDDriverCaps+=4;//  48 dwCurrVisibleOverlays
+            Memory.mem_writed(lpDDDriverCaps, 0x00000003);lpDDDriverCaps+=4;//  4C dwNumFourCCCodes
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  50 dwAlignBoundarySrc
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  54 dwAlignSizeSrc
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  58 dwAlignBoundaryDest
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  5C dwAlignSizeDest
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  60 dwAlignStrideAlign
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=32;         //  64 dwRops
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  84 ddsCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  88 dwMinOverlayStretch
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  8C dwMaxOverlayStretch
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  90 dwMinLiveVideoStretch
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  94 dwMaxLiveVideoStretch
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  98 dwMinHwCodecStretch
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  9C dwMaxHwCodecStretch
+//            Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;         //  A0 dwReserved1
+//            Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;         //  A4 dwReserved2
+//            Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;         //  A8 dwReserved3
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  AC dwSVBCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  B0 dwSVBCKeyCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  B4 dwSVBFXCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=32;         //  B8 dwSVBRops
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  D8 dwVSBCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  DC dwVSBCKeyCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  E0 dwVSBFXCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=32;         //  E4 dwVSBRops
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          // 104 dwSSBCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          // 108 dwSSBCKeyCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          // 10C dwSSBFXCaps
+//            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=32;         // 110 dwSSBRops
+//            if (size == 0x142) {
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 130 dwReserved4
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 134 dwReserved5
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 138 dwReserved6
+//            } else if (size == 0x170) { // DirectX 5
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 130 dwMaxVideoPorts
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 134 dwCurrVideoPorts
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 138 dwSVBCaps2
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 13C dwNLVBCaps
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 140 dwNLVBCaps2
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 144 dwNLVBCKeyCaps
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 148 dwNLVBFXCaps
+//                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=32;    // 14C dwNLVBRops
+//            }
         }
     };
 
@@ -416,8 +580,12 @@ public class IDirectDraw extends IUnknown {
             WinSystem.screenBpp = dwBPP;
             WinSystem.screenHeight = dwHeight;
             WinSystem.screenWidth = dwWidth;
+            if (dwBPP<=8)
+                getPalette(This); // set up default palette
             Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);
             CPU_Regs.reg_eax.dword = Error.S_OK;
+            if (Module.LOG)
+                log(dwWidth+"x"+dwHeight+" @ "+dwBPP+"bpp");
         }
     };
 

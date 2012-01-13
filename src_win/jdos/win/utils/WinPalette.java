@@ -15,4 +15,12 @@ public class WinPalette extends WinObject {
             palette[i] = Memory.mem_readd(address+i*4);
         return count;
     }
+
+    public int getEntries(int start, int count, int address) {
+        if (address != 0) {
+            for (int i=start;i<start+count;i++, address+=4)
+                Memory.mem_writed(address, palette[i]);
+        }
+        return palette.length;
+    }
 }

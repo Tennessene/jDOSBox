@@ -6,6 +6,7 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.ddraw.IUnknown;
+import jdos.win.builtin.directx.DirectCallback;
 import jdos.win.kernel.WinCallback;
 import jdos.win.utils.Error;
 import jdos.win.utils.WinSystem;
@@ -88,7 +89,7 @@ public class IDirectSoundBuffer extends IUnknown {
         return address;
     }
 
-    static private Callback.Handler CleanUp = new HandlerBase() {
+    static private Callback.Handler CleanUp = new DirectCallback() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.CleanUp";
         }
@@ -383,7 +384,7 @@ public class IDirectSoundBuffer extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int dwFrequency = CPU.CPU_Pop32();
-            notImplemented();
+            System.out.println(getName()+" faked");
         }
     };
 

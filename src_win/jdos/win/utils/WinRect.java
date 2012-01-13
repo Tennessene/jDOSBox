@@ -8,6 +8,13 @@ public class WinRect {
     public int right;
     public int bottom;
 
+    public WinRect(int left, int top, int right, int bottom) {
+        this.left = left;
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+    }
+
     public WinRect(int address) {
         left = Memory.mem_readd(address);
         top = Memory.mem_readd(address+4);
@@ -24,5 +31,13 @@ public class WinRect {
         Memory.mem_writed(address+4, top);
         Memory.mem_writed(address+8, right);
         Memory.mem_writed(address+12, bottom);
+    }
+
+    public int width() {
+        return right - left;
+    }
+
+    public int height() {
+        return bottom - top;
     }
 }

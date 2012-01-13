@@ -5,25 +5,31 @@ import jdos.cpu.CPU_Regs;
 import java.util.Vector;
 
 public class WaitObject extends WinObject {
-    static private final int WAIT_ABANDONED = 0x00000080;
-    static private final int WAIT_OBJECT_0 = 0x00000000;
-    static private final int WAIT_TIMEOUT = 0x00000102;
+    static public final int WAIT_ABANDONED = 0x00000080;
+    static public final int WAIT_OBJECT_0 = 0x00000000;
+    static public final int WAIT_TIMEOUT = 0x00000102;
 
     public WaitObject(int handle) {
         super(handle);
         owner = this;
     }
 
-    public void wait(WinThread thread, int timeout) {
+    public WaitObject(int handle, String name) {
+        super(name, handle);
+        owner = this;
+    }
+
+    public int wait(WinThread thread, int timeout) {
         if (thread == owner || owner == null) {
             CPU_Regs.reg_eax.dword = WAIT_OBJECT_0;
-            return;
+            return 0;
         }
         CPU_Regs.reg_eax.dword = WAIT_TIMEOUT;
         if (timeout !=0) {
             waiting.add(thread);
-            WinSystem.scheduler.removeThread(thread, true);
+            return 2;
         }
+        return 0;
     }
 
     public void release() {

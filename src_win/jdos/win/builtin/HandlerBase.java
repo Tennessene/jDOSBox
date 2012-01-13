@@ -10,7 +10,7 @@ import jdos.win.utils.Error;
 import jdos.win.utils.WinSystem;
 
 abstract public class HandlerBase implements Callback.Handler {
-    private static boolean defaultLog;
+    protected static boolean defaultLog;
 
     boolean resetError = true;
     public HandlerBase() {
@@ -19,12 +19,14 @@ abstract public class HandlerBase implements Callback.Handler {
         this.resetError = resetError;
     }
     public int call() {
-        CPU_Regs.reg_eip = CPU.CPU_Pop32();
         if (resetError)
             WinSystem.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
         if (Module.LOG)
             defaultLog = true;
-        onCall();
+        if (preCall()) {
+            CPU_Regs.reg_eip = CPU.CPU_Pop32();
+            onCall();
+        }
         if (Module.LOG) {
             if (defaultLog)
                 System.out.println(Integer.toHexString(CPU_Regs.reg_eip)+": "+getName());
@@ -32,6 +34,10 @@ abstract public class HandlerBase implements Callback.Handler {
         return 0;
     }
 
+    // This gives some handlers the chance to get the current eip before it is popped
+    public boolean preCall() {
+        return true;
+    }
     abstract public void onCall();
 
     protected void notImplemented() {

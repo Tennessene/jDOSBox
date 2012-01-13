@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 public class WinDC extends WinObject {
     static final private int TRANSPARENT = 1;
@@ -23,10 +24,12 @@ public class WinDC extends WinObject {
     int bkColor = 0xFFFFFFFF;
     int textColor = 0xFF000000;
     int[] palette;
+    WinFont font;
     boolean addressOwner = false;
     int hPalette = 0;
     int bkMode = OPAQUE;
     BufferedImage image;
+    WinRegion clipRegion = null;
 
     public WinDC(int handle, int bpp, int address, int width, int height, int[] palette) {
         super(handle);
@@ -40,6 +43,12 @@ public class WinDC extends WinObject {
         this.palette = palette;
     }
 
+    public void refresh(int address, int width, int height, int[] palette) {
+        this.address = address;
+        this.width = width;
+        this.height = height;
+        this.palette = palette;
+    }
     private static final int DRIVERVERSION =   0;
     private static final int TECHNOLOGY =      2;
     private static final int HORZSIZE =        4;
@@ -90,16 +99,53 @@ public class WinDC extends WinObject {
                 if (bpp<=8)
                     result |= 0x0100; //RC_PALETTE
                 return result;
+            case BITSPIXEL:
+                return bpp;
             default:
-                Win.panic("GetDevice caps +"+nIndex+" not implemented yet.");
+                Win.panic("GetDevice caps "+nIndex+" not implemented yet.");
         }
         return 0;
+    }
+
+    public int selectClipRgn(WinRegion region) {
+        clipRegion = region;
+        if (region.rects.size() == 1)
+            return 2; // SIMPLEREGION
+        if (region.rects.size() == 0)
+            return 1; // NULLREGION
+        return 3; // COMPLEXREGION
+    }
+
+    public int fillRect(int lprc, int hbr) {
+        int color;
+        if (hbr < 64) {
+            color = WinSystem.getSystemColor(hbr - 1);
+        } else {
+            color = ((WinBrush)WinSystem.getObject(hbr)).color;
+        }
+        WinRect rect = new WinRect(lprc);
+        BufferedImage image = getImage();
+        Graphics graphics = image.getGraphics();
+        graphics.setColor(new Color(color));
+        graphics.fillRect(rect.left, rect.right, rect.width(), rect.height());
+        graphics.dispose();
+        return WinAPI.TRUE;
     }
 
     public int setBkMode(int iBkMode) {
         int old = bkMode;
         bkMode = iBkMode;
         return old;
+    }
+
+    public int getPaletteEntries(int iStartIndex, int nEntries, int lppe) {
+        if (palette != null) {
+            for (int i=0;i<nEntries;i++) {
+                Memory.mem_writed(lppe+i*4, palette[i+iStartIndex]);
+            }
+            return nEntries;
+        }
+        return 0;
     }
 
     public int setBkColor(int color) {
@@ -114,17 +160,61 @@ public class WinDC extends WinObject {
         return oldColor;
     }
 
+    public int getTextMetrics(int lptm) {
+        BufferedImage bi = getImage();
+        Graphics2D g = (Graphics2D)bi.getGraphics();
+        Font font;
+        if (this.font == null) {
+            font = g.getFont().deriveFont(16f);
+        } else {
+            font = this.font.font;
+        }
+        g.setFont(font);
+        FontMetrics metrics = g.getFontMetrics();
+        g.dispose();
+        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(font.getSize()));lptm+=4; // tmHeight - Windows defaults to 96 dpi, java uses 72
+        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(metrics.getAscent()));lptm+=4; // tmAscent
+        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(metrics.getDescent()));lptm+=4; // tmDescent
+        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(metrics.getLeading()));lptm+=4; // tmInternalLeading
+        Memory.mem_writed(lptm, 0);lptm+=4; // tmExternalLeading
+        int[] width = metrics.getWidths();
+        Arrays.sort(width);
+        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(width[200])/2);lptm+=4; // tmAveCharWidth
+        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(width[255]));lptm+=4; // tmMaxCharWidth
+        Memory.mem_writed(lptm, font.isBold()?700:400);lptm+=4; // tmWeight FW_NORMAL=400 FW_BOLD=700
+        Memory.mem_writed(lptm, 0);lptm+=4; // tmOverhang
+        Memory.mem_writed(lptm, 96);lptm+=4; // tmDigitizedAspectX
+        Memory.mem_writed(lptm, 96);lptm+=4; // tmDigitizedAspectY
+        Memory.mem_writeb(lptm, 32);lptm+=1; // tmFirstChar
+        Memory.mem_writeb(lptm, 256);lptm+=1; // tmLastChar
+        Memory.mem_writeb(lptm, 32);lptm+=1; // tmDefaultChar
+        Memory.mem_writeb(lptm, 32);lptm+=1; // tmBreakChar
+        Memory.mem_writeb(lptm, font.isItalic() ? 1 : 0);lptm+=1; // tmItalic
+        Memory.mem_writeb(lptm, 0);lptm+=1; // tmUnderlined
+        Memory.mem_writeb(lptm, 0);lptm+=1; // tmStruckOut
+        Memory.mem_writeb(lptm, 0x06);lptm+=1; // tmPitchAndFamily TMPF_FIXED_PITCH=0x01 TMPF_VECTOR=0x02 TMPF_DEVICE=0x08 TMPF_TRUETYPE=0x04
+        Memory.mem_writeb(lptm, 0);lptm+=1; // tmCharSet 0=ANSI_CHARSET
+        return WinAPI.TRUE;
+    }
+
     public int getTextExtent(String text, int lpSize) {
         BufferedImage bi = getImage();
         Graphics2D g = (Graphics2D)bi.getGraphics();
         FontRenderContext frc = g.getFontRenderContext();
-        Font font = g.getFont().deriveFont(16f);
+        Font font;
+        if (this.font == null) {
+            font = g.getFont().deriveFont(16f);
+
+        } else {
+            font = this.font.font;
+        }
         g.setFont(font);
         int sw = (int)font.getStringBounds(text, frc).getWidth();
         LineMetrics lm = font.getLineMetrics(text, frc);
         int sh = (int)(lm.getAscent() + lm.getDescent());
         Memory.mem_writed(lpSize, sw);
         Memory.mem_writed(lpSize+4, sh);
+        g.dispose();
         return WinAPI.TRUE;
     }
 
@@ -135,7 +225,13 @@ public class WinDC extends WinObject {
         BufferedImage bi = getImage();
         Graphics2D g = (Graphics2D)bi.getGraphics();
         FontRenderContext frc = g.getFontRenderContext();
-        Font font = g.getFont().deriveFont(16f);
+        Font font;
+        if (this.font == null) {
+            font = g.getFont().deriveFont(16f);
+
+        } else {
+            font = this.font.font;
+        }
         g.setFont(font);
         int sw = (int)font.getStringBounds(text, frc).getWidth();
         LineMetrics lm = font.getLineMetrics(text, frc);
@@ -149,6 +245,7 @@ public class WinDC extends WinObject {
             textOut(rect.left, rect.top, text);
         }
         System.out.println("drawText not fully implemented");
+        g.dispose();
         return sh;
     }
 
@@ -157,7 +254,12 @@ public class WinDC extends WinObject {
         Graphics2D g = (Graphics2D)bi.getGraphics();
 
         FontRenderContext frc = g.getFontRenderContext();
-        Font font = g.getFont().deriveFont(16f);
+        Font font;
+        if (this.font == null) {
+            font = g.getFont().deriveFont(16f);
+        } else {
+            font = this.font.font;
+        }
         g.setFont(font);
         int sw = (int)font.getStringBounds(text, frc).getWidth();
         LineMetrics lm = font.getLineMetrics(text, frc);
@@ -167,9 +269,10 @@ public class WinDC extends WinObject {
             g.setColor(new Color(bkColor));
             g.fillRect(x, y, sw, sh);
         }
-        g.setColor(new Color(textColor));
+        g.setColor(new Color(textColor | 0xFF000000));
         g.drawString(text, x, y+sh-(int)lm.getDescent());
         Pixel.writeImage(address, bi, bpp, width, height);
+        g.dispose();
         return WinAPI.TRUE;
     }
 
@@ -191,6 +294,12 @@ public class WinDC extends WinObject {
         if (image != null)
             writeImage(image);
         super.onFree();
+    }
+
+    public void releaseImage() {
+        if (image != null)
+            writeImage(image);
+        image = null;
     }
 
     public BufferedImage getImage() {
@@ -234,6 +343,10 @@ public class WinDC extends WinObject {
                 WinSystem.getCurrentProcess().heap.free(address);
             address = bitmap.createCompatibleCopy(bpp, palette);
             addressOwner = true;
+        } else if (gdi instanceof WinFont) {
+            font = (WinFont)gdi;
+        } else if (gdi instanceof WinRegion) {
+            clipRegion = (WinRegion)gdi;
         } else {
             Win.panic("WinDC.select was not implemented for "+gdi);
         }

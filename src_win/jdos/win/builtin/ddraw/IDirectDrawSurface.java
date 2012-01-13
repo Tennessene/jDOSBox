@@ -762,21 +762,20 @@ public class IDirectDrawSurface extends IUnknown {
                 CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
             } else {
                 int hdc = getData(This, OFFSET_DC);
-                int[] palette = null;
-                int lpDDPalette = getPalette(This);
-                if (lpDDPalette != 0) {
-                    palette = new int[256];
-                    for (int i=0;i<palette.length;i++) {
-                        palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
-                    }
-                }
                 if (hdc == 0) {
+                    int[] palette = null;
+                    int lpDDPalette = getPalette(This);
+                    if (lpDDPalette != 0) {
+                        palette = new int[256];
+                        for (int i=0;i<palette.length;i++) {
+                            palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
+                        }
+                    }
                     WinDC dc = WinSystem.createDC(null, getData(This, OFFSET_MEMORY), getWidth(This), getHeight(This), palette);
                     hdc = dc.getHandle();
                     setData(This, OFFSET_DC, hdc);
                 } else {
                     WinDC dc = (WinDC)WinSystem.getObject(hdc);
-                    dc.refresh(getData(This, OFFSET_MEMORY), getWidth(This), getHeight(This), palette);
                     dc.open();
                 }
                 Memory.mem_writed(lphDC, hdc);
@@ -938,10 +937,9 @@ public class IDirectDrawSurface extends IUnknown {
                 CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
             } else {
                 WinDC dc = (WinDC)WinSystem.getObject(hDC);
-                dc.releaseImage(); // write cached data back to memory
+                dc.close();
                 unlock(This);
-                // :TODO: not sure if I should cache this or delete it, previously select object would be removed
-                //setData(This, OFFSET_DC, 0);
+                setData(This, OFFSET_DC, 0);
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
         }

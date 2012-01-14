@@ -11,8 +11,11 @@ import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.directx.DirectCallback;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.Module;
+import jdos.win.system.WinDC;
+import jdos.win.system.WinObject;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.*;
+import jdos.win.utils.Pixel;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

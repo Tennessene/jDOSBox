@@ -8,10 +8,10 @@ import jdos.win.Win;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 import jdos.win.loader.winpe.LittleEndianFile;
-import jdos.win.utils.WinMCI;
-import jdos.win.utils.WinMidi;
-import jdos.win.utils.WinObject;
-import jdos.win.utils.WinSystem;
+import jdos.win.system.WinMCI;
+import jdos.win.system.WinMidi;
+import jdos.win.system.WinObject;
+import jdos.win.system.WinSystem;
 
 import java.io.File;
 

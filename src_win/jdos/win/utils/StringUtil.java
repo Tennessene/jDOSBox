@@ -3,6 +3,7 @@ package jdos.win.utils;
 import jdos.cpu.CPU;
 import jdos.hardware.Memory;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.WinSystem;
 
 import java.util.Vector;
 
@@ -292,7 +293,7 @@ public class StringUtil {
     }
     static public void strcpy(int address, int src) {
         int len =strlenA(src);
-        Memory.mem_memcpy(address, src, len+1);
+        Memory.mem_memcpy(address, src, len + 1);
     }
     static public void strncpy(int address, String value, int count) {
         byte[] b = value.getBytes();

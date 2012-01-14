@@ -4,11 +4,14 @@ import jdos.hardware.Memory;
 import jdos.win.Win;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 
 public class Pixel {
     static public int getPitch(int width, int bpp) {
-        return ((width * ((bpp + 7) / 8) + 3) / 4) * 4;
+        if (bpp>=8)
+            return ((width * ((bpp + 7) / 8) + 3) / 4) * 4;
+        return (((width * bpp / 8) + 3) / 4) * 4;
     }
 
     private static BufferedImage imageToBufferedImage(Image image) {
@@ -41,6 +44,50 @@ public class Pixel {
 
         ImageProducer ip = new FilteredImageSource(im.getSource(), filter);
         return imageToBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
+    }
+
+    static public BufferedImage flipVertically(BufferedImage image) {
+        AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+        tx.translate(0, -image.getHeight());
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        return op.filter(image, null);
+    }
+
+    static public BufferedImage createImage(byte[] bits, int bpp, boolean alpha, int[] srcPalette, int width, int height, boolean flip) {
+        IndexColorModel cm = null;
+        byte[] pixels = new byte[width * height];
+        int pitch = getPitch(width, bpp);
+        BufferedImage image = null;
+        if (srcPalette != null && bpp<=8) {
+            byte[] r = new byte[srcPalette.length];
+            byte[] g = new byte[srcPalette.length];
+            byte[] b = new byte[srcPalette.length];
+            byte[] a = new byte[srcPalette.length];
+
+            for (int i=0;i<srcPalette.length;i++) {
+                r[i] = (byte)srcPalette[i];
+                g[i] = (byte)(srcPalette[i] >> 8);
+                b[i] = (byte)(srcPalette[i] >> 16);
+                a[i] = (byte)(srcPalette[i] >>> 24);
+            }
+            if (alpha)
+                cm = new IndexColorModel(bpp, srcPalette.length, r, g, b, a);
+            else
+                cm = new IndexColorModel(bpp, srcPalette.length, r, g, b);
+
+            if (width != pitch*8/bpp) {
+                Win.panic("createImage unaligned image width not test");
+            }
+            DataBuffer dataBuffer = new DataBufferByte(bits, bits.length);
+            WritableRaster raster = WritableRaster.createPackedRaster(dataBuffer, width, height, bpp, null);
+            image = new BufferedImage(cm, raster, false, null);
+        } else {
+            Win.panic("createImage with byte buffer has not been implemented for "+bpp+"bpp");
+        }
+        if (flip)
+            image = flipVertically(image);
+        // Main.drawImage(image);try {Thread.sleep(1000*5);} catch (Exception e) {}
+        return image;
     }
 
     static public BufferedImage createImage(int src, int srcBpp, int[] srcPalette, int width, int height, boolean flip) {

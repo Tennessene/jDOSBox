@@ -12,10 +12,10 @@ import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
+import jdos.win.system.WinProcess;
+import jdos.win.system.WinSystem;
+import jdos.win.system.WinThread;
 import jdos.win.utils.Path;
-import jdos.win.utils.WinProcess;
-import jdos.win.utils.WinSystem;
-import jdos.win.utils.WinThread;
 
 import java.io.IOException;
 import java.util.Enumeration;

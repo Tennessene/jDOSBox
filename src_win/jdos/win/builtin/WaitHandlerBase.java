@@ -2,7 +2,7 @@ package jdos.win.builtin;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
-import jdos.win.utils.WinSystem;
+import jdos.win.system.WinSystem;
 
 public abstract class WaitHandlerBase extends HandlerBase {
     private int eip;

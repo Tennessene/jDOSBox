@@ -9,7 +9,7 @@ import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
-import jdos.win.utils.WinSystem;
+import jdos.win.system.WinSystem;
 
 import java.util.Hashtable;
 import java.util.Vector;

@@ -1,7 +1,7 @@
 package jdos.win.kernel;
 
-import jdos.win.utils.WinProcess;
-import jdos.win.utils.WinSystem;
+import jdos.win.system.WinProcess;
+import jdos.win.system.WinSystem;
 
 public class VideoMemory {
     static public int SIZE = 0; // MB
@@ -10,7 +10,7 @@ public class VideoMemory {
         int frame = WinSystem.memory.frames.length*32;
         long address = WinSystem.getCurrentProcess().addressSpace.getNextAddress(WinProcess.ADDRESS_VIDEO_START, amount, true);
         WinSystem.getCurrentProcess().addressSpace.alloc(address, amount);
-        frame += (address-WinProcess.ADDRESS_VIDEO_START + 0xFFF) >>> 12;
+        frame += (address- WinProcess.ADDRESS_VIDEO_START + 0xFFF) >>> 12;
         int directory = WinSystem.getCurrentProcess().page_directory;
         for (long i=address;i<address+amount;i+=0x1000) {
             int pagePtr = WinSystem.memory.get_page((int)i, true, directory);

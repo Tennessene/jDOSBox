@@ -2,7 +2,7 @@ package jdos.win.kernel;
 
 import jdos.cpu.Callback;
 import jdos.hardware.IO;
-import jdos.win.utils.WinSystem;
+import jdos.win.system.WinSystem;
 
 public class Timer {
     public Timer(int frequency) {

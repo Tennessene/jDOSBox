@@ -12,8 +12,9 @@ import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.*;
 import jdos.win.utils.Error;
-import jdos.win.utils.*;
+import jdos.win.utils.StringUtil;
 
 import javax.swing.*;
 
@@ -575,7 +576,7 @@ public class User32 extends BuiltinModule {
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
             } else {
                 System.out.println(getName()+" faked");
-                CPU_Regs.reg_eax.dword = ((WinWindow)object).isVisible();
+                CPU_Regs.reg_eax.dword = ((WinWindow)object).isVisible()?WinAPI.TRUE:WinAPI.FALSE;
             }
         }
     };
@@ -946,10 +947,7 @@ public class User32 extends BuiltinModule {
         }
         public void onCall() {
             int hCursor = CPU.CPU_Pop32();
-            if (hCursor != 0) {
-                System.out.println(getName()+" faked");
-            }
-            CPU_Regs.reg_eax.dword = 0;
+            CPU_Regs.reg_eax.dword = WinSystem.setCursor(hCursor);
         }
     };
 
@@ -1065,12 +1063,7 @@ public class User32 extends BuiltinModule {
         }
         public void onCall() {
             int bShow = CPU.CPU_Pop32();
-            if (bShow != 0) {
-                Console.out("ShowCursor(TRUE) not implemented yet");
-                notImplemented();
-            } else {
-                CPU_Regs.reg_eax.dword = -1;
-            }
+            CPU_Regs.reg_eax.dword = WinSystem.showCursor(bShow!=0);
         }
     };
 

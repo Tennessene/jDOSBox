@@ -10,8 +10,8 @@ import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.WinSystem;
 
 public class Version extends BuiltinModule {
     public Version(Loader loader, int handle) {

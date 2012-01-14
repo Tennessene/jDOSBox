@@ -5,9 +5,9 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
-import jdos.win.utils.WinObject;
-import jdos.win.utils.WinSystem;
-import jdos.win.utils.WinWindow;
+import jdos.win.system.WinObject;
+import jdos.win.system.WinSystem;
+import jdos.win.system.WinWindow;
 
 public class Imm32 extends BuiltinModule {
     public Imm32(Loader loader, int handle) {

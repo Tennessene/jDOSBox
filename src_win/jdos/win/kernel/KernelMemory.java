@@ -5,7 +5,7 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.win.Win;
-import jdos.win.utils.WinProcess;
+import jdos.win.system.WinProcess;
 
 // Based heavily on James Molloy's work at http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html
 

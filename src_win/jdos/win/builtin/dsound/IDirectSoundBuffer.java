@@ -8,8 +8,8 @@ import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.ddraw.IUnknown;
 import jdos.win.builtin.directx.DirectCallback;
 import jdos.win.kernel.WinCallback;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.WinSystem;
 
 public class IDirectSoundBuffer extends IUnknown {
     static final int VTABLE_SIZE = 18;

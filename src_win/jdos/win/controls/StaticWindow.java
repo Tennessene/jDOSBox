@@ -5,10 +5,10 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.kernel.WinCallback;
-import jdos.win.utils.WinClass;
-import jdos.win.utils.WinProcess;
-import jdos.win.utils.WinSystem;
-import jdos.win.utils.WinWindow;
+import jdos.win.system.WinClass;
+import jdos.win.system.WinProcess;
+import jdos.win.system.WinSystem;
+import jdos.win.system.WinWindow;
 
 public class StaticWindow {
     static public void registerClass(WinProcess process) {
@@ -34,7 +34,7 @@ public class StaticWindow {
     };
 
     static public int defWindowProc(int hWnd, int msg, int wParam, int lParam) {
-        WinWindow window = (WinWindow)WinSystem.getObject(hWnd);
+        WinWindow window = (WinWindow) WinSystem.getObject(hWnd);
         return window.defWindowProc(msg, wParam, lParam);
     }
 }

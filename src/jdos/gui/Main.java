@@ -156,6 +156,10 @@ public class Main {
         }
     }
 
+    static public void GFX_SetCursor(Cursor cursor) {
+        gui.setCursor(cursor);
+    }
+
     static public class MouseEvent2 extends MouseEvent {
         public int rel_x;
         public int rel_y;
@@ -257,8 +261,22 @@ public class Main {
     static public void addKeyEvent(KeyEvent key) {
         if (defaultKeyboardHandler != null)
             defaultKeyboardHandler.handle(key);
-        events.add(key);
+        else
+            events.add(key);
     }
+
+    static public interface MouseHandler {
+        public void handle(MouseEvent event);
+    }
+    static public MouseHandler defaultMouseHandler;
+
+    static public void addMouseEvent(MouseEvent event) {
+        if (defaultMouseHandler != null)
+            defaultMouseHandler.handle(event);
+        else
+            events.add(event);
+    }
+
     static public void handle(KeyEvent key) {
         int result;
 

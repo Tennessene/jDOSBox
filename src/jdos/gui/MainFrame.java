@@ -34,13 +34,13 @@ public class MainFrame implements GUI {
             return;
         }
         if (!Main.mouse_locked || robot == null)
-            Main.addEvent(new Main.MouseEvent1(e, offX, offY));
+            Main.addMouseEvent(new Main.MouseEvent1(e, offX, offY));
         else {
             int rel_x = e.getX() - last_x - offX;
             int rel_y = e.getY() - last_y - offY;
             float abs_x = (Mouse.mouse.x+rel_x*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_x);
             float abs_y = (Mouse.mouse.y+rel_y*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_y);
-            Main.addEvent(new Main.MouseEvent2(e,rel_x, rel_y, abs_x, abs_y, offX, offY));
+            Main.addMouseEvent(new Main.MouseEvent2(e,rel_x, rel_y, abs_x, abs_y, offX, offY));
             robotCenter(rel);
         }
     }
@@ -60,6 +60,12 @@ public class MainFrame implements GUI {
         else
             frame.setCursor(transparentCursor);
     }
+    public void setCursor(Cursor cursor) {
+        if (cursor == null)
+            cursor = transparentCursor;
+        frame.setCursor(cursor);
+    }
+
     static private boolean fullscreen = false;
     static private int fullscreen_cx = 0;
     static private int fullscreen_cy = 0;
@@ -302,11 +308,11 @@ public class MainFrame implements GUI {
         }
 
         public void mousePressed(MouseEvent e) {
-            Main.addEvent(e);
+            Main.addMouseEvent(e);
         }
 
         public void mouseReleased(MouseEvent e) {
-            Main.addEvent(e);
+            Main.addMouseEvent(e);
         }
 
         public void mouseEntered(MouseEvent e) {

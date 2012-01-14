@@ -6,8 +6,8 @@ import jdos.cpu.Callback;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.loader.Module;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.WinSystem;
 
 abstract public class HandlerBase implements Callback.Handler {
     protected static boolean defaultLog;

@@ -9,8 +9,8 @@ import jdos.win.Win;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.*;
 import jdos.win.utils.Error;
-import jdos.win.utils.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -90,7 +90,7 @@ public class Gdi32 extends BuiltinModule {
             int size = 12;
             if (nHeight != 0)
                 size = Math.abs(nHeight);
-            size = size * 96 / 72; // Windows defaults to 96 dpi, java uses 72
+            size = WinFont.WIN_TO_JAVA(size);
             Font font = null;
             if (fontName != null) {
                 font = new Font(fontName, style, size);
@@ -106,9 +106,10 @@ public class Gdi32 extends BuiltinModule {
             if (font == null) {
                 Win.panic(getName()+" unable to create font");
             }
+            int result = WinSystem.createFont(font).getHandle();
             if (LOG)
-                log(size+" "+fontName);
-            return WinSystem.createFont(font).getHandle();
+                log("handle="+result+" "+size+" "+fontName);
+            return result;
         }
     }
 
@@ -529,7 +530,7 @@ public class Gdi32 extends BuiltinModule {
             WinGDI gdi = (WinGDI)object;
             CPU_Regs.reg_eax.dword = dc.select(gdi);
             if (LOG)
-                log(gdi.toString());
+                log("handle="+hgdiobj+" "+gdi.toString());
         }
     };
 

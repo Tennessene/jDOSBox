@@ -8,8 +8,8 @@ import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.loader.Module;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.WinSystem;
 
 public class IDirectDraw extends IUnknown {
     static final int DDSCL_FULLSCREEN = 0x00000001;

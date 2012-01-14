@@ -7,8 +7,8 @@ import jdos.hardware.Memory;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.WinSystem;
 
 public class Advapi32 extends BuiltinModule {
     public class Sid {

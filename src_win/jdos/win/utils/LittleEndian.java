@@ -9,6 +9,10 @@ public class LittleEndian {
         this.pos = 0;
     }
 
+    public void seek(int pos) {
+        this.pos = pos;
+    }
+
     public void read(byte[] b) {
         System.arraycopy(buffer, pos, b, 0, b.length);
         pos+=b.length;

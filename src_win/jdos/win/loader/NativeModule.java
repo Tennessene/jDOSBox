@@ -11,8 +11,8 @@ import jdos.util.StringRef;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.*;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Path;
-import jdos.win.utils.WinSystem;
 
 import java.io.ByteArrayOutputStream;
 import java.io.RandomAccessFile;

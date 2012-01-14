@@ -6,8 +6,8 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.kernel.WinCallback;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.WinSystem;
 
 import java.util.Hashtable;
 

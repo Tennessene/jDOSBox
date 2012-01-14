@@ -7,8 +7,8 @@ import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.loader.Module;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.WinSystem;
 
 public class IDirectDrawPalette extends IUnknown {
     static final private int DDPCAPS_4BIT =                 0x00000001;

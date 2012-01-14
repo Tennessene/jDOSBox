@@ -14,8 +14,11 @@ import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.*;
 import jdos.win.utils.Error;
-import jdos.win.utils.*;
+import jdos.win.utils.Locale;
+import jdos.win.utils.StringUtil;
+import jdos.win.utils.Unicode;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -197,7 +200,7 @@ public class Kernel32 extends BuiltinModule {
                 object.close();
             } else if (object instanceof WinThread) {
                 object.close();
-            } else if (object instanceof FileMapping) {
+            } else if (object instanceof WinFileMapping) {
                 object.close();
             } else if (object instanceof WinFile) {
                 object.close();
@@ -377,8 +380,8 @@ public class Kernel32 extends BuiltinModule {
             if (name != null) {
                 WinObject object = WinSystem.getNamedObject(name);
                 if (object != null) {
-                    if (object instanceof FileMapping) {
-                        FileMapping mapping = (FileMapping)object;
+                    if (object instanceof WinFileMapping) {
+                        WinFileMapping mapping = (WinFileMapping)object;
                         CPU_Regs.reg_eax.dword = mapping.handle;
                         WinSystem.getCurrentThread().setLastError(Error.ERROR_ALREADY_EXISTS);
                         return;
@@ -388,7 +391,7 @@ public class Kernel32 extends BuiltinModule {
                     return;
                 }
             }
-            FileMapping mapping = WinSystem.createFileMapping(hFile, name, sizeLow | (((long)sizeHigh)<<32));
+            WinFileMapping mapping = WinSystem.createFileMapping(hFile, name, sizeLow | (((long)sizeHigh)<<32));
             CPU_Regs.reg_eax.dword = mapping.handle;
             if (LOG)
                 log("hFile="+hFile+(hFile>0?"("+((WinFile)WinSystem.getObject(hFile)).name+")":"")+" name="+name+" result="+CPU_Regs.reg_eax.dword);
@@ -2432,12 +2435,12 @@ public class Kernel32 extends BuiltinModule {
             int dwFileOffsetLow = CPU.CPU_Pop32();
             int dwNumberOfBytesToMap = CPU.CPU_Pop32();
             WinObject object = WinSystem.getObject(hFileMappingObject);
-            if (object == null || !(object instanceof FileMapping)) {
+            if (object == null || !(object instanceof WinFileMapping)) {
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
                 CPU_Regs.reg_eax.dword = 0;
                 return;
             }
-            FileMapping mapping = (FileMapping)object;
+            WinFileMapping mapping = (WinFileMapping)object;
 
             CPU_Regs.reg_eax.dword = mapping.map((int)(dwFileOffsetLow | (long)dwFileOffsetHigh << 32), dwNumberOfBytesToMap, (dwDesiredAccess & 0x02) != 0);
             if (LOG)
@@ -2858,7 +2861,7 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             int lpBaseAddress = CPU.CPU_Pop32();
-            CPU_Regs.reg_eax.dword = FileMapping.unmap(lpBaseAddress)?WinAPI.TRUE:WinAPI.FALSE;
+            CPU_Regs.reg_eax.dword = WinFileMapping.unmap(lpBaseAddress)?WinAPI.TRUE:WinAPI.FALSE;
         }
     };
 

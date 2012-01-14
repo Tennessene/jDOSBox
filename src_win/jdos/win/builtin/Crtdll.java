@@ -8,8 +8,8 @@ import jdos.hardware.Memory;
 import jdos.util.MicroDouble;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.StringUtil;
-import jdos.win.utils.WinSystem;
 
 import java.util.Random;
 

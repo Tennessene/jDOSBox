@@ -13,9 +13,11 @@ import jdos.misc.setup.Section;
 import jdos.util.StringRef;
 import jdos.win.kernel.VideoMemory;
 import jdos.win.loader.winpe.HeaderPE;
+import jdos.win.system.WinCursor;
+import jdos.win.system.WinKeyboard;
+import jdos.win.system.WinMouse;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Path;
-import jdos.win.utils.WinKeyboard;
-import jdos.win.utils.WinSystem;
 
 import java.util.Vector;
 
@@ -102,7 +104,7 @@ public class Win {
 
         Keyboard.KEYBOARD_ShutDown.call(null);
         Main.defaultKeyboardHandler = WinKeyboard.defaultKeyboardHandler;
-
+        Main.defaultMouseHandler = WinMouse.defaultMouseHandler;
         CPU.cpu.code.big = true;
 
         CPU.CPU_SetSegGeneralCS(0);
@@ -114,10 +116,11 @@ public class Win {
 
         CPU.CPU_SET_CRX(0, CPU.cpu.cr0 |= CPU.CR0_PROTECTION);
         CPU.cpu.pmode = true;
-        CPU.Segs_CSval = 0x08;
+        CPU.Segs_CSval = 0x08; // run in kernel mode
 
+        Main.GFX_SetCursor(WinCursor.loadSystemCursor(32650)); // IDC_APPSTARTING
         WinSystem.start();
-        if (WinSystem.createProcess(name, "\""+winPath+name+"\"", paths, winPath) != null) {
+        if (WinSystem.createProcess(name, "\"" + winPath + name + "\"", paths, winPath) != null) {
             return true;
         }
         return true;

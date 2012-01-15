@@ -12,6 +12,7 @@ import jdos.win.system.WinMCI;
 import jdos.win.system.WinMidi;
 import jdos.win.system.WinObject;
 import jdos.win.system.WinSystem;
+import jdos.win.utils.StringUtil;
 
 import java.io.File;
 
@@ -20,6 +21,7 @@ public class WinMM extends BuiltinModule {
         super(loader, "WinMM.dll", handle);
         add(mciSendCommandA);
         add(mixerGetNumDevs);
+        add(mmioOpenA);
         add(timeGetTime);
     }
 
@@ -101,6 +103,22 @@ public class WinMM extends BuiltinModule {
                     }
                 }
                 break;
+                case 0x804: // MCI_CLOSE
+                {
+                     WinObject object = WinSystem.getObject(IDDevice);
+                    if (object == null || !(object instanceof WinMCI)) {
+
+                    } else {
+                        int dwCallback = 0;
+                        if ((fdwCommand & MCI_NOTIFY)!=0)
+                            dwCallback = Memory.mem_readd(dwParam);
+                        ((WinMCI)object).close(dwCallback, (fdwCommand & MCI_WAIT)!=0);
+                        CPU_Regs.reg_eax.dword = 0;
+                        object.close();
+                        return;
+                    }
+                }
+                break;
                 case 0x806: // MCI_PLAY
                 {
                     WinObject object = WinSystem.getObject(IDDevice);
@@ -114,14 +132,31 @@ public class WinMM extends BuiltinModule {
                         if ((fdwCommand & MCI_NOTIFY)!=0)
                             dwCallback = Memory.mem_readd(dwParam);
                         if ((fdwCommand & MCI_FROM)!=0)
-                            dwFrom = Memory.mem_readd(dwParam);
+                            dwFrom = Memory.mem_readd(dwParam+4);
                         if ((fdwCommand & MCI_TO)!=0)
-                            dwTo = Memory.mem_readd(dwParam);
+                            dwTo = Memory.mem_readd(dwParam+8);
                         ((WinMCI)object).play(dwFrom, dwTo, dwCallback, (fdwCommand & MCI_WAIT)!=0);
                         CPU_Regs.reg_eax.dword = 0;
                         return;
                     }
                 }
+                break;
+                case 0x808: // MCI_STOP
+                {
+                    WinObject object = WinSystem.getObject(IDDevice);
+                    if (object == null || !(object instanceof WinMCI)) {
+
+                    } else {
+                        int dwCallback = 0;
+                        if ((fdwCommand & MCI_NOTIFY)!=0)
+                            dwCallback = Memory.mem_readd(dwParam);
+                        ((WinMCI)object).stop(dwCallback, (fdwCommand & MCI_WAIT)!=0);
+                        CPU_Regs.reg_eax.dword = 0;
+                        return;
+                    }
+                }
+                break;
+
             }
             Win.panic(getName()+" unhanded uMsg=0x"+Integer.toString(uMsg, 16)+" fdwCommand=0x"+Integer.toString(fdwCommand, 16));
             CPU_Regs.reg_eax.dword = 1; // error
@@ -140,6 +175,38 @@ public class WinMM extends BuiltinModule {
         }
     };
 
+    // HMMIO mmioOpen(LPTSTR szFilename, LPMMIOINFO lpmmioinfo, DWORD dwOpenFlags)
+    private Callback.Handler mmioOpenA = new ReturnHandlerBase() {
+        public java.lang.String getName() {
+            return "WinMM.mmioOpenA";
+        }
+        public int processReturn() {
+            int szFilename = CPU.CPU_Pop32();
+            int lpmmioinfo = CPU.CPU_Pop32();
+            int dwOpenFlags = CPU.CPU_Pop32();
+            String name = null;
+
+            if (szFilename != 0)
+                name = StringUtil.getString(szFilename);
+            if (lpmmioinfo != 0) {
+                Win.panic(getName()+" does not support lpmmioinfo yet");
+            }
+            if (dwOpenFlags == 0 || (dwOpenFlags & 0x00010000)!=0) { // MMIO_ALLOCBUF
+                File file = WinSystem.getCurrentProcess().getFile(name);
+                if (file.exists()) {
+                    try {
+                        return 0;//WinSystem.createFile(name, new RandomAccessFile(file, "r"), 0, 0).getHandle();
+                    } catch (Exception e) {
+                    }
+                } else {
+                    return 0;
+                }
+            }
+            Win.panic(getName()+" does not fully implemented yet");
+            return 0;
+        }
+    };
+
     // DWORD timeGetTime(void)
     private Callback.Handler timeGetTime = new HandlerBase() {
         public java.lang.String getName() {
@@ -147,6 +214,7 @@ public class WinMM extends BuiltinModule {
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = WinSystem.getTickCount();
+            defaultLog = false;
         }
     };
 }

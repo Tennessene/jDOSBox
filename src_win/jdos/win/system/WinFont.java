@@ -15,10 +15,10 @@ public class WinFont extends WinGDI {
     }
 
     static public int JAVA_TO_WIN(int size) {
-        return size * 96 / 72;
+        return size;// * 96 / 72;
     }
 
     static public int WIN_TO_JAVA(int size) {
-        return size * 72 / 96;
+        return size;// * 72 / 96;
     }
 }

@@ -17,6 +17,22 @@ public class WinMidi extends WinMCI {
         sequencer.start();
     }
 
+    public void stop(int hWndCallback, boolean wait) {
+        if (sequencer != null)
+            sequencer.stop();
+        hWnd = hWndCallback;
+        if (hWnd != 0)
+            sendNotification(MCI_NOTIFY_SUCCESSFUL);
+    }
+
+    public void close(int hWndCallback, boolean wait) {
+        if (sequencer != null)
+            sequencer.close();
+        hWnd = hWndCallback;
+        if (hWnd != 0)
+            sendNotification(MCI_NOTIFY_SUCCESSFUL);
+    }
+
     public boolean setFile(File file) {
         this.file = file;
         try {

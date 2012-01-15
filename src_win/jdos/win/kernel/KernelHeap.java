@@ -1,5 +1,6 @@
 package jdos.win.kernel;
 
+import jdos.hardware.Memory;
 import jdos.win.Win;
 
 import java.util.ArrayList;
@@ -262,5 +263,26 @@ public class KernelHeap {
         } else {
             insertItem(item);
         }
+    }
+
+    public int size(int address) {
+        HeapItem item = (HeapItem)usedMemory.get(new Long(address));
+        if (item != null)
+            return item.size;
+        return 0;
+    }
+
+    public int realloc(int address, int size, boolean zeroNewMemory) {
+        int result = alloc(size, false);
+        int oldSize = size(address);
+        if (size>oldSize) {
+            Memory.mem_memcpy(result, address, oldSize);
+            if (zeroNewMemory)
+                Memory.mem_zero(result+oldSize, size-oldSize);
+        } else {
+            Memory.mem_memcpy(result, address, size);
+        }
+        free(address);
+        return result;
     }
 }

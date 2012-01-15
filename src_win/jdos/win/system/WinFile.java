@@ -8,6 +8,11 @@ import java.io.FileFilter;
 import java.io.RandomAccessFile;
 
 public class WinFile extends WinObject {
+    public final static int FILE_SHARE_NONE = 0x0;
+    public final static int FILE_SHARE_READ = 0x1;
+    public final static int FILE_SHARE_WRITE = 0x2;
+    public final static int FILE_SHARE_DELETE = 0x4;
+
     public static class WildCardFileFilter implements FileFilter {
         String begin;
         String end;
@@ -101,10 +106,12 @@ public class WinFile extends WinObject {
         try {
             if (from == 0) // FILE_BEGIN
                 file.seek(pos);
-            else if (from == 1) //
+            else if (from == 1) // FILE_CURRENT
                 file.skipBytes((int)pos);
             else if (from == 2) // FILE_END
                 file.seek(file.length()-pos);
+            else
+                Win.panic("WinFile.seek unknown from: "+from);
             return file.getFilePointer();
         } catch (Exception e) {
             return -1;
@@ -122,6 +129,16 @@ public class WinFile extends WinObject {
         }
     }
 
+    public int write(int buffer, int size) {
+        try {
+            byte[] buf = new byte[size];
+            Memory.mem_memcpy(buf, 0, buffer, size);
+            file.write(buf);
+            return size;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
     protected void onFree() {
         try {
             file.close();

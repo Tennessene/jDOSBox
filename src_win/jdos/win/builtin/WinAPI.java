@@ -21,4 +21,5 @@ public class WinAPI {
 
     static final public String SYSTEM32_PATH = "C:\\Windows\\System32\\";
     static final public String WIN32_PATH = "C:\\WINDOWS";
+    static final public String TEMP_PATH = "C:\\WINDOWS\\TEMP\\";
 }

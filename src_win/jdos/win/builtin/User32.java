@@ -35,6 +35,7 @@ public class User32 extends BuiltinModule {
         add(FindWindowA);
         add(GetCapture);
         add(GetClientRect);
+        add(GetCursorPos);
         add(GetDC);
         add(GetForegroundWindow);
         add(GetKeyState);
@@ -65,6 +66,7 @@ public class User32 extends BuiltinModule {
         add(SetCapture);
         add(SetClassLongA);
         add(SetCursor);
+        add(SetCursorPos);
         add(SetFocus);
         add(SetMenuItemInfoA);
         add(SetRect);
@@ -208,7 +210,7 @@ public class User32 extends BuiltinModule {
                 CPU_Regs.reg_eax.dword = 0;
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_CANNOT_FIND_WND_CLASS);
             }
-            CPU_Regs.reg_eax.dword = WinSystem.createWindow(dwExStyle, winClass, name, dwStyle, 0, 0, WinSystem.screenWidth, WinSystem.screenHeight, hWndParent, hMenu, hInstance, lpParam).getHandle();
+            CPU_Regs.reg_eax.dword = WinSystem.createWindow(dwExStyle, winClass, name, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam).getHandle();
         }
     };
 
@@ -228,6 +230,7 @@ public class User32 extends BuiltinModule {
             }
             WinWindow wnd = (WinWindow)object;
             CPU_Regs.reg_eax.dword = wnd.defWindowProc(Msg, wParam, lParam);
+            defaultLog = false;
         }
     };
 
@@ -264,6 +267,7 @@ public class User32 extends BuiltinModule {
                 WinObject object = WinSystem.getObject(hWnd);
                 if (object instanceof WinWindow) {
                     WinWindow window = (WinWindow)object;
+                    System.out.println(getName()+" msg="+Memory.mem_readd(lpmsg+4));
                     CPU_Regs.reg_eax.dword = window.sendMessage(Memory.mem_readd(lpmsg+4), Memory.mem_readd(lpmsg+8), Memory.mem_readd(lpmsg+12));
                     return;
                 }
@@ -378,6 +382,19 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI GetCursorPos(LPPOINT lpPoint)
+    private Callback.Handler GetCursorPos = new ReturnHandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetCursorPos";
+        }
+        public int processReturn() {
+            int lpPoint = CPU.CPU_Pop32();
+            Memory.mem_writed(lpPoint, WinMouse.currentPos.x);
+            Memory.mem_writed(lpPoint+4, WinMouse.currentPos.y);
+            return WinAPI.TRUE;
+        }
+    };
+
     // HDC GetDC(HWND hWnd)
     private Callback.Handler GetDC = new HandlerBase() {
         public java.lang.String getName() {
@@ -478,6 +495,7 @@ public class User32 extends BuiltinModule {
             int wMsgFilterMin = CPU.CPU_Pop32();
             int wMsgFilterMax = CPU.CPU_Pop32();
             int result = WinSystem.getCurrentThread().getNextMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
+            defaultLog = false;
             if (result == -2) {
                 // :TODO: figure a way to put the thread to sleep until we get input?
                 return 1; // just yield, don't remove this thread from scheduling
@@ -557,7 +575,6 @@ public class User32 extends BuiltinModule {
                 CPU_Regs.reg_eax.dword = 0;
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
             } else {
-                System.out.println(getName()+" faked");
                 CPU_Regs.reg_eax.dword = ((WinWindow)object).isIconic();
             }
         }
@@ -951,6 +968,20 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // BOOL WINAPI SetCursorPos(int X, int Y)
+    private Callback.Handler SetCursorPos = new ReturnHandlerBase() {
+        public java.lang.String getName() {
+            return "User32.SetCursorPos";
+        }
+        public int processReturn() {
+            int X = CPU.CPU_Pop32();
+            int Y = CPU.CPU_Pop32();
+            WinMouse.currentPos.x = X;
+            WinMouse.currentPos.y = Y;
+            return WinAPI.TRUE;
+        }
+    };
+
     // HWND WINAPI SetFocus(HWND hWnd)
     private Callback.Handler SetFocus = new HandlerBase() {
         public java.lang.String getName() {
@@ -1139,6 +1170,7 @@ public class User32 extends BuiltinModule {
             } else {
                 CPU_Regs.reg_eax.dword = WinAPI.FALSE;
             }
+            defaultLog = false;
         }
     };
 

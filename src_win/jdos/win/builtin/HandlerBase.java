@@ -11,6 +11,7 @@ import jdos.win.utils.Error;
 
 abstract public class HandlerBase implements Callback.Handler {
     protected static boolean defaultLog;
+    protected static boolean newLine = false;
 
     boolean resetError = true;
     public HandlerBase() {
@@ -21,8 +22,10 @@ abstract public class HandlerBase implements Callback.Handler {
     public int call() {
         if (resetError)
             WinSystem.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
-        if (Module.LOG)
+        if (Module.LOG) {
             defaultLog = true;
+            newLine = false;
+        }
         if (preCall()) {
             CPU_Regs.reg_eip = CPU.CPU_Pop32();
             onCall();
@@ -30,6 +33,8 @@ abstract public class HandlerBase implements Callback.Handler {
         if (Module.LOG) {
             if (defaultLog)
                 System.out.println(Integer.toHexString(CPU_Regs.reg_eip)+": "+getName());
+            else if (newLine)
+                System.out.println();
         }
         return 0;
     }
@@ -47,8 +52,12 @@ abstract public class HandlerBase implements Callback.Handler {
     }
 
     protected void log(String msg) {
-        defaultLog = false;
-        System.out.println(Integer.toString(CPU_Regs.reg_eip, 16)+": "+getName()+" "+msg);
+        if (defaultLog) {
+            defaultLog = false;
+            System.out.print(Integer.toString(CPU_Regs.reg_eip, 16)+": "+getName()+" ");
+        }
+        newLine = true;
+        System.out.print(msg);
     }
 
     protected void dumpRegs() {

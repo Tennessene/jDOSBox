@@ -31,6 +31,7 @@ public class WinDC extends WinObject {
     int bkMode = OPAQUE;
     BufferedImage image;
     WinRegion clipRegion = null;
+    WinPen pen = null;
 
     public WinDC(int handle, int bpp, int address, int width, int height, int[] palette) {
         super(handle);
@@ -219,9 +220,36 @@ public class WinDC extends WinObject {
         return WinAPI.TRUE;
     }
 
+    static final int DT_TOP =             0x00000000;
+    static final int DT_LEFT =            0x00000000;
+    static final int DT_CENTER =          0x00000001;
+    static final int DT_RIGHT =           0x00000002;
+    static final int DT_VCENTER =         0x00000004;
+    static final int DT_BOTTOM =          0x00000008;
+    static final int DT_WORDBREAK =       0x00000010;
+    static final int DT_SINGLELINE =      0x00000020;
+    static final int DT_EXPANDTABS =      0x00000040;
+    static final int DT_TABSTOP =         0x00000080;
+    static final int DT_NOCLIP =          0x00000100;
+    static final int DT_EXTERNALLEADING = 0x00000200;
+    static final int DT_CALCRECT =        0x00000400;
+    static final int DT_NOPREFIX =        0x00000800;
+    static final int DT_INTERNAL =        0x00001000;
+    static final int DT_EDITCONTROL =     0x00002000;
+    static final int DT_PATH_ELLIPSIS =   0x00004000;
+    static final int DT_END_ELLIPSIS =    0x00008000;
+    static final int DT_MODIFYSTRING =    0x00010000;
+    static final int DT_RTLREADING =      0x00020000;
+    static final int DT_WORD_ELLIPSIS =   0x00040000;
+
     public int drawText(int pText, int count, int pRect, int flags) {
         WinRect rect = new WinRect(pRect);
-        String text = new LittleEndianFile(pText).readCString(count);
+        String text;
+
+        if (count == -1)
+            text = new LittleEndianFile(pText).readCString();
+        else
+            text = new LittleEndianFile(pText).readCString(count);
 
         BufferedImage bi = getImage();
         Graphics2D g = (Graphics2D)bi.getGraphics();
@@ -238,13 +266,18 @@ public class WinDC extends WinObject {
         LineMetrics lm = font.getLineMetrics(text, frc);
         int sh = (int)(lm.getAscent() + lm.getDescent());
 
-        if ((flags & 0x1)!=0) { // DT_CENTER
-            int x = (rect.right-rect.left)/2 - sw/2;
-            int y = rect.top;
-            textOut(x, y, text);
-        } else {
-            textOut(rect.left, rect.top, text);
+        int x = rect.left;
+        int y = rect.top;
+        if ((flags & DT_CENTER)!=0) {
+            x = (rect.right-rect.left)/2 - sw/2;
+        } else if ((flags & DT_RIGHT)!=0) {
+            x = rect.right - sw;
         }
+        if ((flags & DT_BOTTOM)!=0) {
+            y = rect.bottom-sh;
+        }
+        textOut(x, y, text);
+
         System.out.println("drawText not fully implemented");
         g.dispose();
         return sh;
@@ -329,6 +362,7 @@ public class WinDC extends WinObject {
         }
         return 0;
     }
+
     public int select(WinGDI gdi) {
         WinGDI old = null;
 
@@ -348,6 +382,8 @@ public class WinDC extends WinObject {
             font = (WinFont)gdi;
         } else if (gdi instanceof WinRegion) {
             clipRegion = (WinRegion)gdi;
+        } else if (gdi instanceof WinPen) {
+            pen = (WinPen)gdi;
         } else {
             Win.panic("WinDC.select was not implemented for "+gdi);
         }

@@ -12,7 +12,7 @@ public abstract class Module {
     public String name;
     protected boolean threadLibraryCalls = true;
 
-    public static final boolean LOG = true;
+    public static final boolean LOG = false;
 
     public Module(int handle) {
         this.handle = handle;

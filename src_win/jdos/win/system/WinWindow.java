@@ -131,7 +131,7 @@ public class WinWindow extends WinObject {
         super(id);
         this.winClass = winClass;
         this.name = name;
-        this.rect = new WinRect(0, 0, WinSystem.screenWidth, WinSystem.screenHeight);
+        this.rect = new WinRect(0, 0, WinSystem.getScreenWidth(), WinSystem.getScreenHeight());
         this.clientRect = new WinRect(0, 0, rect.width(), rect.height());
     }
 
@@ -154,8 +154,12 @@ public class WinWindow extends WinObject {
         this.name = name;
         if (hParent != 0)
             parent = (WinWindow)WinSystem.getObject(hParent);
-        else
+        else {
             parent = WinSystem.desktop;
+            if (rect.width()>WinSystem.getScreenWidth() || rect.height()>WinSystem.getScreenHeight()) {
+                growDesktop();
+            }
+        }
 
         if (parent != null)
             parent.addChild(this);
@@ -304,7 +308,48 @@ public class WinWindow extends WinObject {
         }
     }
 
+    private void growDesktop() {
+        int width = rect.width();
+        int cx;
+        int cy;
+        if (width<=640) {
+            cx = 640;
+            cy = 480;
+        } else if (width <= 800) {
+            cx = 800;
+            cy = 600;
+        } else {
+            cx = 1024;
+            cy = 768;
+        }
+        WinSystem.setScreenSize(cx, cy, WinSystem.getScreenBpp());
+    }
+
     public int setWindowPos(int hWndInsertAfter, int X, int Y, int cx, int cy, int uFlags) {
+        if ((uFlags & 0x0001)!=0) { // SWP_NOSIZE
+            cx = rect.width();
+            cy = rect.height();
+        }
+        if ((uFlags & 0x0002)!=0) { // SWP_NOMOVE
+            X = rect.left;
+            Y = rect.top;
+        }
+        boolean moved = rect.left != X || rect.top != Y;
+        boolean sized = rect.width() != cx || rect.height() != cy;
+        rect.left = X;
+        rect.top = Y;
+        rect.right = X+cx;
+        rect.bottom = Y+cy;
+        clientRect = new WinRect(0, 0, rect.width(), rect.height());
+        if (hParent==0 && rect.width()>WinSystem.getScreenWidth() || rect.height()>WinSystem.getScreenHeight()) {
+            growDesktop();
+        }
+//        if ((uFlags & 0x0040)!=0) { // SWP_SHOWWINDOW
+//            showWindow(true);
+//        } else if ((uFlags & 0x0080)!=0) { // SWP_HIDEWINDOW
+//            showWindow(false);
+//        }
+        // :TODO: send move / size messages
         return WinAPI.TRUE;
     }
 

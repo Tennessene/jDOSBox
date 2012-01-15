@@ -97,6 +97,8 @@ public class WinCursor extends WinObject {
         super(handle);
         if (name<0xFFFF) {
             cursor = loadSystemCursor(name);
+        } else {
+            int ii=0;
         }
     }
 

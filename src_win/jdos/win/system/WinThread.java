@@ -103,9 +103,10 @@ public class WinThread extends WaitObject {
         if (msgAddress == 0)
             return WinAPI.TRUE;
         WinMsg msg;
-        if (remove)
+        if (remove) {
             msg = (WinMsg)msgQueue.remove(msgIndex);
-        else
+            System.out.println("Out msgCount="+msgQueue.size());
+        } else
             msg = (WinMsg)msgQueue.get(msgIndex);
         if (msg.keyState != null)
             keyState = msg.keyState;
@@ -123,6 +124,7 @@ public class WinThread extends WaitObject {
 
     }
     public void postMessage(int hWnd, int message, int wParam, int lParam) {
+        System.out.println("In msgCount="+msgQueue.size());
         msgQueue.add(new WinMsg(hWnd, message, wParam, lParam));
     }
 

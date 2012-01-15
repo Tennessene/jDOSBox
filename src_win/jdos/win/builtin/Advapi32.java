@@ -6,9 +6,7 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
-import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.system.WinSystem;
-import jdos.win.utils.Error;
 
 public class Advapi32 extends BuiltinModule {
     public class Sid {
@@ -169,10 +167,7 @@ public class Advapi32 extends BuiltinModule {
             int lpSecurityAttributes = CPU.CPU_Pop32();
             int phkResult = CPU.CPU_Pop32();
             int lpdwDisposition = CPU.CPU_Pop32();
-
-            String name = new LittleEndianFile(lpSubKey).readCString();
-            System.out.println("Registry not supported yet.  Tried to create "+name);
-            CPU_Regs.reg_eax.dword = Error.ERROR_BAD_PATHNAME;
+            CPU_Regs.reg_eax.dword = WinSystem.registry.createKey(hKey, lpSubKey, phkResult, lpdwDisposition);
         }
     };
 
@@ -187,9 +182,7 @@ public class Advapi32 extends BuiltinModule {
             int ulOptions = CPU.CPU_Pop32();
             int samDesired = CPU.CPU_Pop32();
             int phkResult = CPU.CPU_Pop32();
-            String name = new LittleEndianFile(lpSubKey).readCString();
-            System.out.println("Registry not supported yet.  Tried to open "+name);
-            CPU_Regs.reg_eax.dword = Error.ERROR_BAD_PATHNAME;
+            CPU_Regs.reg_eax.dword = WinSystem.registry.openKey(hKey, lpSubKey, phkResult);
         }
     };
 
@@ -205,9 +198,7 @@ public class Advapi32 extends BuiltinModule {
             int lpType = CPU.CPU_Pop32();
             int lpData = CPU.CPU_Pop32();
             int lpcbData = CPU.CPU_Pop32();
-            String name = new LittleEndianFile(lpValueName).readCString();
-            System.out.println("Registry not supported yet.  Tried to open "+name);
-            CPU_Regs.reg_eax.dword = Error.ERROR_BAD_PATHNAME;
+            CPU_Regs.reg_eax.dword = WinSystem.registry.getValue(hKey, lpValueName, lpType, lpData, lpcbData);
         }
     };
 
@@ -220,12 +211,10 @@ public class Advapi32 extends BuiltinModule {
             int hKey = CPU.CPU_Pop32();
             int lpValueName = CPU.CPU_Pop32();
             int lpReserved = CPU.CPU_Pop32();
-            int lpType = CPU.CPU_Pop32();
+            int dwType  = CPU.CPU_Pop32();
             int lpData = CPU.CPU_Pop32();
             int cbData = CPU.CPU_Pop32();
-            String name = new LittleEndianFile(lpValueName).readCString();
-            System.out.println("Registry not supported yet.  Tried to save "+name);
-            CPU_Regs.reg_eax.dword = Error.ERROR_BAD_PATHNAME;
+            CPU_Regs.reg_eax.dword = WinSystem.registry.setValue(hKey, lpValueName, dwType , lpData, cbData);
         }
     };
 }

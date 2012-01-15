@@ -8,6 +8,7 @@ import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
+import jdos.win.builtin.directx.DError;
 import jdos.win.builtin.directx.DirectCallback;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.Module;
@@ -107,6 +108,7 @@ public class IDirectDrawSurface extends IUnknown {
                 int colorKey = getData(This, OFFSET_DESC + 0x40);
                 if (getBpp(This)==8)
                     colorKey = getPaletteEntry(This, colorKey);
+                colorKey = Pixel.BGRtoRGB(colorKey);
                 result = Pixel.makeColorTransparent(result, new Color(colorKey));
                 if ((getData(This, OFFSET_FLAGS) & FLAGS_LOCKED)==0) {
                     WinObject object = WinSystem.createWinObject();
@@ -518,7 +520,7 @@ public class IDirectDrawSurface extends IUnknown {
             dwFlags=dwFlags & ~DDBLT_WAIT;
             if ((dwFlags & DDBLT_COLORFILL)!=0) {
                 int color = fx.dwFillColor;
-                if (getBits(This)<=8)
+                if (getBpp(This)<=8)
                     color = getPaletteEntry(This, color);
                 g.setColor(new Color(color));
                 g.fillRect(destX1, destY1, destX2-destX1, destY2-destY1);
@@ -533,6 +535,15 @@ public class IDirectDrawSurface extends IUnknown {
                 g.drawImage(src, destX1, destY1, destX2, destY2, srcX1, srcY1, srcX2, srcY2, null);
                 if (Module.LOG)
                     log("dst="+destX1+","+destY1+" - "+destX2+","+destY2+" src="+srcX1+","+srcY1+" - "+srcX2+","+srcY2);
+            } else if ((dwFlags & DDBLT_KEYSRC)!=0) {
+                BufferedImage src = getImageSrcColorKey(lpDDSrcSurface, true);
+                int srcX1 = Memory.mem_readd(lpSrcRect);
+                int srcY1 = Memory.mem_readd(lpSrcRect+4);
+                int srcX2 = Memory.mem_readd(lpSrcRect+8);
+                int srcY2 = Memory.mem_readd(lpSrcRect+12);
+                g.drawImage(src, destX1, destY1, destX2, destY2, srcX1, srcY1, srcX2, srcY2, null);
+                if (Module.LOG)
+                    log("DDBLT_KEYSRC dst="+destX1+","+destY1+" - "+destX2+","+destY2+" src="+srcX1+","+srcY1+" - "+srcX2+","+srcY2);
             } else {
                 notImplemented();
             }
@@ -736,7 +747,14 @@ public class IDirectDrawSurface extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lplpDDClipper = CPU.CPU_Pop32();
-            notImplemented();
+            int clipper = getData(This, OFFSET_CLIPPER);
+            if (clipper == 0)
+                CPU_Regs.reg_eax.dword = DError.DDERR_NOCLIPPERATTACHED;
+            else {
+                AddRef(clipper);
+                Memory.mem_writed(lplpDDClipper, clipper);
+                CPU_Regs.reg_eax.dword = Error.S_OK;
+            }
         }
     };
 

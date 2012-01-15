@@ -1,5 +1,6 @@
 package jdos.win.system;
 
+import jdos.win.builtin.WinAPI;
 import jdos.win.controls.StaticWindow;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
@@ -107,11 +108,11 @@ public class WinProcess extends WaitObject {
         env.put("HOMEDRIVE", "C:");
         env.put("NUMBER_OF_PROCESSORS", "1");
         env.put("SystemDrive", "C:");
-        env.put("SystemRoot", "C:\\WINDOWS");
-        env.put("TEMP", "C:\\TEMP");
-        env.put("TMP", "C:\\TEMP");
-        env.put("windir", "C:\\WINDOWS");
-        env.put("PATH", "C:\\;C:\\WINDOWS");
+        env.put("SystemRoot", WinAPI.WIN32_PATH);
+        env.put("TEMP", WinAPI.TEMP_PATH);
+        env.put("TMP", WinAPI.TEMP_PATH);
+        env.put("windir", WinAPI.WIN32_PATH);
+        env.put("PATH", "C:\\;"+WinAPI.WIN32_PATH);
 
         if (loader.loadModule(exe) == null)
             return false;

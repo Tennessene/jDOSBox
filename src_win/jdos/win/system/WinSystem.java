@@ -28,9 +28,9 @@ public class WinSystem {
     static private Hashtable namedObjects;
     static Hashtable objects;
 
-    static public int screenWidth = 640;
-    static public int screenHeight = 480;
-    static public int screenBpp = 32;
+    static private int screenWidth = 640;
+    static private int screenHeight = 480;
+    static private int screenBpp = 32;
     static public int screenAddress;
     static public int screenPalette;
 
@@ -38,6 +38,7 @@ public class WinSystem {
 
     static public WinUser user;
     static public WinWindow desktop;
+    static public WinRegistry registry;
 
     static public class Data {
         public int capture;
@@ -49,6 +50,7 @@ public class WinSystem {
 
     static public void start() {
         data = new Data();
+        registry = new WinRegistry();
 
         nextObjectId = 0x2000;
         scheduler = new Scheduler();
@@ -93,6 +95,22 @@ public class WinSystem {
 
     static public int getScreenHeight() {
         return screenHeight;
+    }
+
+    static public int getScreenBpp() {
+        return screenBpp;
+    }
+
+    static public void setScreenSize(int dwWidth, int dwHeight, int dwBPP) {
+        if (dwWidth != screenWidth || dwHeight != screenHeight || screenBpp != dwBPP) {
+            screenBpp = dwBPP;
+            screenHeight = dwHeight;
+            screenWidth = dwWidth;
+            if (screenAddress != 0) {
+                VideoMemory.unmapVideoRAM(screenAddress);
+                screenAddress = 0;
+            }
+        }
     }
 
     static public int setCursor(int hCursor) {
@@ -259,6 +277,10 @@ public class WinSystem {
 
     static public WinBrush createBrush(int color) {
         return new WinBrush(nextObjectId++, color);
+    }
+
+    static public WinPen createPen(int style, int width, int color) {
+        return new WinPen(nextObjectId++, style, width, color);
     }
 
     static public WinFileMapping createFileMapping(int hFile, String name, long size) {

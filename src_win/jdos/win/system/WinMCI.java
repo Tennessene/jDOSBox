@@ -13,6 +13,8 @@ abstract public class WinMCI extends WinObject {
     }
 
     abstract public void play(int from, int to, int hWndCallback, boolean wait);
+    abstract public void stop(int hWndCallback, boolean wait);
+    abstract public void close(int hWndCallback, boolean wait);
 
     public void sendNotification(int reason) {
         WinObject object = WinSystem.getObject(hWnd);

@@ -577,9 +577,7 @@ public class IDirectDraw extends IUnknown {
             setData(This, OFFSET_CX, dwWidth);
             setData(This, OFFSET_CY, dwHeight);
             setData(This, OFFSET_BPP, dwBPP);
-            WinSystem.screenBpp = dwBPP;
-            WinSystem.screenHeight = dwHeight;
-            WinSystem.screenWidth = dwWidth;
+            WinSystem.setScreenSize(dwWidth, dwHeight, dwBPP);
             if (dwBPP<=8)
                 getPalette(This); // set up default palette
             Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);

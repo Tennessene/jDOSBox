@@ -8,6 +8,27 @@ import jdos.win.system.WinSystem;
 import java.util.Vector;
 
 public class StringUtil {
+    public static String[] split(final String input, String delimiter) {
+        if (input != null && input.length() > 0) {
+            int index1 = 0;
+            int index2 = input.indexOf(delimiter);
+            Vector result = new Vector();
+            while (index2 >= 0) {
+                String token = input.substring(index1, index2);
+                result.addElement(token);
+                index1 = index2 + delimiter.length();
+                index2 = input.indexOf(delimiter, index1);
+            }
+            if (index1 <= input.length() - 1) {
+                result.addElement(input.substring(index1));
+            }
+            String[] sda = new String[result.size()];
+            result.copyInto(sda);
+            return sda;
+        }
+        return new String[0];
+    }
+
     static public String format(String format, boolean wide, int argIndex) {
         int pos = format.indexOf('%');
         if (pos>=0) {
@@ -284,6 +305,17 @@ public class StringUtil {
         int s = str;
         while (Memory.mem_readw(s)!=0) s+=2;
         return (s - str)/2;
+    }
+
+    static public String getString(int address) {
+        StringBuffer result = new StringBuffer();
+        while (true) {
+            char c = (char)Memory.mem_readb(address++); // :TODO: need to research converting according to 1252
+            if (c == 0)
+                break;
+            result.append(c);
+        }
+        return result.toString();
     }
 
     static public void strcpy(int address, String value) {

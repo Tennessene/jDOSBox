@@ -305,7 +305,6 @@ public class WinDC extends WinObject {
         }
         g.setColor(new Color(textColor | 0xFF000000));
         g.drawString(text, x, y+sh-(int)lm.getDescent());
-        Pixel.writeImage(address, bi, bpp, width, height);
         g.dispose();
         return WinAPI.TRUE;
     }

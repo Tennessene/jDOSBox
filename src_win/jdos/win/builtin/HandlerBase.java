@@ -26,15 +26,16 @@ abstract public class HandlerBase implements Callback.Handler {
             defaultLog = true;
             newLine = false;
         }
+        long start = System.currentTimeMillis();
         if (preCall()) {
             CPU_Regs.reg_eip = CPU.CPU_Pop32();
             onCall();
         }
         if (Module.LOG) {
             if (defaultLog)
-                System.out.println(Integer.toHexString(CPU_Regs.reg_eip)+": "+getName());
+                System.out.println(Integer.toHexString(CPU_Regs.reg_eip)+": "+getName()+" time="+(System.currentTimeMillis()-start));
             else if (newLine)
-                System.out.println();
+                System.out.println(" time="+(System.currentTimeMillis()-start));
         }
         return 0;
     }

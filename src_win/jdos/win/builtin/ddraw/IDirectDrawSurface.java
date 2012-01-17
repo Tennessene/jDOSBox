@@ -199,7 +199,7 @@ public class IDirectDrawSurface extends IUnknown {
     }
 
     // while locked the surface will not cache a BufferedImage object, this will really slow things down, but allows
-    // apps to access surface memory directly, via lock or getDC
+    // apps to access surface memory directly
     public static void lock(int This) {
         setData(This, OFFSET_FLAGS, getData(This, OFFSET_FLAGS) | FLAGS_LOCKED);
     }
@@ -547,6 +547,7 @@ public class IDirectDrawSurface extends IUnknown {
             } else {
                 notImplemented();
             }
+            g.dispose();
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
@@ -713,7 +714,7 @@ public class IDirectDrawSurface extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
-            notImplemented();
+            CPU_Regs.reg_eax.dword = Error.S_OK; // current the blits are not async so we are always ready
         }
     };
 
@@ -792,7 +793,7 @@ public class IDirectDrawSurface extends IUnknown {
                             palette[i] = getData(lpDDPalette, IDirectDrawPalette.OFFSET_COLOR_DATA+4*i);
                         }
                     }
-                    WinDC dc = WinSystem.createDC(null, getData(This, OFFSET_MEMORY), getWidth(This), getHeight(This), palette);
+                    WinDC dc = WinSystem.createDC(getImage(This, true), getData(This, OFFSET_MEMORY), getBpp(This), getWidth(This), getHeight(This), palette);
                     hdc = dc.getHandle();
                     setData(This, OFFSET_DC, hdc);
                 } else {
@@ -800,8 +801,6 @@ public class IDirectDrawSurface extends IUnknown {
                     dc.open();
                 }
                 Memory.mem_writed(lphDC, hdc);
-                clearImage(This);
-                lock(This);
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
         }
@@ -959,7 +958,6 @@ public class IDirectDrawSurface extends IUnknown {
             } else {
                 WinDC dc = (WinDC)WinSystem.getObject(hDC);
                 dc.close();
-                unlock(This);
                 setData(This, OFFSET_DC, 0);
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }

@@ -403,6 +403,15 @@ public class WinWindow extends WinObject {
         p.y -= clientRect.top;
     }
 
+    private int getTopMostParent(WinWindow window) {
+        if (window.hParent == 0)
+            return window.handle;
+        return getTopMostParent(window.parent);
+    }
+    public int getTopMostParent() {
+        return getTopMostParent(this);
+    }
+
     public int getHitTest(int x, int y) {
         return HTCLIENT;
     }
@@ -420,8 +429,10 @@ public class WinWindow extends WinObject {
             int hitTest = screenToWindow(p);
             if (rect.contains(p))
                 postMessage(WM_SETCURSOR, handle, hitTest);
-            if (hParent == 0)
+            if (hParent == 0) {
+                currentFocus = handle;
                 postMessage(WM_SETFOCUS, 0, 0);
+            }
             needsPainting = true;
         } else {
             style&=~WS_VISIBLE;

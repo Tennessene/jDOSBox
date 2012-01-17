@@ -11,6 +11,7 @@ import jdos.win.kernel.Timer;
 import jdos.win.utils.Pixel;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.*;
@@ -163,8 +164,14 @@ public class WinSystem {
             // :TODO: WM_MOUSEACTIVATE
         }
 
-        window.postMessage(WinWindow.WM_SETCURSOR, window.handle, hitTest | (msg >> 16));
-        window.postMessage(msg, wParam, (pt.x) | (pt.y << 16));
+        WinMsg m = window.getThread().getLastMessage();
+        if (m != null && m.message == WinWindow.WM_MOUSEMOVE && m.message == msg) {
+            m.wParam = wParam;
+            m.lParam = (pt.x) | (pt.y << 16);
+        } else {
+            window.postMessage(WinWindow.WM_SETCURSOR, window.handle, hitTest | (msg >> 16));
+            window.postMessage(msg, wParam, (pt.x) | (pt.y << 16));
+        }
     }
 
     static public WinWindow findWindowFromPoint(WinPoint pt) {
@@ -340,6 +347,10 @@ public class WinSystem {
             palette = dc.palette;
         }
         return new WinDC(nextObjectId++, bpp, address, width, height, palette);
+    }
+
+    static public WinDC createDC(BufferedImage image, int address, int bpp, int width, int height, int[] palette) {
+        return new WinDC(nextObjectId++, image, bpp, address, width, height, palette);
     }
 
     static public WinFont createFont(Font font) {

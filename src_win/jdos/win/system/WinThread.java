@@ -8,6 +8,7 @@ import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
+import jdos.win.loader.Module;
 import jdos.win.utils.Error;
 
 import java.util.*;
@@ -124,7 +125,8 @@ public class WinThread extends WaitObject {
 
     }
     public void postMessage(int hWnd, int message, int wParam, int lParam) {
-        System.out.println("In msgCount="+msgQueue.size());
+        if (Module.LOG)
+            System.out.println("In msgCount="+msgQueue.size());
         msgQueue.add(new WinMsg(hWnd, message, wParam, lParam));
     }
 
@@ -196,6 +198,14 @@ public class WinThread extends WaitObject {
         if (peekMessage(msgAddress, hWnd, minMsg, maxMsg, 0x0001)==WinAPI.TRUE)
             return WinAPI.TRUE;
         return -2;
+    }
+
+    public WinMsg getLastMessage() {
+        synchronized (msgQueue) {
+            if (msgQueue.size()!=0)
+                return (WinMsg)msgQueue.get(msgQueue.size()-1);
+        }
+        return null;
     }
 
     public void sleep(int ms) {

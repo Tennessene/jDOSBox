@@ -33,11 +33,13 @@ public class User32 extends BuiltinModule {
         add(EndPaint);
         add(FillRect);
         add(FindWindowA);
+        add(GetAsyncKeyState);
         add(GetCapture);
         add(GetClientRect);
         add(GetCursorPos);
         add(GetDC);
         add(GetForegroundWindow);
+        add(GetKeyboardState);
         add(GetKeyState);
         add(GetMenu);
         add(GetMenuItemCount);
@@ -267,7 +269,8 @@ public class User32 extends BuiltinModule {
                 WinObject object = WinSystem.getObject(hWnd);
                 if (object instanceof WinWindow) {
                     WinWindow window = (WinWindow)object;
-                    System.out.println(getName()+" msg="+Memory.mem_readd(lpmsg+4));
+                    if (LOG)
+                        log("msg="+Memory.mem_readd(lpmsg+4));
                     CPU_Regs.reg_eax.dword = window.sendMessage(Memory.mem_readd(lpmsg+4), Memory.mem_readd(lpmsg+8), Memory.mem_readd(lpmsg+12));
                     return;
                 }
@@ -354,6 +357,20 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // SHORT WINAPI GetAsyncKeyState(int nVirtKey)
+    private Callback.Handler GetAsyncKeyState = new HandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetAsyncKeyState";
+        }
+        public void onCall() {
+            int nVirtKey = CPU.CPU_Pop32();
+            if (WinKeyboard.keyState.get(nVirtKey))
+                CPU_Regs.reg_eax.dword = 0x8000;
+            else
+                CPU_Regs.reg_eax.dword = 0;
+        }
+    };
+
     // HWND WINAPI GetCapture(void)
     private Callback.Handler GetCapture = new HandlerBase() {
         public java.lang.String getName() {
@@ -389,8 +406,12 @@ public class User32 extends BuiltinModule {
         }
         public int processReturn() {
             int lpPoint = CPU.CPU_Pop32();
+            if (WinMouse.currentPos.x<5)
+                WinMouse.currentPos.x=-1;
             Memory.mem_writed(lpPoint, WinMouse.currentPos.x);
             Memory.mem_writed(lpPoint+4, WinMouse.currentPos.y);
+            if (LOG)
+                log("x="+WinMouse.currentPos.x+" y="+WinMouse.currentPos.y);
             return WinAPI.TRUE;
         }
     };
@@ -422,7 +443,24 @@ public class User32 extends BuiltinModule {
             return "User32.GetForegroundWindow";
         }
         public void onCall() {
-            CPU_Regs.reg_eax.dword = 0;
+            CPU_Regs.reg_eax.dword = ((WinWindow)WinSystem.getObject(WinWindow.currentFocus)).getTopMostParent();
+        }
+    };
+
+    // BOOL WINAPI GetKeyboardState(PBYTE lpKeyState)
+    private Callback.Handler GetKeyboardState = new ReturnHandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetKeyboardState";
+        }
+        public int processReturn() {
+            int lpKeyState = CPU.CPU_Pop32();
+            for (int i=0;i<256;i++) {
+                if (WinSystem.getCurrentThread().getKeyState().get(i))
+                    Memory.mem_writeb(lpKeyState+i, 0x80);
+                else
+                    Memory.mem_writeb(lpKeyState+i, 0x0);
+            }
+            return WinAPI.TRUE;
         }
     };
 

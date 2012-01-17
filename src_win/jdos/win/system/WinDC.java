@@ -45,12 +45,19 @@ public class WinDC extends WinObject {
         this.palette = palette;
     }
 
-    public void refresh(int address, int width, int height, int[] palette) {
+    public WinDC(int handle, BufferedImage image, int bpp, int address, int width, int height, int[] palette) {
+        super(handle);
+        if (bpp == 8 && palette == null) {
+            Win.panic("WinDC got a request for an 8-bit display but the palette was null");
+        }
+        this.bpp = bpp;
         this.address = address;
         this.width = width;
         this.height = height;
         this.palette = palette;
+        this.image = image;
     }
+
     private static final int DRIVERVERSION =   0;
     private static final int TECHNOLOGY =      2;
     private static final int HORZSIZE =        4;
@@ -324,15 +331,8 @@ public class WinDC extends WinObject {
         if (address != 0 && addressOwner) {
             WinSystem.getCurrentProcess().heap.free(address);
         }
-        if (image != null)
-            writeImage(image);
-        super.onFree();
-    }
-
-    public void releaseImage() {
-        if (image != null)
-            writeImage(image);
         image = null;
+        super.onFree();
     }
 
     public BufferedImage getImage() {

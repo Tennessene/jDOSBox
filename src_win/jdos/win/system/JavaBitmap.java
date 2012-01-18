@@ -69,6 +69,7 @@ public class JavaBitmap {
     private BufferedImage cachedImageColorKey = null;
 
     public BufferedImage getImageColorKey(int colorKey) {
+        colorKey = palette[colorKey];
         if (colorKey != cachedColorKey) {
             int[] p = (int[])palette.clone();
             for (int i=0;i<p.length;i++) {
@@ -121,9 +122,6 @@ public class JavaBitmap {
 
         public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
             int index = addr - address;
-            if (data == null || index<0 || index>=data.length) {
-                int ii=0;
-            }
             data[index] = (byte)val;
             data[index+1] = (byte)(val >> 8);
             data[index+2] = (byte)(val >> 16);
@@ -145,6 +143,7 @@ public class JavaBitmap {
         }
         int size = width*height;
         address = (int)WinSystem.getCurrentProcess().addressSpace.getNextAddress(WinProcess.ADDRESS_VIDEO_BITMAP_START, size, true);
+        WinSystem.getCurrentProcess().addressSpace.alloc(address, size);
         int frameCount = (size + 0xFFF) >> 12;
         int frame = address >>> 12;
         int frameStart = frame;

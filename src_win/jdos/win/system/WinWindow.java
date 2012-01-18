@@ -7,6 +7,7 @@ import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.ddraw.IDirectDrawSurface;
+import jdos.win.loader.Module;
 import jdos.win.utils.StringUtil;
 
 import java.awt.*;
@@ -485,16 +486,22 @@ public class WinWindow extends WinObject {
     }
 
     public int sendMessage(int msg, int wParam, int lParam) {
-        long start = System.currentTimeMillis();
-        System.out.println("sendMessage 0x"+Integer.toHexString(msg)+" start");
+        long start;
+        if (Module.LOG) {
+            start = System.currentTimeMillis();
+            System.out.println("sendMessage 0x"+Integer.toHexString(msg)+" start");
+        }
         WinSystem.call(winClass.eip, handle, msg, wParam, lParam);
-        System.out.println("sendMessage 0x"+Integer.toHexString(msg)+" "+(System.currentTimeMillis()-start)+"ms");
+        if (Module.LOG)
+            System.out.println("sendMessage 0x"+Integer.toHexString(msg)+" "+(System.currentTimeMillis()-start)+"ms");
         if (msg == WinWindow.WM_PAINT) {
             if (WinSystem.scheduler.monitor != 0) {
-                start = System.currentTimeMillis();
+                if (Module.LOG)
+                    start = System.currentTimeMillis();
                 BufferedImage src = IDirectDrawSurface.getImage(WinSystem.scheduler.monitor, true).getImage();
                 Main.drawImage(src);
-                System.out.println("Update screen "+(System.currentTimeMillis()-start)+"ms");
+                if (Module.LOG)
+                    System.out.println("Update screen "+(System.currentTimeMillis()-start)+"ms");
             }
         }
         return CPU_Regs.reg_eax.dword;

@@ -136,6 +136,7 @@ public class Heap {
     }
 
     public long alloc(long address, long size) {
+        address&=0xFFFFFFFFl;
         int index = findIndexByAddress(address);
         if (index<0) {
             HeapItem last = getLastItem();
@@ -150,7 +151,7 @@ public class Heap {
                 insertItem(new HeapItem(address+size, end-(address+size)));
         } else {
             HeapItem free = (HeapItem)itemsByAddress.get(index);
-            if (free.address > address)
+            if (free.address > address && index>0)
                 free = (HeapItem)itemsByAddress.get(index-1); // getNextAddress aligned it into this slot
             if (address<free.address || address+size>free.address+free.size) {
                 Win.panic("Could not allocate "+size+" bytes");

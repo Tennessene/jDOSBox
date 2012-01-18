@@ -106,7 +106,8 @@ public class WinThread extends WaitObject {
         WinMsg msg;
         if (remove) {
             msg = (WinMsg)msgQueue.remove(msgIndex);
-            System.out.println("Out msgCount="+msgQueue.size());
+            if (Module.LOG)
+                System.out.println("Out msgCount="+msgQueue.size());
         } else
             msg = (WinMsg)msgQueue.get(msgIndex);
         if (msg.keyState != null)

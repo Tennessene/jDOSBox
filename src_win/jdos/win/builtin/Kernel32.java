@@ -81,6 +81,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetDateFormatW);
         add(GetDiskFreeSpaceA);
         add(GetDriveTypeA);
+        add(GetEnvironmentStrings);
         add(GetEnvironmentStringsA);
         add(GetEnvironmentStringsW);
         add(GetFileAttributesA);
@@ -1308,6 +1309,14 @@ public class Kernel32 extends BuiltinModule {
     };
 
     // LPTCH WINAPI GetEnvironmentStrings(void)
+    private Callback.Handler GetEnvironmentStrings = new HandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.GetEnvironmentStrings";
+        }
+        public void onCall() {
+            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getEnvironment();
+        }
+    };
     private Callback.Handler GetEnvironmentStringsA = new HandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.GetEnvironmentStringsA";

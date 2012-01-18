@@ -82,7 +82,6 @@ public class IDirectDraw extends IUnknown {
         if (result == 0) {
             result = IDirectDrawPalette.createDefault();
             setData(This, OFFSET_PALETTE, result);
-            WinSystem.screenPalette = result+IUnknown.OFFSET_DATA_START+IDirectDrawPalette.OFFSET_COLOR_DATA;
         }
         return result;
     }

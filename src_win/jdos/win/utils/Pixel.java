@@ -104,11 +104,13 @@ public class Pixel {
             IndexColorModel sp = new IndexColorModel(8, srcPalette.length, r, g, b);
 
             byte[] pixels = new byte[width * height];
-            int pitch = getPitch(width, srcBpp);
-            for (int y=0;y<height;y++) {
-                int address = src + pitch * (flip?height - y -1:y);
-                for (int x=0;x<width;x++) {
-                    pixels[y*width+x] = (byte)Memory.mem_readb(address+x);
+            if (src != 0) {
+                int pitch = getPitch(width, srcBpp);
+                for (int y=0;y<height;y++) {
+                    int address = src + pitch * (flip?height - y -1:y);
+                    for (int x=0;x<width;x++) {
+                        pixels[y*width+x] = (byte)Memory.mem_readb(address+x);
+                    }
                 }
             }
             try {
@@ -168,13 +170,14 @@ public class Pixel {
                 try {
                     BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                     int pitch = getPitch(width, srcBpp);
-                    for (int y=0;y<height;y++) {
-                        int address = src + pitch * y;
-                        for (int x=0;x<width;x++) {
-                            bi.setRGB(x, y, Memory.mem_readd(address + x * 4));
+                    if (src != 0) {
+                        for (int y=0;y<height;y++) {
+                            int address = src + pitch * y;
+                            for (int x=0;x<width;x++) {
+                                bi.setRGB(x, y, Memory.mem_readd(address + x * 4));
+                            }
                         }
                     }
-
                     // Main.drawImage(bi);try {Thread.sleep(1000*60);} catch (Exception e) {}
                     return bi;
                 } catch (Exception e) {

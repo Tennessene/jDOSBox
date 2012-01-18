@@ -1,11 +1,8 @@
 package jdos.win.system;
 
 import jdos.cpu.CPU_Regs;
-import jdos.gui.Main;
 import jdos.win.Win;
-import jdos.win.builtin.ddraw.IDirectDrawSurface;
 
-import java.awt.image.BufferedImage;
 import java.util.Hashtable;
 
 public class Scheduler {
@@ -110,10 +107,6 @@ public class Scheduler {
 
     // :TODO: run them in order of process to minimize page swapping
     public void tick() {
-        if (monitor != 0) {
-            BufferedImage src = IDirectDrawSurface.getImage(monitor, true);
-            Main.drawImage(src);
-        }
         SchedulerItem next = currentThread.next;
         SchedulerItem start = currentThread;
         int tickCount = currentTickCount();

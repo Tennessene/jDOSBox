@@ -18,16 +18,17 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class WinProcess extends WaitObject {
-    public static final long ADDRESS_HEAP_START =     0x0BA00000l;
-    public static final long ADDRESS_HEAP_END =       0x0FFFF000l;
-    public static final long ADDRESS_KHEAP_START =    0x90000000l;
-    public static final long ADDRESS_KHEAP_END =      0xA0000000l;
-    public static final long ADDRESS_STACK_START =    0x00100000l;
-    public static final long ADDRESS_STACK_END =      0x01000000l;
-    public static final long ADDRESS_CALLBACK_START = 0xA4000000l;
-    public static final long ADDRESS_CALLBACK_END =   0xA4010000l;
-    public static final long ADDRESS_EXTRA_START =    0xB0000000l;
-    public static final long ADDRESS_VIDEO_START =    0xE0000000l;
+    public static final long ADDRESS_HEAP_START =           0x0BA00000l;
+    public static final long ADDRESS_HEAP_END =             0x0FFFF000l;
+    public static final long ADDRESS_KHEAP_START =          0x90000000l;
+    public static final long ADDRESS_KHEAP_END =            0xA0000000l;
+    public static final long ADDRESS_STACK_START =          0x00100000l;
+    public static final long ADDRESS_STACK_END =            0x01000000l;
+    public static final long ADDRESS_CALLBACK_START =       0xA4000000l;
+    public static final long ADDRESS_CALLBACK_END =         0xA4010000l;
+    public static final long ADDRESS_EXTRA_START =          0xB0000000l;
+    public static final long ADDRESS_VIDEO_START =          0xE0000000l;
+    public static final long ADDRESS_VIDEO_BITMAP_START =   0xE8000000l;
 
     private WinHeap winHeap;
     public KernelHeap heap;

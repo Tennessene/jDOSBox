@@ -327,13 +327,15 @@ public class StringUtil {
         int len =strlenA(src);
         Memory.mem_memcpy(address, src, len + 1);
     }
-    static public void strncpy(int address, String value, int count) {
+    static public int strncpy(int address, String value, int count) {
         byte[] b = value.getBytes();
         if (b.length+1<count)
             count = b.length+1;
         Memory.mem_memcpy(address, b, 0, count-1);
         Memory.mem_writeb(address+count-1, 0);
+        return count;
     }
+
     static public void strcpyW(int address, String value) {
         char[] c = value.toCharArray();
         for (int i=0;i<c.length;i++) {

@@ -1,5 +1,7 @@
 package jdos.win.utils;
 
+import jdos.win.Win;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -111,8 +113,12 @@ public class Heap {
         int first = index;
         while (index<itemsByAddress.size()) {
             HeapItem next = (HeapItem)itemsByAddress.get(index++);
-            if (next.address>=address && next.address+next.size>=address+size) {
-                return next.address;
+            long a = next.address;
+            if (pageAlign) {
+                a = (a + 0xFFF) & ~0xFFF;
+            }
+            if (a>=address && next.size-(a-next.address)>=size) {
+                return a;
             }
         }
         index = first;
@@ -144,7 +150,10 @@ public class Heap {
                 insertItem(new HeapItem(address+size, end-(address+size)));
         } else {
             HeapItem free = (HeapItem)itemsByAddress.get(index);
+            if (free.address > address)
+                free = (HeapItem)itemsByAddress.get(index-1); // getNextAddress aligned it into this slot
             if (address<free.address || address+size>free.address+free.size) {
+                Win.panic("Could not allocate "+size+" bytes");
                 return 0;
             }
             removeItem(free);
@@ -220,29 +229,23 @@ public class Heap {
         }
         int index = findIndexByAddress(p);
         if (index>=0) {
-            boolean found = false;
             if (index>0) {
                 HeapItem before = (HeapItem)itemsByAddress.get(index-1);
                 if (before.address+before.size==item.address) {
+                    removeItem(before);
                     before.size+=item.size;
                     item = before;
-                    found = true;
                 }
             }
             if (index<itemsByAddress.size()) {
                 HeapItem after = (HeapItem)itemsByAddress.get(index);
                 if (item.address+item.size==after.address) {
-                    after.address-=item.size;
+                    removeItem(after);
+                    after.address=item.address;
                     after.size+=item.size;
-                    if (found)
-                        removeItem(item); // if we merge with the before and after items
-                    else
-                        found = true;
                 }
             }
-            if (!found) {
-                insertItem(item);
-            }
+            insertItem(item);
         } else {
             insertItem(item);
         }

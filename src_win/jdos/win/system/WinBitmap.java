@@ -5,6 +5,8 @@ import jdos.win.Win;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.utils.Pixel;
 
+import java.awt.image.BufferedImage;
+
 public class WinBitmap extends WinGDI {
     int address;
 
@@ -19,6 +21,11 @@ public class WinBitmap extends WinGDI {
         super(handle);
         this.address = address;
         parseBitmap(address);
+    }
+
+    public JavaBitmap createJavaBitmap() {
+        BufferedImage bi = Pixel.createImage(bits, bitCount, palette, width, height, true);
+        return new JavaBitmap(bi, bitCount, width, height, palette);
     }
 
     public String toString() {

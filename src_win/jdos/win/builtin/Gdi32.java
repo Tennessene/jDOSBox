@@ -66,7 +66,7 @@ public class Gdi32 extends BuiltinModule {
                 }
                 dc = (WinDC)object;
             }
-            return WinSystem.createDC(dc, 0, 0, 0, null).getHandle();
+            return WinSystem.createDC(null, false).getHandle();
         }
     };
 
@@ -685,7 +685,6 @@ public class Gdi32 extends BuiltinModule {
             BufferedImage s = src.getImage();
             Graphics g = d.getGraphics();
             g.drawImage(s, nXOriginDest, nYOriginDest, nXOriginDest+nWidthDest, nYOriginDest+nHeightDest, nXOriginSrc, nYOriginSrc, nXOriginSrc+nWidthSrc, nYOriginSrc+nHeightSrc, null);
-            dest.writeImage(d);
             return WinAPI.TRUE;
         }
     };

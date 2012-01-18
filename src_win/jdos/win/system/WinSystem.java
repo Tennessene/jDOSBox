@@ -29,12 +29,6 @@ public class WinSystem {
     static private Hashtable namedObjects;
     static Hashtable objects;
 
-    static private int screenWidth = 640;
-    static private int screenHeight = 480;
-    static private int screenBpp = 32;
-    static public int screenAddress;
-    static public int screenPalette;
-
     static private long startTime = System.currentTimeMillis();
 
     static public WinUser user;
@@ -45,6 +39,7 @@ public class WinSystem {
         public int capture;
         public int cursor;
         public int showCursorCount;
+        public JavaBitmap screen;
     }
 
     static Data data;
@@ -76,7 +71,7 @@ public class WinSystem {
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_IN);
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_ERROR);
         startTime = System.currentTimeMillis();
-        Main.GFX_SetSize(screenWidth, screenHeight, false, false, false, 32);
+        setScreenSize(640, 480, 32);
 
         user = new WinUser(nextObjectId++);
         WinClass winClass = createClass();
@@ -84,33 +79,35 @@ public class WinSystem {
         desktop = new WinWindow(nextObjectId++, winClass, "Desktop");
     }
 
-    static public int getScreenAddress() {
-        if (screenAddress == 0)
-            screenAddress = VideoMemory.mapVideoRAM(Pixel.getPitch(screenWidth, screenBpp)*screenWidth);
-        return screenAddress;
+    static public JavaBitmap getScreen() {
+        return data.screen;
     }
 
     static public int getScreenWidth() {
-        return screenWidth;
+        return data.screen.getWidth();
     }
 
     static public int getScreenHeight() {
-        return screenHeight;
+        return data.screen.getHeight();
     }
 
     static public int getScreenBpp() {
-        return screenBpp;
+        return data.screen.getBpp();
     }
 
     static public void setScreenSize(int dwWidth, int dwHeight, int dwBPP) {
-        if (dwWidth != screenWidth || dwHeight != screenHeight || screenBpp != dwBPP) {
-            screenBpp = dwBPP;
-            screenHeight = dwHeight;
-            screenWidth = dwWidth;
-            if (screenAddress != 0) {
-                VideoMemory.unmapVideoRAM(screenAddress);
-                screenAddress = 0;
+        if (data.screen == null ||  dwWidth != data.screen.getWidth() || dwHeight != data.screen.getHeight() || data.screen.getBpp() != dwBPP) {
+            int[] palette;
+
+            if (data.screen != null) {
+                palette = data.screen.getPalette();
+                data.screen.close();
+            } else {
+                palette = JavaBitmap.getDefaultPalette();
             }
+            BufferedImage bi = Pixel.createImage(0, dwBPP,  palette, dwWidth, dwHeight, false);
+            data.screen = new JavaBitmap(bi, dwBPP, dwWidth, dwHeight, JavaBitmap.getDefaultPalette());
+            Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, dwBPP);
         }
     }
 
@@ -328,29 +325,8 @@ public class WinSystem {
         return new WaitObject(nextObjectId++);
     }
 
-    static int[] getScreenPalette() {
-        if (screenPalette == 0)
-            return null;
-        int[] result = new int[256];
-        for (int i=0;i<result.length;i++) {
-            result[i] = Memory.mem_readd(screenPalette+i*4);
-        }
-        return result;
-    }
-
-    static public WinDC createDC(WinDC dc, int address, int width, int height, int[] palette) {
-        int bpp = screenBpp;
-        if (palette == null)
-            palette = getScreenPalette();
-        if (dc != null) {
-            bpp = dc.bpp;
-            palette = dc.palette;
-        }
-        return new WinDC(nextObjectId++, bpp, address, width, height, palette);
-    }
-
-    static public WinDC createDC(BufferedImage image, int address, int bpp, int width, int height, int[] palette) {
-        return new WinDC(nextObjectId++, image, bpp, address, width, height, palette);
+    static public WinDC createDC(JavaBitmap image, boolean owner) {
+        return new WinDC(nextObjectId++, image, owner);
     }
 
     static public WinFont createFont(Font font) {

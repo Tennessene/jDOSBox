@@ -4,10 +4,13 @@ import jdos.cpu.CPU_Regs;
 import jdos.dos.Dos_programs;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
+import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.ddraw.IDirectDrawSurface;
 import jdos.win.utils.StringUtil;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 public class WinWindow extends WinObject {
@@ -144,6 +147,12 @@ public class WinWindow extends WinObject {
         int winName = StringUtil.allocateA(name);
         int className = StringUtil.allocateA(winClass.className);
 
+        if (hParent == 0) {
+            x = 0;
+            y = 0;
+            cx = WinSystem.getScreenWidth();
+            cy = WinSystem.getScreenHeight();
+        }
         this.rect = new WinRect(x, y, x+cx, y+cy);
         this.clientRect = new WinRect(0, 0, rect.width(), rect.height());
         this.style = dwStyle;
@@ -185,6 +194,38 @@ public class WinWindow extends WinObject {
 
         if ((dwStyle & WS_VISIBLE) != 0) {
             showWindow(true);
+        }
+    }
+
+    public int GetWindow(int uCmd) {
+        switch (uCmd) {
+            case 0: // GW_HWNDFIRST
+                if ((style & WS_CHILD) != 0) {
+                    Win.panic("GetWindow child relationships not implemented yet: "+uCmd);
+                }
+                return 0;
+            case 1: // GW_HWNDLAST
+                if ((style & WS_CHILD) != 0) {
+                    Win.panic("GetWindow child relationships not implemented yet: "+uCmd);
+                }
+                return 0;
+            case 2: // GW_HWNDNEXT
+                if ((style & WS_CHILD) != 0) {
+                    Win.panic("GetWindow child relationships not implemented yet: "+uCmd);
+                }
+                return 0;
+            case 3: // GW_HWNDPREV
+                if ((style & WS_CHILD) != 0) {
+                    Win.panic("GetWindow child relationships not implemented yet: "+uCmd);
+                }
+                return 0;
+            case 5: // GW_CHILD
+                return (children.size()>0?((WinWindow)children.elementAt(children.size()-1)).handle:0);
+            case 6: // GW_ENABLEDPOPUP
+                return handle; // popups are not supported yet
+            default:
+                Win.panic("GetWindow "+uCmd+" not implemented yet");
+                return 0;
         }
     }
 
@@ -245,6 +286,7 @@ public class WinWindow extends WinObject {
                     g.setColor(new Color(((WinBrush)object).color));
                     g.fillRect(0, 0, rect.width(), rect.height());
                     erase = WinAPI.FALSE;
+                    g.dispose();
                 }
             }
             Memory.mem_writed(lpPaint, dc);lpPaint+=4; // hdc
@@ -270,7 +312,7 @@ public class WinWindow extends WinObject {
     }
 
     public int getDC() {
-        return WinSystem.createDC(null, WinSystem.getScreenAddress(), rect.width(), rect.height(), null).getHandle();
+        return WinSystem.createDC(WinSystem.getScreen(), false).getHandle();
     }
 
     public int releaseDC(WinDC dc) {
@@ -443,7 +485,18 @@ public class WinWindow extends WinObject {
     }
 
     public int sendMessage(int msg, int wParam, int lParam) {
+        long start = System.currentTimeMillis();
+        System.out.println("sendMessage 0x"+Integer.toHexString(msg)+" start");
         WinSystem.call(winClass.eip, handle, msg, wParam, lParam);
+        System.out.println("sendMessage 0x"+Integer.toHexString(msg)+" "+(System.currentTimeMillis()-start)+"ms");
+        if (msg == WinWindow.WM_PAINT) {
+            if (WinSystem.scheduler.monitor != 0) {
+                start = System.currentTimeMillis();
+                BufferedImage src = IDirectDrawSurface.getImage(WinSystem.scheduler.monitor, true).getImage();
+                Main.drawImage(src);
+                System.out.println("Update screen "+(System.currentTimeMillis()-start)+"ms");
+            }
+        }
         return CPU_Regs.reg_eax.dword;
     }
 

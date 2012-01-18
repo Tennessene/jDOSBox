@@ -18,44 +18,20 @@ public class WinDC extends WinObject {
 
     WinBitmap bitmap;
 
-    int address;
-    int width;
-    int height;
-    int bpp;
     int bkColor = 0xFFFFFFFF;
     int textColor = 0xFF000000;
-    int[] palette;
     WinFont font;
-    boolean addressOwner = false;
+    boolean owner = false;
     int hPalette = 0;
     int bkMode = OPAQUE;
-    BufferedImage image;
+    JavaBitmap image;
     WinRegion clipRegion = null;
     WinPen pen = null;
 
-    public WinDC(int handle, int bpp, int address, int width, int height, int[] palette) {
+    public WinDC(int handle, JavaBitmap image, boolean owner) {
         super(handle);
-        if (bpp == 8 && palette == null) {
-            Win.panic("WinDC got a request for an 8-bit display but the palette was null");
-        }
-        this.bpp = bpp;
-        this.address = address;
-        this.width = width;
-        this.height = height;
-        this.palette = palette;
-    }
-
-    public WinDC(int handle, BufferedImage image, int bpp, int address, int width, int height, int[] palette) {
-        super(handle);
-        if (bpp == 8 && palette == null) {
-            Win.panic("WinDC got a request for an 8-bit display but the palette was null");
-        }
-        this.bpp = bpp;
-        this.address = address;
-        this.width = width;
-        this.height = height;
-        this.palette = palette;
         this.image = image;
+        this.owner = owner;
     }
 
     private static final int DRIVERVERSION =   0;
@@ -105,11 +81,11 @@ public class WinDC extends WinObject {
         switch (nIndex) {
             case RASTERCAPS:
                 int result = 0x0001|0x0008|0x0800; // RC_BITBLT | RC_BITMAP64 | RC_STRETCHBLT
-                if (bpp<=8)
+                if (image.getBpp()<=8)
                     result |= 0x0100; //RC_PALETTE
                 return result;
             case BITSPIXEL:
-                return bpp;
+                return image.getBpp();
             default:
                 Win.panic("GetDevice caps "+nIndex+" not implemented yet.");
         }
@@ -148,6 +124,7 @@ public class WinDC extends WinObject {
     }
 
     public int getPaletteEntries(int iStartIndex, int nEntries, int lppe) {
+        int[] palette = image.getPalette();
         if (palette != null) {
             for (int i=0;i<nEntries;i++) {
                 Memory.mem_writed(lppe+i*4, palette[i+iStartIndex]);
@@ -328,22 +305,15 @@ public class WinDC extends WinObject {
     }
 
     protected void onFree() {
-        if (address != 0 && addressOwner) {
-            WinSystem.getCurrentProcess().heap.free(address);
+        if (owner) {
+            image.close();
         }
         image = null;
         super.onFree();
     }
 
     public BufferedImage getImage() {
-        if (image == null)
-            image = Pixel.createImage(address, bpp, palette, width, height, false);
-        return image;
-    }
-
-    public void writeImage(BufferedImage image) {
-        Pixel.writeImage(address, image, bpp, width, height);
-        this.image = null;
+        return image.getImage();
     }
 
     public int selectPalette(WinPalette palette, boolean bForceBackground) {
@@ -366,17 +336,13 @@ public class WinDC extends WinObject {
         WinGDI old = null;
 
         if (gdi instanceof WinBitmap) {
-            if (address != 0 && !addressOwner) {
-                Win.panic("Tried to select a bitmap into a dc that is already backed by video memory");
-            }
             old = bitmap;
             bitmap = (WinBitmap)gdi;
-            width = bitmap.width;
-            height = bitmap.height;
-            if (address != 0)
-                WinSystem.getCurrentProcess().heap.free(address);
-            address = bitmap.createCompatibleCopy(bpp, palette);
-            addressOwner = true;
+            if (owner) {
+                image.close();
+            }
+            image = bitmap.createJavaBitmap();
+            owner = true;
         } else if (gdi instanceof WinFont) {
             font = (WinFont)gdi;
         } else if (gdi instanceof WinRegion) {

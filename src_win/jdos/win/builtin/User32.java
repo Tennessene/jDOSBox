@@ -35,6 +35,7 @@ public class User32 extends BuiltinModule {
         add(FindWindowA);
         add(GetAsyncKeyState);
         add(GetCapture);
+        add(GetClassNameA);
         add(GetClientRect);
         add(GetCursorPos);
         add(GetDC);
@@ -46,6 +47,7 @@ public class User32 extends BuiltinModule {
         add(GetMessageA);
         add(GetSysColor);
         add(GetSystemMetrics);
+        add(GetWindow);
         add(GetWindowLongA);
         add(GetWindowRect);
         add(InvalidateRect);
@@ -381,6 +383,28 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // int WINAPI GetClassName(HWND hWnd, LPTSTR lpClassName, int nMaxCount)
+    private Callback.Handler GetClassNameA = new ReturnHandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetClassNameA";
+        }
+        public int processReturn() {
+            int hWnd = CPU.CPU_Pop32();
+            int lpClassName = CPU.CPU_Pop32();
+            int nMaxCount = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                return 0;
+            }
+            if (lpClassName == 0) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                return 0;
+            }
+            return StringUtil.strncpy(lpClassName, ((WinWindow)object).getWinClass().className, nMaxCount);
+        }
+    };
+
     // BOOL WINAPI GetClientRect(HWND hWnd, LPRECT lpRect)
     private Callback.Handler GetClientRect = new HandlerBase() {
         public java.lang.String getName() {
@@ -424,7 +448,7 @@ public class User32 extends BuiltinModule {
         public void onCall() {
             int hWnd = CPU.CPU_Pop32();
             if (hWnd == 0) {
-                CPU_Regs.reg_eax.dword = WinSystem.createDC(null, WinSystem.getScreenAddress(), WinSystem.getScreenWidth(), WinSystem.getScreenHeight(), null).getHandle();
+                CPU_Regs.reg_eax.dword = WinSystem.createDC(WinSystem.getScreen(), false).getHandle();
             } else {
                 WinObject object = WinSystem.getObject(hWnd);
                 if (object == null || !(object instanceof WinWindow)) {
@@ -438,12 +462,15 @@ public class User32 extends BuiltinModule {
     };
 
     // HWND WINAPI GetForegroundWindow(void)
-    private Callback.Handler GetForegroundWindow = new HandlerBase() {
+    private Callback.Handler GetForegroundWindow = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "User32.GetForegroundWindow";
         }
-        public void onCall() {
-            CPU_Regs.reg_eax.dword = ((WinWindow)WinSystem.getObject(WinWindow.currentFocus)).getTopMostParent();
+        public int processReturn() {
+            WinWindow window = ((WinWindow)WinSystem.getObject(WinWindow.currentFocus));
+            if (window == null)
+                return 0;
+            return window.getTopMostParent();
         }
     };
 
@@ -636,21 +663,37 @@ public class User32 extends BuiltinModule {
         }
     };
 
+    // HWND WINAPI GetWindow(HWND hWnd, UINT uCmd)
+    private Callback.Handler GetWindow = new ReturnHandlerBase() {
+        public java.lang.String getName() {
+            return "User32.GetWindow";
+        }
+        public int processReturn() {
+            int hWnd = CPU.CPU_Pop32();
+            int uCmd = CPU.CPU_Pop32();
+            WinObject object = WinSystem.getObject(hWnd);
+            if (object == null || !(object instanceof WinWindow)) {
+                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
+                return 0;
+            }
+            return ((WinWindow)object).GetWindow(uCmd);
+        }
+    };
+
     // LONG WINAPI GetWindowLong(HWND hWnd, int nIndex)
-    private Callback.Handler GetWindowLongA = new HandlerBase() {
+    private Callback.Handler GetWindowLongA = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "User32.GetWindowLongA";
         }
-        public void onCall() {
+        public int processReturn() {
             int hWnd = CPU.CPU_Pop32();
             int nIndex = CPU.CPU_Pop32();
             WinObject object = WinSystem.getObject(hWnd);
             if (object == null || !(object instanceof WinWindow)) {
-                CPU_Regs.reg_eax.dword = 0;
                 WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
-            } else {
-                CPU_Regs.reg_eax.dword = ((WinWindow)object).getWindowLong(nIndex);
+                return 0;
             }
+            return ((WinWindow)object).getWindowLong(nIndex);
         }
     };
 

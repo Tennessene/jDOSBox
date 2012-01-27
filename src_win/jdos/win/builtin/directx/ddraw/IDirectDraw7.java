@@ -1,4 +1,4 @@
-package jdos.win.builtin.ddraw;
+package jdos.win.builtin.directx.ddraw;
 
 import jdos.cpu.CPU;
 import jdos.cpu.Callback;
@@ -8,7 +8,7 @@ public class IDirectDraw7 extends IUnknown {
     private static int createVTable() {
         int address = allocateVTable("IDirectDraw7", IDirectDraw.VTABLE_SIZE+7);
         int result = address;
-        address = IDirectDraw.addIDirectDraw(address);
+        address = IDirectDraw.addIDirectDraw(address, true);
 
         /* added in v2 */
         address = add(address, GetAvailableVidMem);

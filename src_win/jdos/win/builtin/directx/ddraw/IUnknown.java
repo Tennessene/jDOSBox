@@ -1,17 +1,21 @@
-package jdos.win.builtin.ddraw;
+package jdos.win.builtin.directx.ddraw;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
+import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
+import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.WinCallback;
+import jdos.win.loader.BuiltinModule;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 
+import java.lang.reflect.Method;
 import java.util.Hashtable;
 
-public class IUnknown {
+public class IUnknown extends WinAPI {
     // static private final int OFFSET_VTABLE = 0;
     static private final int OFFSET_REF = 4;
     static private final int OFFSET_CLEANUP = 8;
@@ -51,6 +55,21 @@ public class IUnknown {
         int cb = WinCallback.addCallback(handler);
         Memory.mem_writed(address, WinSystem.getCurrentProcess().loader.registerFunction(cb));
         return address+4;
+    }
+
+    static protected int add(int address, Class c, String methodName, String[] params) {
+        Method[] methods = c.getMethods();
+        for (Method method: methods) {
+            if (method.getName().equals(methodName)) {
+                if (method.getReturnType() == Integer.TYPE) {
+                    return add(address, new BuiltinModule.ReturnHandler(methodName, method, true, params));
+                } else {
+                    return add(address, new BuiltinModule.NoReturnHandler(methodName, method, true, params));
+                }
+            }
+        }
+        Win.panic("Failed to find " + methodName);
+        return 0;
     }
 
     static protected int allocateVTable(String name,  int functions) {

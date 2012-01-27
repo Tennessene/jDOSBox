@@ -1,15 +1,11 @@
-package jdos.win.builtin.ddraw;
+package jdos.win.builtin.directx.ddraw;
 
-import jdos.cpu.CPU;
-import jdos.cpu.CPU_Regs;
-import jdos.cpu.Callback;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
-import jdos.win.Console;
-import jdos.win.builtin.HandlerBase;
-import jdos.win.loader.Module;
+import jdos.win.Win;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
+import jdos.win.utils.Ptr;
 
 public class IDirectDraw extends IUnknown {
     static final int DDSCL_FULLSCREEN = 0x00000001;
@@ -17,36 +13,41 @@ public class IDirectDraw extends IUnknown {
     static final int  DDSCL_EXCLUSIVE = 0x00000010;
     static final int DDSCL_ALLOWMODEX = 0x00000040;
 
+    static public final boolean LOGDD = true;
+
     static final int VTABLE_SIZE = 20;
 
     private static int createVTable() {
         int address = allocateVTable("IDirectDraw", VTABLE_SIZE);
-        addIDirectDraw(address);
+        addIDirectDraw(address, false);
         return address;
     }
 
-    static int addIDirectDraw(int address) {
+    static int addIDirectDraw(int address, boolean v7) {
         address = addIUnknown(address);
-        address = add(address, Compact);
-        address = add(address, CreateClipper);
-        address = add(address, CreatePalette);
-        address = add(address, CreateSurface);
-        address = add(address, DuplicateSurface);
-        address = add(address, EnumDisplayModes);
-        address = add(address, EnumSurfaces);
-        address = add(address, FlipToGDISurface);
-        address = add(address, GetCaps);
-        address = add(address, GetDisplayMode);
-        address = add(address, GetFourCCCodes);
-        address = add(address, GetGDISurface);
-        address = add(address, GetMonitorFrequency);
-        address = add(address, GetScanLine);
-        address = add(address, GetVerticalBlankStatus);
-        address = add(address, Initialize);
-        address = add(address, RestoreDisplayMode);
-        address = add(address, SetCooperativeLevel);
-        address = add(address, SetDisplayMode);
-        address = add(address, WaitForVerticalBlank);
+        address = add(address, IDirectDraw.class, "Compact", (LOGDD?new String[] {"(HEX)this", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "CreateClipper", (LOGDD?new String[] {"(HEX)this", "(HEX)dwFlags", "(HEX)lplpDDClipper", "(HEX)pUnkOuter", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "CreatePalette", (LOGDD?new String[] {"(HEX)this", "(HEX)dwFlags", "(HEX)lpColorTable", "(HEX)lplpDDPalette", "(HEX)pUnkOuter", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "CreateSurface", (LOGDD?new String[] {"(HEX)this", "(HEX)lpDDSurfaceDesc", "(HEX)lplpDDSurface", "(HEX)pUnkOuter", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "DuplicateSurface", (LOGDD?new String[] {"(HEX)this", "(HEX)lpDDSurface", "(HEX)lplpDupDDSurface", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "EnumDisplayModes", (LOGDD?new String[] {"(HEX)this", "(HEX)dwFlags", "(HEX)lpDDSurfaceDesc", "(HEX)lpContext", "(HEX)lpEnumModesCallback", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "EnumSurfaces", (LOGDD?new String[] {"(HEX)this", "(HEX)dwFlags", "(HEX)lpDDSD", "(HEX)lpContext", "(HEX)lpEnumSurfacesCallback", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "FlipToGDISurface", (LOGDD?new String[] {"(HEX)this", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "GetCaps", (LOGDD?new String[] {"(HEX)this", "(HEX)lpDDDriverCaps", "(HEX)lpDDHELCaps", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "GetDisplayMode", (LOGDD?new String[] {"(HEX)this", "(HEX)lpDDSurfaceDesc", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "GetFourCCCodes", (LOGDD?new String[] {"(HEX)this", "(HEX)lpNumCodes", "(HEX)lpCodes", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "GetGDISurface", (LOGDD?new String[] {"(HEX)this", "(HEX)lplpGDIDDSurface", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "GetMonitorFrequency", (LOGDD?new String[] {"(HEX)this", "(HEX)lpdwFrequency", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "GetScanLine", (LOGDD?new String[] {"(HEX)this", "(HEX)lpdwScanLine", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "GetVerticalBlankStatus", (LOGDD?new String[] {"(HEX)this", "(HEX)lpbIsInVB", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "Initialize", (LOGDD?new String[] {"(HEX)this", "(GUID)lpGUID", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "RestoreDisplayMode", (LOGDD?new String[] {"(HEX)this", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "SetCooperativeLevel", (LOGDD?new String[] {"(HEX)this", "hWnd", "(HEX)dwFlags", "(HRESULT)result"}:null));
+        if (v7)
+            address = add(address, IDirectDraw.class, "SetDisplayMode7", (LOGDD?new String[] {"this", "dwWidth", "dwHeight", "dwBPP", "dwRefreshRate", "dwFlags", "(HRESULT)result"}:null));
+        else
+            address = add(address, IDirectDraw.class, "SetDisplayMode", (LOGDD?new String[] {"this", "dwWidth", "dwHeight", "dwBPP", "(HRESULT)result"}:null));
+        address = add(address, IDirectDraw.class, "WaitForVerticalBlank", (LOGDD?new String[] {"(HEX)this", "(HEX)dwFlags", "hEvent", "(HRESULT)result"}:null));
         return address;
     }
 
@@ -100,215 +101,151 @@ public class IDirectDraw extends IUnknown {
     }
 
     // HRESULT Compact(this)
-    static private Callback.Handler Compact = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.Compact";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int Compact(int This) {
+        Win.panic("IDirectDraw.Compact not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT CreateClipper(this, DWORD dwFlags, LPDIRECTDRAWCLIPPER *lplpDDClipper, IUnknown *pUnkOuter)
-    static private Callback.Handler CreateClipper = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.CreateClipper";
+    public static int CreateClipper(int This, int dwFlags, int lplpDDClipper, int pUnkOuter) {
+        if (lplpDDClipper == 0)
+            return Error.E_POINTER;
+        else {
+            writed(lplpDDClipper, IDirectDrawClipper.create());
+            return Error.S_OK;
         }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int dwFlags = CPU.CPU_Pop32();
-            int lplpDDClipper = CPU.CPU_Pop32();
-            int pUnkOuter = CPU.CPU_Pop32();
-            if (lplpDDClipper == 0)
-                CPU_Regs.reg_eax.dword = Error.E_POINTER;
-            else {
-                Memory.mem_writed(lplpDDClipper, IDirectDrawClipper.create());
-                CPU_Regs.reg_eax.dword = Error.S_OK;
-            }
-        }
-    };
+    }
 
     // HRESULT CreatePalette(this, DWORD dwFlags, LPPALETTEENTRY lpColorTable, LPDIRECTDRAWPALETTE *lplpDDPalette, IUnknown *pUnkOuter)
-    static private Callback.Handler CreatePalette = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.CreatePalette";
+    public static int CreatePalette(int This, int dwFlags, int lpColorTable, int lplpDDPalette, int pUnkOuter) {
+        if (lplpDDPalette == 0)
+            return Error.E_POINTER;
+        else {
+            writed(lplpDDPalette, IDirectDrawPalette.create(dwFlags, lpColorTable));
+            return Error.S_OK;
         }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int dwFlags = CPU.CPU_Pop32();
-            int lpColorTable = CPU.CPU_Pop32();
-            int lplpDDPalette = CPU.CPU_Pop32();
-            int pUnkOuter = CPU.CPU_Pop32();
-            if (lplpDDPalette == 0)
-                CPU_Regs.reg_eax.dword = Error.E_POINTER;
-            else {
-                Memory.mem_writed(lplpDDPalette, IDirectDrawPalette.create(dwFlags, lpColorTable));
-                CPU_Regs.reg_eax.dword = Error.S_OK;
-            }
-        }
-    };
+    }
 
     // HRESULT CreateSurface(this, LPDDSURFACEDESC lpDDSurfaceDesc, LPDIRECTDRAWSURFACE *lplpDDSurface, IUnknown *pUnkOuter)
-    static private Callback.Handler CreateSurface = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.CreateSurface";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpDDSurfaceDesc = CPU.CPU_Pop32();
-            int lplpDDSurface = CPU.CPU_Pop32();
-            int pUnkOuter = CPU.CPU_Pop32();
-            if (lplpDDSurface == 0)
-                CPU_Regs.reg_eax.dword = Error.E_POINTER;
-            else {
-                int result;
-                if ((getData(This, OFFSET_FLAGS) & FLAGS_V7)!=0) {
-                    result = IDirectDrawSurface7.create(This, lpDDSurfaceDesc);
-                } else {
-                    result = IDirectDrawSurface.create(This, lpDDSurfaceDesc);
-                }
-                Memory.mem_writed(lplpDDSurface, result);
-                CPU_Regs.reg_eax.dword = Error.S_OK;
+    public static int CreateSurface(int This, int lpDDSurfaceDesc, int lplpDDSurface, int pUnkOuter) {
+        if (lplpDDSurface == 0)
+            return Error.E_POINTER;
+        else {
+            int result;
+            if ((getData(This, OFFSET_FLAGS) & FLAGS_V7)!=0) {
+                result = IDirectDrawSurface7.create(This, lpDDSurfaceDesc);
+            } else {
+                result = IDirectDrawSurface.create(This, lpDDSurfaceDesc);
             }
+            Memory.mem_writed(lplpDDSurface, result);
+            return Error.S_OK;
         }
-    };
+    }
 
     // HRESULT DuplicateSurface(this, LPDIRECTDRAWSURFACE lpDDSurface, LPDIRECTDRAWSURFACE *lplpDupDDSurface)
-    static private Callback.Handler DuplicateSurface = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.DuplicateSurface";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpDDSurface = CPU.CPU_Pop32();
-            int lplpDupDDSurface = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int DuplicateSurface(int This, int lpDDSurface, int lplpDupDDSurface) {
+        Win.panic("IDirectDraw.DuplicateSurface not implemented yet");
+        return Error.S_OK;
+    }
 
-    // HRESULT EnumDisplayModes(this, DWORD dwFlags, LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext, LPDDENUMMODESCALLBACK lpEnumModesCallback)
-    static private Callback.Handler EnumDisplayModes = new HandlerBase() {
-        private int[][] mode = new int[][] {
-                {320, 240, 8},
-                {320, 240, 16},
-                {320, 240, 32},
-                {400, 300, 8},
-                {400, 300, 16},
-                {400, 300, 32},
-                {512, 384, 8},
-                {512, 384, 16},
-                {512, 384, 32},
-                {640, 480, 8},
-                {640, 480, 16},
-                {640, 480, 32},
-                {800, 600, 8},
-                {800, 600, 16},
-                {800, 600, 32},
-                {1024, 768, 8},
-                {1024, 768, 16},
-                {1024, 768, 32},
-        };
-        public java.lang.String getName() {
-            return "IDirectDraw.EnumDisplayModes";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int dwFlags = CPU.CPU_Pop32();
-            int lpDDSurfaceDesc = CPU.CPU_Pop32();
-            int lpContext = CPU.CPU_Pop32();
-            int lpEnumModesCallback = CPU.CPU_Pop32();
-            int address = WinSystem.getCurrentProcess().heap.alloc(DDSurfaceDesc.SIZE, false);
-            DDSurfaceDesc desc = null;
-            if (lpDDSurfaceDesc != 0)
-                desc = new DDSurfaceDesc(lpDDSurfaceDesc, false);
-            Memory.mem_zero(address, DDSurfaceDesc.SIZE);
-            Memory.mem_writed(address, DDSurfaceDesc.SIZE);
-            Memory.mem_writed(address+4, DDSurfaceDesc.DDSD_HEIGHT|DDSurfaceDesc.DDSD_WIDTH|DDSurfaceDesc.DDSD_PITCH|DDSurfaceDesc.DDSD_PIXELFORMAT);
-            Memory.mem_writed(address+0x48, DDPixelFormat.SIZE);
-            for (int i=0;i<mode.length;i++) {
-                if (desc != null) {
-                    if ((desc.dwFlags & DDSurfaceDesc.DDSD_WIDTH)!=0 && desc.dwWidth!=mode[i][0])
-                        continue;
-                    if ((desc.dwFlags & DDSurfaceDesc.DDSD_HEIGHT)!=0 && desc.dwHeight!=mode[i][1])
-                        continue;
-                    if ((desc.dwFlags & DDSurfaceDesc.DDSD_PIXELFORMAT)!=0 && desc.ddpfPixelFormat.dwRGBBitCount!=mode[i][2])
-                        continue;
-                }
-                Memory.mem_writed(address+8, mode[i][1]);
-                Memory.mem_writed(address+12, mode[i][0]);
-                Memory.mem_writed(address+16, mode[i][1]*(mode[i][1]>>3));
-                if (mode[i][2]>8)
-                    Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB);
-                else
-                    Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB|DDPixelFormat.DDPF_PALETTEINDEXED8);
-                Memory.mem_writed(address+0x48+0xC, mode[i][2]);
-                // :TODO: what about pixel formats?
-                WinSystem.call(lpEnumModesCallback, address, lpContext);
-            }
-            CPU_Regs.reg_eax.dword = Error.S_OK;
-        }
+
+    static private int[][] mode = new int[][] {
+            {320, 240, 8},
+            {320, 240, 16},
+            {320, 240, 32},
+            {400, 300, 8},
+            {400, 300, 16},
+            {400, 300, 32},
+            {512, 384, 8},
+            {512, 384, 16},
+            {512, 384, 32},
+            {640, 480, 8},
+            {640, 480, 16},
+            {640, 480, 32},
+            {800, 600, 8},
+            {800, 600, 16},
+            {800, 600, 32},
+            {1024, 768, 8},
+            {1024, 768, 16},
+            {1024, 768, 32},
     };
+    // HRESULT EnumDisplayModes(this, DWORD dwFlags, LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext, LPDDENUMMODESCALLBACK lpEnumModesCallback)
+    public static int EnumDisplayModes(int This, int dwFlags, int lpDDSurfaceDesc, int lpContext, int  lpEnumModesCallback) {
+        DDSurfaceDesc desc = null;
+        if (lpDDSurfaceDesc != 0)
+            desc = new DDSurfaceDesc(lpDDSurfaceDesc, false);
+        int address = WinSystem.getCurrentProcess().getTemp(DDSurfaceDesc.SIZE);
+        Memory.mem_zero(address, DDSurfaceDesc.SIZE);
+        Memory.mem_writed(address, DDSurfaceDesc.SIZE);
+        Memory.mem_writed(address+4, DDSurfaceDesc.DDSD_HEIGHT|DDSurfaceDesc.DDSD_WIDTH|DDSurfaceDesc.DDSD_PITCH|DDSurfaceDesc.DDSD_PIXELFORMAT);
+        Memory.mem_writed(address+0x48, DDPixelFormat.SIZE);
+        for (int i=0;i<mode.length;i++) {
+            if (desc != null) {
+                if ((desc.dwFlags & DDSurfaceDesc.DDSD_WIDTH)!=0 && desc.dwWidth!=mode[i][0])
+                    continue;
+                if ((desc.dwFlags & DDSurfaceDesc.DDSD_HEIGHT)!=0 && desc.dwHeight!=mode[i][1])
+                    continue;
+                if ((desc.dwFlags & DDSurfaceDesc.DDSD_PIXELFORMAT)!=0 && desc.ddpfPixelFormat.dwRGBBitCount!=mode[i][2])
+                    continue;
+            }
+            Memory.mem_writed(address+8, mode[i][1]);
+            Memory.mem_writed(address+12, mode[i][0]);
+            Memory.mem_writed(address+16, mode[i][1]*(mode[i][1]>>3));
+            if (mode[i][2]>8)
+                Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB);
+            else
+                Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB|DDPixelFormat.DDPF_PALETTEINDEXED8);
+            Memory.mem_writed(address+0x48+0xC, mode[i][2]);
+            // :TODO: what about pixel formats?
+            WinSystem.call(lpEnumModesCallback, address, lpContext);
+        }
+        return Error.S_OK;
+    }
 
     // HRESULT EnumSurfaces(this, DWORD dwFlags, LPDDSURFACEDESC lpDDSD, LPVOID lpContext, LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback)
-    static private Callback.Handler EnumSurfaces = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.EnumSurfaces";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int dwFlags = CPU.CPU_Pop32();
-            int lpDDSD = CPU.CPU_Pop32();
-            int lpContext = CPU.CPU_Pop32();
-            int lpEnumSurfacesCallback = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int EnumSurfaces(int This, int dwFlags, int lpDDSD, int lpContext, int lpEnumSurfacesCallback) {
+        Win.panic("IDirectDraw.EnumSurfaces not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT FlipToGDISurface(this)
-    static private Callback.Handler FlipToGDISurface = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.FlipToGDISurface";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int FlipToGDISurface(int This) {
+        Win.panic("IDirectDraw.FlipToGDISurface not implemented yet");
+        return Error.S_OK;
+    }
 
-    // HRESULT GetCaps(this, LPDDCAPS lpDDDriverCaps, LPDDCAPS lpDDHELCaps)
-    static private Callback.Handler GetCaps = new HandlerBase() {
-        static private final int DDCKEYCAPS_DESTBLT =               0x00000001;
-        static private final int DDCKEYCAPS_DESTBLTCLRSPACE =       0x00000002;
-        static private final int DDCKEYCAPS_DESTBLTCLRSPACEYUV =    0x00000004;
-        static private final int DDCKEYCAPS_DESTBLTYUV =            0x00000008;
-        static private final int DDCKEYCAPS_DESTOVERLAY =           0x00000010;
-        static private final int DDCKEYCAPS_DESTOVERLAYCLRSPACE =   0x00000020;
-        static private final int DDCKEYCAPS_DESTOVERLAYCLRSPACEYUV =0x00000040;
-        static private final int DDCKEYCAPS_DESTOVERLAYONEACTIVE =  0x00000080;
-        static private final int DDCKEYCAPS_DESTOVERLAYYUV =        0x00000100;
-        static private final int DDCKEYCAPS_SRCBLT =                0x00000200;
-        static private final int DDCKEYCAPS_SRCBLTCLRSPACE =        0x00000400;
-        static private final int DDCKEYCAPS_SRCBLTCLRSPACEYUV =     0x00000800;
-        static private final int DDCKEYCAPS_SRCBLTYUV =             0x00001000;
-        static private final int DDCKEYCAPS_SRCOVERLAY =            0x00002000;
-        static private final int DDCKEYCAPS_SRCOVERLAYCLRSPACE =    0x00004000;
-        static private final int DDCKEYCAPS_SRCOVERLAYCLRSPACEYUV = 0x00008000;
-        static private final int DDCKEYCAPS_SRCOVERLAYONEACTIVE =   0x00010000;
-        static private final int DDCKEYCAPS_SRCOVERLAYYUV =         0x00020000;
-        static private final int DDCKEYCAPS_NOCOSTOVERLAY =         0x00040000;
-        
-        static private final int DDPCAPS_4BIT =                     0x00000001;
-        static private final int DDPCAPS_8BITENTRIES =              0x00000002;
-        static private final int DDPCAPS_8BIT =                     0x00000004;
-        static private final int DDPCAPS_INITIALIZE =               0x00000008;
-        static private final int DDPCAPS_PRIMARYSURFACE =           0x00000010;
-        static private final int DDPCAPS_PRIMARYSURFACELEFT =       0x00000020;
-        static private final int DDPCAPS_ALLOW256 =                 0x00000040;
-        static private final int DDPCAPS_VSYNC =                    0x00000080;
-        static private final int DDPCAPS_1BIT =                     0x00000100;
-        static private final int DDPCAPS_2BIT =                     0x00000200;
-        static private final int DDPCAPS_ALPHA =                    0x00000400;
+
+    static private final int DDCKEYCAPS_DESTBLT =               0x00000001;
+    static private final int DDCKEYCAPS_DESTBLTCLRSPACE =       0x00000002;
+    static private final int DDCKEYCAPS_DESTBLTCLRSPACEYUV =    0x00000004;
+    static private final int DDCKEYCAPS_DESTBLTYUV =            0x00000008;
+    static private final int DDCKEYCAPS_DESTOVERLAY =           0x00000010;
+    static private final int DDCKEYCAPS_DESTOVERLAYCLRSPACE =   0x00000020;
+    static private final int DDCKEYCAPS_DESTOVERLAYCLRSPACEYUV =0x00000040;
+    static private final int DDCKEYCAPS_DESTOVERLAYONEACTIVE =  0x00000080;
+    static private final int DDCKEYCAPS_DESTOVERLAYYUV =        0x00000100;
+    static private final int DDCKEYCAPS_SRCBLT =                0x00000200;
+    static private final int DDCKEYCAPS_SRCBLTCLRSPACE =        0x00000400;
+    static private final int DDCKEYCAPS_SRCBLTCLRSPACEYUV =     0x00000800;
+    static private final int DDCKEYCAPS_SRCBLTYUV =             0x00001000;
+    static private final int DDCKEYCAPS_SRCOVERLAY =            0x00002000;
+    static private final int DDCKEYCAPS_SRCOVERLAYCLRSPACE =    0x00004000;
+    static private final int DDCKEYCAPS_SRCOVERLAYCLRSPACEYUV = 0x00008000;
+    static private final int DDCKEYCAPS_SRCOVERLAYONEACTIVE =   0x00010000;
+    static private final int DDCKEYCAPS_SRCOVERLAYYUV =         0x00020000;
+    static private final int DDCKEYCAPS_NOCOSTOVERLAY =         0x00040000;
+
+    static private final int DDPCAPS_4BIT =                     0x00000001;
+    static private final int DDPCAPS_8BITENTRIES =              0x00000002;
+    static private final int DDPCAPS_8BIT =                     0x00000004;
+    static private final int DDPCAPS_INITIALIZE =               0x00000008;
+    static private final int DDPCAPS_PRIMARYSURFACE =           0x00000010;
+    static private final int DDPCAPS_PRIMARYSURFACELEFT =       0x00000020;
+    static private final int DDPCAPS_ALLOW256 =                 0x00000040;
+    static private final int DDPCAPS_VSYNC =                    0x00000080;
+    static private final int DDPCAPS_1BIT =                     0x00000100;
+    static private final int DDPCAPS_2BIT =                     0x00000200;
+    static private final int DDPCAPS_ALPHA =                    0x00000400;
 
 //        /*  0*/ DWORD	dwSize;			// size of the DDDRIVERCAPS structure
 //        /*  4*/ DWORD	dwCaps;			// driver specific capabilities
@@ -373,35 +310,30 @@ public class IDirectDraw extends IUnknown {
 //        /*138*/ DWORD	dwReserved6;		// reserved
 //        #endif /* DIRECTDRAW_VERSION >= 0x0500 */
 
-        public java.lang.String getName() {
-            return "IDirectDraw.GetCaps";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpDDDriverCaps = CPU.CPU_Pop32();
-            int lpDDHELCaps = CPU.CPU_Pop32();
-            int bpp = 0x00000D00; // 8 16 and 32
-            int size = Memory.mem_readd(lpDDDriverCaps);lpDDDriverCaps+=4;
-            Memory.mem_zero(lpDDDriverCaps+4, size-4);
-            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   4 dwCaps
-            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   8 dwCaps2
-            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   C dwCKeyCaps
-            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  10 dwFXCaps
-            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  14 dwFXAlphaCaps
-            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  18 dwPalCaps
-            Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  1C dwSVCaps
-            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  20 dwAlphaBltConstBitDepths
-            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  24 dwAlphaBltPixelBitDepths
-            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  28 dwAlphaBltSurfaceBitDepths
-            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  2C dwAlphaOverlayConstBitDepths
-            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  30 dwAlphaOverlayPixelBitDepths
-            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  34 dwAlphaOverlaySurfaceBitDepths
-            Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  38 dwZBufferBitDepths
-            Memory.mem_writed(lpDDDriverCaps, 0x02000000);lpDDDriverCaps+=4;//  3C dwVidMemTotal
-            Memory.mem_writed(lpDDDriverCaps, 0x02000000);lpDDDriverCaps+=4;//  40 dwVidMemFree
-            Memory.mem_writed(lpDDDriverCaps, 0x00000020);lpDDDriverCaps+=4;//  44 dwMaxVisibleOverlays
-            Memory.mem_writed(lpDDDriverCaps, 0x00000000);lpDDDriverCaps+=4;//  48 dwCurrVisibleOverlays
-            Memory.mem_writed(lpDDDriverCaps, 0x00000003);lpDDDriverCaps+=4;//  4C dwNumFourCCCodes
+    // HRESULT GetCaps(this, LPDDCAPS lpDDDriverCaps, LPDDCAPS lpDDHELCaps)
+    public static int GetCaps(int This, int lpDDDriverCaps, int lpDDHELCaps) {
+        int bpp = 0x00000D00; // 8 16 and 32
+        int size = Memory.mem_readd(lpDDDriverCaps);lpDDDriverCaps+=4;
+        Memory.mem_zero(lpDDDriverCaps+4, size-4);
+        Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   4 dwCaps
+        Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   8 dwCaps2
+        Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   C dwCKeyCaps
+        Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  10 dwFXCaps
+        Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  14 dwFXAlphaCaps
+        Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  18 dwPalCaps
+        Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//  1C dwSVCaps
+        Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  20 dwAlphaBltConstBitDepths
+        Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  24 dwAlphaBltPixelBitDepths
+        Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  28 dwAlphaBltSurfaceBitDepths
+        Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  2C dwAlphaOverlayConstBitDepths
+        Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  30 dwAlphaOverlayPixelBitDepths
+        Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  34 dwAlphaOverlaySurfaceBitDepths
+        Memory.mem_writed(lpDDDriverCaps, bpp);lpDDDriverCaps+=4;       //  38 dwZBufferBitDepths
+        Memory.mem_writed(lpDDDriverCaps, 0x02000000);lpDDDriverCaps+=4;//  3C dwVidMemTotal
+        Memory.mem_writed(lpDDDriverCaps, 0x02000000);lpDDDriverCaps+=4;//  40 dwVidMemFree
+        Memory.mem_writed(lpDDDriverCaps, 0x00000020);lpDDDriverCaps+=4;//  44 dwMaxVisibleOverlays
+        Memory.mem_writed(lpDDDriverCaps, 0x00000000);lpDDDriverCaps+=4;//  48 dwCurrVisibleOverlays
+        Memory.mem_writed(lpDDDriverCaps, 0x00000003);lpDDDriverCaps+=4;//  4C dwNumFourCCCodes
 //            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  50 dwAlignBoundarySrc
 //            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  54 dwAlignSizeSrc
 //            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  58 dwAlignBoundaryDest
@@ -444,161 +376,88 @@ public class IDirectDraw extends IUnknown {
 //                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=4;     // 148 dwNLVBFXCaps
 //                Memory.mem_writed(lpDDDriverCaps, 0);lpDDDriverCaps+=32;    // 14C dwNLVBRops
 //            }
-        }
-    };
+        return Error.S_OK;
+    }
 
     // HRESULT GetDisplayMode(this, LPDDSURFACEDESC lpDDSurfaceDesc)
-    static private Callback.Handler GetDisplayMode = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.GetDisplayMode";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpDDSurfaceDesc = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int GetDisplayMode(int This, int lpDDSurfaceDesc) {
+        Win.panic("IDirectDraw.FlipToGDISurface not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT GetFourCCCodes(this, LPDWORD lpNumCodes, LPDWORD lpCodes)
-    static private Callback.Handler GetFourCCCodes = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.GetFourCCCodes";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpNumCodes = CPU.CPU_Pop32();
-            int lpCodes = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int GetFourCCCodes(int This, int lpNumCodes, int lpCodes) {
+        Win.panic("IDirectDraw.GetFourCCCodes not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT GetGDISurface(this, LPDIRECTDRAWSURFACE *lplpGDIDDSurface)
-    static private Callback.Handler GetGDISurface = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.GetGDISurface";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lplpGDIDDSurface = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int GetGDISurface(int This, int lplpGDIDDSurface) {
+        Win.panic("IDirectDraw.GetFourCCCodes not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT GetMonitorFrequency(this, LPDWORD lpdwFrequency)
-    static private Callback.Handler GetMonitorFrequency = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.GetMonitorFrequency";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpdwFrequency = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int GetMonitorFrequency(int This, int lpdwFrequency) {
+        Win.panic("IDirectDraw.GetMonitorFrequency not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT GetScanLine(this, LPDWORD lpdwScanLine)
-    static private Callback.Handler GetScanLine = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.GetScanLine";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpdwScanLine = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int GetScanLine(int This, int lpdwScanLine) {
+        Win.panic("IDirectDraw.GetScanLine not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT GetVerticalBlankStatus(this, BOOL *lpbIsInVB)
-    static private Callback.Handler GetVerticalBlankStatus = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.GetVerticalBlankStatus";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpbIsInVB = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int GetVerticalBlankStatus(int This, int lpbIsInVB) {
+        Win.panic("IDirectDraw.GetVerticalBlankStatus not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT Initialize(this, GUID *lpGUID)
-    static private Callback.Handler Initialize = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.Initialize";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int lpGUID = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int Initialize(int This, int lpGUID) {
+        Win.panic("IDirectDraw.Initialize not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT RestoreDisplayMode(this)
-    static private Callback.Handler RestoreDisplayMode = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.RestoreDisplayMode";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            notImplemented();
-        }
-    };
+    public static int RestoreDisplayMode(int This) {
+        Win.panic("IDirectDraw.RestoreDisplayMode not implemented yet");
+        return Error.S_OK;
+    }
 
     // HRESULT SetCooperativeLevel(this, HWND hWnd, DWORD dwFlags)
-    static private Callback.Handler SetCooperativeLevel = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.SetCooperativeLevel";
+    public static int SetCooperativeLevel(int This, int hWnd, int dwFlags) {
+        if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE|DDSCL_ALLOWMODEX))!=0) {
+            log("DDraw.SetCooperativeLevel: unsupported flags: " + Ptr.toString(dwFlags));
         }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int hWnd = CPU.CPU_Pop32();
-            int dwFlags = CPU.CPU_Pop32();
-            if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE|DDSCL_ALLOWMODEX))!=0) {
-                Console.out("DDraw.SetCooperativeLevel: unsupported flags: " + Integer.toString(dwFlags, 16));
-            }
-            CPU_Regs.reg_eax.dword = Error.S_OK;
-        }
-    };
+        return Error.S_OK;
+    }
 
     // HRESULT SetDisplayMode(this, DWORD dwWidth, DWORD dwHeight, DWORD dwBPP)
-    static private Callback.Handler SetDisplayMode = new HandlerBase() {
-        public java.lang.String getName() {
-            return "IDirectDraw.SetDisplayMode";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int dwWidth = CPU.CPU_Pop32();
-            int dwHeight = CPU.CPU_Pop32();
-            int dwBPP = CPU.CPU_Pop32();
-            if ((getData(This, OFFSET_FLAGS) & FLAGS_V7)!=0) {
-                int dwRefreshRate = CPU.CPU_Pop32();
-                int dwFlags = CPU.CPU_Pop32();
-            }
-            setData(This, OFFSET_CX, dwWidth);
-            setData(This, OFFSET_CY, dwHeight);
-            setData(This, OFFSET_BPP, dwBPP);
-            WinSystem.setScreenSize(dwWidth, dwHeight, dwBPP);
-            if (dwBPP<=8)
-                getPalette(This); // set up default palette
-            Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);
-            CPU_Regs.reg_eax.dword = Error.S_OK;
-            if (Module.LOG)
-                log(dwWidth+"x"+dwHeight+" @ "+dwBPP+"bpp");
-        }
-    };
+    public static int SetDisplayMode(int This, int dwWidth, int dwHeight, int dwBPP) {
+        setData(This, OFFSET_CX, dwWidth);
+        setData(This, OFFSET_CY, dwHeight);
+        setData(This, OFFSET_BPP, dwBPP);
+        WinSystem.setScreenSize(dwWidth, dwHeight, dwBPP);
+        if (dwBPP<=8)
+            getPalette(This); // set up default palette
+        Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);
+        return Error.S_OK;
+    }
+
+    // HRESULT SetDisplayMode(this, DWORD dwWidth, DWORD dwHeight, DWORD dwBPP, DWORD dwRefreshRate, DWORD dwFlags)
+    public static int SetDisplayMode7(int This, int dwWidth, int dwHeight, int dwBPP, int dwRefreshRate, int dwFlags) {
+        return SetDisplayMode(This, dwWidth, dwHeight, dwBPP);
+    }
+
+    static final public int DDWAITVB_BLOCKBEGIN =       0x00000001;
+    static final public int DDWAITVB_BLOCKBEGINEVENT =  0x00000002;
+    static final public int DDWAITVB_BLOCKEND =         0x00000004;
 
     // HRESULT WaitForVerticalBlank(this, DWORD dwFlags, HANDLE hEvent)
-    static private Callback.Handler WaitForVerticalBlank = new HandlerBase() {
-        static final public int DDWAITVB_BLOCKBEGIN =       0x00000001;
-        static final public int DDWAITVB_BLOCKBEGINEVENT =  0x00000002;
-        static final public int DDWAITVB_BLOCKEND =         0x00000004;
-
-        public java.lang.String getName() {
-            return "IDirectDraw.WaitForVerticalBlank";
-        }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int dwFlags = CPU.CPU_Pop32();
-            int hEvent = CPU.CPU_Pop32();
-        }
-    };
+    static public int WaitForVerticalBlank(int This, int dwFlags, int hEvent) {
+        return Error.S_OK;
+    }
 }

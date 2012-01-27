@@ -1,4 +1,4 @@
-package jdos.win.builtin.ddraw;
+package jdos.win.builtin.directx.ddraw;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;

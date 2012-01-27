@@ -1,13 +1,27 @@
-package jdos.win.system;
+package jdos.win.builtin.gdi32;
 
 import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.JavaBitmap;
+import jdos.win.system.WinObject;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Pixel;
 
 import java.awt.image.BufferedImage;
 
 public class WinBitmap extends WinGDI {
+    static public WinBitmap create(int address) {
+        return new WinBitmap(nextObjectId(), address);
+    }
+
+    static public WinBitmap get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinBitmap))
+            return null;
+        return (WinBitmap)object;
+    }
+
     int address;
 
     int width;

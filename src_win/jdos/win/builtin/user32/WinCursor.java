@@ -1,6 +1,9 @@
-package jdos.win.system;
+package jdos.win.builtin.user32;
 
+import jdos.gui.Main;
 import jdos.win.Win;
+import jdos.win.system.StaticData;
+import jdos.win.system.WinObject;
 import jdos.win.utils.LittleEndian;
 import jdos.win.utils.Pixel;
 import jdos.win.utils.StreamHelper;
@@ -12,6 +15,52 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class WinCursor extends WinObject {
+    static public WinCursor create(int instance, int name) {
+        WinCursor cursor = new WinCursor(nextObjectId(), instance, name);
+        return cursor;
+    }
+
+    static public WinCursor get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinCursor))
+            return null;
+        return (WinCursor)object;
+    }
+
+    // HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCTSTR lpCursorName)
+    static public int LoadCursorA(int hInstance, int lpCursorName) {
+        return create(hInstance, lpCursorName).handle;
+    }
+
+    // HCURSOR WINAPI SetCursor(HCURSOR hCursor)
+    static public int SetCursor(int hCursor) {
+        int result = StaticData.hCursor;
+        StaticData.hCursor = hCursor;
+        if (hCursor == 0)
+            Main.GFX_SetCursor(null);
+        else {
+            if (StaticData.showCursorCount>=0)
+                Main.GFX_SetCursor(WinCursor.get(hCursor).cursor);
+        }
+        return hCursor;
+    }
+
+    // int WINAPI ShowCursor(BOOL bShow)
+    static public int ShowCursor(int bShow) {
+        if (bShow != 0) {
+            StaticData.showCursorCount++;
+            if (StaticData.showCursorCount == 0) {
+                SetCursor(StaticData.hCursor);
+            }
+        } else {
+            StaticData.showCursorCount--;
+            if (StaticData.showCursorCount == -1) {
+                Main.GFX_SetCursor(null);
+            }
+        }
+        return StaticData.showCursorCount;
+    }
+
     static private Hashtable cursors = new Hashtable();
 
     Cursor cursor = null;
@@ -98,53 +147,57 @@ public class WinCursor extends WinObject {
         if (name<0xFFFF) {
             cursor = loadSystemCursor(name);
         } else {
-            int ii=0;
+            Win.panic("Loading a non system cursor has not been implemented yet");
         }
+    }
+
+    public Cursor getCursor() {
+        return cursor;
     }
 
     public static Cursor loadSystemCursor(int id) {
         String res = null;
         switch (id) {
-            case 32650: // IDC_APPSTARTING - Standard arrow and small hourglass
+            case IDC_APPSTARTING: // Standard arrow and small hourglass
                 res = "ocr_appstarting.cur";
                 break;
-            case 32512: // IDC_ARROW - Standard arrow
+            case IDC_ARROW: // Standard arrow
                 res = "ocr_normal.cur";
                 break;
-            case 32515: // IDC_CROSS - Crosshair
+            case IDC_CROSS: // Crosshair
                 res = "ocr_cross.cur";
                 break;
-            case 32649: // IDC_HAND - Hand
+            case IDC_HAND: // Hand
                 res = "ocr_hand.cur";
                 break;
-            case 32651: // IDC_HELP - Arrow and question mark
+            case IDC_HELP: // Arrow and question mark
                 res = "ocr_help.cur";
                 break;
-            case 32513: // IDC_IBEAM - I-beam
+            case IDC_IBEAM: // I-beam
                 res = "ocr_ibeam.cur";
                 break;
-            case 32648: // IDC_NO - Slashed circle
+            case IDC_NO: // Slashed circle
                 res = "ocr_no.cur";
                 break;
-            case 32646: // IDC_SIZEALL - Four-pointed arrow pointing north, south, east, and west
+            case IDC_SIZEALL: // Four-pointed arrow pointing north, south, east, and west
                 res = "ocr_sizeall.cur";
                 break;
-            case 32643: // IDC_SIZENESW - Double-pointed arrow pointing northeast and southwest
+            case IDC_SIZENESW: // - Double-pointed arrow pointing northeast and southwest
                 res = "ocr_sizenesw.cur";
                 break;
-            case 32645: // IDC_SIZENS - Double-pointed arrow pointing north and south
+            case IDC_SIZENS: // Double-pointed arrow pointing north and south
                 res = "ocr_sizens.cur";
                 break;
-            case 32642: // IDC_SIZENWSE - Double-pointed arrow pointing northwest and southeast
+            case IDC_SIZENWSE: // Double-pointed arrow pointing northwest and southeast
                 res = "ocr_sizenwse.cur";
                 break;
-            case 32644: // IDC_SIZEWE - Double-pointed arrow pointing west and east
+            case IDC_SIZEWE: // Double-pointed arrow pointing west and east
                 res = "ocr_sizewe.cur";
                 break;
-            case 32516: // IDC_UPARROW - Vertical arrow
+            case IDC_UPARROW: // Vertical arrow
                 res = "ocr_up.cur";
                 break;
-            case 32514: // IDC_WAIT - Hourglass
+            case IDC_WAIT: // Hourglass
                 res = "ocr_wait.cur";
                 break;
             default:

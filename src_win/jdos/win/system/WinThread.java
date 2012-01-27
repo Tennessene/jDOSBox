@@ -3,17 +3,33 @@ package jdos.win.system;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
-import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.user32.GuiThreadInfo;
+import jdos.win.builtin.user32.Input;
+import jdos.win.builtin.user32.WinWindow;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
-import jdos.win.loader.Module;
 import jdos.win.utils.Error;
 
 import java.util.*;
 
 public class WinThread extends WaitObject {
+    static public WinThread create(WinProcess process, long startAddress, int stackSizeCommit, int stackSizeReserve, boolean primary) {
+        return new WinThread(nextObjectId(), process, startAddress, stackSizeCommit, stackSizeReserve, primary);
+    }
+
+    static public WinThread get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinThread))
+            return null;
+        return (WinThread)object;
+    }
+
+    static public WinThread current() {
+        return Scheduler.getCurrentThread();
+    }
+
     static public final int THREAD_PRIORITY_IDLE = -15;
     static public final int THREAD_PRIORITY_LOWEST = -2;
     static public final int THREAD_PRIORITY_BELOW_NORMAL = -1;
@@ -29,13 +45,22 @@ public class WinThread extends WaitObject {
     private KernelHeap stack;
     private int stackAddress;
     private int startAddress;
-    private List msgQueue = Collections.synchronizedList(new ArrayList()); // synchronized since the keyboard will post message from another thread
+    private List<WinMsg> msgQueue = Collections.synchronizedList(new ArrayList<WinMsg>()); // synchronized since the keyboard will post message from another thread
     private List sendMsgQueue = new ArrayList();
-    Vector windows = new Vector();
+    public Vector<WinWindow> windows = new Vector<WinWindow>();
     private boolean quit = false;
     private WinTimer timer = new WinTimer(0);
     public int priority = THREAD_PRIORITY_NORMAL;
     public BitSet keyState;
+    public int msg_window;
+    final private WinEvent msgReady = WinEvent.create(null, true, true);
+    private GuiThreadInfo guiInfo = new GuiThreadInfo();
+    public int waitTime;
+    public int waitTimeStart;
+
+    public GuiThreadInfo GetGUIThreadInfo() {
+        return guiInfo;
+    }
 
     private Callback.Handler startUp = new HandlerBase() {
         public String getName() {
@@ -87,7 +112,7 @@ public class WinThread extends WaitObject {
             threadStarup = process.loader.registerFunction(cb);
             this.cpuState.eip = threadStarup;
         }
-        WinSystem.scheduler.addThread(this, false);
+        Scheduler.addThread(this, false);
     }
 
     static void setMessage(int address, int hWnd, int message, int wParam, int lParam, int time, int curX, int curY) {
@@ -105,11 +130,9 @@ public class WinThread extends WaitObject {
             return WinAPI.TRUE;
         WinMsg msg;
         if (remove) {
-            msg = (WinMsg)msgQueue.remove(msgIndex);
-            if (Module.LOG)
-                System.out.println("Out msgCount="+msgQueue.size());
+            msg = msgQueue.remove(msgIndex);
         } else
-            msg = (WinMsg)msgQueue.get(msgIndex);
+            msg = msgQueue.get(msgIndex);
         if (msg.keyState != null)
             keyState = msg.keyState;
         setMessage(msgAddress, msg.hwnd, msg.message, msg.wParam, msg.lParam, msg.time, msg.x, msg.y);
@@ -126,45 +149,64 @@ public class WinThread extends WaitObject {
 
     }
     public void postMessage(int hWnd, int message, int wParam, int lParam) {
-        if (Module.LOG)
-            System.out.println("In msgCount="+msgQueue.size());
         msgQueue.add(new WinMsg(hWnd, message, wParam, lParam));
+        synchronized(msgReady) {
+            msgReady.set();
+        }
     }
 
     public void postMessage(int hWnd, int message, int wParam, int lParam, BitSet keyState) {
         msgQueue.add(new WinMsg(hWnd, message, wParam, lParam, keyState));
-    }
-
-    public boolean isCurrent() {
-        return WinSystem.getCurrentThread()==this;
-    }
-
-    public void sendMessage(int hWnd, int message, int wParam, int lParam) {
-        if (isCurrent()) {
-            CPU_Regs.reg_eax.dword = ((WinWindow)WinSystem.getObject(hWnd)).sendMessage(message, wParam, lParam);
-        } else {
-            Win.panic("Need to implement intra thread SendMessage");
-            sendMsgQueue.add(new WinMsg(hWnd, message, wParam, lParam, WinSystem.getCurrentThread()));
-            WinSystem.scheduler.removeThread(WinSystem.getCurrentThread(), true);
+        synchronized(msgReady) {
+            msgReady.set();
         }
     }
 
+    public boolean isCurrent() {
+        return Scheduler.getCurrentThread()==this;
+    }
+
     public int waitMessage() {
-        while (peekMessage(0, 0, 0, 0, 0) == WinAPI.FALSE) {
-            // :TODO: put thread to sleep until new msg or timer or paint or quit
-            WinSystem.scheduler.yield(this);
+        Input.processInput();
+        if (peekMessage(0, 0, 0, 0, 0) == WinAPI.FALSE) {
+            synchronized(msgReady) {
+                msgReady.reset();
+                int time = timeUntilNextTimer();
+                if (time == Integer.MAX_VALUE)
+                    time = -1;
+                else
+                    time = time - WinSystem.getTickCount();
+                return msgReady.wait(this, time);
+            }
         }
         return WinAPI.TRUE;
     }
 
+    public void paintReady() {
+        msgReady.set();
+    }
+
+    private int timeUntilNextTimer() {
+        int time = timer.getNextTimerTime();
+
+        for (int i=0;i<windows.size();i++) {
+            WinWindow window = windows.elementAt(i);
+            int t = window.timer.getNextTimerTime();
+            if (t<time)
+                time = t;
+        }
+        return time;
+    }
+
     public int peekMessage(int msgAddress, int hWnd, int minMsg, int maxMsg, int wRemoveMsg) {
+        Input.processInput();
         if (quit)  {
-            setMessage(msgAddress, 0, WinWindow.WM_QUIT, 0, 0, WinSystem.getTickCount(), WinSystem.getMouseX(), WinSystem.getMouseY());
+            setMessage(msgAddress, 0, WinWindow.WM_QUIT, 0, 0, WinSystem.getTickCount(), StaticData.currentPos.x, StaticData.currentPos.y);
             return WinAPI.TRUE;
         }
         boolean remove = (wRemoveMsg & 0x0001)!= 0;
         for (int i=0;i<msgQueue.size();i++) {
-            WinMsg msg = (WinMsg)msgQueue.get(i);
+            WinMsg msg = msgQueue.get(i);
             if (hWnd == 0 || msg.hwnd == hWnd) {
                 if (minMsg == 0 && maxMsg == 0)
                     return getMessage(msgAddress, i, remove);
@@ -173,11 +215,11 @@ public class WinThread extends WaitObject {
             }
         }
         for (int i=0;i<windows.size();i++) {
-            WinWindow window = (WinWindow)windows.elementAt(i);
-            if (window.needsPainting) {
+            WinWindow window = windows.elementAt(i);
+            if (window.needsPainting()) {
                 if (remove)
-                    window.needsPainting = false;
-                setMessage(msgAddress, window.getHandle(), WinWindow.WM_PAINT, 0, 0, WinSystem.getTickCount(), WinSystem.getMouseX(), WinSystem.getMouseY());
+                    window.validate();
+                setMessage(msgAddress, window.getHandle(), WinWindow.WM_PAINT, 0, 0, WinSystem.getTickCount(), StaticData.currentPos.x, StaticData.currentPos.y);
                 return WinAPI.TRUE;
             }
         }
@@ -194,23 +236,29 @@ public class WinThread extends WaitObject {
     }
 
     public int getNextMessage(int msgAddress, int hWnd, int minMsg, int maxMsg) {
-        if (quit)
+        Input.processInput();
+        if (quit) {
             return WinAPI.FALSE;
-        if (peekMessage(msgAddress, hWnd, minMsg, maxMsg, 0x0001)==WinAPI.TRUE)
-            return WinAPI.TRUE;
-        return -2;
+        }
+        while (true) {
+            if (peekMessage(msgAddress, hWnd, minMsg, maxMsg, 0x0001)==WinAPI.TRUE) {
+                return WinAPI.TRUE;
+            }
+            if (waitMessage() == WAIT_SWITCH)
+                return WAIT_SWITCH; // not looked at
+        }
     }
 
     public WinMsg getLastMessage() {
         synchronized (msgQueue) {
             if (msgQueue.size()!=0)
-                return (WinMsg)msgQueue.get(msgQueue.size()-1);
+                return msgQueue.get(msgQueue.size()-1);
         }
         return null;
     }
 
     public void sleep(int ms) {
-        WinSystem.scheduler.sleep(this, ms);
+        Scheduler.sleep(this, ms);
     }
 
     public void pushStack32(int value) {
@@ -223,7 +271,7 @@ public class WinThread extends WaitObject {
         stack.deallocate();
         close();
         getProcess().freeAddress(stackAddress);
-        WinSystem.scheduler.removeThread(this, true);
+        Scheduler.removeThread(this);
     }
 
     public void loadCPU() {

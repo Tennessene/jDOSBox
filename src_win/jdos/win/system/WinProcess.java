@@ -18,6 +18,28 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class WinProcess extends WaitObject {
+    static public WinProcess create(String path, String commandLine, Vector paths, String workingDirectory) {
+        WinProcess currentProcess = WinSystem.getCurrentProcess();
+        WinProcess process = new WinProcess(nextObjectId(), WinSystem.memory, workingDirectory);
+        process.switchPageDirectory();
+
+        if (!process.load(path, commandLine, paths)) {
+            process.close();
+            return null;
+        }
+        if (currentProcess != null) {
+            currentProcess.switchPageDirectory();
+        }
+        return process;
+    }
+
+    static public WinProcess get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinProcess))
+            return null;
+        return (WinProcess)object;
+    }
+
     public static final long ADDRESS_HEAP_START =           0x0BA00000l;
     public static final long ADDRESS_HEAP_END =             0x0FFFF000l;
     public static final long ADDRESS_KHEAP_START =          0x90000000l;
@@ -42,6 +64,8 @@ public class WinProcess extends WaitObject {
     private Hashtable env = new Hashtable();
     public Loader loader;
     private Vector threads = new Vector();
+    private int[] temp = new int[10];
+    public int nextTempIndex = 0;
 
     public String currentWorkingDirectory;
     public Vector paths;
@@ -51,6 +75,7 @@ public class WinProcess extends WaitObject {
     public KernelMemory kernelMemory;
     public Heap addressSpace = new Heap(0x00100000l, 0xFFF00000l);
     public Hashtable classNames = new Hashtable();
+    public WinEvent readyForInput = WinEvent.create(null, true, false);
 
     public WinProcess(int handle, KernelMemory memory, String workingDirectory) {
         super(handle);
@@ -121,7 +146,7 @@ public class WinProcess extends WaitObject {
     }
 
     public WinThread createThread(long startAddress, int stackSizeCommit, int stackSizeReserve) {
-        WinThread thread = WinSystem.createThread(this, startAddress, stackSizeCommit, stackSizeReserve, false);
+        WinThread thread = WinThread.create(this, startAddress, stackSizeCommit, stackSizeReserve, false);
         threads.add(thread);
         return thread;
     }
@@ -131,11 +156,32 @@ public class WinProcess extends WaitObject {
         if (module != null) {
             return module.getHandle();
         }
-        WinSystem.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_MOD_NOT_FOUND);
+        Scheduler.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_MOD_NOT_FOUND);
         return 0;
     }
 
+    public int getTemp(int size) {
+        int index = nextTempIndex;
+        nextTempIndex+=2;
+        if (nextTempIndex>=temp.length) {
+            int[] i = new int[temp.length*2];
+            System.arraycopy(temp, 0, i, 0, temp.length);
+            temp = i;
+        }
+        if (temp[index]<size) {
+            if (temp[index+1]!=0)
+                heap.free(temp[index+1]);
+            temp[index+1] = heap.alloc(size, false);
+            temp[index] = size;
+        }
+        return temp[index+1];
+    }
+
     public void exit() {
+        for (int i=1;i<temp.length;i+=2) {
+            if (temp[i]!=0)
+                heap.free(temp[i]);
+        }
         release();
         loader.unload();
         for (int i=0;i<threads.size();i++) {
@@ -147,7 +193,7 @@ public class WinProcess extends WaitObject {
         // This process is down, and all threads have been removed from the scheduler
         // By scheduling a thread in another process, the page directory will change
         // which is why this has to be done last
-        WinSystem.scheduler.tick();
+        Scheduler.tick();
     }
 
     private String buildEnvString() {
@@ -213,7 +259,7 @@ public class WinProcess extends WaitObject {
         Module module = getModuleByHandle(handle);
         if (module != null)
             return module.getProcAddress(name, false);
-        WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
+        Scheduler.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
         return 0;
     }
 

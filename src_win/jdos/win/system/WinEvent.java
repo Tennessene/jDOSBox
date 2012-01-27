@@ -4,6 +4,17 @@ import jdos.cpu.CPU_Regs;
 import jdos.win.builtin.WinAPI;
 
 public class WinEvent extends WaitObject {
+    static public WinEvent create(String name, boolean manual, boolean set) {
+        return new WinEvent(nextObjectId(), name, manual, set);
+    }
+
+    static public WinEvent get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinEvent))
+            return null;
+        return (WinEvent)object;
+    }
+
     public WinEvent(int handle, String name, boolean manual, boolean set) {
         super(handle);
         this.name = name;
@@ -17,6 +28,10 @@ public class WinEvent extends WaitObject {
         return WinAPI.TRUE;
     }
 
+    public void reset() {
+        set = false;
+    }
+
     public int wait(WinThread thread, int timeout) {
         if (set) {
             CPU_Regs.reg_eax.dword = WaitObject.WAIT_OBJECT_0;
@@ -26,16 +41,15 @@ public class WinEvent extends WaitObject {
         }
         CPU_Regs.reg_eax.dword = WAIT_TIMEOUT;
         if (timeout !=0) {
-            waiting.add(thread);
-            return 2;
+            return internalWait(thread, timeout);
         }
         return 0;
     }
 
     public void release() {
-        for (int i=0;i<waiting.size();i++) {
-            WinThread thread = (WinThread)waiting.elementAt(i);
-            WinSystem.scheduler.addThread(thread, false);
+        while(waiting.size()>0) {
+            WinThread thread = waiting.remove(0);
+            Scheduler.addThread(thread, false);
             if (!manual) {
                 break; // only one
             }

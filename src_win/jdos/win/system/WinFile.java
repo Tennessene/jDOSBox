@@ -8,6 +8,17 @@ import java.io.FileFilter;
 import java.io.RandomAccessFile;
 
 public class WinFile extends WinObject {
+    static public WinFile create(String name, RandomAccessFile file, int shareMode, int attributes) {
+        return new WinFile(nextObjectId(), name, file, shareMode, attributes);
+    }
+
+    static public WinFile get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinFile))
+            return null;
+        return (WinFile)object;
+    }
+
     public final static int FILE_SHARE_NONE = 0x0;
     public final static int FILE_SHARE_READ = 0x1;
     public final static int FILE_SHARE_WRITE = 0x2;

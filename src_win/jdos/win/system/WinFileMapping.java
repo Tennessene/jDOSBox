@@ -1,10 +1,21 @@
 package jdos.win.system;
 
 import jdos.hardware.Memory;
+import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelMemory;
-import jdos.win.loader.Module;
 
 public class WinFileMapping extends WinObject {
+    static public WinFileMapping create(int hFile, String name, long size) {
+        return new WinFileMapping(hFile, name, size, nextObjectId());
+    }
+
+    static public WinFileMapping get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinFileMapping))
+            return null;
+        return (WinFileMapping)object;
+    }
+
     public WinFileMapping(int fileHandle, String name, long size, int handle) {
         super(name, handle);
         this.fileHandle = fileHandle;
@@ -12,7 +23,7 @@ public class WinFileMapping extends WinObject {
         byte[] buffer = null;
 
         if (fileHandle>0) {
-            file = (WinFile)WinSystem.getObject(fileHandle);
+            file = WinFile.get(fileHandle);
             size = file.size();
             file.seek(0, 0);
             buffer = new byte[4096];
@@ -63,9 +74,8 @@ public class WinFileMapping extends WinObject {
     static public boolean unmap(int address) {
         int handle = Memory.mem_readd(address-0x1000);
         int frameCount = Memory.mem_readd(address-0x1000+4);
-        WinObject object = WinSystem.getObject(handle);
-        if (object instanceof WinFileMapping) {
-            WinFileMapping mapping = (WinFileMapping)object;
+        WinFileMapping mapping = WinFileMapping.get(handle);
+        if (mapping != null) {
             int directory = WinSystem.getCurrentProcess().page_directory;
             for (int i=0;i<frameCount;i++) {
                 int page = WinSystem.memory.get_page(address+i*0x1000, true, directory);
@@ -79,7 +89,7 @@ public class WinFileMapping extends WinObject {
     }
 
     public void onFree() {
-        if (Module.LOG) {
+        if (WinAPI.LOG) {
             System.out.println("Freeing File Mapping: handle="+handle+" name="+name+" fileName="+fileName);
         }
         for (int i=0;i<frames.length;i++) {

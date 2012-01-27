@@ -19,7 +19,7 @@ public class WinCriticalException {
 //    }
 
     static public void initialize(int address, int spinCount) {
-        WaitObject object = WinSystem.createWaitObject();
+        WaitObject object = WaitObject.create();
         Memory.mem_writed(address, object.getHandle()); address+=4;
         Memory.mem_writed(address, 0xFFFFFFFF); address+=4;
         Memory.mem_writed(address, 0); address+=4;
@@ -29,7 +29,7 @@ public class WinCriticalException {
     }
 
     static public void enter(int address) {
-        WinThread thread = WinSystem.getCurrentThread();
+        WinThread thread = Scheduler.getCurrentThread();
         int handle = thread.handle;
 
         int lockCount = Memory.mem_readd(address + 4);
@@ -45,9 +45,10 @@ public class WinCriticalException {
             recursionCount++;
             Memory.mem_writed(address+8, recursionCount);
         } else {
-            WaitObject object = (WaitObject)WinSystem.getObject(Memory.mem_readd(address));
+            WaitObject object = WaitObject.getWait(Memory.mem_readd(address));
             object.waiting.add(thread);
-            WinSystem.scheduler.removeThread(thread, true);
+            thread.waitTime = -1;
+            Scheduler.wait(thread);
         }
     }
 
@@ -61,11 +62,11 @@ public class WinCriticalException {
         if (recursionCount>0) {
             Memory.mem_writed(address+8, recursionCount);
         } else {
-            WaitObject object = (WaitObject)WinSystem.getObject(Memory.mem_readd(address));
+            WaitObject object = WaitObject.getWait(Memory.mem_readd(address));
             if (object.waiting.size()>0) {
                 WinThread thread = (WinThread)object.waiting.remove(0);
                 Memory.mem_writed(address+12, thread.getHandle()); // set new owner
-                WinSystem.scheduler.addThread(thread, false); // wake up the waiting thread
+                Scheduler.addThread(thread, false); // wake up the waiting thread
                 // leave recursion count at 1
 
             } else {
@@ -76,7 +77,7 @@ public class WinCriticalException {
     }
 
     static public void delete(int address) {
-        WaitObject object = (WaitObject)WinSystem.getObject(Memory.mem_readd(address));
+        WaitObject object = WaitObject.getWait(Memory.mem_readd(address));
         object.close();
     }
 }

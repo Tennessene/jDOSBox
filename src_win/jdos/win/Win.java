@@ -11,11 +11,12 @@ import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.misc.setup.Section;
 import jdos.util.StringRef;
+import jdos.win.builtin.user32.WinCursor;
 import jdos.win.kernel.VideoMemory;
 import jdos.win.loader.winpe.HeaderPE;
-import jdos.win.system.WinCursor;
 import jdos.win.system.WinKeyboard;
 import jdos.win.system.WinMouse;
+import jdos.win.system.WinProcess;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Path;
 
@@ -120,7 +121,7 @@ public class Win {
 
         Main.GFX_SetCursor(WinCursor.loadSystemCursor(32650)); // IDC_APPSTARTING
         WinSystem.start();
-        if (WinSystem.createProcess(name, "\"" + winPath + name + "\"", paths, winPath) != null) {
+        if (WinProcess.create(name, "\"" + winPath + name + "\"", paths, winPath) != null) {
             return true;
         }
         return true;

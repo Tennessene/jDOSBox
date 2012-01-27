@@ -55,7 +55,7 @@ public class WinHeap {
     public int freeHeap(int handle, int memory) {
         HeapItem item = (HeapItem)heaps.elementAt(handle-1);
         if (item == null) {
-            WinSystem.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_INVALID_HANDLE);
+            Scheduler.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_INVALID_HANDLE);
             return WinAPI.FALSE;
         }
         return item.free(memory);
@@ -91,7 +91,7 @@ public class WinHeap {
             Integer size = (Integer)allocs.get(new Integer(add));
             if (size == null) {
                 System.out.println("VirtualFree could not find address: 0x"+Integer.toString(add, 16));
-                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+                Scheduler.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
                 return WinAPI.FALSE;
             }
             heap.free(add);

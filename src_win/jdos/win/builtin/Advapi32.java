@@ -6,6 +6,7 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
+import jdos.win.system.StaticData;
 import jdos.win.system.WinSystem;
 
 public class Advapi32 extends BuiltinModule {
@@ -110,7 +111,7 @@ public class Advapi32 extends BuiltinModule {
                 if (TokenInformationLength == 0) {
                     Memory.mem_writed(ReturnLength, Sid.SIZE);
                 } else {
-                    Memory.mem_writed(TokenInformation, WinSystem.user.getHandle());
+                    Memory.mem_writed(TokenInformation, StaticData.user.getHandle());
                     Memory.mem_writed(TokenInformation+4, 0); // Attributes
                     Memory.mem_writed(ReturnLength, Sid.SIZE);
                 }

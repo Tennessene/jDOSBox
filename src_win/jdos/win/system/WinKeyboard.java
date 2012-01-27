@@ -4,6 +4,8 @@ import jdos.gui.Main;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
+import jdos.win.builtin.user32.Input;
+import jdos.win.builtin.user32.WinWindow;
 
 import java.awt.event.KeyEvent;
 import java.util.BitSet;
@@ -300,8 +302,8 @@ public class WinKeyboard {
                     if (additional != 0)
                         keyState.clear(additional);
                 }
-                if (msg != 0 && WinSystem.getCurrentThread()!=null)
-                    WinSystem.getCurrentThread().postMessage(WinWindow.currentFocus, msg, result, repeatCount | (oem << 16) | (extended? 1<<24 : 0) | (contextCode << 29) | (previousState << 30) | (transitionState << 31), (BitSet)keyState.clone());
+                if (msg != 0)
+                    Input.addKeyboardMsg(msg, result, repeatCount | (oem << 16) | (extended? 1<<24 : 0) | (contextCode << 29) | (previousState << 30) | (transitionState << 31), (BitSet)keyState.clone());
             }
         }
     };

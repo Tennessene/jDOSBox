@@ -7,10 +7,21 @@ import jdos.win.utils.StringUtil;
 import java.io.File;
 
 public class WinFindFile extends WinObject {
+    static public WinFindFile create(File[] results) {
+        return new WinFindFile(nextObjectId(), results);
+    }
+
+    static public WinFindFile get(int handle) {
+        WinObject object = getObject(handle);
+        if (object == null || !(object instanceof WinFindFile))
+            return null;
+        return (WinFindFile)object;
+    }
+
     File[] results;
     int index = 0;
 
-    public WinFindFile(int id, File[] results) {
+    private WinFindFile(int id, File[] results) {
         super(id);
         this.results = results;
     }
@@ -30,7 +41,7 @@ public class WinFindFile extends WinObject {
 
     public int getNextResult(int address) {
         if (index>=results.length) {
-            WinSystem.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_NO_MORE_FILES);
+            Scheduler.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_NO_MORE_FILES);
             return WinAPI.FALSE;
         }
         File file = results[index++];

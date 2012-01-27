@@ -8,6 +8,8 @@ import jdos.util.StringRef;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.*;
+import jdos.win.builtin.gdi32.Gdi32;
+import jdos.win.builtin.user32.User32;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
@@ -95,7 +97,7 @@ public class Loader {
                     if (main == null) {
                         main = module;
                         // we need to create the main thread as soon as possible so that DllMain can run
-                        WinThread thread = WinSystem.createThread(process, module.getEntryPoint(), (int)module.header.imageOptional.SizeOfStackCommit, (int)module.header.imageOptional.SizeOfStackReserve, true);
+                        WinThread thread = WinThread.create(process, module.getEntryPoint(), (int)module.header.imageOptional.SizeOfStackCommit, (int)module.header.imageOptional.SizeOfStackReserve, true);
                         WinSystem.getCurrentProcess().mainModule = module;
                     }
                     // :TODO: reloc dll

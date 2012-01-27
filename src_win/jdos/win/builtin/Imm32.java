@@ -3,11 +3,10 @@ package jdos.win.builtin;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
+import jdos.win.builtin.user32.WinWindow;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
-import jdos.win.system.WinObject;
-import jdos.win.system.WinSystem;
-import jdos.win.system.WinWindow;
+import jdos.win.system.Scheduler;
 
 public class Imm32 extends BuiltinModule {
     public Imm32(Loader loader, int handle) {
@@ -23,10 +22,10 @@ public class Imm32 extends BuiltinModule {
         public void onCall() {
             int hWnd = CPU.CPU_Pop32();
             int hIMC = CPU.CPU_Pop32();
-            WinObject object = WinSystem.getObject(hWnd);
-            if (object == null || !(object instanceof WinWindow)) {
+            WinWindow window = WinWindow.get(hWnd);
+            if (window == null) {
                 CPU_Regs.reg_eax.dword = WinAPI.FALSE;
-                WinSystem.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_INVALID_WINDOW_HANDLE);
+                Scheduler.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_INVALID_WINDOW_HANDLE);
             } else {
                 System.out.println(getName()+" faked");
                 CPU_Regs.reg_eax.dword = WinAPI.TRUE;

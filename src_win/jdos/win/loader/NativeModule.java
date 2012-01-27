@@ -8,11 +8,13 @@ import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
+import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.*;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Path;
+import jdos.win.utils.Ptr;
 
 import java.io.ByteArrayOutputStream;
 import java.io.RandomAccessFile;
@@ -52,7 +54,7 @@ public class NativeModule extends Module {
 
     public void callDllMain(int dwReason) {
         if (header.imageOptional.AddressOfEntryPoint == 0) {
-            if (Module.LOG)
+            if (WinAPI.LOG)
                 System.out.println(name+" has no DllMain");
         } else {
             int esp = CPU_Regs.reg_esp.dword;
@@ -72,12 +74,12 @@ public class NativeModule extends Module {
             int currentEip = CPU_Regs.reg_eip;
             CPU_Regs.reg_eip = (int)getEntryPoint();
             try {
-                if (Module.LOG) {
-                    System.out.println(name+" calling DllMain@"+Integer.toString(CPU_Regs.reg_eip, 16)+" dwReason="+dwReason);
+                if (WinAPI.LOG) {
+                    System.out.println(name+" calling DllMain@"+ Ptr.toString(CPU_Regs.reg_eip)+" dwReason="+dwReason);
                 }
                 Dosbox.DOSBOX_RunMachine();
                 CPU_Regs.reg_esp.dword = esp;
-                if (Module.LOG)
+                if (WinAPI.LOG)
                     System.out.println(name+" calling DllMain SUCCESS");
             } catch (Exception e) {
                 e.printStackTrace();

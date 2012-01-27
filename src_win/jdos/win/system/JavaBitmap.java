@@ -3,7 +3,7 @@ package jdos.win.system;
 import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 import jdos.win.Win;
-import jdos.win.loader.Module;
+import jdos.win.builtin.WinAPI;
 
 import java.awt.image.*;
 
@@ -153,7 +153,7 @@ public class JavaBitmap {
             Paging.paging.tlb.readhandler[frame] = handler;
             Paging.paging.tlb.writehandler[frame++] = handler;
         }
-        if (Module.LOG) {
+        if (WinAPI.LOG) {
             System.out.println("JavaBitmap.map address=0x"+Long.toString(address & 0xFFFFFFFFl, 16)+" size="+size+" frames="+frameStart+"-"+frame+" handler="+handler+" this="+this);
         }
         return address;
@@ -169,7 +169,7 @@ public class JavaBitmap {
             Paging.paging.tlb.writehandler[frame++] = null;
         }
         WinSystem.getCurrentProcess().addressSpace.free(address);
-        if (Module.LOG) {
+        if (WinAPI.LOG) {
             System.out.println("JavaBitmap.unmap address=0x"+Long.toString(address & 0xFFFFFFFFl, 16));
         }
         address = 0;

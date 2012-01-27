@@ -3,16 +3,15 @@ package jdos.win.loader;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
+import jdos.win.builtin.WinAPI;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 
 import java.util.Vector;
 
-public abstract class Module {
+public abstract class Module extends WinAPI {
     private int handle;
     public String name;
     protected boolean threadLibraryCalls = true;
-
-    public static final boolean LOG = true;
 
     public Module(int handle) {
         this.handle = handle;

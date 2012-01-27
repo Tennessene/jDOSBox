@@ -1,12 +1,12 @@
 package jdos.win.system;
 
 import jdos.gui.Main;
+import jdos.win.builtin.user32.Input;
+import jdos.win.builtin.user32.WinWindow;
 
 import java.awt.event.MouseEvent;
 
 public class WinMouse {
-    static public WinPoint currentPos = new WinPoint(0, 0);
-
     static public Main.MouseHandler defaultMouseHandler = new Main.MouseHandler() {
         public void handle(MouseEvent event) {
             int msg = 0;
@@ -36,8 +36,8 @@ public class WinMouse {
                 System.out.println("Unknown mouse message: "+event.toString());
                 return;
             }
-            currentPos = point.copy();
-            WinSystem.mouse(msg, point, wParam);
+            StaticData.currentPos = point.copy();
+            Input.addMouseMsg(msg, point, wParam);
         }
     };
 }

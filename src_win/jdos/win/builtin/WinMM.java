@@ -10,8 +10,8 @@ import jdos.win.loader.Loader;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.system.WinMCI;
 import jdos.win.system.WinMidi;
-import jdos.win.system.WinObject;
 import jdos.win.system.WinSystem;
+import jdos.win.utils.Ptr;
 import jdos.win.utils.StringUtil;
 
 import java.io.File;
@@ -90,7 +90,7 @@ public class WinMM extends BuiltinModule {
                                 File file = WinSystem.getCurrentProcess().getFile(elementName);
                                 if (file.exists()) {
                                     if (midi) {
-                                        WinMidi winMidi = WinSystem.createMidi();
+                                        WinMidi winMidi = WinMidi.create();
                                         if (winMidi.setFile(file)) {
                                             Memory.mem_writed(dwParam + 4, winMidi.getHandle());
                                             CPU_Regs.reg_eax.dword = 0;
@@ -105,24 +105,24 @@ public class WinMM extends BuiltinModule {
                 break;
                 case 0x804: // MCI_CLOSE
                 {
-                     WinObject object = WinSystem.getObject(IDDevice);
-                    if (object == null || !(object instanceof WinMCI)) {
+                    WinMCI mci = WinMCI.getMCI(IDDevice);
+                    if (mci == null) {
 
                     } else {
                         int dwCallback = 0;
                         if ((fdwCommand & MCI_NOTIFY)!=0)
                             dwCallback = Memory.mem_readd(dwParam);
-                        ((WinMCI)object).close(dwCallback, (fdwCommand & MCI_WAIT)!=0);
+                        mci.close(dwCallback, (fdwCommand & MCI_WAIT) != 0);
                         CPU_Regs.reg_eax.dword = 0;
-                        object.close();
+                        mci.close();
                         return;
                     }
                 }
                 break;
                 case 0x806: // MCI_PLAY
                 {
-                    WinObject object = WinSystem.getObject(IDDevice);
-                    if (object == null || !(object instanceof WinMCI)) {
+                    WinMCI mci = WinMCI.getMCI(IDDevice);
+                    if (mci == null) {
 
                     } else {
                         int dwCallback = 0;
@@ -135,7 +135,7 @@ public class WinMM extends BuiltinModule {
                             dwFrom = Memory.mem_readd(dwParam+4);
                         if ((fdwCommand & MCI_TO)!=0)
                             dwTo = Memory.mem_readd(dwParam+8);
-                        ((WinMCI)object).play(dwFrom, dwTo, dwCallback, (fdwCommand & MCI_WAIT)!=0);
+                        mci.play(dwFrom, dwTo, dwCallback, (fdwCommand & MCI_WAIT) != 0);
                         CPU_Regs.reg_eax.dword = 0;
                         return;
                     }
@@ -143,14 +143,14 @@ public class WinMM extends BuiltinModule {
                 break;
                 case 0x808: // MCI_STOP
                 {
-                    WinObject object = WinSystem.getObject(IDDevice);
-                    if (object == null || !(object instanceof WinMCI)) {
+                    WinMCI mci = WinMCI.getMCI(IDDevice);
+                    if (mci == null) {
 
                     } else {
                         int dwCallback = 0;
                         if ((fdwCommand & MCI_NOTIFY)!=0)
                             dwCallback = Memory.mem_readd(dwParam);
-                        ((WinMCI)object).stop(dwCallback, (fdwCommand & MCI_WAIT)!=0);
+                        mci.stop(dwCallback, (fdwCommand & MCI_WAIT) != 0);
                         CPU_Regs.reg_eax.dword = 0;
                         return;
                     }
@@ -158,7 +158,7 @@ public class WinMM extends BuiltinModule {
                 break;
 
             }
-            Win.panic(getName()+" unhanded uMsg=0x"+Integer.toString(uMsg, 16)+" fdwCommand=0x"+Integer.toString(fdwCommand, 16));
+            Win.panic(getName()+" unhanded uMsg=0x"+ Ptr.toString(uMsg)+" fdwCommand=0x"+Ptr.toString(fdwCommand));
             CPU_Regs.reg_eax.dword = 1; // error
         }
     };
@@ -214,7 +214,6 @@ public class WinMM extends BuiltinModule {
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = WinSystem.getTickCount();
-            defaultLog = false;
         }
     };
 }

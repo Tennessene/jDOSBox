@@ -1,18 +1,40 @@
 package jdos.win.system;
 
-public class WinObject {
+import jdos.win.builtin.WinAPI;
+
+public class WinObject extends WinAPI {
+    static public WinObject createWinObject() {
+        return new WinObject(nextObjectId());
+    }
+    static protected int nextObjectId() {
+        return StaticData.nextObjectId++;
+    }
+
+    static public WinObject getObject(int handle) {
+        return StaticData.objects.get(new Integer(handle));
+    }
+    static public WinObject getNamedObject(String name) {
+        return StaticData.namedObjects.get(name);
+    }
+
     public WinObject(String name, int handle) {
         this.name = name;
         this.handle = handle;
-        WinSystem.objects.put(new Integer(handle), this);
-        open();
+        if (handle>0) {
+            StaticData.objects.put(handle, this);
+            if (name != null && name.length()>0)
+                StaticData.namedObjects.put(name, this);
+            open();
+        }
     }
 
     public WinObject(int handle) {
         this.handle = handle;
         this.name = null;
-        WinSystem.objects.put(new Integer(handle), this);
-        open();
+        if (handle>0) {
+            StaticData.objects.put(handle, this);
+            open();
+        }
     }
 
     public int getHandle() {
@@ -20,17 +42,25 @@ public class WinObject {
     }
 
     public void open() {
-        refCount++;
+        if (refCount>=0)
+            refCount++;
     }
     public void close() {
-        refCount--;
-        if (refCount == 0) {
-            WinSystem.removeObject(this);
-            onFree();
+        if (refCount>=0) {
+            refCount--;
+            if (refCount == 0) {
+                StaticData.objects.remove(handle);
+                if (name != null && name.length()>0)
+                    StaticData.namedObjects.remove(name);
+                onFree();
+            }
         }
     }
     protected void onFree() {
 
+    }
+    public void makePermanent() {
+        refCount=-1;
     }
 
     public String name;

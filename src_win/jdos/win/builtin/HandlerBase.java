@@ -5,38 +5,35 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.win.Console;
 import jdos.win.Win;
-import jdos.win.loader.Module;
+import jdos.win.system.Scheduler;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 
-abstract public class HandlerBase implements Callback.Handler {
-    protected static boolean defaultLog;
-    protected static boolean newLine = false;
-
+abstract public class HandlerBase extends WinAPI implements Callback.Handler {
     boolean resetError = true;
+    public boolean wait = false;
+
+    static public HandlerBase currentHandler;
+    static public int level = 0;
+
     public HandlerBase() {
     }
     public HandlerBase(boolean resetError) {
         this.resetError = resetError;
     }
     public int call() {
+        currentHandler = this;
+        if (level == 0)
+            WinSystem.getCurrentProcess().nextTempIndex=0;
+        level++;
         if (resetError)
-            WinSystem.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
-        if (Module.LOG) {
-            defaultLog = true;
-            newLine = false;
-        }
-        long start = System.currentTimeMillis();
+            Scheduler.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
         if (preCall()) {
             CPU_Regs.reg_eip = CPU.CPU_Pop32();
             onCall();
         }
-        if (Module.LOG) {
-            if (defaultLog)
-                System.out.println(Integer.toHexString(CPU_Regs.reg_eip)+": "+getName()+" time="+(System.currentTimeMillis()-start));
-            else if (newLine)
-                System.out.println(" time="+(System.currentTimeMillis()-start));
-        }
+        level--;
+        currentHandler = null;
         return 0;
     }
 
@@ -50,15 +47,6 @@ abstract public class HandlerBase implements Callback.Handler {
         System.out.println(getName()+" not implemented yet.");
         Console.out(getName() + " not implemented yet.");
         Win.exit();
-    }
-
-    protected void log(String msg) {
-        if (defaultLog) {
-            defaultLog = false;
-            System.out.print(Integer.toString(CPU_Regs.reg_eip, 16)+": "+getName()+" ");
-        }
-        newLine = true;
-        System.out.print(msg);
     }
 
     protected void dumpRegs() {

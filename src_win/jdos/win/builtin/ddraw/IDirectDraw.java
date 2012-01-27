@@ -7,9 +7,9 @@ import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.builtin.HandlerBase;
-import jdos.win.loader.Module;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
+import jdos.win.utils.Ptr;
 
 public class IDirectDraw extends IUnknown {
     static final int DDSCL_FULLSCREEN = 0x00000001;
@@ -218,7 +218,7 @@ public class IDirectDraw extends IUnknown {
             int lpDDSurfaceDesc = CPU.CPU_Pop32();
             int lpContext = CPU.CPU_Pop32();
             int lpEnumModesCallback = CPU.CPU_Pop32();
-            int address = WinSystem.getCurrentProcess().heap.alloc(DDSurfaceDesc.SIZE, false);
+            int address = WinSystem.getCurrentProcess().getTemp(DDSurfaceDesc.SIZE);
             DDSurfaceDesc desc = null;
             if (lpDDSurfaceDesc != 0)
                 desc = new DDSurfaceDesc(lpDDSurfaceDesc, false);
@@ -553,7 +553,7 @@ public class IDirectDraw extends IUnknown {
             int hWnd = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
             if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE|DDSCL_ALLOWMODEX))!=0) {
-                Console.out("DDraw.SetCooperativeLevel: unsupported flags: " + Integer.toString(dwFlags, 16));
+                Console.out("DDraw.SetCooperativeLevel: unsupported flags: " + Ptr.toString(dwFlags));
             }
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
@@ -581,8 +581,6 @@ public class IDirectDraw extends IUnknown {
                 getPalette(This); // set up default palette
             Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);
             CPU_Regs.reg_eax.dword = Error.S_OK;
-            if (Module.LOG)
-                log(dwWidth+"x"+dwHeight+" @ "+dwBPP+"bpp");
         }
     };
 

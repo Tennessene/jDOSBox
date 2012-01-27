@@ -2,6 +2,7 @@ package jdos.win.kernel;
 
 import jdos.cpu.Callback;
 import jdos.hardware.IO;
+import jdos.win.system.Scheduler;
 import jdos.win.system.WinSystem;
 
 public class Timer {
@@ -12,7 +13,7 @@ public class Timer {
     Callback.Handler handler = new Callback.Handler() {
         int tickCount;
         public int call() {
-            WinSystem.scheduler.tick();
+            Scheduler.tick();
             return 0;
         }
 

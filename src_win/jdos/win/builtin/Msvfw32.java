@@ -23,8 +23,6 @@ public class Msvfw32 extends BuiltinModule {
             int fccHandler = CPU.CPU_Pop32();
             int lpicinfo = CPU.CPU_Pop32();
             System.out.println(getName()+" faked");
-            if (LOG)
-                log("fccType=0x"+Integer.toString(fccType, 16)+" fccHandler=0x"+Integer.toString(fccHandler, 16));
             CPU_Regs.reg_eax.dword = WinAPI.FALSE;
         }
     };

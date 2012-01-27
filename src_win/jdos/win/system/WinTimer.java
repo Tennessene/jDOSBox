@@ -1,6 +1,7 @@
 package jdos.win.system;
 
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.user32.WinWindow;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,8 +14,8 @@ public class WinTimer {
         this.hWnd = hWnd;
     }
 
-    ArrayList itemsByTime = new ArrayList();
-    Hashtable itemsById = new Hashtable();
+    ArrayList<TimerItem> itemsByTime = new ArrayList<TimerItem>();
+    Hashtable<Integer, TimerItem> itemsById = new Hashtable<Integer, TimerItem>();
 
     static private class TimerItem implements Comparable {
         public TimerItem(int id, int eip, int elapse) {
@@ -34,7 +35,7 @@ public class WinTimer {
     }
 
     TimerItem getItem(int id) {
-        return (TimerItem)itemsById.get(new Integer(id));
+        return itemsById.get(id);
     }
 
     public int addTimer(int time, int id, int timerProc) {
@@ -50,7 +51,7 @@ public class WinTimer {
             killTimer(id);
         }
         item = new TimerItem(id, timerProc, time);
-        itemsById.put(new Integer(id+1), item);
+        itemsById.put(id+1, item);
         itemsByTime.add(item);
         Collections.sort(itemsByTime);
         return id;
@@ -65,11 +66,17 @@ public class WinTimer {
         return WinAPI.FALSE;
     }
 
+    public int getNextTimerTime() {
+        if (itemsByTime.size()>0)
+            return itemsByTime.get(0).nextRun;
+        return Integer.MAX_VALUE;
+    }
+
     public boolean getNextTimerMsg(int msgAddress, int time, boolean reset) {
         if (itemsByTime.size()>0) {
             TimerItem item = (TimerItem)itemsByTime.get(0);
             if (item.nextRun<time) {
-                WinThread.setMessage(msgAddress, hWnd, WinWindow.WM_TIMER, item.id, 0, time, WinSystem.getMouseX(), WinSystem.getMouseY());
+                WinThread.setMessage(msgAddress, hWnd, WinWindow.WM_TIMER, item.id, 0, time, StaticData.currentPos.x, StaticData.currentPos.y);
                 if (reset) {
                     item.nextRun = time+item.elapse;
                     Collections.sort(itemsByTime);

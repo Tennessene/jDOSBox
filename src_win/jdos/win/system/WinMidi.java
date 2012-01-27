@@ -4,6 +4,10 @@ import javax.sound.midi.*;
 import java.io.File;
 
 public class WinMidi extends WinMCI {
+    static public WinMidi create() {
+        return new WinMidi(nextObjectId());
+    }
+
     private File file;
     private Sequence sequence;
     private Sequencer sequencer;

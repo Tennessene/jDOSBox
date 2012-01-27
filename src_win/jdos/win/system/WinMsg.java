@@ -17,8 +17,8 @@ public class WinMsg {
         this.wParam = wParam;
         this.lParam = lParam;
         this.time = WinSystem.getTickCount();
-        this.x = WinSystem.getMouseX();
-        this.y = WinSystem.getMouseY();
+        this.x = StaticData.currentPos.x;
+        this.y = StaticData.currentPos.y;
     }
     public BitSet keyState;
     public WinThread callingThread;

@@ -1,12 +1,22 @@
 package jdos.win.system;
 
 import jdos.hardware.Memory;
+import jdos.win.builtin.WinAPI;
 
-public class WinRect {
+public class WinRect extends WinAPI {
+    public static final int SIZE = 16;
+
     public int left;
     public int top;
     public int right;
     public int bottom;
+
+    public WinRect() {
+        left = 0;
+        top = 0;
+        right = 0;
+        bottom = 0;
+    }
 
     public WinRect(int left, int top, int right, int bottom) {
         this.left = left;
@@ -20,6 +30,37 @@ public class WinRect {
         top = Memory.mem_readd(address+4);
         right = Memory.mem_readd(address+8);
         bottom = Memory.mem_readd(address+12);
+    }
+
+    public int allocTemp() {
+        int p = getTempBuffer(SIZE);
+        write(p);
+        return p;
+    }
+
+    public void set(int left, int top, int right, int bottom) {
+        this.left = left;
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+    }
+
+    public void offset(int x, int y) {
+        left+=x;
+        right+=x;
+        top+=y;
+        bottom+=y;
+    }
+
+    public void copy(WinRect rect) {
+        this.left = rect.left;
+        this.right = rect.right;
+        this.top = rect.top;
+        this.bottom = rect.bottom;
+    }
+
+    public boolean equals(WinRect rect) {
+        return left==rect.left && top==rect.top && right==rect.right && bottom==rect.bottom;
     }
 
     public void write(int address) {
@@ -47,5 +88,13 @@ public class WinRect {
 
     public int height() {
         return bottom - top;
+    }
+
+    public String toString() {
+        return "("+left+","+top+") - ("+right+","+bottom+")";
+    }
+
+    public WinRect copy() {
+        return new WinRect(left, top, right, bottom);
     }
 }

@@ -4,15 +4,15 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.win.builtin.HandlerBase;
+import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.user32.DefWnd;
+import jdos.win.builtin.user32.WinClass;
 import jdos.win.kernel.WinCallback;
-import jdos.win.system.WinClass;
 import jdos.win.system.WinProcess;
-import jdos.win.system.WinSystem;
-import jdos.win.system.WinWindow;
 
-public class StaticWindow {
+public class StaticWindow extends WinAPI {
     static public void registerClass(WinProcess process) {
-        WinClass winClass = WinSystem.createClass();
+        WinClass winClass = WinClass.create();
         winClass.className = "STATIC";
         int cb = WinCallback.addCallback(SendMessage);
         winClass.eip = process.loader.registerFunction(cb);
@@ -34,7 +34,6 @@ public class StaticWindow {
     };
 
     static public int defWindowProc(int hWnd, int msg, int wParam, int lParam) {
-        WinWindow window = (WinWindow) WinSystem.getObject(hWnd);
-        return window.defWindowProc(msg, wParam, lParam);
+        return DefWnd.DefWindowProcA(hWnd, msg, wParam, lParam);
     }
 }

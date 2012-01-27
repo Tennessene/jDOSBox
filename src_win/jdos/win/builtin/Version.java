@@ -10,6 +10,7 @@ import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
 import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.Scheduler;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 
@@ -34,15 +35,13 @@ public class Version extends BuiltinModule {
 
             if (lptstrFilename == 0) {
                 CPU_Regs.reg_eax.dword = 0;
-                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
-                if (LOG)
-                    log("lptstrFilename=0 dwLen="+dwLen+"lpData=0x"+Integer.toString(lpData, 16)+" result=0");
+                Scheduler.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
             } else {
                 String name = new LittleEndianFile(lptstrFilename).readCString();
                 Module module = WinSystem.getCurrentProcess().loader.loadModule(name);
                 if (module == null) {
                     CPU_Regs.reg_eax.dword = WinAPI.FALSE;
-                    WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
+                    Scheduler.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
                 } else {
                     CPU_Regs.reg_eax.dword = WinAPI.FALSE;
                     if (module instanceof NativeModule) {
@@ -56,11 +55,9 @@ public class Version extends BuiltinModule {
                         System.out.println(getName()+" tried to get version of builtin dll, this is not supported yet");
                     }
                     if (CPU_Regs.reg_eax.dword == WinAPI.FALSE) {
-                        WinSystem.getCurrentThread().setLastError(Error.ERROR_RESOURCE_DATA_NOT_FOUND);
+                        Scheduler.getCurrentThread().setLastError(Error.ERROR_RESOURCE_DATA_NOT_FOUND);
                     }
                 }
-                if (LOG)
-                    log("lptstrFilename="+name+"@0x"+Integer.toString(lptstrFilename, 16)+" dwLen="+dwLen+" lpData=0x"+Integer.toString(lpData, 16)+" result="+CPU_Regs.reg_eax.dword);
             }
         }
     };
@@ -77,15 +74,13 @@ public class Version extends BuiltinModule {
                 Memory.mem_writed(lpdwHandle, 0);
             if (lptstrFilename == 0) {
                 CPU_Regs.reg_eax.dword = 0;
-                WinSystem.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
-                if (LOG)
-                    log("lptstrFilename=0 result=0");
+                Scheduler.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
             } else {
                 String name = new LittleEndianFile(lptstrFilename).readCString();
                 Module module = WinSystem.getCurrentProcess().loader.loadModule(name);
                 if (module == null) {
                     CPU_Regs.reg_eax.dword = 0;
-                    WinSystem.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
+                    Scheduler.getCurrentThread().setLastError(Error.ERROR_MOD_NOT_FOUND);
                 } else {
                     CPU_Regs.reg_eax.dword = 0;
                     if (module instanceof NativeModule) {
@@ -96,11 +91,9 @@ public class Version extends BuiltinModule {
                         System.out.println(getName()+" tried to get version of builtin dll, this is not supported yet");
                     }
                     if (CPU_Regs.reg_eax.dword == 0) {
-                        WinSystem.getCurrentThread().setLastError(Error.ERROR_RESOURCE_DATA_NOT_FOUND);
+                        Scheduler.getCurrentThread().setLastError(Error.ERROR_RESOURCE_DATA_NOT_FOUND);
                     }
                 }
-                if (LOG)
-                    log("lptstrFilename="+name+"@0x"+Integer.toString(lptstrFilename, 16)+" result="+CPU_Regs.reg_eax.dword);
             }
         }
     };
@@ -187,7 +180,7 @@ public class Version extends BuiltinModule {
                 if (info == 0) {
                     if (puLen != 0)
                         Memory.mem_writed(puLen, 0);
-                    WinSystem.getCurrentThread().setLastError(Error.ERROR_RESOURCE_TYPE_NOT_FOUND);
+                    Scheduler.getCurrentThread().setLastError(Error.ERROR_RESOURCE_TYPE_NOT_FOUND);
                     CPU_Regs.reg_eax.dword = WinAPI.TRUE;
                     return;
                 }

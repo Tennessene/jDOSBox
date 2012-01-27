@@ -32,6 +32,6 @@ public class WinBrush extends WinGDI {
     }
 
     public String toString() {
-        return "color=0x"+Ptr.toString(color)+" style=0x"+Ptr.toString(style)+" hatch=0x"+Ptr.toString(hatch);
+        return "BRUSH color=0x"+Ptr.toString(color)+" style=0x"+Ptr.toString(style)+" hatch=0x"+Ptr.toString(hatch);
     }
 }

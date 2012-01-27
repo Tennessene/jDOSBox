@@ -624,4 +624,8 @@ public class WinRegion extends WinGDI {
         result.copy(this);
         return result;
     }
+
+    public String toString() {
+        return "REGION size="+rects.size()+(rects.size()>0?" rect(1)="+rects.elementAt(0).toString():"");
+    }
 }

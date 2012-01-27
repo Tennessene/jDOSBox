@@ -11,6 +11,7 @@ import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.ReturnHandlerBase;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinBrush;
+import jdos.win.builtin.gdi32.WinGDI;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
@@ -97,6 +98,20 @@ public class BuiltinModule extends Module {
                 System.out.print(")@0x");
                 System.out.print(Ptr.toString(value));
             }
+        } else if (desc.startsWith("(GDI)")) {
+            System.out.print(desc.substring(5));
+            System.out.print("=");
+            System.out.print(value);
+            if (value != 0) {
+                WinGDI gdi = WinGDI.getGDI(value);
+                System.out.print("(");
+                if (gdi == null)
+                    System.out.print("NULL");
+                else {
+                    System.out.print(gdi.toString());
+                }
+                System.out.print(")");
+            }
         } else if (desc.startsWith("(CLASS)")) {
             System.out.print(desc.substring(5));
             System.out.print("=");
@@ -112,8 +127,53 @@ public class BuiltinModule extends Module {
                 System.out.print(")@0x");
                 System.out.print(Ptr.toString(value));
             }
+        } else if (desc.startsWith("(GUID)")) {
+            System.out.print(desc.substring(6));
+            System.out.print("=");
+            System.out.print("0x");
+            System.out.print(Ptr.toString(value));
+        } else if (desc.startsWith("(HRESULT)")) {
+            System.out.print(desc.substring(9));
+            System.out.print("=");
+            if (value == 0)
+                System.out.print("S_OK");
+            else {
+                System.out.print("0x");
+                System.out.print(Ptr.toString(value));
+            }
+        } else if (desc.startsWith("(LOGFONT)")) {
+            System.out.print(desc.substring(5));
+            System.out.print("=");
+            if (value == 0)
+                System.out.print("NULL");
+            else {
+                System.out.print("(height=");
+                System.out.print(readd(value));
+                System.out.print(" weight=");
+                System.out.print(readd(value+16));
+                System.out.print(" name=");
+                if (readd(value+52)==0)
+                    System.out.print("NULL");
+                else
+                    System.out.print(StringUtil.getString(value+52));
+                System.out.print(")@0x");
+                System.out.print(Ptr.toString(value));
+            }
         } else if (desc.startsWith("(POINT)")) {
             System.out.print(desc.substring(7));
+            System.out.print("=");
+            if (value == 0)
+                System.out.print("NULL");
+            else {
+                System.out.print("(");
+                System.out.print(readd(value));
+                System.out.print(",");
+                System.out.print(readd(value+4));
+                System.out.print(")@0x");
+                System.out.print(Ptr.toString(value));
+            }
+        } else if (desc.startsWith("(SIZE)")) {
+            System.out.print(desc.substring(6));
             System.out.print("=");
             if (value == 0)
                 System.out.print("NULL");
@@ -143,7 +203,28 @@ public class BuiltinModule extends Module {
                 System.out.print(")@0x");
                 System.out.print(Ptr.toString(value));
             }
-        } else {
+        } else if (desc.startsWith("(TM)")) {
+            System.out.print(desc.substring(4));
+            System.out.print("=");
+            if (value == 0)
+                System.out.print("NULL");
+            else {
+                System.out.print("(height=");
+                System.out.print(readd(value));
+                System.out.print(" ascent=");
+                System.out.print(readd(value+4));
+                System.out.print(" descent=");
+                System.out.print(readd(value+8));
+                System.out.print(" aveCharWidth");
+                System.out.print(readd(value+20));
+                System.out.print(" maxCharWidth");
+                System.out.print(readd(value+24));
+                System.out.print(" weight");
+                System.out.print(readd(value+28));
+                System.out.print(")@0x");
+                System.out.print(Ptr.toString(value));
+            }
+        }else {
             System.out.print(desc);
             System.out.print("=");
             System.out.print(value);
@@ -151,8 +232,8 @@ public class BuiltinModule extends Module {
     }
 
     private static long startTime;
-    private static int indent = 0;
-    private static boolean inPre = false;
+    public static int indent = 0;
+    public static boolean inPre = false;
     private static void preLog(String name, Integer[] args, String[] params) {
         startTime = System.currentTimeMillis();
         if (inPre)
@@ -204,7 +285,7 @@ public class BuiltinModule extends Module {
         }
         System.out.println(" time="+(System.currentTimeMillis()-startTime));
     }
-    private static class ReturnHandler extends ReturnHandlerBase {
+    public static class ReturnHandler extends ReturnHandlerBase {
         Method method;
         Integer[] args;
         String name;
@@ -227,10 +308,10 @@ public class BuiltinModule extends Module {
                     args[i] = CPU.CPU_Peek32(i);
             }
             try {
-                if (LOG)
+                if (LOG && params != null)
                     preLog(name, args, params);
                 Integer result = (Integer)method.invoke(null, args);
-                if (LOG)
+                if (LOG && params != null)
                     postLog(name, result, (params != null && params.length>args.length)?params[args.length]:null, args, params);
                 return result;
             } catch (Exception e) {
@@ -245,7 +326,7 @@ public class BuiltinModule extends Module {
         }
     }
 
-    private static class NoReturnHandler extends HandlerBase {
+    public static class NoReturnHandler extends HandlerBase {
         Method method;
         Integer[] args;
         String name;
@@ -268,10 +349,10 @@ public class BuiltinModule extends Module {
                     args[i] = CPU.CPU_Peek32(i);
             }
             try {
-                if (LOG)
+                if (LOG && params != null)
                     preLog(name, args, params);
                 method.invoke(null, args);
-                if (LOG)
+                if (LOG && params != null)
                     postLog(name, null, null, args, params);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -316,11 +397,11 @@ public class BuiltinModule extends Module {
             }
             try {
                 wait = false;
-                if (LOG)
+                if (LOG && params != null)
                     preLog(name, args, params);
                 Integer result = (Integer)method.invoke(null, args);
                 if (wait) {
-                    if (LOG) {
+                    if (LOG && params != null) {
                         System.out.print(" THREAD PUT TO SLEEP, WILL TRY AGAIN LATER");
                         indent--;
                     }
@@ -328,7 +409,7 @@ public class BuiltinModule extends Module {
                     CPU_Regs.reg_esp.dword = esp;
                     Scheduler.wait(Scheduler.getCurrentThread());
                 } else {
-                    if (LOG)
+                    if (LOG && params != null)
                         postLog(name, result, (params != null && params.length>args.length)?params[args.length]:null, args, params);
                     CPU_Regs.reg_eax.dword = result;
                 }

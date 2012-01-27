@@ -5,34 +5,36 @@ import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 
 public class User32 extends BuiltinModule {
+    final static private boolean MSGLOG = false;
+
     public User32(Loader loader, int handle) {
         super(loader, "user32.dll", handle);
         add(WinMenu.class, "AppendMenuA", new String[] {"hMenu", "(HEX)uFlags", "uIDNewItem", "(STRING)lpNewItem", "(BOOL)result"});
         add(Painting.class, "BeginPaint", new String[] {"hWnd", "(HEX)lps"});
         add(Str.class, "CharUpperA", new String[] {"(STRING)lpsz", "(STRING)result"});
         add(WinPos.class, "ClientToScreen", new String[] {"hWnd", "(POINT)lpPoint", "(BOOL)result"});
-        add(WinMenu.class, "CreatePopupMenu");
+        add(WinMenu.class, "CreatePopupMenu", new String[0]);
         add(WinWindow.class, "CreateWindowExA", new String[] {"(HEX)dwExStyle", "(STRING)lpClassName", "(STRING)lpWindowName", "(HEX)dwStyle", "x", "y", "nWidth", "nHeight", "hWndParent", "hMenu", "hInstance", "lpParam"});
-        add(DefWnd.class, "DefWindowProcA", new String[] {"hWnd", "(HEX)Msg", "wParam", "lParam"});
-        add(Message.class, "DispatchMessageA", new String[] {"(HEX)lpmsg"});
+        add(DefWnd.class, "DefWindowProcA", (MSGLOG?new String[] {"hWnd", "(HEX)Msg", "wParam", "lParam"}:null));
+        add(Message.class, "DispatchMessageA", (MSGLOG?new String[] {"(HEX)lpmsg"}:null));
         add(WinDC.class, "DrawTextA", new String[] {"hDC", "(STRINGN2)lpchText", "nCount", "(RECT)lpRect", "(HEX)uFormat"});
         add(Painting.class, "EndPaint", new String[] {"hWnd", "lpPaint"});
         add(WinDC.class, "FillRect", new String[] {"hDC", "(RECT)lprc", "(BRUSH)hbr"});
         add(WinWindow.class, "FindWindowA", new String[] {"(STRING)lpClassName", "(STRING)lpWindowName"});
         add(WinWindow.class, "FindWindowExA", new String[] {"hwndParent", "hwndChildAfter", "(STRING)lpszClass", "(STRING)lpszWindow"});
         add(Input.class, "GetAsyncKeyState", new String[] {"nVirtKey"});
-        add(Input.class, "GetCapture");
+        add(Input.class, "GetCapture", new String[0]);
         add(WinClass.class, "GetClassLongA", new String[] {"hWnd", "nIndex"});
         add(WinClass.class, "GetClassNameA", new String[] {"hWnd", "(HEX)lpClassName", "nMaxCount", "result", "01(STRING)lpClassName"});
         add(WinPos.class, "GetClientRect", new String[] {"hWnd", "(HEX)lpRect", "(BOOL)result", "01(RECT)lpRect"});
         add(Input.class, "GetCursorPos", new String[] {"(HEX)lpPoint", "(BOOL)result", "00(POINT)lpPoint"});
         add(Painting.class, "GetDC", new String[] {"hwnd"});
-        add(Focus.class, "GetForegroundWindow");
+        add(Focus.class, "GetForegroundWindow", new String[0]);
         add(Input.class, "GetKeyboardState", new String[] {"(HEX)lpKeyState"});
         add(Input.class, "GetKeyState", new String[] {"nVirtKey"});
         add(WinMenu.class, "GetMenu", new String[] {"hWnd"});
         add(WinMenu.class, "GetMenuItemCount", new String[] {"hMenu"});
-        add_wait(Message.class, "GetMessageA", new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "(BOOL)result", "00(MSG)lpMsg"});
+        add_wait(Message.class, "GetMessageA", (MSGLOG?new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "(BOOL)result", "00(MSG)lpMsg"}:null));
         add(SysParams.class, "GetSysColor", new String[] {"nIndex"});
         add(SysParams.class, "GetSystemMetrics", new String[] {"index"});
         add(WinWindow.class, "GetWindow", new String[] {"hwnd", "rel"});
@@ -52,8 +54,8 @@ public class User32 extends BuiltinModule {
         add(Message.class, "MessageBeep", new String[] {"uType"});
         add(MsgBox.class, "MessageBoxA", new String[] {"hWnd", "(STRING)lpText", "(STRING)lpCaption", "uType"});
         add(UiTools.class, "OffsetRect", new String[] {"(RECT)lprc", "dx", "dy", "(BOOL)result", "00(RECT)lprc"});
-        add(Message.class, "PeekMessageA", new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "wRemoveMsg", "(BOOL)result", "00(MSG)lpMsg"});
-        add(Message.class, "PostMessageA", new String[] {"hWnd", "(MSG)Msg", "wParam", "lParam"});
+        add(Message.class, "PeekMessageA", (MSGLOG?new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "wRemoveMsg", "(BOOL)result", "00(MSG)lpMsg"}:null));
+        add(Message.class, "PostMessageA", (MSGLOG?new String[] {"hWnd", "(MSG)Msg", "wParam", "lParam"}:null));
         add(WinClass.class, "RegisterClassA", new String[] {"(CLASS)lpWndClass"});
         add(WinClass.class, "RegisterClassExA", new String[] {"(CLASS)lpwcx"});
         add(Input.class, "ReleaseCapture", new String[] {"(BOOL)result"});
@@ -71,16 +73,16 @@ public class User32 extends BuiltinModule {
         add(Message.class, "SetTimer", new String[] {"hWnd", "nIDEvent", "uElapse", "(HEX)lpTimerFunc"});
         // add(WinWindow.class, "SetWindowLongA");
         add(WinPos.class, "SetWindowPos", new String[] {"hWnd", "hWndInsertAfter", "X", "Y", "cx", "cy", "(HEX)uFlags"});
-        add(WinCursor.class, "ShowCursor");
-        add(WinPos.class, "ShowWindow");
-        add(SysParams.class, "SystemParametersInfoA");
+        add(WinCursor.class, "ShowCursor", new String[] {"(BOOL)bShow"});
+        add(WinPos.class, "ShowWindow", new String[] {"hWnd", "nCmdShow", "(BOOL)result"});
+        add(SysParams.class, "SystemParametersInfoA", new String[] {"uiAction", "uiParam", "pvParam", "fWinIni"});
         add(WinMenu.class, "TranslateAcceleratorA");
         add(Message.class, "TranslateMessage");
-        add(Painting.class, "UpdateWindow");
-        add(Painting.class, "ValidateRect");
-        add_wait(Message.class, "WaitForInputIdle");
-        add_wait(Message.class, "WaitMessage");
-        add(WinPos.class, "WindowFromPoint");
-        add_cdecl(Wsprintf.class, "wsprintfA");
+        add(Painting.class, "UpdateWindow", new String[] {"hWnd", "(BOOL)result"});
+        add(Painting.class, "ValidateRect", new String[] {"hWnd", "(RECT)lpRect", "(BOOL)result"});
+        add_wait(Message.class, "WaitForInputIdle", new String[] {"hProcess", "dwMilliseconds"});
+        add_wait(Message.class, "WaitMessage", new String[] {"(BOOL)result"});
+        add(WinPos.class, "WindowFromPoint", new String[] {"(POINT)Point"});
+        add_cdecl(Wsprintf.class, "wsprintfA", new String[] {"(HEX)lpOut", "(STRING)lpFmt", "result", "00(STRING)lpOut"});
     }
 }

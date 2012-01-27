@@ -1,24 +1,32 @@
 package jdos.win.builtin;
 
 import jdos.hardware.Memory;
+import jdos.win.loader.BuiltinModule;
 import jdos.win.system.Scheduler;
 import jdos.win.system.WinObject;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 
 public class WinAPI extends Error {
-    static public boolean LOG = false;
+    static public boolean LOG = true;
     static public int NULL = 0;
 
     static public void log(String s) {
+        if (BuiltinModule.inPre) {
+            BuiltinModule.inPre = false;
+        }
+        if (BuiltinModule.indent>0)
+            System.out.println();
+        for (int i=0;i<BuiltinModule.indent;i++)
+            System.out.print("    ");
         System.out.println(s);
     }
+
     static public void warn(String s) {
-        System.out.print(HandlerBase.currentHandler.getName()+": ");
-        System.out.println(s);
+        log(HandlerBase.currentHandler.getName()+": "+s);
     }
     static public void faked() {
-        System.out.print(HandlerBase.currentHandler.getName()+" faked");
+        log(HandlerBase.currentHandler.getName()+" faked");
     }
 
     static public int MAKELONG(int low, int high) {

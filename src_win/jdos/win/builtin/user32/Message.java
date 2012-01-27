@@ -5,7 +5,7 @@ import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
-import jdos.win.builtin.ddraw.IDirectDrawSurface;
+import jdos.win.builtin.directx.ddraw.IDirectDrawSurface;
 import jdos.win.system.Scheduler;
 import jdos.win.system.WinProcess;
 import jdos.win.system.WinSystem;

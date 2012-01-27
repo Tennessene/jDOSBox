@@ -1,6 +1,7 @@
 package jdos.win.builtin.gdi32;
 
 import jdos.win.system.WinObject;
+import jdos.win.utils.Ptr;
 
 public class WinPen extends WinGDI {
     static public WinPen create(int style, int width, int color) {
@@ -30,5 +31,9 @@ public class WinPen extends WinGDI {
         this.style = style;
         this.width = width;
         this.color = color;
+    }
+
+    public String toString() {
+        return "PEN style="+style+" width="+width+" color=0x"+ Ptr.toString(color);
     }
 }

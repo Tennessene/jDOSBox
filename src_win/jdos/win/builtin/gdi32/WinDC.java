@@ -110,7 +110,7 @@ public class WinDC extends WinObject {
 
     // BOOL ExtTextOut(HDC hdc, int X, int Y, UINT fuOptions, const RECT *lprc, LPCTSTR lpString, UINT cbCount, const INT *lpDx)
     static public int ExtTextOutA(int hdc, int X, int Y, int fuOptions, int lprc, int lpString, int cbCount, int lpDx) {
-        System.out.println("ExtTextOutA not fully implemented yet");
+        log("ExtTextOutA not fully implemented yet");
         WinDC dc = WinDC.get(hdc);
         if (dc == null) {
             return FALSE;

@@ -1,10 +1,11 @@
-package jdos.win.builtin;
+package jdos.win.builtin.directx;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
-import jdos.win.builtin.dsound.IDirectSound;
+import jdos.win.builtin.HandlerBase;
+import jdos.win.builtin.directx.dsound.IDirectSound;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 

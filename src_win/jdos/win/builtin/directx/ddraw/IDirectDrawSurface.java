@@ -1,4 +1,4 @@
-package jdos.win.builtin.ddraw;
+package jdos.win.builtin.directx.ddraw;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
@@ -8,7 +8,6 @@ import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
-import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.directx.DError;
 import jdos.win.builtin.directx.DirectCallback;
 import jdos.win.builtin.gdi32.WinDC;
@@ -600,12 +599,7 @@ public class IDirectDrawSurface extends IUnknown {
             int backBuffer = getData(This, OFFSET_BACK_BUFFER);
 
             BufferedImage src = getImage(backBuffer, true).getImage();
-            long start=0;
-            if (WinAPI.LOG)
-                start = System.currentTimeMillis();
             Main.drawImage(src);
-            if (WinAPI.LOG)
-                System.out.println("Update screen "+(System.currentTimeMillis()-start)+"ms");
             // swap caches and memory
             int frontCache = getData(This, OFFSET_IMAGE_CACHE);
             int backCache = getData(backBuffer, OFFSET_IMAGE_CACHE);
@@ -1035,7 +1029,7 @@ public class IDirectDrawSurface extends IUnknown {
             }
             int backBuffer = getData(This, OFFSET_BACK_BUFFER);
             if (backBuffer != 0) {
-                image = getImage(This, false);
+                image = getImage(backBuffer, false);
                 if (image != null) {
                     image.setPalette(getPalette(This)+IUnknown.OFFSET_DATA_START+IDirectDrawPalette.OFFSET_COLOR_DATA);
                 }

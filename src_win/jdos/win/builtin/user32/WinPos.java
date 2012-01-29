@@ -528,7 +528,7 @@ public class WinPos extends WinAPI {
         if (!done) {
             hwndTo = hwnd;
             while (true) {
-                if ((hwndTo = WinWindow.GetWindow(hwndTo, GW_HWNDNEXT))!=0) break;
+                if ((hwndTo = WinWindow.GetWindow(hwndTo, GW_HWNDNEXT))==0) break;
                 if (can_activate_window( hwndTo )) break;
             }
         }

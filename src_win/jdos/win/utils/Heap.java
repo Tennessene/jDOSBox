@@ -1,7 +1,5 @@
 package jdos.win.utils;
 
-import jdos.win.Win;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -154,7 +152,6 @@ public class Heap {
             if (free.address > address && index>0)
                 free = (HeapItem)itemsByAddress.get(index-1); // getNextAddress aligned it into this slot
             if (address<free.address || address+size>free.address+free.size) {
-                Win.panic("Could not allocate "+size+" bytes");
                 return 0;
             }
             removeItem(free);

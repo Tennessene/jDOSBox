@@ -8,10 +8,12 @@ import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
+import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.*;
+import jdos.win.system.WinProcess;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Path;
 import jdos.win.utils.Ptr;
@@ -64,7 +66,7 @@ public class NativeModule extends Module {
 //                                Memory.mem_zero(0x100000, 0x40000);
 //                                CPU_Regs.reg_esp.dword = 0x13F9F4+3*4+4;
             CPU.CPU_Push32(0); // the spec says this is non-null, but I'm not sure what to put in here
-            CPU.CPU_Push32(1); // DLL_PROCESS_ATTACH
+            CPU.CPU_Push32(dwReason);
             CPU.CPU_Push32(getHandle()); // HINSTANCE
             if (returnEip == 0) {
                 int callback = WinCallback.addCallback(DllMainReturn);
@@ -99,7 +101,7 @@ public class NativeModule extends Module {
 
     private HeaderImageExportDirectory exports = null;
 
-    public boolean load(int page_directory, String name, Path path) {
+    public boolean load(WinProcess process, int page_directory, String name, Path path) {
         RandomAccessFile fis = null;
         this.path = path;
         this.name = name;
@@ -112,6 +114,19 @@ public class NativeModule extends Module {
             byte[] headerImage = os.toByteArray();
             int allocated = headerImage.length;
             allocated = (allocated + 0xFFF) & ~0xFFF;
+            long imageSize = header.imageSections[header.imageSections.length-1].VirtualAddress+header.imageSections[header.imageSections.length-1].SizeOfRawData;
+            long reserved = process.addressSpace.alloc(baseAddress, imageSize);
+            int oldbase = 0;
+            if (reserved != baseAddress) {
+                oldbase = baseAddress;
+                baseAddress = (int)process.addressSpace.getNextAddress(baseAddress, imageSize, true);
+                reserved = process.addressSpace.alloc(baseAddress, imageSize);
+                if (reserved != baseAddress) {
+                    Win.panic("NativeModule.load wasn't expecting this");
+                }
+                System.out.println();
+                System.out.println("Relocating "+name+" from 0x"+Integer.toString(oldbase, 16)+" to 0x"+Integer.toString(baseAddress, 16));
+            }
             heap = new KernelHeap(WinSystem.memory, page_directory, baseAddress, baseAddress+allocated, baseAddress+0x1000000, false, false);
             heap.alloc(allocated, false);
             Memory.mem_memcpy(baseAddress, headerImage, 0, headerImage.length);
@@ -139,6 +154,54 @@ public class NativeModule extends Module {
                 Memory.mem_memcpy(address, buffer, 0, buffer.length);
                 if (size>buffer.length)
                     Memory.mem_zero(address+buffer.length, size-buffer.length);
+            }
+            if (oldbase != 0) {
+                LongRef relocAddress = new LongRef(0);
+                LongRef relocSize = new LongRef(0);
+                if (!RtlImageDirectoryEntryToData(HeaderImageOptional.IMAGE_DIRECTORY_ENTRY_BASERELOC, relocAddress, relocSize)) {
+                    Win.panic("Dll needed to be relocated but could not find .reloc section");
+                }
+                int delta = baseAddress - oldbase;
+                LittleEndianFile is = new LittleEndianFile((int)relocAddress.value+baseAddress, (int)relocSize.value);
+                while (is.available()>0) {
+                    int page = baseAddress + is.readInt();
+                    int count = (is.readInt() - 8) / 2; // 8 is the size of the IMAGE_BASE_RELOCATION header and 2 is for the size of an USHORT
+                    if (count == 0) {
+                        break;
+                    }
+                    for (int i=0;i<count;i++) {
+                        int value = is.readUnsignedShort();
+                        int offset = value & 0xFFF;
+                        int type = value >> 12;
+                        switch (type) {
+                            case 0: // IMAGE_REL_BASED_ABSOLUTE
+                                break;
+                            case 1: // IMAGE_REL_BASED_HIGH
+                                {
+                                    int s = Memory.mem_readw(page+offset);
+                                    s+=delta >>> 16;
+                                    Memory.mem_writew(page+offset, s);
+                                }
+                                break;
+                            case 2: // IMAGE_REL_BASED_LOW
+                                {
+                                    int s = Memory.mem_readw(page+offset);
+                                    s+=delta & 0xFFFF;
+                                    Memory.mem_writew(page+offset, s);
+                                }
+                                break;
+                            case 3: // IMAGE_REL_BASED_HIGHLOW
+                                {
+                                    int s = Memory.mem_readd(page+offset);
+                                    s+=delta;
+                                    Memory.mem_writed(page+offset, s);
+                                }
+                                break;
+                            default:
+                                Win.panic(name+"Unknown relocation type: "+type);
+                        }
+                    }
+                }
             }
             return true;
         } catch (Exception e) {

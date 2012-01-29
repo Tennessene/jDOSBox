@@ -16,7 +16,7 @@ public class StaticWindow extends WinAPI {
         winClass.className = "STATIC";
         int cb = WinCallback.addCallback(SendMessage);
         winClass.eip = process.loader.registerFunction(cb);
-        process.classNames.put(winClass.className, winClass);
+        process.classNames.put(winClass.className.toLowerCase(), winClass);
     }
 
     // LRESULT WINAPI SendMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)

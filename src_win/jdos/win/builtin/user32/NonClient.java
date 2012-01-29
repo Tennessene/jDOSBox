@@ -3,6 +3,12 @@ package jdos.win.builtin.user32;
 import jdos.win.builtin.WinAPI;
 
 public class NonClient extends WinAPI {
+    // BOOL WINAPI AdjustWindowRectEx(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle)
+    static public int AdjustWindowRectEx(int lpRect, int dwStyle, int bMenu, int dwExStyle) {
+        log("Faked");
+        return TRUE;
+    }
+
     static public int NC_HandleNCPaint(int hwnd , int clip) {
         return 0;
     }

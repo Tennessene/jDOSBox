@@ -131,9 +131,6 @@ public class Input extends WinAPI {
         int hitTest = WinAPI.HTNOWHERE;
         WinPoint relWinPt = null;
 
-        if (LOG) {
-            System.out.println("\nMOUSE 0x"+Ptr.toString(msg)+" "+pt.toString());
-        }
         if (StaticData.mouseCapture != 0) {
             window = WinWindow.get(StaticData.mouseCapture);
             hitTest = WinWindow.HTCLIENT;
@@ -142,6 +139,9 @@ public class Input extends WinAPI {
             if (window.handle == StaticData.desktopWindow) {
                 return;
             }
+        }
+        if (LOG) {
+            System.out.println("\nMOUSE 0x"+Ptr.toString(msg)+" "+pt.toString()+" hwnd="+window.handle+"("+StaticData.mouseCapture+")");
         }
         relWinPt = pt.copy();
         window.screenToWindow(relWinPt);

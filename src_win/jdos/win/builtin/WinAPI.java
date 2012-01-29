@@ -8,7 +8,8 @@ import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 
 public class WinAPI extends Error {
-    static public boolean LOG = true;
+    final static public boolean LOG = true;
+    final static public boolean MSGLOG = false;
     static public int NULL = 0;
 
     static public void log(String s) {
@@ -264,6 +265,7 @@ public class WinAPI extends Error {
     static public final int WM_SHOWWINDOW =                  0x0018;
     static public final int WM_CTLCOLOR =                    0x0019;
     static public final int WM_ACTIVATEAPP =                 0x001C;
+    static public final int WM_CANCELMODE =                  0x001F;
     static public final int WM_SETCURSOR =                   0x0020;
     static public final int WM_MOUSEACTIVATE =               0x0021;
     static public final int WM_CHILDACTIVATE =               0x0022;
@@ -290,6 +292,13 @@ public class WinAPI extends Error {
     static public final int WM_WINDOWPOSCHANGING =           0x0046;
     static public final int WM_WINDOWPOSCHANGED =            0x0047;
 
+    static final public int WM_CONTEXTMENU =                 0x007b;
+    static final public int WM_STYLECHANGING =               0x007c;
+    static final public int WM_STYLECHANGED =                0x007d;
+    static final public int WM_DISPLAYCHANGE =               0x007e;
+    static final public int WM_GETICON =                     0x007f;
+    static final public int WM_SETICON =                     0x0080;
+    
     static public final int WM_NCCREATE =                    0x0081;
     static public final int WM_NCDESTROY =                   0x0082;
     static public final int WM_NCCALCSIZE =                  0x0083;
@@ -1018,6 +1027,11 @@ public class WinAPI extends Error {
     static final public int IDC_HAND =          32649;
     static final public int IDC_APPSTARTING =   32650;
     static final public int IDC_HELP =          32651;
+    
+    static final public int SYSPAL_ERROR =       0;
+    static final public int SYSPAL_STATIC =      1;
+    static final public int SYSPAL_NOSTATIC =    2;
+    static final public int SYSPAL_NOSTATIC256 = 3;
         
     // ************
     // * Internal *

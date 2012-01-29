@@ -43,6 +43,11 @@ public class WinPalette extends WinGDI {
         return palette.palette.length;
     }
 
+    // UINT GetSystemPaletteUse(HDC hdc)
+    static public int GetSystemPaletteUse(int hdc) {
+        return SYSPAL_NOSTATIC;
+    }
+
     // UINT SetPaletteEntries(HPALETTE hpal, UINT iStart, UINT cEntries, const PALETTEENTRY *lppe)
     static public int SetPaletteEntries(int hpal, int iStart, int cEntries, int lppe) {
         WinPalette palette = WinPalette.get(hpal);

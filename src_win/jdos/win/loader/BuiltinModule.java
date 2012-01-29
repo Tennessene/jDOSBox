@@ -113,7 +113,7 @@ public class BuiltinModule extends Module {
                 System.out.print(")");
             }
         } else if (desc.startsWith("(CLASS)")) {
-            System.out.print(desc.substring(5));
+            System.out.print(desc.substring(7));
             System.out.print("=");
             if (value == 0)
                 System.out.print("NULL");
@@ -123,7 +123,7 @@ public class BuiltinModule extends Module {
                 System.out.print(" proc=0x");
                 System.out.print(Ptr.toString(readd(value+4)));
                 System.out.print(" name=");
-                System.out.print(StringUtil.getString(value+40));
+                System.out.print(StringUtil.getString(value+36));
                 System.out.print(")@0x");
                 System.out.print(Ptr.toString(value));
             }

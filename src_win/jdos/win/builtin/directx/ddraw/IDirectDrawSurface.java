@@ -1047,6 +1047,8 @@ public class IDirectDrawSurface extends IUnknown {
             int This = CPU.CPU_Pop32();
             int lpSurfaceData = CPU.CPU_Pop32();
             getImage(This, true).unlock();
+            if ((getCaps(This) & DDSCAPS_PRIMARYSURFACE)!=0 && getData(This, OFFSET_BACK_BUFFER)==0)
+                Main.drawImage(getImage(This, true).getImage());
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };

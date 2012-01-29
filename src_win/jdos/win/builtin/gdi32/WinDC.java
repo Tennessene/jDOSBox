@@ -5,6 +5,7 @@ import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.user32.SysParams;
 import jdos.win.system.JavaBitmap;
+import jdos.win.system.StaticData;
 import jdos.win.system.WinObject;
 import jdos.win.system.WinRect;
 import jdos.win.utils.Pixel;
@@ -161,6 +162,12 @@ public class WinDC extends WinObject {
                 return result;
             case BITSPIXEL:
                 return dc.image.getBpp();
+            case PLANES:
+                return 1;
+            case NUMCOLORS:
+                if (dc.image.getBpp()<=8)
+                    return 1 << dc.image.getBpp();
+                return -1;
             default:
                 Win.panic("GetDevice caps "+nIndex+" not implemented yet.");
         }
@@ -320,6 +327,9 @@ public class WinDC extends WinObject {
         } else if (gdi instanceof WinBrush) {
             old = dc.hBrush;
             dc.hBrush = gdi.handle;
+        } else if (gdi instanceof WinPalette) {
+            old = dc.hPalette;
+            dc.hPalette = gdi.handle;
         } else {
             Win.panic("WinDC.select was not implemented for "+gdi);
         }
@@ -406,6 +416,8 @@ public class WinDC extends WinObject {
         } else {
             cx = 1;
             cy = 1;
+            this.image = StaticData.screen; // :TODO:
+            this.owner = false;
         }
         bkColor = 0xFFFFFFFF;
         textColor = 0xFF000000;

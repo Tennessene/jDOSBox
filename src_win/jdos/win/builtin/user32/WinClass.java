@@ -25,6 +25,24 @@ public class WinClass extends WinObject {
         return (WinClass)object;
     }
 
+    // BOOL WINAPI GetClassInfo(HINSTANCE hInstance, LPCTSTR lpClassName, LPWNDCLASS lpWndClass)
+    static public int GetClassInfoA(int hInstance, int lpClassName, int lpWndClass) {
+        WinClass winClass;
+
+        if (IS_INTRESOURCE(lpClassName)) {
+            winClass = WinClass.get(lpClassName);
+        } else {
+            String name = StringUtil.getString(lpClassName);
+            winClass = (WinClass)WinSystem.getCurrentProcess().classNames.get(name.toLowerCase());
+        }
+        if (winClass == null) {
+            SetLastError(Error.ERROR_CLASS_DOES_NOT_EXIST);
+            return FALSE;
+        }
+        winClass.write(lpWndClass);
+        return TRUE;
+    }
+
     // DWORD WINAPI GetClassLong(HWND hWnd, int nIndex)
     static public int GetClassLongA(int hWnd, int nIndex) {
         WinWindow window = WinWindow.get(hWnd);
@@ -66,7 +84,7 @@ public class WinClass extends WinObject {
         WinWindow window = WinWindow.get(hWnd);
         if (window == null)
             return 0;
-        return StringUtil.strncpy(lpClassName, window.winClass.name, nMaxCount);
+        return StringUtil.strncpy(lpClassName, window.winClass.className, nMaxCount);
     }
 
     // ATOM WINAPI RegisterClass(const WNDCLASS *lpWndClass)
@@ -182,10 +200,10 @@ public class WinClass extends WinObject {
         pMenuName = in.readInt();
         className = new LittleEndianFile(in.readInt()).readCString();
         hIconSm = in.readInt();
-        if (WinSystem.getCurrentProcess().classNames.containsKey(className)) {
+        if (WinSystem.getCurrentProcess().classNames.containsKey(className.toLowerCase())) {
             return false;
         }
-        WinSystem.getCurrentProcess().classNames.put(className, this);
+        WinSystem.getCurrentProcess().classNames.put(className.toLowerCase(), this);
         return true;
     }
 
@@ -214,16 +232,33 @@ public class WinClass extends WinObject {
         hCursor = in.readInt();
         hbrBackground = in.readInt();
         pMenuName = in.readInt();
-        className = new LittleEndianFile(in.readInt()).readCString();
-        if (WinSystem.getCurrentProcess().classNames.containsKey(className)) {
+        pClassName = in.readInt();
+        className = new LittleEndianFile(pClassName).readCString();
+        //pClassName = StringUtil.allocateA(className);
+        if (WinSystem.getCurrentProcess().classNames.containsKey(className.toLowerCase())) {
             return false;
         }
-        WinSystem.getCurrentProcess().classNames.put(className, this);
+        WinSystem.getCurrentProcess().classNames.put(className.toLowerCase(), this);
         return true;
     }
 
+    public void write(int address) {
+        writed(address, style);address+=4;
+        writed(address, eip);address+=4;
+        writed(address, cbClsExtra);address+=4;
+        writed(address, cbWndExtra);address+=4;
+        writed(address, hInstance);address+=4;
+        writed(address, hIcon);address+=4;
+        writed(address, hCursor);address+=4;
+        writed(address, hbrBackground);address+=4;
+        writed(address, pMenuName);address+=4;
+        if (pClassName == 0)
+            pClassName = StringUtil.allocateA(className);
+        writed(address, pClassName);address+=4;
+    }
+
     public void onFree() {
-        WinSystem.getCurrentProcess().classNames.remove(className);
+        WinSystem.getCurrentProcess().classNames.remove(className.toLowerCase());
     }
 
     public WinDC dc;
@@ -235,9 +270,10 @@ public class WinClass extends WinObject {
     public int hCursor;
     public int hbrBackground;
     public String className;
+    public int pClassName;
     public int pMenuName;
     public int hIconSm;
     public int cbClsExtra;
     public int cbWndExtra;
-    private Hashtable extra;
+    private Hashtable extra = new Hashtable();
 }

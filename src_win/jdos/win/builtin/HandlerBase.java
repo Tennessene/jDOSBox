@@ -8,6 +8,7 @@ import jdos.win.Win;
 import jdos.win.system.Scheduler;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
+import jdos.win.utils.Ptr;
 
 abstract public class HandlerBase extends WinAPI implements Callback.Handler {
     boolean resetError = true;
@@ -30,6 +31,7 @@ abstract public class HandlerBase extends WinAPI implements Callback.Handler {
             Scheduler.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
         if (preCall()) {
             CPU_Regs.reg_eip = CPU.CPU_Pop32();
+            System.out.println("*** "+ Ptr.toString(CPU_Regs.reg_eip)+" "+getName());
             onCall();
         }
         level--;

@@ -13,7 +13,9 @@ import jdos.win.builtin.directx.DInput;
 import jdos.win.builtin.directx.DSound;
 import jdos.win.builtin.directx.Dplayx;
 import jdos.win.builtin.gdi32.Gdi32;
+import jdos.win.builtin.kernel32.Kernel32;
 import jdos.win.builtin.user32.User32;
+import jdos.win.builtin.winmm.WinMM;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
@@ -97,7 +99,7 @@ public class Loader {
 
             for (int i = 0; i < paths.size(); i++) {
                 Path path = (Path) paths.elementAt(i);
-                if (module.load(page_directory, name, path)) {
+                if (module.load(process, page_directory, name, path)) {
                     if (main == null) {
                         main = module;
                         // we need to create the main thread as soon as possible so that DllMain can run

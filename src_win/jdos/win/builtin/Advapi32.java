@@ -25,6 +25,7 @@ public class Advapi32 extends BuiltinModule {
         add(GetTokenInformation);
         add(InitializeAcl);
         add(OpenProcessToken);
+        add(Advapi32.class, "RegCloseKey", new String[] {"hKey"});
         add(RegCreateKeyExA);
         add(RegOpenKeyExA);
         add(RegQueryValueExA);
@@ -152,6 +153,11 @@ public class Advapi32 extends BuiltinModule {
             CPU_Regs.reg_eax.dword = WinAPI.TRUE;
         }
     };
+
+    // LONG WINAPI RegCloseKey(HKEY hKey)
+    public static int RegCloseKey(int hKey) {
+        return ERROR_SUCCESS;
+    }
 
     // LONG WINAPI RegCreateKeyEx(HKEY hKey, LPCTSTR lpSubKey, DWORD Reserved, LPTSTR lpClass, DWORD dwOptions, REGSAM samDesired, LPSECURITY_ATTRIBUTES lpSecurityAttributes, PHKEY phkResult, LPDWORD lpdwDisposition)
     private Callback.Handler RegCreateKeyExA = new HandlerBase() {

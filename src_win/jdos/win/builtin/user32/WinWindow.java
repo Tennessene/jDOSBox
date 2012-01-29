@@ -5,8 +5,10 @@ import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinDC;
 import jdos.win.system.*;
+import jdos.win.utils.Error;
 import jdos.win.utils.StringUtil;
 
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -57,7 +59,7 @@ public class WinWindow extends WinObject {
             winClass = WinClass.get(lpClassName);
         } else {
             String className = StringUtil.getString(lpClassName);
-            winClass = (WinClass)WinSystem.getCurrentProcess().classNames.get(className);
+            winClass = (WinClass)WinSystem.getCurrentProcess().classNames.get(className.toLowerCase());
         }
         if (winClass == null) {
             SetLastError(ERROR_CANNOT_FIND_WND_CLASS);
@@ -220,6 +222,38 @@ public class WinWindow extends WinObject {
         return TRUE;
     }
 
+    // BOOL WINAPI EnableWindow(HWND hWnd, BOOL bEnable)
+    public static int EnableWindow(int hWnd, int bEnable) {
+        if (hWnd == HWND_BROADCAST) {
+            SetLastError(Error.ERROR_INVALID_PARAMETER);
+            return FALSE;
+        }
+        boolean isDisabled = IsWindowEnabled(hWnd)==0;
+        if (bEnable != 0 && isDisabled) {
+            WinWindow window = WinWindow.get(hWnd);
+            if (window != null) {
+                window.dwStyle &=~ WS_DISABLED;
+                Message.SendMessageA(hWnd, WM_ENABLE, TRUE, 0);
+            }
+        } else if (bEnable == 0 && !isDisabled) {
+            WinWindow window = WinWindow.get(hWnd);
+            if (window != null) {
+                Message.SendMessageA(hWnd, WM_CANCELMODE, 0, 0);
+                window.dwStyle|=WS_DISABLED;
+
+                if (hWnd == Focus.GetFocus())
+                    Focus.SetFocus(0);  /* A disabled window can't have the focus */
+
+                int capture_wnd = Input.GetCapture();
+                if (hWnd == capture_wnd || IsChild(hWnd, capture_wnd)!=0)
+                    Input.ReleaseCapture();  /* A disabled window can't capture the mouse */
+
+                Message.SendMessageA(hWnd, WM_ENABLE, FALSE, 0);
+            }
+        }
+        return BOOL(isDisabled);
+    }
+
     // HWND WINAPI FindWindow(LPCTSTR lpClassName, LPCTSTR lpWindowName)
     public static int FindWindowA(int lpClassName, int lpWindowName) {
         return FindWindowExA(0, 0, lpClassName, lpWindowName);
@@ -321,6 +355,27 @@ public class WinWindow extends WinObject {
         return retvalue;
     }
 
+    // HANDLE WINAPI GetProp(HWND hWnd, LPCTSTR lpString)
+    static public int GetPropA(int hWnd, int lpString) {
+        WinWindow window = WinWindow.get(hWnd);
+        if (window == null)
+            return 0;
+        if (IS_INTRESOURCE(lpString))
+            Win.panic("GetPropA does not support atoms yet");
+        String name = StringUtil.getString(lpString);
+        Integer value = window.props.get(name);
+        if (value != null)
+            return value;
+        return 0;
+    }
+
+    // HWND WINAPI GetTopWindow(HWND hWnd)
+    static public int GetTopWindow(int hWnd) {
+        if (hWnd == 0)
+            return GetDesktopWindow();
+        return GetWindow(hWnd, GW_CHILD);
+    }
+
     // HWND WINAPI GetWindow( HWND hwnd, UINT rel )
     static public int GetWindow(int hwnd, int rel) {
         int retval = 0;
@@ -355,7 +410,7 @@ public class WinWindow extends WinObject {
             int index = parent.children.indexOf(wndPtr);
             if (index+1>=parent.children.size())
                 return 0;
-            return wndPtr.children.get(index+1).handle;
+            return parent.children.get(index+1).handle;
         }
         case GW_HWNDPREV:
         {
@@ -365,7 +420,7 @@ public class WinWindow extends WinObject {
             int index = parent.children.indexOf(wndPtr);
             if (index==0)
                 return 0;
-            return wndPtr.children.get(index-1).handle;
+            return parent.children.get(index-1).handle;
         }
         case GW_OWNER:
             return wndPtr.owner;
@@ -414,6 +469,11 @@ public class WinWindow extends WinObject {
         return BOOL(WinWindow.get(hwnd)!=null);
     }
 
+    // BOOL WINAPI IsWindowEnabled(HWND hWnd)
+    public static int IsWindowEnabled(int hWnd) {
+        return (GetWindowLongA( hWnd, GWL_STYLE ) & WS_DISABLED)==0?TRUE:FALSE;
+    }
+
     // BOOL WINAPI IsWindowVisible(HWND hWnd)
     public static int IsWindowVisible(int hWnd) {
         WinWindow window = WinWindow.get(hWnd);
@@ -424,6 +484,73 @@ public class WinWindow extends WinObject {
             window = window.parent();
         }
         return FALSE;
+    }
+
+    // HWND WINAPI SetParent(HWND hWndChild, HWND hWndNewParent)
+    public static int SetParent(int hWndChild, int hWndNewParent) {
+        if (hWndChild == HWND_BROADCAST || hWndNewParent==HWND_BROADCAST) {
+            SetLastError(ERROR_INVALID_PARAMETER);
+            return 0;
+        }
+
+        if (hWndNewParent==0) hWndNewParent = GetDesktopWindow();
+        else if (hWndNewParent == HWND_MESSAGE) {
+            Win.panic("SetParent to HWND_MESSAGE not implemented yet");
+        }
+
+        if (IsWindow(hWndNewParent)==0) {
+            SetLastError( ERROR_INVALID_WINDOW_HANDLE );
+            return 0;
+        }
+
+        /* Some applications try to set a child as a parent */
+        if (IsChild(hWndChild, hWndNewParent)!=0) {
+            SetLastError( ERROR_INVALID_PARAMETER );
+            return 0;
+        }
+
+        /* Windows hides the window first, then shows it again
+         * including the WM_SHOWWINDOW messages and all */
+        int was_visible = WinPos.ShowWindow(hWndChild, SW_HIDE);
+
+        WinWindow wndPtr = WinWindow.get(hWndChild);
+        if (wndPtr == null || wndPtr.getThread().getProcess() != WinSystem.getCurrentProcess() || hWndChild == StaticData.desktopWindow) return 0;
+
+        int old_parent = wndPtr.parent;
+        if (wndPtr.getParent()!=null) {
+            wndPtr.getParent().children.remove(wndPtr);
+        }
+        if (hWndNewParent == StaticData.desktopWindow)
+            wndPtr.parent = 0;
+        else
+            wndPtr.parent = hWndNewParent;
+
+        /* SetParent additionally needs to make hwnd the topmost window
+           in the x-order and send the expected WM_WINDOWPOSCHANGING and
+           WM_WINDOWPOSCHANGED notification messages.
+        */
+        WinPos.SetWindowPos(hWndChild, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | (was_visible!=0 ? SWP_SHOWWINDOW : 0) );
+        /* FIXME: a WM_MOVE is also generated (in the DefWindowProc handler
+         * for WM_WINDOWPOSCHANGED) in Windows, should probably remove SWP_NOMOVE */
+
+        return old_parent;
+    }
+
+    //BOOL WINAPI SetProp(HWND hWnd, LPCTSTR lpString, HANDLE hData)
+    static public int SetPropA(int hWnd, int lpString, int hData) {
+        WinWindow window = WinWindow.get(hWnd);
+        if (window == null)
+            return FALSE;
+        if (IS_INTRESOURCE(lpString))
+            Win.panic("SetProp with atom not supported yet");
+        String name = StringUtil.getString(lpString);
+        window.props.put(name, hData);
+        return TRUE;
+    }
+
+    // LONG WINAPI SetWindowLong(HWND hWnd, int nIndex, LONG dwNewLong)
+    static public int SetWindowLongA(int hWnd, int nIndex, int dwNewLong) {
+        return WIN_SetWindowLong(hWnd, nIndex, 4, dwNewLong);
     }
 
     static private int WIN_GetWindowLong(int hwnd, int offset, int size, int unicode) {
@@ -469,6 +596,115 @@ public class WinWindow extends WinObject {
         }
         return 0;
     }
+
+    static private int WIN_SetWindowLong(int hwnd, int offset, int size, int newval) {
+        if (hwnd==HWND_BROADCAST) {
+            SetLastError( ERROR_INVALID_PARAMETER );
+            return FALSE;
+        }
+
+        WinWindow wndPtr = WinWindow.get(hwnd);
+
+        if (wndPtr == null) {
+            SetLastError( ERROR_INVALID_WINDOW_HANDLE );
+            return 0;
+        }
+        if (hwnd == StaticData.desktopWindow) {
+            /* can't change anything on the desktop window */
+            SetLastError( ERROR_ACCESS_DENIED );
+            return 0;
+        }
+
+        switch( offset ) {
+            case GWL_STYLE:
+            {
+                int result = wndPtr.dwStyle;
+                int style = getTempBuffer(8); //
+                writed(style, wndPtr.dwStyle);
+                writed(style + 4, newval);
+                Message.SendMessageA(hwnd, WM_STYLECHANGING, GWL_STYLE, style);
+                wndPtr = WinWindow.get(hwnd);
+                if (wndPtr == null)
+                    return 0;
+                newval = readd(style+4);
+                /* WS_CLIPSIBLINGS can't be reset on top-level windows */
+                if (wndPtr.parent == 0) newval |= WS_CLIPSIBLINGS;
+                wndPtr.dwStyle = newval;
+                Message.SendMessageA(hwnd, WM_STYLECHANGED, GWL_STYLE, style);
+                return result;
+            }
+            case GWL_EXSTYLE:
+            {
+                int result = wndPtr.dwExStyle;
+                int style = getTempBuffer(8); //
+                writed(style, wndPtr.dwExStyle);
+                writed(style+4, newval);
+                Message.SendMessageA(hwnd, WM_STYLECHANGING, GWL_EXSTYLE, style);
+                wndPtr = WinWindow.get(hwnd);
+                if (wndPtr == null)
+                    return 0;
+                newval = readd(style+4);
+                /* WS_EX_TOPMOST can only be changed through SetWindowPos */
+                newval = (newval & ~WS_EX_TOPMOST) | (wndPtr.dwExStyle & WS_EX_TOPMOST);
+                /* WS_EX_WINDOWEDGE depends on some other styles */
+                if ((newval & WS_EX_DLGMODALFRAME)!=0 || (wndPtr.dwStyle & WS_THICKFRAME)!=0)
+                    newval |= WS_EX_WINDOWEDGE;
+                else if ((wndPtr.dwStyle & (WS_CHILD|WS_POPUP))!=0)
+                    newval &= ~WS_EX_WINDOWEDGE;
+                wndPtr.dwExStyle = newval;
+                Message.SendMessageA(hwnd, WM_STYLECHANGED, GWL_EXSTYLE, style);
+                return result;
+            }
+            case GWLP_HWNDPARENT:
+                if (wndPtr.parent == 0) {
+                    int result = wndPtr.owner;
+                    wndPtr.owner = newval;
+                    return result;
+                } else {
+                    return SetParent( hwnd, newval);
+                }
+            case GWLP_WNDPROC:
+            {
+                if (wndPtr.getThread().getProcess() != WinSystem.getCurrentProcess()) {
+                    SetLastError( ERROR_ACCESS_DENIED );
+                    return 0;
+                }
+                int result = wndPtr.winproc;
+                wndPtr.winproc = newval;
+                return result;
+            }
+            case GWLP_ID:
+            {
+                int result = wndPtr.id;
+                wndPtr.id = newval;
+                return result;
+            }
+            case GWLP_HINSTANCE:
+            {
+                int result = wndPtr.hInstance;
+                wndPtr.hInstance = newval;
+                return result;
+            }
+            case GWLP_USERDATA:
+            {
+                int result = wndPtr.userdata;
+                wndPtr.userdata = newval;
+                return result;
+            }
+            default:
+                if (offset < 0 || offset > wndPtr.cbWndExtra - size) {
+                    warn("SetWindowLong Invalid offset "+offset);
+                    SetLastError( ERROR_INVALID_INDEX );
+                    return 0;
+                }
+                Integer old = (Integer)wndPtr.extra.get(offset);
+                wndPtr.extra.put(offset, newval);
+                if (old != null)
+                    return old;
+                return 0;
+        }
+    }
+
 
     public static boolean WIN_GetRectangles(int hwnd, int relative, WinRect rectWindow, WinRect rectClient ) {
         WinWindow win = WinWindow.get(hwnd);
@@ -549,6 +785,9 @@ public class WinWindow extends WinObject {
     public WinPoint min_pos = new WinPoint();
     public WinPoint max_pos = new WinPoint();
     public WinRect normal_rect = new WinRect();
+    public DialogInfo dlgInfo = null;
+    private Hashtable<Integer, Integer> extra = new Hashtable<Integer, Integer>();
+    private Hashtable<String, Integer> props = new Hashtable<String, Integer>();
 
     private WinDC dc;
     WinClass winClass;

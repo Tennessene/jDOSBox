@@ -23,6 +23,7 @@ public class Gdi32 extends BuiltinModule {
         add(WinDC.class, "GetPixel", new String[] {"hdc", "nXPos", "nYPos", "(HEX)result"});
         add(GdiObj.class, "GetStockObject", new String[] {"fnObject", "(GDI)result"});
         add(WinDC.class, "GetSystemPaletteEntries", new String[] {"hdc", "iStartIndex", "nEntries", "lppe"});
+        add(WinPalette.class, "GetSystemPaletteUse", new String[] {"hdc"});
         add(WinDC.class, "GetTextExtentPoint32A", new String[] {"hdc", "(STRINGN2)lpString", "cbString", "(HEX)lpSize", "result", "03(SIZE)lpSize"});
         add(WinDC.class, "GetTextExtentPointA", new String[] {"hdc", "(STRINGN2)lpString", "cbString", "(HEX)lpSize", "result", "03(SIZE)lpSize"});
         add(WinDC.class, "GetTextMetricsA", new String[] {"hdc", "(HEX)lptm", "(BOOL)result", "01(TM)lptm"});

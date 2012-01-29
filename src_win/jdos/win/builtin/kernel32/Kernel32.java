@@ -1,4 +1,4 @@
-package jdos.win.builtin;
+package jdos.win.builtin.kernel32;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
@@ -8,6 +8,9 @@ import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.win.Console;
 import jdos.win.Win;
+import jdos.win.builtin.HandlerBase;
+import jdos.win.builtin.ReturnHandlerBase;
+import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.user32.WinCursor;
 import jdos.win.builtin.user32.WinIcon;
 import jdos.win.kernel.WinCallback;
@@ -87,6 +90,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetFileAttributesA);
         add(GetFileSize);
         add(GetFileType);
+        add(Path.class, "GetFullPathNameA", new String[] {"(STRING)lpFileName", "nBufferLength", "(HEX)lpBuffer", "(HEX)lpFilePart", "result", "02(STRING)lpBuffer", "03(STRING)lpFilePart"});
         add(GetLastError);
         add(GetLocaleInfoA);
         add(GetLocaleInfoW);
@@ -2534,6 +2538,7 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             String name = new LittleEndianFile(CPU.CPU_Pop32()).readCString();
+            log("name="+name);
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().loadModule(name);
         }
     };

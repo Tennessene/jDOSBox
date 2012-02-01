@@ -2,6 +2,7 @@ package jdos.win.system;
 
 import jdos.cpu.CPU_Regs;
 import jdos.win.builtin.HandlerBase;
+import jdos.win.builtin.kernel32.WinThread;
 
 import java.util.Vector;
 

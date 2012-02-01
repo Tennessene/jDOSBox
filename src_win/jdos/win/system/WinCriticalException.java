@@ -1,6 +1,7 @@
 package jdos.win.system;
 
 import jdos.hardware.Memory;
+import jdos.win.builtin.kernel32.WinThread;
 
 public class WinCriticalException {
 //    public class CriticalSection {

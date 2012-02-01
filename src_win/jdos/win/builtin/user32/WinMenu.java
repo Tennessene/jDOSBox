@@ -24,6 +24,15 @@ public class WinMenu extends WinObject {
         return create().handle;
     }
 
+    // BOOL WINAPI DestroyMenu(HMENU hMenu)
+    static public int DestroyMenu(int hMenu) {
+        WinMenu menu = WinMenu.get(hMenu);
+        if (menu == null)
+            return FALSE;
+        menu.close();
+        return TRUE;
+    }
+
     // HMENU WINAPI GetMenu(HWND hWnd)
     static public int GetMenu(int hWnd) {
         WinWindow window = WinWindow.get(hWnd);
@@ -40,8 +49,32 @@ public class WinMenu extends WinObject {
         return 0;
     }
 
+    // HMENU WINAPI GetSystemMenu(HWND hWnd, BOOL bRevert)
+    static public int GetSystemMenu(int hWnd, int bRevert) {
+        WinWindow window = WinWindow.get(hWnd);
+        if (window == null)
+            return 0;
+        if (bRevert != 0 && window.hSysMenu != 0) {
+            DestroyMenu(window.hSysMenu);
+            window.hSysMenu = 0;
+        }
+        if (window.hSysMenu==0 && (window.dwStyle & WS_SYSMENU)!=0) {
+            // :TODO: MENU_GetSysMenu
+            window.hSysMenu = create().handle;
+        }
+        int result = 0;
+        if (window.hSysMenu != 0) {
+            // :TODO: return the submenu
+            result = window.hSysMenu;
+        }
+        return (bRevert==0)?result:0;
+    }
+
     // HMENU WINAPI LoadMenu(HINSTANCE hInstance, LPCTSTR lpMenuName)
     static public int LoadMenuA(int hInstance, int lpMenuName) {
+        return 0;
+    }
+    static public int LoadMenuW(int hInstance, int lpMenuName) {
         return 0;
     }
 

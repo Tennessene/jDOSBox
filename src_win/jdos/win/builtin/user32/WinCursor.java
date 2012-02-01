@@ -22,6 +22,9 @@ public class WinCursor extends WinObject {
 
     static public WinCursor get(int handle) {
         WinObject object = getObject(handle);
+        if (object == null && (handle>=32512 && handle<=32651)) {
+            object = new WinCursor(handle, 0, handle);
+        }
         if (object == null || !(object instanceof WinCursor))
             return null;
         return (WinCursor)object;

@@ -1,8 +1,9 @@
 package jdos.win.system;
 
 import jdos.hardware.Memory;
+import jdos.win.builtin.WinAPI;
 
-public class WinPoint {
+public class WinPoint extends WinAPI {
     static public final int SIZE = 8;
 
     public WinPoint() {
@@ -11,8 +12,7 @@ public class WinPoint {
     }
 
     public WinPoint(int address) {
-        this.x = Memory.mem_readd(address);
-        this.y = Memory.mem_readd(address+4);
+        copy(address);
     }
 
     public WinPoint(int x, int y) {
@@ -40,6 +40,17 @@ public class WinPoint {
     public void write(int address) {
         Memory.mem_writed(address, x);
         Memory.mem_writed(address+4, y);
+    }
+
+    public void copy(int address) {
+        this.x = Memory.mem_readd(address);
+        this.y = Memory.mem_readd(address+4);
+    }
+
+    public int allocTemp() {
+        int p = getTempBuffer(SIZE);
+        write(p);
+        return p;
     }
 
     public String toString() {

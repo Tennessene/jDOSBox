@@ -2,6 +2,7 @@ package jdos.win.system;
 
 import jdos.cpu.CPU_Regs;
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.kernel32.WinThread;
 
 public class WinEvent extends WaitObject {
     static public WinEvent create(String name, boolean manual, boolean set) {

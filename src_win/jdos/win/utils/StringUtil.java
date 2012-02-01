@@ -86,6 +86,11 @@ public class StringUtil extends WinAPI {
         return result.toString();
     }
 
+    static public void strcat(int address, int address2) {
+        int len = strlenA(address);
+        strcpy(address+len, address2);
+    }
+
     static public void strcpy(int address, String value) {
         byte[] b = value.getBytes();
         Memory.mem_memcpy(address, b, 0, b.length);
@@ -101,8 +106,18 @@ public class StringUtil extends WinAPI {
             count = b.length+1;
         Memory.mem_memcpy(address, b, 0, count-1);
         Memory.mem_writeb(address+count-1, 0);
-        return count;
+        return count-1;
     }
+    static public int strncpy(int address, int address2, int count) {
+        int i;
+        for (i=0;i<count-1;i++) {
+            int c = Memory.mem_readb(address2+i);
+            Memory.mem_writed(address+i, c);
+        }
+        Memory.mem_writeb(address+count-1, 0);
+        return i;
+    }
+
     static public int strncmp(int s1, int s2, int count) {
         for (int i=0;i<count;i++) {
             int c1 = Memory.mem_readb(s1+i);
@@ -194,6 +209,15 @@ public class StringUtil extends WinAPI {
             return 0;
         byte[] b = s.getBytes();
         int address = WinSystem.getCurrentProcess().heap.alloc(b.length+1, false);
+        strcpy(address, s);
+        return address;
+    }
+
+    static public int allocateTempA(String s) {
+        if (s == null)
+            return 0;
+        byte[] b = s.getBytes();
+        int address = getTempBuffer(b.length+1);
         strcpy(address, s);
         return address;
     }

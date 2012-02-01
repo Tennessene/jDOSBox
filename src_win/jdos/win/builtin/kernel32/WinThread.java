@@ -1,4 +1,4 @@
-package jdos.win.system;
+package jdos.win.builtin.kernel32;
 
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
@@ -10,6 +10,7 @@ import jdos.win.builtin.user32.Input;
 import jdos.win.builtin.user32.WinWindow;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
+import jdos.win.system.*;
 import jdos.win.utils.Error;
 
 import java.util.*;
@@ -24,6 +25,16 @@ public class WinThread extends WaitObject {
         if (object == null || !(object instanceof WinThread))
             return null;
         return (WinThread)object;
+    }
+
+    // HANDLE WINAPI GetCurrentThread(void);
+    static public int GetCurrentThread() {
+        return Scheduler.getCurrentThread().handle;
+    }
+
+    // DWORD WINAPI GetCurrentThreadId(void)
+    static public int GetCurrentThreadId() {
+        return Scheduler.getCurrentThread().handle;
     }
 
     static public WinThread current() {
@@ -48,6 +59,7 @@ public class WinThread extends WaitObject {
     private List<WinMsg> msgQueue = Collections.synchronizedList(new ArrayList<WinMsg>()); // synchronized since the keyboard will post message from another thread
     private List sendMsgQueue = new ArrayList();
     public Vector<WinWindow> windows = new Vector<WinWindow>();
+    private Vector<Integer> paintList = new Vector<Integer>();
     private boolean quit = false;
     private WinTimer timer = new WinTimer(0);
     public int priority = THREAD_PRIORITY_NORMAL;
@@ -115,7 +127,7 @@ public class WinThread extends WaitObject {
         Scheduler.addThread(this, false);
     }
 
-    static void setMessage(int address, int hWnd, int message, int wParam, int lParam, int time, int curX, int curY) {
+    static public void setMessage(int address, int hWnd, int message, int wParam, int lParam, int time, int curX, int curY) {
         Memory.mem_writed(address, hWnd);
         Memory.mem_writed(address+4, message);
         Memory.mem_writed(address+8, wParam);
@@ -198,6 +210,13 @@ public class WinThread extends WaitObject {
         return time;
     }
 
+    private static void buildBackToFrontWindowList(WinWindow window, Vector<Integer> list) {
+        list.add(window.handle);
+        for (int j=window.children.size()-1;j>=0;j--) {
+            buildBackToFrontWindowList(window.children.get(j), list);
+        }
+    }
+
     public int peekMessage(int msgAddress, int hWnd, int minMsg, int maxMsg, int wRemoveMsg) {
         Input.processInput();
         if (quit)  {
@@ -214,11 +233,30 @@ public class WinThread extends WaitObject {
                     return getMessage(msgAddress, i, remove);
             }
         }
+        while (paintList.size() != 0) {
+            int h = paintList.remove(0);
+            WinWindow window = WinWindow.get(h);
+            if (window != null) {
+                if (remove) {
+                    window.validate();
+                }
+                setMessage(msgAddress, window.getHandle(), WinWindow.WM_PAINT, 0, 0, WinSystem.getTickCount(), StaticData.currentPos.x, StaticData.currentPos.y);
+                return WinAPI.TRUE;
+            }
+        }
         for (int i=0;i<windows.size();i++) {
             WinWindow window = windows.elementAt(i);
             if (window.needsPainting()) {
-                if (remove)
+                WinWindow parent = window.parent();
+                while (parent != null) {
+                    if (parent.needsPainting())
+                        window = parent;
+                    parent = parent.getParent();
+                }
+                if (remove) {
+                    buildBackToFrontWindowList(window, paintList);
                     window.validate();
+                }
                 setMessage(msgAddress, window.getHandle(), WinWindow.WM_PAINT, 0, 0, WinSystem.getTickCount(), StaticData.currentPos.x, StaticData.currentPos.y);
                 return WinAPI.TRUE;
             }

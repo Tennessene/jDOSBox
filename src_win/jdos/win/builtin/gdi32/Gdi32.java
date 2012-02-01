@@ -9,6 +9,7 @@ public class Gdi32 extends BuiltinModule {
 
         add(WinDC.class, "CreateCompatibleDC", new String[] {"hdc"});
         add(WinFont.class, "CreateFontA", new String[] {"nHeight", "nWidth", "nEscapement", "nOrientation", "fnWeight", "fdwItalic", "fdwUnderline", "fdwStrikeOut", "fdwCharSet", "fdwOutputPrecision", "fdwClipPrecision", "fdwQuality", "fdwPitchAndFamily", "(STRING)lpszFace"});
+        add(WinFont.class, "CreateFontW", new String[] {"nHeight", "nWidth", "nEscapement", "nOrientation", "fnWeight", "fdwItalic", "fdwUnderline", "fdwStrikeOut", "fdwCharSet", "fdwOutputPrecision", "fdwClipPrecision", "fdwQuality", "fdwPitchAndFamily", "(STRINGW)lpszFace"});
         add(WinFont.class, "CreateFontIndirectA", new String[] {"(LOGFONT)lplf"});
         add(WinPen.class, "CreatePen", new String[] {"(HEX)fnPenStyle", "nWidth", "(HEX)crColor"});
         add(WinPalette.class, "CreatePalette", new String[] {"(HEX)lplgpl"});

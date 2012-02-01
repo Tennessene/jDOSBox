@@ -75,7 +75,7 @@ public class DefDlg extends WinAPI {
                 if (brush == 0) brush = DefWnd.DefWindowProcA(hwnd, WM_CTLCOLORDLG, wParam, hwnd);
                 if (brush != 0) {
                     int rect = getTempBuffer(WinRect.SIZE);
-                    window.rectClient.write(rect);
+                    WinRect.write(rect, 0, 0, window.rectClient.width(), window.rectClient.height());
                     // Mapping.DPtoLP(dc, rect);
                     WinDC.FillRect(wParam, rect, brush);
                 }

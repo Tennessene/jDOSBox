@@ -1,7 +1,7 @@
 package jdos.win.system;
 
 import jdos.cpu.CPU_Regs;
-import jdos.win.Win;
+import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.builtin.user32.Input;
 import jdos.win.utils.Ptr;
 
@@ -112,12 +112,12 @@ public class Scheduler {
 
     // :TODO: run them in order of process to minimize page swapping
     static public void tick() {
+        if (threadMap.size() == 0) {
+            return;
+        }
         SchedulerItem next = currentThread.next;
         SchedulerItem start = currentThread;
         int tickCount = currentTickCount();
-        if (threadMap.size() == 0) {
-            Win.panic("DEADLOCK out threads are waiting on an object indefinitely");
-        }
         while (true) {
             if (next == null) {
                 next = first;

@@ -1,7 +1,9 @@
 package jdos.win.builtin.user32;
 
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.gdi32.GdiObj;
 import jdos.win.builtin.gdi32.WinDC;
+import jdos.win.system.StaticData;
 import jdos.win.system.WinRect;
 import jdos.win.utils.StringUtil;
 
@@ -276,17 +278,17 @@ public class DefWnd extends WinAPI {
         case WM_GETDLGCODE:
             return 0;
 
-//        case WM_CTLCOLORMSGBOX:
-//        case WM_CTLCOLOREDIT:
-//        case WM_CTLCOLORLISTBOX:
-//        case WM_CTLCOLORBTN:
-//        case WM_CTLCOLORDLG:
-//        case WM_CTLCOLORSTATIC:
-//        case WM_CTLCOLORSCROLLBAR:
-//            return (LRESULT)DEFWND_ControlColor( (HDC)wParam, msg - WM_CTLCOLORMSGBOX );
-//
-//        case WM_CTLCOLOR:
-//            return (LRESULT)DEFWND_ControlColor( (HDC)wParam, HIWORD(lParam) );
+        case WM_CTLCOLORMSGBOX:
+        case WM_CTLCOLOREDIT:
+        case WM_CTLCOLORLISTBOX:
+        case WM_CTLCOLORBTN:
+        case WM_CTLCOLORDLG:
+        case WM_CTLCOLORSTATIC:
+        case WM_CTLCOLORSCROLLBAR:
+            return DEFWND_ControlColor(wParam, msg - WM_CTLCOLORMSGBOX );
+
+        case WM_CTLCOLOR:
+            return DEFWND_ControlColor(wParam, HIWORD(lParam) );
 
         case WM_SETCURSOR:
             if ((WinWindow.GetWindowLongA(hwnd, GWL_STYLE) & WS_CHILD) != 0) {
@@ -553,5 +555,34 @@ public class DefWnd extends WinAPI {
         }
 
         return 0;
+    }
+
+    static private int DEFWND_ControlColor(int hDC, int ctlType) {
+        if( ctlType == CTLCOLOR_SCROLLBAR)
+        {
+            int hb = SysParams.GetSysColorBrush(COLOR_SCROLLBAR);
+            int bk = SysParams.GetSysColor(COLOR_3DHILIGHT);
+            WinDC.SetTextColor(hDC, SysParams.GetSysColor(COLOR_3DFACE));
+            WinDC.SetBkColor(hDC, bk);
+
+            /* if COLOR_WINDOW happens to be the same as COLOR_3DHILIGHT
+             * we better use 0x55aa bitmap brush to make scrollbar's background
+             * look different from the window background.
+             */
+            if (bk == SysParams.GetSysColor(COLOR_WINDOW))
+                return StaticData.SYSCOLOR_55AABrush;
+
+            GdiObj.UnrealizeObject(hb);
+            return hb;
+        }
+
+        WinDC.SetTextColor(hDC, SysParams.GetSysColor(COLOR_WINDOWTEXT));
+
+        if ((ctlType == CTLCOLOR_EDIT) || (ctlType == CTLCOLOR_LISTBOX)) {
+            WinDC.SetBkColor(hDC, SysParams.GetSysColor(COLOR_WINDOW));
+            return SysParams.GetSysColorBrush(COLOR_WINDOW);
+        }
+        WinDC.SetBkColor( hDC, SysParams.GetSysColor(COLOR_3DFACE) );
+        return SysParams.GetSysColorBrush(COLOR_3DFACE);
     }
 }

@@ -1,9 +1,9 @@
 package jdos.win.builtin.user32;
 
-import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinDC;
+import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.system.*;
 import jdos.win.utils.Error;
 import jdos.win.utils.StringUtil;
@@ -59,7 +59,7 @@ public class WinWindow extends WinObject {
             winClass = WinClass.get(lpClassName);
         } else {
             String className = StringUtil.getString(lpClassName);
-            winClass = (WinClass)WinSystem.getCurrentProcess().classNames.get(className.toLowerCase());
+            winClass = WinSystem.getCurrentProcess().classNames.get(className.toLowerCase());
         }
         if (winClass == null) {
             SetLastError(ERROR_CANNOT_FIND_WND_CLASS);
@@ -72,6 +72,7 @@ public class WinWindow extends WinObject {
         wndPtr.thread = Scheduler.getCurrentThread();
         wndPtr.hInstance = hInstance;
         wndPtr.winClass = winClass;
+        wndPtr.cbWndExtra = winClass.cbWndExtra;
         wndPtr.winproc = winClass.eip;
         wndPtr.text           = null;
         wndPtr.dwStyle        = dwStyle & ~WS_VISIBLE;
@@ -137,7 +138,7 @@ public class WinWindow extends WinObject {
 
         int cbcs = getTempBuffer(CREATESTRUCT.SIZE);
         int cbtc = getTempBuffer(8);
-        CREATESTRUCT.write(cbcs, lpParam, hInstance, hMenu, wndPtr.parent, nWidth, nHeight, y, x, dwStyle, lpWindowName, lpClassName, dwExStyle);
+        CREATESTRUCT.write(cbcs, lpParam, hInstance, hMenu, wndPtr.parent, nHeight, nWidth, y, x, dwStyle, lpWindowName, lpClassName, dwExStyle);
         writed(cbtc, cbcs);
         writed(cbtc+4, HWND_TOP);
 
@@ -149,13 +150,11 @@ public class WinWindow extends WinObject {
         /* send the WM_GETMINMAXINFO message and fix the size if needed */
         CREATESTRUCT cs = new CREATESTRUCT(cbcs);
 
-        int cx = cs.cx;
-        int cy = cs.cy;
         if ((dwStyle & WS_THICKFRAME)!=0 || (dwStyle & (WS_POPUP | WS_CHILD))==0) {
             // :TODO: min/max stuff
         }
 
-        wndPtr.rectWindow.set(0, 0, SysParams.GetSystemMetrics(SM_CXSCREEN), SysParams.GetSystemMetrics(SM_CYSCREEN));
+        wndPtr.rectWindow.set(cs.x, cs.y, +cs.x+cs.cx, cs.y+cs.cy);
         wndPtr.rectClient=wndPtr.rectWindow.copy();
 
         /* send WM_NCCREATE */
@@ -274,7 +273,7 @@ public class WinWindow extends WinObject {
         if (hwndParent == 0)
             hwndParent = StaticData.desktopWindow;
         if (hwndParent == HWND_MESSAGE)
-            Win.panic("FindWindowExe HWND_MESSAGE not supported yet");
+            Win.panic("FindWindowEx HWND_MESSAGE not supported yet");
         WinWindow parent = WinWindow.get(hwndParent);
         if (parent == null)
             return 0;
@@ -553,6 +552,15 @@ public class WinWindow extends WinObject {
         return WIN_SetWindowLong(hWnd, nIndex, 4, dwNewLong);
     }
 
+    // BOOL WINAPI SetWindowText(HWND hWnd, LPCTSTR lpString)
+    static public int SetWindowTextA(int hWnd, int lpString) {
+        if (hWnd == HWND_BROADCAST) {
+            SetLastError(Error.ERROR_INVALID_PARAMETER);
+            return FALSE;
+        }
+        return Message.SendMessageA(hWnd, WM_SETTEXT, 0, lpString);
+    }
+
     static private int WIN_GetWindowLong(int hwnd, int offset, int size, int unicode) {
         WinWindow wndPtr;
 
@@ -578,7 +586,10 @@ public class WinWindow extends WinObject {
                 SetLastError( ERROR_INVALID_INDEX );
                 return 0;
             }
-            return wndPtr.readExtraData(offset, size);
+            Integer result = wndPtr.extra.get(offset);
+            if (result == null)
+                return 0;
+            return result;
         }
 
         switch(offset)
@@ -697,7 +708,7 @@ public class WinWindow extends WinObject {
                     SetLastError( ERROR_INVALID_INDEX );
                     return 0;
                 }
-                Integer old = (Integer)wndPtr.extra.get(offset);
+                Integer old = wndPtr.extra.get(offset);
                 wndPtr.extra.put(offset, newval);
                 if (old != null)
                     return old;
@@ -777,10 +788,10 @@ public class WinWindow extends WinObject {
     private int wExtra;
     private int userdata;
     public String text="";
-    private int helpContext;
+    public int helpContext;
     private int hIcon;
     private int hIconSmall;
-    private int hSysMenu;
+    public int hSysMenu;
     public int flags;
     public WinPoint min_pos = new WinPoint();
     public WinPoint max_pos = new WinPoint();
@@ -832,14 +843,6 @@ public class WinWindow extends WinObject {
 
     public boolean needsPainting() {
         return needsPainting;
-    }
-
-    public int readExtraData(int offset, int size) {
-        if (size == 4)
-            return Memory.mem_readd(wExtra+offset);
-        if (size == 2)
-            return Memory.mem_readw(wExtra + offset);
-        return 0;
     }
 
     public WinWindow findWindowFromPoint(int x, int y) {
@@ -912,6 +915,8 @@ public class WinWindow extends WinObject {
         }
         if (dc == null)
             dc = WinDC.create(StaticData.screen, false);
+        WinPoint p = getScreenOffset();
+        dc.setOffset(p.x, p.y, rectClient.width(), rectClient.height());
         return dc;
     }
 

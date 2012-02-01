@@ -93,6 +93,17 @@ public class WinPos extends WinAPI {
         return FALSE;
     }
 
+    // BOOL ScreenToClient(HWND hWnd, LPPOINT lpPoint)
+    public static int ScreenToClient(int hWnd, int lpPoint) {
+        WinWindow window = WinWindow.get(hWnd);
+        if (window == null)
+            return FALSE;
+        WinPoint offset = window.getScreenOffset();
+        writed(lpPoint, readd(lpPoint)-offset.x);
+        writed(lpPoint+4, readd(lpPoint+4)-offset.y);
+        return TRUE;
+    }
+
     // BOOL WINAPI SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
     public static int SetWindowPos(int hWnd, int hWndInsertAfter, int X, int Y, int cx, int cy, int uFlags) {
         WinRect newWindowRect = new WinRect();
@@ -214,8 +225,10 @@ public class WinPos extends WinAPI {
 
         if ((uFlags & SWP_HIDEWINDOW)!=0)
             Caret.HideCaret(hWnd);
-        else if ((uFlags & SWP_SHOWWINDOW)!=0)
+        else if ((uFlags & SWP_SHOWWINDOW)!=0) {
             Caret.ShowCaret(hWnd);
+            window.invalidate();
+        }
 
         if ((uFlags & (SWP_NOACTIVATE|SWP_HIDEWINDOW))==0)
         {

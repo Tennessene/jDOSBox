@@ -59,6 +59,8 @@ public class Resource extends WinAPI {
                 return Math.min(result.length(), nBufferMax);
             }
         }
+        if (lpBuffer != 0 && nBufferMax>0)
+            writeb(lpBuffer, 0);
         return 0;
     }
 }

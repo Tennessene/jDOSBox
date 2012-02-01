@@ -4,10 +4,7 @@ import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.user32.SysParams;
-import jdos.win.system.JavaBitmap;
-import jdos.win.system.StaticData;
-import jdos.win.system.WinObject;
-import jdos.win.system.WinRect;
+import jdos.win.system.*;
 import jdos.win.utils.Pixel;
 import jdos.win.utils.StringUtil;
 
@@ -133,7 +130,8 @@ public class WinDC extends WinObject {
             g.fillRect(X, Y, sw, sh);
         }
         g.setColor(new Color(dc.textColor | 0xFF000000));
-        g.drawString(text, X, Y+sh-(int)lm.getDescent());
+        g.setClip(dc.x, dc.y, dc.cx, dc.cy);
+        g.drawString(text, dc.x+X, dc.y+Y+sh-(int)lm.getDescent());
         g.dispose();
         return WinAPI.TRUE;
     }
@@ -144,7 +142,7 @@ public class WinDC extends WinObject {
         if (dc==null) return ERROR;
         if (dc.hClipRgn != 0)
             return WinRegion.GetRgnBox(dc.hClipRgn, rect);
-        new WinRect(0, 0, dc.cx-1, dc.cy-1).write(rect);
+        new WinRect(0, 0, dc.cx, dc.cy).write(rect);
         return SIMPLEREGION;
     }
 
@@ -168,6 +166,10 @@ public class WinDC extends WinObject {
                 if (dc.image.getBpp()<=8)
                     return 1 << dc.image.getBpp();
                 return -1;
+            case LOGPIXELSX:
+                return 96;
+            case LOGPIXELSY:
+                return 96;
             default:
                 Win.panic("GetDevice caps "+nIndex+" not implemented yet.");
         }
@@ -193,10 +195,10 @@ public class WinDC extends WinObject {
     // COLORREF GetPixel(HDC hdc, int nXPos, int nYPos)
     static public int GetPixel(int hdc, int nXPos, int nYPos) {
         WinDC dc = WinDC.get(hdc);
-        if (dc == null)
+        if (dc == null || (nXPos>=0 && nXPos<dc.cx && nYPos>=0 && nYPos<dc.cy))
             return CLR_INVALID;
         BufferedImage bi = dc.getImage();
-        return bi.getRGB(nXPos, nYPos);
+        return bi.getRGB(dc.x+nXPos, dc.y+nYPos);
     }
 
     // BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int c, LPSIZE lpSize)
@@ -206,11 +208,20 @@ public class WinDC extends WinObject {
 
     // BOOL GetTextExtentPoint(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize)
     static public int GetTextExtentPointA(int hdc, int lpString, int cbString, int lpSize) {
+
+        String text = StringUtil.getString(lpString, cbString);
+        WinSize size = GetTextExtentPoint(hdc, text);
+        if (size == null)
+            return FALSE;
+        Memory.mem_writed(lpSize, size.cx);
+        Memory.mem_writed(lpSize+4, size.cy);
+        return TRUE;
+    }
+
+    static public WinSize GetTextExtentPoint(int hdc, String text) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null)
-            return WinAPI.FALSE;
-        String text = StringUtil.getString(lpString, cbString);
-
+            return null;
         BufferedImage bi = dc.getImage();
         Graphics2D g = (Graphics2D)bi.getGraphics();
         FontRenderContext frc = g.getFontRenderContext();
@@ -219,10 +230,8 @@ public class WinDC extends WinObject {
         int sw = (int)font.getStringBounds(text, frc).getWidth();
         LineMetrics lm = font.getLineMetrics(text, frc);
         int sh = (int)(lm.getAscent() + lm.getDescent());
-        Memory.mem_writed(lpSize, sw);
-        Memory.mem_writed(lpSize+4, sh);
         g.dispose();
-        return WinAPI.TRUE;
+        return new WinSize(sw, sh);
     }
 
     // BOOL GetTextMetrics(HDC hdc, LPTEXTMETRIC lptm)
@@ -272,7 +281,8 @@ public class WinDC extends WinObject {
         BufferedImage image = dc.getImage();
         Graphics graphics = image.getGraphics();
         graphics.setColor(new Color(color));
-        graphics.fillRect(nXLeft, nYLeft, nWidth, nHeight);
+        graphics.setClip(dc.x, dc.y, dc.cx, dc.cy);
+        graphics.fillRect(nXLeft+dc.x, nYLeft+dc.y, nWidth, nHeight);
         graphics.dispose();
         return TRUE;
     }
@@ -365,11 +375,11 @@ public class WinDC extends WinObject {
     // COLORREF SetPixel(HDC hdc, int X, int Y, COLORREF crColor)
     static public int SetPixel(int hdc, int X, int Y, int crColor) {
         WinDC dc = WinDC.get(hdc);
-        if (dc == null)
+        if (dc == null || (X>=0 && X<dc.cx && Y>=0 && Y<dc.cy))
             return CLR_INVALID;
         BufferedImage bi = dc.getImage();
-        bi.setRGB(X, Y, crColor);
-        return bi.getRGB(X, Y);
+        bi.setRGB(dc.x+X, dc.y+Y, crColor);
+        return bi.getRGB(dc.x+X, dc.y+Y);
     }
 
     // COLORREF SetTextColor(HDC hdc, COLORREF crColor)
@@ -405,6 +415,8 @@ public class WinDC extends WinObject {
     int hBrush;
     int cx;
     int cy;
+    int x;
+    int y;
 
     public WinDC(int handle, JavaBitmap image, boolean owner) {
         super(handle);
@@ -427,36 +439,13 @@ public class WinDC extends WinObject {
         hFont = defaultFont.handle;
     }
 
-    private static final int DRIVERVERSION =   0;
-    private static final int TECHNOLOGY =      2;
-    private static final int HORZSIZE =        4;
-    private static final int VERTSIZE =        6;
-    private static final int HORZRES =         8;
-    private static final int VERTRES =         10;
-    private static final int BITSPIXEL =       12;
-    private static final int PLANES =          14;
-    private static final int NUMBRUSHES =      16;
-    private static final int NUMPENS =         18;
-    private static final int NUMMARKERS =      20;
-    private static final int NUMFONTS =        22;
-    private static final int NUMCOLORS =       24;
-    private static final int PDEVICESIZE =     26;
-    private static final int CURVECAPS =       28;
-    private static final int LINECAPS =        30;
-    private static final int POLYGONALCAPS =   32;
-    private static final int TEXTCAPS =        34;
-    private static final int CLIPCAPS =        36;
-    private static final int RASTERCAPS =      38;
-    private static final int ASPECTX =         40;
-    private static final int ASPECTY =         42;
-    private static final int ASPECTXY =        44;
-    private static final int LOGPIXELSX =      88;
-    private static final int LOGPIXELSY =      90;
-    private static final int CAPS1 =           94;
-    private static final int SIZEPALETTE =     104;
-    private static final int NUMRESERVED =     106;
-    private static final int COLORRES =        108;
-    
+    public void setOffset(int x, int y, int cx, int cy) {
+        this.x = x;
+        this.y = y;
+        this.cx = cx;
+        this.cy = cy;
+    }
+
     private static final int PHYSICALWIDTH =   110;
     private static final int PHYSICALHEIGHT =  111;
     private static final int PHYSICALOFFSETX = 112;

@@ -1,35 +1,35 @@
-package jdos.win.system;
+package jdos.win.builtin.kernel32;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 
 public class CpuState {
-    int eax;
-    int ecx = 1;
-    int edx;
-    int ebx;
-    int esp;
-    int ebp;
-    int esi;
-    int edi;
-    int eip;
+    public int eax;
+    public int ecx = 1;
+    public int edx;
+    public int ebx;
+    public int esp;
+    public int ebp;
+    public int esi;
+    public int edi;
+    public int eip;
 
-    int es;
-    int cs;
-    int ds;
-    int ss;
-    int fs;
-    int gs;
+    public int es;
+    public int cs;
+    public int ds;
+    public int ss;
+    public int fs;
+    public int gs;
 
-    int esPhys;
-    int csPhys;
-    int dsPhys;
-    int ssPhys;
-    int fsPhys;
-    int gsPhys;
+    public int esPhys;
+    public int csPhys;
+    public int dsPhys;
+    public int ssPhys;
+    public int fsPhys;
+    public int gsPhys;
 
-    int stackMask = 0xffffffff;
-    int stackNotMask;
+    public int stackMask = 0xffffffff;
+    public int stackNotMask;
 
     public void save() {
         eax = CPU_Regs.reg_eax.dword;

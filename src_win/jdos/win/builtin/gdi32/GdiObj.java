@@ -39,4 +39,10 @@ public class GdiObj extends WinAPI {
             return StaticData.stockObjects[fnObject];
         return 0;
     }
+
+    // BOOL WINAPI UnrealizeObject( HGDIOBJ obj )
+    static public int UnrealizeObject(int obj) {
+        log("UnrealizeObject not implemented yet");
+        return TRUE;
+    }
 }

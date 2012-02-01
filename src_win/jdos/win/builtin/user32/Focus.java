@@ -3,9 +3,9 @@ package jdos.win.builtin.user32;
 import jdos.hardware.Memory;
 import jdos.util.IntRef;
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.system.Scheduler;
 import jdos.win.system.StaticData;
-import jdos.win.system.WinThread;
 
 import java.util.Iterator;
 

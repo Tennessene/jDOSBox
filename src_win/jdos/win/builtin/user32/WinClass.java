@@ -18,6 +18,10 @@ public class WinClass extends WinObject {
         return new WinClass(id);
     }
 
+    static public WinClass create(int id) {
+        return new WinClass(id);
+    }
+
     static public WinClass get(int handle) {
         WinObject object = getObject(handle);
         if (object == null || !(object instanceof WinClass))

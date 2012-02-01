@@ -78,8 +78,8 @@ public class Kernel32 extends BuiltinModule {
         add(GetCurrentDirectoryA);
         add(GetCurrentProcess);
         add(GetCurrentProcessId);
-        add(GetCurrentThread);
-        add(GetCurrentThreadId);
+        add(WinThread.class, "GetCurrentThread", new String[] {""});
+        add(WinThread.class, "GetCurrentThreadId", new String[] {""});
         add(GetDateFormatA);
         add(GetDateFormatW);
         add(GetDiskFreeSpaceA);
@@ -99,16 +99,17 @@ public class Kernel32 extends BuiltinModule {
         add(GetModuleFileNameW);
         add(GetModuleHandleA);
         add(GetModuleHandleW);
-        add(GetSystemTime);
-        add(GetOEMCP);
+        add(WinLocale.class, "GetOEMCP", new String[0]);
         add(GetProcAddress);
         add(GetProcessHeap);
+        add(WinProcess.class, "GetProcessVersion", new String[] {"ProcessId", "{(HEX)result"});
         add(GetStartupInfoA);
         add(GetStartupInfoW);
         add(GetStdHandle);
         add(GetStringTypeA);
         add(GetStringTypeW);
         add(GetSystemInfo);
+        add(GetSystemTime);
         add(GetSystemTimeAsFileTime);
         add(GetTempFileNameA);
         add(GetTempPathA);
@@ -125,6 +126,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetWindowsDirectoryW);
         add(GlobalAlloc);
         add(GlobalFree);
+        add(Atom.class, "GlobalGetAtomNameA", new String[] {"nAtom", "(HEX)lpBuffer", "nSize", "result", "01(STRING)lpBuffer"});
         add(GlobalHandle);
         add(GlobalLock);
         add(GlobalReAlloc);
@@ -156,12 +158,15 @@ public class Kernel32 extends BuiltinModule {
         add(LoadLibraryA);
         add(LoadLibraryW);
         add(LoadResource);
-        add(LocalAlloc);
-        add(LocalFree);
+        add(Heap.class, "LocalAlloc", new String[] {"(HEX)uFlags", "uBytes", "(HEX)result"});
+        add(Heap.class, "LocalFree", new String[] {"(HEX)hMem"});
+        add(Heap.class, "LocalReAlloc", new String[] {"(HEX)hMem", "(HEX)uFlags", "uBytes", "(HEX)result"});
         add(LockResource);
+        add(WinString.class, "lstrcatA", new String[] {"(STRING)lpString1", "(STRING)lpString2", "(STRING)result"});
         add(lstrcpyA);
         add(lstrlenA);
         add(lstrlenW);
+        add(WinString.class, "lstrcpynA", new String[] {"(HEX)lpString1", "(STRING)lpString2", "iMaxLength", "(STRING)result"});
         add(MapViewOfFile);
         add(MulDiv);
         add(MultiByteToWideChar);
@@ -1155,7 +1160,7 @@ public class Kernel32 extends BuiltinModule {
         public void onCall() {
             int CodePage = CPU.CPU_Pop32();
             int add = CPU.CPU_Pop32();
-            if (CodePage == 1252) {
+            if (CodePage == 1252 || CodePage == 437) {
                 Memory.mem_writed(add, 1); add+=4;// MaxCharSize
                 Memory.mem_writeb(add, 63); add+=1; // DefaultChar ?
                 Memory.mem_writeb(add, 0); add+=1; //
@@ -1205,26 +1210,6 @@ public class Kernel32 extends BuiltinModule {
         }
         public void onCall() {
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getHandle();
-        }
-    };
-
-    // HANDLE WINAPI GetCurrentThread(void)
-    static private Callback.Handler GetCurrentThread = new HandlerBase() {
-        public java.lang.String getName() {
-            return "Kernel32.GetCurrentThread";
-        }
-        public void onCall() {
-            notImplemented();
-        }
-    };
-
-    // DWORD WINAPI GetCurrentThreadId(void)
-    static private Callback.Handler GetCurrentThreadId = new HandlerBase() {
-        public java.lang.String getName() {
-            return "Kernel32.GetCurrentThreadId";
-        }
-        public void onCall() {
-            CPU_Regs.reg_eax.dword = 0x100;
         }
     };
 
@@ -1488,16 +1473,6 @@ public class Kernel32 extends BuiltinModule {
     static private Callback.Handler GetModuleHandleW = new HandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.GetModuleHandleW";
-        }
-        public void onCall() {
-            notImplemented();
-        }
-    };
-
-    // UINT GetOEMCP(void)
-    static private Callback.Handler GetOEMCP = new HandlerBase() {
-        public java.lang.String getName() {
-            return "Kernel32.GetOEMCP";
         }
         public void onCall() {
             notImplemented();
@@ -2236,13 +2211,13 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
-    // LONG __cdecl InterlockedDecrement(LONG volatile *Addend)
+    // LONG InterlockedDecrement(LONG volatile *Addend)
     static private Callback.Handler InterlockedDecrement = new HandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.InterlockedDecrement";
         }
         public void onCall() {
-            int address = CPU.CPU_Peek32(0);
+            int address = CPU.CPU_Pop32();
             int value = Memory.mem_readd(address);
             value--;
             Memory.mem_writed(address, value);
@@ -2250,24 +2225,23 @@ public class Kernel32 extends BuiltinModule {
         }
     };
 
-    // LONG __cdecl InterlockedExchange(LONG volatile *Target, LONG Value)
+    // LONG InterlockedExchange(LONG volatile *Target, LONG Value)
     static private Callback.Handler InterlockedExchange = new HandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.InterlockedExchange";
         }
         public void onCall() {
             notImplemented();
-            // :TODO: notice _cdecl, don't pop stack
         }
     };
 
-    // LONG __cdecl InterlockedIncrement(LONG volatile *Addend)
+    // LONG InterlockedIncrement(LONG volatile *Addend)
     static private Callback.Handler InterlockedIncrement = new HandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.InterlockedIncrement";
         }
         public void onCall() {
-            int address = CPU.CPU_Peek32(0);
+            int address = CPU.CPU_Pop32();
             int value = Memory.mem_readd(address);
             value++;
             Memory.mem_writed(address, value);
@@ -2564,37 +2538,6 @@ public class Kernel32 extends BuiltinModule {
             int hResInfo = CPU.CPU_Pop32();
             // Find resource just returns the address of it in memory
             CPU_Regs.reg_eax.dword = hResInfo;
-        }
-    };
-
-    // HLOCAL WINAPI LocalAlloc(UINT uFlags, SIZE_T uBytes)
-    static private Callback.Handler LocalAlloc = new HandlerBase() {
-        public java.lang.String getName() {
-            return "Kernel32.LocalAlloc";
-        }
-
-        public void onCall() {
-            int uFlags = CPU.CPU_Pop32();
-            int uBytes = CPU.CPU_Pop32();
-
-            int result = WinSystem.getCurrentProcess().heap.alloc(uBytes+4, false);
-            if ((uFlags & 0x0040)!=0)
-                Memory.mem_zero(result, uBytes+4);
-            Memory.mem_writed(result, uBytes);
-            CPU_Regs.reg_eax.dword = result+4;
-        }
-    };
-
-    // HLOCAL WINAPI LocalFree(HLOCAL hMem)
-    static private Callback.Handler LocalFree = new HandlerBase() {
-        public java.lang.String getName() {
-            return "Kernel32.LocalFree";
-        }
-
-        public void onCall() {
-            int hMem = CPU.CPU_Pop32();
-            WinSystem.getCurrentProcess().heap.free(hMem-4);
-            CPU_Regs.reg_eax.dword = 0;
         }
     };
 

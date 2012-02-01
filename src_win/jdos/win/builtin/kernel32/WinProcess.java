@@ -1,12 +1,14 @@
-package jdos.win.system;
+package jdos.win.builtin.kernel32;
 
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.user32.WinClass;
 import jdos.win.controls.StaticWindow;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
+import jdos.win.system.*;
 import jdos.win.utils.Error;
 import jdos.win.utils.Heap;
 import jdos.win.utils.Path;
@@ -38,6 +40,19 @@ public class WinProcess extends WaitObject {
         if (object == null || !(object instanceof WinProcess))
             return null;
         return (WinProcess)object;
+    }
+
+    // DWORD WINAPI GetProcessVersion(DWORD ProcessId)
+    static public int GetProcessVersion(int ProcessId) {
+        WinProcess process;
+
+        if (ProcessId == 0)
+            process = WinSystem.getCurrentProcess();
+        else
+            process = WinProcess.get(ProcessId);
+        if (process == null)
+            return 0;
+        return process.loader.main.header.imageOptional.MajorOperatingSystemVersion << 16 | process.loader.main.header.imageOptional.MinorOperatingSystemVersion;
     }
 
     public static final long ADDRESS_HEAP_START =           0x0BA00000l;
@@ -74,7 +89,7 @@ public class WinProcess extends WaitObject {
     public int page_directory;
     public KernelMemory kernelMemory;
     public Heap addressSpace = new Heap(0x00100000l, 0xFFF00000l);
-    public Hashtable classNames = new Hashtable();
+    public Hashtable<String, WinClass> classNames = new Hashtable<String, WinClass>();
     public WinEvent readyForInput = WinEvent.create(null, true, false);
 
     public WinProcess(int handle, KernelMemory memory, String workingDirectory) {

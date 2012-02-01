@@ -5,6 +5,8 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.gui.Main;
+import jdos.win.builtin.kernel32.WinProcess;
+import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.kernel.*;
 import jdos.win.utils.Pixel;
 
@@ -94,6 +96,9 @@ public class WinSystem {
 
     static public void call(int eip, int param1, int param2, int param3, int param4) {
         internalCall(eip, 4, param1, param2, param3, param4);
+    }
+    static public void call(int eip, int param1, int param2, int param3) {
+        internalCall(eip, 3, param1, param2, param3, 0);
     }
     static public void call(int eip, int param1, int param2) {
         internalCall(eip, 2, param1, param2, 0, 0);

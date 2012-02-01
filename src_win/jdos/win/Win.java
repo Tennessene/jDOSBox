@@ -11,18 +11,19 @@ import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.misc.setup.Section;
 import jdos.util.StringRef;
+import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.builtin.user32.WinCursor;
 import jdos.win.kernel.VideoMemory;
 import jdos.win.loader.winpe.HeaderPE;
 import jdos.win.system.WinKeyboard;
 import jdos.win.system.WinMouse;
-import jdos.win.system.WinProcess;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Path;
 
 import java.util.Vector;
 
-public class Win {
+public class Win extends WinAPI {
     static private void disable_umb_ems_xms() {
         Section dos_sec = Dosbox.control.GetSection("dos");
         dos_sec.ExecuteDestroy(false);
@@ -33,7 +34,7 @@ public class Win {
      }
 
     public static void panic(String msg) {
-        Console.out("PANIC: "+msg);
+        log("PANIC: " + msg);
         Win.exit();
     }
 

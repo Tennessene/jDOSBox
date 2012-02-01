@@ -1,7 +1,7 @@
 package jdos.win.kernel;
 
 import jdos.win.Win;
-import jdos.win.system.WinProcess;
+import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.system.WinSystem;
 
 public class VideoMemory {

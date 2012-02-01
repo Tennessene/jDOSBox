@@ -1,5 +1,7 @@
 package jdos.win.system;
 
+import jdos.win.builtin.kernel32.WinThread;
+
 import java.util.BitSet;
 
 public class WinMsg {

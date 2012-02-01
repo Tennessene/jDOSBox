@@ -4,6 +4,7 @@ import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinBrush;
 import jdos.win.system.StaticData;
+import jdos.win.system.WinRect;
 import jdos.win.utils.Ptr;
 
 public class SysParams extends WinAPI {
@@ -267,6 +268,9 @@ public class SysParams extends WinAPI {
          switch (uiAction) {
             case 0x0010: // SPI_GETSCREENSAVEACTIVE
                 writed(pvParam, FALSE);
+                break;
+            case 0x0030: // SPI_GETWORKAREA
+                WinRect.write(pvParam, 0, 0, StaticData.screen.getWidth(), StaticData.screen.getHeight()); // :TODO: if we ever show a taskbar this will have to be adjusted
                 break;
             case 0x0053: // SPI_GETLOWPOWERACTIVE
                 writed(pvParam, FALSE);

@@ -8,21 +8,22 @@ import jdos.util.StringRef;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.*;
+import jdos.win.builtin.comctl32.Comctl32;
 import jdos.win.builtin.directx.DDraw;
 import jdos.win.builtin.directx.DInput;
 import jdos.win.builtin.directx.DSound;
 import jdos.win.builtin.directx.Dplayx;
 import jdos.win.builtin.gdi32.Gdi32;
 import jdos.win.builtin.kernel32.Kernel32;
+import jdos.win.builtin.kernel32.WinProcess;
+import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.builtin.user32.User32;
 import jdos.win.builtin.winmm.WinMM;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import jdos.win.loader.winpe.HeaderImageOptional;
-import jdos.win.system.WinProcess;
 import jdos.win.system.WinSystem;
-import jdos.win.system.WinThread;
 import jdos.win.utils.Path;
 
 import java.io.IOException;
@@ -103,7 +104,7 @@ public class Loader {
                     if (main == null) {
                         main = module;
                         // we need to create the main thread as soon as possible so that DllMain can run
-                        WinThread thread = WinThread.create(process, module.getEntryPoint(), (int)module.header.imageOptional.SizeOfStackCommit, (int)module.header.imageOptional.SizeOfStackReserve, true);
+                        WinThread thread = WinThread.create(process, module.getEntryPoint(), (int) module.header.imageOptional.SizeOfStackCommit, (int) module.header.imageOptional.SizeOfStackReserve, true);
                         WinSystem.getCurrentProcess().mainModule = module;
                     }
                     // :TODO: reloc dll
@@ -120,6 +121,7 @@ public class Loader {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -160,6 +162,10 @@ public class Loader {
             module = new Msvfw32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("wsock32.dll")) {
             module = new Wsock32(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("comctl32.dll")) {
+            module = new Comctl32(this, getNextModuleHandle());
+        } else {
+            module = new BuiltinModule(this, name, getNextModuleHandle());
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);

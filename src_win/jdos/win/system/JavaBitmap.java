@@ -4,6 +4,7 @@ import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.kernel32.WinProcess;
 
 import java.awt.image.*;
 

@@ -6,9 +6,11 @@ import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.directx.ddraw.IDirectDrawSurface;
+import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.system.Scheduler;
-import jdos.win.system.WinProcess;
+import jdos.win.system.StaticData;
 import jdos.win.system.WinSystem;
+import jdos.win.utils.StringUtil;
 
 public class Message extends WinAPI {
     // LRESULT WINAPI DispatchMessage(const MSG *lpmsg)
@@ -49,6 +51,18 @@ public class Message extends WinAPI {
             Win.panic("Broadcast PostMessage not implemented yet");
         Scheduler.getCurrentThread().postMessage(hWnd, Msg, wParam, lParam);
         return TRUE;
+    }
+
+    // If the message is successfully registered, the return value is a message identifier in the range 0xC000 through 0xFFFF
+    // UINT WINAPI RegisterWindowMessage(LPCTSTR lpString)
+    static public int RegisterWindowMessageA(int lpString) {
+        String name = StringUtil.getString(lpString);
+        Integer result = StaticData.registeredMessages.get(name);
+        if (result != null)
+            return result;
+        int value = StaticData.nextRegisteredMessage++;
+        StaticData.registeredMessages.put(name, value);
+        return value;
     }
 
     // LRESULT WINAPI SendMessageA( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam )

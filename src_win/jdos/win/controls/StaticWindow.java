@@ -5,10 +5,10 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.builtin.user32.DefWnd;
 import jdos.win.builtin.user32.WinClass;
 import jdos.win.kernel.WinCallback;
-import jdos.win.system.WinProcess;
 
 public class StaticWindow extends WinAPI {
     static public void registerClass(WinProcess process) {

@@ -55,6 +55,17 @@ public class BuiltinModule extends Module {
                 System.out.print(Ptr.toString(value));
                 System.out.print(")");
             }
+        } else if (desc.startsWith("(STRINGW)")) {
+            System.out.print(desc.substring(9));
+            System.out.print("=");
+            if (IS_INTRESOURCE(value) || value==0) {
+                System.out.print(value.toString());
+            } else {
+                System.out.print(StringUtil.getStringW(value));
+                System.out.print("(0x");
+                System.out.print(Ptr.toString(value));
+                System.out.print(")");
+            }
         } else if (desc.startsWith("(STRINGN")) {
             System.out.print(desc.substring(10));
             System.out.print("=");
@@ -426,6 +437,11 @@ public class BuiltinModule extends Module {
 
     protected void add(Class c, String methodName) {
         add(c, methodName, null);
+    }
+
+    protected void add(Class c, String methodName, String[] params, int ordinal) {
+        add(c, methodName, params);
+        ordinalToName.put(ordinal, methodName);
     }
 
     protected void add(Class c, String methodName, String[] params) {

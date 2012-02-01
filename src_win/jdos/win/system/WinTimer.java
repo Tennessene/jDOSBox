@@ -1,6 +1,7 @@
 package jdos.win.system;
 
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.builtin.user32.WinWindow;
 
 import java.util.ArrayList;

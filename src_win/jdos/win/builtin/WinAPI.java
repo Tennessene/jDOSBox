@@ -40,7 +40,7 @@ public class WinAPI extends Error {
         Scheduler.getCurrentThread().setLastError(error);
     }
     static public int RGB(int r, int g, int b) {
-        return r | (g << 8) | (b << 16);
+        return b | (g << 8) | (r << 16);
     }
     static public boolean IS_INTRESOURCE(int p) {
         return p<=0xFFFF;
@@ -214,6 +214,14 @@ public class WinAPI extends Error {
 
     static public void writed(int address, int value) {
         Memory.mem_writed(address, value);
+    }
+
+    static public void writew(int address, int value) {
+        Memory.mem_writew(address, value);
+    }
+
+    static public void writeb(int address, int value) {
+        Memory.mem_writeb(address, value);
     }
 
     static public int readb(int address) {
@@ -1032,10 +1040,71 @@ public class WinAPI extends Error {
     static final public int SYSPAL_STATIC =      1;
     static final public int SYSPAL_NOSTATIC =    2;
     static final public int SYSPAL_NOSTATIC256 = 3;
-        
+     
+    /*** Dialog styles ***/
+    static final public int DS_ABSALIGN =           0x00000001;
+    static final public int DS_SYSMODAL =           0x00000002;
+    static final public int DS_3DLOOK =             0x00000004; /* win95 */
+    static final public int DS_FIXEDSYS =           0x00000008; /* win95 */
+    static final public int DS_NOFAILCREATE =       0x00000010; /* win95 */
+    static final public int DS_LOCALEDIT =          0x00000020;
+    static final public int DS_SETFONT =            0x00000040;
+    static final public int DS_MODALFRAME =         0x00000080;
+    static final public int DS_NOIDLEMSG =          0x00000100;
+    static final public int DS_SETFOREGROUND =      0x00000200; /* win95 */
+    static final public int DS_CONTROL =            0x00000400; /* win95 */
+    static final public int DS_CENTER =             0x00000800; /* win95 */
+    static final public int DS_CENTERMOUSE =        0x00001000; /* win95 */
+    static final public int DS_CONTEXTHELP =        0x00002000; /* win95 */
+    static final public int DS_USEPIXELS =          0x00008000;
+    static final public int DS_SHELLFONT =          (DS_SETFONT | DS_FIXEDSYS);
+   
+    public static final int DRIVERVERSION =   0;
+    public static final int TECHNOLOGY =      2;
+    public static final int HORZSIZE =        4;
+    public static final int VERTSIZE =        6;
+    public static final int HORZRES =         8;
+    public static final int VERTRES =         10;
+    public static final int BITSPIXEL =       12;
+    public static final int PLANES =          14;
+    public static final int NUMBRUSHES =      16;
+    public static final int NUMPENS =         18;
+    public static final int NUMMARKERS =      20;
+    public static final int NUMFONTS =        22;
+    public static final int NUMCOLORS =       24;
+    public static final int PDEVICESIZE =     26;
+    public static final int CURVECAPS =       28;
+    public static final int LINECAPS =        30;
+    public static final int POLYGONALCAPS =   32;
+    public static final int TEXTCAPS =        34;
+    public static final int CLIPCAPS =        36;
+    public static final int RASTERCAPS =      38;
+    public static final int ASPECTX =         40;
+    public static final int ASPECTY =         42;
+    public static final int ASPECTXY =        44;
+    public static final int LOGPIXELSX =      88;
+    public static final int LOGPIXELSY =      90;
+    public static final int CAPS1 =           94;
+    public static final int SIZEPALETTE =     104;
+    public static final int NUMRESERVED =     106;
+    public static final int COLORRES =        108;
+
+    public static final int CW_USEDEFAULT =   0x80000000;
+
+    static final public int CTLCOLOR_MSGBOX =            0;
+    static final public int CTLCOLOR_EDIT =              1;
+    static final public int CTLCOLOR_LISTBOX =           2;
+    static final public int CTLCOLOR_BTN =               3;
+    static final public int CTLCOLOR_DLG =               4;
+    static final public int CTLCOLOR_SCROLLBAR =         5;
+    static final public int CTLCOLOR_STATIC =            6;
+    
     // ************
     // * Internal *
     // ************
+
+    public static int DF_END =          0x0001;
+    public static int DF_OWNERENABLED = 0x0002;
 
     static final public int WAIT_SWITCH = 0xFFFF;
     static public final int NUM_SYS_COLORS = COLOR_MENUBAR+1;

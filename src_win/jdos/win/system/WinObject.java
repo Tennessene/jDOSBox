@@ -1,5 +1,6 @@
 package jdos.win.system;
 
+import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 
 public class WinObject extends WinAPI {
@@ -21,7 +22,9 @@ public class WinObject extends WinAPI {
         this.name = name;
         this.handle = handle;
         if (handle>0) {
-            StaticData.objects.put(handle, this);
+            if (StaticData.objects.put(handle, this) != null) {
+                Win.panic("Object handle collision: handle="+handle);
+            }
             if (name != null && name.length()>0)
                 StaticData.namedObjects.put(name, this);
             open();

@@ -22,6 +22,8 @@ public class Error {
     public static final int ERROR_CLASS_ALREADY_EXISTS = 1410;
     public static final int ERROR_CLASS_DOES_NOT_EXIST = 1411;
     public static final int ERROR_INVALID_INDEX = 1413;
+    public static final int ERROR_INVALID_FILTER_PROC = 1427;
+    public static final int ERROR_HOOK_NEEDS_HMOD = 1428;
     public static final int ERROR_RESOURCE_DATA_NOT_FOUND = 1812;
     public static final int ERROR_RESOURCE_TYPE_NOT_FOUND = 1813;
 

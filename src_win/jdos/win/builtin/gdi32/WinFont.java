@@ -1,6 +1,7 @@
 package jdos.win.builtin.gdi32;
 
 import jdos.win.system.WinObject;
+import jdos.win.system.WinSize;
 import jdos.win.utils.StringUtil;
 
 import java.awt.*;
@@ -24,10 +25,18 @@ public class WinFont extends WinGDI {
         if (lpszFace != 0) {
             fontName = StringUtil.getString(lpszFace);
         }
-        return CreateFontA_String(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily, fontName);
+        return CreateFont(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily, fontName);
+    }
+    public static int CreateFontW(int nHeight, int nWidth, int nEscapement, int nOrientation, int fnWeight, int fdwItalic, int fdwUnderline, int fdwStrikeOut, int fdwCharSet, int fdwOutputPrecision, int fdwClipPrecision, int fdwQuality, int fdwPitchAndFamily, int lpszFace) {
+        String fontName = null;
+
+        if (lpszFace != 0) {
+            fontName = StringUtil.getStringW(lpszFace);
+        }
+        return CreateFont(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily, fontName);
     }
 
-    public static int CreateFontA_String(int nHeight, int nWidth, int nEscapement, int nOrientation, int fnWeight, int fdwItalic, int fdwUnderline, int fdwStrikeOut, int fdwCharSet, int fdwOutputPrecision, int fdwClipPrecision, int fdwQuality, int fdwPitchAndFamily, String fontName) {
+    public static int CreateFont(int nHeight, int nWidth, int nEscapement, int nOrientation, int fnWeight, int fdwItalic, int fdwUnderline, int fdwStrikeOut, int fdwCharSet, int fdwOutputPrecision, int fdwClipPrecision, int fdwQuality, int fdwPitchAndFamily, String fontName) {
         int style = Font.PLAIN;
         if (fnWeight >= 600) // FW_SEMIBOLD
             style |= Font.BOLD;
@@ -93,5 +102,37 @@ public class WinFont extends WinGDI {
 
     static public int WIN_TO_JAVA(int size) {
         return size;// * 72 / 96;
+    }
+
+    /***********************************************************************
+     *           GdiGetCharDimensions    (GDI32.@)
+     *
+     * Gets the average width of the characters in the English alphabet.
+     *
+     * PARAMS
+     *  hdc    [I] Handle to the device context to measure on.
+     *
+     * RETURNS
+     *  The average width of characters in the English alphabet.
+     *
+     * NOTES
+     *  This function is used by the dialog manager to get the size of a dialog
+     *  unit. It should also be used by other pieces of code that need to know
+     *  the size of a dialog unit in logical units without having access to the
+     *  window handle of the dialog.
+     *  Windows caches the font metrics from this function, but we don't and
+     *  there doesn't appear to be an immediate advantage to do so.
+     *
+     * SEE ALSO
+     *  GetTextExtentPointW, GetTextMetricsW, MapDialogRect.
+     */
+    static public WinSize GdiGetCharDimensions(int hdc, int lptm) {
+        if(lptm!=0 && WinDC.GetTextMetricsA(hdc, lptm)==0) return null;
+
+        WinSize size = WinDC.GetTextExtentPoint(hdc, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        if (size == null)
+            return null;
+        size.cx = (size.cx / 26 + 1) / 2;
+        return size;
     }
 }

@@ -1,10 +1,7 @@
 package jdos.win.system;
 
 import jdos.win.builtin.WinAPI;
-import jdos.win.builtin.gdi32.WinBrush;
-import jdos.win.builtin.gdi32.WinFont;
-import jdos.win.builtin.gdi32.WinGDI;
-import jdos.win.builtin.gdi32.WinPen;
+import jdos.win.builtin.gdi32.*;
 import jdos.win.builtin.user32.Hook;
 import jdos.win.builtin.user32.WinClass;
 import jdos.win.builtin.user32.WinWindow;
@@ -38,6 +35,8 @@ public class StaticData extends WinAPI {
     public static Vector<Hook> currentHookChain;
     public static int currentHookIndex;
 
+    public static int top_popup;
+
     static public void init() {
         stockObjects = new int[STOCK_LAST+1];
         stockObjects[WHITE_BRUSH] = WinBrush.CreateSolidBrush(RGB(255, 255, 255));
@@ -51,7 +50,7 @@ public class StaticData extends WinAPI {
         stockObjects[BLACK_PEN] = WinPen.CreatePen(PS_SOLID, 0, RGB(0, 0, 0));
         stockObjects[NULL_PEN] = WinPen.CreatePen(PS_NULL, 0, 0);
 
-        stockObjects[DEFAULT_PALETTE] = WinPen.CreatePen(PS_NULL, 0, 0);
+        stockObjects[DEFAULT_PALETTE] = WinPalette.create(JavaBitmap.getDefaultPalette()).getHandle();
 
         stockObjects[OEM_FIXED_FONT]      = WinFont.CreateFontA(12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, OEM_CHARSET, 0, 0, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, 0);
         stockObjects[ANSI_FIXED_FONT]     = WinFont.CreateFont(12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, 0, 0, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, "Courier");

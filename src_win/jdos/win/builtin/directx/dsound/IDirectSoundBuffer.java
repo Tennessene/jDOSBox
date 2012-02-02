@@ -164,6 +164,7 @@ public class IDirectSoundBuffer extends IUnknown {
                 return;
             }
             DSBCaps.write(lpDSBufferCaps,  getFlags(This) | DSBufferDesc.DSBCAPS_LOCSOFTWARE, getBufferBytes(This), 0, 0);
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 
@@ -176,7 +177,9 @@ public class IDirectSoundBuffer extends IUnknown {
             int This = CPU.CPU_Pop32();
             int lpdwCurrentPlayCursor = CPU.CPU_Pop32();
             int lpdwCurrentWriteCursor = CPU.CPU_Pop32();
-            notImplemented();
+            Memory.mem_writed(lpdwCurrentPlayCursor, 0);
+            Memory.mem_writed(lpdwCurrentWriteCursor, 0);
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 

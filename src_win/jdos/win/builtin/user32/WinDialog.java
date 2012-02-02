@@ -17,6 +17,47 @@ public class WinDialog extends WinAPI {
         return DIALOG_CreateIndirect(hInstance, lpTemplate, hWndParent, lpDialogFunc, lParamInit, false, false);
     }
 
+    // BOOL WINAPI EndDialog(HWND hDlg, INT_PTR nResult)
+    public static int EndDialog(int hDlg, int nResult) {
+        WinWindow dlg = WinWindow.get(hDlg);
+        if (dlg == null || dlg.dlgInfo == null) {
+            warn("EndDialog: invalid window handle");
+            return FALSE;
+        }
+        DialogInfo dlgInfo = dlg.dlgInfo;
+        dlgInfo.idResult = nResult;
+        dlgInfo.flags |= DF_END;
+        int wasEnabled = (dlgInfo.flags & DF_OWNERENABLED);
+
+        int owner = WinWindow.GetWindow(hDlg, GW_OWNER );
+        if (wasEnabled!=0 && owner!=0)
+            DIALOG_EnableOwner(owner);
+
+        /* Windows sets the focus to the dialog itself in EndDialog */
+
+        if (WinWindow.IsChild(hDlg, Focus.GetFocus())!=0)
+            Focus.SetFocus(hDlg);
+
+        /* Don't have to send a ShowWindow(SW_HIDE), just do
+           SetWindowPos with SWP_HIDEWINDOW as done in Windows */
+
+        WinPos.SetWindowPos(hDlg, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
+
+        if (hDlg == Focus.GetActiveWindow()) {
+            /* If this dialog was given an owner then set the focus to that owner
+               even when the owner is disabled (normally when a window closes any
+               disabled windows cannot receive the focus). */
+            if (owner!=0)
+                Focus.SetForegroundWindow(owner);
+            else
+                WinPos.WINPOS_ActivateOtherWindow(hDlg);
+        }
+
+        /* unblock dialog loop */
+        Message.PostMessageA(hDlg, WM_NULL, 0, 0);
+        return TRUE;
+    }
+
     // int WINAPI GetDlgCtrlID(HWND hwndCtl)
     public static int GetDlgCtrlID(int hwndCtl) {
         return WinWindow.GetWindowLongA(hwndCtl, GWL_ID);
@@ -24,7 +65,7 @@ public class WinDialog extends WinAPI {
 
     // BOOL WINAPI IsDialogMessage(HWND hDlg, LPMSG lpMsg)
     public static int IsDialogMessageA(int hDlg, int lpMsg) {
-        return TRUE;
+        return FALSE;
     }
 
     private static int units = 0;
@@ -244,7 +285,7 @@ public class WinDialog extends WinAPI {
             } else {
                 if (result.dialogEx) {
                     result.weight = readw(p); p+=2;
-                    result.italic = readw(p)!=0;p+=2;
+                    result.italic = (readw(p) & 0xFF)!=0;p+=2;
                 }
                 result.faceName = p;
                 p += (StringUtil.strlenW(result.faceName) + 1)*2;

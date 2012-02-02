@@ -91,6 +91,8 @@ public class WinProcess extends WaitObject {
     public Heap addressSpace = new Heap(0x00100000l, 0xFFF00000l);
     public Hashtable<String, WinClass> classNames = new Hashtable<String, WinClass>();
     public WinEvent readyForInput = WinEvent.create(null, true, false);
+    public int tlsSize = 0;
+    public Vector<Integer> freeTLS = new Vector<Integer>();
 
     public WinProcess(int handle, KernelMemory memory, String workingDirectory) {
         super(handle);

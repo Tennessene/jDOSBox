@@ -215,15 +215,15 @@ public class DefWnd extends WinAPI {
                 return 0;
             }
 
-//        case WM_SYNCPAINT:
-//            RedrawWindow ( hwnd, NULL, 0, RDW_ERASENOW | RDW_ERASE | RDW_ALLCHILDREN );
-//            return 0;
-//
+        case WM_SYNCPAINT:
+            Painting.RedrawWindow (hwnd, NULL, 0, RDW_ERASENOW | RDW_ERASE | RDW_ALLCHILDREN);
+            return 0;
+
 //        case WM_SETREDRAW:
-//            if (wParam) WIN_SetStyle( hwnd, WS_VISIBLE, 0 );
+//            if (wParam!=0) WIN_SetStyle( hwnd, WS_VISIBLE, 0 );
 //            else
 //            {
-//                RedrawWindow( hwnd, NULL, 0, RDW_ALLCHILDREN | RDW_VALIDATE );
+//                Painting.RedrawWindow( hwnd, NULL, 0, RDW_ALLCHILDREN | RDW_VALIDATE );
 //                WIN_SetStyle( hwnd, 0, WS_VISIBLE );
 //            }
 //            return 0;

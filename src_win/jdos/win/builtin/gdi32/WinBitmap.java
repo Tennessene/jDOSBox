@@ -2,6 +2,7 @@ package jdos.win.builtin.gdi32;
 
 import jdos.hardware.Memory;
 import jdos.win.Win;
+import jdos.win.builtin.user32.Resource;
 import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.system.JavaBitmap;
 import jdos.win.system.WinObject;
@@ -20,6 +21,11 @@ public class WinBitmap extends WinGDI {
         if (object == null || !(object instanceof WinBitmap))
             return null;
         return (WinBitmap)object;
+    }
+
+    // HBITMAP LoadBitmap(HINSTANCE hInstance, LPCTSTR lpBitmapName)
+    static public int LoadBitmapA(int hInstance, int lpBitmapName) {
+        return Resource.LoadImageA(hInstance, lpBitmapName, IMAGE_BITMAP, 0, 0, 0);
     }
 
     int address;
@@ -114,5 +120,13 @@ public class WinBitmap extends WinGDI {
         int result = WinSystem.getCurrentProcess().heap.alloc(size, true);
         Pixel.copy(bits, bitCount, palette, result, bpp, dstPalette, width, height, true);
         return result;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

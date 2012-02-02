@@ -250,6 +250,7 @@ public class WinAPI extends Error {
         return WinSystem.getCurrentProcess().getTemp(size);
     }
 
+    static public final int WM_NULL =                        0x0000;
     static public final int WM_CREATE =                      0x0001;
     static public final int WM_DESTROY =                     0x0002;
     static public final int WM_MOVE =                        0x0003;
@@ -1058,7 +1059,43 @@ public class WinAPI extends Error {
     static final public int DS_CONTEXTHELP =        0x00002000; /* win95 */
     static final public int DS_USEPIXELS =          0x00008000;
     static final public int DS_SHELLFONT =          (DS_SETFONT | DS_FIXEDSYS);
-   
+
+    /*** Static Control Styles ***/
+    static final public int SS_LEFT =               0x00000000;
+    static final public int SS_CENTER =             0x00000001;
+    static final public int SS_RIGHT =              0x00000002;
+    static final public int SS_ICON =               0x00000003;
+    static final public int SS_BLACKRECT =          0x00000004;
+    static final public int SS_GRAYRECT =           0x00000005;
+    static final public int SS_WHITERECT =          0x00000006;
+    static final public int SS_BLACKFRAME =         0x00000007;
+    static final public int SS_GRAYFRAME =          0x00000008;
+    static final public int SS_WHITEFRAME =         0x00000009;
+    static final public int SS_USERITEM =           0x0000000A;
+    static final public int SS_SIMPLE =             0x0000000B;
+    static final public int SS_LEFTNOWORDWRAP =     0x0000000C;
+    static final public int SS_OWNERDRAW =          0x0000000D;
+    static final public int SS_BITMAP =             0x0000000E;
+    static final public int SS_ENHMETAFILE =        0x0000000F;
+    static final public int SS_ETCHEDHORZ =         0x00000010;
+    static final public int SS_ETCHEDVERT =         0x00000011;
+    static final public int SS_ETCHEDFRAME =        0x00000012;
+    static final public int SS_TYPEMASK =           0x0000001F;
+    
+    static final public int SS_REALSIZECONTROL =    0x00000040;
+    static final public int SS_NOPREFIX =           0x00000080;
+    static final public int SS_NOTIFY =             0x00000100;
+    static final public int SS_CENTERIMAGE =        0x00000200;
+    static final public int SS_RIGHTJUST =          0x00000400;
+    static final public int SS_REALSIZEIMAGE =      0x00000800;
+    static final public int SS_SUNKEN =             0x00001000;
+    static final public int SS_EDITCONTROL =        0x00002000;
+    static final public int SS_ENDELLIPSIS =        0x00004000;
+    static final public int SS_PATHELLIPSIS =       0x00008000;
+    static final public int SS_WORDELLIPSIS =       0x0000C000;
+    static final public int SS_ELLIPSISMASK =       SS_WORDELLIPSIS;
+
+    
     public static final int DRIVERVERSION =   0;
     public static final int TECHNOLOGY =      2;
     public static final int HORZSIZE =        4;
@@ -1099,6 +1136,156 @@ public class WinAPI extends Error {
     static final public int CTLCOLOR_SCROLLBAR =         5;
     static final public int CTLCOLOR_STATIC =            6;
     
+    /* types of LoadImage */
+    static final public int IMAGE_BITMAP =      0;
+    static final public int IMAGE_ICON =        1;
+    static final public int IMAGE_CURSOR =      2;
+    static final public int IMAGE_ENHMETAFILE = 3;
+
+    static final public int LR_DEFAULTCOLOR =   0x0000;
+    static final public int LR_MONOCHROME =     0x0001;
+    static final public int LR_COLOR =          0x0002;
+    static final public int LR_COPYRETURNORG =  0x0004;
+    static final public int LR_COPYDELETEORG =  0x0008;
+    static final public int LR_LOADFROMFILE =   0x0010;
+    static final public int LR_LOADTRANSPARENT= 0x0020;
+    static final public int LR_DEFAULTSIZE =    0x0040;
+    static final public int LR_VGA_COLOR =      0x0080;
+    static final public int LR_LOADMAP3DCOLORS= 0x1000;
+    static final public int LR_CREATEDIBSECTION=0x2000;
+    static final public int LR_COPYFROMRESOURCE=0x4000;
+    static final public int LR_SHARED =         0x8000;
+    
+    /* Static Control Messages */
+    static final public int STM_SETICON =        0x0170;
+    static final public int STM_GETICON =        0x0171;
+    static final public int STM_SETIMAGE =       0x0172;
+    static final public int STM_GETIMAGE =       0x0173;
+    static final public int STM_MSGMAX =         0x0174;
+    
+    static final public int STN_CLICKED =        0;
+    static final public int STN_DBLCLK =         1;
+    static final public int STN_ENABLE =         2;
+    static final public int STN_DISABLE =        3;
+    
+      /* RedrawWindow() flags */
+    static final public int RDW_INVALIDATE =      0x0001;
+    static final public int RDW_INTERNALPAINT =   0x0002;
+    static final public int RDW_ERASE =           0x0004;
+    static final public int RDW_VALIDATE =        0x0008;
+    static final public int RDW_NOINTERNALPAINT = 0x0010;
+    static final public int RDW_NOERASE =         0x0020;
+    static final public int RDW_NOCHILDREN =      0x0040;
+    static final public int RDW_ALLCHILDREN =     0x0080;
+    static final public int RDW_UPDATENOW =       0x0100;
+    static final public int RDW_ERASENOW =        0x0200;
+    static final public int RDW_FRAME =           0x0400;
+    static final public int RDW_NOFRAME =         0x0800;
+    
+    /* Bit flags for DRAWITEMSTRUCT.CtlType */
+    static final public int ODT_MENU =       1;
+    static final public int ODT_LISTBOX =    2;
+    static final public int ODT_COMBOBOX =   3;
+    static final public int ODT_BUTTON =     4;
+    static final public int ODT_STATIC =     5;
+    
+    /* Bit flags for DRAWITEMSTRUCT.itemAction */
+    static final public int ODA_DRAWENTIRE= 0x1;
+    static final public int ODA_SELECT =    0x2;
+    static final public int ODA_FOCUS =     0x4;
+    
+    /* Bit flags for DRAWITEMSTRUCT.itemState */
+    static final public int ODS_SELECTED =    0x0001; /* Selected */
+    static final public int ODS_GRAYED =      0x0002; /* Grayed (Menus only) */
+    static final public int ODS_DISABLED =    0x0004; /* Disabled */
+    static final public int ODS_CHECKED =     0x0008; /* Checked (Menus only) */
+    static final public int ODS_FOCUS =       0x0010; /* Has focus */
+    static final public int ODS_DEFAULT =     0x0020; /* Default */
+    static final public int ODS_HOTLIGHT =    0x0040; /* Highlighted when under mouse */
+    static final public int ODS_INACTIVE =    0x0080; /* Inactive */
+    static final public int ODS_NOACCEL =     0x0100; /* No keyboard accelerator */
+    static final public int ODS_NOFOCUSRECT = 0x0200; /* No focus rectangle */
+    static final public int ODS_COMBOBOXEDIT= 0x1000; /* Edit of a combo box */
+    
+    static final public int DT_TOP =             0x00000000;
+    static final public int DT_LEFT =            0x00000000;
+    static final public int DT_CENTER =          0x00000001;
+    static final public int DT_RIGHT =           0x00000002;
+    static final public int DT_VCENTER =         0x00000004;
+    static final public int DT_BOTTOM =          0x00000008;
+    static final public int DT_WORDBREAK =       0x00000010;
+    static final public int DT_SINGLELINE =      0x00000020;
+    static final public int DT_EXPANDTABS =      0x00000040;
+    static final public int DT_TABSTOP =         0x00000080;
+    static final public int DT_NOCLIP =          0x00000100;
+    static final public int DT_EXTERNALLEADING = 0x00000200;
+    static final public int DT_CALCRECT =        0x00000400;
+    static final public int DT_NOPREFIX =        0x00000800;
+    static final public int DT_INTERNAL =        0x00001000;
+    static final public int DT_EDITCONTROL =     0x00002000;
+    static final public int DT_PATH_ELLIPSIS =   0x00004000;
+    static final public int DT_END_ELLIPSIS =    0x00008000;
+    static final public int DT_MODIFYSTRING =    0x00010000;
+    static final public int DT_RTLREADING =      0x00020000;
+    static final public int DT_WORD_ELLIPSIS =   0x00040000;
+    
+      /* ExtTextOut() parameters */
+    static final public int ETO_GRAYED =         0x0001;
+    static final public int ETO_OPAQUE =         0x0002;
+    static final public int ETO_CLIPPED =        0x0004;
+    static final public int ETO_GLYPH_INDEX =    0x0010;
+    static final public int ETO_RTLREADING =     0x0080;
+    static final public int ETO_NUMERICSLOCAL =  0x0400;
+    static final public int ETO_NUMERICSLATIN =  0x0800;
+    static final public int ETO_IGNORELANGUAGE = 0x1000;
+    static final public int ETO_PDY =            0x2000;
+    
+    /* Flags for DrawIconEx.  */
+    static final public int DI_MASK =                0x0001;
+    static final public int DI_IMAGE =               0x0002;
+    static final public int DI_NORMAL =              (DI_MASK | DI_IMAGE);
+    static final public int DI_COMPAT =              0x0004;
+    static final public int DI_DEFAULTSIZE =         0x0008;
+    static final public int DI_NOMIRROR =            0x0010;
+    
+    /* DrawEdge() flags */
+    static final public int BDR_RAISEDOUTER =   0x0001;
+    static final public int BDR_SUNKENOUTER =   0x0002;
+    static final public int BDR_RAISEDINNER =   0x0004;
+    static final public int BDR_SUNKENINNER =   0x0008;
+    
+    static final public int BDR_OUTER =         0x0003;
+    static final public int BDR_INNER =         0x000c;
+    static final public int BDR_RAISED =        0x0005;
+    static final public int BDR_SUNKEN =        0x000a;
+    
+    static final public int EDGE_RAISED =       (BDR_RAISEDOUTER | BDR_RAISEDINNER);
+    static final public int EDGE_SUNKEN =       (BDR_SUNKENOUTER | BDR_SUNKENINNER);
+    static final public int EDGE_ETCHED =       (BDR_SUNKENOUTER | BDR_RAISEDINNER);
+    static final public int EDGE_BUMP =         (BDR_RAISEDOUTER | BDR_SUNKENINNER);
+    
+    /* border flags */
+    static final public int BF_LEFT =           0x0001;
+    static final public int BF_TOP =            0x0002;
+    static final public int BF_RIGHT =          0x0004;
+    static final public int BF_BOTTOM =         0x0008;
+    static final public int BF_DIAGONAL =       0x0010;
+    static final public int BF_MIDDLE =         0x0800;  /* Fill in the middle */
+    static final public int BF_SOFT =           0x1000;  /* For softer buttons */
+    static final public int BF_ADJUST =         0x2000;  /* Calculate the space left over */
+    static final public int BF_FLAT =           0x4000;  /* For flat rather than 3D borders */
+    static final public int BF_MONO =           0x8000;  /* For monochrome borders */
+    static final public int BF_TOPLEFT =        (BF_TOP | BF_LEFT);
+    static final public int BF_TOPRIGHT =       (BF_TOP | BF_RIGHT);
+    static final public int BF_BOTTOMLEFT =     (BF_BOTTOM | BF_LEFT);
+    static final public int BF_BOTTOMRIGHT =    (BF_BOTTOM | BF_RIGHT);
+    static final public int BF_RECT =           (BF_LEFT | BF_TOP | BF_RIGHT | BF_BOTTOM);
+    static final public int BF_DIAGONAL_ENDTOPRIGHT =    (BF_DIAGONAL | BF_TOP | BF_RIGHT);
+    static final public int BF_DIAGONAL_ENDTOPLEFT =     (BF_DIAGONAL | BF_TOP | BF_LEFT);
+    static final public int BF_DIAGONAL_ENDBOTTOMLEFT =  (BF_DIAGONAL | BF_BOTTOM | BF_LEFT);
+    static final public int BF_DIAGONAL_ENDBOTTOMRIGHT = (BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
+
+        
     // ************
     // * Internal *
     // ************

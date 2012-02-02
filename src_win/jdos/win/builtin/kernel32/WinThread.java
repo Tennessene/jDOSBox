@@ -49,7 +49,7 @@ public class WinThread extends WaitObject {
     static public final int THREAD_PRIORITY_HIGHEST = 2;
     static public final int THREAD_PRIORITY_TIME_CRITICAL = 15;
 
-    private Vector tls = new Vector();
+    private Vector<Integer> tls = new Vector<Integer>();
     private WinProcess process;
     private int lastError = jdos.win.utils.Error.ERROR_SUCCESS;
     public CpuState cpuState = new CpuState();
@@ -234,7 +234,11 @@ public class WinThread extends WaitObject {
             }
         }
         while (paintList.size() != 0) {
-            int h = paintList.remove(0);
+            int h;
+            if (remove)
+                h = paintList.remove(0);
+            else
+                h = paintList.firstElement();
             WinWindow window = WinWindow.get(h);
             if (window != null) {
                 if (remove) {
@@ -266,7 +270,7 @@ public class WinThread extends WaitObject {
             return WinAPI.TRUE;
 
         for (int i=0;i<windows.size();i++) {
-            WinWindow window = (WinWindow)windows.elementAt(i);
+            WinWindow window = windows.elementAt(i);
             if (window.timer.getNextTimerMsg(msgAddress, time, remove))
                 return WinAPI.TRUE;
         }
@@ -332,36 +336,42 @@ public class WinThread extends WaitObject {
         return process;
     }
 
-    private static class TLS {
-        public int add=0;
-    }
     public int tlsAlloc() {
-        for (int i=0;i<tls.size();i++) {
-            if (tls.elementAt(i) == null)
-                return i;
-        }
-        tls.add(new TLS());
-        return tls.size()-1;
+        WinProcess process = WinSystem.getCurrentProcess();
+        if (process.freeTLS.size()>0)
+            return process.freeTLS.remove(0);
+        return process.tlsSize++;
     }
+
     public int tlsFree(int index) {
-        if (index>=0 && index<tls.size() && tls.elementAt(index)!=null) {
-            tls.setElementAt(null, index);
+        int size = WinSystem.getCurrentProcess().tlsSize;
+        if (index>=0 && index<size) {
+            WinSystem.getCurrentProcess().freeTLS.add(index);
             return WinAPI.TRUE;
         }
         lastError = Error.ERROR_INVALID_PARAMETER;
         return WinAPI.FALSE;
     }
+
     public int tlsSetValue(int index, int value) {
-        if (index>=0 && index<tls.size() && tls.elementAt(index)!=null) {
-            ((TLS)tls.elementAt(index)).add = value;
+        int size = WinSystem.getCurrentProcess().tlsSize;
+        if (index>=0 && index<size) {
+            if (index>=tls.size())
+                tls.setSize(size);
+            tls.setElementAt(value, index);
             return WinAPI.TRUE;
         }
         lastError = Error.ERROR_INVALID_PARAMETER;
         return WinAPI.FALSE;
     }
+
     public int tlsGetValue(int index) {
-        if (index>=0 && index<tls.size() && tls.elementAt(index)!=null) {
-            return ((TLS)tls.elementAt(index)).add;
+        int size = WinSystem.getCurrentProcess().tlsSize;
+        if (index>=0 && index<size) {
+            Integer result = tls.elementAt(index);
+            if (result == null)
+                return 0;
+            return result;
         }
         lastError = Error.ERROR_INVALID_PARAMETER;
         return WinAPI.FALSE;

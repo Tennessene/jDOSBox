@@ -15,6 +15,12 @@ public class WinIcon extends WinObject {
         return (WinIcon)object;
     }
 
+    // BOOL WINAPI DrawIconEx(HDC hdc, int xLeft, int yTop, HICON hIcon, int cxWidth, int cyWidth, UINT istepIfAniCur, HBRUSH hbrFlickerFreeDraw, UINT diFlags)
+    public static int DrawIconEx(int hdc, int xLeft, int yTop, int hIcon, int cxWidth, int cyWidth, int istepIfAniCur, int hbrFlickerFreeDraw, int diFlags) {
+        log("DrawIconEx faked");
+        return TRUE;
+    }
+
     // HICON WINAPI LoadIcon(HINSTANCE hInstance, LPCTSTR lpIconName)
     public static int LoadIconA(int hInstance, int lpIconName) {
         return create(hInstance, lpIconName).handle;
@@ -23,4 +29,7 @@ public class WinIcon extends WinObject {
     public WinIcon(int handle) {
         super(handle);
     }
+
+    public int cx;
+    public int cy;
 }

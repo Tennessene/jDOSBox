@@ -200,7 +200,8 @@ public class Kernel32 extends BuiltinModule {
         add(VirtualAlloc);
         add(VirtualFree);
         add(VirtualQuery);
-        add_wait(Kernel32.class, "WaitForSingleObject");
+        add_wait(Sync.class, "WaitForSingleObject");
+        add_wait(Sync.class, "WaitForMultipleObjects");
         add(WideCharToMultiByte);
         add(WriteConsoleA);
         add(WriteConsoleW);
@@ -1488,6 +1489,7 @@ public class Kernel32 extends BuiltinModule {
             int handle = CPU.CPU_Pop32();
             int procName = CPU.CPU_Pop32();
             String name = new LittleEndianFile(procName).readCString();
+            System.out.println("GetProcAddress "+name);
             CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getProcAddress(handle, name);
         }
     };
@@ -3121,16 +3123,6 @@ public class Kernel32 extends BuiltinModule {
             notImplemented();
         }
     };
-
-    // DWORD WINAPI WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds)
-    public static int WaitForSingleObject(int hHandle, int dwMilliseconds) {
-        WaitObject object = WaitObject.getWait(hHandle);
-        if (object == null) {
-            return WAIT_FAILED;
-        } else {
-            return object.wait(Scheduler.getCurrentThread(), dwMilliseconds);
-        }
-    }
 
     // BOOL WINAPI WriteConsole(HANDLE hConsoleOutput, const VOID *lpBuffer, DWORD nNumberOfCharsToWrite, LPDWORD lpNumberOfCharsWritten, LPVOID lpReserved)
     private Callback.Handler WriteConsoleA = new HandlerBase() {

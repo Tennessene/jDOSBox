@@ -99,7 +99,7 @@ public class WinRegion extends WinGDI {
         }
     }
 
-    public Vector rects = new Vector();
+    public Vector<WinRect> rects = new Vector<WinRect>();
     public WinRect extents = new WinRect();
 
     public boolean isEmpty() {

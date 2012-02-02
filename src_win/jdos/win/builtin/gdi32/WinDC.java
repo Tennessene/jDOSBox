@@ -80,8 +80,7 @@ public class WinDC extends WinObject {
 
         WinRect rect = new WinRect(lpRect);
         String text = StringUtil.getString(lpchText, nCount);
-        BufferedImage bi = dc.getImage();
-        Graphics2D g = (Graphics2D)bi.getGraphics();
+        Graphics2D g = dc.getGraphics();
         FontRenderContext frc = g.getFontRenderContext();
         Font font = WinFont.get(dc.hFont).font;
         g.setFont(font);
@@ -113,8 +112,7 @@ public class WinDC extends WinObject {
         if (dc == null) {
             return FALSE;
         }
-        BufferedImage bi = dc.getImage();
-        Graphics2D g = (Graphics2D)bi.getGraphics();
+        Graphics2D g = dc.getGraphics();
         String text = StringUtil.getString(lpString, cbCount);
 
         FontRenderContext frc = g.getFontRenderContext();
@@ -127,7 +125,7 @@ public class WinDC extends WinObject {
 
         if (dc.bkMode == OPAQUE) {
             g.setColor(new Color(dc.bkColor));
-            g.fillRect(X, Y, sw, sh);
+            g.fillRect(dc.x+X, dc.y+Y, sw, sh);
         }
         g.setColor(new Color(dc.textColor | 0xFF000000));
         g.setClip(dc.x, dc.y, dc.cx, dc.cy);
@@ -418,6 +416,9 @@ public class WinDC extends WinObject {
     int x;
     int y;
 
+    public int CursPosX;
+    public int CursPosY;
+
     public WinDC(int handle, JavaBitmap image, boolean owner) {
         super(handle);
         this.image = image;
@@ -446,6 +447,14 @@ public class WinDC extends WinObject {
         this.cy = cy;
     }
 
+    public Graphics2D getGraphics() {
+        BufferedImage image = getImage();
+        Graphics2D g = image.createGraphics();
+        // :TODO: merge clip
+        g.setClip(x, y, cx, cy);
+        return g;
+    }
+
     private static final int PHYSICALWIDTH =   110;
     private static final int PHYSICALHEIGHT =  111;
     private static final int PHYSICALOFFSETX = 112;
@@ -458,28 +467,6 @@ public class WinDC extends WinObject {
     private static final int BLTALIGNMENT =    119;
     private static final int SHADEBLENDCAPS =  120;
     private static final int COLORMGMTCAPS =   121;
-
-    static final int DT_TOP =             0x00000000;
-    static final int DT_LEFT =            0x00000000;
-    static final int DT_CENTER =          0x00000001;
-    static final int DT_RIGHT =           0x00000002;
-    static final int DT_VCENTER =         0x00000004;
-    static final int DT_BOTTOM =          0x00000008;
-    static final int DT_WORDBREAK =       0x00000010;
-    static final int DT_SINGLELINE =      0x00000020;
-    static final int DT_EXPANDTABS =      0x00000040;
-    static final int DT_TABSTOP =         0x00000080;
-    static final int DT_NOCLIP =          0x00000100;
-    static final int DT_EXTERNALLEADING = 0x00000200;
-    static final int DT_CALCRECT =        0x00000400;
-    static final int DT_NOPREFIX =        0x00000800;
-    static final int DT_INTERNAL =        0x00001000;
-    static final int DT_EDITCONTROL =     0x00002000;
-    static final int DT_PATH_ELLIPSIS =   0x00004000;
-    static final int DT_END_ELLIPSIS =    0x00008000;
-    static final int DT_MODIFYSTRING =    0x00010000;
-    static final int DT_RTLREADING =      0x00020000;
-    static final int DT_WORD_ELLIPSIS =   0x00040000;
 
     protected void onFree() {
         if (owner) {

@@ -1,8 +1,8 @@
-package jdos.win.system;
+package jdos.win.builtin.kernel32;
 
 import jdos.cpu.CPU_Regs;
 import jdos.win.builtin.HandlerBase;
-import jdos.win.builtin.kernel32.WinThread;
+import jdos.win.system.WinObject;
 
 import java.util.Vector;
 
@@ -33,12 +33,14 @@ public class WaitObject extends WinObject {
     }
 
     protected int internalWait(WinThread thread, int timeout) {
-        if (waiting.contains(thread)) {
-            waiting.remove(thread);
-            return WAIT_TIMEOUT;
+        for (int i=0;i<waiting.size();i++) {
+            if (waiting.get(i).thread == thread) {
+                waiting.remove(i);
+                return WAIT_TIMEOUT;
+            }
         }
         HandlerBase.currentHandler.wait = true;
-        waiting.add(thread);
+        waiting.add(new WaitGroup(thread, this));
         thread.waitTime = timeout;
         return WAIT_SWITCH;
     }
@@ -55,14 +57,22 @@ public class WaitObject extends WinObject {
     }
 
     public void release() {
-        for (int i=0;i<waiting.size();i++) {
-            WinThread thread = waiting.elementAt(i);
-            Scheduler.addThread(thread, false);
-        }
-        waiting.clear();
         owner = null;
+        for (int i=0;i<waiting.size();i++) {
+            if (waiting.elementAt(i).released()) {
+                i--; // released will remove the wait object from waiting
+            }
+        }
+    }
+
+    boolean isReady() {
+        return owner == null;
+    }
+
+    void get(WaitGroup group) {
+        waiting.remove(group);
     }
 
     public WinObject owner;
-    public Vector<WinThread> waiting = new Vector<WinThread>();
+    public Vector<WaitGroup> waiting = new Vector<WaitGroup>();
 }

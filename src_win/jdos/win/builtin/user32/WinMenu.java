@@ -1,5 +1,6 @@
 package jdos.win.builtin.user32;
 
+import jdos.win.system.StaticData;
 import jdos.win.system.WinObject;
 
 public class WinMenu extends WinObject {
@@ -30,6 +31,11 @@ public class WinMenu extends WinObject {
         if (menu == null)
             return FALSE;
         menu.close();
+        return TRUE;
+    }
+
+    // BOOL WINAPI EndMenu(void)
+    static public int EndMenu() {
         return TRUE;
     }
 
@@ -95,5 +101,9 @@ public class WinMenu extends WinObject {
 
     public WinMenu(int id) {
         super(id);
+    }
+
+    static public int MENU_IsMenuActive() {
+        return StaticData.top_popup;
     }
 }

@@ -7,6 +7,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class BitBlt extends WinAPI {
+    // BOOL BitBlt(HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc, int nXSrc, int nYSrc, DWORD dwRop)
+    static public int BitBlt(int hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, int hdcSrc, int nXSrc, int nYSrc, int dwRop) {
+        if (!rop_uses_src(dwRop)) return WinDC.PatBlt(hdcDest, nXDest, nYDest, nWidth, nHeight, dwRop);
+        else return StretchBlt(hdcDest, nXDest, nYDest, nWidth, nHeight, hdcSrc, nXSrc, nYSrc, nWidth, nHeight, dwRop);
+    }
+
     // BOOL StretchBlt(HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, HDC hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, DWORD dwRop)
     static public int StretchBlt(int hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, int hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, int dwRop) {
         WinDC dest = WinDC.get(hdcDest);
@@ -23,5 +29,9 @@ public class BitBlt extends WinAPI {
         g.drawImage(s, nXOriginDest, nYOriginDest, nXOriginDest+nWidthDest, nYOriginDest+nHeightDest, nXOriginSrc, nYOriginSrc, nXOriginSrc+nWidthSrc, nYOriginSrc+nHeightSrc, null);
         g.dispose();
         return TRUE;
+    }
+
+    static private boolean rop_uses_src(int rop) {
+        return ((rop >> 2) & 0x330000) != (rop & 0x330000);
     }
 }

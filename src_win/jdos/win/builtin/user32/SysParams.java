@@ -3,6 +3,7 @@ package jdos.win.builtin.user32;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinBrush;
+import jdos.win.builtin.gdi32.WinPen;
 import jdos.win.system.StaticData;
 import jdos.win.system.WinRect;
 import jdos.win.utils.Ptr;
@@ -26,6 +27,21 @@ public class SysParams extends WinAPI {
                 brush.makePermanent();
                 StaticData.SysColorBrushes[nIndex] = brush.handle;
                 result = brush.handle;
+            }
+            return result;
+        }
+        warn("Unknown index("+nIndex+")");
+        return 0;
+    }
+
+    public static int GetSysColorPen(int nIndex) {
+        if (0 <= nIndex && nIndex < NUM_SYS_COLORS) {
+            int result = StaticData.SysColorPens[nIndex];
+            if (result == 0) {
+                WinPen pen = WinPen.create(PS_SOLID, 1, DefSysColors[nIndex].color);
+                pen.makePermanent();
+                StaticData.SysColorPens[nIndex] = pen.handle;
+                result = pen.handle;
             }
             return result;
         }

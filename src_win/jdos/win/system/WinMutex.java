@@ -1,5 +1,7 @@
 package jdos.win.system;
 
+import jdos.win.builtin.kernel32.WaitObject;
+
 public class WinMutex extends WaitObject {
     static public WinMutex create(String name) {
         return new WinMutex(nextObjectId(), name);

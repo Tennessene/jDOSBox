@@ -1,6 +1,8 @@
 package jdos.win.system;
 
 import jdos.hardware.Memory;
+import jdos.win.builtin.kernel32.WaitGroup;
+import jdos.win.builtin.kernel32.WaitObject;
 import jdos.win.builtin.kernel32.WinThread;
 
 public class WinCriticalException {
@@ -47,7 +49,7 @@ public class WinCriticalException {
             Memory.mem_writed(address+8, recursionCount);
         } else {
             WaitObject object = WaitObject.getWait(Memory.mem_readd(address));
-            object.waiting.add(thread);
+            object.waiting.add(new WaitGroup(thread, object));
             thread.waitTime = -1;
             Scheduler.wait(thread);
         }
@@ -65,9 +67,9 @@ public class WinCriticalException {
         } else {
             WaitObject object = WaitObject.getWait(Memory.mem_readd(address));
             if (object.waiting.size()>0) {
-                WinThread thread = (WinThread)object.waiting.remove(0);
-                Memory.mem_writed(address+12, thread.getHandle()); // set new owner
-                Scheduler.addThread(thread, false); // wake up the waiting thread
+                WaitGroup group = (WaitGroup)object.waiting.remove(0);
+                Memory.mem_writed(address+12, group.thread.getHandle()); // set new owner
+                Scheduler.addThread(group.thread, false); // wake up the waiting thread
                 // leave recursion count at 1
 
             } else {

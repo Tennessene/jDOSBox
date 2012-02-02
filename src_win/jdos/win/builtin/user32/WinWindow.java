@@ -31,6 +31,14 @@ public class WinWindow extends WinObject {
         }
         int hwndOwner = 0;
 
+        if (x == 0x80000000) {
+            x = 0;
+            y = 0;
+        }
+        if (nWidth == 0x80000000) {
+            nWidth = StaticData.screen.getWidth();
+            nHeight = StaticData.screen.getHeight();
+        }
         /* Find the parent window */
         if (hWndParent == HWND_MESSAGE) {
 
@@ -217,7 +225,73 @@ public class WinWindow extends WinObject {
 
     // BOOL WINAPI DestroyWindow(HWND hWnd)
     public static int DestroyWindow(int hWnd) {
-        Win.panic("DestroyWindow not implemented yet");
+        WinWindow window = WinWindow.get(hWnd);
+        if (window == null) {
+            return FALSE;
+        }
+        if (hWnd == GetDesktopWindow() || window.getThread().getProcess() != WinSystem.getCurrentProcess()) {
+            SetLastError(ERROR_ACCESS_DENIED);
+            return FALSE;
+        }
+        if (Hook.HOOK_CallHooks(WH_CBT, HCBT_DESTROYWND, hWnd, 0)!=0) return FALSE;
+
+        if (WinMenu.MENU_IsMenuActive() == hWnd)
+            WinMenu.EndMenu();
+
+        boolean is_child = (WinWindow.GetWindowLongA(hWnd, GWL_STYLE) & WS_CHILD) != 0;
+
+        if (is_child) {
+            //if (!USER_IsExitingThread( GetCurrentThreadId() ))
+                window.parentNotify(WM_DESTROY );
+        } else if (GetWindow(hWnd, GW_OWNER)==0) {
+            Hook.HOOK_CallHooks(WH_SHELL, HSHELL_WINDOWDESTROYED, hWnd, 0);
+            /* FIXME: clean up palette - see "Internals" p.352 */
+        }
+
+        if (IsWindow(hWnd)==0) return TRUE;
+
+          /* Hide the window */
+        if ((GetWindowLongA(hWnd, GWL_STYLE ) & WS_VISIBLE)!=0) {
+            /* Only child windows receive WM_SHOWWINDOW in DestroyWindow() */
+            if (is_child)
+                WinPos.ShowWindow(hWnd, SW_HIDE);
+            else
+                WinPos.SetWindowPos(hWnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW );
+        }
+
+        if (IsWindow(hWnd)==0) return TRUE;
+
+          /* Recursively destroy owned windows */
+        if (!is_child)
+        {
+            for (;;)
+            {
+                boolean got_one = false;
+                Iterator<WinWindow> children = WinWindow.get(GetDesktopWindow()).getChildren();
+                while (children.hasNext()) {
+                    WinWindow child = children.next();
+                    if (child.owner != hWnd) continue;
+                    if (child.getThread() == Scheduler.getCurrentThread()) {
+                        DestroyWindow(child.handle);
+                        got_one = true;
+                        continue;
+                    }
+                    child.owner = 0;
+                }
+                if (!got_one) break;
+            }
+        }
+
+          /* Send destroy messages */
+
+        WIN_SendDestroyMsg(hWnd);
+        if (IsWindow(hWnd)==0) return TRUE;
+
+        if (Clipboard.GetClipboardOwner() == hWnd)
+            Clipboard.CLIPBOARD_ReleaseOwner();
+
+          /* Destroy the window storage */
+        WIN_DestroyWindow(hWnd);
         return TRUE;
     }
 
@@ -354,20 +428,6 @@ public class WinWindow extends WinObject {
         return retvalue;
     }
 
-    // HANDLE WINAPI GetProp(HWND hWnd, LPCTSTR lpString)
-    static public int GetPropA(int hWnd, int lpString) {
-        WinWindow window = WinWindow.get(hWnd);
-        if (window == null)
-            return 0;
-        if (IS_INTRESOURCE(lpString))
-            Win.panic("GetPropA does not support atoms yet");
-        String name = StringUtil.getString(lpString);
-        Integer value = window.props.get(name);
-        if (value != null)
-            return value;
-        return 0;
-    }
-
     // HWND WINAPI GetTopWindow(HWND hWnd)
     static public int GetTopWindow(int hWnd) {
         if (hWnd == 0)
@@ -439,6 +499,11 @@ public class WinWindow extends WinObject {
     // int WINAPI GetWindowText(HWND hWnd, LPTSTR lpString, int nMaxCount)
     public static int GetWindowTextA(int hWnd, int lpString, int nMaxCount) {
         return Message.SendMessageA(hWnd, WM_GETTEXT, nMaxCount, lpString);
+    }
+
+    // int WINAPI GetWindowTextLength(HWND hWnd)
+    public static int GetWindowTextLengthA(int hWnd) {
+        return Message.SendMessageA(hWnd, WM_GETTEXTLENGTH, 0, 0);
     }
 
     // DWORD WINAPI GetWindowThreadProcessId( HWND hwnd, LPDWORD process )
@@ -533,18 +598,6 @@ public class WinWindow extends WinObject {
          * for WM_WINDOWPOSCHANGED) in Windows, should probably remove SWP_NOMOVE */
 
         return old_parent;
-    }
-
-    //BOOL WINAPI SetProp(HWND hWnd, LPCTSTR lpString, HANDLE hData)
-    static public int SetPropA(int hWnd, int lpString, int hData) {
-        WinWindow window = WinWindow.get(hWnd);
-        if (window == null)
-            return FALSE;
-        if (IS_INTRESOURCE(lpString))
-            Win.panic("SetProp with atom not supported yet");
-        String name = StringUtil.getString(lpString);
-        window.props.put(name, hData);
-        return TRUE;
     }
 
     // LONG WINAPI SetWindowLong(HWND hWnd, int nIndex, LONG dwNewLong)
@@ -767,6 +820,69 @@ public class WinWindow extends WinObject {
         return true;
     }
 
+    static private void WIN_SendDestroyMsg(int hwnd) {
+        GuiThreadInfo info = Scheduler.getCurrentThread().GetGUIThreadInfo();
+
+        if (hwnd == info.hwndCaret) Caret.DestroyCaret();
+        if (hwnd == info.hwndActive) WinPos.WINPOS_ActivateOtherWindow(hwnd);
+
+        /*
+         * Send the WM_DESTROY to the window.
+         */
+        Message.SendMessageA(hwnd, WM_DESTROY, 0, 0);
+
+        /*
+         * This WM_DESTROY message can trigger re-entrant calls to DestroyWindow
+         * make sure that the window still exists when we come back.
+         */
+        if (IsWindow(hwnd)!=0) {
+            Iterator<WinWindow> children = WinWindow.get(hwnd).getChildren();
+            while (children.hasNext())  {
+                WinWindow child = children.next();
+                if (IsWindow(child.handle)!=0) WIN_SendDestroyMsg(child.handle);
+            }
+        } else {
+          warn("destroyed itself while in WM_DESTROY!\n");
+        }
+    }
+
+    static public int WIN_DestroyWindow(int hwnd) {
+        WinWindow window = WinWindow.get(hwnd);
+        if (window == null)
+            return 0;
+
+        Iterator<WinWindow> children = window.getChildren();
+        while (children.hasNext()) {
+            WinWindow child = children.next();
+            WIN_DestroyWindow(child.handle);
+        }
+
+        WinWindow parent;
+        if (window.parent != 0)
+            parent = WinWindow.get(window.parent);
+        else
+            parent = WinWindow.get(GetDesktopWindow());
+        parent.children.remove(window);
+
+        /*
+         * Send the WM_NCDESTROY to the window being destroyed.
+         */
+        Message.SendMessageA(hwnd, WM_NCDESTROY, 0, 0);
+
+        /* FIXME: do we need to fake QS_MOUSEMOVE wakebit? */
+
+        /* free resources associated with the window */
+        if (IsWindow(hwnd)==0)
+            return 0;
+        if ((window.dwStyle & (WS_CHILD | WS_POPUP)) != WS_CHILD) {
+            if (window.wIDmenu!=0)
+                WinMenu.DestroyMenu(window.wIDmenu);
+        }
+        if (window.hSysMenu!=0) WinMenu.DestroyMenu(window.hSysMenu);
+        window.close();
+        return 0;
+    }
+
     private WinWindow(int id) {
         super(id);
     }
@@ -798,7 +914,7 @@ public class WinWindow extends WinObject {
     public WinRect normal_rect = new WinRect();
     public DialogInfo dlgInfo = null;
     private Hashtable<Integer, Integer> extra = new Hashtable<Integer, Integer>();
-    private Hashtable<String, Integer> props = new Hashtable<String, Integer>();
+    public Hashtable<String, Integer> props = new Hashtable<String, Integer>();
 
     private WinDC dc;
     WinClass winClass;

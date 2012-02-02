@@ -32,6 +32,12 @@ public class WinPos extends WinAPI {
         }
         return FALSE;
     }
+    public static int WIN_GetClientRect(int hWnd, WinRect rect) {
+        if (WinWindow.WIN_GetRectangles(hWnd, COORDS_CLIENT, null, rect)) {
+            return TRUE;
+        }
+        return FALSE;
+    }
 
     // BOOL WINAPI GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl)
     public static int GetWindowPlacement(int hWnd, int lpwndpl) {
@@ -153,7 +159,7 @@ public class WinPos extends WinAPI {
             int hParent = 0;
             if (window.parent != 0)
                 hParent = window.parent ;
-            else if (window.owner == 0)
+            else // if (window.owner == 0)
                 hParent = StaticData.desktopWindow;
             if (hParent != 0) {
                 WinWindow parent = WinWindow.get(hParent);
@@ -530,7 +536,7 @@ public class WinPos extends WinAPI {
         return swpFlags;
     }
 
-    static private void WINPOS_ActivateOtherWindow(int hwnd) {
+    static public void WINPOS_ActivateOtherWindow(int hwnd) {
         int hwndTo=0;
         boolean done = false;
         if ((WinWindow.GetWindowLongA(hwnd, GWL_STYLE) & WS_POPUP)!=0 && (hwndTo = WinWindow.GetWindow(hwnd, GW_OWNER))!=0) {

@@ -1,8 +1,8 @@
-package jdos.win.system;
+package jdos.win.builtin.kernel32;
 
 import jdos.cpu.CPU_Regs;
 import jdos.win.builtin.WinAPI;
-import jdos.win.builtin.kernel32.WinThread;
+import jdos.win.system.WinObject;
 
 public class WinEvent extends WaitObject {
     static public WinEvent create(String name, boolean manual, boolean set) {
@@ -29,6 +29,10 @@ public class WinEvent extends WaitObject {
         return WinAPI.TRUE;
     }
 
+    boolean isReady() {
+        return set;
+    }
+
     public void reset() {
         set = false;
     }
@@ -48,13 +52,22 @@ public class WinEvent extends WaitObject {
     }
 
     public void release() {
-        while(waiting.size()>0) {
-            WinThread thread = waiting.remove(0);
-            Scheduler.addThread(thread, false);
-            if (!manual) {
-                break; // only one
+        for (int i=0;i<waiting.size();i++) {
+            if (waiting.get(i).released()) {
+                i--; // released will remove the wait object from waiting
+                if (!manual) {
+                    break; // only one
+                }
             }
         }
+    }
+
+    void get(WaitGroup group) {
+        waiting.remove(group);
+        // Don't set here, the WaitForSingleObject will re-enter
+        //if (!manual) {
+        //    set = false;
+        //}
     }
 
     public boolean manual;

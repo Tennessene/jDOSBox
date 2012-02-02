@@ -54,6 +54,28 @@ public class Painting extends WinAPI {
         return dc.handle;
     }
 
+    // int GetUpdateRgn(HWND hWnd, HRGN hRgn, BOOL bErase)
+    static public int GetUpdateRgn(int hWnd, int hRgn, int bErase) {
+        WinWindow win = WinWindow.get(hWnd);
+        WinRegion rgn = WinRegion.get(hRgn);
+        if (win == null || rgn == null)
+            return ERROR;
+        if (win.needsPainting()) {
+            if (bErase != 0) {
+                rgn.rects.clear();
+                rgn.rects.add(new WinRect(0, 0, win.rectWindow.width(), win.rectWindow.height()));
+                Message.SendMessageA(hWnd, WM_NCPAINT, hRgn, 0 );
+                int hdc = win.getDC().handle;
+                Message.SendMessageA(hWnd, WM_ERASEBKGND, hdc, 0);
+                ReleaseDC(hWnd, hdc);
+            }
+            rgn.rects.clear();
+            rgn.rects.add(new WinRect(0, 0, win.rectClient.width(), win.rectClient.height()));
+            return SIMPLEREGION;
+        }
+        return NULLREGION;
+    }
+
     // BOOL InvalidateRect(HWND hWnd, const RECT *lpRect, BOOL bErase)
     static public int InvalidateRect(int hWnd, int lpRect, int bErase) {
         WinWindow window = WinWindow.get(hWnd);
@@ -70,6 +92,17 @@ public class Painting extends WinAPI {
             return 0;
         dc.close();
         return 1;
+    }
+
+    // BOOL RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags)
+    static public int RedrawWindow(int hWnd, int lprcUpdate, int hrgnUpdate, int flags) {
+        log("RedrawWindow faked");
+        if (hWnd == 0)
+            hWnd = WinWindow.GetDesktopWindow();
+        WinWindow window = WinWindow.get(hWnd);
+        if (window == null)
+            return FALSE;
+        return TRUE;
     }
 
     // BOOL UpdateWindow(HWND hWnd)

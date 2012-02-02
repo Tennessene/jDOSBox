@@ -7,6 +7,7 @@ public class Gdi32 extends BuiltinModule {
     public Gdi32(Loader loader, int handle) {
         super(loader, "Gdi32.dll", handle);
 
+        add(BitBlt.class, "BitBlt", new String[] {"hdcDest", "nXDest", "nYDest", "nWidth", "nHeight", "hdcSrc", "nXSrc", "nYSrc", "dwRop", "(BOOL)result"});
         add(WinDC.class, "CreateCompatibleDC", new String[] {"hdc"});
         add(WinFont.class, "CreateFontA", new String[] {"nHeight", "nWidth", "nEscapement", "nOrientation", "fnWeight", "fdwItalic", "fdwUnderline", "fdwStrikeOut", "fdwCharSet", "fdwOutputPrecision", "fdwClipPrecision", "fdwQuality", "fdwPitchAndFamily", "(STRING)lpszFace"});
         add(WinFont.class, "CreateFontW", new String[] {"nHeight", "nWidth", "nEscapement", "nOrientation", "fnWeight", "fdwItalic", "fdwUnderline", "fdwStrikeOut", "fdwCharSet", "fdwOutputPrecision", "fdwClipPrecision", "fdwQuality", "fdwPitchAndFamily", "(STRINGW)lpszFace"});
@@ -18,6 +19,7 @@ public class Gdi32 extends BuiltinModule {
         add(WinDC.class, "DeleteDC", new String[] {"hdc", "(BOOL)result"});
         add(GdiObj.class, "DeleteObject", new String[] {"(GDI)obj"});
         add(GdiObj.class, "GdiSetBatchLimit", new String[] {"dwLimit"});
+        add(Clipping.class, "GetClipRgn", new String[] {"hdc", "hrgn"});
         add(WinDC.class, "GetDeviceCaps", new String[] {"hdc", "nIndex"});
         add(GdiObj.class, "GetObjectA", new String[] {"(GDI)hgdiobj", "cbBuffer", "(HEX)lpvObject"});
         add(WinPalette.class, "GetPaletteEntries", new String[] {"(GDI)hpal", "iStartIndex", "nEntries", "(HEX)lppe"});
@@ -28,6 +30,10 @@ public class Gdi32 extends BuiltinModule {
         add(WinDC.class, "GetTextExtentPoint32A", new String[] {"hdc", "(STRINGN2)lpString", "cbString", "(HEX)lpSize", "result", "03(SIZE)lpSize"});
         add(WinDC.class, "GetTextExtentPointA", new String[] {"hdc", "(STRINGN2)lpString", "cbString", "(HEX)lpSize", "result", "03(SIZE)lpSize"});
         add(WinDC.class, "GetTextMetricsA", new String[] {"hdc", "(HEX)lptm", "(BOOL)result", "01(TM)lptm"});
+        add(Clipping.class, "IntersectClipRect", new String[] {"hdc", "nLeftRect", "nTopRect", "nRightRect", "nBottomRect"});
+        add(PaintingGDI.class, "LineTo", new String[] {"hdc", "nXEnd", "nYEnd", "(BOOL)result"});
+        add(PaintingGDI.class, "MoveToEx", new String[] {"hdc", "X", "Y", "(HEX)lpPoint", "(BOOL)result", "03(POINT)lpPoint"});
+        add(PaintingGDI.class, "Polygon", new String[] {"hdc", "(POINT)lpPoints", "nCount", "(BOOL)result"});
         add(WinDC.class, "RealizePalette", new String[] {"hdc"});
         add(WinDC.class, "SelectClipRgn", new String[] {"hdc", "(GDI)hrgn", "result"});
         add(WinDC.class, "SelectObject", new String[] {"hdc", "(GDI)hgdiobj", "(GDI)result"});

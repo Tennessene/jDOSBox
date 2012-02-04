@@ -4,6 +4,7 @@ import jdos.win.builtin.WinAPI;
 import jdos.win.system.WinPoint;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 
 public class PaintingGDI extends WinAPI {
     // BOOL LineTo(HDC hdc, int nXEnd, int nYEnd)
@@ -13,14 +14,10 @@ public class PaintingGDI extends WinAPI {
             return FALSE;
         }
 
-        Graphics g = dc.getGraphics();
+        Graphics2D g = dc.getGraphics();
         WinPen pen = WinPen.get(dc.hPen);
-        if ((pen.style & PS_STYLE_MASK) != PS_SOLID)
-            warn("LineTo only solid pens are supported");
-        if (pen.width != 1)
-            warn("LineTo only 1 pixel wide pens are supported");
-        g.setColor(new Color(0xFF000000|pen.color));
-        g.drawLine(dc.x+dc.CursPosX, dc.y+dc.CursPosY, dc.x+nXEnd, dc.y+nYEnd);
+        if (pen.setStroke(dc, g))
+            g.draw(new Line2D.Float(dc.x + dc.CursPosX, dc.y + dc.CursPosY, dc.x + nXEnd, dc.y + nYEnd));
         dc.CursPosX = nXEnd;
         dc.CursPosY = nYEnd;
         g.dispose();
@@ -45,15 +42,12 @@ public class PaintingGDI extends WinAPI {
     // BOOL Polygon(HDC hdc, const POINT* lpPoints, int nCount)
     static public int Polygon(int hdc, int lpPoints, int nCount) {
         WinDC dc = WinDC.get(hdc);
-        if (dc == null) {
+        WinBrush brush = WinBrush.get(dc.hBrush);
+        WinPen pen = WinPen.get(dc.hPen);
+
+        if (dc == null || brush == null || pen == null) {
             return FALSE;
         }
-
-        Graphics g = dc.getGraphics();
-        WinBrush brush = WinBrush.get(dc.hBrush);
-        if (brush.style!=BS_SOLID)
-            warn("Polygon only supports solid brushes");
-        g.setColor(new Color(0xFF000000|brush.color));
 
         int[] x = new int[nCount];
         int[] y = new int[nCount];
@@ -61,15 +55,18 @@ public class PaintingGDI extends WinAPI {
             x[i] = readd(lpPoints+i*8);
             y[i] = readd(lpPoints+i*12);
         }
-        g.fillPolygon(x, y, nCount);
+        Polygon polygon = new Polygon(x, y, nCount);
 
-        WinPen pen = WinPen.get(dc.hPen);
-        if ((pen.style & PS_STYLE_MASK) != PS_SOLID)
-            warn("Polygon only solid pens are supported");
-        if (pen.width != 1)
-            warn("Polygon only 1 pixel wide pens are supported");
-        g.setColor(new Color(0xFF000000|pen.color));
-        g.drawPolygon(x, y, nCount);
+        Graphics2D g = dc.getGraphics();
+
+        // inside
+        if (brush.setPaint(g))
+            g.fill(polygon);
+
+        // border
+        if (pen.setStroke(dc, g))
+            g.draw(polygon);
+
         g.dispose();
         return TRUE;
     }

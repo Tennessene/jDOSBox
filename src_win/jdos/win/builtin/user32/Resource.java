@@ -1,5 +1,6 @@
 package jdos.win.builtin.user32;
 
+import jdos.hardware.Memory;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
@@ -8,7 +9,10 @@ import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Ptr;
+import jdos.win.utils.StreamHelper;
 import jdos.win.utils.StringUtil;
+
+import java.io.InputStream;
 
 public class Resource extends WinAPI {
     // HACCEL WINAPI LoadAccelerators(HINSTANCE hInstance, LPCTSTR lpTableName)
@@ -28,13 +32,31 @@ public class Resource extends WinAPI {
                 NativeModule module = (NativeModule)m;
                 int bitmapAddress = module.getAddressOfResource(NativeModule.RT_BITMAP, lpszName);
                 if (bitmapAddress != 0) {
-                    return WinBitmap.create(bitmapAddress).getHandle();
+                    return WinBitmap.create(bitmapAddress, false).getHandle();
                 } else {
                     // :TODO: what should the error be
                     return 0;
                 }
             } else {
-                Win.panic("LoadImage currently does not support loading a image from a builtin module");
+                String res = null;
+                switch (lpszName) {
+                    case OBM_CHECKBOXES:
+                        res = "obm_checkboxes.bmp";
+                        break;
+                }
+                if (res == null)
+                    Win.panic("LoadImage currently does not support builtin image: "+lpszName);
+                InputStream is = WinCursor.class.getResourceAsStream("/jdos/win/builtin/res/" + res);
+                try {
+                    byte[] data = StreamHelper.readStream(is);
+                    // 14 is the file header length
+                    int address = WinSystem.getCurrentProcess().heap.alloc(data.length-14, false);
+                    Memory.mem_memcpy(address, data, 14, data.length-14);
+                    return WinBitmap.create(address, true).handle;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Win.panic("LoadImage could not find "+res);
+                }
             }
         } else {
             Console.out("LoadImage type=" + uType + " faked");

@@ -34,7 +34,7 @@ public class StaticData extends WinAPI {
     public static Hashtable<Integer, Vector<Hook>> hooks;
     public static Vector<Hook> currentHookChain;
     public static int currentHookIndex;
-
+    public static int hbitmapCheckBoxes;
     public static int top_popup;
 
     static public void init() {
@@ -74,6 +74,10 @@ public class StaticData extends WinAPI {
         hooks = new Hashtable<Integer, Vector<Hook>>();
         registeredMessages = new Hashtable<String, Integer>();
         nextRegisteredMessage = 0xC000;
+        hbitmapCheckBoxes = 0;
+        top_popup = 0;
+        currentHookIndex = 0;
+        currentHookChain = null;
 
         user = WinUser.create();
         WinClass winClass = WinClass.create();

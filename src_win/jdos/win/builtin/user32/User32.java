@@ -26,8 +26,12 @@ public class User32 extends BuiltinModule {
         add(WinWindow.class, "DestroyWindow", new String[] {"hWnd"});
         add(Message.class, "DispatchMessageA", (MSGLOG?new String[] {"(HEX)lpmsg"}:null));
         add(UiTools.class, "DrawEdge", new String[] {"hdc", "(RECT)qrc", "(HEX)edge", "(HEX)grfFlags", "(BOOL)result"});
+        add(UiTools.class, "DrawFocusRect", new String[] {"hDC", "(RECT)lprc"});
+        add(UiTools.class, "DrawFrameControl", new String[] {"hdc", "(RECT)lprc", "uType", "uState", "(BOOL)result"});
         add(WinIcon.class, "DrawIconEx", new String[] {"hdc", "xLeft", "yTop", "hIcon", "cxWidth", "cyWidth", "istepIfAniCur", "hbrFlickerFreeDraw", "(HEX)diFlags", "(BOOL)result"});
-        add(WinDC.class, "DrawTextA", new String[] {"hDC", "(STRINGN2)lpchText", "nCount", "(RECT)lpRect", "(HEX)uFormat"});
+        add(UiTools.class, "DrawStateA", new String[] {"hdc", "hbr", "(HEX)lpOutputFunc", "lData", "wData", "x", "y", "cx", "cy", "(HEX)fuFlags", "(BOOL)result"});
+        add(WinText.class, "DrawTextA", new String[] {"hDC", "(STRINGN2)lpchText", "nCount", "(RECT)lpRect", "(HEX)uFormat"});
+        add(WinText.class, "DrawTextExA", new String[] {"hdc", "(STRINGN2)lpchText", "cchText", "(RECT)lprc", "(HEX)dwDTFormat", "(HEX)lpDTParams"});
         add(WinWindow.class, "EnableWindow", new String[] {"hWnd", "(BOOL)bEnable"});
         add(WinDialog.class, "EndDialog", new String[] {"hDlg", "nResult", "(BOOL)result"});
         add(Painting.class, "EndPaint", new String[] {"hWnd", "lpPaint"});
@@ -53,6 +57,7 @@ public class User32 extends BuiltinModule {
         add(WinMenu.class, "GetMenu", new String[] {"hWnd"});
         add(WinMenu.class, "GetMenuItemCount", new String[]{"hMenu"});
         add_wait(Message.class, "GetMessageA", (MSGLOG ? new String[]{"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "(BOOL)result", "00(MSG)lpMsg"} : null));
+        add(WinDialog.class, "GetNextDlgGroupItem", new String[]{"hDlg", "hCtl", "(BOOL)bPrevious"});
         add(WinWindow.class, "GetParent", new String[]{"hWnd"});
         add(Property.class, "GetPropA", new String[]{"hWnd", "(STRING)lpString"});
         add(SysParams.class, "GetSysColor", new String[]{"nIndex"});
@@ -60,7 +65,7 @@ public class User32 extends BuiltinModule {
         add(SysParams.class, "GetSysColorBrush", new String[]{"nIndex"});
         add(WinMenu.class, "GetSystemMenu", new String[]{"hWnd", "(BOOL)bRevert"});
         add(WinWindow.class, "GetTopWindow", new String[]{"hWnd"});
-        add(Painting.class, "GetUpdateRgn", new String[] {"hWnd", "hRgn", "(BOOL)bErase"});
+        add(Painting.class, "GetUpdateRgn", new String[]{"hWnd", "hRgn", "(BOOL)bErase"});
         add(WinWindow.class, "GetWindow", new String[] {"hwnd", "rel"});
         add(WinWindow.class, "GetWindowLongA", new String[] {"hwnd", "offset"});
         add(WinPos.class, "GetWindowPlacement", new String[]{"hWnd", "lpwndpl"});
@@ -68,6 +73,8 @@ public class User32 extends BuiltinModule {
         add(WinWindow.class, "GetWindowTextA", new String[]{"hWnd", "(HEX)lpString", "nMaxCount", "result", "01(STRING)lpString"});
         add(WinWindow.class, "GetWindowTextLengthA", new String[] {"hWnd"});
         add(WinWindow.class, "GetWindowThreadProcessId", new String[] {"hWnd", "(HEX)lpProcess", "(HEX)result"});
+        add(UiTools.class, "InflateRect", new String[] {"(RECT)lprc", "dx", "dy", "(BOOL)result", "00(RECT)lprc"});
+        add(UiTools.class, "IntersectRect", new String[] {"(HEX)lprcDst", "(RECT)lprcSrc1", "(RECT)lprcSrc2", "(BOOL)result", "00(RECT)lprcDst"});
         add(Painting.class, "InvalidateRect", new String[] {"hWnd", "(RECT)lpRect", "(BOOL)bErase"});
         add(WinDialog.class, "IsDialogMessageA", new String[] {"hDlg", "(HEX)lpMsg"});
         add(WinPos.class, "IsIconic", new String[] {"hWnd", "(BOOL)result"});
@@ -87,6 +94,7 @@ public class User32 extends BuiltinModule {
         add(UiTools.class, "OffsetRect", new String[] {"(RECT)lprc", "dx", "dy", "(BOOL)result", "00(RECT)lprc"});
         add(Message.class, "PeekMessageA", (MSGLOG?new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "wRemoveMsg", "(BOOL)result", "00(MSG)lpMsg"}:null));
         add(Message.class, "PostMessageA", (MSGLOG?new String[] {"hWnd", "(MSG)Msg", "wParam", "lParam"}:null));
+        add(Painting.class, "Rectangle", new String[] {"hdc", "nLeftRect", "nTopRect", "nRightRect", "nBottomRect", "(BOOL)result"});
         add(Painting.class, "RedrawWindow", new String[] {"hWnd", "(RECT)lprcUpdate", "hrgnUpdate", "(HEX)flags", "(BOOL)result"});
         add(WinClass.class, "RegisterClassA", new String[] {"(CLASS)lpWndClass"});
         add(WinClass.class, "RegisterClassExA", new String[] {"(CLASS)lpwcx"});

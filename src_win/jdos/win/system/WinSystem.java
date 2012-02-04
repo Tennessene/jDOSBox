@@ -94,21 +94,26 @@ public class WinSystem {
 
     private static int returnEip = 0;
 
+    static public void call(int eip, int param1, int param2, int param3, int param4, int param5) {
+        internalCall(eip, 5, param1, param2, param3, param4, param5);
+    }
     static public void call(int eip, int param1, int param2, int param3, int param4) {
-        internalCall(eip, 4, param1, param2, param3, param4);
+        internalCall(eip, 4, param1, param2, param3, param4, 0);
     }
     static public void call(int eip, int param1, int param2, int param3) {
-        internalCall(eip, 3, param1, param2, param3, 0);
+        internalCall(eip, 3, param1, param2, param3, 0, 0);
     }
     static public void call(int eip, int param1, int param2) {
-        internalCall(eip, 2, param1, param2, 0, 0);
+        internalCall(eip, 2, param1, param2, 0, 0, 0);
     }
-    static private void internalCall(int eip, int paramCount, int param1, int param2, int param3, int param4) {
+    static private void internalCall(int eip, int paramCount, int param1, int param2, int param3, int param4, int param5) {
         if (returnEip == 0) {
             int callback = WinCallback.addCallback(returnCallback);
             returnEip =  WinSystem.getCurrentProcess().loader.registerFunction(callback);
         }
         int oldEsp = CPU_Regs.reg_esp.dword;
+        if (paramCount>=5)
+            CPU.CPU_Push32(param5);
         if (paramCount>=4)
             CPU.CPU_Push32(param4);
         if (paramCount>=3)

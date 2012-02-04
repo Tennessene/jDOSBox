@@ -12,8 +12,11 @@ import jdos.win.utils.Pixel;
 import java.awt.image.BufferedImage;
 
 public class WinBitmap extends WinGDI {
-    static public WinBitmap create(int address) {
-        return new WinBitmap(nextObjectId(), address);
+    static public WinBitmap create(int address, boolean owner) {
+        return new WinBitmap(nextObjectId(), address, owner);
+    }
+    static public WinBitmap create(int width, int height, int bpp, int data, boolean keepData) {
+        return new WinBitmap(nextObjectId(), width, height, bpp, data, keepData);
     }
 
     static public WinBitmap get(int handle) {
@@ -21,6 +24,16 @@ public class WinBitmap extends WinGDI {
         if (object == null || !(object instanceof WinBitmap))
             return null;
         return (WinBitmap)object;
+    }
+
+    // HBITMAP CreateBitmap(int nWidth, int nHeight, UINT cPlanes, UINT cBitsPerPel, const VOID *lpvBits)
+    static public int CreateBitmap(int nWidth, int nHeight, int cPlanes, int cBitsPerPel, int lpvBits) {
+        if (cPlanes != 1) {
+            warn("CreateBitmap does not support "+cPlanes+" planes.");
+            SetLastError(ERROR_INVALID_PARAMETER);
+            return 0;
+        }
+        return create(nWidth, nHeight, cBitsPerPel, lpvBits, false).handle;
     }
 
     // HBITMAP LoadBitmap(HINSTANCE hInstance, LPCTSTR lpBitmapName)
@@ -35,17 +48,62 @@ public class WinBitmap extends WinGDI {
     int bitCount;
     int planes;
     int bits;
+    boolean bitsOwner = false;
     int[] palette;
+    JavaBitmap cache;
 
-    public WinBitmap(int handle, int address) {
+    public WinBitmap(int handle, int address, boolean owner) {
         super(handle);
         this.address = address;
         parseBitmap(address);
+        this.bitsOwner = owner;
+    }
+
+    public WinBitmap(int handle, int width, int height, int bpp, int data, boolean keepData) {
+        super(handle);
+        if (width<0)
+            width = -width;
+        if (height<0)
+            height = -height;
+        if (height==0 || width == 0) {
+            height = 1;
+            width = 1;
+            data = 0;
+        }
+        this.bitCount = bpp;
+        this.width = width;
+        this.height = height;
+        this.planes = 1;
+        if (data != 0) {
+            if (keepData) {
+                bits = data;
+            } else {
+                int stride = (bpp * width / 8 + 3) & ~3;
+                bits = WinSystem.getCurrentProcess().heap.alloc(stride*height, false);
+                Memory.mem_memcpy(bits, data, stride*height);
+            }
+        } else {
+            bits = WinSystem.getCurrentProcess().heap.alloc(4, false);
+        }
+        bitsOwner = true;
+    }
+
+    protected void onFree() {
+        if (bitsOwner) {
+            if (address!=0)
+                WinSystem.getCurrentProcess().heap.free(address);
+            else
+                WinSystem.getCurrentProcess().heap.free(bits);
+        }
+        super.onFree();
     }
 
     public JavaBitmap createJavaBitmap() {
-        BufferedImage bi = Pixel.createImage(bits, bitCount, palette, width, height, true);
-        return new JavaBitmap(bi, bitCount, width, height, palette);
+        if (cache == null) {
+            BufferedImage bi = Pixel.createImage(bits, bitCount, palette, width, height, true);
+            cache = new JavaBitmap(bi, bitCount, width, height, palette);
+        }
+        return cache;
     }
 
     public String toString() {
@@ -66,7 +124,10 @@ public class WinBitmap extends WinGDI {
         int biClrImportant = is.readInt();
 
         if (biSizeImage == 0) {
-            biSizeImage = (bitCount + 7) / 8 * width * Math.abs(height);
+            if (bitCount<8)
+                biSizeImage = (((bitCount * width + 7) / 8 + 3) & ~3)* Math.abs(height);
+            else
+                biSizeImage = (((bitCount + 7) / 8 * width + 3) & ~3)* Math.abs(height);
         }
         bits = address+40;
 
@@ -76,6 +137,9 @@ public class WinBitmap extends WinGDI {
         if (bitCount == 8) {
             if (biClrUsed == 0)
                 biClrUsed = 256;
+        } else if (bitCount == 1) {
+            if (biClrUsed == 0)
+                biClrUsed = 2;
         } else { // if (bitCount != 15 && bitCount != 16 && bitCount != 24) {
             Win.panic("Was not expecting to load a bitmap with "+bitCount+" bits per pixel");
         }

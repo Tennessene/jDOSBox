@@ -4,7 +4,10 @@ import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.user32.SysParams;
-import jdos.win.system.*;
+import jdos.win.system.JavaBitmap;
+import jdos.win.system.StaticData;
+import jdos.win.system.WinObject;
+import jdos.win.system.WinRect;
 import jdos.win.utils.Pixel;
 import jdos.win.utils.StringUtil;
 
@@ -12,7 +15,6 @@ import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 
 public class WinDC extends WinObject {
     static WinFont defaultFont = WinFont.get(GdiObj.GetStockObject(DEVICE_DEFAULT_FONT));
@@ -72,48 +74,22 @@ public class WinDC extends WinObject {
         return TRUE;
     }
 
-    // int DrawText(HDC hDC, LPCTSTR lpchText, int nCount, LPRECT lpRect, UINT uFormat)
-    static public int DrawTextA(int hDC, int lpchText, int nCount, int lpRect, int uFormat) {
-        WinDC dc = WinDC.get(hDC);
-        if (dc == null)
-            return 0;
-
-        WinRect rect = new WinRect(lpRect);
-        String text = StringUtil.getString(lpchText, nCount);
-        Graphics2D g = dc.getGraphics();
-        FontRenderContext frc = g.getFontRenderContext();
-        Font font = WinFont.get(dc.hFont).font;
-        g.setFont(font);
-        int sw = (int)font.getStringBounds(text, frc).getWidth();
-        LineMetrics lm = font.getLineMetrics(text, frc);
-        int sh = (int)(lm.getAscent() + lm.getDescent());
-
-        int x = rect.left;
-        int y = rect.top;
-        if ((uFormat & DT_CENTER)!=0) {
-            x = (rect.right-rect.left)/2 - sw/2;
-        } else if ((uFormat & DT_RIGHT)!=0) {
-            x = rect.right - sw;
-        }
-        if ((uFormat & DT_BOTTOM)!=0) {
-            y = rect.bottom-sh;
-        }
-        TextOutA(hDC, x, y, lpchText, nCount);
-
-        System.out.println("drawText not fully implemented");
-        g.dispose();
-        return sh;
-    }
-
     // BOOL ExtTextOut(HDC hdc, int X, int Y, UINT fuOptions, const RECT *lprc, LPCTSTR lpString, UINT cbCount, const INT *lpDx)
     static public int ExtTextOutA(int hdc, int X, int Y, int fuOptions, int lprc, int lpString, int cbCount, int lpDx) {
+        String text = StringUtil.getString(lpString, cbCount);
+        return ExtTextOut(hdc, X, Y, fuOptions, lprc, text, lpDx);
+    }
+    static public int ExtTextOutW(int hdc, int X, int Y, int fuOptions, int lprc, int lpString, int cbCount, int lpDx) {
+        String text = StringUtil.getStringW(lpString, cbCount);
+        return ExtTextOut(hdc, X, Y, fuOptions, lprc, text, lpDx);
+    }
+    static public int ExtTextOut(int hdc, int X, int Y, int fuOptions, int lprc, String text, int lpDx) {
         log("ExtTextOutA not fully implemented yet");
         WinDC dc = WinDC.get(hdc);
         if (dc == null) {
             return FALSE;
         }
         Graphics2D g = dc.getGraphics();
-        String text = StringUtil.getString(lpString, cbCount);
 
         FontRenderContext frc = g.getFontRenderContext();
         Font font = WinFont.get(dc.hFont).font;
@@ -128,7 +104,6 @@ public class WinDC extends WinObject {
             g.fillRect(dc.x+X, dc.y+Y, sw, sh);
         }
         g.setColor(new Color(dc.textColor | 0xFF000000));
-        g.setClip(dc.x, dc.y, dc.cx, dc.cy);
         g.drawString(text, dc.x+X, dc.y+Y+sh-(int)lm.getDescent());
         g.dispose();
         return WinAPI.TRUE;
@@ -140,7 +115,7 @@ public class WinDC extends WinObject {
         if (dc==null) return ERROR;
         if (dc.hClipRgn != 0)
             return WinRegion.GetRgnBox(dc.hClipRgn, rect);
-        new WinRect(0, 0, dc.cx, dc.cy).write(rect);
+        new WinRect(0, 0, dc.clipCx, dc.clipCy).write(rect);
         return SIMPLEREGION;
     }
 
@@ -193,79 +168,18 @@ public class WinDC extends WinObject {
     // COLORREF GetPixel(HDC hdc, int nXPos, int nYPos)
     static public int GetPixel(int hdc, int nXPos, int nYPos) {
         WinDC dc = WinDC.get(hdc);
-        if (dc == null || (nXPos>=0 && nXPos<dc.cx && nYPos>=0 && nYPos<dc.cy))
+        if (dc == null || (nXPos>=0 && nXPos<dc.clipCx && nYPos>=0 && nYPos<dc.clipCy))
             return CLR_INVALID;
         BufferedImage bi = dc.getImage();
         return bi.getRGB(dc.x+nXPos, dc.y+nYPos);
     }
 
-    // BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int c, LPSIZE lpSize)
-    static public int GetTextExtentPoint32A(int hdc, int lpString, int cbString, int lpSize) {
-        return GetTextExtentPointA(hdc, lpString, cbString, lpSize);
-    }
-
-    // BOOL GetTextExtentPoint(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize)
-    static public int GetTextExtentPointA(int hdc, int lpString, int cbString, int lpSize) {
-
-        String text = StringUtil.getString(lpString, cbString);
-        WinSize size = GetTextExtentPoint(hdc, text);
-        if (size == null)
-            return FALSE;
-        Memory.mem_writed(lpSize, size.cx);
-        Memory.mem_writed(lpSize+4, size.cy);
-        return TRUE;
-    }
-
-    static public WinSize GetTextExtentPoint(int hdc, String text) {
+    // COLORREF GetTextColor(HDC hdc)
+    static public int GetTextColor(int hdc) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null)
-            return null;
-        BufferedImage bi = dc.getImage();
-        Graphics2D g = (Graphics2D)bi.getGraphics();
-        FontRenderContext frc = g.getFontRenderContext();
-        Font font = WinFont.get(dc.hFont).font;
-        g.setFont(font);
-        int sw = (int)font.getStringBounds(text, frc).getWidth();
-        LineMetrics lm = font.getLineMetrics(text, frc);
-        int sh = (int)(lm.getAscent() + lm.getDescent());
-        g.dispose();
-        return new WinSize(sw, sh);
-    }
-
-    // BOOL GetTextMetrics(HDC hdc, LPTEXTMETRIC lptm)
-    static public int GetTextMetricsA(int hdc, int lptm) {
-        WinDC dc = WinDC.get(hdc);
-        if (dc == null)
-            return FALSE;
-        BufferedImage bi = dc.getImage();
-        Graphics2D g = (Graphics2D)bi.getGraphics();
-        Font font = WinFont.get(dc.hFont).font;
-        g.setFont(font);
-        FontMetrics metrics = g.getFontMetrics();
-        g.dispose();
-        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(font.getSize()));lptm+=4; // tmHeight - Windows defaults to 96 dpi, java uses 72
-        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(metrics.getAscent()));lptm+=4; // tmAscent
-        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(metrics.getDescent()));lptm+=4; // tmDescent
-        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(metrics.getLeading()));lptm+=4; // tmInternalLeading
-        Memory.mem_writed(lptm, 0);lptm+=4; // tmExternalLeading
-        int[] width = metrics.getWidths();
-        Arrays.sort(width);
-        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(width[200])/2);lptm+=4; // tmAveCharWidth
-        Memory.mem_writed(lptm, WinFont.JAVA_TO_WIN(width[255]));lptm+=4; // tmMaxCharWidth
-        Memory.mem_writed(lptm, font.isBold()?700:400);lptm+=4; // tmWeight FW_NORMAL=400 FW_BOLD=700
-        Memory.mem_writed(lptm, 0);lptm+=4; // tmOverhang
-        Memory.mem_writed(lptm, 96);lptm+=4; // tmDigitizedAspectX
-        Memory.mem_writed(lptm, 96);lptm+=4; // tmDigitizedAspectY
-        Memory.mem_writeb(lptm, 32);lptm+=1; // tmFirstChar
-        Memory.mem_writeb(lptm, 256);lptm+=1; // tmLastChar
-        Memory.mem_writeb(lptm, 32);lptm+=1; // tmDefaultChar
-        Memory.mem_writeb(lptm, 32);lptm+=1; // tmBreakChar
-        Memory.mem_writeb(lptm, font.isItalic() ? 1 : 0);lptm+=1; // tmItalic
-        Memory.mem_writeb(lptm, 0);lptm+=1; // tmUnderlined
-        Memory.mem_writeb(lptm, 0);lptm+=1; // tmStruckOut
-        Memory.mem_writeb(lptm, 0x06);lptm+=1; // tmPitchAndFamily TMPF_FIXED_PITCH=0x01 TMPF_VECTOR=0x02 TMPF_DEVICE=0x08 TMPF_TRUETYPE=0x04
-        Memory.mem_writeb(lptm, 0);lptm+=1; // tmCharSet 0=ANSI_CHARSET
-        return WinAPI.TRUE;
+            return CLR_INVALID;
+        return dc.textColor;
     }
 
     // BOOL PatBlt(HDC hdc, int nXLeft, int nYLeft, int nWidth, int nHeight, DWORD dwRop)
@@ -276,10 +190,8 @@ public class WinDC extends WinObject {
             return FALSE;
 
         int color = 0xFF000000 | WinBrush.get(dc.hBrush).color;
-        BufferedImage image = dc.getImage();
-        Graphics graphics = image.getGraphics();
+        Graphics graphics = dc.getGraphics();
         graphics.setColor(new Color(color));
-        graphics.setClip(dc.x, dc.y, dc.cx, dc.cy);
         graphics.fillRect(nXLeft+dc.x, nYLeft+dc.y, nWidth, nHeight);
         graphics.dispose();
         return TRUE;
@@ -373,11 +285,21 @@ public class WinDC extends WinObject {
     // COLORREF SetPixel(HDC hdc, int X, int Y, COLORREF crColor)
     static public int SetPixel(int hdc, int X, int Y, int crColor) {
         WinDC dc = WinDC.get(hdc);
-        if (dc == null || (X>=0 && X<dc.cx && Y>=0 && Y<dc.cy))
+        if (dc == null || (X>=0 && X<dc.clipCx && Y>=0 && Y<dc.clipCy))
             return CLR_INVALID;
         BufferedImage bi = dc.getImage();
         bi.setRGB(dc.x+X, dc.y+Y, crColor);
         return bi.getRGB(dc.x+X, dc.y+Y);
+    }
+
+    // int SetROP2(HDC hdc, int fnDrawMode)
+    static public int SetROP2(int hdc, int fnDrawMode) {
+        WinDC dc = WinDC.get(hdc);
+        if (dc == null)
+            return 0;
+        int result = dc.ROPmode;
+        dc.ROPmode = fnDrawMode;
+        return result;
     }
 
     // COLORREF SetTextColor(HDC hdc, COLORREF crColor)
@@ -394,9 +316,12 @@ public class WinDC extends WinObject {
     static public int TextOutA(int hdc, int x, int y, int str, int count) {
         return ExtTextOutA(hdc, x, y, 0, NULL, str, count, NULL );
     }
-
-    static final private int TRANSPARENT = 1;
-    static final private int OPAQUE = 2;
+    static public int TextOutW(int hdc, int x, int y, int str, int count) {
+        return ExtTextOutW(hdc, x, y, 0, NULL, str, count, NULL);
+    }
+    static public int TextOut(int hdc, int x, int y, String text) {
+        return ExtTextOut(hdc, x, y, 0, NULL, text, NULL);
+    }
 
     WinBitmap bitmap;
 
@@ -409,12 +334,16 @@ public class WinDC extends WinObject {
     JavaBitmap image;
     int hBitmap;
     int hClipRgn;
-    int hPen;
-    int hBrush;
-    int cx;
-    int cy;
-    int x;
-    int y;
+    public int hPen;
+    public int hBrush;
+    int clipCx;
+    int clipCy;
+    public int x;
+    public int y;
+    int clipX;
+    int clipY;
+    int ROPmode=R2_COPYPEN;
+    float miterLimit = 10.0f; /* 10.0 is the default, from MSDN */
 
     public int CursPosX;
     public int CursPosY;
@@ -424,11 +353,11 @@ public class WinDC extends WinObject {
         this.image = image;
         this.owner = owner;
         if (image != null) {
-            cx = image.getWidth();
-            cy = image.getHeight();
+            clipCx = image.getWidth();
+            clipCy = image.getHeight();
         } else {
-            cx = 1;
-            cy = 1;
+            clipCx = 1;
+            clipCy = 1;
             this.image = StaticData.screen; // :TODO:
             this.owner = false;
         }
@@ -440,18 +369,20 @@ public class WinDC extends WinObject {
         hFont = defaultFont.handle;
     }
 
-    public void setOffset(int x, int y, int cx, int cy) {
+    public void setOffset(int x, int y, int clipX, int clipY, int clipCx, int clipCy) {
         this.x = x;
         this.y = y;
-        this.cx = cx;
-        this.cy = cy;
+        this.clipCx = clipCx;
+        this.clipCy = clipCy;
+        this.clipX = clipX;
+        this.clipY = clipY;
     }
 
     public Graphics2D getGraphics() {
         BufferedImage image = getImage();
         Graphics2D g = image.createGraphics();
         // :TODO: merge clip
-        g.setClip(x, y, cx, cy);
+        g.setClip(x, y, clipCx, clipCy);
         return g;
     }
 

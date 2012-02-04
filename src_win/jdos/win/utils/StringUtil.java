@@ -86,6 +86,15 @@ public class StringUtil extends WinAPI {
         return result.toString();
     }
 
+    static public int strrchr(int address, int c) {
+        int len = strlenA(address);
+        for (int i=len-1;i>=0;i++) {
+            if (readb(address+i)==c)
+                return address+i;
+        }
+        return 0;
+    }
+
     static public void strcat(int address, int address2) {
         int len = strlenA(address);
         strcpy(address+len, address2);

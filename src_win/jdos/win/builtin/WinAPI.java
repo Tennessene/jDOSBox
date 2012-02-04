@@ -374,6 +374,13 @@ public class WinAPI extends Error {
     static public final int WM_MBUTTONDBLCLK =               0x0209;
     static public final int WM_MOUSEWHEEL =                  0x020A;
 
+    /* Win32 4.0 messages */
+    static final public int WM_SIZING =                      0x0214;
+    static final public int WM_CAPTURECHANGED =              0x0215;
+    static final public int WM_MOVING =                      0x0216;
+    static final public int WM_POWERBROADCAST =              0x0218;
+    static final public int WM_DEVICECHANGE =                0x0219;
+    
     static public final int WM_PARENTNOTIFY =                0x0210;
     static public final int WM_ENTERMENULOOP =               0x0211;
     static public final int WM_EXITMENULOOP =                0x0212;
@@ -1286,6 +1293,386 @@ public class WinAPI extends Error {
     static final public int BF_DIAGONAL_ENDBOTTOMRIGHT = (BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
 
         
+    /*** OEM Resource Ordinal Numbers ***/
+    static final public int OBM_RDRVERT =           32559;
+    static final public int OBM_RDRHORZ =           32660;
+    static final public int OBM_RDR2DIM =           32661;
+    static final public int OBM_TRTYPE =            32732; /* FIXME: Wine-only */
+    static final public int OBM_LFARROWI =          32734;
+    static final public int OBM_RGARROWI =          32735;
+    static final public int OBM_DNARROWI =          32736;
+    static final public int OBM_UPARROWI =          32737;
+    static final public int OBM_COMBO =             32738;
+    static final public int OBM_MNARROW =           32739;
+    static final public int OBM_LFARROWD =          32740;
+    static final public int OBM_RGARROWD =          32741;
+    static final public int OBM_DNARROWD =          32742;
+    static final public int OBM_UPARROWD =          32743;
+    static final public int OBM_RESTORED =          32744;
+    static final public int OBM_ZOOMD =             32745;
+    static final public int OBM_REDUCED =           32746;
+    static final public int OBM_RESTORE =           32747;
+    static final public int OBM_ZOOM =              32748;
+    static final public int OBM_REDUCE =            32749;
+    static final public int OBM_LFARROW =           32750;
+    static final public int OBM_RGARROW =           32751;
+    static final public int OBM_DNARROW =           32752;
+    static final public int OBM_UPARROW =           32753;
+    static final public int OBM_CLOSE =             32754;
+    static final public int OBM_OLD_RESTORE =       32755;
+    static final public int OBM_OLD_ZOOM =          32756;
+    static final public int OBM_OLD_REDUCE =        32757;
+    static final public int OBM_BTNCORNERS =        32758;
+    static final public int OBM_CHECKBOXES =        32759;
+    static final public int OBM_CHECK =             32760;
+    static final public int OBM_BTSIZE =            32761;
+    static final public int OBM_OLD_LFARROW =       32762;
+    static final public int OBM_OLD_RGARROW =       32763;
+    static final public int OBM_OLD_DNARROW =       32764;
+    static final public int OBM_OLD_UPARROW =       32765;
+    static final public int OBM_SIZE =              32766;
+    static final public int OBM_OLD_CLOSE =         32767;
+    
+    static final public int OCR_NORMAL =            32512;
+    static final public int OCR_IBEAM =             32513;
+    static final public int OCR_WAIT =              32514;
+    static final public int OCR_CROSS =             32515;
+    static final public int OCR_UP =                32516;
+    static final public int OCR_SIZE =              32640;
+    static final public int OCR_ICON =              32641;
+    static final public int OCR_SIZENWSE =          32642;
+    static final public int OCR_SIZENESW =          32643;
+    static final public int OCR_SIZEWE =            32644;
+    static final public int OCR_SIZENS =            32645;
+    static final public int OCR_SIZEALL =           32646;
+    static final public int OCR_ICOCUR =            32647;
+    static final public int OCR_NO =                32648;
+    static final public int OCR_HAND =              32649;
+    static final public int OCR_APPSTARTING =       32650;
+    static final public int OCR_HELP =              32651; /* DDK / Win16 */
+    static final public int OCR_RDRVERT =           32652; /* DDK / Win16 */
+    static final public int OCR_RDRHORZ =           32653; /* DDK / Win16 */
+    static final public int OCR_DRAGOBJECT =        OCR_RDRHORZ; /* FIXME: Wine-only */
+    static final public int OCR_RDR2DIM =           32654; /* DDK / Win16 */
+    static final public int OCR_RDRNORTH =          32655; /* DDK / Win16 */
+    static final public int OCR_RDRSOUTH =          32656; /* DDK / Win16 */
+    static final public int OCR_RDRWEST =           32657; /* DDK / Win16 */
+    static final public int OCR_RDREAST =           32658; /* DDK / Win16 */
+    static final public int OCR_RDRNORTHWEST =      32659; /* DDK / Win16 */
+    static final public int OCR_RDRNORTHEAST =      32660; /* DDK / Win16 */
+    static final public int OCR_RDRSOUTHWEST =      32661; /* DDK / Win16 */
+    static final public int OCR_RDRSOUTHEAST =      32662; /* DDK / Win16 */
+    
+    static final public int OIC_SAMPLE =            32512;
+    static final public int OIC_HAND =              32513;
+    static final public int OIC_ERROR =             OIC_HAND;
+    static final public int OIC_QUES =              32514;
+    static final public int OIC_BANG =              32515;
+    static final public int OIC_WARNING =           OIC_BANG;
+    static final public int OIC_NOTE =              32516;
+    static final public int OIC_INFORMATION =       OIC_NOTE;
+    static final public int OIC_WINLOGO =           32517;
+    static final public int OIC_SHIELD =            32518;
+
+    static final public int TRANSPARENT = 1;
+    static final public int OPAQUE = 2;
+
+    /*** Virtual key codes ***/
+    static final public int VK_LBUTTON =            0x01;
+    static final public int VK_RBUTTON =            0x02;
+    static final public int VK_CANCEL =             0x03;
+    static final public int VK_MBUTTON =            0x04;
+    static final public int VK_XBUTTON1 =           0x05;
+    static final public int VK_XBUTTON2 =           0x06;
+    /*                             0x07  Undefined */
+    static final public int VK_BACK =               0x08;
+    static final public int VK_TAB =                0x09;
+    /*                             0x0A-0x0B  Undefined */
+    static final public int VK_CLEAR =              0x0C;
+    static final public int VK_RETURN =             0x0D;
+    /*                             0x0E-0x0F  Undefined */
+    static final public int VK_SHIFT =              0x10;
+    static final public int VK_CONTROL =            0x11;
+    static final public int VK_MENU =               0x12;
+    static final public int VK_PAUSE =              0x13;
+    static final public int VK_CAPITAL =            0x14;
+
+    static final public int VK_KANA =               0x15;
+    static final public int VK_HANGEUL =            VK_KANA;
+    static final public int VK_HANGUL =             VK_KANA;
+    static final public int VK_JUNJA =              0x17;
+    static final public int VK_FINAL =              0x18;
+    static final public int VK_HANJA =              0x19;
+    static final public int VK_KANJI =              VK_HANJA;
+
+    /*                             0x1A       Undefined */
+    static final public int VK_ESCAPE =             0x1B;
+
+    static final public int VK_CONVERT =            0x1C;
+    static final public int VK_NONCONVERT =         0x1D;
+    static final public int VK_ACCEPT =             0x1E;
+    static final public int VK_MODECHANGE =         0x1F;
+
+    static final public int VK_SPACE =              0x20;
+    static final public int VK_PRIOR =              0x21;
+    static final public int VK_NEXT =               0x22;
+    static final public int VK_END =                0x23;
+    static final public int VK_HOME =               0x24;
+    static final public int VK_LEFT =               0x25;
+    static final public int VK_UP =                 0x26;
+    static final public int VK_RIGHT =              0x27;
+    static final public int VK_DOWN =               0x28;
+    static final public int VK_SELECT =             0x29;
+    static final public int VK_PRINT =              0x2A; /* OEM specific in Windows 3.1 SDK */
+    static final public int VK_EXECUTE =            0x2B;
+    static final public int VK_SNAPSHOT =           0x2C;
+    static final public int VK_INSERT =             0x2D;
+    static final public int VK_DELETE =             0x2E;
+    static final public int VK_HELP =               0x2F;
+    /* VK_0 - VK-9                 0x30-0x39  Use ASCII instead */
+    /*                             0x3A-0x40  Undefined */
+    /* VK_A - VK_Z                 0x41-0x5A  Use ASCII instead */
+    static final public int VK_LWIN =               0x5B;
+    static final public int VK_RWIN =               0x5C;
+    static final public int VK_APPS =               0x5D;
+    /*                             0x5E Unassigned */
+    static final public int VK_SLEEP =              0x5F;
+    static final public int VK_NUMPAD0 =            0x60;
+    static final public int VK_NUMPAD1 =            0x61;
+    static final public int VK_NUMPAD2 =            0x62;
+    static final public int VK_NUMPAD3 =            0x63;
+    static final public int VK_NUMPAD4 =            0x64;
+    static final public int VK_NUMPAD5 =            0x65;
+    static final public int VK_NUMPAD6 =            0x66;
+    static final public int VK_NUMPAD7 =            0x67;
+    static final public int VK_NUMPAD8 =            0x68;
+    static final public int VK_NUMPAD9 =            0x69;
+    static final public int VK_MULTIPLY =           0x6A;
+    static final public int VK_ADD =                0x6B;
+    static final public int VK_SEPARATOR =          0x6C;
+    static final public int VK_SUBTRACT =           0x6D;
+    static final public int VK_DECIMAL =            0x6E;
+    static final public int VK_DIVIDE =             0x6F;
+    static final public int VK_F1 =                 0x70;
+    static final public int VK_F2 =                 0x71;
+    static final public int VK_F3 =                 0x72;
+    static final public int VK_F4 =                 0x73;
+    static final public int VK_F5 =                 0x74;
+    static final public int VK_F6 =                 0x75;
+    static final public int VK_F7 =                 0x76;
+    static final public int VK_F8 =                 0x77;
+    static final public int VK_F9 =                 0x78;
+    static final public int VK_F10 =                0x79;
+    static final public int VK_F11 =                0x7A;
+    static final public int VK_F12 =                0x7B;
+    static final public int VK_F13 =                0x7C;
+    static final public int VK_F14 =                0x7D;
+    static final public int VK_F15 =                0x7E;
+    static final public int VK_F16 =                0x7F;
+    static final public int VK_F17 =                0x80;
+    static final public int VK_F18 =                0x81;
+    static final public int VK_F19 =                0x82;
+    static final public int VK_F20 =                0x83;
+    static final public int VK_F21 =                0x84;
+    static final public int VK_F22 =                0x85;
+    static final public int VK_F23 =                0x86;
+    static final public int VK_F24 =                0x87;
+    /*                             0x88-0x8F  Unassigned */
+    static final public int VK_NUMLOCK =            0x90;
+    static final public int VK_SCROLL =             0x91;
+    static final public int VK_OEM_NEC_EQUAL =      0x92;
+    static final public int VK_OEM_FJ_JISHO =       0x92;
+    static final public int VK_OEM_FJ_MASSHOU =     0x93;
+    static final public int VK_OEM_FJ_TOUROKU =     0x94;
+    static final public int VK_OEM_FJ_LOYA =        0x95;
+    static final public int VK_OEM_FJ_ROYA =        0x96;
+    /*                             0x97-0x9F  Unassigned */
+    /*
+     * differencing between right and left shift/control/alt key.
+     * Used only by GetAsyncKeyState() and GetKeyState().
+     */
+    static final public int VK_LSHIFT =             0xA0;
+    static final public int VK_RSHIFT =             0xA1;
+    static final public int VK_LCONTROL =           0xA2;
+    static final public int VK_RCONTROL =           0xA3;
+    static final public int VK_LMENU =              0xA4;
+    static final public int VK_RMENU =              0xA5;
+
+    static final public int VK_BROWSER_BACK =       0xA6;
+    static final public int VK_BROWSER_FORWARD =    0xA7;
+    static final public int VK_BROWSER_REFRESH =    0xA8;
+    static final public int VK_BROWSER_STOP =       0xA9;
+    static final public int VK_BROWSER_SEARCH =     0xAA;
+    static final public int VK_BROWSER_FAVORITES =  0xAB;
+    static final public int VK_BROWSER_HOME =       0xAC;
+    static final public int VK_VOLUME_MUTE =        0xAD;
+    static final public int VK_VOLUME_DOWN =        0xAE;
+    static final public int VK_VOLUME_UP =          0xAF;
+    static final public int VK_MEDIA_NEXT_TRACK =   0xB0;
+    static final public int VK_MEDIA_PREV_TRACK =   0xB1;
+    static final public int VK_MEDIA_STOP =         0xB2;
+    static final public int VK_MEDIA_PLAY_PAUSE =   0xB3;
+    static final public int VK_LAUNCH_MAIL =        0xB4;
+    static final public int VK_LAUNCH_MEDIA_SELECT= 0xB5;
+    static final public int VK_LAUNCH_APP1 =        0xB6;
+    static final public int VK_LAUNCH_APP2 =        0xB7;
+
+    /*                             0xB8-0xB9  Unassigned */
+    static final public int VK_OEM_1 =              0xBA;
+    static final public int VK_OEM_PLUS =           0xBB;
+    static final public int VK_OEM_COMMA =          0xBC;
+    static final public int VK_OEM_MINUS =          0xBD;
+    static final public int VK_OEM_PERIOD =         0xBE;
+    static final public int VK_OEM_2 =              0xBF;
+    static final public int VK_OEM_3 =              0xC0;
+    /*                             0xC1-0xDA  Unassigned */
+    static final public int VK_OEM_4 =              0xDB;
+    static final public int VK_OEM_5 =              0xDC;
+    static final public int VK_OEM_6 =              0xDD;
+    static final public int VK_OEM_7 =              0xDE;
+    static final public int VK_OEM_8 =              0xDF;
+    /*                             0xE0       OEM specific */
+    static final public int VK_OEM_AX =             0xE1;  /* "AX" key on Japanese AX keyboard */
+    static final public int VK_OEM_102 =            0xE2;  /* "<>" or "\|" on RT 102-key keyboard */
+    static final public int VK_ICO_HELP =           0xE3;  /* Help key on ICO */
+    static final public int VK_ICO_00 =             0xE4;  /* 00 key on ICO */
+    static final public int VK_PROCESSKEY =         0xE5;
+    static final public int VK_ICO_CLEAR =          0xE6;
+
+    static final public int VK_PACKET =             0xE7;
+    /*                             0xE8       Unassigned */
+
+    static final public int VK_OEM_RESET =          0xE9;
+    static final public int VK_OEM_JUMP =           0xEA;
+    static final public int VK_OEM_PA1 =            0xEB;
+    static final public int VK_OEM_PA2 =            0xEC;
+    static final public int VK_OEM_PA3 =            0xED;
+    static final public int VK_OEM_WSCTRL =         0xEE;
+    static final public int VK_OEM_CUSEL =          0xEF;
+    static final public int VK_OEM_ATTN =           0xF0;
+    static final public int VK_OEM_FINISH =         0xF1;
+    static final public int VK_OEM_COPY =           0xF2;
+    static final public int VK_OEM_AUTO =           0xF3;
+    static final public int VK_OEM_ENLW =           0xF4;
+    static final public int VK_OEM_BACKTAB =        0xF5;
+    static final public int VK_ATTN =               0xF6;
+    static final public int VK_CRSEL =              0xF7;
+    static final public int VK_EXSEL =              0xF8;
+    static final public int VK_EREOF =              0xF9;
+    static final public int VK_PLAY =               0xFA;
+    static final public int VK_ZOOM =               0xFB;
+    static final public int VK_NONAME =             0xFC;
+    static final public int VK_PA1 =                0xFD;
+    static final public int VK_OEM_CLEAR =          0xFE;
+    
+    static final public int MK_LBUTTON =            0x0001;
+    static final public int MK_RBUTTON =            0x0002;
+    static final public int MK_SHIFT =              0x0004;
+    static final public int MK_CONTROL =            0x0008;
+    static final public int MK_MBUTTON =            0x0010;
+    static final public int MK_XBUTTON1 =           0x0020;
+    static final public int MK_XBUTTON2 =           0x0040;
+    
+    /* Image type */
+    static final public int DST_COMPLEX =   0x0000;
+    static final public int DST_TEXT =      0x0001;
+    static final public int DST_PREFIXTEXT =0x0002;
+    static final public int DST_ICON =      0x0003;
+    static final public int DST_BITMAP =    0x0004;
+
+    /* State type */
+    static final public int DSS_NORMAL =    0x0000;
+    static final public int DSS_UNION =     0x0010;  /* Gray string appearance */
+    static final public int DSS_DISABLED =  0x0020;
+    static final public int DSS_DEFAULT =   0x0040;  /* Make it bold */
+    static final public int DSS_MONO =      0x0080;
+    static final public int DSS_HIDEPREFIX =0x0200;
+    static final public int DSS_PREFIXONLY =0x0400;
+    static final public int DSS_RIGHT =     0x8000;
+    
+    /* Object Definitions for EnumObjects() */
+    static final public int OBJ_PEN =            1;
+    static final public int OBJ_BRUSH =          2;
+    static final public int OBJ_DC =             3;
+    static final public int OBJ_METADC =         4;
+    static final public int OBJ_PAL =            5;
+    static final public int OBJ_FONT =           6;
+    static final public int OBJ_BITMAP =         7;
+    static final public int OBJ_REGION =         8;
+    static final public int OBJ_METAFILE =       9;
+    static final public int OBJ_MEMDC =          10;
+    static final public int OBJ_EXTPEN =         11;
+    static final public int OBJ_ENHMETADC =      12;
+    static final public int OBJ_ENHMETAFILE =    13;
+    static final public int OBJ_COLORSPACE =     14;
+    
+    /* DrawFrameControl() uType's */
+    
+    static final public int DFC_CAPTION =            1;
+    static final public int DFC_MENU =               2;
+    static final public int DFC_SCROLL =             3;
+    static final public int DFC_BUTTON =             4;
+    static final public int DFC_POPUPMENU =          5;
+    
+    /* uState's */
+    
+    static final public int DFCS_CAPTIONCLOSE =      0x0000;
+    static final public int DFCS_CAPTIONMIN =        0x0001;
+    static final public int DFCS_CAPTIONMAX =        0x0002;
+    static final public int DFCS_CAPTIONRESTORE =    0x0003;
+    static final public int DFCS_CAPTIONHELP =       0x0004;		/* Windows 95 only */
+    
+    static final public int DFCS_MENUARROW =         0x0000;
+    static final public int DFCS_MENUCHECK =         0x0001;
+    static final public int DFCS_MENUBULLET =        0x0002;
+    static final public int DFCS_MENUARROWRIGHT =    0x0004;
+    
+    static final public int DFCS_SCROLLUP =           0x0000;
+    static final public int DFCS_SCROLLDOWN =         0x0001;
+    static final public int DFCS_SCROLLLEFT =         0x0002;
+    static final public int DFCS_SCROLLRIGHT =        0x0003;
+    static final public int DFCS_SCROLLCOMBOBOX =     0x0005;
+    static final public int DFCS_SCROLLSIZEGRIP =     0x0008;
+    static final public int DFCS_SCROLLSIZEGRIPRIGHT= 0x0010;
+    
+    static final public int DFCS_BUTTONCHECK =       0x0000;
+    static final public int DFCS_BUTTONRADIOIMAGE =  0x0001;
+    static final public int DFCS_BUTTONRADIOMASK =   0x0002;		/* to draw nonsquare button */
+    static final public int DFCS_BUTTONRADIO =       0x0004;
+    static final public int DFCS_BUTTON3STATE =      0x0008;
+    static final public int DFCS_BUTTONPUSH =        0x0010;
+    
+    /* additional state of the control */
+
+    static final public int DFCS_INACTIVE =          0x0100;
+    static final public int DFCS_PUSHED =            0x0200;
+    static final public int DFCS_CHECKED =           0x0400;
+    static final public int DFCS_TRANSPARENT =       0x0800;
+    static final public int DFCS_HOT =               0x1000;
+    static final public int DFCS_ADJUSTRECT =        0x2000;		/* exclude surrounding edge */
+    static final public int DFCS_FLAT =              0x4000;
+    static final public int DFCS_MONO =              0x8000;
+    
+      /* Raster operations */
+
+    static final public int R2_BLACK =        1;
+    static final public int R2_NOTMERGEPEN =  2;
+    static final public int R2_MASKNOTPEN =   3;
+    static final public int R2_NOTCOPYPEN =   4;
+    static final public int R2_MASKPENNOT =   5;
+    static final public int R2_NOT =          6;
+    static final public int R2_XORPEN =       7;
+    static final public int R2_NOTMASKPEN =   8;
+    static final public int R2_MASKPEN =      9;
+    static final public int R2_NOTXORPEN =   10;
+    static final public int R2_NOP =         11;
+    static final public int R2_MERGENOTPEN = 12;
+    static final public int R2_COPYPEN =     13;
+    static final public int R2_MERGEPENNOT = 14;
+    static final public int R2_MERGEPEN =    15;
+    static final public int R2_WHITE =       16;
+    static final public int R2_LAST =        16;
+    
     // ************
     // * Internal *
     // ************

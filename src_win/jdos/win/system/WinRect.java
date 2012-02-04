@@ -26,10 +26,11 @@ public class WinRect extends WinAPI {
     }
 
     public WinRect(int address) {
-        left = Memory.mem_readd(address);
-        top = Memory.mem_readd(address+4);
-        right = Memory.mem_readd(address+8);
-        bottom = Memory.mem_readd(address+12);
+        copy(address);
+    }
+
+    public WinRect(WinRect rect) {
+        copy(rect);
     }
 
     public int allocTemp() {
@@ -38,6 +39,35 @@ public class WinRect extends WinAPI {
         return p;
     }
 
+    public void inflate(int dx, int dy) {
+        left-=dx;
+        right+=dx;
+        top-=dy;
+        bottom+=dy;
+    }
+
+    public boolean intersect(WinRect src1, WinRect src2) {
+        if (src1.isEmpty() || src2.isEmpty()) {
+            setEmpty();
+            return false;
+        }
+        left   = Math.max(src1.left, src2.left);
+        right  = Math.min(src1.right,src2.right);
+        top    = Math.max(src1.top, src2.top);
+        bottom = Math.min(src1.bottom, src2.bottom);
+        return isEmpty();
+    }
+
+    public boolean isEmpty() {
+        return left>=right || top>=bottom;
+    }
+
+    public void setEmpty() {
+        left = 0;
+        right = 0;
+        top = 0;
+        bottom = 0;
+    }
     public void set(int left, int top, int right, int bottom) {
         this.left = left;
         this.top = top;
@@ -50,6 +80,13 @@ public class WinRect extends WinAPI {
         right+=x;
         top+=y;
         bottom+=y;
+    }
+
+    public void copy(int address) {
+        left = Memory.mem_readd(address);
+        top = Memory.mem_readd(address+4);
+        right = Memory.mem_readd(address+8);
+        bottom = Memory.mem_readd(address+12);
     }
 
     public void copy(WinRect rect) {

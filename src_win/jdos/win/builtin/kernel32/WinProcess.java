@@ -1,8 +1,9 @@
 package jdos.win.builtin.kernel32;
 
 import jdos.win.builtin.WinAPI;
+import jdos.win.builtin.user32.ButtonWindow;
+import jdos.win.builtin.user32.StaticWindow;
 import jdos.win.builtin.user32.WinClass;
-import jdos.win.controls.StaticWindow;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.Loader;
@@ -147,6 +148,7 @@ public class WinProcess extends WaitObject {
         memory = new WinMemory(winHeap);
 
         StaticWindow.registerClass(this);
+        ButtonWindow.registerClass(this);
 
         env.put("HOMEDRIVE", "C:");
         env.put("NUMBER_OF_PROCESSORS", "1");

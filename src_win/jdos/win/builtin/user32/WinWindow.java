@@ -1016,9 +1016,8 @@ public class WinWindow extends WinObject {
             dc = winClass.dc;
         }
 
+        int class_style = winClass.style;
         if (dc==null) {
-            int class_style = winClass.style;
-
             if ((class_style & CS_CLASSDC)!=0) {
                 dc = WinDC.create();
                 winClass.dc = dc;
@@ -1032,7 +1031,13 @@ public class WinWindow extends WinObject {
         if (dc == null)
             dc = WinDC.create(StaticData.screen, false);
         WinPoint p = getScreenOffset();
-        dc.setOffset(p.x, p.y, rectClient.width(), rectClient.height());
+        if ((class_style & CS_PARENTDC)!=0 && parent != 0) {
+            WinWindow pParent = WinWindow.get(parent);
+            WinPoint ptParent = pParent.getScreenOffset();
+            dc.setOffset(p.x, p.y, ptParent.x, ptParent.y, pParent.rectClient.width(), pParent.rectClient.height());
+        } else {
+            dc.setOffset(p.x, p.y, p.x, p.y, rectClient.width(), rectClient.height());
+        }
         return dc;
     }
 

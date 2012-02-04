@@ -2,12 +2,11 @@ package jdos.win.builtin.user32;
 
 import jdos.gui.Main;
 import jdos.win.builtin.WinAPI;
-import jdos.win.builtin.gdi32.GdiObj;
-import jdos.win.builtin.gdi32.WinDC;
-import jdos.win.builtin.gdi32.WinRegion;
+import jdos.win.builtin.gdi32.*;
 import jdos.win.system.StaticData;
 import jdos.win.system.WinRect;
 
+import java.awt.*;
 import java.util.Iterator;
 
 public class Painting extends WinAPI {
@@ -82,6 +81,35 @@ public class Painting extends WinAPI {
         if (window == null)
             return FALSE;
         window.invalidate();
+        return TRUE;
+    }
+
+    // BOOL Rectangle(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
+    static public int Rectangle(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect) {
+        WinDC dc = WinDC.get(hdc);
+        if (dc == null)
+            return FALSE;
+        if (nLeftRect == nRightRect || nTopRect == nBottomRect)
+            return TRUE;
+        WinPen pen = WinPen.get(dc.hPen);
+        WinBrush brush = WinBrush.get(dc.hBrush);
+
+        if (pen == null || brush == null)
+            return FALSE;
+
+        int width = nRightRect-nLeftRect-1;
+        int height = nBottomRect-nTopRect-1;
+
+        Graphics2D graphics = dc.getGraphics();
+        Rectangle rectangle = new Rectangle(dc.x+nLeftRect, dc.y+nTopRect, width, height);
+        // inside
+        if (brush.setPaint(graphics))
+            graphics.fill(rectangle);
+        // border
+        if (pen.setStroke(dc, graphics))
+            graphics.draw(rectangle);
+
+        graphics.dispose();
         return TRUE;
     }
 

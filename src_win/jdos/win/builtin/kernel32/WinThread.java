@@ -368,6 +368,8 @@ public class WinThread extends WaitObject {
     public int tlsGetValue(int index) {
         int size = WinSystem.getCurrentProcess().tlsSize;
         if (index>=0 && index<size) {
+            if (index>=tls.size())
+                return 0;
             Integer result = tls.elementAt(index);
             if (result == null)
                 return 0;

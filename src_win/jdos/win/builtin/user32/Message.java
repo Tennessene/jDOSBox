@@ -140,14 +140,13 @@ public class Message extends WinAPI {
         WinSystem.call(wndPtr.winproc, hwnd, msg, wparam, lparam);
         int result = CPU_Regs.reg_eax.dword;
 
-
         /* and finally the WH_CALLWNDPROCRET hook */
         int cwpret = getTempBuffer(20);
-        writed(cwp, result);
-        writed(cwp+4, lparam);
-        writed(cwp+8, wparam);
-        writed(cwp+12, msg);
-        writed(cwp + 16, hwnd);
+        writed(cwpret, result);
+        writed(cwpret+4, lparam);
+        writed(cwpret+8, wparam);
+        writed(cwpret+12, msg);
+        writed(cwpret + 16, hwnd);
         Hook.HOOK_CallHooks(WH_CALLWNDPROCRET, HC_ACTION, BOOL(same_thread), cwpret);
         return result;
     }

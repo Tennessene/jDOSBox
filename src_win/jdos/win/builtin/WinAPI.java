@@ -1672,7 +1672,32 @@ public class WinAPI extends Error {
     static final public int R2_MERGEPEN =    15;
     static final public int R2_WHITE =       16;
     static final public int R2_LAST =        16;
-    
+
+    static public final int MEM_COMMIT = 0x1000;
+    static public final int MEM_RESERVE = 0x2000;
+    static public final int MEM_DECOMMIT = 0x4000;
+    static public final int MEM_RELEASE = 0x8000;
+    static public final int MEM_RESET = 0x80000;
+
+    static public final int MEM_LARGE_PAGES = 0x20000000;
+    static public final int MEM_PHYSICAL = 0x400000;
+    static public final int MEM_TOP_DOWN = 0x100000;
+    static public final int MEM_WRITE_WATCH = 0x200000;
+
+    static public final int PAGE_NOACCESS = 0x01;
+    static public final int PAGE_READONLY = 0x02;
+    static public final int PAGE_READWRITE = 0x04;
+    static public final int PAGE_WRITECOPY = 0x08;
+
+    static public final int PAGE_EXECUTE = 0x10;
+    static public final int PAGE_EXECUTE_READ = 0x20;
+    static public final int PAGE_EXECUTE_READWRITE = 0x40;
+    static public final int PAGE_EXECUTE_WRITECOPY = 0x80;
+
+    static public final int PAGE_GUARD = 0x100;
+    static public final int PAGE_NOCACHE = 0x200;
+    static public final int PAGE_WRITECOMBINE = 0x400;
+
     // ************
     // * Internal *
     // ************

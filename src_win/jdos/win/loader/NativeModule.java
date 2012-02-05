@@ -134,17 +134,23 @@ public class NativeModule extends Module {
             // Load code, data, import, etc sections
             for (int i=0;i<header.imageSections.length;i++) {
                 int address = (int)header.imageSections[i].VirtualAddress+baseAddress;
-                fis.seek(header.imageSections[i].PointerToRawData);
-                byte[] buffer = new byte[(int)header.imageSections[i].SizeOfRawData];
+                byte[] buffer = new byte[0];
+                if (header.imageSections[i].PointerToRawData>0) {
+                    fis.seek(header.imageSections[i].PointerToRawData);
+                    buffer = new byte[(int)header.imageSections[i].SizeOfRawData];
+                }
                 String segmentName = new String(header.imageSections[i].Name);
                 if (segmentName.startsWith(".rsrc")) {
                     resourceStartAddress = address;
                 }
                 System.out.println("   "+segmentName+" segment at 0x"+Integer.toHexString(address)+" - 0x"+Long.toHexString(address+header.imageSections[i].PhysicalAddress_or_VirtualSize)+"("+Long.toHexString(address+buffer.length)+")");
-                fis.read(buffer);
+                if (buffer.length>0)
+                    fis.read(buffer);
                 int size = buffer.length;
                 if (header.imageSections[i].PhysicalAddress_or_VirtualSize>size)
                     size = (int)header.imageSections[i].PhysicalAddress_or_VirtualSize;
+                if (size == 0)
+                    size = (int)header.imageSections[i].SizeOfRawData;
                 if (address-baseAddress+size>allocated) {
                     int add = address-baseAddress+size - allocated;
                     add = (add + 0xFFF) & ~0xFFF;

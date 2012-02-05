@@ -189,7 +189,7 @@ public class ButtonWindow extends WinAPI {
                         ps = getTempBuffer(PAINTSTRUCT.SIZE);
                         hdc = Painting.BeginPaint(hWnd, ps);
                     }
-                    int nOldMode = WinDC.SetBkMode(hdc, TRANSPARENT);
+                    int nOldMode = WinDC.SetBkMode(hdc, TRANSPARENT); // :TODO: why is this OPAQUE on WINE
                     btnPaintFunc[btn_type].paint(hWnd, hdc, ODA_DRAWENTIRE);
                     WinDC.SetBkMode(hdc, nOldMode); /*  reset painting mode */
                     if (ps != 0)

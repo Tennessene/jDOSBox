@@ -1,5 +1,6 @@
 package jdos.win.builtin.kernel32;
 
+import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.user32.ButtonWindow;
 import jdos.win.builtin.user32.StaticWindow;
@@ -9,7 +10,10 @@ import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
-import jdos.win.system.*;
+import jdos.win.system.Scheduler;
+import jdos.win.system.WinHeap;
+import jdos.win.system.WinObject;
+import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 import jdos.win.utils.Heap;
 import jdos.win.utils.Path;
@@ -74,7 +78,6 @@ public class WinProcess extends WaitObject {
     private String commandLine;
     private int commandLineA = 0;
     private int commandLineW = 0;
-    private WinMemory memory;
     private int envHandle = 0;
     private int envHandleW = 0;
     private Hashtable env = new Hashtable();
@@ -90,6 +93,7 @@ public class WinProcess extends WaitObject {
     public int page_directory;
     public KernelMemory kernelMemory;
     public Heap addressSpace = new Heap(0x00100000l, 0xFFF00000l);
+    public Vector<VirtualMemory> virtualMemory = new Vector<VirtualMemory>();
     public Hashtable<String, WinClass> classNames = new Hashtable<String, WinClass>();
     public WinEvent readyForInput = WinEvent.create(null, true, false);
     public int tlsSize = 0;
@@ -100,6 +104,15 @@ public class WinProcess extends WaitObject {
         page_directory = memory.createNewDirectory();
         this.kernelMemory = memory;
         this.currentWorkingDirectory = workingDirectory;
+    }
+
+    public VirtualMemory getVirtualMemory(long address) {
+        for (int i=0;i<virtualMemory.size();i++) {
+            VirtualMemory memory = virtualMemory.get(i);
+            if (memory.address <= address && address < memory.address+memory.size)
+                return memory;
+        }
+        return null;
     }
 
     public int reserveStackAddress(int size) {
@@ -145,7 +158,6 @@ public class WinProcess extends WaitObject {
         this.winHeap = new WinHeap(this.heap);
         loader = new Loader(this, kernelMemory, page_directory, paths);
         this.heapHandle = winHeap.createHeap(0, 0);
-        memory = new WinMemory(winHeap);
 
         StaticWindow.registerClass(this);
         ButtonWindow.registerClass(this);
@@ -179,21 +191,42 @@ public class WinProcess extends WaitObject {
         return 0;
     }
 
+    private static int MAGIC = 0xCDCDCDCD;
     public int getTemp(int size) {
-        int index = nextTempIndex;
-        nextTempIndex+=2;
-        if (nextTempIndex>=temp.length) {
+        size+=16;
+        int index = nextTempIndex++;
+        if (index>=temp.length) {
             int[] i = new int[temp.length*2];
             System.arraycopy(temp, 0, i, 0, temp.length);
             temp = i;
         }
-        if (temp[index]<size) {
-            if (temp[index+1]!=0)
-                heap.free(temp[index+1]);
-            temp[index+1] = heap.alloc(size, false);
-            temp[index] = size;
+         if (temp[index]!=0) {
+            int available = readd(temp[index]+4);
+            if (available<size) {
+                heap.free(temp[index]);
+                temp[index] = 0;
+            }
         }
-        return temp[index+1];
+        if (temp[index]==0) {
+            temp[index] = heap.alloc(size, false);
+            writed(temp[index], MAGIC);
+            writed(temp[index]+4, size);
+        }
+        writed(temp[index]+8, size);
+        writed(temp[index]+size-4, MAGIC);
+        return temp[index]+12;
+    }
+
+    public void checkAndResetTemps() {
+        for (int i=0;i<nextTempIndex;i++) {
+            if (readd(temp[i])!=MAGIC) {
+                Win.panic("TempBuffers were currupted, this is a bug with jdosbox");
+            }
+            int size = readd(temp[i]+8);
+            if (readd(temp[i]+size-4)!=MAGIC)
+                Win.panic("TempBuffers were currupted, this is a bug with jdosbox");
+        }
+        nextTempIndex = 0;
     }
 
     public void exit() {
@@ -253,9 +286,6 @@ public class WinProcess extends WaitObject {
             StringUtil.strcpyW(envHandle, s);
         }
         return envHandleW;
-    }
-    public WinMemory getMemory() {
-        return memory;
     }
 
     public Module getModuleByHandle(int handle) {

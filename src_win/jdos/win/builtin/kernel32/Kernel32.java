@@ -2705,6 +2705,7 @@ public class Kernel32 extends BuiltinModule {
             int lpWideCharStr = CPU.CPU_Pop32();
             int cchWideChar = CPU.CPU_Pop32();
             switch (CodePage) {
+                case 0:
                 case 1252:
                     LittleEndianFile file = new LittleEndianFile(lpMultiByteStr, cbMultiByte);
                     java.lang.String result = file.readCString();
@@ -3093,11 +3094,47 @@ public class Kernel32 extends BuiltinModule {
             return "Kernel32.VirtualAlloc";
         }
         public void onCall() {
-            int address = CPU.CPU_Pop32();
+            long address = CPU.CPU_Pop32() & 0xFFFFFFFFl;
             int size = CPU.CPU_Pop32();
             int flags = CPU.CPU_Pop32();
             int protect = CPU.CPU_Pop32();
-            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getMemory().virtualAlloc(address, size, flags, protect);
+
+            if (address == 1) {
+                Win.panic("VirtualAlloc requested DOS memory area, this is not supported yet");
+            }
+            if (address != 0 && (address < 0x1000 || address + size < address)) {
+                SetLastError(Error.ERROR_INVALID_PARAMETER);
+                CPU_Regs.reg_eax.dword = 0;
+            } else {
+                if ((flags & MEM_RESERVE)!=0 || address == 0) {
+                    address &= ~0xFFF;
+                    if (address == 0)
+                        address = (int)WinProcess.ADDRESS_EXTRA_START;
+                    long result = WinSystem.getCurrentProcess().addressSpace.getNextAddress(address & 0xFFFFFFFFl, size, true);
+                    if (result == 0) {
+                        CPU_Regs.reg_eax.dword = 0;
+                        return;
+                    }
+                    if (WinSystem.getCurrentProcess().addressSpace.alloc(result, size) != result) {
+                        CPU_Regs.reg_eax.dword = 0;
+                        return;
+                    }
+                    address = result;
+                    WinSystem.getCurrentProcess().virtualMemory.add(new VirtualMemory(address, size));
+                }
+                if ((flags & MEM_COMMIT)!=0) {
+                    address &= ~0xFFF;
+                    // Must be reserved first
+                    VirtualMemory memory = WinSystem.getCurrentProcess().getVirtualMemory(address);
+                    if (memory == null) {
+                        SetLastError(Error.ERROR_INVALID_ADDRESS);
+                        CPU_Regs.reg_eax.dword = 0;
+                        return;
+                    }
+                    memory.commit(address, size);
+                }
+            }
+            CPU_Regs.reg_eax.dword = (int)address;
         }
     };
 
@@ -3110,7 +3147,20 @@ public class Kernel32 extends BuiltinModule {
             int address = CPU.CPU_Pop32();
             int dwSize = CPU.CPU_Pop32();
             int dwFreeType = CPU.CPU_Pop32();
-            CPU_Regs.reg_eax.dword = WinSystem.getCurrentProcess().getMemory().virtualFree(address, dwSize, dwFreeType);
+            VirtualMemory memory = WinSystem.getCurrentProcess().getVirtualMemory(address);
+            if (memory == null) {
+                SetLastError(Error.ERROR_INVALID_ADDRESS);
+                CPU_Regs.reg_eax.dword = FALSE;
+                return;
+            }
+            if ((dwFreeType & MEM_RELEASE)!=0) {
+                memory.free();
+                WinSystem.getCurrentProcess().addressSpace.free(address);
+                WinSystem.getCurrentProcess().virtualMemory.remove(memory);
+            } else {
+                memory.decommit(address, dwSize);
+            }
+            CPU_Regs.reg_eax.dword = TRUE;
         }
     };
 

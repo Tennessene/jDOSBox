@@ -442,6 +442,10 @@ public class Memory extends Module_base {
         Paging.mem_writeb_inline(dest,(short)0);
     }
 
+    static public void mem_memmove(/*PhysPt*/int dest,/*PhysPt*/int src,/*Bitu*/int size) {
+        while (size-- !=0) Paging.mem_writeb_inline(dest++,Paging.mem_readb_inline(src++));
+    }
+
     static public void mem_memcpy(/*PhysPt*/int dest,/*PhysPt*/int src,/*Bitu*/int size) {
         while (size-- !=0) Paging.mem_writeb_inline(dest++,Paging.mem_readb_inline(src++));
     }

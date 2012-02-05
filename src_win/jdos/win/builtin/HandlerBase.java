@@ -8,6 +8,7 @@ import jdos.win.Win;
 import jdos.win.system.Scheduler;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
+import jdos.win.utils.Ptr;
 
 abstract public class HandlerBase extends WinAPI implements Callback.Handler {
     boolean resetError = true;
@@ -23,14 +24,16 @@ abstract public class HandlerBase extends WinAPI implements Callback.Handler {
     }
     public int call() {
         currentHandler = this;
-        if (level == 0)
-            WinSystem.getCurrentProcess().nextTempIndex=0;
+        if (level == 0) {
+            WinSystem.getCurrentProcess().checkAndResetTemps();
+        }
+
         level++;
         if (resetError)
             Scheduler.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
         if (preCall()) {
             CPU_Regs.reg_eip = CPU.CPU_Pop32();
-            //System.out.println("*** "+ Ptr.toString(CPU_Regs.reg_eip)+" "+getName());
+            System.out.println("*** "+ Ptr.toString(CPU_Regs.reg_eip)+" "+getName());
             onCall();
         }
         level--;
@@ -50,7 +53,7 @@ abstract public class HandlerBase extends WinAPI implements Callback.Handler {
         Win.exit();
     }
 
-    protected void dumpRegs() {
+    static public void dumpRegs() {
         System.out.print("eax=");
         System.out.print(Long.toString(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl, 16));
         System.out.print(" ecx=");

@@ -23,8 +23,6 @@ import jdos.win.system.*;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
 
-import java.io.File;
-import java.io.RandomAccessFile;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -160,9 +158,9 @@ public class Kernel32 extends BuiltinModule {
         add(LoadLibraryA);
         add(LoadLibraryW);
         add(LoadResource);
-        add(Heap.class, "LocalAlloc", new String[] {"(HEX)uFlags", "uBytes", "(HEX)result"});
-        add(Heap.class, "LocalFree", new String[] {"(HEX)hMem"});
-        add(Heap.class, "LocalReAlloc", new String[] {"(HEX)hMem", "(HEX)uFlags", "uBytes", "(HEX)result"});
+        add(KHeap.class, "LocalAlloc", new String[] {"(HEX)uFlags", "uBytes", "(HEX)result"});
+        add(KHeap.class, "LocalFree", new String[] {"(HEX)hMem"});
+        add(KHeap.class, "LocalReAlloc", new String[] {"(HEX)hMem", "(HEX)uFlags", "uBytes", "(HEX)result"});
         add(LockResource);
         add(WinString.class, "lstrcatA", new String[] {"(STRING)lpString1", "(STRING)lpString2", "(STRING)result"});
         add(WinLocale.class, "lstrcmpA", new String[] {"(STRING)lpString1", "(STRING)lpString2"});
@@ -323,7 +321,7 @@ public class Kernel32 extends BuiltinModule {
 
     // HANDLE WINAPI CreateFile(LPCTSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
     private Callback.Handler CreateFileA = new HandlerBase() {
-        private boolean create(File file) {
+        private boolean create(FilePath file) {
             try {
                 if (!file.createNewFile()) {
                     CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
@@ -353,7 +351,7 @@ public class Kernel32 extends BuiltinModule {
             boolean write = (dwDesiredAccess & WinAPI.GENERIC_WRITE) != 0;
             boolean read = (dwDesiredAccess & WinAPI.GENERIC_READ) != 0;
 
-            File file = WinSystem.getCurrentProcess().getFile(name);
+            FilePath file = WinSystem.getCurrentProcess().getFile(name);
             WinThread thread = Scheduler.getCurrentThread();
 
             if (!file.getParentFile().exists()) {
@@ -366,10 +364,9 @@ public class Kernel32 extends BuiltinModule {
                     return;
                 }
             }
-            String desc = "";
+
             switch (dwCreationDisposition) {
                 case 1: // CREATE_NEW
-                    desc = "CREATE_NEW";
                     if (file.exists()) {
                         CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
                         thread.setLastError(Error.ERROR_FILE_EXISTS);
@@ -380,7 +377,6 @@ public class Kernel32 extends BuiltinModule {
                     }
                     break;
                 case 2: // CREATE_ALWAYS
-                    desc = "CREATE_ALWAYS";
                     if (file.exists()) {
                         thread.setLastError(Error.ERROR_ALREADY_EXISTS);
                         file.delete();
@@ -390,7 +386,6 @@ public class Kernel32 extends BuiltinModule {
                     }
                     break;
                 case 3: // OPEN_EXISTING
-                    desc = "OPEN_EXISTING";
                     if (!file.exists()) {
                         thread.setLastError(Error.ERROR_FILE_NOT_FOUND);
                         CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
@@ -398,7 +393,6 @@ public class Kernel32 extends BuiltinModule {
                     }
                     break;
                 case 4: // OPEN_ALWAYS
-                    desc = "OPEN_ALWAYS";
                     if (file.exists())
                         thread.setLastError(Error.ERROR_ALREADY_EXISTS);
                     else if (!create(file)) {
@@ -406,7 +400,6 @@ public class Kernel32 extends BuiltinModule {
                     }
                     break;
                 case 5: // TRUNCATE_EXISTING
-                    desc = "TRUNCATE_EXISTING";
                     if (!file.exists()) {
                         thread.setLastError(Error.ERROR_FILE_NOT_FOUND);
                         CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
@@ -417,11 +410,10 @@ public class Kernel32 extends BuiltinModule {
                     }
                     break;
             }
-            try {
-                RandomAccessFile r = new RandomAccessFile(file, write?"rw":"r");
-                WinFile winFile = WinFile.create(name, r, dwShareMode, dwFlagsAndAttributes);
+            WinFile winFile = WinFile.create(file, write, dwShareMode, dwFlagsAndAttributes);
+            if (winFile != null)
                 CPU_Regs.reg_eax.dword = winFile.getHandle();
-            } catch (Exception e) {
+            else {
                 CPU_Regs.reg_eax.dword = WinAPI.INVALID_HANDLE_VALUE;
                 Scheduler.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
             }
@@ -745,7 +737,7 @@ public class Kernel32 extends BuiltinModule {
                 return;
             }
             String name = new LittleEndianFile(lpFileName).readCString();
-            File file = WinSystem.getCurrentProcess().getFile(name);
+            FilePath file = WinSystem.getCurrentProcess().getFile(name);
             if (file.exists()) {
                 file.delete();
                 if (file.exists()) {
@@ -932,10 +924,10 @@ public class Kernel32 extends BuiltinModule {
                 boolean ok = true;
                 if (fileName.contains("*") || fileName.contains("?")) {
                     int pos = fileName.indexOf("\\");
-                    File dir;
+                    FilePath dir;
                     String search;
                     if (pos < 0) {
-                        dir = new File(WinSystem.getCurrentProcess().currentWorkingDirectory);
+                        dir = new FilePath(WinSystem.getCurrentProcess().currentWorkingDirectory);
                         search = fileName;
                     } else {
                         dir = WinSystem.getCurrentProcess().getFile(fileName.substring(0, pos));
@@ -944,7 +936,7 @@ public class Kernel32 extends BuiltinModule {
                     if (!dir.exists()) {
                         ok = false;
                     } else {
-                        File[] result = dir.listFiles(new WinFile.WildCardFileFilter(search));
+                        FilePath[] result = dir.listFiles(new WinFile.WildCardFileFilter(search));
                         if (result.length == 0) {
                             ok = false;
                         } else {
@@ -954,11 +946,11 @@ public class Kernel32 extends BuiltinModule {
                         }
                     }
                 } else {
-                    File file = WinSystem.getCurrentProcess().getFile(fileName);
+                    FilePath file = WinSystem.getCurrentProcess().getFile(fileName);
                     if (!file.exists()) {
                         ok = false;
                     } else {
-                        WinFindFile findFile = WinFindFile.create(new File[]{file});
+                        WinFindFile findFile = WinFindFile.create(new FilePath[]{file});
                         CPU_Regs.reg_eax.dword = findFile.getHandle();
                         findFile.getNextResult(lpFindFileData);
                     }
@@ -1269,7 +1261,7 @@ public class Kernel32 extends BuiltinModule {
                 } else {
                     dir = new LittleEndianFile(lpFileName).readCString();
                 }
-                File file = WinSystem.getCurrentProcess().getFile(dir);
+                FilePath file = WinSystem.getCurrentProcess().getFile(dir);
                 if (file.exists()) {
                     CPU_Regs.reg_eax.dword = 3; // DRIVE_FIXED
                 } else {
@@ -1316,7 +1308,7 @@ public class Kernel32 extends BuiltinModule {
                     Scheduler.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
                 } else {
                     String fileName = new LittleEndianFile(lpFileName).readCString();
-                    File file = WinSystem.getCurrentProcess().getFile(fileName);
+                    FilePath file = WinSystem.getCurrentProcess().getFile(fileName);
                     if (file.exists()) {
                         if (file.isDirectory())
                             CPU_Regs.reg_eax.dword = WinFile.FILE_ATTRIBUTE_DIRECTORY;
@@ -1740,7 +1732,7 @@ public class Kernel32 extends BuiltinModule {
             } else {
                 while (true) {
                     String name = path+prefix+Ptr.toString(uUnique)+".TMP";
-                    File file = WinSystem.getCurrentProcess().getFile(name);
+                    FilePath file = WinSystem.getCurrentProcess().getFile(name);
                     if (file.exists()) {
                         uUnique++;
                         continue;
@@ -2636,7 +2628,7 @@ public class Kernel32 extends BuiltinModule {
             int lpReOpenBuff = CPU.CPU_Pop32();
             int uStyle = CPU.CPU_Pop32();
             String fileName = StringUtil.getString(lpFileName);
-            File file = WinSystem.getCurrentProcess().getFile(fileName);
+            FilePath file = WinSystem.getCurrentProcess().getFile(fileName);
             if ((uStyle & 0x00004000)!=0) { //  OF_EXIST
                 return file.exists()?WinAPI.TRUE:WinAPI.FALSE;
             }
@@ -2680,16 +2672,17 @@ public class Kernel32 extends BuiltinModule {
                 share = WinFile.FILE_SHARE_NONE;
             }
 
-            String mode = "r";
+            boolean write = false;
             if ((uStyle & 0x00000001)!=0) { // OF_WRITE or
-                mode+="w";
+                write = true;
             }
             if ((uStyle & 0x00000002)!=0) { // OF_READWRITE
-                mode+="w";
+                write = true;
             }
-            try {
-                return WinFile.create(fileName, new RandomAccessFile(file, mode), share, 0).getHandle();
-            } catch (Exception e) {
+            WinFile result = WinFile.create(file, write, share, 0);
+            if (result != null)
+                return result.getHandle();
+            else {
                 Scheduler.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
                 return WinAPI.INVALID_HANDLE_VALUE;
             }

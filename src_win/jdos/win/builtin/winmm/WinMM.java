@@ -13,9 +13,8 @@ import jdos.win.loader.winpe.LittleEndianFile;
 import jdos.win.system.WinMCI;
 import jdos.win.system.WinMidi;
 import jdos.win.system.WinSystem;
+import jdos.win.utils.FilePath;
 import jdos.win.utils.Ptr;
-
-import java.io.File;
 
 public class WinMM extends BuiltinModule {
     public WinMM(Loader loader, int handle) {
@@ -104,7 +103,7 @@ public class WinMM extends BuiltinModule {
 
                             } else {
                                 String elementName = new LittleEndianFile(lpstrElementName).readCString();
-                                File file = WinSystem.getCurrentProcess().getFile(elementName);
+                                FilePath file = WinSystem.getCurrentProcess().getFile(elementName);
                                 if (file.exists()) {
                                     if (midi) {
                                         WinMidi winMidi = WinMidi.create();

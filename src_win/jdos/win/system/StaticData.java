@@ -37,6 +37,9 @@ public class StaticData extends WinAPI {
     public static int hbitmapCheckBoxes;
     public static int top_popup;
 
+    public static int currentDirectDraw;
+    public static int currentPrimarySurface;
+
     static public void init() {
         stockObjects = new int[STOCK_LAST+1];
         stockObjects[WHITE_BRUSH] = WinBrush.CreateSolidBrush(RGB(255, 255, 255));

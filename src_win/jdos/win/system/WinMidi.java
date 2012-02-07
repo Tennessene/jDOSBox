@@ -1,14 +1,15 @@
 package jdos.win.system;
 
+import jdos.win.utils.FilePath;
+
 import javax.sound.midi.*;
-import java.io.File;
 
 public class WinMidi extends WinMCI {
     static public WinMidi create() {
         return new WinMidi(nextObjectId());
     }
 
-    private File file;
+    private FilePath file;
     private Sequence sequence;
     private Sequencer sequencer;
 
@@ -37,10 +38,10 @@ public class WinMidi extends WinMCI {
             sendNotification(MCI_NOTIFY_SUCCESSFUL);
     }
 
-    public boolean setFile(File file) {
+    public boolean setFile(FilePath file) {
         this.file = file;
         try {
-            sequence = MidiSystem.getSequence(file);
+            sequence = MidiSystem.getSequence(file.getInputStream());
             sequencer = MidiSystem.getSequencer();
             sequencer.open();
             sequencer.setSequence(sequence);

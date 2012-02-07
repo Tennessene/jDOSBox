@@ -14,12 +14,12 @@ import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.WinCallback;
 import jdos.win.loader.winpe.*;
+import jdos.win.system.WinFile;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Path;
 import jdos.win.utils.Ptr;
 
 import java.io.ByteArrayOutputStream;
-import java.io.RandomAccessFile;
 import java.util.Vector;
 
 public class NativeModule extends Module {
@@ -102,11 +102,11 @@ public class NativeModule extends Module {
     private HeaderImageExportDirectory exports = null;
 
     public boolean load(WinProcess process, int page_directory, String name, Path path) {
-        RandomAccessFile fis = null;
+        WinFile fis = null;
         this.path = path;
         this.name = name;
         try {
-            fis = new RandomAccessFile(path.nativePath+name, "r");
+            fis = WinFile.createNoHandle(process.getFile(name), false, 0, 0);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             if (!header.load(os, fis))
                 return false;
@@ -136,7 +136,7 @@ public class NativeModule extends Module {
                 int address = (int)header.imageSections[i].VirtualAddress+baseAddress;
                 byte[] buffer = new byte[0];
                 if (header.imageSections[i].PointerToRawData>0) {
-                    fis.seek(header.imageSections[i].PointerToRawData);
+                    fis.seek(header.imageSections[i].PointerToRawData, SEEK_SET);
                     buffer = new byte[(int)header.imageSections[i].SizeOfRawData];
                 }
                 String segmentName = new String(header.imageSections[i].Name);

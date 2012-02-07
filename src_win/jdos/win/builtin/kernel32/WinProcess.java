@@ -15,11 +15,8 @@ import jdos.win.system.WinHeap;
 import jdos.win.system.WinObject;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.Heap;
-import jdos.win.utils.Path;
-import jdos.win.utils.StringUtil;
+import jdos.win.utils.*;
 
-import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -139,15 +136,15 @@ public class WinProcess extends WaitObject {
         kernelMemory.switch_page_directory(page_directory);
     }
 
-    public File getFile(String name) {
+    public FilePath getFile(String name) {
         // :TODO: add support for relative paths
         for (int i=0;i<paths.size();i++) {
-            Path path = (Path)paths.elementAt(i);
+            Path path = paths.elementAt(i);
             if (name.toLowerCase().startsWith(path.winPath.toLowerCase())) {
-                return new File(path.nativePath+name.substring(path.winPath.length()));
+                return new FilePath(path.nativePath+name.substring(path.winPath.length()));
             }
         }
-        return new File(((Path)paths.elementAt(0)).nativePath+name);
+        return new FilePath((paths.elementAt(0)).nativePath+name);
     }
 
     public boolean load(String exe, String commandLine, Vector paths) {

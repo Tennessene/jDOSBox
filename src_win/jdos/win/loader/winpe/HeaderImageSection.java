@@ -1,10 +1,10 @@
 package jdos.win.loader.winpe;
 
+import jdos.win.system.WinFile;
 import jdos.win.utils.LittleEndian;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 
 public class HeaderImageSection {
     public static final int SIZE=40;
@@ -22,7 +22,7 @@ public class HeaderImageSection {
     public int  NumberOfLinenumbers;
     public long Characteristics;
 
-    public void load(OutputStream os, RandomAccessFile fis) throws IOException {
+    public void load(OutputStream os, WinFile fis) throws IOException {
         byte[] buffer = new byte[SIZE];
         fis.read(buffer);
         os.write(buffer);

@@ -23,7 +23,7 @@ public class Drive_fat extends Dos_Drive {
     private Ptr pfatSectBuffer = new Ptr(fatSectBuffer,0); 
     /*Bit32u*/long curFatSect;
 
-    static private class fatFile extends DOS_File {
+    static public class fatFile extends DOS_File {
         public fatFile(String name, /*Bit32u*/long startCluster, /*Bit32u*/long fileLen, Drive_fat useDrive) {
             /*Bit32u*/LongRef seekto = new LongRef(0);
             firstCluster = startCluster;
@@ -33,7 +33,7 @@ public class Drive_fat extends Dos_Drive {
             loadedSector = false;
             curSectOff = 0;
             seekpos = 0;
-
+            this.name = name;
             if(filelength > 0) {
                 Seek(seekto, Dos_files.DOS_SEEK_SET);
                 myDrive.loadedDisk.Read_AbsoluteSector(currentSector, sectorBuffer, 0);

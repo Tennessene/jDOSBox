@@ -10,7 +10,7 @@ import jdos.win.builtin.kernel32.WinProcess;
 // Based heavily on James Molloy's work at http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html
 
 public class KernelMemory {
-    static final private int PLACEMENT_START = 0x001000;
+    static final private int PLACEMENT_START = 0x100000; // map the first meg for dos  :TODO: research not wasting 1MB per process
     int placement_address = PLACEMENT_START;
     KernelHeap heap = null;
     static private final int KHEAP_INITIAL_SIZE = 0x10000;

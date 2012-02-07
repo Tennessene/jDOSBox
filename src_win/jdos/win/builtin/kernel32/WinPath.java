@@ -4,15 +4,14 @@ import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
+import jdos.win.utils.FilePath;
 import jdos.win.utils.StringUtil;
-
-import java.io.File;
 
 public class WinPath extends WinAPI {
     // BOOL WINAPI CreateDirectory(LPCTSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
     public static int CreateDirectoryA(int lpPathName, int lpSecurityAttributes) {
         String path = StringUtil.getString(lpPathName);
-        File file = WinSystem.getCurrentProcess().getFile(path);
+        FilePath file = WinSystem.getCurrentProcess().getFile(path);
         if (!file.exists()) {
             return BOOL(file.mkdirs());
         }
@@ -47,8 +46,8 @@ public class WinPath extends WinAPI {
             return FALSE;
         String from = StringUtil.getString(lpExistingFileName);
         String to = StringUtil.getString(lpNewFileName);
-        File fileFrom = WinSystem.getCurrentProcess().getFile(from);
-        File fileTo = WinSystem.getCurrentProcess().getFile(to);
+        FilePath fileFrom = WinSystem.getCurrentProcess().getFile(from);
+        FilePath fileTo = WinSystem.getCurrentProcess().getFile(to);
         if (!fileFrom.exists()) {
             SetLastError(Error.ERROR_PATH_NOT_FOUND);
             return FALSE;

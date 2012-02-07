@@ -2,14 +2,22 @@ package jdos.win.system;
 
 import jdos.hardware.Memory;
 import jdos.win.Win;
+import jdos.win.utils.FilePath;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.RandomAccessFile;
 
 public class WinFile extends WinObject {
-    static public WinFile create(String name, RandomAccessFile file, int shareMode, int attributes) {
-        return new WinFile(nextObjectId(), name, file, shareMode, attributes);
+    static public WinFile create(FilePath file, boolean write, int shareMode, int attributes) {
+        if (file.open(write))
+            return new WinFile(nextObjectId(), file, write, shareMode, attributes);
+        return null;
+    }
+
+    static public WinFile createNoHandle(FilePath file, boolean write, int shareMode, int attributes) {
+        if (file.open(write))
+            return new WinFile(0, file, write, shareMode, attributes);
+        return null;
     }
 
     static public WinFile get(int handle) {
@@ -91,9 +99,9 @@ public class WinFile extends WinObject {
         super(handle);
         this.type = type;
     }
-    public WinFile(int handle, String name, RandomAccessFile file, int shareMode, int attributes) {
+    public WinFile(int handle, FilePath file, boolean write, int shareMode, int attributes) {
         super(handle);
-        this.name = name;
+        this.name = file.getName();
         this.shareMode = shareMode;
         this.type = FILE_TYPE_DISK;
         this.file = file;
@@ -140,6 +148,14 @@ public class WinFile extends WinObject {
         }
     }
 
+    public int read(byte[] buffer) {
+        try {
+            return file.read(buffer);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public int write(int buffer, int size) {
         try {
             byte[] buf = new byte[size];
@@ -151,34 +167,14 @@ public class WinFile extends WinObject {
         }
     }
 
-    public int writeZero(int count) {
-        try {
-            byte[] buf = new byte[count];
-            file.write(buf);
-            return count;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    public int writeInt(int value) {
-        try {
-            file.writeByte(value);
-            file.writeByte(value >> 8);
-            file.writeByte(value >> 16);
-            file.writeByte(value >> 24);
-            return 4;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
     protected void onFree() {
         try {
             file.close();
         } catch (Exception e) {
         }
     }
-    public RandomAccessFile file = null;
+
+    private FilePath file = null;
     public int shareMode;
     public int attributes;
     public int type;

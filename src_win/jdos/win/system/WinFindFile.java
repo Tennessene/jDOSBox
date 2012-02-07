@@ -2,12 +2,11 @@ package jdos.win.system;
 
 import jdos.hardware.Memory;
 import jdos.win.builtin.WinAPI;
+import jdos.win.utils.FilePath;
 import jdos.win.utils.StringUtil;
 
-import java.io.File;
-
 public class WinFindFile extends WinObject {
-    static public WinFindFile create(File[] results) {
+    static public WinFindFile create(FilePath[] results) {
         return new WinFindFile(nextObjectId(), results);
     }
 
@@ -18,10 +17,10 @@ public class WinFindFile extends WinObject {
         return (WinFindFile)object;
     }
 
-    File[] results;
+    FilePath[] results;
     int index = 0;
 
-    private WinFindFile(int id, File[] results) {
+    private WinFindFile(int id, FilePath[] results) {
         super(id);
         this.results = results;
     }
@@ -44,7 +43,7 @@ public class WinFindFile extends WinObject {
             Scheduler.getCurrentThread().setLastError(jdos.win.utils.Error.ERROR_NO_MORE_FILES);
             return WinAPI.FALSE;
         }
-        File file = results[index++];
+        FilePath file = results[index++];
         String name = file.getName();
         long timestamp = WinFile.millisToFiletime(file.lastModified());
         long size = file.length();

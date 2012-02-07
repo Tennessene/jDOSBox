@@ -1,8 +1,10 @@
 package jdos.win.loader.winpe;
 
+import jdos.win.builtin.WinAPI;
+import jdos.win.system.WinFile;
+
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 
 public class HeaderPE {
     public HeaderDOS dos = new HeaderDOS();
@@ -10,30 +12,20 @@ public class HeaderPE {
     public HeaderImageOptional imageOptional = new HeaderImageOptional();
     public HeaderImageSection[] imageSections = null;
 
-    static public boolean fastCheckWinPE(String path) {
-        RandomAccessFile file = null;
-        try {
-            file = new RandomAccessFile(path, "r");
-            byte[] buffer = new byte[4];
-            file.seek(HeaderDOS.SIZE - 4);
-            file.read(buffer);
-            int offset = (buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 | (buffer[2] & 0xFF) << 16 | (buffer[3] & 0xFF) << 24;
-            file.seek(offset);
-            file.read(buffer);
-            if (buffer[0]!=0x50 || buffer[1]!=0x45 || buffer[2]!=0 || buffer[3]!=0) {
-                return false;
-            }
-            return true;
-        } catch (Exception e) {
-        } finally {
-            if (file != null) {
-                try {file.close();} catch (Exception e) {}
-            }
+    static public boolean fastCheckWinPE(WinFile file) {
+        byte[] buffer = new byte[4];
+        file.seek(HeaderDOS.SIZE - 4, WinAPI.SEEK_SET);
+        file.read(buffer);
+        int offset = (buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 | (buffer[2] & 0xFF) << 16 | (buffer[3] & 0xFF) << 24;
+        file.seek(offset, WinAPI.SEEK_SET);
+        file.read(buffer);
+        if (buffer[0]!=0x50 || buffer[1]!=0x45 || buffer[2]!=0 || buffer[3]!=0) {
+            return false;
         }
-        return false;
+        return true;
     }
 
-    public boolean load(OutputStream os, RandomAccessFile fis) throws IOException {
+    public boolean load(OutputStream os, WinFile fis) throws IOException {
         dos.load(os, fis);
         byte[] buffer = new byte[(int)dos.e_lfanew - HeaderDOS.SIZE];
         fis.read(buffer);
@@ -53,7 +45,7 @@ public class HeaderPE {
         imageOptional.load(os, fis);
         int offset=imageFile.SizeOfOptionalHeader-HeaderImageOptional.SIZE;
         if (offset>0) {
-            fis.skipBytes(offset);
+            fis.seek(offset, WinAPI.SEEK_CUR);
             buffer = new byte[offset];
             os.write(buffer);
         }

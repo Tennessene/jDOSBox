@@ -5,6 +5,7 @@ import jdos.cpu.CPU;
 import jdos.cpu.Paging;
 import jdos.dos.Dos_files;
 import jdos.dos.Dos_programs;
+import jdos.dos.drives.Drive_fat;
 import jdos.gui.Main;
 import jdos.hardware.Keyboard;
 import jdos.hardware.Memory;
@@ -16,9 +17,11 @@ import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.builtin.user32.WinCursor;
 import jdos.win.kernel.VideoMemory;
 import jdos.win.loader.winpe.HeaderPE;
+import jdos.win.system.WinFile;
 import jdos.win.system.WinKeyboard;
 import jdos.win.system.WinMouse;
 import jdos.win.system.WinSystem;
+import jdos.win.utils.FilePath;
 import jdos.win.utils.Path;
 
 import java.util.Vector;
@@ -47,9 +50,40 @@ public class Win extends WinAPI {
         throw new Dos_programs.RebootException();
     }
 
-    static public boolean run(String path) {
-        if (!HeaderPE.fastCheckWinPE(path))
+    static public boolean run(Drive_fat drive, Drive_fat.fatFile fil,  String path) {
+        FilePath.disks.clear();
+        FilePath.disks.put("C", drive);
+        WinFile file = WinFile.createNoHandle(new FilePath(path), false, 0, 0);
+
+        if (!HeaderPE.fastCheckWinPE(file))
             return false;
+        String name;
+        String winPath = path.substring(0, path.lastIndexOf("\\")+1);
+        int pos = path.lastIndexOf("\\");
+        if (pos<0)
+            pos = path.lastIndexOf("/");
+        if (pos>=0) {
+            name=path.substring(pos+1);
+            path = path.substring(0, pos+1);
+        } else {
+            name=path;
+            path = "";
+        }
+        return internalRun(path, winPath, name);
+    }
+
+    static public boolean run(String path) {
+        WinFile file = null;
+        try {
+            file = WinFile.createNoHandle(new FilePath(path), false, 0, 0);
+            if (!HeaderPE.fastCheckWinPE(file))
+                return false;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            if (file != null)
+                file.close();
+        }
         /*Bit8u*/char drive=(char)(Dos_files.DOS_GetDefaultDrive()+'A');
         StringRef dir = new StringRef();
         Dos_files.DOS_GetCurrentDir((short)0,dir);
@@ -59,6 +93,8 @@ public class Win extends WinAPI {
         }
         String winPath = p;
         String name;
+
+        FilePath.disks.put("C", winPath);
 
         int pos = path.lastIndexOf("\\");
         if (pos<0)
@@ -70,7 +106,10 @@ public class Win extends WinAPI {
             name=path;
             path = "";
         }
+        return internalRun(path, winPath, name);
+    }
 
+    static private boolean internalRun(String path, String winPath, String name) {
         Vector paths = new Vector();
         paths.add(new Path(path, winPath));
 

@@ -3,6 +3,7 @@ package jdos.win.builtin.directx.ddraw;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.Win;
+import jdos.win.system.StaticData;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 import jdos.win.utils.Ptr;
@@ -97,6 +98,7 @@ public class IDirectDraw extends IUnknown {
             vtable = createVTable();
         int address = allocate(vtable, DATA_SIZE, 0);
         setData(address, OFFSET_FLAGS, flags);
+        StaticData.currentDirectDraw = address;
         return address;
     }
 

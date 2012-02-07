@@ -392,12 +392,12 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
 
     /** Handle the key pressed event from the text field. */
     public void keyPressed(KeyEvent e) {
-        Main.addEvent(e);
+        Main.addKeyEvent(e);
     }
 
     /** Handle the key released event from the text field. */
     public void keyReleased(KeyEvent e) {
-        Main.addEvent(e);
+        Main.addKeyEvent(e);
     }
 
     public void mouseClicked(MouseEvent e) {
@@ -407,11 +407,11 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
 
     public void mousePressed(MouseEvent e) {
-        Main.addEvent(e);
+        Main.addMouseEvent(e);
     }
 
     public void mouseReleased(MouseEvent e) {
-        Main.addEvent(e);
+        Main.addMouseEvent(e);
     }
 
     public void mouseEntered(MouseEvent e) {

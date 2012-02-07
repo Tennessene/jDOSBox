@@ -7,11 +7,10 @@ import jdos.win.builtin.kernel32.WinPath;
 import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.system.WinFile;
 import jdos.win.system.WinSystem;
+import jdos.win.utils.FilePath;
 import jdos.win.utils.Path;
 import jdos.win.utils.StringUtil;
 
-import java.io.File;
-import java.io.RandomAccessFile;
 import java.util.Hashtable;
 
 public class Mmio extends WinAPI {
@@ -221,7 +220,7 @@ public class Mmio extends WinAPI {
                 return FALSE;
             String name = StringUtil.getString(szFilename);
             WinProcess process = WinSystem.getCurrentProcess();
-            File file = process.getFile(name);
+            FilePath file = process.getFile(name);
 
             if ((dwOpenFlags & MMIO_EXIST) != 0 && !file.exists())
                 return FALSE;
@@ -558,12 +557,13 @@ public class Mmio extends WinAPI {
                     /* if filename NULL, assume open file handle in adwInfo[0] */
                     if (szFileName != 0) {
                         String name = StringUtil.getString(szFileName);
-                        File file = WinSystem.getCurrentProcess().getFile(name);
+                        FilePath file = WinSystem.getCurrentProcess().getFile(name);
                         lpmmioinfo.adwInfo[0] = HFILE_ERROR;
                         if (file.exists()) {
                             try {
-                                WinFile winFile = WinFile.create(name, new RandomAccessFile(file, "r"), 0, 0);
-                                lpmmioinfo.adwInfo[0] = winFile.handle;
+                                WinFile winFile = WinFile.create(file, false, 0, 0);
+                                if (winFile != null)
+                                    lpmmioinfo.adwInfo[0] = winFile.handle;
                             } catch (Exception e) {
                             }
                         }

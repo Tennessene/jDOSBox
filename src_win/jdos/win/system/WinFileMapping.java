@@ -38,7 +38,7 @@ public class WinFileMapping extends WinObject {
                 Memory.phys_zero(frames[i] << 12, 0x1000);
             } else if (i>0) {
                 int len = 0;
-                try {len = file.file.read(buffer);} catch (Exception e) {}
+                len = file.read(buffer);
                 Memory.phys_memcpy(frames[i] << 12, buffer, 0, len);
             }
         }

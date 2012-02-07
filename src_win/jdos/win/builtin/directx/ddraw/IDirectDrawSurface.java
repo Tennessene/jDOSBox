@@ -192,6 +192,9 @@ public class IDirectDrawSurface extends IUnknown {
                 object.data = null;
                 object.close();
             }
+            if (StaticData.currentPrimarySurface == This) {
+                StaticData.currentPrimarySurface = 0;
+            }
         }
     };
 
@@ -319,6 +322,8 @@ public class IDirectDrawSurface extends IUnknown {
         } else if ((d.ddsCaps & DDSCAPS_PRIMARYSURFACE)!=0) {
             Scheduler.monitor = result;
         }
+        if ((d.ddsCaps & DDSCAPS_PRIMARYSURFACE)!=0)
+            StaticData.currentPrimarySurface = result;
         setData(result, OFFSET_DESC+0x68, caps);
         setData(result, OFFSET_DIRECT_DRAW, pDirectDraw);
 

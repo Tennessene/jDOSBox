@@ -5,6 +5,7 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.cpu.Core_normal;
+import jdos.dos.drives.Drive_fat;
 import jdos.dos.drives.Drive_local;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
@@ -288,6 +289,31 @@ public class Dos_execute {
         }
         return false;
     }
+    static private boolean winRun(Drive_fat drive, Drive_fat.fatFile file, String path) {
+        if (!loadedWinMethod) {
+            try {
+                Class c = Class.forName("jdos.win.Win");
+                winMethod = c.getDeclaredMethod("run", new Class[] {Drive_fat.class, Drive_fat.fatFile.class, String.class});
+                System.out.println("Win32 support available");
+            } catch (Exception e) {
+                System.out.println("Win32 support not available");
+            } finally {
+                loadedWinMethod = true;
+            }
+        }
+        if (winMethod != null) {
+            try {
+                Object result = winMethod.invoke(null, new Object[]{drive, file, path});
+                return ((Boolean)result).booleanValue();
+            } catch (Exception e) {
+                e.printStackTrace();
+                loadedWinMethod = true;
+                winMethod = null;
+            }
+        }
+        return false;
+    }
+
     static public boolean DOS_Execute(String name,/*PhysPt*/int block_pt,/*Bit8u*/short flags) {
         EXE_Header head=new EXE_Header();/*Bitu*/int i;
         /*Bit16u*/IntRef fhandle=new IntRef(0);
@@ -316,7 +342,13 @@ public class Dos_execute {
             if (winRun(path)) {
                 return true;
             }
+        } else if (Dos_files.Files[Dos.RealHandle(fhandle.value)] instanceof Drive_fat.fatFile) {
+            Drive_fat.fatFile file = (Drive_fat.fatFile)Dos_files.Files[Dos.RealHandle(fhandle.value)];
+            if (winRun(file.myDrive, file, "C:\\"+file.myDrive.curdir+file.name)) {
+                return true;
+            }
         }
+
         IntRef len=new IntRef(EXE_Header.size);
         byte[] hd = new byte[len.value];
         if (!Dos_files.DOS_ReadFile(fhandle.value,hd,len)) {

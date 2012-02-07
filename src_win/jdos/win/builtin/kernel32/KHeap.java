@@ -4,7 +4,7 @@ import jdos.hardware.Memory;
 import jdos.win.builtin.WinAPI;
 import jdos.win.system.WinSystem;
 
-public class Heap extends WinAPI {
+public class KHeap extends WinAPI {
     // HLOCAL WINAPI LocalAlloc(UINT uFlags, SIZE_T uBytes)
     public static int LocalAlloc(int uFlags, int uBytes) {
         int result = WinSystem.getCurrentProcess().heap.alloc(uBytes+4, false);

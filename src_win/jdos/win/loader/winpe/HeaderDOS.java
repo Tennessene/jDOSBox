@@ -1,10 +1,10 @@
 package jdos.win.loader.winpe;
 
+import jdos.win.system.WinFile;
 import jdos.win.utils.LittleEndian;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 
 // From Wine project
 public class HeaderDOS {
@@ -30,7 +30,7 @@ public class HeaderDOS {
     int[]  e_res2 = new int[10];/* 28: Reserved words */
     long e_lfanew;              /* 3c: Offset to extended header */
 
-    public void load(OutputStream os, RandomAccessFile fis) throws IOException {
+    public void load(OutputStream os, WinFile fis) throws IOException {
         byte[] buffer = new byte[SIZE];
         fis.read(buffer);
         os.write(buffer);

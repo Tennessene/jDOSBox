@@ -24,7 +24,7 @@ public class User32 extends BuiltinModule {
         add(DefDlg.class, "DefDlgProcA", (MSGLOG?new String[] {"hWnd", "(HEX)Msg", "wParam", "lParam"}:null));
         add(DefWnd.class, "DefWindowProcA", (MSGLOG?new String[] {"hWnd", "(HEX)Msg", "wParam", "lParam"}:null));
         add(WinWindow.class, "DestroyWindow", new String[] {"hWnd"});
-        add(Message.class, "DispatchMessageA", (MSGLOG?new String[] {"(HEX)lpmsg"}:null));
+        add(Message.class, "DispatchMessageA", (MSGLOG?new String[] {"(MSG)lpmsg"}:null));
         add(UiTools.class, "DrawEdge", new String[] {"hdc", "(RECT)qrc", "(HEX)edge", "(HEX)grfFlags", "(BOOL)result"});
         add(UiTools.class, "DrawFocusRect", new String[] {"hDC", "(RECT)lprc"});
         add(UiTools.class, "DrawFrameControl", new String[] {"hdc", "(RECT)lprc", "uType", "uState", "(BOOL)result"});
@@ -127,8 +127,8 @@ public class User32 extends BuiltinModule {
         add(WinCursor.class, "ShowCursor", new String[] {"(BOOL)bShow"});
         add(WinPos.class, "ShowWindow", new String[] {"hWnd", "nCmdShow", "(BOOL)result"});
         add(SysParams.class, "SystemParametersInfoA", new String[] {"uiAction", "uiParam", "pvParam", "fWinIni"});
-        add(WinMenu.class, "TranslateAcceleratorA");
-        add(Message.class, "TranslateMessage");
+        add(WinMenu.class, "TranslateAcceleratorA", (MSGLOG?new String[] {"hWnd", "hAccTable", "(MSG)lpMsg"}:null));
+        add(Message.class, "TranslateMessage", (MSGLOG?new String[] {"(MSG)lpMsg", "(BOOL)result"}:null));
         add(WinClass.class, "UnregisterClassA", new String[] {"(STRING)lpClassName", "hInstance", "(BOOL)result"});
         add(Painting.class, "UpdateWindow", new String[]{"hWnd", "(BOOL)result"});
         add(Painting.class, "ValidateRect", new String[]{"hWnd", "(RECT)lpRect", "(BOOL)result"});

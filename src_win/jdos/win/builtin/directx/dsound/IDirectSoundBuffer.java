@@ -10,7 +10,6 @@ import jdos.win.builtin.directx.ddraw.IUnknown;
 import jdos.win.kernel.WinCallback;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.Ptr;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -278,7 +277,6 @@ public class IDirectSoundBuffer extends IUnknown {
                     status |= DSBSTATUS_PLAYING;
             }
             Memory.mem_writed(lpdwStatus, status);
-            log("status = 0x"+ Ptr.toString(status));
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };

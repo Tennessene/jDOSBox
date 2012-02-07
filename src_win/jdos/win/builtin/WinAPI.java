@@ -8,9 +8,9 @@ import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
 
 public class WinAPI extends Error {
-    final static public boolean LOG = true;
+    final static public boolean LOG = false;
     final static public boolean LOG_GDI = LOG;
-    final static public boolean MSGLOG = true;
+    final static public boolean MSGLOG = false;
     static public int NULL = 0;
 
     static public void log(String s) {

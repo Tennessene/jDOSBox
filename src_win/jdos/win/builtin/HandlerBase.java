@@ -32,8 +32,7 @@ abstract public class HandlerBase extends WinAPI implements Callback.Handler {
             Scheduler.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
         if (preCall()) {
             CPU_Regs.reg_eip = CPU.CPU_Pop32();
-            if (!getName().endsWith("WinMM.timeGetTime") && !getName().endsWith("PeekMessageA"))
-
+            //if (!getName().endsWith("WinMM.timeGetTime") && !getName().endsWith("PeekMessageA"))
             //System.out.println("*** "+ Ptr.toString(CPU_Regs.reg_eip)+" "+getName());
             onCall();
         }

@@ -290,6 +290,8 @@ public class WinKeyboard {
                 if (key.getID() == KeyEvent.KEY_PRESSED) {
                     msg = WinWindow.WM_KEYDOWN;
                     transitionState = 0; // always 0
+                    if (keyState.get(result))
+                        return;
                     keyState.set(result);
                     if (additional != 0)
                         keyState.set(additional);

@@ -134,12 +134,14 @@ public class IUnknown extends WinAPI {
     };
 
     static public int Release(int This) {
-        System.out.println(names.get(new Integer(getVTable(This)))+".Release");
+        if (WinAPI.LOG)
+            System.out.println(names.get(new Integer(getVTable(This)))+".Release");
         int refCount = getRefCount(This);
         refCount--;
         setRefCount(This, refCount);
         if (refCount == 0) {
-            System.out.println("    Freed");
+            if (WinAPI.LOG)
+                System.out.println("    Freed");
             int cb = Memory.mem_readd(This+OFFSET_CLEANUP);
             if (cb != 0) {
                 CPU.CPU_Push32(This);

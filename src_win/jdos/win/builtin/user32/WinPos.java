@@ -99,6 +99,13 @@ public class WinPos extends WinAPI {
         return FALSE;
     }
 
+    // BOOL WINAPI MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint)
+    public static int MoveWindow(int hWnd, int X, int Y, int nWidth, int nHeight, int bRepaint) {
+        int flags = SWP_NOZORDER | SWP_NOACTIVATE;
+        if (bRepaint==0) flags |= SWP_NOREDRAW;
+        return SetWindowPos(hWnd, 0, X, Y, nWidth, nHeight, flags );
+    }
+
     // BOOL ScreenToClient(HWND hWnd, LPPOINT lpPoint)
     public static int ScreenToClient(int hWnd, int lpPoint) {
         WinWindow window = WinWindow.get(hWnd);
@@ -165,14 +172,13 @@ public class WinPos extends WinAPI {
                 WinWindow parent = WinWindow.get(hParent);
                 parent.children.remove(window);
                 switch (hWndInsertAfter) {
+                    case HWND_TOPMOST:
+                        log("SetWindowPos HWND_TOPMOST not supported yet");
                     case HWND_TOP:
                         parent.children.addFirst(window);
                         break;
                     case HWND_BOTTOM:
                         parent.children.addLast(window);
-                        break;
-                    case HWND_TOPMOST:
-                        Win.panic("SetWindowPos HWND_TOPMOST not supported yet");
                         break;
                     case HWND_NOTOPMOST:
                         Win.panic("SetWindowPos HWND_NOTOPMOST not supported yet");

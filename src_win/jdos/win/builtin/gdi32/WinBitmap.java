@@ -13,10 +13,10 @@ import java.awt.image.BufferedImage;
 
 public class WinBitmap extends WinGDI {
     static public WinBitmap create(int address, boolean owner) {
-        return new WinBitmap(nextObjectId(), address, owner);
+        return new WinBitmap(nextObjectId(), address, DIB_RGB_COLORS, 0, owner);
     }
-    static public WinBitmap create(int width, int height, int bpp, int data, boolean keepData) {
-        return new WinBitmap(nextObjectId(), width, height, bpp, data, keepData);
+    static public WinBitmap create(int width, int height, int bpp, int data, int[] palette, boolean keepData) {
+        return new WinBitmap(nextObjectId(), width, height, bpp, data, palette, keepData);
     }
 
     static public WinBitmap get(int handle) {
@@ -33,7 +33,23 @@ public class WinBitmap extends WinGDI {
             SetLastError(ERROR_INVALID_PARAMETER);
             return 0;
         }
-        return create(nWidth, nHeight, cBitsPerPel, lpvBits, false).handle;
+        return create(nWidth, nHeight, cBitsPerPel, lpvBits, null, false).handle;
+    }
+
+    // HBITMAP CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
+    static public int CreateCompatibleBitmap(int hdc, int nWidth, int nHeight) {
+        WinDC dc = WinDC.get(hdc);
+        if (dc == null) {
+            return 0;
+        }
+        if (dc.hBitmap != 0) { // Memory DC
+            WinBitmap bitmap = WinBitmap.get(dc.hBitmap);
+            if (bitmap == null) {
+                Win.panic("CreateCompatibleBitmap invalid bitmap was selected into a dc");
+            }
+            return WinBitmap.create(nWidth, nHeight, bitmap.bitCount, 0, bitmap.palette, true).handle;
+        }
+        return WinBitmap.create(nWidth, nHeight, dc.image.getBpp(), 0, dc.image.getPalette(), true).handle;
     }
 
     // HBITMAP LoadBitmap(HINSTANCE hInstance, LPCTSTR lpBitmapName)
@@ -52,14 +68,14 @@ public class WinBitmap extends WinGDI {
     int[] palette;
     JavaBitmap cache;
 
-    public WinBitmap(int handle, int address, boolean owner) {
+    public WinBitmap(int handle, int address, int iUsuage, int hPalette, boolean owner) {
         super(handle);
         this.address = address;
-        parseBitmap(address);
+        parseBitmap(address, iUsuage, hPalette);
         this.bitsOwner = owner;
     }
 
-    public WinBitmap(int handle, int width, int height, int bpp, int data, boolean keepData) {
+    public WinBitmap(int handle, int width, int height, int bpp, int data, int[] palette, boolean keepData) {
         super(handle);
         if (width<0)
             width = -width;
@@ -74,6 +90,7 @@ public class WinBitmap extends WinGDI {
         this.width = width;
         this.height = height;
         this.planes = 1;
+        this.palette = palette;
         if (data != 0) {
             if (keepData) {
                 bits = data;
@@ -98,9 +115,9 @@ public class WinBitmap extends WinGDI {
         super.onFree();
     }
 
-    public JavaBitmap createJavaBitmap() {
+    public JavaBitmap createJavaBitmap(boolean flip) {
         if (cache == null) {
-            BufferedImage bi = Pixel.createImage(bits, bitCount, palette, width, height, true);
+            BufferedImage bi = Pixel.createImage(bits, bitCount, palette, width, height, flip);
             cache = new JavaBitmap(bi, bitCount, width, height, palette);
         }
         return cache;
@@ -109,7 +126,7 @@ public class WinBitmap extends WinGDI {
     public String toString() {
         return "BITMAP "+width+"x"+height+"@"+bitCount+"bpp";
     }
-    private void parseBitmap(int address) {
+    private void parseBitmap(int address, int iUsuage, int hPalette) {
         LittleEndianFile is = new LittleEndianFile(address);
         int biSize = is.readInt();
         width = is.readInt();
@@ -122,6 +139,10 @@ public class WinBitmap extends WinGDI {
         int biYPelsPerMeter = is.readInt();
         int biClrUsed = is.readInt();
         int biClrImportant = is.readInt();
+        int[] refPalette = null;
+
+        if (iUsuage == DIB_PAL_COLORS)
+            refPalette = WinPalette.get(hPalette).palette;
 
         if (biSizeImage == 0) {
             if (bitCount<8)
@@ -146,7 +167,10 @@ public class WinBitmap extends WinGDI {
         bits+=4*biClrUsed;
         palette = new int[biClrUsed];
         for (int i=0;i<palette.length;i++) {
-            palette[i] = Pixel.BGRtoRGB(is.readInt());
+            if (iUsuage == DIB_RGB_COLORS)
+                palette[i] = Pixel.BGRtoRGB(is.readInt());
+            else
+                palette[i] = 0xFF000000|refPalette[is.readUnsignedShort()];
         }
     }
     /*

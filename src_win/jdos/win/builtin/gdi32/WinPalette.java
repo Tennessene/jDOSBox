@@ -48,14 +48,34 @@ public class WinPalette extends WinGDI {
         return SYSPAL_NOSTATIC;
     }
 
+    // BOOL ResizePalette(HPALETTE hpal, UINT nEntries)
+    static public int ResizePalette(int hpal, int nEntries) {
+        WinPalette palette = WinPalette.get(hpal);
+        if (palette == null)
+            return FALSE;
+        if (palette.palette.length==nEntries)
+            return TRUE;
+        if (palette.palette.length>nEntries) {
+            log("ResizePalette faked");
+        } else {
+            log("ResizePalette faked");
+        }
+        return TRUE;
+    }
+
     // UINT SetPaletteEntries(HPALETTE hpal, UINT iStart, UINT cEntries, const PALETTEENTRY *lppe)
     static public int SetPaletteEntries(int hpal, int iStart, int cEntries, int lppe) {
         WinPalette palette = WinPalette.get(hpal);
         if (palette == null)
             return 0;
         for (int i=iStart;i<iStart+cEntries;i++)
-            palette.palette[i] = readd(cEntries + i * 4);
+            palette.palette[i] = 0xFF000000|readd(lppe + i * 4);
         return cEntries;
+    }
+
+    // UINT SetSystemPaletteUse(HDC hdc, UINT uUsage)
+    static public int SetSystemPaletteUse(int hdc, int uUsage) {
+        return SYSPAL_NOSTATIC;
     }
 
     int[] palette;

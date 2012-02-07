@@ -1,5 +1,6 @@
 package jdos.win.builtin.user32;
 
+import jdos.cpu.Core_normal;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinDC;
@@ -508,10 +509,14 @@ public class WinWindow extends WinObject {
 
     // DWORD WINAPI GetWindowThreadProcessId( HWND hwnd, LPDWORD process )
     static public int GetWindowThreadProcessId(int hwnd, int process) {
+        if (hwnd == GetDesktopWindow()) {
+            Core_normal.start = 1;
+            return Scheduler.getCurrentThread().handle;
+        }
         WinWindow ptr = WinWindow.get(hwnd);
 
         if (ptr == null) {
-            SetLastError( ERROR_INVALID_WINDOW_HANDLE);
+            SetLastError(ERROR_INVALID_WINDOW_HANDLE);
             return 0;
         }
         if (process != 0)
@@ -911,7 +916,7 @@ public class WinWindow extends WinObject {
     public int flags;
     public WinPoint min_pos = new WinPoint();
     public WinPoint max_pos = new WinPoint();
-    public WinRect normal_rect = new WinRect();
+    public WinRect normal_rect = new WinRect(0, 0, 640, 480);
     public DialogInfo dlgInfo = null;
     private Hashtable<Integer, Integer> extra = new Hashtable<Integer, Integer>();
     public Hashtable<String, Integer> props = new Hashtable<String, Integer>();

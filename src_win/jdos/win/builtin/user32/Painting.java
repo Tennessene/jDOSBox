@@ -118,6 +118,9 @@ public class Painting extends WinAPI {
         WinDC dc = WinDC.get(hDC);
         if (dc == null)
             return 0;
+        if (dc.isScreen()) {
+            Main.drawImage(dc.getImage());
+        }
         dc.close();
         return 1;
     }

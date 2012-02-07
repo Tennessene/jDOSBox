@@ -39,6 +39,7 @@ public class Kernel32 extends BuiltinModule {
 
         add(CloseHandle);
         add(CompareStringA);
+        add(WinPath.class, "CreateDirectoryA", new String[] {"(STRING)lpPathName", "(HEX)lpSecurityAttributes", "(BOOL)result"});
         add(CreateEventA);
         add(CreateFileA);
         add(CreateFileMappingA);
@@ -90,7 +91,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetFileAttributesA);
         add(GetFileSize);
         add(GetFileType);
-        add(Path.class, "GetFullPathNameA", new String[] {"(STRING)lpFileName", "nBufferLength", "(HEX)lpBuffer", "(HEX)lpFilePart", "result", "02(STRING)lpBuffer", "03(STRING)lpFilePart"});
+        add(WinPath.class, "GetFullPathNameA", new String[] {"(STRING)lpFileName", "nBufferLength", "(HEX)lpBuffer", "(HEX)lpFilePart", "result", "02(STRING)lpBuffer", "03(STRING)lpFilePart"});
         add(GetLastError);
         add(GetLocaleInfoA);
         add(GetLocaleInfoW);
@@ -103,6 +104,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetProcAddress);
         add(GetProcessHeap);
         add(WinProcess.class, "GetProcessVersion", new String[] {"ProcessId", "{(HEX)result"});
+        add(WinPath.class, "GetShortPathNameA", new String[] {"(STRING)lpszLongPath", "(HEX)lpszShortPath", "cchBuffer", "result", "01(STRING)lpszShortPath"});
         add(GetStartupInfoA);
         add(GetStartupInfoW);
         add(GetStdHandle);
@@ -163,11 +165,13 @@ public class Kernel32 extends BuiltinModule {
         add(Heap.class, "LocalReAlloc", new String[] {"(HEX)hMem", "(HEX)uFlags", "uBytes", "(HEX)result"});
         add(LockResource);
         add(WinString.class, "lstrcatA", new String[] {"(STRING)lpString1", "(STRING)lpString2", "(STRING)result"});
+        add(WinLocale.class, "lstrcmpA", new String[] {"(STRING)lpString1", "(STRING)lpString2"});
         add(lstrcpyA);
         add(lstrlenA);
         add(lstrlenW);
         add(WinString.class, "lstrcpynA", new String[] {"(HEX)lpString1", "(STRING)lpString2", "iMaxLength", "(STRING)result"});
         add(MapViewOfFile);
+        add(WinPath.class, "MoveFileA", new String[] {"(STRING)lpExistingFileName", "(STRING)lpNewFileName", "(BOOL)result"});
         add(MulDiv);
         add(MultiByteToWideChar);
         add(OpenFile);

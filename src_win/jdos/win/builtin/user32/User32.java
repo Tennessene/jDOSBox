@@ -53,6 +53,7 @@ public class User32 extends BuiltinModule {
         add(WinDialog.class, "GetDlgItem", new String[] {"hwndDlg", "id"});
         add(Focus.class, "GetForegroundWindow", new String[0]);
         add(Input.class, "GetKeyboardState", new String[] {"(HEX)lpKeyState"});
+        add(Input.class, "GetKeyNameTextA", new String[] {"lParam", "(HEX)lpString", "cchSize", "result", "01(STRING)lpString"});
         add(Input.class, "GetKeyState", new String[]{"nVirtKey"});
         add(WinMenu.class, "GetMenu", new String[] {"hWnd"});
         add(WinMenu.class, "GetMenuItemCount", new String[]{"hMenu"});
@@ -89,8 +90,10 @@ public class User32 extends BuiltinModule {
         add(Resource.class, "LoadImageA", new String[] {"hinst", "(STRING)lpszName", "uType", "cxDesired", "cyDesired", "fuLoad"});
         add(Resource.class, "LoadStringA", new String[] {"hInstance", "uID", "(HEX)lpBuffer", "nBufferMax", "result", "02(STRING)lpBuffer"});
         add(WinMenu.class, "LoadMenuA", new String[] {"hInstance", "(STRING)lpMenuName"});
+        add(Input.class, "MapVirtualKeyA", new String[] {"uCode", "uMapType"});
         add(Message.class, "MessageBeep", new String[] {"uType"});
         add(MsgBox.class, "MessageBoxA", new String[] {"hWnd", "(STRING)lpText", "(STRING)lpCaption", "uType"});
+        add(WinPos.class, "MoveWindow", new String[] {"hWnd", "X", "Y", "nWidth", "nHeight", "(BOOL)bRepaint", "(BOOL)result"});
         add(UiTools.class, "OffsetRect", new String[] {"(RECT)lprc", "dx", "dy", "(BOOL)result", "00(RECT)lprc"});
         add(Message.class, "PeekMessageA", (MSGLOG?new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "wRemoveMsg", "(BOOL)result", "00(MSG)lpMsg"}:null));
         add(Message.class, "PostMessageA", (MSGLOG?new String[] {"hWnd", "(MSG)Msg", "wParam", "lParam"}:null));
@@ -115,6 +118,7 @@ public class User32 extends BuiltinModule {
         add(WinWindow.class, "SetParent", new String[] {"hWndChild", "hWndNewParent"});
         add(Property.class, "SetPropA", new String[] {"hWnd", "(STRING)lpString", "hData"});
         add(UiTools.class, "SetRect", new String[] {"(HEX)lprc", "xLeft", "yTop", "xRight", "yBottom", "(BOOL)result", "00(RECT)lprc"});
+        add(UiTools.class, "SetRectEmpty", new String[] {"(RECT)lprc", "(BOOL)result", "00(RECT)lprc"});
         add(Message.class, "SetTimer", new String[] {"hWnd", "nIDEvent", "uElapse", "(HEX)lpTimerFunc"});
         add(WinWindow.class, "SetWindowLongA", new String[] {"hWnd", "nIndex", "dwNewLong"});
         add(WinPos.class, "SetWindowPos", new String[] {"hWnd", "hWndInsertAfter", "X", "Y", "cx", "cy", "(HEX)uFlags"});
@@ -125,6 +129,7 @@ public class User32 extends BuiltinModule {
         add(SysParams.class, "SystemParametersInfoA", new String[] {"uiAction", "uiParam", "pvParam", "fWinIni"});
         add(WinMenu.class, "TranslateAcceleratorA");
         add(Message.class, "TranslateMessage");
+        add(WinClass.class, "UnregisterClassA", new String[] {"(STRING)lpClassName", "hInstance", "(BOOL)result"});
         add(Painting.class, "UpdateWindow", new String[]{"hWnd", "(BOOL)result"});
         add(Painting.class, "ValidateRect", new String[]{"hWnd", "(RECT)lpRect", "(BOOL)result"});
         add_wait(Message.class, "WaitForInputIdle", new String[]{"hProcess", "dwMilliseconds"});

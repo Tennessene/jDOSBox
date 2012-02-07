@@ -115,11 +115,11 @@ public class WinFile extends WinObject {
         if (file == null)
             return -1;
         try {
-            if (from == 0) // FILE_BEGIN
+            if (from == SEEK_SET)
                 file.seek(pos);
-            else if (from == 1) // FILE_CURRENT
+            else if (from == SEEK_CUR)
                 file.skipBytes((int)pos);
-            else if (from == 2) // FILE_END
+            else if (from == SEEK_END)
                 file.seek(file.length()-pos);
             else
                 Win.panic("WinFile.seek unknown from: "+from);
@@ -146,6 +146,28 @@ public class WinFile extends WinObject {
             Memory.mem_memcpy(buf, 0, buffer, size);
             file.write(buf);
             return size;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public int writeZero(int count) {
+        try {
+            byte[] buf = new byte[count];
+            file.write(buf);
+            return count;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public int writeInt(int value) {
+        try {
+            file.writeByte(value);
+            file.writeByte(value >> 8);
+            file.writeByte(value >> 16);
+            file.writeByte(value >> 24);
+            return 4;
         } catch (Exception e) {
             return 0;
         }

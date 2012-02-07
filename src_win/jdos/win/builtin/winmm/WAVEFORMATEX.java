@@ -3,6 +3,7 @@ package jdos.win.builtin.winmm;
 import jdos.hardware.Memory;
 
 public class WAVEFORMATEX {
+    public final static int SIZE = 18;
     public WAVEFORMATEX(int address) {
         wFormatTag = Memory.mem_readw(address); address+=2;
         nChannels = Memory.mem_readw(address); address+=2;

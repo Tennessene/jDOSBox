@@ -169,6 +169,17 @@ public class WinClass extends WinObject {
         return result;
     }
 
+    // BOOL WINAPI UnregisterClass(LPCTSTR lpClassName, HINSTANCE hInstance)
+    static public int UnregisterClassA(int lpClassName, int hInstance) {
+        String name = StringUtil.getString(lpClassName);
+        WinClass c = WinSystem.getCurrentProcess().classNames.get(name);
+        if (c == null)
+            return FALSE;
+        WinSystem.getCurrentProcess().classNames.remove(name);
+        c.close();
+        return TRUE;
+    }
+
     public WinClass(int id) {
         super(id);
         this.id = id;

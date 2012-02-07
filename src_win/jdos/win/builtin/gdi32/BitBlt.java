@@ -23,12 +23,17 @@ public class BitBlt extends WinAPI {
         if (dwRop != SRCCOPY) {
             Win.panic("StretchBlt only supports SRCCOPY");
         }
-        BufferedImage d = dest.getImage();
-        BufferedImage s = src.getImage();
-        Graphics g = d.getGraphics();
-        g.drawImage(s, nXOriginDest, nYOriginDest, nXOriginDest+nWidthDest, nYOriginDest+nHeightDest, nXOriginSrc, nYOriginSrc, nXOriginSrc+nWidthSrc, nYOriginSrc+nHeightSrc, null);
+        Graphics2D g = dest.getGraphics();
+        StretchBlt2D(g, nXOriginDest, nYOriginDest, nWidthDest, nHeightDest, src.getImage(), nXOriginSrc, nYOriginSrc, nWidthSrc, nHeightSrc, dwRop);
         g.dispose();
         return TRUE;
+    }
+
+    static public void StretchBlt2D(Graphics2D graphics, int nXOriginDest, int nYOriginDest, int nWidthDest, int nHeightDest, BufferedImage src, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, int dwRop) {
+        if (dwRop != SRCCOPY) {
+            Win.panic("StretchBlt only supports SRCCOPY");
+        }
+        graphics.drawImage(src, nXOriginDest, nYOriginDest, nXOriginDest+nWidthDest, nYOriginDest+nHeightDest, nXOriginSrc, nYOriginSrc, nXOriginSrc+nWidthSrc, nYOriginSrc+nHeightSrc, null);
     }
 
     static private boolean rop_uses_src(int rop) {

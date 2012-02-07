@@ -199,7 +199,24 @@ public class WinDC extends WinObject {
 
     // UINT RealizePalette(HDC hdc)
     static public int RealizePalette(int hdc) {
-        // The display is 32 bits so every window can use its own palette
+//        WinDC dc = WinDC.get(hdc);
+//        if (dc == null)
+//            return 0;
+//        if (StaticData.currentPrimarySurface != 0) {
+//            WinPalette winPalette = WinPalette.get(dc.hPalette);
+//            if (winPalette != null) {
+//                int palette = IDirectDrawSurface.getPalette(StaticData.currentPrimarySurface);
+//                if (palette != 0) {
+//                    int data = palette+IDirectDrawPalette.OFFSET_COLOR_DATA + IUnknown.OFFSET_DATA_START;
+//
+//                    for (int i=0;i<winPalette.palette.length;i++) {
+//                        writed(data+i*4, Pixel.BGRtoRGB(winPalette.palette[i]));
+//                    }
+//                    IDirectDrawSurface.lastPaletteChange = WinSystem.getTickCount();
+//                    return winPalette.palette.length;
+//                }
+//            }
+//        }
         return 0;
     }
 
@@ -231,7 +248,7 @@ public class WinDC extends WinObject {
             if (dc.owner) {
                 dc.image.close();
             }
-            dc.image = ((WinBitmap)gdi).createJavaBitmap();
+            dc.image = ((WinBitmap)gdi).createJavaBitmap(true);
             dc.owner = true;
         } else if (gdi instanceof WinFont) {
             old = dc.hFont;
@@ -409,5 +426,9 @@ public class WinDC extends WinObject {
 
     public BufferedImage getImage() {
         return image.getImage();
+    }
+
+    public boolean isScreen() {
+        return (image == StaticData.screen);
     }
 }

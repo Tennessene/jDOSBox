@@ -87,7 +87,7 @@ public class WinProcess extends WaitObject {
     public int nextTempIndex = 0;
 
     public String currentWorkingDirectory;
-    public Vector paths;
+    public Vector<Path> paths;
     public boolean console = true;
     public NativeModule mainModule;
     public int page_directory;

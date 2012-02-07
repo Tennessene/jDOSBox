@@ -121,7 +121,9 @@ public class StringUtil extends WinAPI {
         int i;
         for (i=0;i<count-1;i++) {
             int c = Memory.mem_readb(address2+i);
-            Memory.mem_writed(address+i, c);
+            if (c == 0)
+                break;
+            Memory.mem_writeb(address+i, c);
         }
         Memory.mem_writeb(address+count-1, 0);
         return i;
@@ -155,6 +157,26 @@ public class StringUtil extends WinAPI {
         }
         return 0;
     }
+    static public int strcmp(int s1, int s2) {
+        while (true) {
+            int c1 = Memory.mem_readb(s1++);
+            int c2 = Memory.mem_readb(s2++);
+
+            if (c1<c2)
+                return -1;
+            else if (c1>c2)
+                return 1;
+
+            if (c1 == 0 && c1 == c2) {
+                return 0;
+            }
+            if (c1 == 0)
+                return -1;
+            if (c2 == 0)
+                return 1;
+        }
+    }
+
     static public void strcpyW(int address, String value) {
         char[] c = value.toCharArray();
         for (int i=0;i<c.length;i++) {

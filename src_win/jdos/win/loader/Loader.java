@@ -8,6 +8,7 @@ import jdos.util.StringRef;
 import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.*;
+import jdos.win.builtin.Msacm32.Msacm32;
 import jdos.win.builtin.comctl32.Comctl32;
 import jdos.win.builtin.directx.DDraw;
 import jdos.win.builtin.directx.DInput;
@@ -164,6 +165,8 @@ public class Loader {
             module = new Wsock32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("comctl32.dll")) {
             module = new Comctl32(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("msacm32.dll")) {
+            module = new Msacm32(this, getNextModuleHandle());
         } else {
             module = new BuiltinModule(this, name, getNextModuleHandle());
         }

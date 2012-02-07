@@ -123,6 +123,17 @@ public class UiTools extends WinAPI {
         return TRUE;
     }
 
+    // BOOL SetRectEmpty(LPRECT lprc)
+    static public int SetRectEmpty(int lprc) {
+        if (lprc == 0)
+            return FALSE;
+        writed(lprc, 0);
+        writed(lprc+4, 0);
+        writed(lprc+8, 0);
+        writed(lprc+12, 0);
+        return FALSE;
+    }
+
     /***********************************************************************
      *           set_control_clipping
      *

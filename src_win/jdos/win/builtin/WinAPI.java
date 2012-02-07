@@ -9,7 +9,8 @@ import jdos.win.utils.Error;
 
 public class WinAPI extends Error {
     final static public boolean LOG = true;
-    final static public boolean MSGLOG = false;
+    final static public boolean LOG_GDI = LOG;
+    final static public boolean MSGLOG = true;
     static public int NULL = 0;
 
     static public void log(String s) {
@@ -43,7 +44,7 @@ public class WinAPI extends Error {
         return b | (g << 8) | (r << 16);
     }
     static public boolean IS_INTRESOURCE(int p) {
-        return p<=0xFFFF;
+        return (p & 0xFFFF0000) == 0;
     }
     static public int LOWORD(int w) {
         return w & 0xFFFF;
@@ -53,6 +54,8 @@ public class WinAPI extends Error {
     }
 
     static final public int MAX_PATH = 260;
+    static final public int HFILE_ERROR = -1;
+
     static final public int TRUE = 1;
     static final public int FALSE = 0;
 
@@ -1698,6 +1701,162 @@ public class WinAPI extends Error {
     static public final int PAGE_NOCACHE = 0x200;
     static public final int PAGE_WRITECOMBINE = 0x400;
 
+    /* MapVirtualKey translation types */
+    static final public int MAPVK_VK_TO_VSC =    0;
+    static final public int MAPVK_VSC_TO_VK =    1;
+    static final public int MAPVK_VK_TO_CHAR =   2;
+    static final public int MAPVK_VSC_TO_VK_EX = 3;
+    static final public int MAPVK_VK_TO_VSC_EX = 4;
+
+    static final public int CALLBACK_TYPEMASK = 0x00070000;     /* callback type mask */
+    static final public int CALLBACK_NULL =     0x00000000;     /* no callback */
+    static final public int CALLBACK_WINDOW =   0x00010000;     /* dwCallback is a HWND */
+    static final public int CALLBACK_TASK =     0x00020000;     /* dwCallback is a HTASK */
+    static final public int CALLBACK_THREAD =   CALLBACK_TASK;  /* dwCallback is a thread ID */
+    static final public int CALLBACK_FUNCTION = 0x00030000;     /* dwCallback is a FARPROC */
+    static final public int CALLBACK_EVENT =    0x00050000;     /* dwCallback is an EVENT Handler */
+
+    static final public int MMSYSERR_BASE =         0;
+    static final public int WAVERR_BASE =           32;
+    static final public int MIDIERR_BASE =          64;
+    static final public int TIMERR_BASE =           96;
+    static final public int JOYERR_BASE =           160;
+    static final public int MCIERR_BASE =           256;
+
+    static final public int MCI_STRING_OFFSET =     512;
+    static final public int MCI_VD_OFFSET =         1024;
+    static final public int MCI_CD_OFFSET =         1088;
+    static final public int MCI_WAVE_OFFSET =       1152;
+    static final public int MCI_SEQ_OFFSET =        1216;
+
+    static final public int MMSYSERR_NOERROR =     0;
+    static final public int MMSYSERR_ERROR =        MMSYSERR_BASE + 1;
+    static final public int MMSYSERR_BADDEVICEID =  MMSYSERR_BASE + 2;
+    static final public int MMSYSERR_NOTENABLED =   MMSYSERR_BASE + 3;
+    static final public int MMSYSERR_ALLOCATED =    MMSYSERR_BASE + 4;
+    static final public int MMSYSERR_INVALHANDLE =  MMSYSERR_BASE + 5;
+    static final public int MMSYSERR_NODRIVER =     MMSYSERR_BASE + 6;
+    static final public int MMSYSERR_NOMEM =        MMSYSERR_BASE + 7;
+    static final public int MMSYSERR_NOTSUPPORTED = MMSYSERR_BASE + 8;
+    static final public int MMSYSERR_BADERRNUM =    MMSYSERR_BASE + 9;
+    static final public int MMSYSERR_INVALFLAG =    MMSYSERR_BASE + 10;
+    static final public int MMSYSERR_INVALPARAM =   MMSYSERR_BASE + 11;
+    static final public int MMSYSERR_HANDLEBUSY =   MMSYSERR_BASE + 12;
+    static final public int MMSYSERR_INVALIDALIAS = MMSYSERR_BASE + 13;
+    static final public int MMSYSERR_BADDB =        MMSYSERR_BASE + 14;
+    static final public int MMSYSERR_KEYNOTFOUND =  MMSYSERR_BASE + 15;
+    static final public int MMSYSERR_READERROR =    MMSYSERR_BASE + 16;
+    static final public int MMSYSERR_WRITEERROR =   MMSYSERR_BASE + 17;
+    static final public int MMSYSERR_DELETEERROR =  MMSYSERR_BASE + 18;
+    static final public int MMSYSERR_VALNOTFOUND =  MMSYSERR_BASE + 19;
+    static final public int MMSYSERR_NODRIVERCB =   MMSYSERR_BASE + 20;
+    static final public int MMSYSERR_MOREDATA =     MMSYSERR_BASE + 21;
+    static final public int MMSYSERR_LASTERROR =    MMSYSERR_BASE + 21;
+
+    static final public int  WAVE_FORMAT_QUERY =        0x0001;
+    static final public int  WAVE_ALLOWSYNC =           0x0002;
+    static final public int  WAVE_MAPPED =              0x0004;
+    static final public int  WAVE_FORMAT_DIRECT =       0x0008;
+    static final public int  WAVE_FORMAT_DIRECT_QUERY = (WAVE_FORMAT_QUERY | WAVE_FORMAT_DIRECT);
+
+    static final public int WODM_OPEN = 5;
+    static final public int WAVE_MAPPER = -1;
+
+    static final public int WAVERR_BADFORMAT =     WAVERR_BASE + 0;    /* unsupported wave format */
+    static final public int WAVERR_STILLPLAYING =  WAVERR_BASE + 1;    /* still something playing */
+    static final public int WAVERR_UNPREPARED =    WAVERR_BASE + 2;    /* header not prepared */
+    static final public int WAVERR_SYNC =          WAVERR_BASE + 3;    /* device is synchronous */
+    static final public int WAVERR_LASTERROR =     WAVERR_BASE + 3;    /* last error in range */
+
+    static final public int DIB_RGB_COLORS = 0;
+    static final public int DIB_PAL_COLORS = 1;
+
+    static final public int ACM_METRIC_COUNT_DRIVERS =           1;
+    static final public int ACM_METRIC_COUNT_CODECS =            2;
+    static final public int ACM_METRIC_COUNT_CONVERTERS =        3;
+    static final public int ACM_METRIC_COUNT_FILTERS =           4;
+    static final public int ACM_METRIC_COUNT_DISABLED =          5;
+    static final public int ACM_METRIC_COUNT_HARDWARE =          6;
+    static final public int ACM_METRIC_COUNT_LOCAL_DRIVERS =    20;
+    static final public int ACM_METRIC_COUNT_LOCAL_CODECS =     21;
+    static final public int ACM_METRIC_COUNT_LOCAL_CONVERTERS = 22;
+    static final public int ACM_METRIC_COUNT_LOCAL_FILTERS =    23;
+    static final public int ACM_METRIC_COUNT_LOCAL_DISABLED =   24;
+    static final public int ACM_METRIC_HARDWARE_WAVE_INPUT =    30;
+    static final public int ACM_METRIC_HARDWARE_WAVE_OUTPUT =   31;
+    static final public int ACM_METRIC_MAX_SIZE_FORMAT =        50;
+    static final public int ACM_METRIC_MAX_SIZE_FILTER =        51;
+    static final public int ACM_METRIC_DRIVER_SUPPORT =        100;
+    static final public int ACM_METRIC_DRIVER_PRIORITY =       101;
+    
+    static final public int MMIOERR_BASE =             256;
+    static final public int MMIOERR_FILENOTFOUND =     MMIOERR_BASE + 1;  /* file not found */
+    static final public int MMIOERR_OUTOFMEMORY =      MMIOERR_BASE + 2;  /* out of memory */
+    static final public int MMIOERR_CANNOTOPEN =       MMIOERR_BASE + 3;  /* cannot open */
+    static final public int MMIOERR_CANNOTCLOSE =      MMIOERR_BASE + 4;  /* cannot close */
+    static final public int MMIOERR_CANNOTREAD =       MMIOERR_BASE + 5;  /* cannot read */
+    static final public int MMIOERR_CANNOTWRITE =      MMIOERR_BASE + 6;  /* cannot write */
+    static final public int MMIOERR_CANNOTSEEK =       MMIOERR_BASE + 7;  /* cannot seek */
+    static final public int MMIOERR_CANNOTEXPAND =     MMIOERR_BASE + 8;  /* cannot expand file */
+    static final public int MMIOERR_CHUNKNOTFOUND =    MMIOERR_BASE + 9;  /* chunk not found */
+    static final public int MMIOERR_UNBUFFERED =       MMIOERR_BASE + 10; /* file is unbuffered */
+    static final public int MMIOERR_PATHNOTFOUND =     MMIOERR_BASE + 11;
+    static final public int MMIOERR_ACCESSDENIED =     MMIOERR_BASE + 12;
+    static final public int MMIOERR_SHARINGVIOLATION = MMIOERR_BASE + 13;
+    static final public int MMIOERR_NETWORKERROR =     MMIOERR_BASE + 14;
+    static final public int MMIOERR_TOOMANYOPENFILES = MMIOERR_BASE + 15;
+    static final public int MMIOERR_INVALIDFILE =      MMIOERR_BASE + 16;
+        
+    static final public int MMIO_RWMODE =    0x00000003;      /* open file for reading/writing/both */
+    static final public int MMIO_SHAREMODE = 0x00000070;      /* file sharing mode number */
+    
+    static final public int MMIO_CREATE =    0x00001000;      /* create new file (or truncate file) */
+    static final public int MMIO_PARSE =     0x00000100;      /* parse new file returning path */
+    static final public int MMIO_DELETE =    0x00000200;      /* create new file (or truncate file) */
+    static final public int MMIO_EXIST =     0x00004000;      /* checks for existence of file */
+    static final public int MMIO_ALLOCBUF =  0x00010000;      /* mmioOpen() should allocate a buffer */
+    static final public int MMIO_GETTEMP =   0x00020000;      /* mmioOpen() should retrieve temp name */
+    
+    static final public int MMIO_DIRTY =     0x10000000;      /* I/O buffer is dirty */
+    
+    static final public int MMIO_READ =      0x00000000;      /* open file for reading only */
+    static final public int MMIO_WRITE =     0x00000001;      /* open file for writing only */
+    static final public int MMIO_READWRITE = 0x00000002;      /* open file for reading and writing */
+    
+    static final public int MMIO_COMPAT =    0x00000000;      /* compatibility mode */
+    static final public int MMIO_EXCLUSIVE = 0x00000010;      /* exclusive-access mode */
+    static final public int MMIO_DENYWRITE = 0x00000020;      /* deny writing to other processes */
+    static final public int MMIO_DENYREAD =  0x00000030;      /* deny reading to other processes */
+    static final public int MMIO_DENYNONE =  0x00000040;      /* deny nothing to other processes */
+    
+    static final public int MMIO_FHOPEN =            0x0010;  /* mmioClose: keep file handle open */
+    static final public int MMIO_EMPTYBUF =          0x0010;  /* mmioFlush: empty the I/O buffer */
+    static final public int MMIO_TOUPPER =           0x0010;  /* mmioStringToFOURCC: to u-case */
+    static final public int MMIO_INSTALLPROC =   0x00010000;  /* mmioInstallIOProc: install MMIOProc */
+    static final public int MMIO_GLOBALPROC =    0x10000000;  /* mmioInstallIOProc: install globally */
+    static final public int MMIO_REMOVEPROC =    0x00020000;  /* mmioInstallIOProc: remove MMIOProc */
+    static final public int MMIO_FINDPROC =      0x00040000;  /* mmioInstallIOProc: find an MMIOProc */
+    static final public int MMIO_FINDCHUNK =         0x0010;  /* mmioDescend: find a chunk by ID */
+    static final public int MMIO_FINDRIFF =          0x0020;  /* mmioDescend: find a LIST chunk */
+    static final public int MMIO_FINDLIST =          0x0040;  /* mmioDescend: find a RIFF chunk */
+    static final public int MMIO_CREATERIFF =        0x0020;  /* mmioCreateChunk: make a LIST chunk */
+    static final public int MMIO_CREATELIST =        0x0040;  /* mmioCreateChunk: make a RIFF chunk */
+    
+    static final public int mmioFOURCC(int ch0, int ch1, int ch2, int ch3) {
+        return (ch0 & 0xFF) | ((ch1 & 0xFF) << 8) | ((ch2 & 0xFF) << 16) | ((ch3 & 0xFF) << 24);
+    }
+    static final public int FOURCC_RIFF = mmioFOURCC('R', 'I', 'F', 'F');
+    static final public int FOURCC_LIST = mmioFOURCC('L', 'I', 'S', 'T');
+
+    static final public int FOURCC_DOS = mmioFOURCC('D', 'O', 'S', ' ');
+    static final public int FOURCC_MEM = mmioFOURCC('M', 'E', 'M', ' ');
+
+    static final public int MMIO_DEFAULTBUFFER = 8192;    /* default buffer size */
+
+    static final public int SEEK_SET = 0;
+    static final public int SEEK_CUR = 1;
+    static final public int SEEK_END = 2;
+    
     // ************
     // * Internal *
     // ************

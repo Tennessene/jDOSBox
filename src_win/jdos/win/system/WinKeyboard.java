@@ -159,8 +159,8 @@ public class WinKeyboard {
                 case KeyEvent.VK_NUMPAD0:result=0x60;break;
                 case KeyEvent.VK_0:result=0x30;break;
                 case KeyEvent.VK_SUBTRACT:result=0x6D;break;
-                case KeyEvent.VK_MINUS:break;
-                case KeyEvent.VK_EQUALS:break;
+                case KeyEvent.VK_MINUS:result=0xBD;break;
+                case KeyEvent.VK_EQUALS:result=0xBB;break;
                 case KeyEvent.VK_BACK_SPACE:result=0x08;break;
                 case KeyEvent.VK_TAB:result=0x09;break;
 
@@ -175,8 +175,8 @@ public class WinKeyboard {
                 case KeyEvent.VK_O:result=0x4F;break;
                 case KeyEvent.VK_P:result=0x50;break;
 
-                case KeyEvent.VK_OPEN_BRACKET:break;
-                case KeyEvent.VK_CLOSE_BRACKET:break;
+                case KeyEvent.VK_OPEN_BRACKET:result=0xDB;break;
+                case KeyEvent.VK_CLOSE_BRACKET:result=0xDD;break;
                 case KeyEvent.VK_ENTER:result=0x0D;break;
                 case KeyEvent.VK_CONTROL:
                     if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT){
@@ -198,9 +198,9 @@ public class WinKeyboard {
                 case KeyEvent.VK_K:result=0x4B;break;
                 case KeyEvent.VK_L:result=0x4C;break;
 
-                case KeyEvent.VK_SEMICOLON:break;
-                case KeyEvent.VK_QUOTE:break;
-                case KeyEvent.VK_BACK_QUOTE:break;
+                case KeyEvent.VK_SEMICOLON:result=0xBA;break;
+                case KeyEvent.VK_QUOTE:result=0xDE;break;
+                case KeyEvent.VK_BACK_QUOTE:result=0xCE;break;
                 case KeyEvent.VK_SHIFT:
                     if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT) {
                         extended = false;
@@ -211,7 +211,7 @@ public class WinKeyboard {
                     }
                     result = 0x10;
                     break;
-                case KeyEvent.VK_BACK_SLASH:break;
+                case KeyEvent.VK_BACK_SLASH:result=0xDC;break;
                 case KeyEvent.VK_Z:result=0x5A;break;
                 case KeyEvent.VK_X:result=0x58;break;
                 case KeyEvent.VK_C:result=0x43;break;
@@ -220,10 +220,10 @@ public class WinKeyboard {
                 case KeyEvent.VK_N:result=0x4E;break;
                 case KeyEvent.VK_M:result=0x4D;break;
 
-                case KeyEvent.VK_COMMA:break;
-                case KeyEvent.VK_PERIOD:break;
+                case KeyEvent.VK_COMMA:result=0xBC;break;
+                case KeyEvent.VK_PERIOD:result=0xBE;break;
                 case KeyEvent.VK_DECIMAL:result=0x6E;break;
-                case KeyEvent.VK_SLASH:break;
+                case KeyEvent.VK_SLASH:result=0xBF;break;
                 case KeyEvent.VK_MULTIPLY:result=0x6A;break;
                 case KeyEvent.VK_ALT:
                     if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT) {

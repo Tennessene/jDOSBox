@@ -6,7 +6,6 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
-import jdos.win.builtin.ReturnHandlerBase;
 import jdos.win.builtin.user32.WinWindow;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
@@ -15,76 +14,25 @@ import jdos.win.system.WinMCI;
 import jdos.win.system.WinMidi;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Ptr;
-import jdos.win.utils.StringUtil;
 
 import java.io.File;
 
 public class WinMM extends BuiltinModule {
-    static final public int CALLBACK_TYPEMASK = 0x00070000;     /* callback type mask */
-    static final public int CALLBACK_NULL =     0x00000000;     /* no callback */
-    static final public int CALLBACK_WINDOW =   0x00010000;     /* dwCallback is a HWND */
-    static final public int CALLBACK_TASK =     0x00020000;     /* dwCallback is a HTASK */
-    static final public int CALLBACK_THREAD =   CALLBACK_TASK;  /* dwCallback is a thread ID */
-    static final public int CALLBACK_FUNCTION = 0x00030000;     /* dwCallback is a FARPROC */
-    static final public int CALLBACK_EVENT =    0x00050000;     /* dwCallback is an EVENT Handler */
-
-    static final public int MMSYSERR_BASE =         0;
-    static final public int WAVERR_BASE =           32;
-    static final public int MIDIERR_BASE =          64;
-    static final public int TIMERR_BASE =           96;
-    static final public int JOYERR_BASE =           160;
-    static final public int MCIERR_BASE =           256;
-    
-    static final public int MCI_STRING_OFFSET =     512;
-    static final public int MCI_VD_OFFSET =         1024;
-    static final public int MCI_CD_OFFSET =         1088;
-    static final public int MCI_WAVE_OFFSET =       1152;
-    static final public int MCI_SEQ_OFFSET =        1216;
-
-    static final public int MMSYSERR_NOERROR =     0;
-    static final public int MMSYSERR_ERROR =        MMSYSERR_BASE + 1;
-    static final public int MMSYSERR_BADDEVICEID =  MMSYSERR_BASE + 2;
-    static final public int MMSYSERR_NOTENABLED =   MMSYSERR_BASE + 3;
-    static final public int MMSYSERR_ALLOCATED =    MMSYSERR_BASE + 4;
-    static final public int MMSYSERR_INVALHANDLE =  MMSYSERR_BASE + 5;
-    static final public int MMSYSERR_NODRIVER =     MMSYSERR_BASE + 6;
-    static final public int MMSYSERR_NOMEM =        MMSYSERR_BASE + 7;
-    static final public int MMSYSERR_NOTSUPPORTED = MMSYSERR_BASE + 8;
-    static final public int MMSYSERR_BADERRNUM =    MMSYSERR_BASE + 9;
-    static final public int MMSYSERR_INVALFLAG =    MMSYSERR_BASE + 10;
-    static final public int MMSYSERR_INVALPARAM =   MMSYSERR_BASE + 11;
-    static final public int MMSYSERR_HANDLEBUSY =   MMSYSERR_BASE + 12;
-    static final public int MMSYSERR_INVALIDALIAS = MMSYSERR_BASE + 13;
-    static final public int MMSYSERR_BADDB =        MMSYSERR_BASE + 14;
-    static final public int MMSYSERR_KEYNOTFOUND =  MMSYSERR_BASE + 15;
-    static final public int MMSYSERR_READERROR =    MMSYSERR_BASE + 16;
-    static final public int MMSYSERR_WRITEERROR =   MMSYSERR_BASE + 17;
-    static final public int MMSYSERR_DELETEERROR =  MMSYSERR_BASE + 18;
-    static final public int MMSYSERR_VALNOTFOUND =  MMSYSERR_BASE + 19;
-    static final public int MMSYSERR_NODRIVERCB =   MMSYSERR_BASE + 20;
-    static final public int MMSYSERR_MOREDATA =     MMSYSERR_BASE + 21;
-    static final public int MMSYSERR_LASTERROR =    MMSYSERR_BASE + 21;
-
-    static final public int  WAVE_FORMAT_QUERY =        0x0001;
-    static final public int  WAVE_ALLOWSYNC =           0x0002;
-    static final public int  WAVE_MAPPED =              0x0004;
-    static final public int  WAVE_FORMAT_DIRECT =       0x0008;
-    static final public int  WAVE_FORMAT_DIRECT_QUERY = (WAVE_FORMAT_QUERY | WAVE_FORMAT_DIRECT);
-
-    static final public int WODM_OPEN = 5;
-    static final public int WAVE_MAPPER = -1;
-
-    static final public int WAVERR_BADFORMAT =     WAVERR_BASE + 0;    /* unsupported wave format */
-    static final public int WAVERR_STILLPLAYING =  WAVERR_BASE + 1;    /* still something playing */
-    static final public int WAVERR_UNPREPARED =    WAVERR_BASE + 2;    /* header not prepared */
-    static final public int WAVERR_SYNC =          WAVERR_BASE + 3;    /* device is synchronous */
-    static final public int WAVERR_LASTERROR =     WAVERR_BASE + 3;    /* last error in range */
-
     public WinMM(Loader loader, int handle) {
         super(loader, "WinMM.dll", handle);
+        add(WinJoystick.class, "joyGetNumDevs", new String[0]);
         add(mciSendCommandA);
+        add(Mci.class, "mciSendStringA", new String[] {"(STRING)lpszCommand", "(HEX)lpszReturnString", "cchReturn", "hwndCallback", "result", "01(STRING)lpszReturnString"});
         add(mixerGetNumDevs);
-        add(mmioOpenA);
+        add(Mmio.class, "mmioAdvance", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
+        add(Mmio.class, "mmioAscend", new String[] {"hmmio", "(HEX)lpck", "(HEX)wFlags"});
+        add(Mmio.class, "mmioClose", new String[] {"hmmio", "(HEX)wFlags"});
+        add(Mmio.class, "mmioDescend", new String[] {"hmmio", "(HEX)lpck", "(HEX)lpckParent", "(HEX)wFlags"});
+        add(Mmio.class, "mmioGetInfo", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
+        add(Mmio.class, "mmioOpenA", new String[] {"(STRING)szFilename", "(HEX)lpmmioinfo", "(HEX)dwOpenFlags"});
+        add(Mmio.class, "mmioRead", new String[] {"hmmio", "(HEX)pch", "cch"});
+        add(Mmio.class, "mmioSeek", new String[] {"hmmio", "lOffset", "iOrigin"});
+        add(Mmio.class, "mmioSetInfo", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
         add(timeGetTime);
         add(Waveform.class, "waveOutClose", new String[] {"(HEX)hwo"});
         add(Waveform.class, "waveOutOpen", new String[] {"(HEX)lphWaveOut", "uDeviceID", "(HEX)pwfx", "(HEX)dwCallback", "dwCallbackInstance", "(HEX)fdwOpen"});
@@ -241,38 +189,6 @@ public class WinMM extends BuiltinModule {
             // :TODO:
             System.out.println(getName()+" faked");
             CPU_Regs.reg_eax.dword = 0;
-        }
-    };
-
-    // HMMIO mmioOpen(LPTSTR szFilename, LPMMIOINFO lpmmioinfo, DWORD dwOpenFlags)
-    private Callback.Handler mmioOpenA = new ReturnHandlerBase() {
-        public java.lang.String getName() {
-            return "WinMM.mmioOpenA";
-        }
-        public int processReturn() {
-            int szFilename = CPU.CPU_Pop32();
-            int lpmmioinfo = CPU.CPU_Pop32();
-            int dwOpenFlags = CPU.CPU_Pop32();
-            String name = null;
-
-            if (szFilename != 0)
-                name = StringUtil.getString(szFilename);
-            if (lpmmioinfo != 0) {
-                Win.panic(getName()+" does not support lpmmioinfo yet");
-            }
-            if (dwOpenFlags == 0 || (dwOpenFlags & 0x00010000)!=0) { // MMIO_ALLOCBUF
-                File file = WinSystem.getCurrentProcess().getFile(name);
-                if (file.exists()) {
-                    try {
-                        return 0;//WinSystem.createFile(name, new RandomAccessFile(file, "r"), 0, 0).getHandle();
-                    } catch (Exception e) {
-                    }
-                } else {
-                    return 0;
-                }
-            }
-            Win.panic(getName()+" does not fully implemented yet");
-            return 0;
         }
     };
 

@@ -73,17 +73,6 @@ public class Win extends WinAPI {
     }
 
     static public boolean run(String path) {
-        WinFile file = null;
-        try {
-            file = WinFile.createNoHandle(new FilePath(path), false, 0, 0);
-            if (!HeaderPE.fastCheckWinPE(file))
-                return false;
-        } catch (Exception e) {
-            return false;
-        } finally {
-            if (file != null)
-                file.close();
-        }
         /*Bit8u*/char drive=(char)(Dos_files.DOS_GetDefaultDrive()+'A');
         StringRef dir = new StringRef();
         Dos_files.DOS_GetCurrentDir((short)0,dir);
@@ -95,6 +84,18 @@ public class Win extends WinAPI {
         String name;
 
         FilePath.disks.put("C", winPath);
+
+        WinFile file = null;
+        try {
+            file = WinFile.createNoHandle(new FilePath(path), false, 0, 0);
+            if (!HeaderPE.fastCheckWinPE(file))
+                return false;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            if (file != null)
+                file.close();
+        }
 
         int pos = path.lastIndexOf("\\");
         if (pos<0)

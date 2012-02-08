@@ -32,6 +32,7 @@ public class User32 extends BuiltinModule {
         add(UiTools.class, "DrawStateA", new String[] {"hdc", "hbr", "(HEX)lpOutputFunc", "lData", "wData", "x", "y", "cx", "cy", "(HEX)fuFlags", "(BOOL)result"});
         add(WinText.class, "DrawTextA", new String[] {"hDC", "(STRINGN2)lpchText", "nCount", "(RECT)lpRect", "(HEX)uFormat"});
         add(WinText.class, "DrawTextExA", new String[] {"hdc", "(STRINGN2)lpchText", "cchText", "(RECT)lprc", "(HEX)dwDTFormat", "(HEX)lpDTParams"});
+        add(Painting.class, "Ellipse", new String[] {"hdc", "nLeftRect", "nTopRect", "nRightRect", "nBottomRect", "(BOOL)result"});
         add(WinWindow.class, "EnableWindow", new String[] {"hWnd", "(BOOL)bEnable"});
         add(WinDialog.class, "EndDialog", new String[] {"hDlg", "nResult", "(BOOL)result"});
         add(Painting.class, "EndPaint", new String[] {"hWnd", "lpPaint"});
@@ -96,6 +97,7 @@ public class User32 extends BuiltinModule {
         add(WinPos.class, "MoveWindow", new String[] {"hWnd", "X", "Y", "nWidth", "nHeight", "(BOOL)bRepaint", "(BOOL)result"});
         add(UiTools.class, "OffsetRect", new String[] {"(RECT)lprc", "dx", "dy", "(BOOL)result", "00(RECT)lprc"});
         add(Message.class, "PeekMessageA", (MSGLOG?new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "wRemoveMsg", "(BOOL)result", "00(MSG)lpMsg"}:null));
+        add(Painting.class, "Pie", new String[] {"hdc", "nLeftRect", "nTopRect", "nRightRect", "nBottomRect", "nXRadial1", "nYRadial1", "nXRadial2", "nYRadial2"});
         add(Message.class, "PostMessageA", (MSGLOG?new String[] {"hWnd", "(MSG)Msg", "wParam", "lParam"}:null));
         add(Painting.class, "Rectangle", new String[] {"hdc", "nLeftRect", "nTopRect", "nRightRect", "nBottomRect", "(BOOL)result"});
         add(Painting.class, "RedrawWindow", new String[] {"hWnd", "(RECT)lprcUpdate", "hrgnUpdate", "(HEX)flags", "(BOOL)result"});

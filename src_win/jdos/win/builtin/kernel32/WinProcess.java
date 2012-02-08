@@ -77,7 +77,7 @@ public class WinProcess extends WaitObject {
     private int commandLineW = 0;
     private int envHandle = 0;
     private int envHandleW = 0;
-    private Hashtable env = new Hashtable();
+    public Hashtable env = new Hashtable();
     public Loader loader;
     private Vector threads = new Vector();
     private int[] temp = new int[10];
@@ -95,6 +95,7 @@ public class WinProcess extends WaitObject {
     public WinEvent readyForInput = WinEvent.create(null, true, false);
     public int tlsSize = 0;
     public Vector<Integer> freeTLS = new Vector<Integer>();
+    public int mmTimerThreadEIP;
 
     public WinProcess(int handle, KernelMemory memory, String workingDirectory) {
         super(handle);
@@ -137,6 +138,8 @@ public class WinProcess extends WaitObject {
     }
 
     public FilePath getFile(String name) {
+        if (name.indexOf(":")<0)
+            name = currentWorkingDirectory+name;
         // :TODO: add support for relative paths
         for (int i=0;i<paths.size();i++) {
             Path path = paths.elementAt(i);

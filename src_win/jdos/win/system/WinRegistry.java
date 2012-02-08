@@ -170,6 +170,8 @@ public class WinRegistry {
     }
 
     public int getValue(int hKey, int lpValue, int lpType, int lpData, int lpcbData) {
+        if (hKey == 0 || getHKey(hKey) == null)
+            return 0;
         Directory directory = getDirectory(getHKey(hKey));
         if (directory == null) {
             return Error.ERROR_BAD_PATHNAME;

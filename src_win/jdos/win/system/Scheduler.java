@@ -52,8 +52,10 @@ public class Scheduler {
 
     static public void sleep(WinThread thread, int ms) {
         SchedulerItem item = threadMap.get(thread);
-        item.sleepUntil = currentTickCount() + ms + 1;
-        tick();
+        if (item != null) {
+            item.sleepUntil = currentTickCount() + ms + 1;
+            tick();
+        }
     }
 
     static public void wait(WinThread thread) {
@@ -69,7 +71,8 @@ public class Scheduler {
 
     // After this call is make do not change any registers, the current process may have changed
     static public void removeThread(WinThread thread) {
-        threadMap.remove(thread);
+        if (threadMap.remove(thread) == null)
+            return;
         SchedulerItem item = first;
         while (item != null) {
             if (item.thread == thread) {
@@ -132,7 +135,7 @@ public class Scheduler {
             }
             next = next.next;
         }
-        if (next != currentThread) {
+        if (next.thread != currentThread.thread) {
             System.out.println("Switching threads: "+currentThread.thread.getHandle()+"("+ Ptr.toString(CPU_Regs.reg_eip)+") -> "+next.thread.getHandle()+"("+Ptr.toString(next.thread.cpuState.eip)+")");
             currentThread.thread.saveCPU();
             if (currentThread.thread.getProcess() != next.thread.getProcess()) {

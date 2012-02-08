@@ -479,7 +479,7 @@ public class IDirectDrawSurface extends IUnknown {
                 int srcY2 = Memory.mem_readd(lpSrcRect+12);
                 g.drawImage(src, destX1, destY1, destX2, destY2, srcX1, srcY1, srcX2, srcY2, null);
             } else if ((dwFlags & DDBLT_KEYSRC)!=0) {
-                BufferedImage src = getImage(lpDDSrcSurface, true).getImageColorKey(getData(This, OFFSET_DESC + 0x40));
+                BufferedImage src = getImage(lpDDSrcSurface, true).getImageColorKey(getData(lpDDSrcSurface, OFFSET_DESC + 0x40));
                 int srcX1 = Memory.mem_readd(lpSrcRect);
                 int srcY1 = Memory.mem_readd(lpSrcRect+4);
                 int srcX2 = Memory.mem_readd(lpSrcRect+8);
@@ -970,6 +970,7 @@ public class IDirectDrawSurface extends IUnknown {
                     case DDCKEY_SRCBLT:
                         setData(This, OFFSET_DESC+0x40, c1);
                         setData(This, OFFSET_DESC+0x04, getData(This, OFFSET_DESC+0x04) | DDSurfaceDesc.DDSD_CKSRCBLT);
+                        boolean  i = false;
                         break;
                     case DDCKEY_SRCOVERLAY:
                         setData(This, OFFSET_DESC+0x48, c1);
@@ -977,6 +978,7 @@ public class IDirectDrawSurface extends IUnknown {
                         break;
                 }
             }
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 

@@ -99,6 +99,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetModuleHandleA);
         add(GetModuleHandleW);
         add(WinLocale.class, "GetOEMCP", new String[0]);
+        add(Profile.class, "GetPrivateProfileStringA", new String[] {"(STRING)lpAppName", "(STRING)lpKeyName", "(STRING)lpDefault", "(HEX)lpReturnedString", "nSize", "(STRING)lpFileName", "result", "03(STRING)lpReturnedString"});
         add(GetProcAddress);
         add(GetProcessHeap);
         add(WinProcess.class, "GetProcessVersion", new String[] {"ProcessId", "{(HEX)result"});
@@ -183,6 +184,8 @@ public class Kernel32 extends BuiltinModule {
         add(RtlUnwind);
         add(RtlZeroMemory);
         add(SetConsoleCtrlHandler);
+        add(KPath.class, "SetCurrentDirectoryA", new String[] {"(STRING)lpPathName"});
+        add(Environ.class, "SetEnvironmentVariableA", new String[] {"(STRING)lpName", "(STRING)lpValue", "(BOOL)result"});
         add(SetErrorMode);
         add(SetEvent);
         add(SetFilePointer);

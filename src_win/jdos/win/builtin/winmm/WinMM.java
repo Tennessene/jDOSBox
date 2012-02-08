@@ -32,7 +32,9 @@ public class WinMM extends BuiltinModule {
         add(Mmio.class, "mmioRead", new String[] {"hmmio", "(HEX)pch", "cch"});
         add(Mmio.class, "mmioSeek", new String[] {"hmmio", "lOffset", "iOrigin"});
         add(Mmio.class, "mmioSetInfo", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
-        add(timeGetTime);
+        add(MMTime.class, "timeBeginPeriod", new String[] {"uPeriod"});
+        add(MMTime.class, "timeGetTime", new String[0]);
+        add(MMTime.class, "timeSetEvent", new String[] {"uDelay", "uResolution", "(HEX)lpTimeProc", "dwUser", "(HEX)fuEvent"});
         add(Waveform.class, "waveOutClose", new String[] {"(HEX)hwo"});
         add(Waveform.class, "waveOutOpen", new String[] {"(HEX)lphWaveOut", "uDeviceID", "(HEX)pwfx", "(HEX)dwCallback", "dwCallbackInstance", "(HEX)fdwOpen"});
         add(Waveform.class, "waveOutPrepareHeader", new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"});
@@ -188,16 +190,6 @@ public class WinMM extends BuiltinModule {
             // :TODO:
             System.out.println(getName()+" faked");
             CPU_Regs.reg_eax.dword = 0;
-        }
-    };
-
-    // DWORD timeGetTime(void)
-    private Callback.Handler timeGetTime = new HandlerBase() {
-        public java.lang.String getName() {
-            return "WinMM.timeGetTime";
-        }
-        public void onCall() {
-            CPU_Regs.reg_eax.dword = WinSystem.getTickCount();
         }
     };
 

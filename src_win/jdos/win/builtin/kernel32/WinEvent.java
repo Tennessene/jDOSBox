@@ -1,6 +1,7 @@
 package jdos.win.builtin.kernel32;
 
 import jdos.cpu.CPU_Regs;
+import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.system.WinObject;
 
@@ -26,6 +27,11 @@ public class WinEvent extends WaitObject {
     public int set() {
         set = true;
         release();
+        return WinAPI.TRUE;
+    }
+
+    public int pulse() {
+        Win.panic("Event.pulse not implemented yet");
         return WinAPI.TRUE;
     }
 

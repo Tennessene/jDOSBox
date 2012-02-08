@@ -425,7 +425,7 @@ public class IDirectSoundBuffer extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int dwFrequency = CPU.CPU_Pop32();
-            System.out.println(getName()+" faked");
+            System.out.println(getName()+" faked "+dwFrequency);
         }
     };
 
@@ -485,7 +485,7 @@ public class IDirectSoundBuffer extends IUnknown {
 
         public boolean open() {
             try {
-                AudioFormat af = new AudioFormat(format.nSamplesPerSec, format.wBitsPerSample, format.nChannels, false, false);
+                AudioFormat af = new AudioFormat(format.nSamplesPerSec, format.wBitsPerSample, format.nChannels, format.wBitsPerSample==16, false);
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, af);
                 line = (SourceDataLine) AudioSystem.getLine(info);
                 line.open(af, 8192);
@@ -527,6 +527,9 @@ public class IDirectSoundBuffer extends IUnknown {
     }
 
     private static void play(int This, byte[] buffer) {
+        if (buffer.length==0)
+            return;
+
         PlayThread thread = threads.get(This);
 
         if (thread != null) {
@@ -557,6 +560,9 @@ public class IDirectSoundBuffer extends IUnknown {
             len = posEnd - posStart;
 
         byte[] buffer = new byte[len];
+        if (len == 0)
+            return buffer;
+
         if (posEnd>posStart)
             Memory.mem_memcpy(buffer, 0, start+posStart, len);
         else {

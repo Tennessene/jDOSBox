@@ -109,7 +109,7 @@ public class WinFont extends WinGDI {
         Font font = WinFont.get(dc.hFont).font;
         g.setFont(font);
 
-        if (alpDx != 0 && lpnFit != 0) {
+        if (alpDx != 0 || lpnFit != 0) {
             int[] dx = new int[text.length()];
             for (int i=0;i<text.length();i++) {
                 dx[i] = (int)(font.getStringBounds(text.substring(0, i), frc).getWidth()+0.95);

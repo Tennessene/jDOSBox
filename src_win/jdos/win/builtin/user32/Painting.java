@@ -7,6 +7,8 @@ import jdos.win.system.StaticData;
 import jdos.win.system.WinRect;
 
 import java.awt.*;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Ellipse2D;
 import java.util.Iterator;
 
 public class Painting extends WinAPI {
@@ -27,6 +29,33 @@ public class Painting extends WinAPI {
         writed(lps+4, Message.SendMessageA(hwnd, WM_ERASEBKGND, hdc, 0));
         new WinRect(0, 0, win.rectClient.width(), win.rectClient.height()).write(lps+8);
         return readd(lps);
+    }
+
+    // BOOL Ellipse(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
+    static public int Ellipse(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect) {
+        WinDC dc = WinDC.get(hdc);
+        if (dc == null)
+            return FALSE;
+
+        if (nLeftRect == nRightRect || nTopRect == nBottomRect)
+            return TRUE;
+        WinPen pen = WinPen.get(dc.hPen);
+        WinBrush brush = WinBrush.get(dc.hBrush);
+
+        if (pen == null || brush == null)
+            return FALSE;
+
+        Graphics2D graphics = dc.getGraphics();
+        Ellipse2D ellipse2D = new Ellipse2D.Float(dc.x+nLeftRect, dc.y+nTopRect, nRightRect-nLeftRect, nBottomRect-nTopRect);
+        // inside
+        if (brush.setPaint(graphics))
+            graphics.fill(ellipse2D);
+        // border
+        if (pen.setStroke(dc, graphics))
+            graphics.draw(ellipse2D);
+
+        graphics.dispose();
+        return TRUE;
     }
 
     // BOOL EndPaint(HWND hWnd, const PAINTSTRUCT *lpPaint)
@@ -81,6 +110,43 @@ public class Painting extends WinAPI {
         if (window == null)
             return FALSE;
         window.invalidate();
+        return TRUE;
+    }
+
+    // BOOL Pie(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nXRadial1, int nYRadial1, int nXRadial2, int nYRadial2)
+    static public int Pie(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int xstart, int ystart, int xend, int yend) {
+        WinDC dc = WinDC.get(hdc);
+        if (dc == null)
+            return FALSE;
+
+        if (nLeftRect == nRightRect || nTopRect == nBottomRect)
+            return TRUE;
+        WinPen pen = WinPen.get(dc.hPen);
+        WinBrush brush = WinBrush.get(dc.hBrush);
+
+        if (pen == null || brush == null)
+            return FALSE;
+
+        Graphics2D graphics = dc.getGraphics();
+        int width = nRightRect-nLeftRect;
+        int height = nBottomRect-nTopRect;
+
+        int start = (int)(Math.atan2(height/2.0 - ystart, xstart-width/2.0)*180/Math.PI + 360) % 360;
+        int end = (int)(Math.atan2(height/2.0 - yend, xend - width/2.0)*180/Math.PI + 360) % 360;
+        int len;
+        if (end<start)
+            len = 360 - start + end;
+        else
+            len = end - start;
+        Arc2D arc2D = new Arc2D.Double(dc.x+nLeftRect, dc.y+nTopRect, width, height,  start, len, Arc2D.PIE);
+        // inside
+        if (brush.setPaint(graphics))
+            graphics.fill(arc2D);
+        // border
+        if (pen.setStroke(dc, graphics))
+            graphics.draw(arc2D);
+
+        graphics.dispose();
         return TRUE;
     }
 

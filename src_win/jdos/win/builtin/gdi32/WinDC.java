@@ -353,12 +353,12 @@ public class WinDC extends WinObject {
     int hClipRgn;
     public int hPen;
     public int hBrush;
-    int clipCx;
-    int clipCy;
+    public int clipCx;
+    public int clipCy;
     public int x;
     public int y;
-    int clipX;
-    int clipY;
+    public int clipX;
+    public int clipY;
     int ROPmode=R2_COPYPEN;
     float miterLimit = 10.0f; /* 10.0 is the default, from MSDN */
 
@@ -399,7 +399,8 @@ public class WinDC extends WinObject {
         BufferedImage image = getImage();
         Graphics2D g = image.createGraphics();
         // :TODO: merge clip
-        g.setClip(x, y, clipCx, clipCy);
+        if (clipCx>0 && clipCy>0)
+            g.setClip(x+clipX, y+clipY, clipCx, clipCy);
         return g;
     }
 

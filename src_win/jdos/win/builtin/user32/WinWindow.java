@@ -2,7 +2,6 @@ package jdos.win.builtin.user32;
 
 import jdos.cpu.Core_normal;
 import jdos.win.Win;
-import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinDC;
 import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.system.*;
@@ -95,6 +94,7 @@ public class WinWindow extends WinObject {
         wndPtr.hSysMenu       = 0;
         wndPtr.parent         = hWndParent;
         wndPtr.owner          = hwndOwner;
+        wndPtr.lastActivePopup = hwnd;
 
         //if ((dwStyle & WS_SYSMENU)!=0) SetSystemMenu(hwnd, 0);
 
@@ -164,6 +164,7 @@ public class WinWindow extends WinObject {
         }
 
         wndPtr.rectWindow.set(cs.x, cs.y, +cs.x+cs.cx, cs.y+cs.cy);
+        System.out.println(wndPtr.handle+" "+wndPtr.rectWindow);
         wndPtr.rectClient=wndPtr.rectWindow.copy();
 
         /* send WM_NCCREATE */
@@ -412,6 +413,14 @@ public class WinWindow extends WinObject {
     // HWND WINAPI GetDesktopWindow(void)
     static public int GetDesktopWindow() {
         return StaticData.desktopWindow;
+    }
+
+    // HWND WINAPI GetLastActivePopup(HWND hWnd)
+    static public int GetLastActivePopup(int hWnd) {
+        WinWindow window = WinWindow.get(hWnd);
+        if (window == null)
+            return 0;
+        return window.lastActivePopup;
     }
 
     // HWND WINAPI GetParent( HWND hwnd )
@@ -856,9 +865,8 @@ public class WinWindow extends WinObject {
         if (window == null)
             return 0;
 
-        Iterator<WinWindow> children = window.getChildren();
-        while (children.hasNext()) {
-            WinWindow child = children.next();
+        while (window.children.size()>0) {
+            WinWindow child = window.children.get(0);
             WIN_DestroyWindow(child.handle);
         }
 
@@ -920,12 +928,12 @@ public class WinWindow extends WinObject {
     public DialogInfo dlgInfo = null;
     private Hashtable<Integer, Integer> extra = new Hashtable<Integer, Integer>();
     public Hashtable<String, Integer> props = new Hashtable<String, Integer>();
-
+    public int lastActivePopup;
     private WinDC dc;
     WinClass winClass;
 
     public boolean isActive = false;
-    private boolean needsPainting = false;
+    public WinRect invalidationRect = null;
 
     public LinkedList<WinWindow> children = new LinkedList<WinWindow>(); // first one is on top
 
@@ -950,20 +958,26 @@ public class WinWindow extends WinObject {
         return WinWindow.get(parent);
     }
 
-    public void invalidate() {
-        if (needsPainting == false) {
-            needsPainting = true;
+    public void invalidate(WinRect rect) {
+        if (rect == null)
+            rect = new WinRect(0, 0, rectClient.width(), rectClient.height());
+        else
+            rect = rect.copy();
+        if (invalidationRect == null) {
+            invalidationRect = rect;
             if (thread != null)
                 thread.paintReady();
+        } else {
+            invalidationRect.merge(rect);
         }
     }
 
     public void validate() {
-        needsPainting = false;
+        invalidationRect = null;
     }
 
     public boolean needsPainting() {
-        return needsPainting;
+        return invalidationRect != null && (dwStyle & WS_VISIBLE)!=0;
     }
 
     public WinWindow findWindowFromPoint(int x, int y) {
@@ -988,11 +1002,6 @@ public class WinWindow extends WinObject {
                 return result;
         }
         return 0;
-    }
-
-    public int invalidateRect(int lpRect, int bErase) {
-        needsPainting = true;
-        return WinAPI.TRUE;
     }
 
     public void postMessage(int msg, int wParam, int lParam) {
@@ -1039,9 +1048,9 @@ public class WinWindow extends WinObject {
         if ((class_style & CS_PARENTDC)!=0 && parent != 0) {
             WinWindow pParent = WinWindow.get(parent);
             WinPoint ptParent = pParent.getScreenOffset();
-            dc.setOffset(p.x, p.y, ptParent.x, ptParent.y, pParent.rectClient.width(), pParent.rectClient.height());
+            dc.setOffset(p.x, p.y, ptParent.x-p.x, ptParent.y-p.y, pParent.rectClient.width(), pParent.rectClient.height());
         } else {
-            dc.setOffset(p.x, p.y, p.x, p.y, rectClient.width(), rectClient.height());
+            dc.setOffset(p.x, p.y, 0, 0, rectClient.width(), rectClient.height());
         }
         return dc;
     }
@@ -1082,5 +1091,9 @@ public class WinWindow extends WinObject {
         if ((dwStyle & (WS_CHILD | WS_POPUP)) == WS_CHILD && (dwExStyle & WS_EX_NOPARENTNOTIFY)==0) {
             Message.SendMessageA(GetParent(handle), WM_PARENTNOTIFY, MAKEWPARAM(msg, wIDmenu), handle);
         }
+    }
+
+    public String toString() {
+        return "handle="+handle+" text="+text;
     }
 }

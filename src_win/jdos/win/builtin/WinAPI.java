@@ -1860,6 +1860,48 @@ public class WinAPI extends Error {
     static final public int SEEK_CUR = 1;
     static final public int SEEK_END = 2;
     
+    static final public int SND_SYNC =           	0x0000;  /* play synchronously (default) */
+    static final public int SND_ASYNC =          	0x0001;  /* play asynchronously */
+    static final public int SND_NODEFAULT =      	0x0002;  /* don't use default sound */
+    static final public int SND_MEMORY =         	0x0004;  /* lpszSoundName points to a memory file */
+    static final public int SND_LOOP =           	0x0008;  /* loop the sound until next sndPlaySound */
+    static final public int SND_NOSTOP =         	0x0010;  /* don't stop any currently playing sound */
+    
+    static final public int SND_NOWAIT =             0x00002000; /* don't wait if the driver is busy */
+    static final public int SND_ALIAS =              0x00010000; /* name is a registry alias */
+    static final public int SND_ALIAS_ID =           0x00110000; /* alias is a predefined ID */
+    static final public int SND_FILENAME =           0x00020000; /* name is file name */
+    static final public int SND_RESOURCE =           0x00040004; /* name is resource name or atom */
+    static final public int SND_PURGE =              0x00000040; /* purge all sounds */
+    static final public int SND_APPLICATION =        0x00000080; /* look for application specific association */
+
+    static final public int SND_ALIAS_START =        0;
+
+    static public int sndAlias(int ch0, int ch1) {
+        return (SND_ALIAS_START + (ch0 & 0xFF) | ((ch1 & 0xFF) << 8));
+    }
+    
+    static final public int SND_ALIAS_SYSTEMASTERISK =       sndAlias('S', '*');
+    static final public int SND_ALIAS_SYSTEMQUESTION =       sndAlias('S', '?');
+    static final public int SND_ALIAS_SYSTEMHAND =           sndAlias('S', 'H');
+    static final public int SND_ALIAS_SYSTEMEXIT =           sndAlias('S', 'E');
+    static final public int SND_ALIAS_SYSTEMSTART =          sndAlias('S', 'S');
+    static final public int SND_ALIAS_SYSTEMWELCOME =        sndAlias('S', 'W');
+    static final public int SND_ALIAS_SYSTEMEXCLAMATION =    sndAlias('S', '!');
+    static final public int SND_ALIAS_SYSTEMDEFAULT =        sndAlias('S', 'D');
+    
+    /* STARTUPINFO.dwFlags */
+    static final public int STARTF_USESHOWWINDOW =      0x00000001;
+    static final public int STARTF_USESIZE =            0x00000002;
+    static final public int STARTF_USEPOSITION =        0x00000004;
+    static final public int STARTF_USECOUNTCHARS =      0x00000008;
+    static final public int STARTF_USEFILLATTRIBUTE =   0x00000010;
+    static final public int STARTF_RUNFULLSCREEN =      0x00000020;
+    static final public int STARTF_FORCEONFEEDBACK =    0x00000040;
+    static final public int STARTF_FORCEOFFFEEDBACK =   0x00000080;
+    static final public int STARTF_USESTDHANDLES =      0x00000100;
+    static final public int STARTF_USEHOTKEY =          0x00000200;
+
     // ************
     // * Internal *
     // ************

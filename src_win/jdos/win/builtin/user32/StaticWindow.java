@@ -294,9 +294,9 @@ public class StaticWindow extends WinAPI {
         case WM_PAINT:
             {
                 int ps = getTempBuffer(PAINTSTRUCT.SIZE);
-                int rect = getTempBuffer(WinRect.SIZE);
+                WinRect rect = new WinRect();
                 int hdc = wParam!=0 ? wParam : Painting.BeginPaint(hwnd, ps);
-                WinPos.GetClientRect(hwnd, rect);
+                WinPos.WIN_GetClientRect(hwnd, rect);
                 if (staticPaintFunc[style] != null) {
                     int hrgn = UiTools.set_control_clipping(hdc, rect);
                     staticPaintFunc[style].paint(hwnd, hdc, full_style);

@@ -28,6 +28,7 @@ public class User32 extends BuiltinModule {
         add(UiTools.class, "DrawEdge", new String[] {"hdc", "(RECT)qrc", "(HEX)edge", "(HEX)grfFlags", "(BOOL)result"});
         add(UiTools.class, "DrawFocusRect", new String[] {"hDC", "(RECT)lprc"});
         add(UiTools.class, "DrawFrameControl", new String[] {"hdc", "(RECT)lprc", "uType", "uState", "(BOOL)result"});
+        add(WinIcon.class, "DrawIcon", new String[] {"hdc", "xLeft", "yTop", "hIcon", "(BOOL)result"});
         add(WinIcon.class, "DrawIconEx", new String[] {"hdc", "xLeft", "yTop", "hIcon", "cxWidth", "cyWidth", "istepIfAniCur", "hbrFlickerFreeDraw", "(HEX)diFlags", "(BOOL)result"});
         add(UiTools.class, "DrawStateA", new String[] {"hdc", "hbr", "(HEX)lpOutputFunc", "lData", "wData", "x", "y", "cx", "cy", "(HEX)fuFlags", "(BOOL)result"});
         add(WinText.class, "DrawTextA", new String[] {"hDC", "(STRINGN2)lpchText", "nCount", "(RECT)lpRect", "(HEX)uFormat"});
@@ -56,9 +57,12 @@ public class User32 extends BuiltinModule {
         add(Input.class, "GetKeyboardState", new String[] {"(HEX)lpKeyState"});
         add(Input.class, "GetKeyNameTextA", new String[] {"lParam", "(HEX)lpString", "cchSize", "result", "01(STRING)lpString"});
         add(Input.class, "GetKeyState", new String[]{"nVirtKey"});
+        add(WinWindow.class, "GetLastActivePopup", new String[] {"hWnd"});
         add(WinMenu.class, "GetMenu", new String[] {"hWnd"});
         add(WinMenu.class, "GetMenuItemCount", new String[]{"hMenu"});
         add_wait(Message.class, "GetMessageA", (MSGLOG ? new String[]{"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "(BOOL)result", "00(MSG)lpMsg"} : null));
+        add(Message.class, "GetMessagePos", new String[0]);
+        add(Message.class, "GetMessageTime", new String[0]);
         add(WinDialog.class, "GetNextDlgGroupItem", new String[]{"hDlg", "hCtl", "(BOOL)bPrevious"});
         add(WinWindow.class, "GetParent", new String[]{"hWnd"});
         add(Property.class, "GetPropA", new String[]{"hWnd", "(STRING)lpString"});
@@ -92,6 +96,7 @@ public class User32 extends BuiltinModule {
         add(Resource.class, "LoadStringA", new String[] {"hInstance", "uID", "(HEX)lpBuffer", "nBufferMax", "result", "02(STRING)lpBuffer"});
         add(WinMenu.class, "LoadMenuA", new String[] {"hInstance", "(STRING)lpMenuName"});
         add(Input.class, "MapVirtualKeyA", new String[] {"uCode", "uMapType"});
+        add(WinPos.class, "MapWindowPoints", new String[] {"hWndFrom", "hWndTo", "(POINT)lpPoints", "cPoints", "(HEX)result", "02(POINT)lpPoints"});
         add(Message.class, "MessageBeep", new String[] {"uType"});
         add(MsgBox.class, "MessageBoxA", new String[] {"hWnd", "(STRING)lpText", "(STRING)lpCaption", "uType"});
         add(WinPos.class, "MoveWindow", new String[] {"hWnd", "X", "Y", "nWidth", "nHeight", "(BOOL)bRepaint", "(BOOL)result"});
@@ -108,11 +113,13 @@ public class User32 extends BuiltinModule {
         add(Painting.class, "ReleaseDC", new String[] {"hWnd", "hDC"});
         add(Property.class, "RemovePropA", new String[] {"hWnd", "(STRING)lpString"});
         add(WinPos.class, "ScreenToClient", new String[] {"hWnd", "(POINT)lpPoint", "(BOOL)result", "01(POINT)lpPoint"});
+        add(WinDialog.class, "SendDlgItemMessageA", new String[] {"hDlg", "nIDDlgItem", "(HEX)Msg", "wParam", "lParam"});
         add(Message.class, "SendMessageA", new String[] {"hWnd", "(HEX)msg", "wParam", "lParam"});
         add(Input.class, "SetCapture", new String[] {"hWnd"});
         add(WinClass.class, "SetClassLongA", new String[] {"hWnd", "nIndex", "dwNewLong"});
         add(WinCursor.class, "SetCursor", new String[] {"hCursor"});
         add(Input.class, "SetCursorPos", new String[] {"X", "Y", "(BOOL)result"});
+        add(WinDialog.class, "SetDlgItemTextA", new String[] {"hDlg", "nIDDlgItem", "(STRING)lpString", "(BOOL)result"});
         add(Focus.class, "SetFocus", new String[] {"hwnd"});
         add(Focus.class, "SetForegroundWindow", new String[] {"hWnd", "(BOOL)result"});
         add(WinMenu.class, "SetMenu", new String[] {"hWnd", "hMenu", "(BOOL)result"});

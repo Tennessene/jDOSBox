@@ -33,6 +33,16 @@ public class Message extends WinAPI {
         return Scheduler.getCurrentThread().getNextMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
     }
 
+    // DWORD WINAPI GetMessagePos(void);
+    static public int GetMessagePos() {
+        return Scheduler.getCurrentThread().currentGetMessagePos;
+    }
+
+    // LONG WINAPI GetMessageTime(void)
+    static public int GetMessageTime() {
+        return Scheduler.getCurrentThread().currentGetMessageTime;
+    }
+
     // BOOL WINAPI MessageBeep(UINT uType)
     static public int MessageBeep(int uType) {
         return TRUE;

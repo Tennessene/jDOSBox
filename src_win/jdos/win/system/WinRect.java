@@ -55,9 +55,17 @@ public class WinRect extends WinAPI {
         right  = Math.min(src1.right,src2.right);
         top    = Math.max(src1.top, src2.top);
         bottom = Math.min(src1.bottom, src2.bottom);
-        return isEmpty();
+        return !isEmpty();
     }
 
+    public void merge(WinRect rect) {
+        if (!rect.isEmpty()) {
+            left = Math.min(left, rect.left);
+            top = Math.min(top, rect.top);
+            right = Math.max(right, rect.right);
+            bottom = Math.max(bottom, rect.bottom);
+        }
+    }
     public boolean isEmpty() {
         return left>=right || top>=bottom;
     }

@@ -32,6 +32,7 @@ public class WinMM extends BuiltinModule {
         add(Mmio.class, "mmioRead", new String[] {"hmmio", "(HEX)pch", "cch"});
         add(Mmio.class, "mmioSeek", new String[] {"hmmio", "lOffset", "iOrigin"});
         add(Mmio.class, "mmioSetInfo", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
+        add(PlaySound.class, "PlaySoundA", new String[] {"(STRING)pszSound", "hmod", "(HEX)fdwSound", "(BOOL)result"}, 2);
         add(MMTime.class, "timeBeginPeriod", new String[] {"uPeriod"});
         add(MMTime.class, "timeGetTime", new String[0]);
         add(MMTime.class, "timeSetEvent", new String[] {"uDelay", "uResolution", "(HEX)lpTimeProc", "dwUser", "(HEX)fuEvent"});
@@ -41,6 +42,11 @@ public class WinMM extends BuiltinModule {
         add(Waveform.class, "waveOutReset", new String[] {"(HEX)hwo"});
         add(Waveform.class, "waveOutUnprepareHeader", new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"});
         add(Waveform.class, "waveOutWrite", new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"});
+    }
+
+    public static int unknown() {
+        log("WinMM.DLL called ordinal 2, not sure what this should map to");
+        return 0;
     }
 
     // :TODO: This code can use a lot of work

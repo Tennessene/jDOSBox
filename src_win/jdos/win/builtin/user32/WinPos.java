@@ -5,6 +5,7 @@ import jdos.win.builtin.WinAPI;
 import jdos.win.system.StaticData;
 import jdos.win.system.WinPoint;
 import jdos.win.system.WinRect;
+import jdos.win.utils.Error;
 
 public class WinPos extends WinAPI {
     // BOOL ClientToScreen(HWND hWnd, LPPOINT lpPoint)
@@ -97,6 +98,30 @@ public class WinPos extends WinAPI {
             return TRUE;
         }
         return FALSE;
+    }
+
+    // int MapWindowPoints(HWND hWndFrom, HWND hWndTo, LPPOINT lpPoints, UINT cPoints)
+    public static int MapWindowPoints(int hWndFrom, int hWndTo, int lpPoints, int cPoints) {
+        WinWindow from = WinWindow.get(hWndFrom);
+        WinWindow to = WinWindow.get(hWndTo);
+        if (from == null || to == null) {
+            SetLastError(Error.ERROR_INVALID_HANDLE);
+            return 0;
+        }
+        WinPoint fromOffset = from.getScreenOffset();
+        WinPoint toOffset = to.getScreenOffset();
+        int cx = fromOffset.x-toOffset.x;
+        int cy = fromOffset.y-toOffset.y;
+
+        for (int i=0; i<cPoints; i++) {
+            int px = readd(lpPoints+i*8);
+            int py = readd(lpPoints+i*8+4);
+            px+=cx;
+            py+=cy;
+            writed(lpPoints+i*8, px);
+            writed(lpPoints+i*8+4, py);
+        }
+        return MAKELONG(LOWORD(cx), LOWORD(cy));
     }
 
     // BOOL WINAPI MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint)
@@ -230,16 +255,17 @@ public class WinPos extends WinAPI {
         /* erase parent when hiding or resizing child */
         if ((orig_flags & SWP_DEFERERASE)==0 && ((orig_flags & SWP_HIDEWINDOW)!=0 || ((orig_flags & SWP_SHOWWINDOW)==0 && geometryChanged))) {
             int parent = WinWindow.GetAncestor(hWnd, GA_PARENT);
-            if (parent == 0)
-                parent = StaticData.desktopWindow;
-            WinWindow.get(parent).invalidate();
+            if (parent != 0)
+                WinWindow.get(parent).invalidate(window.rectWindow);
+            else
+                DesktopWindow.invalidate();
         }
 
         if ((uFlags & SWP_HIDEWINDOW)!=0)
             Caret.HideCaret(hWnd);
         else if ((uFlags & SWP_SHOWWINDOW)!=0) {
             Caret.ShowCaret(hWnd);
-            window.invalidate();
+            window.invalidate(null);
         }
 
         if ((uFlags & (SWP_NOACTIVATE|SWP_HIDEWINDOW))==0)

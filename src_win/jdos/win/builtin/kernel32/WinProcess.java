@@ -1,19 +1,18 @@
 package jdos.win.builtin.kernel32;
 
+import jdos.cpu.CPU_Regs;
+import jdos.hardware.Memory;
+import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
-import jdos.win.builtin.user32.ButtonWindow;
-import jdos.win.builtin.user32.StaticWindow;
-import jdos.win.builtin.user32.WinClass;
+import jdos.win.builtin.user32.*;
 import jdos.win.kernel.KernelHeap;
 import jdos.win.kernel.KernelMemory;
 import jdos.win.loader.Loader;
 import jdos.win.loader.Module;
 import jdos.win.loader.NativeModule;
-import jdos.win.system.Scheduler;
-import jdos.win.system.WinHeap;
-import jdos.win.system.WinObject;
-import jdos.win.system.WinSystem;
+import jdos.win.loader.winpe.LittleEndianFile;
+import jdos.win.system.*;
 import jdos.win.utils.Error;
 import jdos.win.utils.*;
 
@@ -44,6 +43,87 @@ public class WinProcess extends WaitObject {
         return (WinProcess)object;
     }
 
+    // BOOL WINAPI CloseHandle(HANDLE hObject)
+    static public int CloseHandle(int hObject) {
+        WinObject object = WinObject.getObject(hObject);
+        if (object == null) {
+            SetLastError(Error.ERROR_INVALID_HANDLE);
+            return FALSE;
+        }
+        if (object instanceof WinProcess) {
+            object.close();
+        } else if (object instanceof WinThread) {
+            object.close();
+        } else if (object instanceof WinFileMapping) {
+            object.close();
+        } else if (object instanceof WinFile) {
+            object.close();
+        } else if (object instanceof WinEvent) {
+            object.close();
+        } else if (object instanceof WinIcon) {
+            object.close();
+        } else if (object instanceof WinCursor) {
+            object.close();
+        } else {
+            Win.panic("CloseHandle not implemented for type: "+object);
+        }
+        return TRUE;
+    }
+
+    // BOOL WINAPI CreateProcess(LPCTSTR lpApplicationName, LPTSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCTSTR lpCurrentDirectory, LPSTARTUPINFO lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
+    static public int CreateProcessA(int lpApplicationName, int lpCommandLine, int lpProcessAttributes, int lpThreadAttributes, int bInheritHandles, int dwCreationFlags, int lpEnvironment, int lpCurrentDirectory, int lpStartupInfo, int lpProcessInformation) {
+        String name = null;
+        String cwd = null;
+
+        String commandLine = "";
+        WinProcess currentProcess = WinSystem.getCurrentProcess();
+        if ((lpApplicationName == 0 && lpCommandLine == 0) || lpStartupInfo == 0 || lpProcessInformation == 0) {
+            CPU_Regs.reg_eax.dword = WinAPI.FALSE;
+            Scheduler.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
+        }
+        if (lpCommandLine != 0) {
+            commandLine = new LittleEndianFile(lpCommandLine).readCString();
+        }
+        if (lpApplicationName != 0) {
+            name = new LittleEndianFile(lpApplicationName).readCString();
+        } else {
+            name = StringUtil.parseQuotedString(commandLine)[0];
+        }
+        if (lpCurrentDirectory != 0) {
+            cwd = new LittleEndianFile(lpCurrentDirectory).readCString();
+        } else {
+            cwd = currentProcess.currentWorkingDirectory;
+        }
+        StartupInfo info = new StartupInfo(lpStartupInfo);
+        int pos = name.lastIndexOf("\\");
+        if (pos>=0) {
+            if (!name.substring(0, pos+1).equalsIgnoreCase(cwd)) {
+                Console.out("***WARNING*** Creating process using full path where path is not current working directory.  This may not work");
+            }
+            name = name.substring(pos+1);
+        }
+        WinProcess process = WinProcess.create(name, commandLine, currentProcess.paths, currentProcess.currentWorkingDirectory);
+        if (process == null) {
+            SetLastError(Error.ERROR_FILE_NOT_FOUND);
+            return FALSE;
+        } else {
+            CPU_Regs.reg_eax.dword = WinAPI.TRUE;
+//                typedef struct _PROCESS_INFORMATION {
+//                  HANDLE hProcess;
+//                  HANDLE hThread;
+//                  DWORD  dwProcessId;
+//                  DWORD  dwThreadId;
+//                }
+            process.open();
+            process.getMainThread().open();
+            Memory.mem_writed(lpProcessInformation, process.getHandle());
+            Memory.mem_writed(lpProcessInformation+4, process.getMainThread().getHandle());
+            Memory.mem_writed(lpProcessInformation+8, process.getHandle());
+            Memory.mem_writed(lpProcessInformation+12, process.getMainThread().getHandle());
+            return TRUE;
+        }
+    }
+
     // DWORD WINAPI GetProcessVersion(DWORD ProcessId)
     static public int GetProcessVersion(int ProcessId) {
         WinProcess process;
@@ -55,6 +135,33 @@ public class WinProcess extends WaitObject {
         if (process == null)
             return 0;
         return process.loader.main.header.imageOptional.MajorOperatingSystemVersion << 16 | process.loader.main.header.imageOptional.MinorOperatingSystemVersion;
+    }
+
+    // UINT WINAPI WinExec(LPCSTR lpCmdLine, UINT uCmdShow)
+    static public int WinExec(int lpCmdLine, int uCmdShow) {
+        if (lpCmdLine == 0)
+            return Error.ERROR_PATH_NOT_FOUND;
+        String commandLine = StringUtil.getString(lpCmdLine);
+        StartupInfo startup = new StartupInfo();
+        startup.dwFlags = STARTF_USESHOWWINDOW;
+        startup.wShowWindow = uCmdShow;
+
+        int ret;
+        int info = getTempBuffer(16);
+        if (CreateProcessA( NULL, lpCmdLine, NULL, NULL, FALSE, 0, NULL, NULL, startup.allocTemp(), info)!=0) {
+            /* Give 30 seconds to the app to come up */
+            //if (wait_input_idle(readd(info), 30000 ) == WAIT_FAILED)
+            //    warn("WaitForInputIdle failed: Error "+WinThread.GetLastError());
+            ret = 33;
+            /* Close off the handles */
+            CloseHandle(readd(info+4));
+            CloseHandle(readd(info));
+        } else if ((ret = WinThread.GetLastError()) >= 32) {
+            log("Strange error set by CreateProcess: "+ret);
+            return 11;
+        }
+
+        return 33;
     }
 
     public static final long ADDRESS_HEAP_START =           0x0BA00000l;
@@ -79,7 +186,7 @@ public class WinProcess extends WaitObject {
     private int envHandleW = 0;
     public Hashtable env = new Hashtable();
     public Loader loader;
-    private Vector threads = new Vector();
+    public Vector threads = new Vector();
     private int[] temp = new int[10];
     public int nextTempIndex = 0;
 
@@ -96,6 +203,7 @@ public class WinProcess extends WaitObject {
     public int tlsSize = 0;
     public Vector<Integer> freeTLS = new Vector<Integer>();
     public int mmTimerThreadEIP;
+    public Vector playSound = new Vector();
 
     public WinProcess(int handle, KernelMemory memory, String workingDirectory) {
         super(handle);

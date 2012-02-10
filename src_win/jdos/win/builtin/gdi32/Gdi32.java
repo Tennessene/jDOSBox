@@ -25,6 +25,7 @@ public class Gdi32 extends BuiltinModule {
         add(Clipping.class, "GetClipRgn", LOG_GDI?new String[] {"hdc", "hrgn"}:null);
         add(GdiObj.class, "GetCurrentObject", LOG_GDI?new String[] {"hdc", "uObjectType"}:null);
         add(WinDC.class, "GetDeviceCaps", LOG_GDI?new String[] {"hdc", "nIndex"}:null);
+        add(Dib.class, "GetDIBColorTable", LOG_GDI?new String[] {"hdc", "uStartIndex", "cEntries", "(HEX)pColors"}:null);
         add(GdiObj.class, "GetObjectA", LOG_GDI?new String[] {"(GDI)hgdiobj", "cbBuffer", "(HEX)lpvObject"}:null);
         add(WinPalette.class, "GetPaletteEntries", LOG_GDI?new String[] {"(GDI)hpal", "iStartIndex", "nEntries", "(HEX)lppe"}:null);
         add(WinDC.class, "GetPixel", LOG_GDI?new String[] {"hdc", "nXPos", "nYPos", "(HEX)result"}:null);

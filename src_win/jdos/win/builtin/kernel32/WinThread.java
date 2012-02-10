@@ -37,6 +37,11 @@ public class WinThread extends WaitObject {
         return Scheduler.getCurrentThread().handle;
     }
 
+    // DWORD WINAPI GetLastError(void)
+    static public int GetLastError() {
+        return Scheduler.getCurrentThread().getLastError();
+    }
+
     static public WinThread current() {
         return Scheduler.getCurrentThread();
     }
@@ -69,6 +74,8 @@ public class WinThread extends WaitObject {
     private GuiThreadInfo guiInfo = new GuiThreadInfo();
     public int waitTime;
     public int waitTimeStart;
+    public int currentGetMessageTime = 0;
+    public int currentGetMessagePos = 0;
 
     public GuiThreadInfo GetGUIThreadInfo() {
         return guiInfo;
@@ -149,6 +156,8 @@ public class WinThread extends WaitObject {
         if (msg.keyState != null)
             keyState = msg.keyState;
         setMessage(msgAddress, msg.hwnd, msg.message, msg.wParam, msg.lParam, msg.time, msg.x, msg.y);
+        currentGetMessageTime = msg.time;
+        currentGetMessagePos = msg.x | (msg.y << 16);
         return WinAPI.TRUE;
     }
 
@@ -214,7 +223,14 @@ public class WinThread extends WaitObject {
     private static void buildBackToFrontWindowList(WinWindow window, Vector<Integer> list) {
         list.add(window.handle);
         for (int j=window.children.size()-1;j>=0;j--) {
-            buildBackToFrontWindowList(window.children.get(j), list);
+            WinWindow child = window.children.get(j);
+            if ((child.dwStyle & WS_VISIBLE)==0)
+                continue;
+            WinRect intersection = new WinRect();
+            WinRect childRect = child.rectWindow.copy();
+            childRect.offset(window.rectWindow.left, window.rectWindow.top);
+            if (intersection.intersect(window.invalidationRect, childRect))
+                buildBackToFrontWindowList(child, list);
         }
     }
 
@@ -260,7 +276,6 @@ public class WinThread extends WaitObject {
                 }
                 if (remove) {
                     buildBackToFrontWindowList(window, paintList);
-                    window.validate();
                 }
                 setMessage(msgAddress, window.getHandle(), WinWindow.WM_PAINT, 0, 0, WinSystem.getTickCount(), StaticData.currentPos.x, StaticData.currentPos.y);
                 return WinAPI.TRUE;

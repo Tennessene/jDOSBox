@@ -24,10 +24,19 @@ public class Painting extends WinAPI {
         Message.SendMessageA(hwnd, WM_NCPAINT, rgn, 0 );
         GdiObj.DeleteObject(rgn);
 
-        int hdc = win.getDC().handle;
+        WinDC dc = win.getDC();
+        if (win.invalidationRect == null) {
+            new WinRect(0, 0, win.rectClient.width(), win.rectClient.height()).write(lps+8);
+        } else {
+            dc.clipX = win.invalidationRect.left;
+            dc.clipY = win.invalidationRect.top;
+            dc.clipCx = win.invalidationRect.width();
+            dc.clipCy = win.invalidationRect.height();
+            win.invalidationRect.write(lps+8);
+        }
+        int hdc = dc.handle;
         writed(lps, hdc);
         writed(lps+4, Message.SendMessageA(hwnd, WM_ERASEBKGND, hdc, 0));
-        new WinRect(0, 0, win.rectClient.width(), win.rectClient.height()).write(lps+8);
         return readd(lps);
     }
 
@@ -65,6 +74,7 @@ public class Painting extends WinAPI {
             dc.close();
         Caret.ShowCaret(hWnd);
         Main.drawImage(StaticData.screen.getImage());
+        WinWindow.get(hWnd).validate();
         return TRUE;
     }
 
@@ -108,8 +118,12 @@ public class Painting extends WinAPI {
     static public int InvalidateRect(int hWnd, int lpRect, int bErase) {
         WinWindow window = WinWindow.get(hWnd);
         if (window == null)
-            return FALSE;
-        window.invalidate();
+            return FALSE; // :TODO: invalidate all windows
+        WinRect rect = null;
+        if (lpRect != 0) {
+            rect = new WinRect(lpRect);
+        }
+        window.invalidate(rect);
         return TRUE;
     }
 

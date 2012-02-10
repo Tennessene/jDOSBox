@@ -24,7 +24,7 @@ public class BitBlt extends WinAPI {
             Win.panic("StretchBlt only supports SRCCOPY");
         }
         Graphics2D g = dest.getGraphics();
-        StretchBlt2D(g, nXOriginDest, nYOriginDest, nWidthDest, nHeightDest, src.getImage(), nXOriginSrc, nYOriginSrc, nWidthSrc, nHeightSrc, dwRop);
+        StretchBlt2D(g, dest.x+nXOriginDest, dest.y+nYOriginDest, nWidthDest, nHeightDest, src.getImage(), nXOriginSrc, nYOriginSrc, nWidthSrc, nHeightSrc, dwRop);
         g.dispose();
         return TRUE;
     }

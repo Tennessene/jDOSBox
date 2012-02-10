@@ -3,6 +3,7 @@ package jdos.win.system;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.*;
 import jdos.win.builtin.user32.Hook;
+import jdos.win.builtin.user32.SysParams;
 import jdos.win.builtin.user32.WinClass;
 import jdos.win.builtin.user32.WinWindow;
 
@@ -74,6 +75,10 @@ public class StaticData extends WinAPI {
                 gdi.makePermanent();
             }
         }
+
+        for (int i=0;i<SysColors.length;i++)
+            SysColors[i] = SysParams.DefSysColors[i].color;
+
         hooks = new Hashtable<Integer, Vector<Hook>>();
         registeredMessages = new Hashtable<String, Integer>();
         nextRegisteredMessage = 0xC000;

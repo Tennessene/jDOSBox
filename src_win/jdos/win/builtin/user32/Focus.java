@@ -162,6 +162,13 @@ public class Focus extends WinAPI {
                     set_focus_window(hwnd);
             }
         }
+        WinWindow window = WinWindow.get(hwnd);
+        while (window != null) {
+            window.lastActivePopup = hwnd;
+            if (window.owner == 0)
+                break;
+            window = WinWindow.get(window.owner);
+        }
         return true;
     }
 }

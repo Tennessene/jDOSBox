@@ -106,6 +106,7 @@ public class Loader {
                         main = module;
                         // we need to create the main thread as soon as possible so that DllMain can run
                         WinThread thread = WinThread.create(process, module.getEntryPoint(), (int) module.header.imageOptional.SizeOfStackCommit, (int) module.header.imageOptional.SizeOfStackReserve, true);
+                        process.threads.add(thread);
                         WinSystem.getCurrentProcess().mainModule = module;
                     }
                     // :TODO: reloc dll
@@ -167,8 +168,8 @@ public class Loader {
             module = new Comctl32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("msacm32.dll")) {
             module = new Msacm32(this, getNextModuleHandle());
-        } else {
-            module = new BuiltinModule(this, name, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("winspool.drv")) {
+            module = new Winspool(this, getNextModuleHandle());
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);

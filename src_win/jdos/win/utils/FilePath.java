@@ -8,11 +8,22 @@ import jdos.util.IntRef;
 import jdos.util.LongRef;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 public class FilePath {
     static public Hashtable<String, Object> disks = new Hashtable<String, Object>();
+    static Set<String> faked = new HashSet<String>();
 
+    static {
+        faked.add("\\windows\\system32\\dsound.vxd");
+        faked.add("\\windows\\system32\\dsound.dll");
+        faked.add("\\windows\\system32\\ddraw.dll");
+        faked.add("\\windows\\system32\\ddhelp.exe");
+        faked.add("\\windows\\system32\\");
+        faked.add("\\windows\\");
+    }
     public FilePath(String path) {
         this.path = path;
         String driveLetter = path.substring(0, 1).toUpperCase();
@@ -28,7 +39,13 @@ public class FilePath {
     }
 
     public boolean exists() {
-        return delagate.exists();
+        boolean result = delagate.exists();
+        if (!result) {
+            int pos = path.toLowerCase().indexOf("\\windows\\");
+            if (pos>=0)
+                result = faked.contains(path.toLowerCase().substring(pos));
+        }
+        return result;
     }
 
     public String getName() {
@@ -205,6 +222,10 @@ public class FilePath {
                     if (result == 1)
                         return buf[0] & 0xFF;
                     return result;
+                }
+
+                public void reset() {
+                    FatPath.this.seek(0);
                 }
             };
         }

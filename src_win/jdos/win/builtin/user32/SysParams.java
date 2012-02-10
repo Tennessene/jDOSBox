@@ -78,12 +78,14 @@ public class SysParams extends WinAPI {
 //            return nonclient_metrics.iScrollHeight;
         case SM_CXHTHUMB:
             return GetSystemMetrics(SM_CYVTHUMB);
-//        case SM_CXICON:
-//            if (!spi_loaded[SPI_NONCLIENTMETRICS_IDX]) load_nonclient_metrics();
-//            return icon_size.cx;
-//        case SM_CYICON:
-//            if (!spi_loaded[SPI_NONCLIENTMETRICS_IDX]) load_nonclient_metrics();
-//            return icon_size.cy;
+        case SM_CXICON:
+            //if (!spi_loaded[SPI_NONCLIENTMETRICS_IDX]) load_nonclient_metrics();
+            //return icon_size.cx;
+            return 32;
+        case SM_CYICON:
+            //if (!spi_loaded[SPI_NONCLIENTMETRICS_IDX]) load_nonclient_metrics();
+            //return icon_size.cy;
+            return 32;
         case SM_CXCURSOR:
         case SM_CYCURSOR:
             return 32;
@@ -297,16 +299,16 @@ public class SysParams extends WinAPI {
         return TRUE;
     }
 
-    static private class DefColor {
+    static public class DefColor {
         public DefColor(String name, int color) {
             this.name = name;
             this.color = color;
         }
-        String name;
-        int color;
+        public String name;
+        public int color;
     }
 
-    static private final DefColor[] DefSysColors = new DefColor[] {
+    static public final DefColor[] DefSysColors = new DefColor[] {
         new DefColor("Scrollbar", RGB(212, 208, 200)),              /* COLOR_SCROLLBAR */
         new DefColor("Background", RGB(58, 110, 165)),              /* COLOR_BACKGROUND */
         new DefColor("ActiveTitle", RGB(10, 36, 106)),              /* COLOR_ACTIVECAPTION */

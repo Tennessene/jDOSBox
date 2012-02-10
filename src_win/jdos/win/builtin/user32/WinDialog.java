@@ -196,6 +196,18 @@ public class WinDialog extends WinAPI {
         return DIALOG_GetNextTabItem(hwndDlg, hwndDlg, hwndCtrl, fPrevious);
     }
 
+    // LRESULT WINAPI SendDlgItemMessage(HWND hDlg, int nIDDlgItem, UINT Msg, WPARAM wParam, LPARAM lParam)
+    static public int SendDlgItemMessageA(int hwnd, int id, int msg, int wParam, int lParam) {
+        int hwndCtrl = GetDlgItem( hwnd, id );
+        if (hwndCtrl!=0) return Message.SendMessageA(hwndCtrl, msg, wParam, lParam);
+        else return 0;
+    }
+
+    // BOOL WINAPI SetDlgItemText(HWND hDlg, int nIDDlgItem, LPCTSTR lpString)
+    public static int SetDlgItemTextA(int hDlg, int nIDDlgItem, int lpString) {
+        return SendDlgItemMessageA(hDlg, nIDDlgItem, WM_SETTEXT, 0, lpString);
+    }
+
     static final int DIALOG_CLASS_ATOM = 32770;
 
     static public void registerClass(User32 dll, WinProcess process) {

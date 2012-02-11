@@ -9,6 +9,7 @@ import jdos.dos.drives.Drive_fat;
 import jdos.gui.Main;
 import jdos.hardware.Keyboard;
 import jdos.hardware.Memory;
+import jdos.hardware.Mixer;
 import jdos.hardware.Pic;
 import jdos.misc.setup.Section;
 import jdos.util.StringRef;
@@ -143,6 +144,9 @@ public class Win extends WinAPI {
         };
         handler.flags = Paging.PFLAG_READABLE | Paging.PFLAG_WRITEABLE;
         Memory.MEM_SetLFB(Memory.MEM_TotalPages(), videoMemory, handler, null);
+
+        Mixer.MIXER_Stop.call(null);
+        jdos.hardware.Timer.TIMER_Destroy.call(null);
 
         Keyboard.KEYBOARD_ShutDown.call(null);
         Main.defaultKeyboardHandler = WinKeyboard.defaultKeyboardHandler;

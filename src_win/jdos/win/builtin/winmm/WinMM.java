@@ -34,9 +34,11 @@ public class WinMM extends BuiltinModule {
         add(Mmio.class, "mmioSetInfo", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
         add(PlaySound.class, "PlaySoundA", new String[] {"(STRING)pszSound", "hmod", "(HEX)fdwSound", "(BOOL)result"}, 2);
         add(MMTime.class, "timeBeginPeriod", new String[] {"uPeriod"});
+        add(MMTime.class, "timeGetDevCaps", new String[] {"lpCaps", "wSize"});
         add(MMTime.class, "timeGetTime", new String[0]);
         add(MMTime.class, "timeSetEvent", new String[] {"uDelay", "uResolution", "(HEX)lpTimeProc", "dwUser", "(HEX)fuEvent"});
         add(Waveform.class, "waveOutClose", new String[] {"(HEX)hwo"});
+        add(Waveform.class, "waveOutGetDevCapsA", new String[] {"uDeviceID", "(HEX)pwoc", "cbwoc"});
         add(Waveform.class, "waveOutOpen", new String[] {"(HEX)lphWaveOut", "uDeviceID", "(HEX)pwfx", "(HEX)dwCallback", "dwCallbackInstance", "(HEX)fdwOpen"});
         add(Waveform.class, "waveOutPrepareHeader", new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"});
         add(Waveform.class, "waveOutReset", new String[] {"(HEX)hwo"});

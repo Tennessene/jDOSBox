@@ -13,6 +13,14 @@ import javax.sound.sampled.SourceDataLine;
 import java.util.Vector;
 
 public class Waveform extends WinAPI {
+    static final public int WAVECAPS_PITCH =            0x0001;   /* supports pitch control */
+    static final public int WAVECAPS_PLAYBACKRATE =     0x0002;   /* supports playback rate control */
+    static final public int WAVECAPS_VOLUME =           0x0004;   /* supports volume control */
+    static final public int WAVECAPS_LRVOLUME =         0x0008;   /* separate left-right volume control */
+    static final public int WAVECAPS_SYNC =             0x0010;	 /* driver is synchronous and playing is blocking */
+    static final public int WAVECAPS_SAMPLEACCURATE =   0x0020;	 /* position is sample accurate */
+    static final public int WAVECAPS_DIRECTSOUND =      0x0040;   /* ? */
+    
     private static class WaveObject extends WinObject {
         static public WaveObject create(WAVEFORMATEX format) {
             return new WaveObject(nextObjectId(), format);
@@ -72,7 +80,7 @@ public class Waveform extends WinAPI {
                     hdr.writeFlags();
                 }
                 synchronized (buffers) {
-                    if (buffers.size()==0)
+                    if (buffers.size()==0 && !exit)
                         try {buffers.wait();} catch (Exception e){}
                 }
             }
@@ -93,6 +101,25 @@ public class Waveform extends WinAPI {
         }
         try {obj.thread.join();} catch (Exception e) {}
         obj.close();
+        return WinMM.MMSYSERR_NOERROR;
+    }
+
+    // MMRESULT waveOutGetDevCaps(UINT_PTR uDeviceID, LPWAVEOUTCAPS pwoc, UINT cbwoc)
+    public static int waveOutGetDevCapsA(int uDeviceID, int pwoc, int cbwoc) {
+        if (pwoc == 0)
+            return WinMM.MMSYSERR_INVALPARAM;
+
+        WAVEOUTCAPS mapper_caps = new WAVEOUTCAPS();
+        mapper_caps.wMid = 0xFF;
+        mapper_caps.wPid = 0xFF;
+        mapper_caps.vDriverVersion = 0x00010001;
+        mapper_caps.dwFormats = 0xFFFFFFFF;
+        mapper_caps.wReserved1 = 0;
+        mapper_caps.dwSupport = WAVECAPS_LRVOLUME | WAVECAPS_VOLUME |
+            WAVECAPS_SAMPLEACCURATE;
+        mapper_caps.wChannels = 2;
+        mapper_caps.szPname = "Wine Sound Mapper";
+        mapper_caps.write(pwoc);
         return WinMM.MMSYSERR_NOERROR;
     }
 
@@ -212,6 +239,9 @@ public class Waveform extends WinAPI {
         hdr.data = new byte[hdr.dwBufferLength];
         Memory.mem_memcpy(hdr.data, 0, hdr.lpData, hdr.dwBufferLength);
 
+        if (pwh == 0xb0004afc) {
+            int ii=0;
+        }
         synchronized(obj.thread.buffers) {
             obj.thread.buffers.add(hdr);
             obj.thread.buffers.notify();

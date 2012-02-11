@@ -503,7 +503,7 @@ public class Timer extends Module_base {
 
     private static Timer test;
 
-    private static Section.SectionFunction TIMER_Destroy = new Section.SectionFunction() {
+    public static Section.SectionFunction TIMER_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             Pic.PIC_RemoveEvents(PIT0_Event);
             test = null;

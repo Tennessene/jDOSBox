@@ -2563,6 +2563,8 @@ public class Kernel32 extends BuiltinModule {
                 Scheduler.getCurrentThread().setLastError(Error.ERROR_INVALID_HANDLE);
             } else {
                 read = file.read(lpBuffer, nNumberOfBytesToRead);
+                if (read == -1)
+                    read = 0;
                 if (lpNumberOfBytesRead != 0)
                     Memory.mem_writed(lpNumberOfBytesRead, read);
                 CPU_Regs.reg_eax.dword = WinAPI.TRUE;

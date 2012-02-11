@@ -115,6 +115,7 @@ public class User32 extends BuiltinModule {
         add(WinPos.class, "ScreenToClient", new String[] {"hWnd", "(POINT)lpPoint", "(BOOL)result", "01(POINT)lpPoint"});
         add(WinDialog.class, "SendDlgItemMessageA", new String[] {"hDlg", "nIDDlgItem", "(HEX)Msg", "wParam", "lParam"});
         add(Message.class, "SendMessageA", new String[] {"hWnd", "(HEX)msg", "wParam", "lParam"});
+        add(Focus.class, "SetActiveWindow", new String[] {"hWnd"});
         add(Input.class, "SetCapture", new String[] {"hWnd"});
         add(WinClass.class, "SetClassLongA", new String[] {"hWnd", "nIndex", "dwNewLong"});
         add(WinCursor.class, "SetCursor", new String[] {"hCursor"});

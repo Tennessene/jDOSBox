@@ -33,25 +33,30 @@ public class MMTime extends WinAPI {
         public String getName() {
             return "mmTimerThread";
         }
+        private long lastCall;
+
         public void onCall() {
+            int esp = CPU_Regs.reg_esp.dword-4;
             int eip = CPU.CPU_Pop32();
-            int esp = CPU.CPU_Pop32();
             int id = CPU.CPU_Pop32();
             int threadHandle = CPU.CPU_Pop32();
             int callback = CPU.CPU_Pop32();
             int dwUser = CPU.CPU_Pop32();
             int dwDelay = CPU.CPU_Pop32();
 
+            CPU_Regs.reg_esp.dword = esp; // protect our variables in the stack
             WinThread thread = WinThread.get(threadHandle);
-
+            long start = System.currentTimeMillis();
+            System.out.println("last call "+(start-lastCall)+"ms");
             WinSystem.call(callback, id, 0, dwUser, 0, 0);
+            lastCall = System.currentTimeMillis();
             CPU_Regs.reg_eip = eip;
             CPU_Regs.reg_esp.dword = esp;
             if (dwDelay == 0) {
                 Scheduler.removeThread(thread);
                 timers.set(id, null);
             } else
-                Scheduler.sleep(thread, dwDelay);
+                Scheduler.sleep(thread, dwDelay-(int)(System.currentTimeMillis()-start));
         }
     };
 
@@ -76,14 +81,12 @@ public class MMTime extends WinAPI {
                     int cb = WinCallback.addCallback(mmTimerThread);
                     process.mmTimerThreadEIP = process.loader.registerFunction(cb);
                 }
-                this.thread = WinThread.create(process, process.mmTimerThreadEIP,  4096, 4096, true); // primary=true so that we don't call dllmain's with this thread
-                int esp = thread.cpuState.esp;
-                thread.pushStack32((flags & TIME_PERIODIC)==0?delay:0);
+                this.thread = WinThread.create(process, process.mmTimerThreadEIP,  8192, 8192, true); // primary=true so that we don't call dllmain's with this thread
+                thread.pushStack32((flags & TIME_PERIODIC)==0?0:delay);
                 thread.pushStack32(dwUser);
                 thread.pushStack32(callback);
                 thread.pushStack32(thread.handle);
                 thread.pushStack32(id);
-                thread.pushStack32(esp);
                 thread.pushStack32(thread.cpuState.eip);
                 thread.pushStack32(0); // bogus callback return address
                 Scheduler.addThread(thread, false);
@@ -126,6 +129,15 @@ public class MMTime extends WinAPI {
         }
 
         return 0;
+    }
+
+    // MMRESULT timeGetDevCaps(LPTIMECAPS ptc, UINT cbtc)
+    static public int timeGetDevCaps(int ptc, int cbtc) {
+        if (ptc == 0 || cbtc < 8)
+            return TIMERR_NOCANDO;
+        writed(ptc, MMSYSTIME_MININTERVAL);
+        writed(ptc, MMSYSTIME_MAXINTERVAL);
+        return TIMERR_NOERROR;
     }
 
     // DWORD timeGetTime(void)

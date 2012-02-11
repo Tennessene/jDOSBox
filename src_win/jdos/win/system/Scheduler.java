@@ -1,9 +1,7 @@
 package jdos.win.system;
 
-import jdos.cpu.CPU_Regs;
 import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.builtin.user32.Input;
-import jdos.win.utils.Ptr;
 
 import java.util.Hashtable;
 
@@ -136,7 +134,7 @@ public class Scheduler {
             next = next.next;
         }
         if (next.thread != currentThread.thread) {
-            System.out.println("Switching threads: "+currentThread.thread.getHandle()+"("+ Ptr.toString(CPU_Regs.reg_eip)+") -> "+next.thread.getHandle()+"("+Ptr.toString(next.thread.cpuState.eip)+")");
+            //System.out.println("Switching threads: "+currentThread.thread.getHandle()+"("+ Ptr.toString(CPU_Regs.reg_eip)+") -> "+next.thread.getHandle()+"("+Ptr.toString(next.thread.cpuState.eip)+")");
             currentThread.thread.saveCPU();
             if (currentThread.thread.getProcess() != next.thread.getProcess()) {
                 next.thread.getProcess().switchPageDirectory();

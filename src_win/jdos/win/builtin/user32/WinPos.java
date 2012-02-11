@@ -206,7 +206,8 @@ public class WinPos extends WinAPI {
                         parent.children.addLast(window);
                         break;
                     case HWND_NOTOPMOST:
-                        Win.panic("SetWindowPos HWND_NOTOPMOST not supported yet");
+                        parent.children.addFirst(window);
+                        log("SetWindowPos HWND_NOTOPMOST not supported yet");
                         break;
                     default:
                         WinWindow sibling = WinWindow.get(hWndInsertAfter);

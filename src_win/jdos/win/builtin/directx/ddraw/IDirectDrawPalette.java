@@ -6,10 +6,8 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
-import jdos.win.builtin.WinAPI;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
-import jdos.win.utils.Ptr;
 
 public class IDirectDrawPalette extends IUnknown {
     static final private int DDPCAPS_4BIT =                 0x00000001;
@@ -153,12 +151,12 @@ public class IDirectDrawPalette extends IUnknown {
             int lpEntries = CPU.CPU_Pop32();
             for (int i=0;i<dwCount;i++) {
                 int color = Memory.mem_readd(lpEntries + i * 4);
-                if (WinAPI.LOG) {
-                    int oldColor = getData(This, OFFSET_COLOR_DATA+(dwStartingEntry+i)*4);
-                    if (color != oldColor) {
-                        System.out.println(i+". 0x"+ Ptr.toString(oldColor)+" -> 0x"+Ptr.toString(color));
-                    }
-                }
+//                if (WinAPI.LOG) {
+//                    int oldColor = getData(This, OFFSET_COLOR_DATA+(dwStartingEntry+i)*4);
+//                    if (color != oldColor) {
+//                        System.out.println(i+". 0x"+ Ptr.toString(oldColor)+" -> 0x"+Ptr.toString(color));
+//                    }
+//                }
                 setData(This, OFFSET_COLOR_DATA+(i+dwStartingEntry)*4, color);
             }
             IDirectDrawSurface.lastPaletteChange = WinSystem.getTickCount();

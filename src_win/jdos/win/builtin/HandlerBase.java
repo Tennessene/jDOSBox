@@ -15,6 +15,7 @@ abstract public class HandlerBase extends WinAPI implements Callback.Handler {
 
     static public HandlerBase currentHandler;
     static public int level = 0;
+    static public boolean tick = false;
 
     public HandlerBase() {
     }
@@ -32,12 +33,17 @@ abstract public class HandlerBase extends WinAPI implements Callback.Handler {
             Scheduler.getCurrentThread().setLastError(Error.ERROR_SUCCESS);
         if (preCall()) {
             CPU_Regs.reg_eip = CPU.CPU_Pop32();
-            //if (!getName().endsWith("WinMM.timeGetTime") && !getName().endsWith("PeekMessageA"))
-            //System.out.println("*** "+ Ptr.toString(CPU_Regs.reg_eip)+" "+getName());
+//            long start = System.currentTimeMillis();
             onCall();
+//            if (!getName().endsWith("WinMM.timeGetTime") && !getName().endsWith("PeekMessageA"))
+//            System.out.println("*** "+ Ptr.toString(CPU_Regs.reg_eip)+" "+getName()+" "+(System.currentTimeMillis()-start)+"ms");
         }
         level--;
         currentHandler = null;
+        if (tick) {
+            Scheduler.tick();
+            tick = false;
+        }
         return 0;
     }
 

@@ -35,26 +35,7 @@ final class BitUtils {
    * bit of x.
    */
   static int countLeadingZeros(int x) {
-    if (x <= 0) {
-      if (x == 0) {
-        return 32;
-      }
-      return 0;
-    }
-    int count = 0;
-    if ((x & 0xffff0000) == 0) {
-      x <<= 16;
-      count = 16;
-    }
-    if ((x & 0xff000000) == 0) {
-      x <<= 8;
-      count += 8;
-    }
-    while (x > 0) {
-      count++;
-      x <<= 1;
-    }
-    return count;
+      return Integer.numberOfLeadingZeros(x);
   }
 
   /**
@@ -62,11 +43,7 @@ final class BitUtils {
    * bit of x.
    */
   static int countLeadingZeros(long x) {
-    int c = countLeadingZeros((int) (x >> 32));
-    if (c == 32) {
-      return countLeadingZeros((int) x) + 32;
-    }
-    return c;
+      return Long.numberOfLeadingZeros(x);
   }
 
   /**

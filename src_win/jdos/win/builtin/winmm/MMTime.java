@@ -47,9 +47,9 @@ public class MMTime extends WinAPI {
             CPU_Regs.reg_esp.dword = esp; // protect our variables in the stack
             WinThread thread = WinThread.get(threadHandle);
             long start = System.currentTimeMillis();
-            System.out.println("last call "+(start-lastCall)+"ms");
+            //System.out.println("last call "+(start-lastCall)+"ms");
             WinSystem.call(callback, id, 0, dwUser, 0, 0);
-            lastCall = System.currentTimeMillis();
+            //lastCall = System.currentTimeMillis();
             CPU_Regs.reg_eip = eip;
             CPU_Regs.reg_esp.dword = esp;
             if (dwDelay == 0) {

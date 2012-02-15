@@ -316,7 +316,7 @@ public class IDirectDraw extends IUnknown {
     public static int GetCaps(int This, int lpDDDriverCaps, int lpDDHELCaps) {
         int bpp = 0x00000D00; // 8 16 and 32
         int size = Memory.mem_readd(lpDDDriverCaps);lpDDDriverCaps+=4;
-        Memory.mem_zero(lpDDDriverCaps+4, size-4);
+        Memory.mem_zero(lpDDDriverCaps, size-4);
         Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   4 dwCaps
         Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   8 dwCaps2
         Memory.mem_writed(lpDDDriverCaps, 0xFFFFFFFF);lpDDDriverCaps+=4;//   C dwCKeyCaps

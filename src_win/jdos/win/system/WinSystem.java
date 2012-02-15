@@ -65,12 +65,13 @@ public class WinSystem {
 
     static public void setScreenSize(int dwWidth, int dwHeight, int dwBPP) {
         if (StaticData.screen == null ||  dwWidth != StaticData.screen.getWidth() || dwHeight != StaticData.screen.getHeight() || StaticData.screen.getBpp() != dwBPP) {
-            int[] palette;
+            int[] palette = null;
 
             if (StaticData.screen != null) {
                 palette = StaticData.screen.getPalette();
                 StaticData.screen.close();
-            } else {
+            }
+            if (palette == null) {
                 palette = JavaBitmap.getDefaultPalette();
             }
             BufferedImage bi = Pixel.createImage(0, dwBPP,  palette, dwWidth, dwHeight, false);

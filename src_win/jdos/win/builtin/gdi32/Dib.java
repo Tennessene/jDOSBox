@@ -21,6 +21,11 @@ public class Dib extends WinAPI {
         return cEntries;
     }
 
+    // int SetDIBitsToDevice(HDC hdc, int XDest, int YDest, DWORD dwWidth, DWORD dwHeight, int XSrc, int YSrc, UINT uStartScan, UINT cScanLines, const VOID *lpvBits, const BITMAPINFO *lpbmi, UINT fuColorUse)
+    static public int SetDIBitsToDevice(int hdc, int XDest, int YDest, int dwWidth, int dwHeight, int XSrc, int YSrc, int uStartScan, int cScanLines, int lpvBits, int lpbmi, int fuColorUse) {
+        return StretchDIBits(hdc, XDest, YDest, dwWidth, dwHeight, XSrc, YSrc, dwWidth, dwHeight, lpvBits, lpbmi, fuColorUse, SRCCOPY);
+    }
+
     // int StretchDIBits(HDC hdc, int XDest, int YDest, int nDestWidth, int nDestHeight, int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, const VOID *lpBits, const BITMAPINFO *lpBitsInfo, UINT iUsage, DWORD dwRop)
     static public int StretchDIBits(int hdc, int XDest, int YDest, int nDestWidth, int nDestHeight, int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, int lpBits, int lpBitsInfo, int iUsage, int dwRop) {
         WinDC dc = WinDC.get(hdc);

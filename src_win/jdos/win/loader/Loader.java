@@ -170,6 +170,8 @@ public class Loader {
             module = new Msacm32(this, getNextModuleHandle());
         } else if (name.equalsIgnoreCase("winspool.drv")) {
             module = new Winspool(this, getNextModuleHandle());
+        } else if (name.equalsIgnoreCase("lz32.dll")) {
+            module = new Lz32(this, getNextModuleHandle());
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);

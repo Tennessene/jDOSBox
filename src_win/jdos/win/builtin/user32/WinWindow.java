@@ -1,5 +1,6 @@
 package jdos.win.builtin.user32;
 
+import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core_normal;
 import jdos.win.Win;
 import jdos.win.builtin.gdi32.WinDC;
@@ -327,6 +328,28 @@ public class WinWindow extends WinObject {
             }
         }
         return BOOL(isDisabled);
+    }
+
+    // BOOL WINAPI EnumWindows(WNDENUMPROC lpEnumFunc, LPARAM lParam)
+    public static int EnumWindows(int lpEnumFunc, int lParam) {
+        /* We have to build a list of all windows first, to avoid */
+        /* unpleasant side-effects, for instance if the callback */
+        /* function changes the Z-order of the windows.          */
+        WinWindow desktop = WinWindow.get(GetDesktopWindow());
+        int[] result = new int[desktop.children.size()];
+        if (result.length>0) {
+            Iterator<WinWindow> children = desktop.getChildren();
+            int i=0;
+            while (children.hasNext()) {
+                result[i++] = children.next().handle;
+            }
+            for (i=0;i<result.length;i++) {
+                WinSystem.call(lpEnumFunc, result[i], lParam);
+                if (CPU_Regs.reg_eax.dword == 0)
+                    return FALSE;
+            }
+        }
+        return TRUE;
     }
 
     // HWND WINAPI FindWindow(LPCTSTR lpClassName, LPCTSTR lpWindowName)

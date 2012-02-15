@@ -92,6 +92,7 @@ public class Kernel32 extends BuiltinModule {
         add(GetLocaleInfoA);
         add(GetLocaleInfoW);
         add(GetLocalTime);
+        add(Volume.class, "GetLogicalDrives", new String[] {"(HEX)result"});
         add(GetModuleFileNameA);
         add(GetModuleFileNameW);
         add(GetModuleHandleA);

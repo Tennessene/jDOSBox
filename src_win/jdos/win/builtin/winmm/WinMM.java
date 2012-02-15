@@ -107,6 +107,11 @@ public class WinMM extends BuiltinModule {
                             String deviceType = new LittleEndianFile(lpstrDeviceType).readCString();
                             if (deviceType.equalsIgnoreCase("sequencer"))
                                 midi = true;
+                            else if (deviceType.equalsIgnoreCase("cdaudio")) {
+                                log("mciSendCommand open cdaudio not implemented yet");
+                                CPU_Regs.reg_eax.dword = 1;
+                                return;
+                            }
                         }
                         if ((fdwCommand & MCI_OPEN_ELEMENT)!=0) {
                             if ((fdwCommand & MCI_OPEN_ELEMENT_ID)!=0) {

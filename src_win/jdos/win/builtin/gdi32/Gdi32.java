@@ -21,6 +21,7 @@ public class Gdi32 extends BuiltinModule {
         add(WinDC.class, "DeleteDC", LOG_GDI?new String[] {"hdc", "(BOOL)result"}:null);
         add(GdiObj.class, "DeleteObject", LOG_GDI?new String[] {"(GDI)obj"}:null);
         add(WinPen.class, "ExtCreatePen", LOG_GDI?new String[] {"(HEX)dwPenStyle", "dwWidth", "(HEX)lplb", "dwStyleCount", "(HEX)lpStyle"}:null);
+        add(WinDC.class, "ExtTextOutA", LOG_GDI?new String[] {"hdc", "X", "Y", "(HEX)fuOptions", "(RECT)lprc", "(STRINGN6)lpString", "cbCount", "(HEX)lpDx", "(BOOL)result"}:null);
         add(GdiObj.class, "GdiSetBatchLimit", LOG_GDI?new String[] {"dwLimit"}:null);
         add(Clipping.class, "GetClipRgn", LOG_GDI?new String[] {"hdc", "hrgn"}:null);
         add(GdiObj.class, "GetCurrentObject", LOG_GDI?new String[] {"hdc", "uObjectType"}:null);
@@ -49,6 +50,7 @@ public class Gdi32 extends BuiltinModule {
         add(WinDC.class, "SelectPalette", LOG_GDI?new String[] {"hdc", "(GDI)hpal", "(BOOL)bForceBackground", "(GDI)result"}:null);
         add(WinDC.class, "SetBkColor", LOG_GDI?new String[] {"hdc", "(HEX)crColor"}:null);
         add(WinDC.class, "SetBkMode", LOG_GDI?new String[] {"hdc", "(HEX)iBkMode", "(HEX)result"}:null);
+        add(Dib.class, "SetDIBitsToDevice", LOG_GDI?new String[] {"hdc", "XDest", "YDest", "nDestWidth", "nDestHeight", "XSrc", "YSrc", "uStartScan", "cScanLines", "(HEX)lpBits", "(HEX)lpBitsInfo", "iUsage"}:null);
         add(WinPalette.class, "SetPaletteEntries", LOG_GDI?new String[] {"(GDI)hpal", "iStart", "cbEntries", "(HEX)lppe"}:null);
         add(WinDC.class, "SetPixel", LOG_GDI?new String[] {"hdc", "X", "Y", "(HEX)crColor", "(HEX)result"}:null);
         add(WinDC.class, "SetROP2", LOG_GDI?new String[] {"hdc", "fnDrawMode"}:null);

@@ -15,6 +15,8 @@ public class User32 extends BuiltinModule {
         add(Hook.class, "CallNextHookEx", new String[] {"hhk", "nCode", "wParam", "lParam"});
         add(Winproc.class, "CallWindowProcA", (MSGLOG?new String[] {"lpPrevWndFunc", "hWnd", "(HEX)Msg", "wParam", "lParam"}:null));
         add(Str.class, "CharUpperA", new String[] {"(STRING)lpsz", "(STRING)result"});
+        add(Str.class, "CharUpperBuffA", new String[] {"(STRING)lpsz", "cchLength", "result", "00(STRING)lpsz"});
+        add(WinMenu.class, "CheckMenuItem", new String[] {"hmenu", "uIDCheckItem", "uCheck"});
         add(WinPos.class, "ClientToScreen", new String[] {"hWnd", "(POINT)lpPoint", "(BOOL)result"});
         add(UiTools.class, "CopyRect", new String[] {"(HEX)lprcDst", "(RECT)lprcSrc", "(BOOL)result", "00(RECT)lprcDst"});
         add(WinDialog.class, "CreateDialogIndirectParamA", new String[] {"hInstance", "(HEX)lpTemplate", "hWndParent", "(HEX)lpDialogFunc", "lParamInit"});
@@ -30,13 +32,16 @@ public class User32 extends BuiltinModule {
         add(UiTools.class, "DrawFrameControl", new String[] {"hdc", "(RECT)lprc", "uType", "uState", "(BOOL)result"});
         add(WinIcon.class, "DrawIcon", new String[] {"hdc", "xLeft", "yTop", "hIcon", "(BOOL)result"});
         add(WinIcon.class, "DrawIconEx", new String[] {"hdc", "xLeft", "yTop", "hIcon", "cxWidth", "cyWidth", "istepIfAniCur", "hbrFlickerFreeDraw", "(HEX)diFlags", "(BOOL)result"});
+        add(WinMenu.class, "DrawMenuBar", new String[] {"hWnd", "(BOOL)result"});
         add(UiTools.class, "DrawStateA", new String[] {"hdc", "hbr", "(HEX)lpOutputFunc", "lData", "wData", "x", "y", "cx", "cy", "(HEX)fuFlags", "(BOOL)result"});
         add(WinText.class, "DrawTextA", new String[] {"hDC", "(STRINGN2)lpchText", "nCount", "(RECT)lpRect", "(HEX)uFormat"});
         add(WinText.class, "DrawTextExA", new String[] {"hdc", "(STRINGN2)lpchText", "cchText", "(RECT)lprc", "(HEX)dwDTFormat", "(HEX)lpDTParams"});
         add(Painting.class, "Ellipse", new String[] {"hdc", "nLeftRect", "nTopRect", "nRightRect", "nBottomRect", "(BOOL)result"});
+        add(WinMenu.class, "EnableMenuItem", new String[] {"hMenu", "uIDEnableItem", "uEnable", "(BOOL)result"});
         add(WinWindow.class, "EnableWindow", new String[] {"hWnd", "(BOOL)bEnable"});
         add(WinDialog.class, "EndDialog", new String[] {"hDlg", "nResult", "(BOOL)result"});
         add(Painting.class, "EndPaint", new String[] {"hWnd", "lpPaint"});
+        add(WinWindow.class, "EnumWindows", new String[] {"(HEX)lpEnumFunc", "lParam"});
         add(WinDC.class, "FillRect", new String[] {"hDC", "(RECT)lprc", "(BRUSH)hbr"});
         add(WinWindow.class, "FindWindowA", new String[] {"(STRING)lpClassName", "(STRING)lpWindowName"});
         add(WinWindow.class, "FindWindowExA", new String[] {"hwndParent", "hwndChildAfter", "(STRING)lpszClass", "(STRING)lpszWindow"});
@@ -66,6 +71,7 @@ public class User32 extends BuiltinModule {
         add(WinDialog.class, "GetNextDlgGroupItem", new String[]{"hDlg", "hCtl", "(BOOL)bPrevious"});
         add(WinWindow.class, "GetParent", new String[]{"hWnd"});
         add(Property.class, "GetPropA", new String[]{"hWnd", "(STRING)lpString"});
+        add(WinMenu.class, "GetSubMenu", new String[] {"hMenu", "nPos"});
         add(SysParams.class, "GetSysColor", new String[]{"nIndex"});
         add(SysParams.class, "GetSystemMetrics", new String[]{"index"});
         add(SysParams.class, "GetSysColorBrush", new String[]{"nIndex"});
@@ -99,6 +105,7 @@ public class User32 extends BuiltinModule {
         add(WinPos.class, "MapWindowPoints", new String[] {"hWndFrom", "hWndTo", "(POINT)lpPoints", "cPoints", "(HEX)result", "02(POINT)lpPoints"});
         add(Message.class, "MessageBeep", new String[] {"uType"});
         add(MsgBox.class, "MessageBoxA", new String[] {"hWnd", "(STRING)lpText", "(STRING)lpCaption", "uType"});
+        add(WinMenu.class, "ModifyMenuA", new String[] {"hMnu", "uPosition", "(HEX)uFlags", "uIDNewItem", "(STRING)lpNewItem", "(BOOL)result"});
         add(WinPos.class, "MoveWindow", new String[] {"hWnd", "X", "Y", "nWidth", "nHeight", "(BOOL)bRepaint", "(BOOL)result"});
         add(UiTools.class, "OffsetRect", new String[] {"(RECT)lprc", "dx", "dy", "(BOOL)result", "00(RECT)lprc"});
         add(Message.class, "PeekMessageA", (MSGLOG?new String[] {"(HEX)lpMsg", "hWnd", "wMsgFilterMin", "wMsgFilterMax", "wRemoveMsg", "(BOOL)result", "00(MSG)lpMsg"}:null));

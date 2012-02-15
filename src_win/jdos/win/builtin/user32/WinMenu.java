@@ -20,6 +20,11 @@ public class WinMenu extends WinObject {
         return TRUE;
     }
 
+    // DWORD WINAPI CheckMenuItem(HMENU hmenu, UINT uIDCheckItem, UINT uCheck)
+    static public int CheckMenuItem(int hmenu, int uIDCheckItem, int uCheck) {
+        return 0;
+    }
+
     // HMENU WINAPI CreatePopupMenu(void)
     static public int CreatePopupMenu() {
         return create().handle;
@@ -32,6 +37,16 @@ public class WinMenu extends WinObject {
             return FALSE;
         menu.close();
         return TRUE;
+    }
+
+    // BOOL WINAPI DrawMenuBar(HWND hWnd)
+    static public int DrawMenuBar(int hWnd) {
+        return FALSE;
+    }
+
+    // BOOL WINAPI EnableMenuItem(HMENU hMenu, UINT uIDEnableItem, UINT uEnable)
+    static public int EnableMenuItem(int hMenu, int uIDEnableItem, int uEnable) {
+        return FALSE;
     }
 
     // BOOL WINAPI EndMenu(void)
@@ -52,6 +67,11 @@ public class WinMenu extends WinObject {
         WinMenu menu = WinMenu.get(hMenu);
         if (menu == null)
             return -1;
+        return 0;
+    }
+
+    // HMENU WINAPI GetSubMenu(HMENU hMenu, int nPos)
+    static public int GetSubMenu(int hMenu, int nPos) {
         return 0;
     }
 
@@ -82,6 +102,11 @@ public class WinMenu extends WinObject {
     }
     static public int LoadMenuW(int hInstance, int lpMenuName) {
         return 0;
+    }
+
+    // BOOL WINAPI ModifyMenu(HMENU hMnu, UINT uPosition, UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR lpNewItem)
+    static public int ModifyMenuA(int hMnu, int uPosition, int uFlags, int uIDNewItem, int lpNewItem) {
+        return FALSE;
     }
 
     // BOOL WINAPI SetMenu(HWND hWnd, HMENU hMenu)

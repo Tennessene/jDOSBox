@@ -15,7 +15,8 @@ public class JavaBitmap {
     private int bpp;
     private int[] palette;
     private int address;
-    private BytePageHandler handler;
+    private PageHandler8 handler8;
+    private PageHandler16 handler16;
 
     public JavaBitmap(BufferedImage image, int bpp, int width, int height, int[] palette) {
         this.image = image;
@@ -87,11 +88,11 @@ public class JavaBitmap {
         return cachedImageColorKey;
     }
 
-    static private class BytePageHandler extends Paging.PageHandler {
+    static private class PageHandler8 extends Paging.PageHandler {
         byte[] data;
         int address;
 
-        public BytePageHandler(int address) {
+        public PageHandler8(int address) {
             this.address = address;
         }
 
@@ -130,25 +131,110 @@ public class JavaBitmap {
         }
     }
 
+    static private class PageHandler16 extends Paging.PageHandler {
+        short[] data;
+        int address;
+
+        public PageHandler16(int address) {
+            this.address = address;
+        }
+
+        public /*Bitu*/int readb(/*PhysPt*/int addr) {
+            int index = addr - address;
+            return (data[(index >> 1)] >>> ((index & 0x1) << 1)) & 0xFF;
+        }
+
+        public /*Bitu*/int readw(/*PhysPt*/int addr) {
+            int index = addr - address;
+            int rem = (index & 0x1);
+            if (rem == 0) {
+              return data[index >>> 1];
+            }
+            short[] local = data;
+            index = (index >>> 2);
+            return local[index] >>> 8 | local[index+1] << 8;
+        }
+
+        public /*Bitu*/int readd(/*PhysPt*/int addr) {
+            int index = addr - address;
+            int rem = (index & 0x1);
+            if (rem == 0) {
+                index >>>=1;
+                return (data[index] & 0xFFFF) | data[index+1] << 16;
+            }
+            return (readw(addr) & 0xFFFF) | readw(addr+2) << 16;
+        }
+
+        public void writeb(/*PhysPt*/int addr,/*Bitu*/int value) {
+            int address = addr - this.address;
+            int off = (address & 0x1) << 1;
+            short[] local = data;
+            int mask = ~(0xFF << off);
+            int index = (address >>> 2);
+            int val = local[index] & mask | (value & 0xFF) << off;
+            local[index] = (short)val;
+        }
+
+        public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
+            int address = addr - this.address;
+            int rem = (address & 0x1);
+            if (rem == 0) {
+               data[address >>> 1] = (short)val;
+            } else {
+              int index = (address >>> 2);
+              short[] local = data;
+              int off = rem << 3;
+              local[index] = (short)((local[index] & ~0xFF) | (val << off));
+              index++;
+              local[index] = (short)((local[index] & 0xFF) | (val >>> (32-off)));
+            }
+        }
+
+        public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
+            int address = addr - this.address;
+            int rem = (address & 0x1);
+            if (rem == 0) {
+               data[address >>> 1] = (short)val;
+            } else {
+                writew(addr, val & 0xFFFF);
+                writew(addr+2, val >> 16);
+            }
+        }
+    }
+
     public void lock() {
-        handler.data = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+        if (bpp == 8)
+            handler8.data = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+        else if (bpp == 16)
+            handler16.data = ((DataBufferUShort)image.getRaster().getDataBuffer()).getData();
     }
 
     public void unlock() {
-        handler.data = null;
+        // handler.data = null; // Monkey Island 3 seems to use the pointer after calling unlock
     }
 
     public int map() {
         if (address != 0) {
-            Win.panic("Not allowed to map JavaBitmap more than once");
+            return address;
         }
-        int size = width*height;
+        int size = width*height*bpp/8;
         address = (int)WinSystem.getCurrentProcess().addressSpace.getNextAddress(WinProcess.ADDRESS_VIDEO_BITMAP_START, size, true);
         WinSystem.getCurrentProcess().addressSpace.alloc(address, size);
         int frameCount = (size + 0xFFF) >> 12;
         int frame = address >>> 12;
         int frameStart = frame;
-        handler = new BytePageHandler(address);
+        Paging.PageHandler handler;
+
+        if (bpp == 8) {
+            handler8 = new PageHandler8(address);
+            handler = handler8;
+        } else if (bpp == 16) {
+            handler16 = new PageHandler16(address);
+            handler = handler16;
+        } else {
+            Win.panic("BPP "+bpp+" not implemented yet in JavaBitmap");
+            handler = null;
+        }
 
         for (int i=0;i<frameCount;i++) {
             Paging.paging.tlb.readhandler[frame] = handler;
@@ -174,8 +260,13 @@ public class JavaBitmap {
             System.out.println("JavaBitmap.unmap address=0x"+Long.toString(address & 0xFFFFFFFFl, 16));
         }
         address = 0;
-        handler.data = null;
-        handler = null;
+        if (bpp == 8) {
+            handler8.data = null;
+            handler8 = null;
+        } else if (bpp == 16) {
+            handler16.data = null;
+            handler16 = null;
+        }
     }
 
     static public IndexColorModel createColorModel(int bpp, int[] palette, boolean alpha) {

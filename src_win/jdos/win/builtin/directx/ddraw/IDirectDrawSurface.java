@@ -72,16 +72,15 @@ public class IDirectDrawSurface extends IUnknown {
 
     static int OFFSET_FLAGS = 0;
     static int OFFSET_PALETTE = 4;
-    static int OFFSET_MEMORY = 8;
-    static int OFFSET_BACK_BUFFER = 12;
-    static int OFFSET_DC = 16;
-    static int OFFSET_IMAGE_CACHE = 20;
-    static int OFFSET_IMAGE_CACHE_TIME = 24;
-    static int OFFSET_DIRECT_DRAW = 28;
-    static int OFFSET_CLIPPER = 32;
+    static int OFFSET_BACK_BUFFER = 8;
+    static int OFFSET_DC = 12;
+    static int OFFSET_IMAGE_CACHE = 16;
+    static int OFFSET_IMAGE_CACHE_TIME = 20;
+    static int OFFSET_DIRECT_DRAW = 24;
+    static int OFFSET_CLIPPER = 28;
 
     // doesn't include description since that gets computed on the fly
-    static int DATA_SIZE = 36;
+    static int DATA_SIZE = 32;
 
     static int OFFSET_DESC = DATA_SIZE;
 
@@ -149,10 +148,6 @@ public class IDirectDrawSurface extends IUnknown {
 
     public static int getHeight(int This) {
         return getData(This, OFFSET_DESC+0x08);
-    }
-
-    public static int getBits(int This) {
-        return getData(This, OFFSET_MEMORY);
     }
 
     public static int create(int pDirectDraw, int pDesc) {
@@ -258,8 +253,6 @@ public class IDirectDrawSurface extends IUnknown {
             bpp = d.ddpfPixelFormat.dwRGBBitCount;
         else
             bpp = IDirectDraw.getBPP(pDirectDraw);
-        int amount = width*height*bpp/8;
-        int memory;
 
         BufferedImage bi = Pixel.createImage(0, bpp,  JavaBitmap.getDefaultPalette(), width, height, false);
         JavaBitmap bitmap = new JavaBitmap(bi, bpp, width, height, JavaBitmap.getDefaultPalette());
@@ -267,7 +260,6 @@ public class IDirectDrawSurface extends IUnknown {
         if ((d.ddsCaps & DDSCAPS_PRIMARYSURFACE)!=0) {
             StaticData.screen = bitmap;
         }
-        memory = bitmap.map();
         caps |= DDSCAPS_LOCALVIDMEM;
 
         WinObject object = WinObject.createWinObject();
@@ -275,7 +267,6 @@ public class IDirectDrawSurface extends IUnknown {
         setData(result, OFFSET_IMAGE_CACHE, object.getHandle());
         setData(result, OFFSET_IMAGE_CACHE_TIME, WinSystem.getTickCount());
 
-        setData(result, OFFSET_MEMORY, memory);
         setData(result, OFFSET_DESC, descSize);
         setData(result, OFFSET_DESC+0x04, DDSurfaceDesc.DDSD_CAPS|DDSurfaceDesc.DDSD_HEIGHT|DDSurfaceDesc.DDSD_WIDTH|DDSurfaceDesc.DDSD_PITCH|DDSurfaceDesc.DDSD_PIXELFORMAT);
         setData(result, OFFSET_DESC+0x08, height);
@@ -611,11 +602,6 @@ public class IDirectDrawSurface extends IUnknown {
             setData(This, OFFSET_IMAGE_CACHE, backCache);
             setData(backBuffer, OFFSET_IMAGE_CACHE, frontCache);
 
-            int frontMemory = getData(This, OFFSET_MEMORY);
-            int backMemory = getData(backBuffer, OFFSET_MEMORY);
-            setData(This, OFFSET_MEMORY, backMemory);
-            setData(backBuffer, OFFSET_MEMORY, frontMemory);
-
             StaticData.screen = getImage(backBuffer, true);
 
             int frontDC = getData(This, OFFSET_DC);
@@ -786,7 +772,18 @@ public class IDirectDrawSurface extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpDDPixelFormat = CPU.CPU_Pop32();
-            notImplemented();
+            if (lpDDPixelFormat == 0) {
+                CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
+            } else {
+                int size = Memory.mem_readd(This+OFFSET_DATA_START +OFFSET_DESC+0x48);
+                if (Memory.mem_readd(lpDDPixelFormat) != size) {
+                    System.out.println(getName()+": wrong size."+Memory.mem_readd(lpDDPixelFormat)+" does not equal "+size);
+                    CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
+                } else {
+                    Memory.mem_memcpy(lpDDPixelFormat, This+OFFSET_DATA_START + OFFSET_DESC + 0x48, size);
+                    CPU_Regs.reg_eax.dword = Error.S_OK;
+                }
+            }
         }
     };
 
@@ -798,15 +795,18 @@ public class IDirectDrawSurface extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpDDSurfaceDesc = CPU.CPU_Pop32();
-            int size = Memory.mem_readd(This+OFFSET_DATA_START +OFFSET_DESC);
+
             if (lpDDSurfaceDesc==0) {
                 CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
-            } else if (Memory.mem_readd(lpDDSurfaceDesc) != size) {
-                System.out.println(getName()+": wrong size."+Memory.mem_readd(lpDDSurfaceDesc)+" does not equal "+size);
-                CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
             } else {
-                Memory.mem_memcpy(lpDDSurfaceDesc, This+OFFSET_DATA_START +OFFSET_DESC, size);
-                CPU_Regs.reg_eax.dword = Error.S_OK;
+                int size = Memory.mem_readd(This+OFFSET_DATA_START +OFFSET_DESC);
+                if (Memory.mem_readd(lpDDSurfaceDesc) != size) {
+                    System.out.println(getName()+": wrong size."+Memory.mem_readd(lpDDSurfaceDesc)+" does not equal "+size);
+                    CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
+                } else {
+                    Memory.mem_memcpy(lpDDSurfaceDesc, This+OFFSET_DATA_START +OFFSET_DESC, size);
+                    CPU_Regs.reg_eax.dword = Error.S_OK;
+                }
             }
         }
     };
@@ -870,7 +870,7 @@ public class IDirectDrawSurface extends IUnknown {
             if (lpDestRect != 0) {
                 Win.panic(getName()+" lpDestRect support is not implemented yet");
             }
-            int address = getData(This, OFFSET_MEMORY);
+            int address = getImage(This, true).map();
             Memory.mem_memcpy(lpDDSurfaceDesc, This+ OFFSET_DATA_START +OFFSET_DESC, isDesc2(This)?DDSurfaceDesc.SIZE2:DDSurfaceDesc.SIZE);
             Memory.mem_writed(lpDDSurfaceDesc+0x24, address);
             getImage(This, true).lock();
@@ -1029,14 +1029,13 @@ public class IDirectDrawSurface extends IUnknown {
             }
             // :TODO: why does this cause flicker on donuts.exe
             //lastPaletteChange = WinSystem.getTickCount();
-            JavaBitmap image = getImage(This, false);
-            int index = getData(This, OFFSET_IMAGE_CACHE);
+            JavaBitmap image = getImage(This, true);
             if (image!=null) {
                 image.setPalette(getPalette(This)+IUnknown.OFFSET_DATA_START+IDirectDrawPalette.OFFSET_COLOR_DATA);
             }
             int backBuffer = getData(This, OFFSET_BACK_BUFFER);
             if (backBuffer != 0) {
-                image = getImage(backBuffer, false);
+                image = getImage(backBuffer, true);
                 if (image != null) {
                     image.setPalette(getPalette(This)+IUnknown.OFFSET_DATA_START+IDirectDrawPalette.OFFSET_COLOR_DATA);
                 }

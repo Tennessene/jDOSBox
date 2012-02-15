@@ -116,6 +116,204 @@ public class Compiler extends Helper {
         // Always set the flag before a jump
         return result | flag;
     }
+    static private boolean isO(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_o) || (op instanceof Inst3.JumpCond32_b_o) || (op instanceof Inst2.JumpCond16_w_o) || (op instanceof Inst1.JumpCond16_b_o);
+    }
+    static private boolean isNO(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_no) || (op instanceof Inst3.JumpCond32_b_no) || (op instanceof Inst2.JumpCond16_w_no) || (op instanceof Inst1.JumpCond16_b_no);
+    }
+    static private boolean isB(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_b) || (op instanceof Inst3.JumpCond32_b_b) || (op instanceof Inst2.JumpCond16_w_b) || (op instanceof Inst1.JumpCond16_b_b);
+    }
+    static private boolean isNB(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nb) || (op instanceof Inst3.JumpCond32_b_nb) || (op instanceof Inst2.JumpCond16_w_nb) || (op instanceof Inst1.JumpCond16_b_nb);
+    }
+    static private boolean isZ(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_z) || (op instanceof Inst3.JumpCond32_b_z) || (op instanceof Inst2.JumpCond16_w_z) || (op instanceof Inst1.JumpCond16_b_z);
+    }
+    static private boolean isNZ(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nz) || (op instanceof Inst3.JumpCond32_b_nz) || (op instanceof Inst2.JumpCond16_w_nz) || (op instanceof Inst1.JumpCond16_b_nz);
+    }
+    static private boolean isL(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_l) || (op instanceof Inst3.JumpCond32_b_l) || (op instanceof Inst2.JumpCond16_w_l) || (op instanceof Inst1.JumpCond16_b_l);
+    }
+    static private boolean isNL(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nl) || (op instanceof Inst3.JumpCond32_b_nl) || (op instanceof Inst2.JumpCond16_w_nl) || (op instanceof Inst1.JumpCond16_b_nl);
+    }
+    static private boolean isS(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_s) || (op instanceof Inst3.JumpCond32_b_s) || (op instanceof Inst2.JumpCond16_w_s) || (op instanceof Inst1.JumpCond16_b_s);
+    }
+    static private boolean isNS(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_ns) || (op instanceof Inst3.JumpCond32_b_ns) || (op instanceof Inst2.JumpCond16_w_ns) || (op instanceof Inst1.JumpCond16_b_ns);
+    }
+    static private boolean isP(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_p) || (op instanceof Inst3.JumpCond32_b_p) || (op instanceof Inst2.JumpCond16_w_p) || (op instanceof Inst1.JumpCond16_b_p);
+    }
+    static private boolean isNP(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_np) || (op instanceof Inst3.JumpCond32_b_np) || (op instanceof Inst2.JumpCond16_w_np) || (op instanceof Inst1.JumpCond16_b_np);
+    }
+    static private boolean isLE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_le) || (op instanceof Inst3.JumpCond32_b_le) || (op instanceof Inst2.JumpCond16_w_le) || (op instanceof Inst1.JumpCond16_b_le);
+    }
+    static private boolean isNLE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nle) || (op instanceof Inst3.JumpCond32_b_nle) || (op instanceof Inst2.JumpCond16_w_nle) || (op instanceof Inst1.JumpCond16_b_nle);
+    }
+    static private boolean isBE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_be) || (op instanceof Inst3.JumpCond32_b_be) || (op instanceof Inst2.JumpCond16_w_be) || (op instanceof Inst1.JumpCond16_b_be);
+    }
+    static private boolean isNBE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nbe) || (op instanceof Inst3.JumpCond32_b_nbe) || (op instanceof Inst2.JumpCond16_w_nbe) || (op instanceof Inst1.JumpCond16_b_nbe);
+    }
+    static private boolean isJump(Op op) {
+        return (op instanceof Inst3.JumpCond32_b || op instanceof Inst1.JumpCond16_b || op instanceof Inst4.JumpCond32_d || op instanceof Inst2.JumpCond16_w);
+    }
+    static private boolean isTest(Op op) {
+        return (op instanceof Inst3.TestEdGd_reg || op instanceof Inst1.TestEwGw_reg || op instanceof Inst1.TestEbGb_reg);
+    }
+    static private String doTest(Op op, Op jump) {
+        String val1;
+        String val2;
+        String signMask;
+        String condition = null;
+        String signedType;
+
+        if (op instanceof  Inst3.TestEdGd_reg) {
+            Inst3.TestEdGd_reg test = (Inst3.TestEdGd_reg)op;
+            val1 = nameGet32(test.eard);
+            val2 = nameGet32(test.rd);
+            signMask = "0x80000000";
+            signedType = "int";
+        } else if (op instanceof Inst1.TestEwGw_reg) {
+            Inst1.TestEwGw_reg test = (Inst1.TestEwGw_reg)op;
+            val1 = nameGet16(test.earw);
+            val2 = nameGet16(test.rw);
+            signMask = "0x8000";
+            signedType = "short";
+        } else {
+            Inst1.TestEbGb_reg test = (Inst1.TestEbGb_reg)op;
+            val1 = nameGet8(test.earb);
+            val2 = nameGet8(test.rb);
+            signMask = "0x80";
+            signedType = "byte";
+        }
+        if (isO(jump)) {
+            // get_OF() // OF is always false with test
+            condition = "false";
+        } else if (isNO(jump)) {
+            // !get_OF() // OF is always false with test
+            condition = "true";
+        } else if (isB(jump)) {
+            // get_CF() // CF is always false with test
+            condition = "false";
+        } else if (isNB(jump)) {
+            // !get_CF() // CF is always false with test
+            condition = "true";
+        } else if (isZ(jump)) {
+            condition = "(("+val1+" & "+val2+")==0)";
+        } else if (isNZ(jump)) {
+            condition = "(("+val1+" & "+val2+")!=0)";
+        } else if (isBE(jump)) {
+            // get_CF() || get_ZF() // CF is always false with test
+            condition = "("+val1+" & "+val2+")==0";
+        } else if (isNBE(jump)) {
+            // !get_CF() && !get_ZF() // CF is always false with test
+            condition = "("+val1+" & "+val2+")!=0";
+        } else if (isS(jump)) {
+            condition = "(("+val1+" & "+val2+") & "+signMask+")!=0";
+        } else if (isNS(jump)) {
+            condition = "(("+val1+" & "+val2+") & "+signMask+")==0";
+        } else if (isP(jump)) {
+            // Let parity calculation fall through
+        } else if (isNP(jump)) {
+            // Let parity calculation fall through
+        } else if (isLE(jump)) {
+            // (get_ZF()  || ((get_SF()) != (get_OF())));   // OF is always false with test
+            condition = "(("+signedType+")("+val1+" & "+val2+"))<=0";
+        } else if (isNLE(jump)) {
+            // (!get_ZF() && ((get_SF()) == (get_OF())));   // OF is always false with test
+            condition = "(("+signedType+")("+val1+" & "+val2+"))>0";
+        } else if (isL(jump)) {
+            // ((get_SF()) != (get_OF()));   // OF is always false with test
+            condition = "(("+val1+" & "+val2+") & "+signMask+")!=0";
+        } else if (isNL(jump)) {
+            // ((get_SF()) == (get_OF())));   // OF is always false with test
+            condition = "(("+val1+" & "+val2+") & "+signMask+")==0";
+        }
+        return condition;
+    }
+
+    static private boolean isDec(Op op) {
+        return (op instanceof Inst3.Decd_reg || op instanceof Inst1.Decw_reg || op instanceof Inst1.Decb_reg);
+    }
+    static private String doDec(Op op, Op jump) {
+        String val1;
+        String condition = null;
+        String of;
+        String signedType;
+        String signMask;
+
+        if (op instanceof  Inst3.Decd_reg) {
+            Inst3.Decd_reg dec = (Inst3.Decd_reg)op;
+            val1 = nameGet32(dec.reg);
+            signedType = "int";
+            of = "0x7FFFFFFF";
+            signMask = "0x80000000";
+        } else if (op instanceof Inst1.Decw_reg) {
+            Inst1.Decw_reg dec = (Inst1.Decw_reg)op;
+            val1 = "((short)"+nameGet16(dec.reg)+")";
+            signedType = "short";
+            of = "0x7FFF";
+            signMask = "0x8000";
+        } else {
+            Inst1.Decb_reg dec = (Inst1.Decb_reg)op;
+            val1 = "((byte)"+nameGet8(dec.reg)+")";
+            signedType = "byte";
+            of = "0x7F";
+            signMask = "0x80";
+        }
+        if (isO(jump)) {
+            // get_OF()
+            condition = "("+val1+"=="+of+")";
+        } else if (isNO(jump)) {
+            // !get_OF()
+            condition = "("+val1+"!="+of+")";
+        } else if (isB(jump)) {
+            // get_CF()
+            // CF comes from the previous instruction
+        } else if (isNB(jump)) {
+            // !get_CF()
+            // CF comes from the previous instruction
+        } else if (isZ(jump)) {
+            condition = val1+"==0";
+        } else if (isNZ(jump)) {
+            condition = val1+"!=0";
+        } else if (isBE(jump)) {
+            // get_CF() || get_ZF() // CF comes from the previous instruction
+        } else if (isNBE(jump)) {
+            // !get_CF() && !get_ZF() // CF comes from the previous instruction
+        } else if (isS(jump)) {
+            condition = "("+val1+" & "+signMask+")!=0";
+        } else if (isNS(jump)) {
+            condition = "("+val1+" & "+signMask+")==0";
+        } else if (isP(jump)) {
+            // Let parity calculation fall through
+        } else if (isNP(jump)) {
+            // Let parity calculation fall through
+        } else if (isL(jump)) {
+            // ((get_SF()) != (get_OF()));
+            condition = "(("+val1+" & "+signMask+")!=0) != ("+val1+"=="+of+")";
+        } else if (isNL(jump)) {
+            // ((get_SF()) == (get_OF())));
+            condition = "(("+val1+" & "+signMask+")!=0) == ("+val1+"=="+of+")";
+        } else if (isLE(jump)) {
+            // (get_ZF()  || ((get_SF()) != (get_OF())));
+            condition = val1+"==0 || ((("+val1+" & "+signMask+")!=0) != ("+val1+"=="+of+"))";
+        } else if (isNLE(jump)) {
+            // (!get_ZF() && ((get_SF()) == (get_OF())));
+            condition = val1+"!=0 && ((("+val1+" & "+signMask+")!=0) == ("+val1+"=="+of+"))";
+        }
+        return condition;
+    }
 
     static public Op do_compile(Op op) {
         Op prev = op;
@@ -124,7 +322,10 @@ public class Compiler extends Helper {
         int count = 0;
         Op start = prev;
 
-        method.append("Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds= CPU_Regs.ds;CPU.CPU_Cycles-=");
+        method.append("Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds= CPU_Regs.ds;");
+        int loopPos = method.length();
+        int eipTotal = 0;
+        method.append("CPU.CPU_Cycles-=");
         method.append(op.cycle);
         method.append(";");
         while (op != null) {
@@ -136,7 +337,7 @@ public class Compiler extends Helper {
                         start = prev;
                     }
                     method.append("{");
-                    method.append("/*" + Integer.toHexString(op.c) + "*/");
+                    method.append("/*");method.append(Integer.toHexString(op.c));method.append("*/");
                     if (op.gets()!=0)
                         method.append("/* Uses Flags */");
                     int shouldSet = 0;
@@ -154,16 +355,93 @@ public class Compiler extends Helper {
                         if ((op.sets() & CPU_Regs.PF)!=0)
                             shouldSet = searchFlag(op.next, CPU_Regs.PF, shouldSet);
                     }
+                    boolean found = false;
+                    boolean doLoop = false;
                     if (shouldSet!=0) {
-                        method.append("/* Should set flags */");
+                        if ((isTest(op) || isDec(op)) && (isJump(op.next) || isJump(op.next.next))) {
+                            Op jumpOp = null;
+                            boolean store = false;
+                            if (isJump(op.next)) {
+                                jumpOp = op.next;
+                            } else if (isJump(op.next.next)) {
+                                jumpOp = op.next.next;
+                                store = true;
+                            }
+                            String condition = null;
+                            boolean doOp = true;
+
+                            if (isTest(op)) {
+                                shouldSet = 0;
+                                condition = doTest(op, jumpOp);
+                                doOp = false;
+                            } else if (isDec(op)) {
+                                shouldSet = 0;
+                                condition = doDec(op, jumpOp);
+                            }
+                            if (condition != null) {
+                                if (doOp) {
+                                    compile_op(op, shouldSet, method);
+                                    method.append("CPU_Regs.reg_eip+=");
+                                    method.append(op.eip_count);
+                                    method.append(";");
+                                    if (!store)
+                                        method.append("}\n  ");
+                                } else {
+                                    method.append("/* inlined in the next op */ CPU_Regs.reg_eip+="); method.append(op.eip_count);method.append(";");
+                                    if (!store)
+                                        method.append("}");
+                                    method.append("\n");
+                                }
+                                eipTotal+=op.eip_count;
+
+                                if (store) {
+                                    method.append("boolean result = ").append(condition).append(";");
+                                    condition = "result";
+                                }
+                                while (jumpOp != op.next) {
+                                    op = op.next;
+                                    method.append("{");
+                                    method.append("/*");method.append(Integer.toHexString(op.c));method.append("*/");
+                                    compile_op(op, 0, method);
+                                    method.append("CPU_Regs.reg_eip+=");
+                                    method.append(op.eip_count);
+                                    eipTotal+=op.eip_count;
+                                    method.append(";}\n  ");
+                                }
+                                if (!store)
+                                    method.append("{");
+                                method.append("/*");method.append(Integer.toHexString(op.next.c));method.append("*/");
+                                found = true;
+                                if (op.next instanceof Inst3.JumpCond32_b)
+                                    doLoop = compile((Inst3.JumpCond32_b)op.next, condition, method, eipTotal);
+                                else if (op.next instanceof Inst1.JumpCond16_b)
+                                    compile((Inst1.JumpCond16_b)op.next, condition, method);
+                                else if (op.next instanceof Inst4.JumpCond32_d)
+                                    compile((Inst4.JumpCond32_d)op.next, condition, method);
+                                else if (op.next instanceof Inst2.JumpCond16_w)
+                                    compile((Inst2.JumpCond16_w)op.next, condition, method);
+                                else {
+                                    int ii=0;
+                                }
+                            }
+                        }
+                        if (found)
+                            op = op.next;
+                        else
+                            method.append("/* Should set flags */");
                     }
-                    if (compile_op(op, alwayUseFastVersion?0:shouldSet, method)) {
+                    if (!found && compile_op(op, alwayUseFastVersion?0:shouldSet, method)) {
                         method.append("CPU_Regs.reg_eip+=");
                         method.append(op.eip_count);
+                        eipTotal+=op.eip_count;
                         method.append(";}\n  ");
                         continue;
                     } else {
                         method.append("}");
+                        if (doLoop) {
+                            method.insert(loopPos, "while (true) {");
+                            method.append("}");
+                        }
                         jump = true;
                         if (op.next != null) {
                             Log.exit("Instruction "+Integer.toHexString(op.c)+" jumped but there was another instruction after it: "+Integer.toHexString(op.next.c));
@@ -539,6 +817,21 @@ public class Compiler extends Helper {
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
     }
+    static boolean compile(Inst3.JumpCond32_b op, String cond, StringBuffer method, int eipCount) {
+        boolean result = false;
+        method.append("if (");method.append(cond);method.append(") {");
+        if (eipCount + op.eip_count == -op.offset) {
+            method.append("CPU_Regs.reg_eip-=");method.append(eipCount);
+            method.append(";continue;}");
+            result = true;
+        } else {
+            method.append("CPU_Regs.reg_eip+=");method.append(op.offset);method.append("+");method.append(op.eip_count);method.append(";");
+            method.append("return Constants.BR_Link1;}");
+        }
+        method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
+        return result;
+    }
+
     static void compile(Inst4.JumpCond32_d op, String cond, StringBuffer method) {
         method.append("if (");method.append(cond);method.append(") {");
         method.append("CPU_Regs.reg_eip+=");method.append(op.offset);method.append("+");method.append(op.eip_count);method.append(";");

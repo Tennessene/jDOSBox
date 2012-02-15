@@ -13,13 +13,11 @@ public class LazyFlags {
         var2 = in.var2;
         res=in.res;
         type = in.type;
-        prev_type = in.prev_type;
         oldcf = in.oldcf;
     }
     public int var1;
     public int var2;
     public int res;
-    public int type;
-    public int prev_type;
     public boolean oldcf;
+    public Flags.GetFlags type = Flags.t_UNKNOWN;
 }

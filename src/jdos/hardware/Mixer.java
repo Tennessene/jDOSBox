@@ -484,7 +484,8 @@ public class Mixer extends Program {
     static private _Mixer mixer;
 
     static public /*Bit8u*/byte[] MixTemp8=new byte[MIXER_BUFSIZE];
-    static public short[] MixTemp16=new short[MIXER_BUFSIZE];
+    static public short[] MixTemp16=new short[MIXER_BUFSIZE>>1];
+    static public int[] MixTemp32=new int[MIXER_BUFSIZE>>2];
 
     public static MixerChannel MIXER_AddChannel(MIXER_Handler handler,/*Bitu*/int freq,String name) {
         MixerChannel chan=new MixerChannel();

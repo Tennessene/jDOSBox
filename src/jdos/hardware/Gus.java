@@ -45,7 +45,7 @@ public class Gus extends Module_base {
     private static Mixer.MixerChannel gus_chan;
     private static byte irqtable[] = new byte[]{0, 2, 5, 3, 7, 11, 12, 15};
     private static byte dmatable[] = new byte[]{0, 1, 3, 5, 6, 7, 0, 0};
-    private static byte GUSRam[] = new byte[1024 * 1024]; // 1024K of GUS Ram
+    private static byte GUSRam[] = null; // 1024K of GUS Ram
     private static int AutoAmp = 512;
     private static char[] vol16bit = new char[4096];
     private static long[] pantable = new long[16];
@@ -289,6 +289,7 @@ public class Gus extends Module_base {
         if (!Dosbox.IS_EGAVGA_ARCH()) return;
         Section_prop section = (Section_prop) configuration;
         if (!section.Get_bool("gus")) return;
+        GUSRam = new byte[1024 * 1024]; // only allocate RAM if the device is enabled
 
         myGUS.rate = section.Get_int("gusrate");
 
@@ -827,6 +828,7 @@ public class Gus extends Module_base {
     static private Gus test = null;
     private static Section.SectionFunction GUS_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
+            GUSRam = null;
             test = null;
         }
     };

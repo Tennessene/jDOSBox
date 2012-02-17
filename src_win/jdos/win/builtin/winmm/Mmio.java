@@ -275,9 +275,10 @@ public class Mmio extends WinAPI {
             }
         } else {
             refmminfo.wErrorRet = MMIO_SetBuffer(wm, refmminfo.pchBuffer, refmminfo.cchBuffer, 0);
-            if (refmminfo.wErrorRet != MMSYSERR_NOERROR)
+            if (refmminfo.wErrorRet != MMSYSERR_NOERROR) {
                 wm.close();
-            return 0;
+                return 0;
+            }
         }
 
         if (wm.info.fccIOProc == FOURCC_MEM && (wm.info.dwFlags & MMIO_ALLOCBUF) == 0)

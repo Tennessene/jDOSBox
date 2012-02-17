@@ -251,7 +251,11 @@ public class IDirectSoundBuffer extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpdwFrequency = CPU.CPU_Pop32();
-            notImplemented();
+            int f = readd(This+OFFSET_DATA_START+OFFSET_DESC_WAV+4);
+            if (f == 0)
+                f = readd(This+OFFSET_DATA_START+OFFSET_DESC_WAV+8);
+            writed(lpdwFrequency, f);
+            CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 

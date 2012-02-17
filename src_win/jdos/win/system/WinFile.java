@@ -156,6 +156,36 @@ public class WinFile extends WinObject {
         }
     }
 
+    public int readb() {
+        try {
+            byte[] buffer = new byte[1];
+            file.read(buffer);
+            return buffer[0] & 0xFF;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    public int readw() {
+        try {
+            byte[] buffer = new byte[2];
+            file.read(buffer);
+            return (buffer[0] & 0xFF) | ((buffer[1] & 0xFF) << 8);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    public int readd() {
+        try {
+            byte[] buffer = new byte[4];
+            file.read(buffer);
+            return (buffer[0] & 0xFF) | ((buffer[1] & 0xFF) << 8) | ((buffer[2] & 0xFF) << 16) | ((buffer[3] & 0xFF) << 24);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     public int write(int buffer, int size) {
         try {
             byte[] buf = new byte[size];

@@ -187,6 +187,10 @@ public class WinMM extends BuiltinModule {
                     }
                 }
                 break;
+                case 0x814: // MCI_STATUS
+                    log("mciSendCommand status not implemented yet");
+                    CPU_Regs.reg_eax.dword = 1; // error
+                    return;
 
             }
             Win.panic(getName()+" unhanded uMsg=0x"+ Ptr.toString(uMsg)+" fdwCommand=0x"+Ptr.toString(fdwCommand));

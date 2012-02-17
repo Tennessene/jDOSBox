@@ -1902,6 +1902,24 @@ public class WinAPI extends Error {
     static final public int STARTF_USESTDHANDLES =      0x00000100;
     static final public int STARTF_USEHOTKEY =          0x00000200;
 
+    static final public int OF_READ =              0x0000;
+    static final public int OF_WRITE =             0x0001;
+    static final public int OF_READWRITE =         0x0002;
+    static final public int OF_SHARE_COMPAT =      0x0000;
+    static final public int OF_SHARE_EXCLUSIVE =   0x0010;
+    static final public int OF_SHARE_DENY_WRITE =  0x0020;
+    static final public int OF_SHARE_DENY_READ =   0x0030;
+    static final public int OF_SHARE_DENY_NONE =   0x0040;
+    static final public int OF_PARSE =             0x0100;
+    static final public int OF_DELETE =            0x0200;
+    static final public int OF_VERIFY =            0x0400;   /* Used with OF_REOPEN */
+    static final public int OF_SEARCH =            0x0400;   /* Used without OF_REOPEN */
+    static final public int OF_CANCEL =            0x0800;
+    static final public int OF_CREATE =            0x1000;
+    static final public int OF_PROMPT =            0x2000;
+    static final public int OF_EXIST =             0x4000;
+    static final public int OF_REOPEN =            0x8000;
+    
     // ************
     // * Internal *
     // ************

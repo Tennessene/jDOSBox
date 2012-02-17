@@ -173,7 +173,7 @@ public class Kernel32 extends BuiltinModule {
         add(WinPath.class, "MoveFileA", new String[] {"(STRING)lpExistingFileName", "(STRING)lpNewFileName", "(BOOL)result"});
         add(MulDiv);
         add(MultiByteToWideChar);
-        add(OpenFile);
+        add(KFile.class, "OpenFile", new String[] {"(STRING)lpFileName", "(HEX)lpReOpenBuf", "(HEX)wStyle"});
         add(OutputDebugStringW);
         add(OutputDebugStringA);
         add(QueryPerformanceCounter);
@@ -2378,77 +2378,6 @@ public class Kernel32 extends BuiltinModule {
             int nNumerator = CPU.CPU_Pop32();
             int nDenominator = CPU.CPU_Pop32();
             CPU_Regs.reg_eax.dword = (int)((long)nNumber*nNumerator/nDenominator);
-        }
-    };
-
-    // HFILE WINAPI OpenFile(LPCSTR lpFileName, LPOFSTRUCT lpReOpenBuff, UINT uStyle)
-    private Callback.Handler OpenFile = new ReturnHandlerBase() {
-        public java.lang.String getName() {
-            return "Kernel32.OpenFile";
-        }
-        public int processReturn() {
-            int lpFileName = CPU.CPU_Pop32();
-            int lpReOpenBuff = CPU.CPU_Pop32();
-            int uStyle = CPU.CPU_Pop32();
-            String fileName = StringUtil.getString(lpFileName);
-            FilePath file = WinSystem.getCurrentProcess().getFile(fileName);
-            if ((uStyle & 0x00004000)!=0) { //  OF_EXIST
-                return file.exists()?WinAPI.TRUE:WinAPI.FALSE;
-            }
-            if ((uStyle & 0x00001000)!=0) { // OF_CREATE
-                try {
-                    file.delete();
-                    file.createNewFile();
-                } catch (Exception e) {
-                    Scheduler.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
-                    return WinAPI.INVALID_HANDLE_VALUE;
-                }
-            }
-            if (!file.exists()) {
-                if ((uStyle & 0x00002000)!=0) // OF_PROMPT
-                    Win.panic(getName()+" OF_PROMPT not implemented yet");
-                Scheduler.getCurrentThread().setLastError(Error.ERROR_FILE_NOT_FOUND);
-                return WinAPI.INVALID_HANDLE_VALUE;
-            }
-            if ((uStyle & 0x00000100)!=0) { // OF_PARSE
-                Win.panic(getName()+" OF_PARSE not implemented yet");
-            }
-            if ((uStyle & 0x00008000)!=0) { // OF_REOPEN
-                Win.panic(getName()+" OF_REOPEN not implemented yet");
-            }
-
-            if ((uStyle & 0x00000200)!=0) { // OF_DELETE
-                if (file.delete())
-                    return WinAPI.TRUE;
-                Scheduler.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
-                return WinAPI.INVALID_HANDLE_VALUE;
-            }
-            int share = WinFile.FILE_SHARE_READ|WinFile.FILE_SHARE_WRITE;
-
-            if ((uStyle & 0x00000040)==0x00000040) { // OF_SHARE_DENY_NONE
-                share = WinFile.FILE_SHARE_READ|WinFile.FILE_SHARE_WRITE;
-            } else if ((uStyle & 0x00000020)==0x00000020) { // OF_SHARE_DENY_WRITE
-                share = WinFile.FILE_SHARE_READ;
-            } else if ((uStyle & 0x00000030)==0x00000030) { // OF_SHARE_DENY_READ
-                share = WinFile.FILE_SHARE_WRITE;
-            } else if ((uStyle & 0x00000010)==0x00000010) { // OF_SHARE_EXCLUSIVE
-                share = WinFile.FILE_SHARE_NONE;
-            }
-
-            boolean write = false;
-            if ((uStyle & 0x00000001)!=0) { // OF_WRITE or
-                write = true;
-            }
-            if ((uStyle & 0x00000002)!=0) { // OF_READWRITE
-                write = true;
-            }
-            WinFile result = WinFile.create(file, write, share, 0);
-            if (result != null)
-                return result.getHandle();
-            else {
-                Scheduler.getCurrentThread().setLastError(Error.ERROR_ACCESS_DENIED);
-                return WinAPI.INVALID_HANDLE_VALUE;
-            }
         }
     };
 

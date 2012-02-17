@@ -6,6 +6,7 @@ import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.kernel32.WinProcess;
 
+import java.awt.*;
 import java.awt.image.*;
 
 public class JavaBitmap {
@@ -71,18 +72,34 @@ public class JavaBitmap {
     private BufferedImage cachedImageColorKey = null;
 
     public BufferedImage getImageColorKey(int colorKey) {
-        colorKey = palette[colorKey];
+        if (bpp<=8)
+            colorKey = palette[colorKey];
         if (colorKey != cachedColorKey) {
-            int[] p = (int[])palette.clone();
-            for (int i=0;i<p.length;i++) {
-                if ((p[i] & 0xFFFFFF) == (colorKey & 0xFFFFFF))
-                    p[i]&=0xFFFFFF;
-                else
-                    p[i]|=0xFF000000;
+            if (bpp<=8) {
+                int[] p = (int[])palette.clone();
+                for (int i=0;i<p.length;i++) {
+                    if ((p[i] & 0xFFFFFF) == (colorKey & 0xFFFFFF))
+                        p[i]&=0xFFFFFF;
+                    else
+                        p[i]|=0xFF000000;
+                }
+                WritableRaster raster = image.getRaster();
+                ColorModel cm = createColorModel(bpp, p, true);
+                cachedImageColorKey = new BufferedImage(cm, raster, false, null);
+            } else {
+                BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), Transparency.BITMASK);
+                int c = colorKey & 0xFFFFFF;
+                for (int x=0;x<result.getWidth();x++) {
+                    for (int y=0;y<result.getHeight();y++) {
+                        int p = image.getRGB(x, y);
+                        if ((p & 0xFFFFFF) == c)
+                            result.setRGB(x, y, c);
+                        else
+                            result.setRGB(x, y, p);
+                    }
+                }
+                cachedImageColorKey = result;
             }
-            WritableRaster raster = image.getRaster();
-            ColorModel cm = createColorModel(bpp, p, true);
-            cachedImageColorKey = new BufferedImage(cm, raster, false, null);
             cachedColorKey = colorKey;
         }
         return cachedImageColorKey;

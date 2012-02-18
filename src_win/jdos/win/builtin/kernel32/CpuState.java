@@ -77,7 +77,7 @@ public class CpuState {
         //CPU.Segs_CSphys = csPhys;
         //CPU.Segs_DSphys = dsPhys;
         //CPU.Segs_SSphys = ssPhys;
-        //CPU.Segs_FSphys = fsPhys;
+        CPU.Segs_FSphys = fsPhys;
         //CPU.Segs_GSphys = gsPhys;
         //CPU.cpu.stack.mask=stackMask;
         //CPU.cpu.stack.notmask=stackNotMask;

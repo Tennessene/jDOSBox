@@ -3,6 +3,7 @@ package jdos.win.builtin.kernel32;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
+import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.user32.GuiThreadInfo;
@@ -54,7 +55,6 @@ public class WinThread extends WaitObject {
     static public final int THREAD_PRIORITY_HIGHEST = 2;
     static public final int THREAD_PRIORITY_TIME_CRITICAL = 15;
 
-    private Vector<Integer> tls = new Vector<Integer>();
     private WinProcess process;
     private int lastError = jdos.win.utils.Error.ERROR_SUCCESS;
     public CpuState cpuState = new CpuState();
@@ -76,6 +76,7 @@ public class WinThread extends WaitObject {
     public int waitTimeStart;
     public int currentGetMessageTime = 0;
     public int currentGetMessagePos = 0;
+    public TIB tib;
 
     public GuiThreadInfo GetGUIThreadInfo() {
         return guiInfo;
@@ -123,6 +124,8 @@ public class WinThread extends WaitObject {
         this.stack = new KernelHeap(process.kernelMemory, process.page_directory, start, end, end, false, false);
         this.process = process;
         this.startAddress = (int)startAddress;
+        this.tib = new TIB(process, handle, this.cpuState.esp-stackSizeCommit, this.cpuState.esp);
+        this.cpuState.fsPhys = this.tib.address;
 
         if (primary) {
             this.cpuState.eip = (int)startAddress;
@@ -372,9 +375,10 @@ public class WinThread extends WaitObject {
     public int tlsSetValue(int index, int value) {
         int size = WinSystem.getCurrentProcess().tlsSize;
         if (index>=0 && index<size) {
-            if (index>=tls.size())
-                tls.setSize(size);
-            tls.setElementAt(value, index);
+            if (index*4>=tib.tlsSize) {
+                Win.panic("Need to implement growing TLS");
+            }
+            writed(tib.tls+index*4, value);
             return WinAPI.TRUE;
         }
         lastError = Error.ERROR_INVALID_PARAMETER;
@@ -384,12 +388,10 @@ public class WinThread extends WaitObject {
     public int tlsGetValue(int index) {
         int size = WinSystem.getCurrentProcess().tlsSize;
         if (index>=0 && index<size) {
-            if (index>=tls.size())
-                return 0;
-            Integer result = tls.elementAt(index);
-            if (result == null)
-                return 0;
-            return result;
+            if (index*4>=tib.tlsSize) {
+                Win.panic("Need to implement growing TLS");
+            }
+            return readd(tib.tls+index*4);
         }
         lastError = Error.ERROR_INVALID_PARAMETER;
         return WinAPI.FALSE;

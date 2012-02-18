@@ -5,17 +5,22 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.win.builtin.HandlerBase;
+import jdos.win.builtin.ReturnHandlerBase;
+import jdos.win.builtin.directx.DError;
 import jdos.win.builtin.directx.DirectCallback;
 import jdos.win.builtin.directx.ddraw.IUnknown;
+import jdos.win.builtin.winmm.WAVEFORMATEX;
+import jdos.win.builtin.winmm.WAVEFORMATEXTENSIBLE;
 import jdos.win.kernel.WinCallback;
+import jdos.win.system.WinObject;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
+import jdos.win.utils.Ptr;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
-import java.util.Hashtable;
 
 public class IDirectSoundBuffer extends IUnknown {
     static final int VTABLE_SIZE = 18;
@@ -24,54 +29,136 @@ public class IDirectSoundBuffer extends IUnknown {
     final static int DSBSIZE_MAX = 0xFFFFFFF;
 
     final static int OFFSET_FLAGS = 0;
-    final static int OFFSET_MEMORY = 4;
-    final static int OFFSET_START_POS = 8;
-    final static int OFFSET_END_POS = 12;
-    final static int OFFSET_PARENT = 16;
-    final static int OFFSET_DESC = 20;
+    final static int OFFSET_HANDLE = 4;
+    final static int OFFSET_DESC = 8;
 
-    final static int OFFSET_DESC_WAV = OFFSET_DESC+16;
-    static final int DATA_SIZE = OFFSET_DESC+DSBufferDesc.SIZE+WaveFormatEx.SIZE-4;
+    final static int OFFSET_DESC_WAV = OFFSET_DESC + 16;
+    static final int DATA_SIZE = OFFSET_DESC + DSBufferDesc.SIZE + WAVEFORMATEX.SIZE - 4;
 
     final static int MEMORY_HEADER_SIZE = 4;
     final static int MEMORY_OFFSET_REF_COUNT = 0;
 
-    static int getParent(int This) {
-        return getData(This, OFFSET_PARENT);
-    }
-    static void setParent(int This, int parent) {
-        setData(This, OFFSET_PARENT, parent);
-    }
-
-    static int getBits(int This) {
-        return getData(This, OFFSET_MEMORY)+MEMORY_HEADER_SIZE;
-    }
-
-    static int getSize(int This) {
-        return getData(This, OFFSET_DESC+8);
-    }
-
-    static int getStart(int This) {
-        return getData(This, OFFSET_START_POS);
-    }
-
-    static int getEnd(int This) {
-        return getData(This, OFFSET_END_POS);
-    }
-
-    static void incrementMemoryRef(int This) {
-        int refAddress = getData(This, OFFSET_MEMORY)+MEMORY_OFFSET_REF_COUNT;
+    static private void incrementMemoryRef(int This) {
+        Data data = Data.get(This);
+        int refAddress = data.buffer + MEMORY_OFFSET_REF_COUNT;
         int ref = Memory.mem_readd(refAddress);
         ref++;
         Memory.mem_writed(refAddress, ref);
     }
 
-    static int decrementMemoryRef(int This) {
-        int refAddress = getData(This, OFFSET_MEMORY)+MEMORY_OFFSET_REF_COUNT;
+    static private int decrementMemoryRef(int This) {
+        Data data = Data.get(This);
+        int refAddress = data.buffer + MEMORY_OFFSET_REF_COUNT;
         int ref = Memory.mem_readd(refAddress);
         ref--;
         Memory.mem_writed(refAddress, ref);
         return ref;
+    }
+
+    static public class Data extends WinObject {
+        static public Data create(int This) {
+            return new Data(nextObjectId(), This);
+        }
+
+        static public Data get(int This) {
+            int handle = getData(This, OFFSET_HANDLE);
+            return (Data) getObject(handle);
+        }
+
+        public int getTmpStart() {
+            return ((int) ((long) startPos * tmp_buffer_len / buflen)) & ~3;
+        }
+
+        public int getTmpEnd() {
+            return ((int) ((long) endPos * tmp_buffer_len / buflen)) & ~3;
+        }
+
+        public void play(boolean loop) {
+            if (tmp_buffer == null)
+                return;
+
+            if (thread != null) {
+                thread.loop = loop;
+                synchronized (thread.mutex) {
+                    if (!thread.playing) {
+                        thread.mutex.notify();
+                    }
+                }
+            } else {
+                thread = new PlayThread(this);
+                thread.loop = loop;
+                thread.start();
+            }
+        }
+
+        public void stop() {
+            if (thread != null)
+                thread.stop = true;
+        }
+
+        public PlayThread thread;
+        public int This;
+        public int startPos;
+        public int endPos;
+        public int parent;
+        public int freq;
+        public int nAvgBytesPerSec;
+        public int buflen;
+        public int freqAdjust;
+        public int writelead;
+        public int max_buffer_len;
+        public int freqAcc;
+        public int freqAccNext;
+        public boolean freqneeded;
+        public int tmp_buffer_len;
+        public byte[] tmp_buffer;
+        public int sec_mixpos;
+        public int buf_mixpos;
+        public int buffer;
+        public DSConvert.bitsconvertfunc convert;
+        public DSVOLUMEPAN volpan = new DSVOLUMEPAN();
+        public boolean tmp_buffer_copied = false;
+
+        public Data(int handle, int This) {
+            super(handle);
+            this.This = This;
+        }
+
+        public void copy(Data data) {
+            this.This = data.This;
+            this.startPos = data.startPos;
+            this.endPos = data.endPos;
+            this.parent = data.parent;
+            this.freq = data.freq;
+            this.nAvgBytesPerSec = data.nAvgBytesPerSec;
+            this.buflen = data.buflen;
+            this.freqAdjust = data.freqAdjust;
+            this.writelead = data.writelead;
+            this.max_buffer_len = data.max_buffer_len;
+            this.freqAcc = data.freqAcc;
+            this.freqAccNext = data.freqAccNext;
+            this.freqneeded = data.freqneeded;
+            this.tmp_buffer_len = data.tmp_buffer_len;
+            this.tmp_buffer = data.tmp_buffer;
+            this.sec_mixpos = data.sec_mixpos;
+            this.buf_mixpos = data.buf_mixpos;
+            this.buffer = data.buffer;
+            this.convert = data.convert;
+            this.volpan = new DSVOLUMEPAN(data.volpan);
+            data.tmp_buffer_copied = true;
+        }
+
+        public int flags() {
+            return getFlags(This);
+        }
+
+        public WAVEFORMATEX wfx() {
+            return new WAVEFORMATEX(This + OFFSET_DATA_START + OFFSET_DESC_WAV);
+        }
+
+        public WAVEFORMATEXTENSIBLE wfxe() {
+            return new WAVEFORMATEXTENSIBLE(wfx(), This + OFFSET_DATA_START + OFFSET_DESC_WAV);
+        }
     }
 
     private static int createVTable() {
@@ -107,14 +194,15 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.CleanUp";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int refCount = decrementMemoryRef(This);
+            Data data = Data.get(This);
             if (refCount == 0) {
-                int memory = getData(This, OFFSET_MEMORY);
-                WinSystem.getCurrentProcess().heap.free(memory);
+                WinSystem.getCurrentProcess().heap.free(data.buffer);
             }
-            PlayThread thread = threads.get(This);
+            PlayThread thread = data.thread;
             if (thread != null) {
                 thread.bExit = true;
                 synchronized (thread.mutex) {
@@ -137,21 +225,32 @@ public class IDirectSoundBuffer extends IUnknown {
             cleanupCallback = WinCallback.addCallback(CleanUp);
         }
         DSBufferDesc desc = new DSBufferDesc(lpcDSBufferDesc);
-        if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER)==0 && (desc.dwBufferBytes<DSBSIZE_MIN || desc.dwBufferBytes>DSBSIZE_MAX)) {
+        if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER) == 0 && (desc.dwBufferBytes < DSBSIZE_MIN || desc.dwBufferBytes > DSBSIZE_MAX)) {
             return Error.DDERR_INVALIDPARAMS;
         }
         int address = allocate(vtable, DATA_SIZE, cleanupCallback);
         setData(address, OFFSET_FLAGS, flags);
-        Memory.mem_memcpy(address+OFFSET_DATA_START+OFFSET_DESC, lpcDSBufferDesc, DSBufferDesc.SIZE-4);
+        Memory.mem_memcpy(address + OFFSET_DATA_START + OFFSET_DESC, lpcDSBufferDesc, DSBufferDesc.SIZE - 4);
         if (desc.lpwfxFormat != null) {
-            Memory.mem_memcpy(address+OFFSET_DATA_START+OFFSET_DESC_WAV, Memory.mem_readd(lpcDSBufferDesc+16), WaveFormatEx.SIZE);
+            Memory.mem_memcpy(address + OFFSET_DATA_START + OFFSET_DESC_WAV, Memory.mem_readd(lpcDSBufferDesc + 16), WAVEFORMATEX.SIZE);
         }
         Memory.mem_writed(lplpDirectSoundBuffer, address);
-        if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER)!=0) {
+        if ((desc.dwFlags & DSBufferDesc.DSBCAPS_PRIMARYBUFFER) != 0) {
             //Win.panic("Have not implemented direct sound primary buffer yet");
+            desc.lpwfxFormat = new WAVEFORMATEX();
+            desc.lpwfxFormat.write(address + OFFSET_DATA_START + OFFSET_DESC_WAV);
         }
-        int data = WinSystem.getCurrentProcess().heap.alloc(desc.dwBufferBytes+MEMORY_HEADER_SIZE, false);
-        setData(address, OFFSET_MEMORY, data);
+        if (desc.lpwfxFormat.nSamplesPerSec == 0)
+            desc.lpwfxFormat.nSamplesPerSec = desc.lpwfxFormat.nAvgBytesPerSec * 8 / desc.lpwfxFormat.wBitsPerSample / desc.lpwfxFormat.nChannels;
+        Data d = Data.create(address);
+        d.buffer = WinSystem.getCurrentProcess().heap.alloc(desc.dwBufferBytes + MEMORY_HEADER_SIZE, false);
+        d.buflen = desc.dwBufferBytes;
+        d.freq = desc.lpwfxFormat.nSamplesPerSec;
+        d.freqAdjust = (int) (((long) d.freq << DSOUND_FREQSHIFT) / DSMixer.DEVICE_SAMPLE_RATE);
+        d.nAvgBytesPerSec = d.freq * desc.lpwfxFormat.nBlockAlign;
+
+        DSMixer.DSOUND_RecalcFormat(d);
+        setData(address, OFFSET_HANDLE, d.handle);
         incrementMemoryRef(address);
         return Error.S_OK;
     }
@@ -160,17 +259,24 @@ public class IDirectSoundBuffer extends IUnknown {
         int vtable = Memory.mem_readd(This);
         int address = allocate(vtable, DATA_SIZE, cleanupCallback);
         Memory.mem_memcpy(address + OFFSET_DATA_START, This + OFFSET_DATA_START, DATA_SIZE);
-        incrementMemoryRef(address);
+
+        incrementMemoryRef(This);
         Memory.mem_writed(lplpDirectSoundBuffer, address);
-        setParent(address, This);
+        Data fromData = Data.get(This);
+        Data d = Data.create(address);
+        d.copy(fromData);
+        setData(address, OFFSET_HANDLE, d.handle);
+        d.buf_mixpos = d.sec_mixpos = 0;
+        d.parent = This;
         return Error.S_OK;
     }
 
     static public int getFlags(int This) {
-        return getData(This, OFFSET_DESC+4);
+        return getData(This, OFFSET_DESC + 4);
     }
+
     static public int getBufferBytes(int This) {
-        return getData(This, OFFSET_DESC+8);
+        return getData(This, OFFSET_DESC + 8);
     }
 
     // HRESULT GetCaps(this, LPDSBCAPS lpDSBufferCaps)
@@ -178,14 +284,15 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetCaps";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpDSBufferCaps = CPU.CPU_Pop32();
-            if (lpDSBufferCaps == 0 || Memory.mem_readd(lpDSBufferCaps)<DSBCaps.SIZE) {
+            if (lpDSBufferCaps == 0 || Memory.mem_readd(lpDSBufferCaps) < DSBCaps.SIZE) {
                 CPU_Regs.reg_eax.dword = Error.DDERR_INVALIDPARAMS;
                 return;
             }
-            DSBCaps.write(lpDSBufferCaps,  getFlags(This) | DSBufferDesc.DSBCAPS_LOCSOFTWARE, getBufferBytes(This), 0, 0);
+            DSBCaps.write(lpDSBufferCaps, getFlags(This) | DSBufferDesc.DSBCAPS_LOCSOFTWARE, getBufferBytes(This), 0, 0);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
@@ -195,12 +302,14 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetCurrentPosition";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpdwCurrentPlayCursor = CPU.CPU_Pop32();
             int lpdwCurrentWriteCursor = CPU.CPU_Pop32();
-            Memory.mem_writed(lpdwCurrentPlayCursor, 0);
-            Memory.mem_writed(lpdwCurrentWriteCursor, 0);
+            Data data = Data.get(This);
+            Memory.mem_writed(lpdwCurrentPlayCursor, data.startPos);
+            Memory.mem_writed(lpdwCurrentWriteCursor, data.endPos);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
@@ -210,6 +319,7 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetFormat";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpwfxFormat = CPU.CPU_Pop32();
@@ -224,6 +334,7 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetVolume";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lplVolume = CPU.CPU_Pop32();
@@ -236,6 +347,7 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetPan";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lplpan = CPU.CPU_Pop32();
@@ -248,12 +360,13 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetFrequency";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpdwFrequency = CPU.CPU_Pop32();
-            int f = readd(This+OFFSET_DATA_START+OFFSET_DESC_WAV+4);
+            int f = readd(This + OFFSET_DATA_START + OFFSET_DESC_WAV + 4);
             if (f == 0)
-                f = readd(This+OFFSET_DATA_START+OFFSET_DESC_WAV+8);
+                f = readd(This + OFFSET_DATA_START + OFFSET_DESC_WAV + 8);
             writed(lpdwFrequency, f);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
@@ -261,24 +374,27 @@ public class IDirectSoundBuffer extends IUnknown {
 
     // HRESULT GetStatus(this, LPDWORD lpdwStatus)
     static private Callback.Handler GetStatus = new HandlerBase() {
-        static public final int DSBSTATUS_PLAYING =     0x00000001;
-        static public final int DSBSTATUS_BUFFERLOST =  0x00000002;
-        static public final int DSBSTATUS_LOOPING =     0x00000004;
+        static public final int DSBSTATUS_PLAYING = 0x00000001;
+        static public final int DSBSTATUS_BUFFERLOST = 0x00000002;
+        static public final int DSBSTATUS_LOOPING = 0x00000004;
         static public final int DSBSTATUS_LOCHARDWARE = 0x00000008;
         static public final int DSBSTATUS_LOCSOFTWARE = 0x00000010;
-        static public final int DSBSTATUS_TERMINATED =  0x00000020;
+        static public final int DSBSTATUS_TERMINATED = 0x00000020;
 
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetStatus";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpdwStatus = CPU.CPU_Pop32();
             int status = DSBSTATUS_LOCSOFTWARE;
-            PlayThread thread = threads.get(This);
-            if (thread!=null) {
+            PlayThread thread = Data.get(This).thread;
+            if (thread != null) {
                 if (thread.playing)
                     status |= DSBSTATUS_PLAYING;
+                if (thread.loop)
+                    status |= DSBSTATUS_LOOPING;
             }
             Memory.mem_writed(lpdwStatus, status);
             CPU_Regs.reg_eax.dword = Error.S_OK;
@@ -290,6 +406,7 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Initialize";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpDirectSound = CPU.CPU_Pop32();
@@ -306,6 +423,7 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Lock";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int dwOffset = CPU.CPU_Pop32();
@@ -315,27 +433,28 @@ public class IDirectSoundBuffer extends IUnknown {
             int ppvAudioPtr2 = CPU.CPU_Pop32();
             int pdwAudioBytes2 = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
-            if ((dwFlags & DSBLOCK_FROMWRITECURSOR)!=0)
-                dwOffset = getEnd(This);
-            else if ((dwFlags & DSBLOCK_ENTIREBUFFER)!=0)
+            Data data = Data.get(This);
+            if ((dwFlags & DSBLOCK_FROMWRITECURSOR) != 0)
+                dwOffset = data.endPos;
+            else if ((dwFlags & DSBLOCK_ENTIREBUFFER) != 0)
                 dwOffset = 0;
-            int memory = getBits(This);
-            int size = getSize(This);
+            int memory = data.buffer;
+            int size = data.buflen;
 
-            Memory.mem_writed(ppvAudioPtr1, memory+dwOffset);
+            Memory.mem_writed(ppvAudioPtr1, memory + dwOffset);
             int length = size - dwOffset;
-            if (length>dwBytes) {
+            if (length > dwBytes) {
                 Memory.mem_writed(pdwAudioBytes1, dwBytes);
                 if (ppvAudioPtr2 != 0)
                     Memory.mem_writed(ppvAudioPtr2, 0);
-                if (pdwAudioBytes2 !=0 )
+                if (pdwAudioBytes2 != 0)
                     Memory.mem_writed(pdwAudioBytes2, 0);
             } else {
                 Memory.mem_writed(pdwAudioBytes1, length);
                 if (ppvAudioPtr2 != 0)
                     Memory.mem_writed(ppvAudioPtr2, memory);
-                if (pdwAudioBytes2 !=0 )
-                    Memory.mem_writed(pdwAudioBytes2, dwBytes-length);
+                if (pdwAudioBytes2 != 0)
+                    Memory.mem_writed(pdwAudioBytes2, dwBytes - length);
             }
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
@@ -343,31 +462,25 @@ public class IDirectSoundBuffer extends IUnknown {
 
     // HRESULT Play(this, DWORD dwReserved1, DWORD dwReserved2, DWORD dwFlags)
     static private Callback.Handler Play = new HandlerBase() {
-        static public final int DSBPLAY_LOOPING =               0x00000001;
-        static public final int DSBPLAY_LOCHARDWARE =           0x00000002;
-        static public final int DSBPLAY_LOCSOFTWARE =           0x00000004;
-        static public final int DSBPLAY_TERMINATEBY_TIME =      0x00000008;
-        static public final int DSBPLAY_TERMINATEBY_DISTANCE =  0x000000010;
-        static public final int DSBPLAY_TERMINATEBY_PRIORITY =  0x000000020;
+        static public final int DSBPLAY_LOOPING = 0x00000001;
+        static public final int DSBPLAY_LOCHARDWARE = 0x00000002;
+        static public final int DSBPLAY_LOCSOFTWARE = 0x00000004;
+        static public final int DSBPLAY_TERMINATEBY_TIME = 0x00000008;
+        static public final int DSBPLAY_TERMINATEBY_DISTANCE = 0x000000010;
+        static public final int DSBPLAY_TERMINATEBY_PRIORITY = 0x000000020;
 
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Play";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int dwReserved1 = CPU.CPU_Pop32();
             int dwReserved2 = CPU.CPU_Pop32();
             int dwFlags = CPU.CPU_Pop32();
-            byte[] buffer = buffers.get(This);
-            if (buffer == null) {
-                int parent = getParent(This);
-                if (parent != 0)
-                    buffer = buffers.get(parent);
-            }
-            if (buffer == null) {
-                buffer = getBuffer(This);
-            }
-            play(This, buffer);
+            Data data = Data.get(This);
+            if (data.thread == null || !data.thread.playing)
+                data.play((dwFlags & DSBPLAY_LOOPING) != 0);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
@@ -377,9 +490,12 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetCurrentPosition";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int dwNewPosition = CPU.CPU_Pop32();
+            Data data = Data.get(This);
+            data.startPos = dwNewPosition;
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
@@ -389,47 +505,117 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetFormat";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpcfxFormat = CPU.CPU_Pop32();
-            Memory.mem_memcpy(This+OFFSET_DATA_START+OFFSET_DESC_WAV, lpcfxFormat, WaveFormatEx.SIZE);
+            Memory.mem_memcpy(This + OFFSET_DATA_START + OFFSET_DESC_WAV, lpcfxFormat, WAVEFORMATEX.SIZE);
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 
     // HRESULT SetVolume(this, LONG lVolume)
-    static private Callback.Handler SetVolume = new HandlerBase() {
+    static private Callback.Handler SetVolume = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetVolume";
         }
-        public void onCall() {
+
+        public int processReturn() {
             int This = CPU.CPU_Pop32();
-            int lVolume = CPU.CPU_Pop32();
-            CPU_Regs.reg_eax.dword = Error.S_OK;
+            int vol = CPU.CPU_Pop32();
+            if ((getFlags(This) & DSBufferDesc.DSBCAPS_CTRLVOLUME) == 0) {
+                warn("IDirectSoundBuffer.SetVolume control unavailable: dwFlags = 0x" + Ptr.toString(getFlags(This)));
+                return DError.DSERR_CONTROLUNAVAIL;
+            }
+
+            if ((vol > DSBVOLUME_MAX) || (vol < DSBVOLUME_MIN)) {
+                warn("IDirectSoundBuffer.SetVolume invalid parameter: vol = " + vol);
+                return DError.DSERR_INVALIDPARAM;
+            }
+
+            Data data = Data.get(This);
+            int oldVol = data.volpan.lVolume;
+            data.volpan.lVolume = vol;
+            if (vol != oldVol) {
+                DSMixer.DSOUND_RecalcVolPan(data.volpan);
+                DSMixer.DSOUND_MixToTemporary(data, 0, data.buflen);
+            }
+            return Error.S_OK;
         }
     };
 
     // HRESULT SetPan(this, LONG lPan)
-    static private Callback.Handler SetPan = new HandlerBase() {
+    static private Callback.Handler SetPan = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetPan";
         }
-        public void onCall() {
+
+        public int processReturn() {
             int This = CPU.CPU_Pop32();
-            int lPan = CPU.CPU_Pop32();
-            CPU_Regs.reg_eax.dword = Error.S_OK;
+            int pan = CPU.CPU_Pop32();
+            if ((pan > DSBPAN_RIGHT) || (pan < DSBPAN_LEFT)) {
+                warn("IDirectSoundBuffer.SetPan invalid parameter: pan = " + pan);
+                return DError.DSERR_INVALIDPARAM;
+            }
+
+            Data data = Data.get(This);
+            int flags = data.flags();
+            /* You cannot use both pan and 3D controls */
+            if ((flags & DSBufferDesc.DSBCAPS_CTRLPAN) == 0 || (flags & DSBufferDesc.DSBCAPS_CTRL3D) != 0) {
+                warn("IDirectSoundBuffer.SetPan control unavailable");
+                return DError.DSERR_CONTROLUNAVAIL;
+            }
+
+            if (data.volpan.lPan != pan) {
+                data.volpan.lPan = pan;
+                DSMixer.DSOUND_RecalcVolPan(data.volpan);
+                DSMixer.DSOUND_MixToTemporary(data, 0, data.buflen);
+            }
+
+            return Error.S_OK;
         }
     };
 
     // HRESULT SetFrequency(this, DWORD dwFrequency)
-    static private Callback.Handler SetFrequency = new HandlerBase() {
+    static private Callback.Handler SetFrequency = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetFrequency";
         }
-        public void onCall() {
+
+        public int processReturn() {
             int This = CPU.CPU_Pop32();
-            int dwFrequency = CPU.CPU_Pop32();
-            System.out.println(getName()+" faked "+dwFrequency);
+            int freq = CPU.CPU_Pop32();
+
+            if (is_primary_buffer(This)) {
+                log("IDirectSoundBuffer.SetFrequency not available for primary buffers.");
+                return DError.DSERR_CONTROLUNAVAIL;
+            }
+
+            if ((getFlags(This) & DSBufferDesc.DSBCAPS_CTRLFREQUENCY) == 0) {
+                log("IDirectSoundBuffer.SetFrequency control unavailable");
+                return DError.DSERR_CONTROLUNAVAIL;
+            }
+            WAVEFORMATEX wfx = new WAVEFORMATEX(This + OFFSET_DESC_WAV + OFFSET_DATA_START);
+
+            if (freq == 0) // DSBFREQUENCY_ORIGINAL
+                freq = wfx.nSamplesPerSec;
+
+            if ((freq < 100) || (freq > 200000)) {
+                warn("IDirectSoundBuffer.SetFrequency invalid parameter: freq = " + freq);
+                return DError.DSERR_INVALIDPARAM;
+            }
+            Data data = Data.get(This);
+            int oldFreq = data.freq;
+            if (freq != oldFreq) {
+                synchronized (data) {
+                    data.freq = freq;
+                    data.freqAdjust = (int) (((long) freq << DSOUND_FREQSHIFT) / DSMixer.DEVICE_SAMPLE_RATE);
+                    data.nAvgBytesPerSec = freq * wfx.nBlockAlign;
+                    DSMixer.DSOUND_RecalcFormat(data);
+                    DSMixer.DSOUND_MixToTemporary(data, 0, data.buflen);
+                }
+            }
+            return Error.S_OK;
         }
     };
 
@@ -438,31 +624,44 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Stop";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
+            Data data = Data.get(This);
+            data.stop();
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 
     // HRESULT Unlock(this, LPVOID pvAudioPtr1, DWORD dwAudioBytes1, LPVOID pvAudioPtr2, DWORD dwAudioPtr2)
-    static private Callback.Handler Unlock = new HandlerBase() {
+    static private Callback.Handler Unlock = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Unlock";
         }
-        public void onCall() {
-            int This = CPU.CPU_Pop32();
-            int pvAudioPtr1 = CPU.CPU_Pop32();
-            int dwAudioBytes1 = CPU.CPU_Pop32();
-            int pvAudioPtr2 = CPU.CPU_Pop32();
-            int dwAudioBytes2 = CPU.CPU_Pop32();
-            setData(This, OFFSET_START_POS, getBits(This)-pvAudioPtr1);
-            if (pvAudioPtr2 == 0 || dwAudioBytes2 == 0)
-                setData(This, OFFSET_END_POS, dwAudioBytes1);
-            else
-                setData(This, OFFSET_END_POS, getBits(This)-pvAudioPtr2);
 
-            getBuffer(This);
-            CPU_Regs.reg_eax.dword = Error.S_OK;
+        public int processReturn() {
+            int This = CPU.CPU_Pop32();
+            int p1 = CPU.CPU_Pop32();
+            int x1 = CPU.CPU_Pop32();
+            int p2 = CPU.CPU_Pop32();
+            int x2 = CPU.CPU_Pop32();
+            Data data = Data.get(This);
+
+            if ((p1 != 0 && p1 < data.buffer || p1 >= data.buffer + data.buflen) || (p2 != 0 && p2 < data.buffer || p2 >= data.buffer + data.buflen))
+                return DError.DSERR_INVALIDPARAM;
+
+            if (x1 != 0) {
+                if (x1 + p1 - data.buffer > data.buflen)
+                    return DError.DSERR_INVALIDPARAM;
+                else
+                    DSMixer.DSOUND_MixToTemporary(data, p1 - data.buffer, x1);
+                data.endPos = p1 - data.buffer + x1;
+            }
+            if (x2 != 0) {
+                DSMixer.DSOUND_MixToTemporary(data, 0, x2);
+                data.endPos = x1;
+            }
+            return Error.S_OK;
         }
     };
 
@@ -471,28 +670,27 @@ public class IDirectSoundBuffer extends IUnknown {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Restore";
         }
+
         public void onCall() {
             int This = CPU.CPU_Pop32();
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
 
-    private static Hashtable<Integer, PlayThread> threads = new Hashtable<Integer, PlayThread>();
-    private static Hashtable<Integer, byte[]> buffers = new Hashtable<Integer, byte[]>();
-
     private static class PlayThread extends Thread {
-        public PlayThread(WaveFormatEx format, int This) {
-            this.format = format;
-            this.This = This;
+        static private final int LINE_SIZE = 16384;
+        public PlayThread(Data data) {
+            this.format = data.wfx();
+            this.data = data;
             open();
         }
 
         public boolean open() {
             try {
-                AudioFormat af = new AudioFormat(format.nSamplesPerSec, format.wBitsPerSample, format.nChannels, format.wBitsPerSample==16, false);
+                AudioFormat af = new AudioFormat(DSMixer.DEVICE_SAMPLE_RATE, DSMixer.DEVICE_BITS_PER_SAMEPLE, DSMixer.DEVICE_CHANNELS, true, false);
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, af);
                 line = (SourceDataLine) AudioSystem.getLine(info);
-                line.open(af, 8192);
+                line.open(af, LINE_SIZE);
                 line.start();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -501,80 +699,81 @@ public class IDirectSoundBuffer extends IUnknown {
             return true;
         }
 
-        WaveFormatEx format;
+        WAVEFORMATEX format;
         SourceDataLine line;
-        int This;
+        final Data data;
         boolean playing = false;
         final Object mutex = new Object();
         boolean bExit = false;
-        byte[] buffer;
+        boolean stop = false;
+        boolean loop = false;
+
+        private void play(byte[] buffer, int bufferLen, int start, int end) {
+            int length = 8192;
+            for (int i = start; i < end && !stop && data.tmp_buffer_len == bufferLen; i += 8192) {
+                if (i + length >= end)
+                    length = end - i;
+                try {
+                    line.write(buffer, i, length);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                data.startPos = ((int) ((long) (i + length) * data.buflen / data.tmp_buffer_len) + 3) & ~3;
+            }
+        }
 
         public void run() {
             while (!bExit) {
                 playing = true;
+                do {
+                    while (true) {
+                        int start;
+                        int end;
+                        int prevEnd;
+                        byte[] buffer;
+                        int bufferLen;
 
-                line.write(buffer, 0, buffer.length);
-                while (line.available() != line.getBufferSize()) {
-                    try {Thread.sleep(25);} catch (Exception e) {}
+                        synchronized (data) {
+                            start = data.getTmpStart();
+                            end = data.getTmpEnd();
+                            prevEnd = data.endPos;
+                            buffer = data.tmp_buffer;
+                            bufferLen = data.tmp_buffer_len;
+                        }
+                        if (end > start)
+                            play(buffer, bufferLen, start, end);
+                        else {
+                            play(buffer, bufferLen, start, data.tmp_buffer_len);
+                            if (!stop && buffer == data.tmp_buffer)
+                                play(buffer, bufferLen, 0, end);
+                        }
+                        if (prevEnd != data.endPos || bufferLen != data.tmp_buffer_len)
+                            continue;
+                        break;
+                    }
+                } while (loop && !stop);
+
+                while (line.available() != LINE_SIZE) {
+                    try {Thread.sleep(10);} catch (Exception e) {}
                 }
                 synchronized (mutex) {
                     playing = false;
-                    if (!bExit)
-                        try {mutex.wait();} catch (Exception e){}
+                    stop = false;
+                    if (!bExit) {
+                        try {
+                            mutex.wait();
+                        } catch (Exception e) {
+                        }
+                    }
                 }
             }
             line.stop();
             line.close();
             line = null;
-            threads.remove(This);
         }
     }
 
-    private static void play(int This, byte[] buffer) {
-        if (buffer.length==0)
-            return;
-
-        PlayThread thread = threads.get(This);
-
-        if (thread != null) {
-            thread.buffer = buffer;
-            synchronized (thread.mutex) {
-                if (!thread.playing) {
-                    thread.mutex.notify();
-                }
-            }
-        } else {
-            thread = new PlayThread(new WaveFormatEx(This + OFFSET_DESC_WAV + OFFSET_DATA_START), This);
-            thread.buffer = buffer;
-            threads.put(This, thread);
-            thread.start();
-        }
-    }
-
-    private static byte[] getBuffer(int This) {
-        int size = getSize(This);
-        int start = getBits(This);
-        int posStart = getStart(This);
-        int posEnd = getEnd(This);
-
-        int len;
-        if (posEnd<posStart)
-            len=size - (posStart-posEnd);
-        else
-            len = posEnd - posStart;
-
-        byte[] buffer = new byte[len];
-        if (len == 0)
-            return buffer;
-
-        if (posEnd>posStart)
-            Memory.mem_memcpy(buffer, 0, start+posStart, len);
-        else {
-            int part1Len = size  - (posStart-start);
-            Memory.mem_memcpy(buffer, 0, start+posStart, part1Len);
-            Memory.mem_memcpy(buffer, part1Len, start, len-part1Len);
-        }
-        buffers.put(This, buffer);
-        return buffer;
+    static private boolean is_primary_buffer(int This) {
+        return (getFlags(This) & DSBufferDesc.DSBCAPS_PRIMARYBUFFER) != 0 ? true : false;
     }
 }

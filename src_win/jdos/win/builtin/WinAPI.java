@@ -1920,6 +1920,62 @@ public class WinAPI extends Error {
     static final public int OF_EXIST =             0x4000;
     static final public int OF_REOPEN =            0x8000;
     
+    /* WAVE form wFormatTag IDs */
+    static final public int WAVE_FORMAT_UNKNOWN =           0x0000;	/*  Microsoft Corporation  */
+    static final public int WAVE_FORMAT_ADPCM =             0x0002;	/*  Microsoft Corporation  */
+    static final public int WAVE_FORMAT_IEEE_FLOAT =        0x0003;	/*  Microsoft Corporation  */
+    static final public int WAVE_FORMAT_IBM_CVSD =          0x0005;	/*  IBM Corporation  */
+    static final public int WAVE_FORMAT_ALAW =              0x0006;	/*  Microsoft Corporation  */
+    static final public int WAVE_FORMAT_MULAW =             0x0007;	/*  Microsoft Corporation  */
+    static final public int WAVE_FORMAT_OKI_ADPCM =         0x0010;	/*  OKI  */
+    static final public int WAVE_FORMAT_DVI_ADPCM =         0x0011;	/*  Intel Corporation  */
+    static final public int WAVE_FORMAT_IMA_ADPCM =         (WAVE_FORMAT_DVI_ADPCM);	/*  Intel Corporation  */
+    static final public int WAVE_FORMAT_MEDIASPACE_ADPCM =  0x0012;	/*  Videologic  */
+    static final public int WAVE_FORMAT_SIERRA_ADPCM =      0x0013;	/*  Sierra Semiconductor Corp  */
+    static final public int WAVE_FORMAT_G723_ADPCM =        0x0014;	/*  Antex Electronics Corporation  */
+    static final public int WAVE_FORMAT_DIGISTD =           0x0015;	/*  DSP Solutions, Inc.  */
+    static final public int WAVE_FORMAT_DIGIFIX =           0x0016;	/*  DSP Solutions, Inc.  */
+    static final public int WAVE_FORMAT_DIALOGIC_OKI_ADPCM= 0x0017;	/*  Dialogic Corporation  */
+    static final public int WAVE_FORMAT_YAMAHA_ADPCM =      0x0020;	/*  Yamaha Corporation of America  */
+    static final public int WAVE_FORMAT_SONARC =            0x0021;	/*  Speech Compression  */
+    static final public int WAVE_FORMAT_DSPGROUP_TRUESPEECH=0x0022;	/*  DSP Group, Inc  */
+    static final public int WAVE_FORMAT_ECHOSC1 =           0x0023;	/*  Echo Speech Corporation  */
+    static final public int WAVE_FORMAT_AUDIOFILE_AF36 =    0x0024;	/*    */
+    static final public int WAVE_FORMAT_APTX =              0x0025;	/*  Audio Processing Technology  */
+    static final public int WAVE_FORMAT_AUDIOFILE_AF10 =    0x0026;	/*    */
+    static final public int WAVE_FORMAT_DOLBY_AC2 =         0x0030;	/*  Dolby Laboratories  */
+    static final public int WAVE_FORMAT_GSM610 =            0x0031;	/*  Microsoft Corporation  */
+    static final public int WAVE_FORMAT_ANTEX_ADPCME =      0x0033;	/*  Antex Electronics Corporation  */
+    static final public int WAVE_FORMAT_CONTROL_RES_VQLPC = 0x0034;	/*  Control Resources Limited  */
+    static final public int WAVE_FORMAT_DIGIREAL =          0x0035;	/*  DSP Solutions, Inc.  */
+    static final public int WAVE_FORMAT_DIGIADPCM =         0x0036;	/*  DSP Solutions, Inc.  */
+    static final public int WAVE_FORMAT_CONTROL_RES_CR10 =  0x0037;	/*  Control Resources Limited  */
+    static final public int WAVE_FORMAT_NMS_VBXADPCM =      0x0038;	/*  Natural MicroSystems  */
+    static final public int WAVE_FORMAT_G721_ADPCM =        0x0040;	/*  Antex Electronics Corporation  */
+    static final public int WAVE_FORMAT_MPEG =              0x0050;	/*  Microsoft Corporation  */
+    static final public int WAVE_FORMAT_MPEGLAYER3 =        0x0055;
+    static final public int WAVE_FORMAT_CREATIVE_ADPCM =    0x0200;	/*  Creative Labs, Inc  */
+    static final public int WAVE_FORMAT_CREATIVE_FASTSPEECH8=0x0202;	/*  Creative Labs, Inc  */
+    static final public int WAVE_FORMAT_CREATIVE_FASTSPEECH10=0x0203;	/*  Creative Labs, Inc  */
+    static final public int WAVE_FORMAT_FM_TOWNS_SND =      0x0300;	/*  Fujitsu Corp.  */
+    static final public int WAVE_FORMAT_OLIGSM =            0x1000;	/*  Ing C. Olivetti & C., S.p.A.  */
+    static final public int WAVE_FORMAT_OLIADPCM =          0x1001;	/*  Ing C. Olivetti & C., S.p.A.  */
+    static final public int WAVE_FORMAT_OLICELP =           0x1002;	/*  Ing C. Olivetti & C., S.p.A.  */
+    static final public int WAVE_FORMAT_OLISBC =            0x1003;	/*  Ing C. Olivetti & C., S.p.A.  */
+    static final public int WAVE_FORMAT_OLIOPR =            0x1004;	/*  Ing C. Olivetti & C., S.p.A.  */
+    static final public int WAVE_FORMAT_EXTENSIBLE =        0xFFFE;  /* Microsoft */
+
+    static final public int  DSBSIZE_MIN =                4;
+    static final public int  DSBSIZE_MAX =                0xFFFFFFF;
+    static final public int  DSBPAN_LEFT =                -10000;
+    static final public int  DSBPAN_CENTER =              0;
+    static final public int  DSBPAN_RIGHT =               10000;
+    static final public int  DSBVOLUME_MAX =              0;
+    static final public int  DSBVOLUME_MIN =              -10000;
+    static final public int  DSBFREQUENCY_MIN =           100;
+    static final public int  DSBFREQUENCY_MAX =           200000;
+    static final public int  DSBFREQUENCY_ORIGINAL =      0;
+    
     // ************
     // * Internal *
     // ************
@@ -1948,5 +2004,7 @@ public class WinAPI extends Error {
     static final public int WIN_ISUNICODE =            0x0010; /* Window is Unicode */
     static final public int WIN_NEEDS_SHOW_OWNEDPOPUP= 0x0020; /* WM_SHOWWINDOW:SC_SHOW must be sent in the next ShowOwnedPopup call */
     static final public int WIN_CHILDREN_MOVED =       0x0040; /* children may have moved, ignore stored positions */
+
+    static final public int DSOUND_FREQSHIFT = 20;
 }
 

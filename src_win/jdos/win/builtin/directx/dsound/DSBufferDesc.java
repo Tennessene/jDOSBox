@@ -1,6 +1,7 @@
 package jdos.win.builtin.directx.dsound;
 
 import jdos.hardware.Memory;
+import jdos.win.builtin.winmm.WAVEFORMATEX;
 
 public class DSBufferDesc {
     static public final int SIZE = 20;
@@ -30,12 +31,12 @@ public class DSBufferDesc {
         dwReserved = Memory.mem_readd(address);address+=4;
         address = Memory.mem_readd(address);
         if (address != 0)
-            lpwfxFormat = new WaveFormatEx(address);
+            lpwfxFormat = new WAVEFORMATEX(address);
     }
 
     public int dwSize;
     public int dwFlags;
     public int dwBufferBytes;
     public int dwReserved;
-    public WaveFormatEx lpwfxFormat = null;
+    public WAVEFORMATEX lpwfxFormat = null;
 }

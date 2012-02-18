@@ -64,7 +64,7 @@ public class IDirectPlayLobby  extends IUnknown {
             int This = CPU.CPU_Pop32();
             int riid = CPU.CPU_Pop32();
             int ppvObject = CPU.CPU_Pop32();
-            if (v2a.equals(riid)) {
+            if (v2a.IsEqual(riid)) {
                 Memory.mem_writed(ppvObject, This);
                 AddRef(This);
                 CPU_Regs.reg_eax.dword = Error.S_OK;

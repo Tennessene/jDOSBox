@@ -61,7 +61,7 @@ public class IDirectInput extends IUnknown {
             int rguid = CPU.CPU_Pop32();
             int lplpDirectInputDevice = CPU.CPU_Pop32();
             int pUnkOuter = CPU.CPU_Pop32();
-            if (GUID_SysMouse.equals(rguid))
+            if (GUID_SysMouse.IsEqual(rguid))
                 Memory.mem_writed(lplpDirectInputDevice, IDirectInputDeviceA_Mouse.create());
             else
                 notImplemented();

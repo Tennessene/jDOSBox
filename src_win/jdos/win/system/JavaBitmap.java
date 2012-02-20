@@ -27,6 +27,22 @@ public class JavaBitmap {
         this.palette = palette;
     }
 
+    public void set(BufferedImage image, int bpp, int width, int height, int[] palette) {
+        this.image = image;
+        this.bpp = bpp;
+        this.width = width;
+        this.height = height;
+        this.palette = palette;
+    }
+
+    public void set(JavaBitmap bitmap) {
+        this.image = bitmap.image;
+        this.bpp = bitmap.bpp;
+        this.width = bitmap.width;
+        this.height = bitmap.height;
+        this.palette = bitmap.palette;
+    }
+
     public void close() {
         palette = null;
         image = null;
@@ -158,7 +174,7 @@ public class JavaBitmap {
 
         public /*Bitu*/int readb(/*PhysPt*/int addr) {
             int index = addr - address;
-            return (data[(index >> 1)] >>> ((index & 0x1) << 1)) & 0xFF;
+            return (data[(index >> 1)] >>> ((index & 0x1) << 3)) & 0xFF;
         }
 
         public /*Bitu*/int readw(/*PhysPt*/int addr) {
@@ -168,7 +184,7 @@ public class JavaBitmap {
               return data[index >>> 1];
             }
             short[] local = data;
-            index = (index >>> 2);
+            index = (index >>> 1);
             return local[index] >>> 8 | local[index+1] << 8;
         }
 
@@ -184,10 +200,10 @@ public class JavaBitmap {
 
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int value) {
             int address = addr - this.address;
-            int off = (address & 0x1) << 1;
+            int off = (address & 0x1) << 3;
             short[] local = data;
             int mask = ~(0xFF << off);
-            int index = (address >>> 2);
+            int index = (address >>> 1);
             int val = local[index] & mask | (value & 0xFF) << off;
             local[index] = (short)val;
         }
@@ -198,7 +214,7 @@ public class JavaBitmap {
             if (rem == 0) {
                data[address >>> 1] = (short)val;
             } else {
-              int index = (address >>> 2);
+              int index = (address >>> 1);
               short[] local = data;
               int off = rem << 3;
               local[index] = (short)((local[index] & ~0xFF) | (val << off));
@@ -211,7 +227,9 @@ public class JavaBitmap {
             int address = addr - this.address;
             int rem = (address & 0x1);
             if (rem == 0) {
-               data[address >>> 1] = (short)val;
+                int index = address >>> 1;
+                data[index] = (short)val;
+                data[index+1] = (short)(val >>> 16);
             } else {
                 writew(addr, val & 0xFFFF);
                 writew(addr+2, val >> 16);
@@ -227,7 +245,7 @@ public class JavaBitmap {
     }
 
     public void unlock() {
-        // handler.data = null; // Monkey Island 3 seems to use the pointer after calling unlock
+
     }
 
     public int map() {

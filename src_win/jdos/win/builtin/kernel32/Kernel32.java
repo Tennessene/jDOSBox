@@ -147,6 +147,7 @@ public class Kernel32 extends BuiltinModule {
         add(InterlockedExchange);
         add(InterlockedIncrement);
         add(IsBadReadPtr);
+        add(IsBadWritePtr);
         add(IsDebuggerPresent);
         add(IsValidCodePage);
         add(IsValidLocale);
@@ -2014,12 +2015,16 @@ public class Kernel32 extends BuiltinModule {
     };
 
     // LONG InterlockedExchange(LONG volatile *Target, LONG Value)
-    static private Callback.Handler InterlockedExchange = new HandlerBase() {
+    static private Callback.Handler InterlockedExchange = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.InterlockedExchange";
         }
-        public void onCall() {
-            notImplemented();
+        public int processReturn() {
+            int Target = CPU.CPU_Pop32();
+            int Value = CPU.CPU_Pop32();
+            int result = readd(Target);
+            writed(Target, Value);
+            return result;
         }
     };
 
@@ -2038,12 +2043,42 @@ public class Kernel32 extends BuiltinModule {
     };
 
     // BOOL WINAPI IsBadReadPtr(const VOID *lp, UINT_PTR ucb)
-    static private Callback.Handler IsBadReadPtr = new HandlerBase() {
+    static private Callback.Handler IsBadReadPtr = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "Kernel32.IsBadReadPtr";
         }
-        public void onCall() {
-            notImplemented();
+        public int processReturn() {
+            int lp = CPU.CPU_Pop32();
+            int ucb = CPU.CPU_Pop32();
+            int size = lp & 0xFFF;
+            while (ucb>0) {
+                int page  = WinSystem.getCurrentProcess().kernelMemory.get_page(lp & 0xFFFFF000, false, WinSystem.getCurrentProcess().page_directory);
+                if (page == 0)
+                    return TRUE;
+                lp+=size;
+                ucb-=size;
+                size=0xFFF;
+            }
+            return FALSE;
+        }
+    };
+    static private Callback.Handler IsBadWritePtr = new ReturnHandlerBase() {
+        public java.lang.String getName() {
+            return "Kernel32.IsBadWritePtr";
+        }
+        public int processReturn() {
+            int lp = CPU.CPU_Pop32();
+            int ucb = CPU.CPU_Pop32();
+            int size = lp & 0xFFF;
+            while (ucb>0) {
+                int page  = WinSystem.getCurrentProcess().kernelMemory.get_page(lp & 0xFFFFF000, false, WinSystem.getCurrentProcess().page_directory);
+                if (page == 0)
+                    return TRUE;
+                lp+=size;
+                ucb-=size;
+                size=0xFFF;
+            }
+            return FALSE;
         }
     };
 

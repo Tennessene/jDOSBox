@@ -182,7 +182,8 @@ public class IDirectDrawSurface extends IUnknown {
             if (index>0) {
                 WinObject object = WinObject.getObject(index);
                 JavaBitmap image = (JavaBitmap)object.data;
-                image.close();
+                if (image != StaticData.screen)
+                    image.close();
                 setData(This, OFFSET_IMAGE_CACHE, 0);
                 object.data = null;
                 object.close();
@@ -271,7 +272,7 @@ public class IDirectDrawSurface extends IUnknown {
         setData(result, OFFSET_DESC+0x04, DDSurfaceDesc.DDSD_CAPS|DDSurfaceDesc.DDSD_HEIGHT|DDSurfaceDesc.DDSD_WIDTH|DDSurfaceDesc.DDSD_PITCH|DDSurfaceDesc.DDSD_PIXELFORMAT);
         setData(result, OFFSET_DESC+0x08, height);
         setData(result, OFFSET_DESC+0x0C, width);
-        setData(result, OFFSET_DESC+0x10, width); // pitch
+        setData(result, OFFSET_DESC+0x10, width*bpp/8); // pitch
 
         setData(result, OFFSET_DESC+0x48, DDPixelFormat.SIZE);
         int pfFlags = DDPixelFormat.DDPF_RGB;
@@ -453,7 +454,6 @@ public class IDirectDrawSurface extends IUnknown {
             }
 
             BufferedImage dest = getImage(This, true).getImage();
-
             Graphics g = dest.getGraphics();
             dwFlags=dwFlags & ~DDBLT_WAIT;
             if ((dwFlags & DDBLT_COLORFILL)!=0) {
@@ -479,6 +479,8 @@ public class IDirectDrawSurface extends IUnknown {
             } else {
                 notImplemented();
             }
+            if (StaticData.currentPrimarySurface == This)
+                Main.drawImage(getImage(This, true).getImage());
             g.dispose();
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
@@ -538,6 +540,8 @@ public class IDirectDrawSurface extends IUnknown {
                 notImplemented();
             }
             g.dispose();
+            if (StaticData.currentPrimarySurface == This)
+                Main.drawImage(getImage(This, true).getImage());
             CPU_Regs.reg_eax.dword = Error.S_OK;
         }
     };
@@ -602,7 +606,7 @@ public class IDirectDrawSurface extends IUnknown {
             setData(This, OFFSET_IMAGE_CACHE, backCache);
             setData(backBuffer, OFFSET_IMAGE_CACHE, frontCache);
 
-            StaticData.screen = getImage(backBuffer, true);
+            StaticData.screen.set(getImage(backBuffer, true));
 
             int frontDC = getData(This, OFFSET_DC);
             int backDC = getData(backBuffer, OFFSET_DC);
@@ -892,6 +896,8 @@ public class IDirectDrawSurface extends IUnknown {
                 WinDC dc = WinDC.get(hDC);
                 dc.close();
                 setData(This, OFFSET_DC, 0);
+                if (StaticData.currentPrimarySurface == This)
+                    Main.drawImage(getImage(This, true).getImage());
                 CPU_Regs.reg_eax.dword = Error.S_OK;
             }
         }

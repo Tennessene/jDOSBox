@@ -254,7 +254,9 @@ public class Input extends WinAPI {
         relWinPt = pt.copy();
         window.screenToWindow(relWinPt);
         if (hitTest == WinAPI.HTNOWHERE) {
-            hitTest = Message.SendMessageA(window.handle, WinAPI.WM_NCHITTEST, 0, WinAPI.MAKELONG(pt.x, pt.y));
+            hitTest = WinWindow.HTCLIENT;
+            // :TODO: this can result in a send message to another thread
+            //hitTest = Message.SendMessageA(window.handle, WinAPI.WM_NCHITTEST, 0, WinAPI.MAKELONG(pt.x, pt.y));
         }
         if (msg != WinWindow.WM_MOUSEWHEEL) {
             if (hitTest != WinWindow.HTCLIENT)

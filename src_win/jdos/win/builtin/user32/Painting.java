@@ -81,9 +81,9 @@ public class Painting extends WinAPI {
     // HDC WINAPI GetDC(HWND hwnd)
     static public int GetDC(int hwnd) {
         WinWindow win;
-        if (hwnd == 0)
+        if (hwnd == 0) {
             win = WinWindow.get(StaticData.desktopWindow);
-        else
+        } else
             win = WinWindow.get(hwnd);
         if (win == null)
             return 0;
@@ -161,6 +161,7 @@ public class Painting extends WinAPI {
             graphics.draw(arc2D);
 
         graphics.dispose();
+
         return TRUE;
     }
 
@@ -190,6 +191,8 @@ public class Painting extends WinAPI {
             graphics.draw(rectangle);
 
         graphics.dispose();
+        if (dc.getImage() == StaticData.screen.getImage())
+            Main.drawImage(dc.getImage());
         return TRUE;
     }
 

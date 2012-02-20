@@ -36,6 +36,8 @@ public class WinMM extends BuiltinModule {
         add(MMTime.class, "timeBeginPeriod", new String[] {"uPeriod"});
         add(MMTime.class, "timeGetDevCaps", new String[] {"lpCaps", "wSize"});
         add(MMTime.class, "timeGetTime", new String[0]);
+        add(MMTime.class, "timeEndPeriod", new String[] {"uPeriod"});
+        add(MMTime.class, "timeKillEvent", new String[] {"uTimerID"});
         add(MMTime.class, "timeSetEvent", new String[] {"uDelay", "uResolution", "(HEX)lpTimeProc", "dwUser", "(HEX)fuEvent"});
         add(Waveform.class, "waveOutClose", new String[] {"(HEX)hwo"});
         add(Waveform.class, "waveOutGetDevCapsA", new String[] {"uDeviceID", "(HEX)pwoc", "cbwoc"});

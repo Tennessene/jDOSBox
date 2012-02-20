@@ -3,6 +3,8 @@ package jdos.win.builtin.directx.ddraw;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.Win;
+import jdos.win.builtin.user32.WinPos;
+import jdos.win.builtin.user32.WinWindow;
 import jdos.win.system.StaticData;
 import jdos.win.system.WinSystem;
 import jdos.win.utils.Error;
@@ -434,6 +436,7 @@ public class IDirectDraw extends IUnknown {
         if ((dwFlags & ~(DDSCL_FULLSCREEN|DDSCL_ALLOWREBOOT|DDSCL_EXCLUSIVE|DDSCL_ALLOWMODEX))!=0) {
             log("DDraw.SetCooperativeLevel: unsupported flags: " + Ptr.toString(dwFlags));
         }
+        StaticData.ddrawWindow = hWnd;
         return Error.S_OK;
     }
 
@@ -445,7 +448,16 @@ public class IDirectDraw extends IUnknown {
         WinSystem.setScreenSize(dwWidth, dwHeight, dwBPP);
         if (dwBPP<=8)
             getPalette(This); // set up default palette
+        if (StaticData.currentPrimarySurface != 0) {
+            IDirectDrawSurface.setData(StaticData.currentPrimarySurface, IDirectDrawSurface.OFFSET_DESC+0x08, dwHeight);
+            IDirectDrawSurface.setData(StaticData.currentPrimarySurface, IDirectDrawSurface.OFFSET_DESC+0x0C, dwWidth);
+            IDirectDrawSurface.setData(StaticData.currentPrimarySurface, IDirectDrawSurface.OFFSET_DESC+0x10, dwWidth*dwBPP/8);
+            IDirectDrawSurface.setData(StaticData.currentPrimarySurface, IDirectDrawSurface.OFFSET_DESC+0x54, dwBPP);
+        }
         Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);
+        WinPos.SetWindowPos(StaticData.ddrawWindow, 0, 0, 0, dwWidth, dwHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+        WinWindow.get(StaticData.desktopWindow).rectWindow.set(0, 0, dwWidth, dwHeight);
+        WinWindow.get(StaticData.desktopWindow).rectClient.set(0, 0, dwWidth, dwHeight);
         return Error.S_OK;
     }
 

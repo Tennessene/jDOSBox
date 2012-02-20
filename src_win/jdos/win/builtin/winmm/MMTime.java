@@ -12,7 +12,7 @@ import jdos.win.kernel.WinCallback;
 import jdos.win.system.Scheduler;
 import jdos.win.system.WinSystem;
 
-import java.util.Vector;
+import java.util.Hashtable;
 
 public class MMTime extends WinAPI {
     static final public int MMSYSTIME_MININTERVAL = 1;
@@ -54,7 +54,7 @@ public class MMTime extends WinAPI {
             CPU_Regs.reg_esp.dword = esp;
             if (dwDelay == 0) {
                 Scheduler.removeThread(thread);
-                timers.set(id, null);
+                timers.remove(id);
             } else
                 Scheduler.sleep(thread, dwDelay-(int)(System.currentTimeMillis()-start));
         }
@@ -97,6 +97,15 @@ public class MMTime extends WinAPI {
             }
         }
 
+        public void close() {
+            if (thread == null) {
+                bExit = true;
+            } else {
+                Scheduler.removeThread(thread);
+                thread.close();
+            }
+        }
+
         public void run() {
             while(!bExit) {
                 try {sleep(delay);} catch (Exception e) {}
@@ -117,7 +126,7 @@ public class MMTime extends WinAPI {
         }
     }
 
-    static private Vector<MMTimer> timers = new Vector<MMTimer>();
+    static private Hashtable<Integer, MMTimer> timers = new Hashtable<Integer, MMTimer>();
 
     // MMRESULT timeBeginPeriod(UINT uPeriod)
     static public int timeBeginPeriod(int wPeriod) {
@@ -145,15 +154,27 @@ public class MMTime extends WinAPI {
         return WinSystem.getTickCount();
     }
 
+    // MMRESULT timeEndPeriod(UINT uPeriod)
+    static public int timeEndPeriod(int uPeriod) {
+        return TIMERR_NOERROR;
+    }
+
+    // MMRESULT timeKillEvent(UINT uTimerID)
+    static public int timeKillEvent(int uTimerID) {
+        MMTimer timer = timers.get(uTimerID);
+        if (timer == null)
+            return MMSYSERR_INVALPARAM;
+        timer.close();
+        return TIMERR_NOERROR;
+    }
+
+    static private int nextTimerId = 1;
     // MMRESULT timeSetEvent(UINT uDelay, UINT uResolution, LPTIMECALLBACK lpTimeProc, DWORD_PTR dwUser, UINT fuEvent)
     static public int timeSetEvent(int uDelay, int uResolution, int lpTimeProc, int dwUser, int fuEvent) {
         if (uDelay < MMSYSTIME_MININTERVAL || uDelay > MMSYSTIME_MAXINTERVAL)
 	        return 0;
-        while (timers.size()>0 && timers.get(timers.size()-1)==null) {
-            timers.remove(timers.size() -1);
-        }
-        MMTimer timer = new MMTimer(timers.size(), uDelay, lpTimeProc, dwUser, fuEvent);
-        timers.add(timer);
+        MMTimer timer = new MMTimer(nextTimerId++, uDelay, lpTimeProc, dwUser, fuEvent);
+        timers.put(timer.id, timer);
         return timer.id;
     }
 }

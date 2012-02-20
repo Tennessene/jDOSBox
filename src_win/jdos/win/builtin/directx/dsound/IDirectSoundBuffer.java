@@ -388,13 +388,14 @@ public class IDirectSoundBuffer extends IUnknown {
         public void onCall() {
             int This = CPU.CPU_Pop32();
             int lpdwStatus = CPU.CPU_Pop32();
-            int status = DSBSTATUS_LOCSOFTWARE;
+            int status = 0;
             PlayThread thread = Data.get(This).thread;
             if (thread != null) {
-                if (thread.playing)
+                if (thread.playing) {
                     status |= DSBSTATUS_PLAYING;
-                if (thread.loop)
-                    status |= DSBSTATUS_LOOPING;
+                    if (thread.loop)
+                        status |= DSBSTATUS_LOOPING;
+                }
             }
             Memory.mem_writed(lpdwStatus, status);
             CPU_Regs.reg_eax.dword = Error.S_OK;
@@ -730,6 +731,7 @@ public class IDirectSoundBuffer extends IUnknown {
                         int start;
                         int end;
                         int prevEnd;
+                        int prevStart;
                         byte[] buffer;
                         int bufferLen;
 
@@ -737,6 +739,7 @@ public class IDirectSoundBuffer extends IUnknown {
                             start = data.getTmpStart();
                             end = data.getTmpEnd();
                             prevEnd = data.endPos;
+                            prevStart = data.startPos;
                             buffer = data.tmp_buffer;
                             bufferLen = data.tmp_buffer_len;
                         }
@@ -746,6 +749,9 @@ public class IDirectSoundBuffer extends IUnknown {
                             play(buffer, bufferLen, start, data.tmp_buffer_len);
                             if (!stop && buffer == data.tmp_buffer)
                                 play(buffer, bufferLen, 0, end);
+                        }
+                        if (loop) {
+                            data.startPos = prevStart;
                         }
                         if (prevEnd != data.endPos || bufferLen != data.tmp_buffer_len)
                             continue;

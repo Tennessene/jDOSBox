@@ -65,7 +65,7 @@ public class DSMixer extends IDirectSoundBuffer {
             obp = obp_begin;
             obp.inc(writepos/iAdvance*oAdvance);
             cp_fields(dsb, ibp, obp, iAdvance, oAdvance, size, 0, 1 << DSOUND_FREQSHIFT);
-            DSOUND_MixerVol(dsb);
+            //DSOUND_MixerVol(dsb);
             return;
         }
 
@@ -90,7 +90,7 @@ public class DSMixer extends IDirectSoundBuffer {
 
         /* FIXME: Small problem here when we're overwriting buf_mixpos, it then STILL uses old freqAcc, not sure if it matters or not */
         cp_fields(dsb, ibp, obp, iAdvance, oAdvance, size, freqAcc, dsb.freqAdjust);
-        DSOUND_MixerVol(dsb);
+        // DSOUND_MixerVol(dsb); // :TODO: volume is broken, it needs to take into account start/len
     }
 
     /**

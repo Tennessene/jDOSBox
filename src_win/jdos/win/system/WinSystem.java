@@ -38,7 +38,7 @@ public class WinSystem {
 
         //memory.registerPageFault(interrupts);
         memory.initialise_paging();
-        setScreenSize(640, 480, 32);
+        setScreenSize(800, 600, 32);
         StaticData.init();
 
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_OUT);
@@ -75,7 +75,10 @@ public class WinSystem {
                 palette = JavaBitmap.getDefaultPalette();
             }
             BufferedImage bi = Pixel.createImage(0, dwBPP,  palette, dwWidth, dwHeight, false);
-            StaticData.screen = new JavaBitmap(bi, dwBPP, dwWidth, dwHeight, JavaBitmap.getDefaultPalette());
+            if (StaticData.screen == null)
+                StaticData.screen = new JavaBitmap(bi, dwBPP, dwWidth, dwHeight, JavaBitmap.getDefaultPalette());
+            else
+                StaticData.screen.set(bi, dwBPP, dwWidth, dwHeight, JavaBitmap.getDefaultPalette()); // existing dc's will be point to screen, so update it instead of assigning a new one
             Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, dwBPP);
         }
     }

@@ -228,6 +228,7 @@ public class NativeModule extends Module {
     static public final int RT_ACCELERATOR = 9;
     static public final int RT_RCDATA = 10;
     static public final int RT_MESSAGETABLE = 11;
+    static public final int RT_GROUP_CURSOR = 12;
     static public final int RT_VERSION = 16;
 
     static public class ResourceDirectory {
@@ -339,16 +340,21 @@ public class NativeModule extends Module {
     private int getResourceByCodePage(int resourceAddress, IntRef size) {
          ResourceDirectory root = new ResourceDirectory(resourceAddress);
         int address = resourceAddress+ResourceDirectory.SIZE+root.NumberOfNamedEntries*8;
+        int defaultOffset = 0;
 
         for (int i=0;i<root.NumberOfIdEntries;i++) {
             int name = Memory.mem_readd(address);
             address+=4;
             int offset = Memory.mem_readd(address);
             address+=4;
+            if (defaultOffset == 0)
+                defaultOffset = offset;
             if (name == 1033) {
                 return getResource(resourceStartAddress + offset, size);
             }
         }
+        if (defaultOffset != 0)
+            return getResource(resourceStartAddress + defaultOffset, size);
         return 0;
     }
 

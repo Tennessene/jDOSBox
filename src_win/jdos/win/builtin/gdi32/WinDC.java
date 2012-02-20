@@ -1,5 +1,6 @@
 package jdos.win.builtin.gdi32;
 
+import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
@@ -106,6 +107,9 @@ public class WinDC extends WinObject {
         g.setColor(new Color(dc.textColor | 0xFF000000));
         g.drawString(text, dc.x+X, dc.y+Y+sh-(int)lm.getDescent());
         g.dispose();
+
+        if (dc.getImage() == StaticData.screen.getImage())
+            Main.drawImage(dc.getImage());
         return WinAPI.TRUE;
     }
 
@@ -194,6 +198,8 @@ public class WinDC extends WinObject {
         graphics.setColor(new Color(color));
         graphics.fillRect(nXLeft+dc.x, nYLeft+dc.y, nWidth, nHeight);
         graphics.dispose();
+        if (dc.getImage() == StaticData.screen.getImage())
+            Main.drawImage(dc.getImage());
         return TRUE;
     }
 

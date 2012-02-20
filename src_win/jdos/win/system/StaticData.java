@@ -40,6 +40,7 @@ public class StaticData extends WinAPI {
 
     public static int currentDirectDraw;
     public static int currentPrimarySurface;
+    public static int ddrawWindow;
 
     static public void init() {
         stockObjects = new int[STOCK_LAST+1];

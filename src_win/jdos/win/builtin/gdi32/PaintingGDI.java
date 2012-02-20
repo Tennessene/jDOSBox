@@ -1,6 +1,8 @@
 package jdos.win.builtin.gdi32;
 
+import jdos.gui.Main;
 import jdos.win.builtin.WinAPI;
+import jdos.win.system.StaticData;
 import jdos.win.system.WinPoint;
 
 import java.awt.*;
@@ -21,6 +23,8 @@ public class PaintingGDI extends WinAPI {
         dc.CursPosX = nXEnd;
         dc.CursPosY = nYEnd;
         g.dispose();
+        if (dc.getImage() == StaticData.screen.getImage())
+            Main.drawImage(dc.getImage());
         return TRUE;
     }
 
@@ -68,6 +72,8 @@ public class PaintingGDI extends WinAPI {
             g.draw(polygon);
 
         g.dispose();
+        if (dc.getImage() == StaticData.screen.getImage())
+            Main.drawImage(dc.getImage());
         return TRUE;
     }
 }

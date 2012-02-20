@@ -789,15 +789,15 @@ public class Memory extends Module_base {
 
 
     public static void mem_unalignedwritew(/*PhysPt*/int address,/*Bit16u*/int val) {
-        Paging.mem_writeb_inline(address,(short)val);val>>=8;
-        Paging.mem_writeb_inline(address+1,(short)val);
+        Paging.mem_writeb_inline(address,(short)(val & 0xFF));val>>=8;
+        Paging.mem_writeb_inline(address+1,(short)(val & 0xFF));
     }
 
     public static void mem_unalignedwrited(/*PhysPt*/int address,/*Bit32u*/int val) {
-        Paging.mem_writeb_inline(address,(short)val);val>>=8;
-        Paging.mem_writeb_inline(address+1,(short)val);val>>=8;
-        Paging.mem_writeb_inline(address+2,(short)val);val>>=8;
-        Paging.mem_writeb_inline(address+3,(short)val);
+        Paging.mem_writeb_inline(address,(short)(val & 0xFF));val>>=8;
+        Paging.mem_writeb_inline(address+1,(short)(val & 0xFF));val>>=8;
+        Paging.mem_writeb_inline(address+2,(short)(val & 0xFF));val>>=8;
+        Paging.mem_writeb_inline(address+3,(short)(val & 0xFF));
     }
 
     public static /*Bit8u*/short mem_readb(/*PhysPt*/int address) {

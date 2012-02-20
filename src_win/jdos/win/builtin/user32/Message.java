@@ -93,6 +93,14 @@ public class Message extends WinAPI {
     static public int TranslateMessage(int lpMsg) {
         int message = Memory.mem_readd(lpMsg+4);
         if (message == WinWindow.WM_KEYDOWN || message == WinWindow.WM_KEYUP) {
+            if (message == WinWindow.WM_KEYDOWN) {
+                int key = readd(lpMsg+8);
+                if (key>=32 && key<=126) {
+                    if (!Scheduler.getCurrentThread().getKeyState().get(VK_SHIFT))
+                        key = StringUtil.tolowerW((char)key);
+                    PostMessageA(readd(lpMsg), WM_CHAR, key, readd(lpMsg+12));
+                }
+            }
             return TRUE;
         } else if (message == WinWindow.WM_SYSKEYDOWN || message == WinWindow.WM_SYSKEYUP) {
             return TRUE;

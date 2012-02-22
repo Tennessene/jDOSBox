@@ -60,22 +60,9 @@ public class IDirectDraw extends IUnknown {
 
     static int OFFSET_FLAGS = 0;
 
-    static final int OFFSET_CX = 4;
-    static final int OFFSET_CY = 8;
-    static final int OFFSET_BPP = 12;
-    static final int OFFSET_PALETTE = 16;
+    static final int OFFSET_PALETTE = 4;
 
-    static final int DATA_SIZE = 20;
-
-    public static int getWidth(int This) {
-        return getData(This, OFFSET_CX);
-    }
-    public static int getHeight(int This) {
-        return getData(This, OFFSET_CY);
-    }
-    public static int getBPP(int This) {
-        return getData(This, OFFSET_BPP);
-    }
+    static final int DATA_SIZE = 8;
 
     public static void setPalette(int This, int palette) {
         setData(This, OFFSET_PALETTE, palette);
@@ -442,9 +429,6 @@ public class IDirectDraw extends IUnknown {
 
     // HRESULT SetDisplayMode(this, DWORD dwWidth, DWORD dwHeight, DWORD dwBPP)
     public static int SetDisplayMode(int This, int dwWidth, int dwHeight, int dwBPP) {
-        setData(This, OFFSET_CX, dwWidth);
-        setData(This, OFFSET_CY, dwHeight);
-        setData(This, OFFSET_BPP, dwBPP);
         WinSystem.setScreenSize(dwWidth, dwHeight, dwBPP);
         if (dwBPP<=8)
             getPalette(This); // set up default palette

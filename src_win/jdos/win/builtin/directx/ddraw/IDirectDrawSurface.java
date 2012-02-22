@@ -227,8 +227,8 @@ public class IDirectDrawSurface extends IUnknown {
         int caps = d.ddsCaps;
 
         if ((d.ddsCaps & DDSCAPS_PRIMARYSURFACE)!=0) {
-            width = IDirectDraw.getWidth(pDirectDraw);
-            height = IDirectDraw.getHeight(pDirectDraw);
+            width = StaticData.screen.getWidth();
+            height = StaticData.screen.getHeight();
             caps |= DDSCAPS_VIDEOMEMORY;
             caps |= DDSCAPS_VISIBLE;
             caps |= DDSCAPS_LOCALVIDMEM;
@@ -253,7 +253,7 @@ public class IDirectDrawSurface extends IUnknown {
         if ((d.dwFlags & DDSurfaceDesc.DDSD_PIXELFORMAT) != 0 && (d.ddpfPixelFormat.dwFlags & DDPixelFormat.DDPF_RGB)!=0 && d.ddpfPixelFormat.dwRGBBitCount!=0)
             bpp = d.ddpfPixelFormat.dwRGBBitCount;
         else
-            bpp = IDirectDraw.getBPP(pDirectDraw);
+            bpp = StaticData.screen.getBpp();
 
         BufferedImage bi = Pixel.createImage(0, bpp,  JavaBitmap.getDefaultPalette(), width, height, false);
         JavaBitmap bitmap = new JavaBitmap(bi, bpp, width, height, JavaBitmap.getDefaultPalette());

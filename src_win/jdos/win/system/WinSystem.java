@@ -38,7 +38,7 @@ public class WinSystem {
 
         //memory.registerPageFault(interrupts);
         memory.initialise_paging();
-        setScreenSize(800, 600, 32);
+        setScreenSize(640, 480, 32);
         StaticData.init();
 
         new WinFile(WinFile.FILE_TYPE_CHAR, WinFile.STD_OUT);

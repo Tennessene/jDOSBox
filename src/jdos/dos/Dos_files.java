@@ -1053,15 +1053,11 @@ public class Dos_files {
         return FCB_SUCCESS;
     }
 
-    public static /*Bit8u*/short DOS_FCBRandomRead(/*Bit16u*/int seg,/*Bit16u*/int offset,/*Bit16u*/int numRec,boolean restore) {
+    public static /*Bit8u*/short DOS_FCBRandomRead(/*Bit16u*/int seg,/*Bit16u*/int offset,/*Bit16u*/IntRef numRec,boolean restore) {
     /* if restore is true :random read else random blok read.
      * random read updates old block and old record to reflect the random data
      * before the read!!!!!!!!! and the random data is not updated! (user must do this)
      * Random block read updates these fields to reflect the state after the read!
-     */
-
-    /* BUG: numRec should return the amount of records read!
-     * Not implemented yet as I'm unsure how to count on error states (partial/failed)
      */
 
         Dos_FCB fcb=new Dos_FCB(seg,offset);
@@ -1069,16 +1065,20 @@ public class Dos_files {
         /*Bit16u*/IntRef old_block=new IntRef(0);
         /*Bit8u*/ShortRef old_rec=new ShortRef(0);
         /*Bit8u*/short error=0;
+        /*Bit16u*/int count;
 
         /* Set the correct record from the random data */
         fcb.GetRandom(random);
         fcb.SetRecord((/*Bit16u*/int)(random.value / 128),(/*Bit8u*/short)(random.value & 127));
         if (restore) fcb.GetRecord(old_block,old_rec);//store this for after the read.
         // Read records
-        for (int i=0; i<numRec; i++) {
-            error = DOS_FCBRead(seg,offset,(/*Bit16u*/int)i);
-            if (error!=0x00) break;
+        for (count=0; count<numRec.value; count++) {
+            error = DOS_FCBRead(seg,offset,count);
+            if (error!=FCB_SUCCESS) break;
         }
+        if (error==FCB_READ_PARTIAL) count++;	//partial read counts
+        numRec.value=count;
+
         /*Bit16u*/IntRef new_block=new IntRef(0);/*Bit8u*/ShortRef new_rec=new ShortRef(0);
         fcb.GetRecord(new_block,new_rec);
         if (restore) fcb.SetRecord(old_block.value,old_rec.value);
@@ -1087,24 +1087,26 @@ public class Dos_files {
         return error;
     }
 
-    public static /*Bit8u*/short DOS_FCBRandomWrite(/*Bit16u*/int seg,/*Bit16u*/int offset,/*Bit16u*/int numRec,boolean restore) {
+    public static /*Bit8u*/short DOS_FCBRandomWrite(/*Bit16u*/int seg,/*Bit16u*/int offset,/*Bit16u*/IntRef numRec,boolean restore) {
     /* see FCB_RandomRead */
         Dos_FCB fcb=new Dos_FCB(seg,offset);
         /*Bit32u*/LongRef random = new LongRef(0);
         /*Bit16u*/IntRef old_block=new IntRef(0);
         /*Bit8u*/ShortRef old_rec=new ShortRef(0);
         /*Bit8u*/short error=0;
+        /*Bit16u*/int count;
 
         /* Set the correct record from the random data */
         fcb.GetRandom(random);
         fcb.SetRecord((/*Bit16u*/int)(random.value / 128),(/*Bit8u*/short)(random.value & 127));
         if (restore) fcb.GetRecord(old_block,old_rec);
-        if (numRec>0) {
+        if (numRec.value>0) {
             /* Write records */
-            for (int i=0; i<numRec; i++) {
-                error = DOS_FCBWrite(seg,offset,(/*Bit16u*/int)i);// dos_fcbwrite return 0 false when true...
-                if (error!=0x00) break;
+            for (count=0; count<numRec.value; count++) {
+                error = DOS_FCBWrite(seg,offset,count);// dos_fcbwrite return 0 false when true...
+                if (error!=FCB_SUCCESS) break;
             }
+            numRec.value=count;
         } else {
             DOS_FCBIncreaseSize(seg,offset);
         }

@@ -363,13 +363,19 @@ public class Dos extends Module_base {
                 break;
             }
             case 0x21:		/* Read random record from FCB */
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),1,true));
+            {
+                IntRef toRead = new IntRef(1);
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toRead,true));
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x21 FCB-Random read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
+            }
             case 0x22:		/* Write random record to FCB */
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),1,true));
+            {
+                IntRef toWrite = new IntRef(1);
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toWrite,true));
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x22 FCB-Random write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
+            }
             case 0x23:		/* Get file size for FCB */
                 if (Dos_files.DOS_FCBGetFileSize((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
@@ -378,13 +384,21 @@ public class Dos extends Module_base {
                 Dos_files.DOS_FCBSetRandomRecord((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word());
                 break;
             case 0x27:		/* Random block read from FCB */
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),CPU_Regs.reg_ecx.word(),false));
+            {
+                IntRef toRead = new IntRef(CPU_Regs.reg_ecx.word());
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toRead,false));
+                CPU_Regs.reg_ecx.word(toRead.value);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x27 FCB-Random(block) read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
+            }
             case 0x28:		/* Random Block write to FCB */
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),CPU_Regs.reg_ecx.word(),false));
+            {
+                IntRef toWrite = new IntRef(CPU_Regs.reg_ecx.word());
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toWrite,false));
+                CPU_Regs.reg_ecx.word(toWrite.value);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x28 FCB-Random(block) write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
+            }
             case 0x29:		/* Parse filename into FCB */
                 {
                     /*Bit8u*/ShortRef difference=new ShortRef();
@@ -509,7 +523,9 @@ public class Dos extends Module_base {
                         CPU_Regs.reg_edx.high(0x10);								/* Dos in HMA */
                         break;
                     default:
-                        Log.exit("DOS:Illegal 0x33 Call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
+                        if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"Weird 0x33 call "+Integer.toString(CPU_Regs.reg_eax.low(), 16));
+                        CPU_Regs.reg_eax.low(0xff);
+				        break;
                 }
                 break;
             case 0x34:		/* Get INDos Flag */

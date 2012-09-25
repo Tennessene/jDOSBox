@@ -1080,11 +1080,16 @@ public class SBlaster extends Module_base {
         chan=Mixer.MIXER_FindChannel("FM");
         if (chan!=null) chan.SetVolume((float)(sb.mixer.master[0])/31.0f*CALCVOL(sb.mixer.fm[0]),
                                   (float)(sb.mixer.master[1])/31.0f*CALCVOL(sb.mixer.fm[1]));
+        chan=Mixer.MIXER_FindChannel("CDAUDIO");
+	    if (chan!=null) chan.SetVolume((float)(sb.mixer.master[0])/31.0f*CALCVOL(sb.mixer.cda[0]),
+							  (float)(sb.mixer.master[1])/31.0f*CALCVOL(sb.mixer.cda[1]));
     }
 
     private static void CTMIXER_Reset() {
         sb.mixer.fm[0]=
         sb.mixer.fm[1]=
+        sb.mixer.cda[0]=
+	    sb.mixer.cda[1]=
         sb.mixer.dac[0]=
         sb.mixer.dac[1]=31;
         sb.mixer.master[0]=
@@ -1203,10 +1208,16 @@ public class SBlaster extends Module_base {
             }
             break;
         case 0x36:		/* CD Volume Left (SB16) */
-            if (sb.type==SBT_16) sb.mixer.cda[0]=(short)(val>>>3);
+            if (sb.type==SBT_16) {
+                sb.mixer.cda[0]=(short)(val>>>3);
+                CTMIXER_UpdateVolumes();
+            }
             break;
         case 0x37:		/* CD Volume Right (SB16) */
-            if (sb.type==SBT_16) sb.mixer.cda[1]=(short)(val>>>3);
+            if (sb.type==SBT_16) {
+                sb.mixer.cda[1]=(short)(val>>>3);
+                CTMIXER_UpdateVolumes();
+            }
             break;
         case 0x38:		/* Line-in Volume Left (SB16) */
             if (sb.type==SBT_16) sb.mixer.lin[0]=(short)(val>>>3);

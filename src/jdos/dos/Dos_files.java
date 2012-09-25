@@ -27,6 +27,7 @@ public class Dos_files {
     public static final int OPEN_READ=0;
     public static final int OPEN_WRITE=1;
     public static final int OPEN_READWRITE=2;
+    public static final int OPEN_READ_NO_MOD=4;
     public static final int DOS_NOT_INHERIT=128;
 
     public static final int DOS_SEEK_SET=0;

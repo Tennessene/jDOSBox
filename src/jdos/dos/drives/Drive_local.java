@@ -158,6 +158,7 @@ public class Drive_local extends Dos_Drive {
         case Dos_files.OPEN_READ:type=FileIOFactory.MODE_READ; break;
         case Dos_files.OPEN_WRITE:type=FileIOFactory.MODE_WRITE; break;
         case Dos_files.OPEN_READWRITE:type=FileIOFactory.MODE_READ|FileIOFactory.MODE_WRITE; break;
+        case Dos_files.OPEN_READ_NO_MOD:type=FileIOFactory.MODE_READ; break; //No modification of dates. LORD4.07 uses this
         default:
             Dos.DOS_SetError(Dos.DOSERR_ACCESS_CODE_INVALID);
             return null;

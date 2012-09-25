@@ -562,11 +562,12 @@ public class Drive_iso extends Dos_Drive {
         }
         int dotpos = StringHelper.toString(de.ident).indexOf('.');
         if (dotpos>=0) {
+            int len = StringHelper.strlen(de.ident);
+            if (len-dotpos>4) de.ident[dotpos+4]=0;
             if (dotpos>8) {
                 StringHelper.strcpy(de.ident, 8, de.ident, dotpos);
             }
-        }
-        if (StringHelper.strlen(de.ident)>12) de.ident[12]=0;
+        } else if (StringHelper.strlen(de.ident)>8) de.ident[8]=0;
         return de.length;
     }
 

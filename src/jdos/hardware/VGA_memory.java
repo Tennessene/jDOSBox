@@ -25,9 +25,9 @@ public class VGA_memory {
 //        return addr;
 //    }
 //
-//    static private long CHECKED3(long addr) {
-//        return addr & (VGA.vga.vmemwrap-1);
-//    }
+    static private int CHECKED3(int addr) {
+        return addr & (VGA.vga.vmemwrap-1);
+    }
 //
 //    static private long CHECKED4(long addr) {
 //        return addr & ((VGA.vga.vmemwrap >> 2) - 1);
@@ -412,12 +412,28 @@ public class VGA_memory {
         }
         public /*Bitu*/int readb(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
-            return VGA.vga.draw.font[(int)addr];
+            switch(VGA.vga.gfx.read_map_select) {
+            case 0: // character index
+                return Memory.host_readb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr));
+            case 1: // character attribute
+                return Memory.host_readb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr+1));
+            case 2: // font map
+                return VGA.vga.draw.font[addr];
+            default: // 3=unused, but still RAM that could save values
+                return 0;
+            }
         }
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int val){
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
-            if ((VGA.vga.seq.map_mask & 0x4)!=0) {
-                VGA.vga.draw.font[(int)addr]=(/*Bit8u*/byte)val;
+            if (VGA.vga.seq.map_mask == 4) {
+                VGA.vga.draw.font[addr]=(/*Bit8u*/byte)val;
+            } else {
+                if ((VGA.vga.seq.map_mask & 0x4)!=0)
+                    VGA.vga.draw.font[addr]=(/*Bit8u*/byte)val;
+                if ((VGA.vga.seq.map_mask & 0x2)!=0) // character attribute
+                    Memory.host_writeb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr+1), (short)val);
+                if ((VGA.vga.seq.map_mask & 0x1)!=0) // character index
+                    Memory.host_writeb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr), (short)val);
             }
         }
     }

@@ -279,11 +279,15 @@ public class VGA_crtc {
                 */
                 break;
             case 0x16:	/*  End Vertical Blank Register */
-                VGA.vga.crtc.end_vertical_blanking=(short)val;
-                 /*
+                if (val!=VGA.vga.crtc.end_vertical_blanking) {
+                    VGA.vga.crtc.end_vertical_blanking=(short)val;
+                    VGA.VGA_StartResize();
+                }
+                /*
                     0-6	Vertical blanking stops when the lower 7 bits of the line counter
                         equals this field. Some SVGA chips uses all 8 bits!
-                */
+                        IBM actually says bits 0-7.
+                *
                 break;
             case 0x17:	/* Mode Control Register */
                 VGA.vga.crtc.mode_control=(short)val;

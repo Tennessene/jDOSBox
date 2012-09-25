@@ -1153,9 +1153,28 @@ public class Dos_files {
     public static boolean DOS_FCBRenameFile(/*Bit16u*/int seg, /*Bit16u*/int offset){
         Dos_FCB fcbold=new Dos_FCB(seg,offset);
         Dos_FCB fcbnew=new Dos_FCB(seg,offset+16);
+        if(!fcbold.Valid()) return false;
         StringRef oldname=new StringRef();
         StringRef newname = new StringRef();
         fcbold.GetName(oldname);fcbnew.GetName(newname);
+
+        /* Check, if sourcefile is still open. This was possible in DOS, but modern oses don't like this */
+        ShortRef drive = new ShortRef(0); StringRef fullname = new StringRef();
+        if (!DOS_MakeName(oldname.value,fullname,drive)) return false;
+
+        Dos_PSP psp = new Dos_PSP(Dos.dos.psp());
+        for (short i=0;i<DOS_FILES;i++) {
+            if (Files[i]!=null && Files[i].IsOpen() && Files[i].IsName(fullname.value)) {
+                int handle = psp.FindEntryByHandle(i);
+                if (handle == 0xFF) {
+                    // This shouldnt happen
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_ERROR,"DOS: File "+oldname.value+" is opened but has no psp entry.");
+                    return false;
+                }
+                DOS_CloseFile(handle);
+            }
+        }
+        /* Rename the file */
         return DOS_Rename(oldname.value,newname.value);
     }
 

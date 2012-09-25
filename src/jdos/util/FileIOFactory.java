@@ -454,7 +454,7 @@ public class FileIOFactory {
             if ((mode & MODE_TRUNCATE)!=0) {
                 if (f.exists())
                     f.delete();
-            } else if (!f.exists()) {
+            } else if (!f.exists() || f.isDirectory()) {
                 throw new FileNotFoundException();
             }
             return new RandomIO(f, m);

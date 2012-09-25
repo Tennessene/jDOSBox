@@ -107,6 +107,9 @@ public class Dos_FCB extends MemStruct {
 	public void SetAttr(/*Bit8u*/short attr) {
         if(extended) Memory.mem_writeb(pt - 1,attr);
     }
+    void SetResultAttr(/*Bit8u*/short attr) {
+	    Memory.mem_writeb(pt + 12,attr);
+    }
 	public boolean Valid() {
         //Very simple check for Oubliette
         if(GetIt(1,1)/*sGet(sFCB,filename[0])*/ == 0 && GetIt(1,27)/*sGet(sFCB,file_handle)*/ == 0) return false;

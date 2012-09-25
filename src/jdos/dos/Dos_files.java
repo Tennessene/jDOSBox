@@ -881,7 +881,7 @@ public class Dos_files {
 
     static private void DTAExtendName(String name,StringRef filename,StringRef ext) {
         int pos = name.indexOf('.');
-        if (pos>=0) {
+        if (pos>0) {
             ext.value = name.substring(pos+1);
             name = name.substring(0,pos);
         } else ext.value = "";
@@ -896,12 +896,15 @@ public class Dos_files {
         StringRef file_name=new StringRef();StringRef ext=new StringRef();
         find_dta.GetResult(name,size,date,time,attr);
         drive=(short)(find_fcb.GetDrive()+1);
+        /*Bit8u*/ShortRef find_attr = new ShortRef(Dos_system.DOS_ATTR_ARCHIVE);
+	    find_fcb.GetAttr(find_attr); /* Gets search attributes if extended */
         /* Create a correct file and extention */
         DTAExtendName(name.value,file_name,ext);
         Dos_FCB fcb=new Dos_FCB(Memory.RealSeg(Dos.dos.dta()),Memory.RealOff(Dos.dos.dta()));//TODO
         fcb.Create(find_fcb.Extended());
         fcb.SetName(drive,file_name.value,ext.value);
-        fcb.SetAttr(attr.value);      /* Only adds attribute if fcb is extended */
+        fcb.SetAttr(find_attr.value);      /* Only adds attribute if fcb is extended */
+	    fcb.SetResultAttr(attr.value);
         fcb.SetSizeDateTime(size.value,date.value,time.value);
     }
 

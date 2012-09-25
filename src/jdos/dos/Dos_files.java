@@ -978,6 +978,11 @@ public class Dos_files {
         Dos_FCB fcb=new Dos_FCB(seg,offset);
         /*Bit8u*/ShortRef fhandle=new ShortRef(),cur_rec=new ShortRef();/*Bit16u*/IntRef cur_block=new IntRef(0),rec_size=new IntRef(0);
         fcb.GetSeqData(fhandle,rec_size);
+        if (fhandle.value==0xff && rec_size.value!=0) {
+            if (!DOS_FCBOpen(seg,offset)) return FCB_READ_NODATA;
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_WARN, "Reopened closed FCB");
+            fcb.GetSeqData(fhandle,rec_size);
+        }
         fcb.GetRecord(cur_block,cur_rec);
         /*Bit32u*/LongRef pos=new LongRef(((cur_block.value*128)+cur_rec.value)*rec_size.value);
         if (!DOS_SeekFile(fhandle.value,pos,DOS_SEEK_SET)) return FCB_READ_NODATA;
@@ -1000,6 +1005,11 @@ public class Dos_files {
         Dos_FCB fcb=new Dos_FCB(seg,offset);
         /*Bit8u*/ShortRef fhandle=new ShortRef(),cur_rec=new ShortRef();/*Bit16u*/IntRef cur_block=new IntRef(0),rec_size=new IntRef(0);
         fcb.GetSeqData(fhandle,rec_size);
+        if (fhandle.value==0xff && rec_size.value!=0) {
+            if (!DOS_FCBOpen(seg,offset)) return FCB_READ_NODATA;
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_WARN, "Reopened closed FCB");
+            fcb.GetSeqData(fhandle,rec_size);
+        }
         fcb.GetRecord(cur_block,cur_rec);
         /*Bit32u*/LongRef pos=new LongRef(((cur_block.value*128)+cur_rec.value)*rec_size.value);
         if (!DOS_SeekFile(fhandle.value,pos,DOS_SEEK_SET)) return FCB_ERR_WRITE;

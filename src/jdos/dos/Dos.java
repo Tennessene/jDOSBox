@@ -97,6 +97,7 @@ public class Dos extends Module_base {
     }
 
     static private Callback.Handler DOS_21Handler = new Callback.Handler() {
+        long time_start = 0; //For emulating temporary time changes.
         public String getName() {
             return "Dos.DOS_21Handler";
         }
@@ -446,7 +447,7 @@ public class Dos extends Module_base {
     //TODO Get time through bios calls date is fixed
                 {
                     /*	Calculate how many miliseconds have passed */
-                    /*Bitu*/long ticks=5*(Memory.mem_readd(Bios.BIOS_TIMER) & 0xFFFFFFFFl);
+                    /*Bitu*/long ticks=5*((Memory.mem_readd(Bios.BIOS_TIMER) & 0xFFFFFFFFl) - time_start);
                     ticks = ((ticks / 59659) << 16) + ((ticks % 59659) << 16) / 59659;
                     /*Bitu*/long seconds=(ticks/100);
                     CPU_Regs.reg_ecx.high((/*Bit8u*/short)(seconds/3600));
@@ -463,7 +464,11 @@ public class Dos extends Module_base {
                 //Check input parameters nonetheless
                 if( CPU_Regs.reg_ecx.high() > 23 || CPU_Regs.reg_ecx.low() > 59 || CPU_Regs.reg_edx.high() > 59 || CPU_Regs.reg_edx.low() > 99 )
                     CPU_Regs.reg_eax.low(0xff);
-                else CPU_Regs.reg_eax.low(0);
+                else { //Allow time to be set to zero. Restore the orginal time for all other parameters. (QuickBasic)
+                    if (CPU_Regs.reg_ecx.word() == 0 && CPU_Regs.reg_edx.word() == 0) {time_start = (Memory.mem_readd(Bios.BIOS_TIMER) & 0xFFFFFFFFl);Log.log_msg("Warning: game messes with DOS time!");}
+                    else time_start = 0;
+                    CPU_Regs.reg_eax.low(0);
+                }
                 break;
             case 0x2e:		/* Set Verify flag */
                 dos.verify=(CPU_Regs.reg_eax.low()==1);

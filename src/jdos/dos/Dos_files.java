@@ -209,12 +209,15 @@ public class Dos_files {
         /*Bit8u*/ShortRef drive=new ShortRef();StringRef fulldir = new StringRef();
         String testdir=dir;
 	    if (testdir.length()>1 && testdir.charAt(1)==':') testdir = testdir.substring(2);
-        if (testdir.length()==0 || (testdir.length()>1 && testdir.charAt(testdir.length()-1)=='\\')) {
+        if (testdir.length()==0) {
             Dos.DOS_SetError(Dos.DOSERR_PATH_NOT_FOUND);
             return false;
         }
         if (!DOS_MakeName(dir,fulldir,drive)) return false;
-
+        if (fulldir.value.length()>0 && (testdir.length()>1 && testdir.charAt(testdir.length()-1)=='\\')) {
+	    	Dos.DOS_SetError(Dos.DOSERR_PATH_NOT_FOUND);
+		    return false;
+	    }
         if (Drives[drive.value].TestDir(fulldir.value)) {
             Drives[drive.value].curdir =  fulldir.value;
             return true;

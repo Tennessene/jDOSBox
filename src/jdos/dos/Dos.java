@@ -406,6 +406,7 @@ public class Dos extends Module_base {
                 break;
             case 0x26:		/* Create new PSP */
                 Dos_execute.DOS_NewPSP(CPU_Regs.reg_edx.word(),new Dos_PSP(dos.psp()).GetSize());
+                CPU_Regs.reg_eax.low(0xf0);	/* al destroyed */
                 break;
             case 0x2a:		/* Get System Date */
                 {
@@ -571,6 +572,7 @@ public class Dos extends Module_base {
             {
                 String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
                 if (Dos_files.DOS_MakeDir(name1)) {
+                    CPU_Regs.reg_eax.word(0x05);	/* ax destroyed */
                     Callback.CALLBACK_SCF(false);
                 } else {
                     CPU_Regs.reg_eax.word(dos.errorcode);
@@ -582,6 +584,7 @@ public class Dos extends Module_base {
             {
                 String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
                 if  (Dos_files.DOS_RemoveDir(name1)) {
+                    CPU_Regs.reg_eax.word(0x05);	/* ax destroyed */
                     Callback.CALLBACK_SCF(false);
                 } else {
                     CPU_Regs.reg_eax.word(dos.errorcode);
@@ -594,6 +597,7 @@ public class Dos extends Module_base {
             {
                 String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
                 if  (Dos_files.DOS_ChangeDir(name1)) {
+                    CPU_Regs.reg_eax.word(0x00);	/* ax destroyed */
                     Callback.CALLBACK_SCF(false);
                 } else {
                     CPU_Regs.reg_eax.word(dos.errorcode);
@@ -863,6 +867,7 @@ public class Dos extends Module_base {
             case 0x55:					/* Create Child PSP*/
                 Dos_execute.DOS_ChildPSP(CPU_Regs.reg_edx.word(),CPU_Regs.reg_esi.word());
                 dos.psp(CPU_Regs.reg_edx.word());
+                CPU_Regs.reg_eax.low(0xf0);	/* al destroyed */
                 break;
             case 0x56:					/* RENAME Rename file */
             {

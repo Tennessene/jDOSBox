@@ -776,15 +776,17 @@ public class Memory extends Module_base {
 
     /* Memory access functions */
     public static /*Bit16u*/int mem_unalignedreadw(/*PhysPt*/int address) {
-        return Paging.mem_readb_inline(address) |
-            Paging.mem_readb_inline(address+1) << 8;
+        int result = Paging.mem_readb_inline(address);
+        result |= Paging.mem_readb_inline(address+1) << 8;
+        return result;
     }
 
     public static /*Bit32u*/int mem_unalignedreadd(/*PhysPt*/int address) {
-        return Paging.mem_readb_inline(address) |
-            (Paging.mem_readb_inline(address+1) << 8) |
-            (Paging.mem_readb_inline(address+2) << 16) |
-            (Paging.mem_readb_inline(address+3) << 24);
+        int result = Paging.mem_readb_inline(address);
+        result |= (Paging.mem_readb_inline(address+1) << 8);
+        result |= (Paging.mem_readb_inline(address+2) << 16);
+        result |= (Paging.mem_readb_inline(address+3) << 24);
+        return result;
     }
 
 

@@ -10,6 +10,8 @@ import jdos.types.MachineType;
 import jdos.types.SVGACards;
 import jdos.util.Ptr;
 
+import javax.xml.transform.Result;
+
 public class VGA_memory {
     static public boolean VGA_KEEP_CHANGES = false;
 
@@ -119,19 +121,19 @@ public class VGA_memory {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED2(addr);
-            return
-                (readHandler(addr+0) << 0) |
-                (readHandler(addr+1) << 8);
+            int result = readHandler(addr);
+            result|= (readHandler(addr + 1) << 8);
+            return result;
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED2(addr);
-            return
-                (readHandler(addr+0) << 0)  |
-                (readHandler(addr+1) << 8)  |
-                (readHandler(addr+2) << 16) |
-                (readHandler(addr+3) << 24);
+            int result = readHandler(addr);
+            result |= (readHandler(addr+1) << 8);
+            result |= (readHandler(addr+2) << 16);
+            result |= (readHandler(addr+3) << 24);
+            return result;
         }
     }
 
@@ -203,19 +205,19 @@ public class VGA_memory {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
-            return
-                (readHandler(addr+0) << 0) |
-                (readHandler(addr+1) << 8);
+            int result = readHandler(addr);
+            result |= (readHandler(addr+1) << 8);
+            return result;
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
-            return
-                (readHandler(addr+0) << 0)  |
-                (readHandler(addr+1) << 8)  |
-                (readHandler(addr+2) << 16) |
-                (readHandler(addr+3) << 24);
+            int result = readHandler(addr);
+            result |= (readHandler(addr+1) << 8);
+            result |= (readHandler(addr+2) << 16);
+            result |= (readHandler(addr+3) << 24);
+            return result;
         }
     }
 
@@ -536,19 +538,19 @@ public class VGA_memory {
             addr = VGA.vga.svga.bank_read_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
             addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
-            return
-                (readHandler(addr+0) << 0) |
-                (readHandler(addr+1) << 8);
+            int result = readHandler(addr);
+            result |= (readHandler(addr+1) << 8);
+            return result;
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr) {
             addr = VGA.vga.svga.bank_read_full + (Paging.PAGING_GetPhysicalAddress(addr) & 0xffff);
             addr&=(VGA.vga.vmemwrap>>2)-1;
 //            addr = CHECKED4(addr);
-            return
-                (readHandler(addr+0) << 0)  |
-                (readHandler(addr+1) << 8)  |
-                (readHandler(addr+2) << 16) |
-                (readHandler(addr+3) << 24);
+            int result = readHandler(addr);
+            result |= (readHandler(addr+1) << 8);
+            result |= (readHandler(addr+2) << 16);
+            result |= (readHandler(addr+3) << 24);
+            return result;
         }
     }
 

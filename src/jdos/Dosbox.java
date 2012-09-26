@@ -61,6 +61,7 @@ public class Dosbox {
                     ret=CPU.cpudecoder.call();
                     if (ret<0) return 1;
                     if (ret>0) {
+                        if (ret >= Callback.CB_MAX) return 0;
                         try {
                             Callback.inHandler++;
                             /*Bitu*/int blah=Callback.CallBack_Handlers[ret].call();

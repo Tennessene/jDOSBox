@@ -54,6 +54,14 @@ public class Int10_modes {
         new Int10.VideoModeBlock( 0x106  ,VGA.M_LIN4   ,1280,1024,160,64 ,8 ,16 ,1 ,0xA0000 ,0x10000,212 ,1066,160,1024,0	),
         new Int10.VideoModeBlock( 0x107  ,VGA.M_LIN8   ,1280,1024,160,64 ,8 ,16 ,1 ,0xA0000 ,0x10000,212 ,1066,160,1024,0	),
 
+        /* VESA text modes */
+        new Int10.VideoModeBlock( 0x108  ,VGA.M_TEXT   ,640 ,480,  80,60, 8,  8 ,2 ,0xB8000 ,0x4000, 100 ,525 ,80 ,480 ,0   ),
+        new Int10.VideoModeBlock( 0x109  ,VGA.M_TEXT   ,1056,400, 132,25, 8, 16, 1 ,0xB8000 ,0x2000, 160, 449, 132,400, 0   ),
+        new Int10.VideoModeBlock( 0x10A  ,VGA.M_TEXT   ,1056,688, 132,43, 8,  8, 1 ,0xB8000 ,0x4000, 160, 449, 132,344, 0   ),
+        new Int10.VideoModeBlock( 0x10B  ,VGA.M_TEXT   ,1056,400, 132,50, 8,  8, 1 ,0xB8000 ,0x4000, 160, 449, 132,400, 0   ),
+        new Int10.VideoModeBlock( 0x10C  ,VGA.M_TEXT   ,1056,480, 132,60, 8,  8, 2 ,0xB8000 ,0x4000, 160, 531, 132,480, 0   ),
+
+    /* VESA higher color modes */
         new Int10.VideoModeBlock( 0x10D  ,VGA.M_LIN15  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,100 ,449 ,80 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),
         new Int10.VideoModeBlock( 0x10E  ,VGA.M_LIN16  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,100 ,449 ,80 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),
         new Int10.VideoModeBlock( 0x10F  ,VGA.M_LIN32  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,50  ,449 ,40 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),

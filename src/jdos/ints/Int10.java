@@ -705,7 +705,7 @@ public class Int10 {
             case 0x03:							/* Get videomode */
                 CPU_Regs.reg_eax.low(0x4f);
                 CPU_Regs.reg_ebx.word(Int10_vesa.VESA_GetSVGAMode());
-                CPU_Regs.reg_eax.high(0);
+                CPU_Regs.reg_eax.high(Int10_vesa.VESA_SUCCESS);
                 break;
             case 0x04:							/* Save/restore state */
                 CPU_Regs.reg_eax.low(0x4f);
@@ -736,8 +736,7 @@ public class Int10 {
                     CPU_Regs.reg_eax.high(Int10_vesa.VESA_SetCPUWindow(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_edx.low()));
                     CPU_Regs.reg_eax.low(0x4f);
                 } else if (CPU_Regs.reg_ebx.high() == 1) {		/* Get CPU Window */
-                    CPU_Regs.reg_edx.word(Int10_vesa.VESA_GetCPUWindow(CPU_Regs.reg_ebx.low()));
-                    CPU_Regs.reg_eax.high(0);
+                    CPU_Regs.reg_eax.high(Int10_vesa.VESA_GetCPUWindow(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx));
                     CPU_Regs.reg_eax.low(0x4f);
                 } else {
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_ebx.high(),16));

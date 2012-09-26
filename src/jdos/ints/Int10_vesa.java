@@ -5,11 +5,19 @@ import jdos.cpu.CPU_Regs;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
 import jdos.hardware.VGA;
+import jdos.hardware.VGA_draw;
 import jdos.misc.setup.Config;
 import jdos.util.IntRef;
 import jdos.util.Ptr;
 
 public class Int10_vesa {
+    static public final int VESA_SUCCESS =          0x00;
+    static private final int VESA_FAIL =             0x01;
+    static private final int VESA_HW_UNSUPPORTED =   0x02;
+    static private final int VESA_MODE_UNSUPPORTED = 0x03;
+    // internal definition to pass to the caller
+    static private final int VESA_UNIMPLEMENTED =    0xFF;
+
     static private class Callback {
         /*Bitu*/int setwindow;
         /*Bitu*/int pmStart;
@@ -129,7 +137,7 @@ public class Int10_vesa {
         Memory.mem_writed(buffer+0x0a,0x0);					//Capabilities and flags
         Memory.mem_writed(buffer+0x0e,Int10.int10.rom.vesa_modes);	//VESA Mode list
         Memory.mem_writew(buffer+0x12,(/*Bit16u*/int)(VGA.vga.vmemsize/(64*1024))); // memory size in 64kb blocks
-        return 0x00;
+        return VESA_SUCCESS;
     }
 
     static public /*Bit8u*/short VESA_GetSVGAModeInformation(/*Bit16u*/int mode,/*Bit16u*/int seg,/*Bit16u*/int off) {
@@ -150,14 +158,13 @@ public class Int10_vesa {
             if (mode==Int10_modes.ModeList_VGA[i].mode) {foundit=true;break;} else i++;
         }
         if (!foundit)
-            return 0x01;
+            return VESA_FAIL;
     //foundit:
         if ((Int10.int10.vesa_oldvbe) && (Int10_modes.ModeList_VGA[i].mode>=0x120)) return 0x01;
         Int10.VideoModeBlock mblock=Int10_modes.ModeList_VGA[i];
         switch (mblock.type) {
         case VGA.M_LIN4:
             pageSize = mblock.sheight * mblock.swidth/2;
-            pageSize = (pageSize | 15) & ~ 15;
             minfo.BytesPerScanLine=mblock.swidth/8;
             minfo.NumberOfPlanes=0x4;
             minfo.BitsPerPixel=4;
@@ -166,7 +173,6 @@ public class Int10_vesa {
             break;
         case VGA.M_LIN8:
             pageSize = mblock.sheight * mblock.swidth;
-            pageSize = (pageSize | 15) & ~ 15;
             minfo.BytesPerScanLine=mblock.swidth;
             minfo.NumberOfPlanes=0x1;
             minfo.BitsPerPixel=8;
@@ -176,7 +182,6 @@ public class Int10_vesa {
             break;
         case VGA.M_LIN15:
             pageSize = mblock.sheight * mblock.swidth*2;
-            pageSize = (pageSize | 15) & ~ 15;
             minfo.BytesPerScanLine=mblock.swidth*2;
             minfo.NumberOfPlanes=0x1;
             minfo.BitsPerPixel=15;
@@ -194,7 +199,6 @@ public class Int10_vesa {
             break;
         case VGA.M_LIN16:
             pageSize = mblock.sheight * mblock.swidth*2;
-            pageSize = (pageSize | 15) & ~ 15;
             minfo.BytesPerScanLine=mblock.swidth*2;
             minfo.NumberOfPlanes=0x1;
             minfo.BitsPerPixel=16;
@@ -210,7 +214,6 @@ public class Int10_vesa {
             break;
         case VGA.M_LIN32:
             pageSize = mblock.sheight * mblock.swidth*4;
-            pageSize = (pageSize | 15) & ~ 15;
             minfo.BytesPerScanLine=mblock.swidth*4;
             minfo.NumberOfPlanes=0x1;
             minfo.BitsPerPixel=32;
@@ -226,36 +229,40 @@ public class Int10_vesa {
             modeAttributes = 0x1b;	// Color, graphics
             if (!Int10.int10.vesa_nolfb) modeAttributes |= 0x80;	// linear framebuffer
             break;
-/*	case M_TEXT:
-		pageSize = mblock.sheight/8 * mblock.swidth*2/8;
-		pageSize = (pageSize | 15) & ~ 15;
-		minfo.BytesPerScanLine,mblock.swidth*2/8);
-		minfo.NumberOfPlanes,0x4);
-		minfo.BitsPerPixel,4);
-		minfo.MemoryModel,0);	//Text
-		modeAttributes = 0x0f;	//Color, text, bios output
-		break; */
+        case VGA.M_TEXT:
+            pageSize = 0;
+            minfo.BytesPerScanLine = mblock.twidth * 2;
+            minfo.NumberOfPlanes=0x4;
+            minfo.BitsPerPixel=4;
+            minfo.MemoryModel=0;	// text
+            modeAttributes = 0x0f;	//Color, text, bios output
+            break;
         default:
-            return 0x1;
+            return VESA_FAIL;
         }
+        if ((pageSize & 0xFFFF)!=0) {
+            // It is documented that many applications assume 64k-aligned page sizes
+            // VBETEST is one of them
+            pageSize += 0x10000;
+            pageSize &= ~0xFFFF;
+        }
+        /*Bitu*/int pages = 0;
+        if (pageSize > VGA.vga.vmemsize) {
+            // mode not supported by current hardware configuration
+            modeAttributes &= ~0x1;
+        } else if (pageSize!=0) {
+            pages = (VGA.vga.vmemsize / pageSize)-1;
+        }
+        minfo.NumberOfImagePages=(short)pages;
+        minfo.ModeAttributes=modeAttributes;
         minfo.WinAAttributes=0x7;	// Exists/readable/writable
-
-        if(pageSize > VGA.vga.vmemsize) {
-            // Mode not supported by current hardware configuration
-            minfo.ModeAttributes=modeAttributes & ~0x1;
-            minfo.NumberOfImagePages=0;
-        } else {
-            minfo.ModeAttributes=modeAttributes;
-            /*Bitu*/int pages = (VGA.vga.vmemsize / pageSize)-1;
-            minfo.NumberOfImagePages=(short)pages;
-        }
 
         if (mblock.type==VGA.M_TEXT) {
             minfo.WinGranularity=32;
             minfo.WinSize=32;
             minfo.WinASegment=0xb800;
-            minfo.XResolution=mblock.swidth/8;
-            minfo.YResolution=mblock.sheight/8;
+            minfo.XResolution=mblock.swidth;
+            minfo.YResolution=mblock.sheight;
         } else {
             minfo.WinGranularity=64;
             minfo.WinSize=64;
@@ -271,15 +278,15 @@ public class Int10_vesa {
         if (!Int10.int10.vesa_nolfb) minfo.PhysBasePtr=Int10.S3_LFB_BASE;
 
         minfo.write((int)buf);//MEM_BlockWrite(buf,&minfo,sizeof(MODE_INFO));
-        return 0x00;
+        return VESA_SUCCESS;
     }
 
     public static /*Bit8u*/short VESA_SetSVGAMode(/*Bit16u*/int mode) {
         if (Int10_modes.INT10_SetVideoMode(mode)) {
             Int10.int10.vesa_setmode=mode&0x7fff;
-            return 0x00;
+            return VESA_SUCCESS;
         }
-        return 0x01;
+        return VESA_FAIL;
     }
 
     public static int VESA_GetSVGAMode() {
@@ -288,26 +295,26 @@ public class Int10_vesa {
     }
 
     public static /*Bit8u*/short VESA_SetCPUWindow(/*Bit8u*/short window,/*Bit8u*/short address) {
-        if (window!=0) return 0x1;
+        if (window!=0) return VESA_FAIL;
         if (((/*Bit32u*/long)(address)*64*1024<VGA.vga.vmemsize)) {
             IoHandler.IO_Write(0x3d4,0x6a);
-            IoHandler.IO_Write(0x3d5,(/*Bit8u*/short)address);
-            return 0x0;
-        } else return 0x1;
+            IoHandler.IO_Write(0x3d5,address);
+            return VESA_SUCCESS;
+        } else return VESA_FAIL;
     }
 
-    static public int VESA_GetCPUWindow(/*Bit8u*/short window) {
-        if (window!=0) return 0x1;
+    static public int VESA_GetCPUWindow(/*Bit8u*/short window, CPU_Regs.Reg reg) {
+        if (window!=0) return VESA_FAIL;
         IoHandler.IO_Write(0x3d4,0x6a);
-        return IoHandler.IO_Read(0x3d5);
+        reg.word(IoHandler.IO_Read(0x3d5));
+        return VESA_SUCCESS;
     }
-
 
     public static /*Bit8u*/short VESA_SetPalette(/*PhysPt*/int data,/*Bitu*/int index,/*Bitu*/int count) {
 //Structure is (vesa 3.0 doc): blue,green,red,alignment
         /*Bit8u*/short r,g,b;
-        if (index>255) return 0x1;
-        if (index+count>256) return 0x1;
+        if (index>255) return VESA_FAIL;
+        if (index+count>256) return VESA_FAIL;
         IoHandler.IO_Write(0x3c8,index);
         while (count!=0) {
             b = Memory.mem_readb(data++);
@@ -319,14 +326,14 @@ public class Int10_vesa {
             IoHandler.IO_Write(0x3c9,b);
             count--;
         }
-        return 0x00;
+        return VESA_SUCCESS;
     }
 
 
     static public /*Bit8u*/short VESA_GetPalette(/*PhysPt*/int data,/*Bitu*/int index,/*Bitu*/int count) {
         /*Bit8u*/short r,g,b;
-        if (index>255) return 0x1;
-        if (index+count>256) return 0x1;
+        if (index>255) return VESA_FAIL;
+        if (index+count>256) return VESA_FAIL;
         IoHandler.IO_Write(0x3c7,index);
         while (count!=0) {
             r = IoHandler.IO_Read(0x3c9);
@@ -338,114 +345,181 @@ public class Int10_vesa {
             data++;
             count--;
         }
-        return 0x00;
+        return VESA_SUCCESS;
     }
 
+    // maximum offset for the S3 Trio64 is 10 bits
+    static private final int S3_MAX_OFFSET = 0x3ff;
 
     public static /*Bit8u*/short VESA_ScanLineLength(/*Bit8u*/short subcall,/*Bit16u*/int val, /*Bit16u*/IntRef bytes,/*Bit16u*/IntRef pixels,/*Bit16u*/IntRef lines) {
-        /*Bit8u*/short bpp;
+        // offset register: virtual scanline length
+        /*Bitu*/int pixels_per_offset;
+        /*Bitu*/int bytes_per_offset = 8;
+        /*Bitu*/int vmemsize = VGA.vga.vmemsize;
+        /*Bitu*/int new_offset = VGA.vga.config.scan_len;
+        /*Bitu*/int screen_height = Int10_modes.CurMode.sheight;
+
         switch (Int10_modes.CurMode.type) {
+        case VGA.M_TEXT:
+            vmemsize = 0x8000;      // we have only the 32kB window here
+            screen_height = Int10_modes.CurMode.theight;
+            pixels_per_offset = 16; // two characters each 8 pixels wide
+            bytes_per_offset = 4;   // 2 characters + 2 attributes
+            break;
         case VGA.M_LIN4:
-            bpp = 1;
+            pixels_per_offset = 16;
             break;
         case VGA.M_LIN8:
-            bpp=1;
+            pixels_per_offset = 8;
             break;
         case VGA.M_LIN15:
         case VGA.M_LIN16:
-            bpp=2;
+            pixels_per_offset = 4;
             break;
         case VGA.M_LIN32:
-            bpp=4;
+            pixels_per_offset = 2;
             break;
         default:
-            return 0x1;
+            return VESA_MODE_UNSUPPORTED;
         }
         switch (subcall) {
-        case 0x00:	/* Set in pixels */
-            if(Int10_modes.CurMode.type==VGA.M_LIN4) VGA.vga.config.scan_len=val/2;
-            else VGA.vga.config.scan_len = (val * bpp);
+        case 0x00: // set scan length in pixels
+            new_offset = val / pixels_per_offset;
+            if ((val % pixels_per_offset) != 0) new_offset++;
+
+            if (new_offset > S3_MAX_OFFSET)
+                return VESA_HW_UNSUPPORTED; // scanline too long
+            VGA.vga.config.scan_len = new_offset;
+            VGA_draw.VGA_CheckScanLength();
             break;
-        case 0x02:	/* Set in bytes */
-            if(Int10_modes.CurMode.type==VGA.M_LIN4) VGA.vga.config.scan_len = val*4;
-            else VGA.vga.config.scan_len = val;
+
+        case 0x01: // get current scanline length
+            // implemented at the end of this function
             break;
-        case 0x03:	/* Get maximum */
-            bytes.value=0x400*4;
-            pixels.value=bytes.value/bpp;
-            lines.value = (/*Bit16u*/int)(VGA.vga.vmemsize / bytes.value);
-            return 0x00;
-        case 0x01:	/* Get lengths */
+
+        case 0x02: // set scan length in bytes
+            new_offset = val / bytes_per_offset;
+            if ((val % bytes_per_offset)!=0) new_offset++;
+
+            if (new_offset > S3_MAX_OFFSET)
+                return VESA_HW_UNSUPPORTED; // scanline too long
+            VGA.vga.config.scan_len = new_offset;
+            VGA_draw.VGA_CheckScanLength();
             break;
+
+        case 0x03: // get maximum scan line length
+            // the smaller of either the hardware maximum scanline length or
+            // the limit to get full y resolution of this mode
+            new_offset = S3_MAX_OFFSET;
+            if ((new_offset * bytes_per_offset * screen_height) > vmemsize)
+                new_offset = vmemsize / (bytes_per_offset * screen_height);
+            break;
+
         default:
-            return 0x1;			//Illegal call
+            return VESA_UNIMPLEMENTED;
         }
-        if (subcall!=0x01) {
-            /* Write the scan line to video card the simple way */
-            if ((VGA.vga.config.scan_len & 7)!=0)
-                VGA.vga.config.scan_len += 8;
-            VGA.vga.config.scan_len /= 8;
-        }
-        if(Int10_modes.CurMode.type==VGA.M_LIN4) {
-            pixels.value=(VGA.vga.config.scan_len*16)/bpp;
-            bytes.value=VGA.vga.config.scan_len*2;
-            lines.value = (/*Bit16u*/int)(VGA.vga.vmemsize /( bytes.value*4));
-        }
-        else {
-            pixels.value=(VGA.vga.config.scan_len*8)/bpp;
-            bytes.value=VGA.vga.config.scan_len*8;
-            lines.value = (/*Bit16u*/int)(VGA.vga.vmemsize / bytes.value);
-        }
-        VGA.VGA_StartResize();
-        return 0x0;
+
+        // set up the return values
+        bytes.value = (new_offset * bytes_per_offset) & 0xFFFF;
+        pixels.value = (new_offset * pixels_per_offset) & 0xFFFF;
+        if (bytes.value == 0)
+            // return failure on division by zero
+            // some real VESA BIOS implementations may crash here
+            return VESA_FAIL;
+
+        lines.value = (vmemsize / bytes.value) & 0xFFFF;
+
+        if (Int10_modes.CurMode.type==VGA.M_TEXT)
+            lines.value *= Int10_modes.CurMode.cheight;
+
+        return VESA_SUCCESS;
     }
 
     static public /*Bit8u*/short VESA_SetDisplayStart(/*Bit16u*/int x,/*Bit16u*/int y) {
-        //TODO Maybe do things differently with lowres double line modes?
-        /*Bitu*/int start;
+        // TODO wait for retrace in case bl==0x80
+        /*Bitu*/int pixels_per_offset;
+        /*Bitu*/int panning_factor = 1;
+
         switch (Int10_modes.CurMode.type) {
+        case VGA.M_TEXT:
         case VGA.M_LIN4:
-            start=VGA.vga.config.scan_len*16*y+x;
-            VGA.vga.config.display_start=start/8;
-            IoHandler.IO_Read(0x3da);
-            IoHandler.IO_Write(0x3c0,0x13+32);
-            IoHandler.IO_Write(0x3c0,start % 8);
+            pixels_per_offset = 16;
             break;
         case VGA.M_LIN8:
-            start=VGA.vga.config.scan_len*8*y+x;
-            VGA.vga.config.display_start=start/4;
-            IoHandler.IO_Read(0x3da);
-            IoHandler.IO_Write(0x3c0,0x13+32);
-            IoHandler.IO_Write(0x3c0,(start % 4)*2);
+            panning_factor = 2; // the panning register ignores bit0 in this mode
+            pixels_per_offset = 8;
             break;
-        case VGA.M_LIN16:
         case VGA.M_LIN15:
-            start=VGA.vga.config.scan_len*8*y+x*2;
-            VGA.vga.config.display_start=start/4;
+        case VGA.M_LIN16:
+            panning_factor = 2; // this may be DOSBox specific
+            pixels_per_offset = 4;
             break;
         case VGA.M_LIN32:
-            start=VGA.vga.config.scan_len*8*y+x*4;
-            VGA.vga.config.display_start=start/4;
+            pixels_per_offset = 2;
             break;
         default:
-            return 0x1;
+            return VESA_MODE_UNSUPPORTED;
         }
-        return 0x00;
+        // We would have to divide y by the character height for text modes and
+        // write the remainder to the CRTC preset row scan register,
+        // but VBE2 BIOSes that actually get that far also don't.
+        // Only a VBE3 BIOS got it right.
+        /*Bitu*/int virtual_screen_width = VGA.vga.config.scan_len * pixels_per_offset;
+        /*Bitu*/int new_start_pixel = virtual_screen_width * y + x;
+        /*Bitu*/int new_crtc_start = new_start_pixel / (pixels_per_offset/2);
+        /*Bitu*/int new_panning = new_start_pixel % (pixels_per_offset/2);
+        new_panning *= panning_factor;
+
+        VGA.vga.config.display_start = new_crtc_start;
+
+        // Setting the panning register is nice as it allows for super smooth
+        // scrolling, but if we hit the retrace pulse there may be flicker as
+        // panning and display start are latched at different times.
+
+        IoHandler.IO_Read(0x3da);              // reset attribute flipflop
+        IoHandler.IO_Write(0x3c0,0x13 | 0x20); // panning register, screen on
+        IoHandler.IO_Write(0x3c0,new_panning);
+
+        return VESA_SUCCESS;
     }
 
     public static /*Bit8u*/short VESA_GetDisplayStart(/*Bit16u*/IntRef x,/*Bit16u*/IntRef y) {
-        /*Bitu*/int times=(VGA.vga.config.display_start*4)/(VGA.vga.config.scan_len*8);
-        /*Bitu*/int rem=(VGA.vga.config.display_start*4) % (VGA.vga.config.scan_len*8);
-        /*Bitu*/int pan=VGA.vga.config.pel_panning;
+        /*Bitu*/int pixels_per_offset;
+        /*Bitu*/int panning_factor = 1;
+
         switch (Int10_modes.CurMode.type) {
+        case VGA.M_TEXT:
+            pixels_per_offset = 16;
+            break;
+        case VGA.M_LIN4:
+            pixels_per_offset = 16;
+            break;
         case VGA.M_LIN8:
-            y.value=(/*Bit16u*/int)times;
-            x.value=(/*Bit16u*/int)(rem+pan);
+            panning_factor = 2;
+            pixels_per_offset = 8;
+            break;
+        case VGA.M_LIN15:
+        case VGA.M_LIN16:
+            panning_factor = 2;
+            pixels_per_offset = 4;
+            break;
+        case VGA.M_LIN32:
+            pixels_per_offset = 2;
             break;
         default:
-            return 0x1;
+            return VESA_MODE_UNSUPPORTED;
         }
-        return 0x00;
+
+        IoHandler.IO_Read(0x3da);              // reset attribute flipflop
+        IoHandler.IO_Write(0x3c0,0x13 | 0x20); // panning register, screen on
+        /*Bit8u*/short panning = IoHandler.IO_Read(0x3c1);
+
+        /*Bitu*/int virtual_screen_width = VGA.vga.config.scan_len * pixels_per_offset;
+        /*Bitu*/int start_pixel = VGA.vga.config.display_start * (pixels_per_offset/2) + panning / panning_factor;
+
+        y.value = start_pixel / virtual_screen_width;
+        x.value = start_pixel % virtual_screen_width;
+        return VESA_SUCCESS;
     }
 
     static private jdos.cpu.Callback.Handler VESA_SetWindow = new jdos.cpu.Callback.Handler() {
@@ -453,7 +527,7 @@ public class Int10_vesa {
             return "Int10_vesa.VESA_SetWindow";
         }
         public /*Bitu*/int call() {
-            if (CPU_Regs.reg_ebx.high()!=0) {CPU_Regs.reg_eax.high(0);CPU_Regs.reg_edx.word(VESA_GetCPUWindow(CPU_Regs.reg_ebx.low()));}
+            if (CPU_Regs.reg_ebx.high()!=0) {CPU_Regs.reg_eax.high(VESA_GetCPUWindow(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx));}
             else CPU_Regs.reg_eax.high(VESA_SetCPUWindow(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_edx.low()));
             CPU_Regs.reg_eax.low(0x4f);
             return 0;
@@ -485,6 +559,10 @@ public class Int10_vesa {
             return "Int10_vesa.VESA_PMSetStart";
         }
         public /*Bitu*/int call() {
+            // This function is from VBE2 and directly sets the VGA
+	        // display start address.
+
+	        // TODO wait for retrace in case bl==0x80
             /*Bit32u*/int start = (CPU_Regs.reg_edx.word() << 16) | CPU_Regs.reg_ecx.word();
             VGA.vga.config.display_start = start;
             return 0;

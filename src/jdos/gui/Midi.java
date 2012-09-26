@@ -7,6 +7,7 @@ import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
+import jdos.util.StringHelper;
 
 import javax.sound.midi.*;
 import java.io.InputStream;
@@ -47,6 +48,8 @@ public class Midi extends Module_base {
         public static class Sysex {
             byte[] buf = new byte[SYSEX_SIZE];
             int used;
+            int delay;
+		    long start;
         }
         public Sysex sysex = new Sysex();
         Receiver handler;
@@ -57,6 +60,10 @@ public class Midi extends Module_base {
     static private SysexMessage sysex_msg = new SysexMessage();
 
     static public void MIDI_RawOutByte(/*Bit8u*/int data) {
+        if (midi.sysex.start!=0) {
+            /*Bit32u*/long passed_ticks = System.currentTimeMillis() - midi.sysex.start;
+            if (passed_ticks < midi.sysex.delay) try {Thread.sleep(midi.sysex.delay - passed_ticks);} catch (InterruptedException e){}
+        }
         /* Test for a realtime MIDI message */
         if (data>=0xf8) {
             try {msg.setMessage(data);} catch (Exception e) {}
@@ -70,8 +77,25 @@ public class Midi extends Module_base {
                 return;
             } else {
                 midi.sysex.buf[midi.sysex.used++]=(byte)0xf7;
-                try {sysex_msg.setMessage(midi.sysex.buf, midi.sysex.used);} catch (Exception e) {}
-                midi.handler.send(sysex_msg, -1);
+
+                if ((midi.sysex.start!=0) && (midi.sysex.used >= 4) && (midi.sysex.used <= 9) && (midi.sysex.buf[1] == 0x41) && (midi.sysex.buf[3] == 0x16)) {
+                    if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_ALL, LogSeverities.LOG_ERROR,"MIDI:Skipping invalid MT-32 SysEx midi message (too short to contain a checksum)");
+                } else {
+    //				LOG(LOG_ALL,LOG_NORMAL)("Play sysex; address:%02X %02X %02X, length:%4d, delay:%3d", midi.sysex.buf[5], midi.sysex.buf[6], midi.sysex.buf[7], midi.sysex.used, midi.sysex.delay);
+                    try {sysex_msg.setMessage(midi.sysex.buf, midi.sysex.used);} catch (Exception e) {}
+                    midi.handler.send(sysex_msg, -1);
+                    if (midi.sysex.start!=0) {
+                        if (midi.sysex.buf[5] == 0x7F) {
+                            midi.sysex.delay = 290; // All Parameters reset
+                        } else if (midi.sysex.buf[5] == 0x10 && midi.sysex.buf[6] == 0x00 && midi.sysex.buf[7] == 0x04) {
+                            midi.sysex.delay = 145; // Viking Child
+                        } else if (midi.sysex.buf[5] == 0x10 && midi.sysex.buf[6] == 0x00 && midi.sysex.buf[7] == 0x01) {
+                            midi.sysex.delay = 30; // Dark Sun 1
+                        } else midi.sysex.delay = (/*Bitu*/int)(((float)(midi.sysex.used) * 1.25f) * 1000.0f / 3125.0f) + 2;
+                        midi.sysex.start = System.currentTimeMillis();
+                    }
+                }
+
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_ALL, LogSeverities.LOG_NORMAL,"Sysex message size "+midi.sysex.used);
 //                if (CaptureState & CAPTURE_MIDI) {
 //                    CAPTURE_AddMidi( true, midi.sysex.used-1, &midi.sysex.buf[1]);
@@ -108,9 +132,17 @@ public class Midi extends Module_base {
         super(configuration);
         Section_prop section=(Section_prop)configuration;
 		String dev=section.Get_string("mididevice");
-		//const char * conf=section->Get_string("midiconfig");
+        String conf=section.Get_string("midiconfig");
 		/* If device = "default" go for first handler that works */
 //		MAPPER_AddHandler(MIDI_SaveRawEvent,MK_f8,MMOD1|MMOD2,"caprawmidi","Cap MIDI");
+        midi.sysex.delay = 0;
+		midi.sysex.start = 0;
+		if (conf.contains("delaysysex")) {
+			midi.sysex.start = System.currentTimeMillis();
+            conf = StringHelper.replace(conf, "delaysysex", "").trim();
+			Log.log_msg("MIDI:Using delayed SysEx processing");
+		}
+
 		midi.status=0x00;
 		midi.cmd_pos=0;
 		midi.cmd_len=0;

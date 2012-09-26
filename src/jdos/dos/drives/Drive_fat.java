@@ -1102,11 +1102,13 @@ public class Drive_fat extends Dos_Drive {
             /*Bit32s*/
             int fileidx = 2;
             if (dirClust.value == 0) fileidx = 0;    // root directory
-            while (directoryBrowse(dirClust.value, fileEntry, fileidx)) {
+            int last_idx=0;
+            while (directoryBrowse(dirClust.value, fileEntry, fileidx, last_idx)) {
                 if (StringHelper.memcmp(fileEntry.entryname, pathName, 11) == 0) {
                     attr.value = fileEntry.attrib;
                     return true;
                 }
+                last_idx=fileidx;
                 fileidx++;
             }
             return false;
@@ -1115,6 +1117,10 @@ public class Drive_fat extends Dos_Drive {
     }
 
     public boolean directoryBrowse(/*Bit32u*/long dirClustNumber, DirEntry useEntry, /*Bit32s*/int entNum) {
+        return directoryBrowse(dirClustNumber, useEntry, entNum, 0);
+    }
+
+    public boolean directoryBrowse(/*Bit32u*/long dirClustNumber, DirEntry useEntry, /*Bit32s*/int entNum, int start) {
         DirEntry[] sectbuf = new DirEntry[16];    /* 16 directory entries per sector */
         /*Bit32u*/
         long logentsector;    /* Logical entry sector */
@@ -1123,7 +1129,10 @@ public class Drive_fat extends Dos_Drive {
         /*Bit32u*/
         long tmpsector;
         /*Bit16u*/
-        int dirPos = 0;
+        if ((start<0) || (start>65535)) return false;
+        /*Bit16u*/int dirPos = start;
+        if (entNum<start) return false;
+        entNum-=start;
 
         for (int i = 0; i < sectbuf.length; i++)
             sectbuf[i] = new DirEntry();

@@ -1002,10 +1002,10 @@ public class Dos_shell extends Program {
                     if (source_x_len>0) {
                         if (source_x.charAt(source_x_len-1)==':') has_drive_spec = true;
                     }
-                    if (!has_drive_spec) {
+                    if (!has_drive_spec && !source_p.contains("*") && !source_p.contains("?")) { //doubt that fu*\*.* is valid
                         if (Dos_files.DOS_FindFirst(source_x,0xffff & ~Dos_system.DOS_ATTR_VOLUME)) {
                             dta.GetResult(name,size,date,time,attr);
-                            if ((attr.value & Dos_system.DOS_ATTR_DIRECTORY)!=0 && source_p.indexOf("*")<0 && source_p.indexOf("?")<0)
+                            if ((attr.value & Dos_system.DOS_ATTR_DIRECTORY)!=0)
                                 source_x+="\\*.*";
                         }
                     }

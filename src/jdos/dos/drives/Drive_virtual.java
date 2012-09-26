@@ -176,12 +176,10 @@ public class Drive_virtual extends Dos_Drive {
         return false;
     }    
 	public boolean AllocationInfo(/*Bit16u*/IntRef _bytes_sector,/*Bit8u*/ShortRef _sectors_cluster,/*Bit16u*/IntRef _total_clusters,/*Bit16u*/IntRef _free_clusters) {
-        /* Always report 100 mb free should be enough */
-        /* Total size is always 1 gb */
         _bytes_sector.value=512;
-        _sectors_cluster.value=127;
-        _total_clusters.value=16513;
-        _free_clusters.value=0;
+        _sectors_cluster.value=32;
+        _total_clusters.value=65535; // total size is always 1 gb
+        _free_clusters.value=0; // nothing free here
         return true;
     }
 	public boolean FileExists(String name) {

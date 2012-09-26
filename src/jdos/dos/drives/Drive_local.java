@@ -411,8 +411,6 @@ public class Drive_local extends Dos_Drive {
     }
 
     public boolean AllocationInfo(/*Bit16u*/IntRef _bytes_sector,/*Bit8u*/ShortRef _sectors_cluster,/*Bit16u*/IntRef _total_clusters,/*Bit16u*/IntRef _free_clusters) {
-        /* Always report 100 mb free should be enough */
-        /* Total size is always 1 gb */
         _bytes_sector.value=allocation.bytes_sector;
         _sectors_cluster.value=allocation.sectors_cluster;
         _total_clusters.value=allocation.total_clusters;

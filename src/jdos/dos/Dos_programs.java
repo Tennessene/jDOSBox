@@ -100,9 +100,9 @@ public class Dos_programs {
                         str_size="512,1,2880,2880";/* All space free */
                         mediaid=0xF0;		/* Floppy 1.44 media */
                     } else if (type.equals("dir")) {
-                        // 512*127*16383==~1GB total size
-                        // 512*127*4031==~250MB total free size
-                        str_size="512,127,16383,4031";
+                        // 512*32*65535==~1GB total size
+                        // 512*32*16000==~250MB total free size
+                        str_size="512,32,65535,16000";
                         mediaid=0xF8;		/* Hard Disk */
                     } else if (type.equals("cdrom")) {
                         str_size="2048,1,65535,0";
@@ -114,12 +114,14 @@ public class Dos_programs {
                     /* Parse the free space in mb's (kb's for floppies) */
                     String mb_size;
                     if((mb_size=cmd.FindString("-freesize",true))!=null) {
-                        /*Bit16u*/int sizemb = 0;
-                        try {Integer.parseInt(mb_size);} catch (Exception e){e.printStackTrace();}
+                        /*Bit16u*/int freesize = 0;
+                        try {freesize=Integer.parseInt(mb_size);} catch (Exception e){e.printStackTrace();}
                         if (type.equals("floppy")) {
-                            str_size = "512,1,2880,"+String.valueOf(sizemb*1024/(512*1));
+                            // freesize in kb
+                            str_size = "512,1,2880,"+String.valueOf(freesize*1024/(512*1));
                         } else {
-                            str_size = "512,127,16513,"+String.valueOf(sizemb*1024*1024/(512*127));
+                            // freesize in mb
+                            str_size = "512,32,65535,"+String.valueOf(freesize*1024*1024/(512*32));
                         }
                     }
 
@@ -968,7 +970,7 @@ public class Dos_programs {
                 if (type.equals("floppy")) {
                     mediaid=0xF0;
                 } else if (type.equals("iso")) {
-                    str_size="650,127,16513,1700";
+                    str_size="2048,1,60000,0"; // ignored, see drive_iso.cpp (AllocationInfo)
                     mediaid=0xF8;
                     fstype = "iso";
                 }

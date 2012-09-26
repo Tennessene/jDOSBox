@@ -730,13 +730,25 @@ public class DosMSCDEX {
             BooleanRef media=new BooleanRef(),changed=new BooleanRef(),trayOpen=new BooleanRef();
 
             dinfo[subUnit].lastResult = GetMediaStatus(subUnit,media,changed,trayOpen);
-            /*Bit32u*/long status = ((trayOpen.value?1:0) << 0)					|	// Drive is open ?
-                            ((dinfo[subUnit].locked?1:0) << 1)	|	// Drive is locked ?
-                            (1<<2)							|	// raw + cooked sectors
-                            (1<<4)							|	// Can read sudio
-                            (1<<8)							|	// Can control audio
-                            (1<<9)							|	// Red book & HSG
-                            (((!media.value)?1:0) << 11);					// Drive is empty ?
+
+            if (dinfo[subUnit].audioPlay) {
+                // Check if audio is still playing....
+                Dos_cdrom.TMSF start = new Dos_cdrom.TMSF(),end = new Dos_cdrom.TMSF();
+                BooleanRef playing=new BooleanRef(),pause=new BooleanRef();
+                if (GetAudioStatus(subUnit,playing,pause,start,end))
+                    dinfo[subUnit].audioPlay = playing.value;
+                else
+                    dinfo[subUnit].audioPlay = false;
+            }
+
+            /*Bit32u*/long status = ((trayOpen.value?1:0) << 0)		|	// Drive is open ?
+                            ((dinfo[subUnit].locked?1:0) << 1)		|	// Drive is locked ?
+                            (1<<2)									|	// raw + cooked sectors
+                            (1<<4)									|	// Can read sudio
+                            (1<<8)									|	// Can control audio
+                            (1<<9)									|	// Red book & HSG
+                            ((dinfo[subUnit].audioPlay?1:0) << 10)	|	// Audio is playing ?
+                            ((media.value?0:1) << 11);					// Drive is empty ?
             return status;
         }
 

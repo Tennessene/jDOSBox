@@ -2749,6 +2749,7 @@ public class CPU extends Module_base {
             if (CPU_Regs.reg_eip!=cpu.hlt.eip || Segs_CSval != cpu.hlt.cs) {
                 cpudecoder=cpu.hlt.old_decoder;
             } else {
+                CPU_IODelayRemoved += CPU_Cycles;
                 CPU_Cycles=0;
             }
             return 0;

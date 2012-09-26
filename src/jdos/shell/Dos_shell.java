@@ -982,6 +982,8 @@ public class Dos_shell extends Program {
                 do {
                     int plus = source_p.indexOf('+');
                     String source_x;
+                    // If StripWord() previously cut at a space before a plus then
+			        // set concatenate flag on last source and remove leading plus
                     if (plus == 0 && sources.size()>0) {
                         copysource s = (copysource)sources.elementAt(sources.size()-1);
                         s.concat = true;
@@ -1003,7 +1005,7 @@ public class Dos_shell extends Program {
                     if (!has_drive_spec) {
                         if (Dos_files.DOS_FindFirst(source_x,0xffff & ~Dos_system.DOS_ATTR_VOLUME)) {
                             dta.GetResult(name,size,date,time,attr);
-                            if ((attr.value & Dos_system.DOS_ATTR_DIRECTORY)!=0 && source_p.indexOf("*.*")<0)
+                            if ((attr.value & Dos_system.DOS_ATTR_DIRECTORY)!=0 && source_p.indexOf("*")<0 && source_p.indexOf("?")<0)
                                 source_x+="\\*.*";
                         }
                     }

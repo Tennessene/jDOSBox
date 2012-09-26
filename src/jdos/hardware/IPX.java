@@ -1100,7 +1100,7 @@ public class IPX extends Module_base {
                 if("startserver".equals(temp_line)) {
                     if(!isIpxServer) {
                         if(incomingPacket.connected) {
-                            WriteOut("IPX Tunneling Client alreadu connected to another server.  Disconnect first.\n");
+                            WriteOut("IPX Tunneling Client already connected to another server.  Disconnect first.\n");
                             return;
                         }
                         boolean startsuccess;

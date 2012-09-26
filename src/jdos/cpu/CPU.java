@@ -2759,6 +2759,7 @@ public class CPU extends Module_base {
 
     static public void CPU_HLT( /*Bitu*/int oldeip) {
         CPU_Regs.reg_eip=oldeip;
+        CPU_IODelayRemoved += CPU_Cycles;
         CPU_Cycles=0;
         cpu.hlt.cs=Segs_CSval;
         cpu.hlt.eip=CPU_Regs.reg_eip;

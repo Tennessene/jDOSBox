@@ -100,12 +100,12 @@ public class Dos_programs {
                         str_size="512,1,2880,2880";/* All space free */
                         mediaid=0xF0;		/* Floppy 1.44 media */
                     } else if (type.equals("dir")) {
-                        // 512*32*65535==~1GB total size
+                        // 512*32*32765==~500MB total size
                         // 512*32*16000==~250MB total free size
-                        str_size="512,32,65535,16000";
+                        str_size="512,32,32765,16000";
                         mediaid=0xF8;		/* Hard Disk */
                     } else if (type.equals("cdrom")) {
-                        str_size="2048,1,65535,0";
+                        str_size="2048,1,32765,0";
                         mediaid=0xF8;		/* Hard Disk */
                     } else {
                         WriteOut(Msg.get("PROGAM_MOUNT_ILL_TYPE"),new Object[]{type});
@@ -120,8 +120,13 @@ public class Dos_programs {
                             // freesize in kb
                             str_size = "512,1,2880,"+String.valueOf(freesize*1024/(512*1));
                         } else {
+                            long total_size_cyl=32765;
+                            long free_size_cyl=freesize*1024*1024/(512*32);
+                            if (free_size_cyl>65534) free_size_cyl=65534;
+                            if (total_size_cyl<free_size_cyl) total_size_cyl=free_size_cyl+10;
+                            if (total_size_cyl>65534) total_size_cyl=65534;
                             // freesize in mb
-                            str_size = "512,32,65535,"+String.valueOf(freesize*1024*1024/(512*32));
+                            str_size = "512,32,"+String.valueOf(total_size_cyl)+",65535,"+String.valueOf(free_size_cyl);
                         }
                     }
 

@@ -178,7 +178,7 @@ public class Drive_virtual extends Dos_Drive {
 	public boolean AllocationInfo(/*Bit16u*/IntRef _bytes_sector,/*Bit8u*/ShortRef _sectors_cluster,/*Bit16u*/IntRef _total_clusters,/*Bit16u*/IntRef _free_clusters) {
         _bytes_sector.value=512;
         _sectors_cluster.value=32;
-        _total_clusters.value=65535; // total size is always 1 gb
+        _total_clusters.value=32765; // total size is always 500 MB
         _free_clusters.value=0; // nothing free here
         return true;
     }

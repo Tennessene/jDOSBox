@@ -38,6 +38,17 @@ public class Pic extends Module_base {
     }
 
     public static void PIC_ActivateIRQ(/*Bitu*/int irq) {
+        if (CPU.CPU_Cycles!=0) {
+            // CPU_Cycles nonzero means the interrupt was triggered by an I/O
+            // register write rather than an event.
+            // Real hardware executes 0 to ~13 NOPs or comparable instructions
+            // before the processor picks up the interrupt. Let's try with 2
+            // cycles here.
+            // Required by Panic demo (irq0), It came from the desert (MPU401)
+            // Does it matter if CPU_CycleLeft becomes negative?
+            CPU.CPU_CycleLeft += (CPU.CPU_Cycles-2);
+            CPU.CPU_Cycles=2;
+        }
         if( irq < 8 ) {
             irqs[irq].active = true;
             if (!irqs[irq].masked) {

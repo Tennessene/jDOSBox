@@ -93,7 +93,7 @@ public class Callback {
         /*Bit16u*/int oldcs=CPU.Segs_CSval;
         /*Bit32u*/int oldeip=CPU_Regs.reg_eip;
         CPU_Regs.SegSet16CS(CB_SEG);
-        CPU_Regs.reg_eip=call_idle*CB_SIZE;
+        CPU_Regs.reg_eip=CB_SOFFSET+call_idle*CB_SIZE;
         Dosbox.DOSBOX_RunMachine();
         CPU_Regs.reg_eip=oldeip;
         CPU_Regs.SegSet16CS(oldcs);

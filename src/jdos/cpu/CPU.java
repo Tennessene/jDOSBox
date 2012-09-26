@@ -543,7 +543,7 @@ public class CPU extends Module_base {
 
     public static /*Bitu*/int CPU_ArchitectureType = CPU_ARCHTYPE_MIXED;
 
-    public static /*Bitu*/int CPU_flag_id_toggle=0;
+    public static /*Bitu*/int CPU_extflags_toggle=0;	// ID and AC flags may be toggled depending on emulated CPU architecture
 
     public static /*Bitu*/int CPU_PrefetchQueueSize=0;
 
@@ -608,7 +608,7 @@ public class CPU extends Module_base {
 //    }
 
     public static void CPU_SetFlags(/*Bitu*/int word,/*Bitu*/int mask) {
-        mask|=CPU_flag_id_toggle;	// ID-flag can be toggled on cpuid-supporting CPUs
+        mask|=CPU_extflags_toggle;	// ID-flag and AC-flag can be toggled on CPUID-supporting CPUs
         CPU_Regs.flags=(CPU_Regs.flags & ~mask)|(word & mask)|2;
         cpu.direction=1-((CPU_Regs.flags & CPU_Regs.DF) >> 9);
     }
@@ -3074,10 +3074,9 @@ public class CPU extends Module_base {
             CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM;
         }
 
-        if (CPU_ArchitectureType>=CPU_ARCHTYPE_486NEW) CPU_flag_id_toggle=CPU_Regs.ID|CPU_Regs.AC;
-
-        else CPU_flag_id_toggle=CPU_Regs.AC;
-
+        if (CPU_ArchitectureType>=CPU_ARCHTYPE_486NEW) CPU_extflags_toggle=(CPU_Regs.ID|CPU_Regs.AC);
+		else if (CPU_ArchitectureType>=CPU_ARCHTYPE_486OLD) CPU_extflags_toggle=CPU_Regs.AC;
+		else CPU_extflags_toggle=0;
 
         if(CPU_CycleMax <= 0) CPU_CycleMax = 3000;
         if(CPU_CycleUp <= 0)   CPU_CycleUp = 500;

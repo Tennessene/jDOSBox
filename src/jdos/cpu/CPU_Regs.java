@@ -23,7 +23,7 @@ public class CPU_Regs extends Flags {
     public static final int MAYBE=0x10000000;
 
     public static final int FMASK_TEST	=	(CF | PF | AF | ZF | SF | OF);
-    public static final int FMASK_NORMAL=	(FMASK_TEST | DF | TF | IF | AC );
+    public static final int FMASK_NORMAL=	(FMASK_TEST | DF | TF | IF);
     public static final int FMASK_ALL	=	(FMASK_NORMAL | IOPL | NT);
 
     public static void SETFLAGBIT(int flag, boolean set) {

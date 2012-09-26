@@ -543,7 +543,9 @@ public class Bios_keyboard {
                 break;
             case 0x12: /* GET EXTENDED SHIFT STATES */
                 CPU_Regs.reg_eax.low(Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS1));
-                CPU_Regs.reg_eax.high(Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS2));
+                CPU_Regs.reg_eax.high((Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS2) & 0x73) |
+		         ((Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS2)&4)<<5) |  // SysReq pressed, bit 7
+		         (Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS3)&0x0c));    // Right Ctrl/Alt pressed, bits 2,3
                 break;
             case 0x55:
                 /* Weird call used by some dos apps */

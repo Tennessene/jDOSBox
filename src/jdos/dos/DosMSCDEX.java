@@ -960,6 +960,7 @@ public class DosMSCDEX {
                         break;
             case 0x05 :	// load media
                         if (!mscdex.LoadUnloadMedia(drive_unit,false)) return 0x02;
+                        break;
             default	:	if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Unsupported IOCTL OUTPUT Subfunction "+Integer.toString(ioctl_fct,16));
                         return 0x03;	// invalid function
         }

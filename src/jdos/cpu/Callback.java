@@ -524,7 +524,7 @@ public class Callback {
 		return CALLBACK_RealPointer(m_callback);
 	}
 
-    public void destroy() {
+    public void Uninstall() {
         if(!installed) return;
         if(m_type == SETUP) {
             if(vectorhandler.installed){

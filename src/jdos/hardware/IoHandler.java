@@ -39,7 +39,7 @@ public class IoHandler {
                 IO_RegisterReadHandler(port,handler,mask,range);
             } else Log.exit("IO_readHandler allready installed port "+Integer.toString(port,16));
         }
-        public void destroy() {
+        public void Uninstall() {
             if(!installed) return;
 	        IO_FreeReadHandler(m_port,m_mask,m_range);
         }
@@ -57,7 +57,7 @@ public class IoHandler {
                 IO_RegisterWriteHandler(port,handler,mask,range);
             } else Log.exit("IO_writeHandler allready installed port "+Integer.toString(port,16));
         }
-        public void destroy() {
+        public void Uninstall() {
             if(!installed) return;
 	        IO_FreeWriteHandler(m_port,m_mask,m_range);
         }

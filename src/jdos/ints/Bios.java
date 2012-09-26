@@ -4,6 +4,7 @@ import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
+import jdos.dos.Dos;
 import jdos.dos.Dos_programs;
 import jdos.dos.Dos_tables;
 import jdos.hardware.*;
@@ -15,6 +16,8 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.types.MachineType;
 import jdos.util.IntRef;
+
+import java.util.Calendar;
 
 public class Bios extends Module_base {
     static public final int BIOS_BASE_ADDRESS_COM1          =0x400;
@@ -409,7 +412,8 @@ public class Bios extends Module_base {
             case 0x00:	/* Get System time */
                 {
                     /*Bit32u*/int ticks=Memory.mem_readd(BIOS_TIMER);
-                    CPU_Regs.reg_eax.low(0);		/* Midnight never passes :) */
+                    CPU_Regs.reg_eax.low(Memory.mem_readb(BIOS_24_HOURS_FLAG));
+			        Memory.mem_writeb(BIOS_24_HOURS_FLAG,0); // reset the "flag"
                     CPU_Regs.reg_ecx.word(ticks >> 16);
                     CPU_Regs.reg_edx.word(ticks & 0xffff);
                     break;
@@ -475,6 +479,23 @@ public class Bios extends Module_base {
 //    #ifndef DOSBOX_CLOCKSYNC
 //    #define DOSBOX_CLOCKSYNC 0
 //    #endif
+
+    static void BIOS_HostTimeSync() {
+        /* Setup time and date */
+        Calendar calendar = Calendar.getInstance();
+
+        Dos.dos.date.day=(byte)calendar.get(Calendar.DAY_OF_MONTH);
+        Dos.dos.date.month=(byte)(calendar.get(Calendar.MONTH)+1);
+        Dos.dos.date.year=(short)calendar.get(Calendar.YEAR);
+
+        /*Bit32u*/long ticks=(long)(((double)(
+            calendar.get(Calendar.HOUR_OF_DAY)*3600*1000+
+            calendar.get(Calendar.MINUTE)*60*1000+
+            calendar.get(Calendar.SECOND)*1000+
+            calendar.get(Calendar.MILLISECOND)))*(((double)Timer.PIT_TICK_RATE/65536.0)/1000.0));
+        Memory.mem_writed(BIOS_TIMER, (int)ticks);
+    }
+
     private static Callback.Handler INT8_Handler = new Callback.Handler() {
         public String getName() {
             return "Bios.INT8_Handler";
@@ -482,6 +503,11 @@ public class Bios extends Module_base {
         public /*Bitu*/int call() {
             /* Increase the bios tick counter */
             /*Bit32u*/int value = Memory.mem_readd(BIOS_TIMER) + 1;
+            if(value >= 0x1800B0) {
+		        // time wrap at midnight
+		        Memory.mem_writeb(BIOS_24_HOURS_FLAG, Memory.mem_readb(BIOS_24_HOURS_FLAG) + 1);
+		        value=0;
+	        }
     //    #if DOSBOX_CLOCKSYNC
     //        static boolean check = false;
     //        if((value %50)==0) {
@@ -1339,6 +1365,7 @@ public class Bios extends Module_base {
         size_extended=IoHandler.IO_Read(0x71);
         IoHandler.IO_Write(0x70,0x31);
         size_extended|=(IoHandler.IO_Read(0x71) << 8);
+        BIOS_HostTimeSync();
     }
 
     private void destroy(){

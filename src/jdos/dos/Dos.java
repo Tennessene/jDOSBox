@@ -63,6 +63,34 @@ public class Dos extends Module_base {
         dos.errorcode=code;
     }
 
+    static final byte DOS_DATE_months[] = {
+        0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    };
+
+    static void DOS_AddDays(short days) {
+        dos.date.day += days;
+        /*Bit8u*/byte monthlimit = DOS_DATE_months[dos.date.month];
+
+        if(dos.date.day > monthlimit) {
+            if((dos.date.year %4 == 0) && (dos.date.month==2)) {
+                // leap year
+                if(dos.date.day > 29) {
+                    dos.date.month++;
+                    dos.date.day -= 29;
+                }
+            } else {
+                //not leap year
+                dos.date.month++;
+                dos.date.day -= monthlimit;
+            }
+            if(dos.date.month > 12) {
+                // year over
+                dos.date.month = 1;
+                dos.date.year++;
+            }
+        }
+    }
+
     static final private boolean DATA_TRANSFERS_TAKE_CYCLES  = true;
     static final private boolean DOS_OVERHEAD = true;
 
@@ -425,6 +453,9 @@ public class Dos extends Module_base {
                 break;
             case 0x2a:		/* Get System Date */
                 {
+                    CPU_Regs.reg_eax.word(0); // get time
+			        Callback.CALLBACK_RunRealInt(0x1a);
+			        if (CPU_Regs.reg_eax.low()!=0) DOS_AddDays(CPU_Regs.reg_eax.low());
                     int a = (14 - dos.date.month)/12;
                     int y = dos.date.year - a;
                     int m = dos.date.month + 12*a - 2;
@@ -437,26 +468,33 @@ public class Dos extends Module_base {
             case 0x2b:		/* Set System Date */
                 if (CPU_Regs.reg_ecx.word()<1980) { CPU_Regs.reg_eax.low(0xff);break;}
                 if ((CPU_Regs.reg_edx.high()>12) || (CPU_Regs.reg_edx.high()==0))	{ CPU_Regs.reg_eax.low(0xff);break;}
-                if ((CPU_Regs.reg_edx.low()>31) || (CPU_Regs.reg_edx.low()==0))	{ CPU_Regs.reg_eax.low(0xff);break;}
+                if (CPU_Regs.reg_edx.low()==0) { CPU_Regs.reg_eax.low(0xff);break;}
+                if (CPU_Regs.reg_edx.low()>DOS_DATE_months[CPU_Regs.reg_edx.high()]) {
+                    if(!((CPU_Regs.reg_edx.high()==2)&&(CPU_Regs.reg_ecx.word()%4 == 0)&&(CPU_Regs.reg_edx.low()==29))) // february pass
+                    { CPU_Regs.reg_eax.low(0xff);break; }
+                }
                 dos.date.year=(short)CPU_Regs.reg_ecx.word();
                 dos.date.month=(byte)CPU_Regs.reg_edx.high();
                 dos.date.day=(byte)CPU_Regs.reg_edx.low();
                 CPU_Regs.reg_eax.low(0);
                 break;
             case 0x2c:		/* Get System Time */
-    //TODO Get time through bios calls date is fixed
-                {
-                    /*	Calculate how many miliseconds have passed */
-                    /*Bitu*/long ticks=5*((Memory.mem_readd(Bios.BIOS_TIMER) & 0xFFFFFFFFl) - time_start);
-                    ticks = ((ticks / 59659) << 16) + ((ticks % 59659) << 16) / 59659;
-                    /*Bitu*/long seconds=(ticks/100);
-                    CPU_Regs.reg_ecx.high((/*Bit8u*/short)(seconds/3600));
-                    CPU_Regs.reg_ecx.low((/*Bit8u*/short)((seconds % 3600)/60));
-                    CPU_Regs.reg_edx.high((/*Bit8u*/short)(seconds % 60));
-                    CPU_Regs.reg_edx.low((/*Bit8u*/short)(ticks % 100));
-                }
+                CPU_Regs.reg_eax.word(0); // get time
+                Callback.CALLBACK_RunRealInt(0x1a);
+                if(CPU_Regs.reg_eax.low()!=0) DOS_AddDays(CPU_Regs.reg_eax.low());
+
+                /*Bitu*/long time=((long)CPU_Regs.reg_ecx.word()<<16)|CPU_Regs.reg_edx.word();
+                /*Bitu*/long ticks=(long)(5.49254945 * (double)time);
+
+                CPU_Regs.reg_edx.low((short)(ticks % 100)); // 1/100 seconds
+                ticks/=100;
+                CPU_Regs.reg_edx.high((short)(ticks % 60)); // seconds
+                ticks/=60;
+                CPU_Regs.reg_ecx.low((short)(ticks % 60)); // minutes
+                ticks/=60;
+                CPU_Regs.reg_ecx.high((short)(ticks % 24)); // hours
                 //Simulate DOS overhead for timing-sensitive games
-                    //Robomaze 2
+                //Robomaze 2
                 overhead();
                 break;
             case 0x2d:		/* Set System Time */
@@ -1316,15 +1354,6 @@ public class Dos extends Module_base {
 
         dos.version.major=5;
         dos.version.minor=0;
-
-        /* Setup time and date */
-        Calendar c = Calendar.getInstance();
-
-        dos.date.day=(/*Bit8u*/byte)c.get(Calendar.DAY_OF_MONTH);
-        dos.date.month=(/*Bit8u*/byte)(c.get(Calendar.MONTH)+1);
-        dos.date.year=(/*Bit16u*/short)c.get(Calendar.YEAR);
-        /*Bit32u*/int ticks=(/*Bit32u*/int)((c.get(Calendar.HOUR)*3600+c.get(Calendar.MINUTE)*60+c.get(Calendar.SECOND))*(float) Timer.PIT_TICK_RATE/65536.0);
-        Memory.mem_writed(Bios.BIOS_TIMER,ticks);
     }
 
     public static Section.SectionFunction DOS_Init = new Section.SectionFunction() {

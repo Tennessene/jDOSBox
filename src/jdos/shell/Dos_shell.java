@@ -1,6 +1,7 @@
 package jdos.shell;
 
 import jdos.Dosbox;
+import jdos.ints.Bios;
 import jdos.ints.Bios_keyboard;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
@@ -19,6 +20,7 @@ import jdos.types.LogTypes;
 import jdos.types.MachineType;
 import jdos.util.*;
 
+import java.util.Calendar;
 import java.util.Vector;
 
 public class Dos_shell extends Program {
@@ -883,7 +885,7 @@ public class Dos_shell extends Program {
     static private boolean ScanCMDBool(StringRef cmd,String check) {
         int pos = 0;
         check = "/"+check;
-        while ((pos = cmd.value.toUpperCase().indexOf(check,pos))>=0) {
+        while ((pos = cmd.value.toUpperCase().indexOf(check.toUpperCase(),pos))>=0) {
             int start = pos;
             pos+=check.length();
             if (cmd.value.length()==pos || cmd.value.charAt(pos)==' ' || cmd.value.charAt(pos)=='\t' || cmd.value.charAt(pos)=='/') {
@@ -1140,6 +1142,76 @@ public class Dos_shell extends Program {
 
             WriteOut(Msg.get("SHELL_CMD_COPY_SUCCESS"),new Object[] {new Integer(count)});
             Dos.dos.dta(save_dta);
+        }
+    };
+
+    handler CMD_DATE = new handler() {
+        public void call(String a) {
+            StringRef args = new StringRef(a);
+            if (HELP(args, "DATE")) return;
+            if(ScanCMDBool(args,"h")) {
+                // synchronize date with host parameter
+                Calendar calendar = Calendar.getInstance();
+
+                CPU_Regs.reg_ecx.word(calendar.get(Calendar.YEAR));
+                CPU_Regs.reg_edx.high(calendar.get(Calendar.MONTH) + 1);
+                CPU_Regs.reg_edx.low(calendar.get(Calendar.DAY_OF_MONTH));
+
+                CPU_Regs.reg_eax.high(0x2b); // set system date
+                Callback.CALLBACK_RunRealInt(0x21);
+                return;
+            }
+            // check if a date was passed in command line
+            String[] parts = StringHelper.split(args.value.trim(), "-");
+            if(parts.length == 3) {
+                try {
+                    int newmonth = Integer.parseInt(parts[0]);
+                    int newday = Integer.parseInt(parts[1]);
+                    int newyear = Integer.parseInt(parts[2]);
+                    CPU_Regs.reg_ecx.word(newyear);
+                    CPU_Regs.reg_edx.high(newmonth);
+                    CPU_Regs.reg_edx.low(newday);
+
+                    CPU_Regs.reg_eax.high(0x2b); // set system date
+                    Callback.CALLBACK_RunRealInt(0x21);
+                    if(CPU_Regs.reg_eax.low()==0xff) WriteOut(Msg.get("SHELL_CMD_DATE_ERROR"));
+                    return;
+                } catch (Exception e) {
+
+                }
+            }
+            // display the current date
+            CPU_Regs.reg_eax.high(0x2a); // get system date
+            Callback.CALLBACK_RunRealInt(0x21);
+
+            String datestring = Msg.get("SHELL_CMD_DATE_DAYS");
+            String day = "";
+            try {
+                int length = Integer.parseInt(datestring.substring(0, 1));
+                if (datestring.length()==length*7+1) {
+                    day = datestring.substring(1+length*CPU_Regs.reg_eax.low());
+                    day = day.substring(0, length);
+                }
+            } catch (Exception e) {
+
+            }
+            boolean dateonly = ScanCMDBool(args,"t");
+            if(!dateonly) WriteOut(Msg.get("SHELL_CMD_DATE_NOW"));
+
+            String formatstring = Msg.get("SHELL_CMD_DATE_FORMAT");
+            if (formatstring.length()!=5) return;
+            StringBuffer buffer = new StringBuffer();
+            for (int i = 0; i < 5; i++) {
+                if(i==1 || i==3) {
+                    buffer.append(formatstring.charAt(i));
+                } else {
+                    if(formatstring.charAt(i)=='M') buffer.append(StringHelper.sprintf("%02d", new Object[] {new Integer(CPU_Regs.reg_edx.high())}));
+                    if(formatstring.charAt(i)=='D') buffer.append(StringHelper.sprintf("%02d", new Object[] {new Integer(CPU_Regs.reg_edx.low())}));
+                    if(formatstring.charAt(i)=='Y') buffer.append(StringHelper.sprintf("%02d", new Object[] {new Integer(CPU_Regs.reg_ecx.word())}));
+                }
+            }
+            WriteOut(day + " " + buffer.toString() + "\n");
+            if(!dateonly) WriteOut(Msg.get("SHELL_CMD_DATE_SETHLP"));
         }
     };
 
@@ -1619,6 +1691,41 @@ public class Dos_shell extends Program {
         }
     };
 
+    handler CMD_TIME = new handler() {
+        public void call(String a) {
+            StringRef args = new StringRef(a);
+            if (HELP(args, "TIME")) return;
+            if(ScanCMDBool(args,"h")) {
+                // synchronize date with host parameter
+                Calendar calendar = Calendar.getInstance();
+
+                // reg_ah=0x2d; // set system time TODO
+                // CALLBACK_RunRealInt(0x21);
+                long ticks=(long)(((double)(calendar.get(Calendar.HOUR_OF_DAY)*3600+
+                                                calendar.get(Calendar.MINUTE)*60+
+                                                calendar.get(Calendar.SECOND)))*18.206481481);
+                Memory.mem_writed(Bios.BIOS_TIMER, (int)ticks);
+                return;
+            }
+            boolean timeonly = ScanCMDBool(args,"t");
+
+            CPU_Regs.reg_eax.high(0x2c); // get system time
+            Callback.CALLBACK_RunRealInt(0x21);
+        /*
+                reg_dl= // 1/100 seconds
+                reg_dh= // seconds
+                reg_cl= // minutes
+                reg_ch= // hours
+        */
+            if(timeonly) {
+                WriteOut(StringHelper.sprintf("%2d:%02d\n", new Object[] {new Integer(CPU_Regs.reg_ecx.high()), new Integer(CPU_Regs.reg_ecx.low())}));
+            } else {
+                WriteOut(Msg.get("SHELL_CMD_TIME_NOW"));
+                WriteOut(StringHelper.sprintf("%2d:%02d:%02d,%02d\n", new Object[] {new Integer(CPU_Regs.reg_ecx.high()), new Integer(CPU_Regs.reg_ecx.low()), new Integer(CPU_Regs.reg_edx.high()), new Integer(CPU_Regs.reg_edx.low())}));
+            }
+        }
+    };
+
     handler CMD_TYPE = new handler() {
         public void call(String a) {
             StringRef args = new StringRef(a);
@@ -1965,6 +2072,7 @@ public class Dos_shell extends Program {
         new SHELL_Cmd(	"CHOICE",	1,			CMD_CHOICE,		"SHELL_CMD_CHOICE_HELP"),
         new SHELL_Cmd(	"CLS",		0,			CMD_CLS,		"SHELL_CMD_CLS_HELP"),
         new SHELL_Cmd(	"COPY",		0,			CMD_COPY,		"SHELL_CMD_COPY_HELP"),
+        new SHELL_Cmd(	"DATE",		0,			CMD_DATE,		"SHELL_CMD_DATE_HELP"),
         new SHELL_Cmd(	"DEL",		0,			CMD_DELETE,		"SHELL_CMD_DELETE_HELP"),
         new SHELL_Cmd(	"DELETE",	1,			CMD_DELETE,		"SHELL_CMD_DELETE_HELP"),
         new SHELL_Cmd(	"ERASE",	1,			CMD_DELETE,		"SHELL_CMD_DELETE_HELP"),
@@ -1987,6 +2095,7 @@ public class Dos_shell extends Program {
         new SHELL_Cmd(	"SET",		1,			CMD_SET,		"SHELL_CMD_SET_HELP"),
         new SHELL_Cmd(	"SHIFT",	1,			CMD_SHIFT,		"SHELL_CMD_SHIFT_HELP"),
         new SHELL_Cmd(	"SUBST",	1,			CMD_SUBST,		"SHELL_CMD_SUBST_HELP"),
+        new SHELL_Cmd(	"TIME",		0,			CMD_TIME,		"SHELL_CMD_TIME_HELP"),
         new SHELL_Cmd(	"TYPE",		0,			CMD_TYPE,		"SHELL_CMD_TYPE_HELP"),
         new SHELL_Cmd(	"VER",		0,			CMD_VER,		"SHELL_CMD_VER_HELP"),
         new SHELL_Cmd(null,0,null,null)

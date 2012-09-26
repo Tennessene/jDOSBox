@@ -5,6 +5,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.IO;
 import jdos.hardware.Memory;
+import jdos.hardware.Pic;
 import jdos.hardware.Timer;
 import jdos.hardware.serialport.Serialports;
 import jdos.ints.Bios;
@@ -482,17 +483,19 @@ public class Dos extends Module_base {
                 CPU_Regs.reg_eax.word(0); // get time
                 Callback.CALLBACK_RunRealInt(0x1a);
                 if(CPU_Regs.reg_eax.low()!=0) DOS_AddDays(CPU_Regs.reg_eax.low());
+                CPU_Regs.reg_eax.high(0x2c);
 
-                /*Bitu*/long time=((long)CPU_Regs.reg_ecx.word()<<16)|CPU_Regs.reg_edx.word();
-                /*Bitu*/long ticks=(long)(5.49254945 * (double)time);
+                /*Bitu*/long ticks=((long)CPU_Regs.reg_ecx.word()<<16)|CPU_Regs.reg_edx.word();
+                if(time_start<=ticks) ticks-=time_start;
+                /*Bitu*/long time=(long)((100.0/((double) Timer.PIT_TICK_RATE/65536.0)) * (double)ticks);
 
-                CPU_Regs.reg_edx.low((short)(ticks % 100)); // 1/100 seconds
-                ticks/=100;
-                CPU_Regs.reg_edx.high((short)(ticks % 60)); // seconds
-                ticks/=60;
-                CPU_Regs.reg_ecx.low((short)(ticks % 60)); // minutes
-                ticks/=60;
-                CPU_Regs.reg_ecx.high((short)(ticks % 24)); // hours
+                CPU_Regs.reg_edx.low((short)(time % 100)); // 1/100 seconds
+                time/=100;
+                CPU_Regs.reg_edx.high((short)(time % 60)); // seconds
+                time/=60;
+                CPU_Regs.reg_ecx.low((short)(time % 60)); // minutes
+                time/=60;
+                CPU_Regs.reg_ecx.high((short)(time % 24)); // hours
                 //Simulate DOS overhead for timing-sensitive games
                 //Robomaze 2
                 overhead();

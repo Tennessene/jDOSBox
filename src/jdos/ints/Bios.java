@@ -104,6 +104,7 @@ public class Bios extends Module_base {
     static public int BIOS_DEFAULT_IRQ0_LOCATION()		{return Memory.RealMake(0xf000,0xfea5);}
     static public int BIOS_DEFAULT_IRQ1_LOCATION()		{return Memory.RealMake(0xf000,0xe987);}
     static public int BIOS_DEFAULT_IRQ2_LOCATION()		{return Memory.RealMake(0xf000,0xff55);}
+    static public int BIOS_DEFAULT_RESET_LOCATION()		{return Memory.RealMake(0xf000,0xe05b);}
 
     /* maximum of scancodes handled by keyboard bios routines */
     static public final int MAX_SCAN_CODE =0x58;
@@ -1166,10 +1167,14 @@ public class Bios extends Module_base {
         callback[10].Set_RealVec(0x18);
         /*RealPt*/int rptr = callback[10].Get_RealPointer();
         Memory.RealSetVec(0x19,rptr);
-        // set system BIOS entry point too
-        Memory.phys_writeb(0xFFFF0,0xEA);	// FARJMP
-        Memory.phys_writew(0xFFFF1,Memory.RealOff(rptr));	// offset
-        Memory.phys_writew(0xFFFF3,Memory.RealSeg(rptr));	// segment
+        // power on selftest routine location
+		Memory.phys_writeb(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+0,0xEA);				// FARJMP
+		Memory.phys_writew(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+1,Memory.RealOff(rptr));	// offset
+		Memory.phys_writew(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+3,Memory.RealSeg(rptr));	// segment
+		// reset jump (directed to POST)
+		Memory.phys_writeb(0xFFFF0,0xEA);		// FARJMP
+		Memory.phys_writew(0xFFFF1,Memory.RealOff(BIOS_DEFAULT_RESET_LOCATION()));	// offset
+		Memory.phys_writew(0xFFFF3,Memory.RealSeg(BIOS_DEFAULT_RESET_LOCATION()));	// segment
 
         /* Irq 2 */
         /*Bitu*/int call_irq2=Callback.CALLBACK_Allocate();

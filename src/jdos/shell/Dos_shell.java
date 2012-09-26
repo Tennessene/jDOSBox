@@ -982,6 +982,14 @@ public class Dos_shell extends Program {
                 do {
                     int plus = source_p.indexOf('+');
                     String source_x;
+                    if (plus == 0 && sources.size()>0) {
+                        copysource s = (copysource)sources.elementAt(sources.size()-1);
+                        s.concat = true;
+                        if (source_p.length()==1)
+                            break;
+                        source_p = source_p.substring(1);
+                        plus = source_p.indexOf('+');
+                    }
                     if (plus>=0) {
                         source_x = source_p.substring(0, plus);
                     } else {

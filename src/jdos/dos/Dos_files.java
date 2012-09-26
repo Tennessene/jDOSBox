@@ -92,7 +92,7 @@ public class Dos_files {
             case '!':	case '%':	case '{':	case '}':	case '`':	case '~':
             case '_':	case '-':	case '.':	case '*':	case '?':	case '&':
             case '\'':	case '+':	case '^':	case 246:	case 255:	case 0xa0:
-            case 0xe5:	case 0xbd:
+            case 0xe5:	case 0xbd: case 0x9d:
                 upname[w++]=c;
                 break;
             default:

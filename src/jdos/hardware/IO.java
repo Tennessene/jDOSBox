@@ -199,7 +199,7 @@ public class IO extends Module_base {
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit16u*/int old_ax = CPU_Regs.reg_eax.word();
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
-            CPU_Regs.reg_eax.word(val);  //:TODO was CPU_Regs.reg_al which seems like a bug.  Be sure to trace this call in c to see what is happinging
+            CPU_Regs.reg_eax.word(val);
             CPU_Regs.reg_edx.word(port);
             /*RealPt*/int icb = Callback.CALLBACK_RealPointer(Callback.call_priv_io);
             CPU_Regs.SegSet16CS(Memory.RealSeg(icb));
@@ -234,7 +234,7 @@ public class IO extends Module_base {
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit32u*/int old_eax = CPU_Regs.reg_eax.dword;
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
-            CPU_Regs.reg_eax.dword=val; //:TODO was CPU_Regs.reg_al which seems like a bug.  Be sure to trace this call in c to see what is happinging
+            CPU_Regs.reg_eax.dword=val;
             CPU_Regs.reg_edx.word(port);
             /*RealPt*/int icb = Callback.CALLBACK_RealPointer(Callback.call_priv_io);
             CPU_Regs.SegSet16CS(Memory.RealSeg(icb));

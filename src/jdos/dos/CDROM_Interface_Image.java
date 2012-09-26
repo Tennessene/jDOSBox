@@ -372,7 +372,6 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         return true;
     }
 	public boolean PauseAudio(boolean resume) {
-        if (!player.isPlaying) return false;
         player.isPaused = !resume;
         return true;
     }

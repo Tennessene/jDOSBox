@@ -445,8 +445,20 @@ public class DosMSCDEX {
         boolean StopAudio(/*Bit8u*/short subUnit)
         {
             if (subUnit>=numDrives) return false;
-            if (dinfo[subUnit].audioPlay)	dinfo[subUnit].lastResult = cdrom[subUnit].PauseAudio(false);
-            else							dinfo[subUnit].lastResult = cdrom[subUnit].StopAudio();
+
+            if (dinfo[subUnit].audioPlay) {
+                // Check if audio is still playing....
+                Dos_cdrom.TMSF start=new Dos_cdrom.TMSF(),end=new Dos_cdrom.TMSF();
+                BooleanRef playing = new BooleanRef(), pause = new BooleanRef();
+                if (GetAudioStatus(subUnit,playing,pause,start,end))
+                    dinfo[subUnit].audioPlay = playing.value;
+                else
+                    dinfo[subUnit].audioPlay = false;
+            }
+            if (dinfo[subUnit].audioPlay)
+                dinfo[subUnit].lastResult = cdrom[subUnit].PauseAudio(false);
+            else
+                dinfo[subUnit].lastResult = cdrom[subUnit].StopAudio();
 
             if (dinfo[subUnit].lastResult) {
                 if (dinfo[subUnit].audioPlay) {

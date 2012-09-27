@@ -1302,18 +1302,29 @@ public class Bios extends Module_base {
         callback[9].Set_RealVec(0x71);
 
         /* Reboot */
+        // This handler is an exit for more than only reboots, since we
+		// don't handle these cases
         callback[10].Install(Reboot_Handler,Callback.CB_IRET,"reboot");
+
+        // INT 18h: Enter BASIC
+		// Non-IBM BIOS would display "NO ROM BASIC" here
         callback[10].Set_RealVec(0x18);
         /*RealPt*/int rptr = callback[10].Get_RealPointer();
+
+        // INT 19h: Boot function
+		// This is not a complete reboot as it happens after the POST
+		// We don't handle it, so use the reboot function as exit.
         Memory.RealSetVec(0x19,rptr);
-        // power on selftest routine location
-		Memory.phys_writeb(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+0,0xEA);				// FARJMP
-		Memory.phys_writew(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+1,Memory.RealOff(rptr));	// offset
-		Memory.phys_writew(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+3,Memory.RealSeg(rptr));	// segment
-		// reset jump (directed to POST)
+
+		// The farjump at the processor reset entry point (jumps to POST routine)
 		Memory.phys_writeb(0xFFFF0,0xEA);		// FARJMP
 		Memory.phys_writew(0xFFFF1,Memory.RealOff(BIOS_DEFAULT_RESET_LOCATION()));	// offset
 		Memory.phys_writew(0xFFFF3,Memory.RealSeg(BIOS_DEFAULT_RESET_LOCATION()));	// segment
+
+        // Compatible POST routine location: jump to the callback
+		Memory.phys_writeb(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+0,0xEA);				// FARJMP
+		Memory.phys_writew(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+1,Memory.RealOff(rptr));	// offset
+		Memory.phys_writew(Memory.Real2Phys(BIOS_DEFAULT_RESET_LOCATION())+3,Memory.RealSeg(rptr));	// segment
 
         /* Irq 2 */
         /*Bitu*/int call_irq2=Callback.CALLBACK_Allocate();

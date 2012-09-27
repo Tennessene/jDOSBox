@@ -27,7 +27,7 @@ public class Dos_ioctl {
         } else if (CPU_Regs.reg_eax.low()<0x12) { 				/* those use a diskdrive except 0x0b */
             if (CPU_Regs.reg_eax.low()!=0x0b) {
                 drive=CPU_Regs.reg_ebx.low();if (drive==0) drive = Dos_files.DOS_GetDefaultDrive();else drive--;
-                if( !(( drive < Dos_files.DOS_DRIVES ) && Dos_files.Drives[drive]!=null) ) {
+                if((drive >= 2) && !(( drive < Dos_files.DOS_DRIVES ) && Dos_files.Drives[drive]!=null) ) {
                     Dos.DOS_SetError(Dos.DOSERR_INVALID_DRIVE);
                     return false;
                 }
@@ -120,7 +120,7 @@ public class Dos_ioctl {
             }
             return true;
         case 0x09:		/* Check if block device remote */
-            if (Dos_files.Drives[drive].isRemote()) {
+            if ((drive >= 2) && Dos_files.Drives[drive].isRemote()) {
                 CPU_Regs.reg_edx.word(0x1000);	// device is remote
                 // undocumented bits always clear
             } else {
@@ -138,7 +138,7 @@ public class Dos_ioctl {
             return true;
         case 0x0D:		/* Generic block device request */
             {
-                if (Dos_files.Drives[drive].isRemovable()) {
+                if ((drive >= 2) && Dos_files.Drives[drive].isRemovable()) {
                     Dos.DOS_SetError(Dos.DOSERR_FUNCTION_NUMBER_INVALID);
                     return false;
                 }
@@ -194,11 +194,14 @@ public class Dos_ioctl {
                 return true;
             }
         case 0x0E:			/* Get Logical Drive Map */
-            if (Dos_files.Drives[drive].isRemovable()) {
+            if (drive < 2) {
+                if (Dos_files.Drives[drive]!=null) CPU_Regs.reg_eax.low(drive+1);
+                else CPU_Regs.reg_eax.low(1);
+            } else if (Dos_files.Drives[drive].isRemovable()) {
                 Dos.DOS_SetError(Dos.DOSERR_FUNCTION_NUMBER_INVALID);
                 return false;
-            }
-            CPU_Regs.reg_eax.low(0);		/* Only 1 logical drive assigned */
+            } else CPU_Regs.reg_eax.low(0);	/* Only 1 logical drive assigned */
+            CPU_Regs.reg_eax.high(0x07);
             return true;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_DOSMISC,LogSeverities.LOG_ERROR,"DOS:IOCTL Call "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" unhandled");

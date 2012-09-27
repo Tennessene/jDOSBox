@@ -51,18 +51,18 @@ public class Dos_shell extends Program {
     }
 
     public void Run() {
-        String line;
-        if ((line=cmd.FindStringRemain("/C"))!=null) {
+        StringRef line = new StringRef();
+        if (cmd.FindStringRemainBegin("/C", line)) {
 
             //GTA installer
-            int pos = line.indexOf('\n');
-            if (pos>=0) line = line.substring(0, pos);
-            pos = line.indexOf('\r');
-            if (pos>=0) line = line.substring(0, pos);
+            int pos = line.value.indexOf('\n');
+            if (pos>=0) line.value = line.value.substring(0, pos);
+            pos = line.value.indexOf('\r');
+            if (pos>=0) line.value = line.value.substring(0, pos);
 
             Dos_shell temp = new Dos_shell();
             temp.echo = echo;
-            temp.ParseLine(line);		//for *.exe *.com  |*.bat creates the bf needed by runinternal;
+            temp.ParseLine(line.value);		//for *.exe *.com  |*.bat creates the bf needed by runinternal;
             temp.RunInternal();				// exits when no bf is found.
             return;
         }
@@ -74,8 +74,8 @@ public class Dos_shell extends Program {
         if (Dosbox.machine == MachineType.MCH_HERC) WriteOut(Msg.get("SHELL_STARTUP_HERC"));
         WriteOut(Msg.get("SHELL_STARTUP_END"));
 
-        if ((line=cmd.FindString("/INIT",true))!=null) {
-            ParseLine(line);
+        if ((line.value=cmd.FindString("/INIT",true))!=null) {
+            ParseLine(line.value);
         }
         do {
             if (bf!=null){

@@ -1,5 +1,8 @@
 package jdos.misc.setup;
 
+import jdos.util.StringHelper;
+import jdos.util.StringRef;
+
 import java.util.Vector;
 
 public class CommandLine {
@@ -137,6 +140,47 @@ public class CommandLine {
             value.append(cmds.elementAt(i));
         }
         return value.toString();
+    }
+
+    /* Only used for parsing command.com /C
+     * Allowing /C dir and /Cdir
+     * Restoring quotes back into the commands so command /C mount d "/tmp/a b" works as intended
+     */
+    public boolean FindStringRemainBegin(String name,StringRef value) {
+        int i=-1;
+        value.value = "";
+        if ((i=FindEntry(name, false)) < 0) {
+            int len = name.length();
+            boolean found = false;
+            for (i = 0; i < cmds.size(); i++) {
+                String s = (String) cmds.elementAt(i);
+                if (s.length() > len) s = s.substring(0, len);
+                if (s.equalsIgnoreCase(name)) {
+                    String temp = "";
+                    s = (String) cmds.elementAt(i);
+                    if (s.length() > len)
+                        temp = s.substring(len);
+                    //Restore quotes for correct parsing in later stages
+                    if (temp.contains(" "))
+                        value.value = "\"" + temp + "\"";
+                    else
+                        value.value = temp;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+        i++;
+        for (; i < cmds.size(); i++) {
+            value.value += " ";
+            String temp = (String)cmds.elementAt(i);
+            if (temp.contains(" "))
+                value.value += "\"" + temp + "\"";
+            else
+                value.value += temp;
+        }
+        return true;
     }
 
     public String GetStringRemain() {

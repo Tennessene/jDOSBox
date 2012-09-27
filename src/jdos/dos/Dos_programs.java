@@ -258,6 +258,7 @@ public class Dos_programs {
                     label = drive + "_FLOPPY";
                     newdrive.dirCache.SetLabel(label,iscdrom,true);
                 }
+                if(type.equals("floppy")) Bios_disk.incrementFDD();
                 return;
             }
             WriteOut(Msg.get("PROGRAM_MOUNT_USAGE"),new Object[]{"d:\\dosprogs","d:\\dosprogs"});

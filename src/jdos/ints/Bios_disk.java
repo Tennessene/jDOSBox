@@ -143,16 +143,7 @@ public class Bios_disk {
                 if(!founddisk) {
                     active = false;
                 } else {
-                    /*Bit16u*/int equipment= Memory.mem_readw(Bios.BIOS_CONFIGURATION);
-                    if((equipment&1)!=0) {
-                        /*Bitu*/int numofdisks = (equipment>>6)&3;
-                        numofdisks++;
-                        if(numofdisks > 1) numofdisks=1;//max 2 floppies at the moment
-                        equipment&=~0x00C0;
-                        equipment|=(numofdisks<<6);
-                    } else equipment|=1;
-                    Memory.mem_writew(Bios.BIOS_CONFIGURATION,equipment);
-                    Cmos.CMOS_SetRegister(0x14, (/*Bit8u*/short)(equipment&0xff));
+                    incrementFDD();
                 }
             }
         }
@@ -240,6 +231,19 @@ public class Bios_disk {
             Memory.phys_writeb(dp1physaddr+0x2,(/*Bit8u*/short)tmpheads.value);
             Memory.phys_writeb(dp1physaddr+0xe,(/*Bit8u*/short)tmpsect.value);
         }
+    }
+
+    static public void incrementFDD() {
+        /*Bit16u*/int equipment= Memory.mem_readw(Bios.BIOS_CONFIGURATION);
+        if((equipment&1)!=0) {
+            /*Bitu*/int numofdisks = (equipment>>6)&3;
+            numofdisks++;
+            if(numofdisks > 1) numofdisks=1;//max 2 floppies at the moment
+            equipment&=~0x00C0;
+            equipment|=(numofdisks<<6);
+        } else equipment|=1;
+        Memory.mem_writew(Bios.BIOS_CONFIGURATION,equipment);
+        Cmos.CMOS_SetRegister(0x14, (/*Bit8u*/short)(equipment&0xff));
     }
 
     static public void swapInDisks() {

@@ -37,11 +37,12 @@ public class IoHandler {
                 m_mask=mask;
                 m_range=range;
                 IO_RegisterReadHandler(port,handler,mask,range);
-            } else Log.exit("IO_readHandler allready installed port "+Integer.toString(port,16));
+            } else Log.exit("IO_readHandler already installed port "+Integer.toString(port,16));
         }
         public void Uninstall() {
             if(!installed) return;
 	        IO_FreeReadHandler(m_port,m_mask,m_range);
+            installed = false;
         }
     }
     public static class IO_WriteHandleObject extends IO_Base {
@@ -55,11 +56,12 @@ public class IoHandler {
                 m_mask=mask;
                 m_range=range;
                 IO_RegisterWriteHandler(port,handler,mask,range);
-            } else Log.exit("IO_writeHandler allready installed port "+Integer.toString(port,16));
+            } else Log.exit("IO_writeHandler already installed port "+Integer.toString(port,16));
         }
         public void Uninstall() {
             if(!installed) return;
 	        IO_FreeWriteHandler(m_port,m_mask,m_range);
+            installed = false;
         }
     }
 

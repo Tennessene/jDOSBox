@@ -542,6 +542,7 @@ public class Callback {
         } else Log.exit("what kind of callback is this!");
         CallBack_Description[m_callback] = null;
         CALLBACK_DeAllocate(m_callback);
+        installed = false;
     }
 
     public void Install(Handler handler,/*Bitu*/int type,String description){
@@ -550,7 +551,7 @@ public class Callback {
             m_type=SETUP;
             m_callback=CALLBACK_Allocate();
             CALLBACK_Setup(m_callback,handler,type,description);
-        } else Log.exit("Allready installed");
+        } else Log.exit("Callback handler object already installed");
     }
 
     public void Install(Handler handler,/*Bitu*/int type,/*PhysPt*/int addr,String description){
@@ -559,7 +560,7 @@ public class Callback {
             m_type=SETUP;
             m_callback=CALLBACK_Allocate();
             CALLBACK_Setup(m_callback,handler,type,addr,description);
-        } else Log.exit("Allready installed");
+        } else Log.exit("Callback handler object already installed");
     }
 
     public void Allocate(Handler handler,String description) {
@@ -569,7 +570,7 @@ public class Callback {
             m_callback=CALLBACK_Allocate();
             CALLBACK_SetDescription(m_callback,description);
             CallBack_Handlers[m_callback]=handler;
-        } else Log.exit("Allready installed");
+        } else Log.exit("Callback handler object already installed");
     }
 
     public void Set_RealVec(/*Bit8u*/int vec){

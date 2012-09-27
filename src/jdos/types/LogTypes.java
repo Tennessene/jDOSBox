@@ -24,5 +24,6 @@ public class LogTypes {
     static final public int LOG_GUI = 20;
     static final public int LOG_MISC = 21;
 	static final public int LOG_IO = 22;
-	static final public int LOG_MAX = 23;
+    static final public int LOG_PCI = 23;
+	static final public int LOG_MAX = 24;
 }

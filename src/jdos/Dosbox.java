@@ -427,6 +427,10 @@ public class Dosbox {
         secprop.AddInitFunction(DMA.DMA_Init);//done
         secprop.AddInitFunction(Keyboard.KEYBOARD_Init);
 
+        if (Config.PCI_FUNCTIONALITY_ENABLED) {
+            secprop=control.AddSection_prop("pci",PCI.PCI_Init,false); //PCI bus
+        }
+
         secprop=control.AddSection_prop("mixer",Mixer.MIXER_Init);
         Pbool = secprop.Add_bool("nosound",Property.Changeable.OnlyAtStart,false);
         Pbool.Set_help("Enable silent mode, sound is still emulated though.");

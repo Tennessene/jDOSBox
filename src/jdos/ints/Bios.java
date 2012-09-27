@@ -453,8 +453,121 @@ public class Bios extends Module_base {
                 TandyDAC_Handler(CPU_Regs.reg_eax.high());
                 break;
             case 0xb1:		/* PCI Bios Calls */
-                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT1A:PCI bios call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
-                Callback.CALLBACK_SCF(true);
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_WARN,"INT1A:PCI bios call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
+                if (!Config.PCI_FUNCTIONALITY_ENABLED) {
+                    Callback.CALLBACK_SCF(true);
+                } else {
+                    switch (CPU_Regs.reg_eax.low()) {
+                        case 0x01:	// installation check
+                            if (PCI.PCI_IsInitialized()) {
+                                CPU_Regs.reg_eax.high(0x00);
+                                CPU_Regs.reg_eax.low(0x01);	// cfg space mechanism 1 supported
+                                CPU_Regs.reg_ebx.word(0x0210);	// ver 2.10
+                                CPU_Regs.reg_ecx.word(0x0000);	// only one PCI bus
+                                CPU_Regs.reg_edx.word(0x20494350);
+                                CPU_Regs.reg_edi.dword=PCI.PCI_GetPModeInterface();
+                                Callback.CALLBACK_SCF(false);
+                            } else {
+                                Callback.CALLBACK_SCF(true);
+                            }
+                            break;
+                        case 0x02: {	// find device
+                            /*Bitu*/int devnr=0;
+                            /*Bitu*/int count=0x100;
+                            /*Bit32u*/long devicetag=(((long)CPU_Regs.reg_ecx.word())<<16)|CPU_Regs.reg_edx.dword;
+                            /*Bits*/int found=-1;
+                            for (/*Bitu*/int i=0; i<=count; i++) {
+                                IO.IO_WriteD(0xcf8,0x80000000|(i<<8));	// query unique device/subdevice entries
+                                if (IO.IO_ReadD(0xcfc)==devicetag) {
+                                    if (devnr==CPU_Regs.reg_esi.word()) {
+                                        found=i;
+                                        break;
+                                    } else {
+                                        // device found, but not the SIth device
+                                        devnr++;
+                                    }
+                                }
+                            }
+                            if (found>=0) {
+                                CPU_Regs.reg_eax.high(0x00);
+                                CPU_Regs.reg_ebx.high(0x00);	// bus 0
+                                CPU_Regs.reg_ebx.low(found&0xff);
+                                Callback.CALLBACK_SCF(false);
+                            } else {
+                                CPU_Regs.reg_eax.high(0x86);	// device not found
+                                Callback.CALLBACK_SCF(true);
+                            }
+                            }
+                            break;
+                        case 0x03: {	// find device by class code
+                            /*Bitu*/int devnr=0;
+                            /*Bitu*/int count=0x100;
+                            /*Bit32u*/long classtag=CPU_Regs.reg_ecx.dword & 0xffffff;
+                            /*Bits*/int found=-1;
+                            for (/*Bitu*/int i=0; i<=count; i++) {
+                                IO.IO_WriteD(0xcf8,0x80000000|(i<<8));	// query unique device/subdevice entries
+                                if (IO.IO_ReadD(0xcfc)!=0xffffffff) {
+                                    IO.IO_WriteD(0xcf8,0x80000000|(i<<8)|0x08);
+                                    if ((IO.IO_ReadD(0xcfc)>>8)==classtag) {
+                                        if (devnr==CPU_Regs.reg_esi.word()) {
+                                            found=i;
+                                            break;
+                                        } else {
+                                            // device found, but not the SIth device
+                                            devnr++;
+                                        }
+                                    }
+                                }
+                            }
+                            if (found>=0) {
+                                CPU_Regs.reg_eax.high(0x00);
+                                CPU_Regs.reg_ebx.high(0x00);	// bus 0
+                                CPU_Regs.reg_ebx.low(found&0xff);
+                                Callback.CALLBACK_SCF(false);
+                            } else {
+                                CPU_Regs.reg_eax.high(0x86);	// device not found
+                                Callback.CALLBACK_SCF(true);
+                            }
+                            }
+                            break;
+                        case 0x08:	// read configuration byte
+                            IO.IO_WriteD(0xcf8,0x80000000|(CPU_Regs.reg_ebx.word()<<8)|(CPU_Regs.reg_edi.word()&0xfc));
+                            CPU_Regs.reg_ecx.low(IO.IO_ReadB(0xcfc+(CPU_Regs.reg_edi.word()&3)));
+                            Callback.CALLBACK_SCF(false);
+                            break;
+                        case 0x09:	// read configuration word
+                            IO.IO_WriteD(0xcf8,0x80000000|(CPU_Regs.reg_ebx.word()<<8)|(CPU_Regs.reg_edi.word()&0xfc));
+                            CPU_Regs.reg_ecx.word(IO.IO_ReadW(0xcfc+(CPU_Regs.reg_edi.word()&2)));
+                            Callback.CALLBACK_SCF(false);
+                            break;
+                        case 0x0a:	// read configuration dword
+                            IO.IO_WriteD(0xcf8,0x80000000|(CPU_Regs.reg_ebx.word()<<8)|(CPU_Regs.reg_edi.word()&0xfc));
+                            CPU_Regs.reg_ecx.dword=IO.IO_ReadD(0xcfc+(CPU_Regs.reg_edi.word()&3));
+                            Callback.CALLBACK_SCF(false);
+                            break;
+                        case 0x0b:	// write configuration byte
+                            IO.IO_WriteD(0xcf8,0x80000000|(CPU_Regs.reg_ebx.word()<<8)|(CPU_Regs.reg_edi.word()&0xfc));
+                            IO.IO_WriteB(0xcfc+(CPU_Regs.reg_edi.word()&3),CPU_Regs.reg_ecx.low());
+                            Callback.CALLBACK_SCF(false);
+                            break;
+                        case 0x0c:	// write configuration word
+                            IO.IO_WriteD(0xcf8,0x80000000|(CPU_Regs.reg_ebx.word()<<8)|(CPU_Regs.reg_edi.word()&0xfc));
+                            IO.IO_WriteW(0xcfc+(CPU_Regs.reg_edi.word()&2),CPU_Regs.reg_ecx.word());
+                            Callback.CALLBACK_SCF(false);
+                            break;
+                        case 0x0d:	// write configuration dword
+                            IO.IO_WriteD(0xcf8,0x80000000|(CPU_Regs.reg_ebx.word()<<8)|(CPU_Regs.reg_edi.word()&0xfc));
+                            IO.IO_WriteD(0xcfc+(CPU_Regs.reg_edi.word() & 3), CPU_Regs.reg_ecx.dword);
+                            Callback.CALLBACK_SCF(false);
+                            break;
+                        case 0x0e: /// Get IRQ Routine Information
+                        default:
+                            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT1A:PCI BIOS: unknown function "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" ("+Integer.toString(CPU_Regs.reg_ebx.word(), 16)+" "+Integer.toString(CPU_Regs.reg_ecx.word(), 16)+" "+Integer.toString(CPU_Regs.reg_edx.word(), 16)+")");
+                            Callback.CALLBACK_SCF(true);
+                            break;
+                    }
+                }
+
                 break;
             default:
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT1A:Undefined call "+Integer.toString(CPU_Regs.reg_eax.high(),16));

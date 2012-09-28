@@ -116,7 +116,7 @@ public class Compiler extends Helper {
         // Always set the flag before a jump
         return result | flag;
     }
-
+    static final boolean combineEIP = true;
     static public Op do_compile(Op op) {
         Op prev = op;
         op = op.next;
@@ -127,6 +127,7 @@ public class Compiler extends Helper {
         method.append("Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds= CPU_Regs.ds;CPU.CPU_Cycles-=");
         method.append(op.cycle);
         method.append(";");
+        int runningEipCount = 0;
         while (op != null) {
             try {
                 boolean jump = false;
@@ -134,6 +135,16 @@ public class Compiler extends Helper {
                     count++;
                     if (start == null) {
                         start = prev;
+                    }
+                    if (combineEIP) {
+                        if (op.usesEip() || op.throwsException() || op.accessesMemory() || op.next==null) {
+                            if (runningEipCount > 0) {
+                                method.append("CPU_Regs.reg_eip+=");
+                                method.append(runningEipCount);
+                                method.append(";\n  ");
+                                runningEipCount = 0;
+                            }
+                        }
                     }
                     method.append("{");
                     method.append("/*" + Integer.toHexString(op.c) + "*/");
@@ -158,9 +169,14 @@ public class Compiler extends Helper {
                         method.append("/* Should set flags */");
                     }
                     if (compile_op(op, alwayUseFastVersion?0:shouldSet, method)) {
-                        method.append("CPU_Regs.reg_eip+=");
-                        method.append(op.eip_count);
-                        method.append(";}\n  ");
+                        if (combineEIP) {
+                            method.append("}\n  ");
+                            runningEipCount+=op.eip_count;
+                        } else {
+                            method.append("CPU_Regs.reg_eip+=");
+                            method.append(op.eip_count);
+                            method.append(";}\n  ");
+                        }
                         continue;
                     } else {
                         method.append("}");

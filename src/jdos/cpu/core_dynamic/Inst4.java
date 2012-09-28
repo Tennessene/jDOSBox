@@ -29,6 +29,11 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Lidt_mem extends Op {
@@ -54,6 +59,11 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Smsw_reg extends Op {
@@ -75,6 +85,11 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Lmsw_reg extends Op {
@@ -96,6 +111,11 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LarGdEd_reg extends Op {
@@ -122,6 +142,12 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean returnsIllegal() {return true;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LarGdEd_mem extends Op {
@@ -149,6 +175,12 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean returnsIllegal() {return true;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LslGdEd_reg extends Op {
@@ -176,6 +208,12 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean returnsIllegal() {return true;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LslGdEd_mem extends Op {
@@ -204,6 +242,12 @@ public class Inst4 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean returnsIllegal() {return true;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
 static abstract public class JumpCond32_d extends Op {
@@ -221,6 +265,11 @@ static abstract public class JumpCond32_d extends Op {
             reg_eip+=eip_count;
             return Constants.BR_Link2;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return true;}
+        public boolean setsEip() {return true;}
     }
 
     final static public class JumpCond32_d_o extends JumpCond32_d {
@@ -460,6 +509,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class PopFS extends Op {
@@ -475,6 +529,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtEdGd_reg extends Op {
@@ -501,6 +560,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtEdGd_mem extends Op {
@@ -530,6 +594,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShldEdGdIb_reg extends Op {
@@ -556,6 +625,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShldEdGdIb_mem extends Op {
@@ -583,6 +657,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShldEdGdCl_reg extends Op {
@@ -609,6 +688,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShldEdGdCl_mem extends Op {
@@ -637,6 +721,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class PushGS extends Op {
@@ -652,6 +741,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class PopGS extends Op {
@@ -667,6 +761,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEdGd_reg extends Op {
@@ -694,6 +793,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEdGd_mem extends Op {
@@ -724,6 +828,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShrdEdGdIb_reg extends Op {
@@ -750,6 +859,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShrdEdGdIb_mem extends Op {
@@ -777,6 +891,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShrdEdGdCl_reg extends Op {
@@ -803,6 +922,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShrdEdGdCl_mem extends Op {
@@ -831,6 +955,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ImulGdEd_reg extends Op {
@@ -854,6 +983,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ImulGdEd_mem extends Op {
@@ -878,6 +1012,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEdGd_reg extends Op {
@@ -909,6 +1048,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEdGd_mem extends Op {
@@ -943,6 +1087,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LssEd extends Op {
@@ -971,6 +1120,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEdGd_reg extends Op {
@@ -997,6 +1151,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEdGd_mem extends Op {
@@ -1026,6 +1185,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LfsEd extends Op {
@@ -1051,6 +1215,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LgsEd extends Op {
@@ -1076,6 +1245,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGdEb_reg extends Op {
@@ -1099,6 +1273,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGdEb_mem extends Op {
@@ -1123,6 +1302,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGdEw_reg extends Op {
@@ -1146,6 +1330,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGdEw_mem extends Op {
@@ -1170,6 +1359,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtEdIb_reg extends Op {
@@ -1194,6 +1388,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEdIb_reg extends Op {
@@ -1219,6 +1418,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEdIb_reg extends Op {
@@ -1244,6 +1448,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdIb_reg extends Op {
@@ -1270,6 +1479,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtEdIb_mem extends Op {
@@ -1296,6 +1510,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEdIb_mem extends Op {
@@ -1323,6 +1542,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEdIb_mem extends Op {
@@ -1350,6 +1574,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdIb_mem extends Op {
@@ -1379,6 +1608,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdGd_reg extends Op {
@@ -1405,6 +1639,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdGd_mem extends Op {
@@ -1433,6 +1672,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsfGdEd_reg extends Op {
@@ -1465,6 +1709,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsfGdEd_mem extends Op {
@@ -1498,6 +1747,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsrGdEd_reg extends Op {
@@ -1530,6 +1784,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsrGdEd_mem extends Op {
@@ -1563,6 +1822,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEb_reg extends Op {
@@ -1586,6 +1850,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEb_mem extends Op {
@@ -1610,6 +1879,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEw_reg extends Op {
@@ -1633,6 +1907,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEw_mem extends Op {
@@ -1657,6 +1936,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class XaddGdEd_reg extends Op {
@@ -1683,6 +1967,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class XaddGdEd_mem extends Op {
@@ -1711,6 +2000,11 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Bswapd extends Op {
@@ -1732,5 +2026,10 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 }

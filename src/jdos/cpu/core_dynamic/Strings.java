@@ -93,6 +93,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsw32 extends Op {
@@ -106,6 +111,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsw16r extends Op {
@@ -202,6 +212,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsw16 extends Op {
@@ -217,6 +232,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsd32r extends Op {
@@ -297,6 +317,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsd32 extends Op {
@@ -310,6 +335,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsd16r extends Op {
@@ -406,6 +436,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsd16 extends Op {
@@ -421,6 +456,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsb32r extends Op {
@@ -490,6 +530,11 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsb32 extends Op {
@@ -505,6 +550,10 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsb16r extends Op {
@@ -589,6 +638,10 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class Movsb16 extends Op {
@@ -604,5 +657,9 @@ public class Strings extends Core {
             doString();
             return Constants.BR_Normal;
         }
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 }

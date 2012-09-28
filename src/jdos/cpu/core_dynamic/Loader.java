@@ -90,7 +90,7 @@ public class Loader {
         savedItems.add(new SaveItem(className, byteCode, start, opCode, source));
     }
     public static void save(String fileName, boolean source) {
-        //source = true;
+        source = true;
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(bos);

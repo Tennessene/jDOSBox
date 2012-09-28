@@ -29,6 +29,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class Testb_mem extends Op {
@@ -54,6 +59,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NotEb_reg extends Op {
@@ -75,6 +85,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NotEb_mem extends Op {
@@ -97,6 +112,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NegEb_reg extends Op {
@@ -121,6 +141,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NegEb_mem extends Op {
@@ -146,6 +171,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class MulAlEb_reg extends Op {
@@ -167,6 +197,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class MulAlEb_mem extends Op {
@@ -189,6 +224,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IMulAlEb_reg extends Op {
@@ -210,6 +250,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IMulAlEb_mem extends Op {
@@ -232,6 +277,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class DivAlEb_reg extends Op {
@@ -253,6 +303,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class DivAlEb_mem extends Op {
@@ -275,6 +330,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IDivAlEb_reg extends Op {
@@ -296,6 +356,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IDivAlEb_mem extends Op {
@@ -318,6 +383,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class Testw_reg extends Op {
@@ -342,6 +412,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class Testw_mem extends Op {
@@ -367,6 +442,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NotEw_reg extends Op {
@@ -388,6 +468,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NotEw_mem extends Op {
@@ -410,6 +495,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NegEw_reg extends Op {
@@ -434,6 +524,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NegEw_mem extends Op {
@@ -459,6 +554,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class MulAxEw_reg extends Op {
@@ -480,6 +580,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class MulAxEw_mem extends Op {
@@ -502,6 +607,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IMulAxEw_reg extends Op {
@@ -523,6 +633,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IMulAxEw_mem extends Op {
@@ -545,6 +660,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class DivAxEw_reg extends Op {
@@ -566,6 +686,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class DivAxEw_mem extends Op {
@@ -588,6 +713,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IDivAxEw_reg extends Op {
@@ -609,6 +739,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IDivAxEw_mem extends Op {
@@ -631,6 +766,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class Testd_reg extends Op {
@@ -655,6 +795,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class Testd_mem extends Op {
@@ -680,6 +825,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NotEd_reg extends Op {
@@ -701,6 +851,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NotEd_mem extends Op {
@@ -723,6 +878,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NegEd_reg extends Op {
@@ -744,6 +904,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class NegEd_mem extends Op {
@@ -766,6 +931,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class MulAxEd_reg extends Op {
@@ -787,6 +957,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class MulAxEd_mem extends Op {
@@ -809,6 +984,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IMulAxEd_reg extends Op {
@@ -830,6 +1010,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IMulAxEd_mem extends Op {
@@ -852,6 +1037,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class DivAxEd_reg extends Op {
@@ -873,6 +1063,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class DivAxEd_mem extends Op {
@@ -895,6 +1090,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IDivAxEd_reg extends Op {
@@ -916,6 +1116,11 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static public class IDivAxEd_mem extends Op {
@@ -938,5 +1143,10 @@ public class Grp3 extends Helper {
         public int gets() {
             return 0;
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 }

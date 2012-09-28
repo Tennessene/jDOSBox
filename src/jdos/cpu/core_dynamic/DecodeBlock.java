@@ -23,6 +23,11 @@ final public class DecodeBlock extends Op {
     public CacheBlockDynRec parent;
     public Op compiledOp = null;
 
+    public boolean throwsException() {return false;}
+    public boolean accessesMemory() {return false;}
+    public boolean usesEip() {return false;}
+    public boolean setsEip() {return false;}
+
     static private byte[] getOpCode(int start, int len) {
         byte[] opCode = new byte[len];
         int src = Paging.getDirectIndexRO(start);

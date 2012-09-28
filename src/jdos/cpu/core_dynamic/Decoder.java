@@ -20,8 +20,12 @@ public class Decoder extends Inst1 {
                         CPU.CPU_Exception(6,0);
                         return Constants.BR_Jump;
                     }
+                    public boolean throwsException() {return true;}
+                    public boolean accessesMemory() {return false;}
+                    public boolean usesEip() {return false;}
+                    public boolean setsEip() {return false;}
                 };
-                return RESULT_JUMP;  //To change body of implemented methods use File | Settings | File Templates.
+                return RESULT_JUMP;
             }
         };
         for (int i=0;i<ops.length;i++)
@@ -31,12 +35,20 @@ public class Decoder extends Inst1 {
         public int call() {
             return Constants.BR_Normal;
         }
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     public static class HandledDecode extends Op {
         public int call() {
             return Constants.BR_Jump;
         }
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     public static class HandledSegChange extends Op {
@@ -46,6 +58,10 @@ public class Decoder extends Inst1 {
             Core.base_val_ds=ds;
             return Constants.BR_Normal;
         }
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     static private int count=0;
@@ -186,5 +202,10 @@ public class Decoder extends Inst1 {
         public int call() {
             return ModifiedDecode.call();
         }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return true;}
+        public boolean setsEip() {return true;}
     }
 }

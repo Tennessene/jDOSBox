@@ -12,6 +12,7 @@ abstract public class Op {
     public int eip_count=0;
     public Op next;
     public int cycle = 0;
+
     abstract public int call();
 
     public int RUNEXCEPTION() {
@@ -37,4 +38,13 @@ abstract public class Op {
 
     public int sets() { return 0; }
     public int gets() { return 0; }
+    public boolean returnsIllegal() {return false;}
+//    public boolean throwsException() {return true;}
+//    public boolean accessesMemory() {return true;}
+//    public  boolean usesEip() {return true;}
+//    public  boolean setsEip() {return true;}
+    public abstract boolean throwsException();
+    public abstract boolean accessesMemory();
+    public abstract boolean usesEip();
+    public abstract boolean setsEip();
 }

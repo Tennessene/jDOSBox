@@ -5785,7 +5785,8 @@ public class Inst1 extends Helper {
             ib=decode_fetchb();
         }
         public int call() {
-            return Instructions.AAMr(this, ib);
+            if (!Instructions.AAM(ib)) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         public int sets() {
@@ -5796,7 +5797,7 @@ public class Inst1 extends Helper {
             return 0;
         }
 
-        public boolean throwsException() {return true;}
+        public boolean throwsException() {return ib==0;}
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}

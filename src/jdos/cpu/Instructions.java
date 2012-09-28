@@ -748,7 +748,7 @@ public class Instructions extends Table_ea {
         lflags.type=t_UNKNOWN;
     }
 
-    static public void AAM(int op1) {
+    static public boolean AAM(int op1) {
         if (op1!=0) {
             CPU_Regs.reg_eax.high(CPU_Regs.reg_eax.low() / op1);
             CPU_Regs.reg_eax.low(CPU_Regs.reg_eax.low() % op1);
@@ -759,26 +759,10 @@ public class Instructions extends Table_ea {
             CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
             CPU_Regs.SETFLAGBIT(CPU_Regs.AF,false);
             lflags.type=t_UNKNOWN;
+            return true;
         } else {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
-        }
-    }
-
-    static public int AAMr(Op op, int op1) {
-        if (op1!=0) {
-            CPU_Regs.reg_eax.high(CPU_Regs.reg_eax.low() / op1);
-            CPU_Regs.reg_eax.low(CPU_Regs.reg_eax.low() % op1);
-            CPU_Regs.SETFLAGBIT(CPU_Regs.SF,(CPU_Regs.reg_eax.low() & 0x80)!=0);
-            CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,(CPU_Regs.reg_eax.low() == 0));
-            CPU_Regs.SETFLAGBIT(CPU_Regs.PF,parity_lookup[CPU_Regs.reg_eax.low()]!=0);
-            CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);
-            CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
-            CPU_Regs.SETFLAGBIT(CPU_Regs.AF,false);
-            lflags.type=t_UNKNOWN;
-            return Constants.BR_Normal;
-        } else {
-            return op.EXCEPTION(0);
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
     }
 
@@ -834,44 +818,45 @@ public class Instructions extends Table_ea {
         }
     }
 
-    static public void DIVB(short l) {
-        /*Bitu*/int val=l;
+    static public boolean DIVB(int val) {
         if (val==0)	{
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         /*Bitu*/int quo=CPU_Regs.reg_eax.word() / val;
         /*Bit8u*/int rem=(CPU_Regs.reg_eax.word() % val);
         /*Bit8u*/int quo8=(quo&0xff);
         if (quo>0xff) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         CPU_Regs.reg_eax.high(rem);
         CPU_Regs.reg_eax.low(quo8);
+        return true;
     }
 
-    static public void DIVW(int val) {
+    static public boolean DIVW(int val) {
         if (val==0)	{
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         /*Bitu*/long num=((/*Bit32u*/long)CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word();
         /*Bitu*/long quo=num/val;
         /*intBit16u*/int rem=(int)((num % val));
         /*intBit16u*/int quo16=(int)(quo&0xffff);
         if (quo!=quo16) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         CPU_Regs.reg_edx.word(rem);
         CPU_Regs.reg_eax.word(quo16);
+        return true;
     }
 
-    static public void DIVD(int val) {
+    static public boolean DIVD(int val) {
         if (val==0) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         /*Bit64u*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         try {
@@ -879,157 +864,65 @@ public class Instructions extends Table_ea {
             CPU_Regs.reg_edx.dword=(int)(quo >> 32);
             CPU_Regs.reg_eax.dword=(int)quo;
         } catch (OverflowException e) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
+        return true;
     }
 
-    static public void IDIVB(short l) {
+    static public boolean IDIVB(short l) {
         /*Bits*/int val=(/*Bit8s*/byte)(l);
         if (val==0)	{
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         /*Bits*/int quo=((/*Bit16s*/short)CPU_Regs.reg_eax.word()) / val;
         /*Bit8s*/byte rem=(/*Bit8s*/byte)((/*Bit16s*/short)CPU_Regs.reg_eax.word() % val);
         /*Bit8s*/byte quo8s=(/*Bit8s*/byte)(quo&0xff);
         if (quo!=(/*Bit16s*/short)quo8s) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         CPU_Regs.reg_eax.high(rem);
         CPU_Regs.reg_eax.low(quo8s);
+        return true;
     }
 
-    static public void IDIVW(int l) {
+    static public boolean IDIVW(int l) {
         /*Bits*/int val=(/*Bit16s*/short)(l);
         if (val==0) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         /*Bits*/int num=((CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word());
         /*Bits*/int quo=num/val;
         /*Bit16s*/short rem=(/*Bit16s*/short)(num % val);
         /*Bit16s*/short quo16s=(/*Bit16s*/short)quo;
         if (quo!=(/*Bit32s*/int)quo16s) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         CPU_Regs.reg_edx.word(rem);
         CPU_Regs.reg_eax.word(quo16s);
+        return true;
     }
 
-    static public void IDIVD(int val) {
+    static public boolean IDIVD(int val) {
         if (val==0) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         /*Bit64s*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         /*Bit64s*/long quo=num/val;
         /*Bit32s*/int rem=(/*Bit32s*/int)(num % val);
         /*Bit32s*/int quo32s=(/*Bit32s*/int)(quo&0xffffffffl);
         if (quo!=(/*Bit64s*/long)quo32s) {
-            Prefix_helpers.EXCEPTION(0);
-            throw new Prefix_helpers.ContinueException();
+            CPU.CPU_PrepareException(0, 0);
+            return false;
         }
         CPU_Regs.reg_edx.dword=rem;
         CPU_Regs.reg_eax.dword=quo32s;
-    }
-
-    static public int DIVBr(Op op, short l) {
-        /*Bitu*/int val=l;
-        if (val==0)	{
-            return op.EXCEPTION(0);
-        }
-        /*Bitu*/int quo=CPU_Regs.reg_eax.word() / val;
-        /*Bit8u*/int rem=(CPU_Regs.reg_eax.word() % val);
-        /*Bit8u*/int quo8=(quo&0xff);
-        if (quo>0xff) {
-            return op.EXCEPTION(0);
-        }
-        CPU_Regs.reg_eax.high(rem);
-        CPU_Regs.reg_eax.low(quo8);
-        return Constants.BR_Normal;
-    }
-
-    static public int DIVWr(Op op, int val) {
-        if (val==0)	{
-            return op.EXCEPTION(0);
-        }
-        /*Bitu*/long num=((/*Bit32u*/long)CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word();
-        /*Bitu*/long quo=num/val;
-        /*intBit16u*/int rem=(int)((num % val));
-        /*intBit16u*/int quo16=(int)(quo&0xffff);
-        if (quo!=quo16) {
-            return op.EXCEPTION(0);
-        }
-        CPU_Regs.reg_edx.word(rem);
-        CPU_Regs.reg_eax.word(quo16);
-        return Constants.BR_Normal;
-    }
-
-    static public int DIVDr(Op op, int val) {
-        if (val==0) {
-            return op.EXCEPTION(0);
-        }
-        /*Bit64u*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
-        try {
-            /*Bit64u*/long quo= LongHelper.divideLongByInt(num,val);
-            CPU_Regs.reg_edx.dword=(int)(quo >> 32);
-            CPU_Regs.reg_eax.dword=(int)quo;
-        } catch (OverflowException e) {
-            return op.EXCEPTION(0);
-        }
-        return Constants.BR_Normal;
-    }
-
-    static public int IDIVBr(Op op, short l) {
-        /*Bits*/int val=(/*Bit8s*/byte)(l);
-        if (val==0)	{
-            return op.EXCEPTION(0);
-        }
-        /*Bits*/int quo=((/*Bit16s*/short)CPU_Regs.reg_eax.word()) / val;
-        /*Bit8s*/byte rem=(/*Bit8s*/byte)((/*Bit16s*/short)CPU_Regs.reg_eax.word() % val);
-        /*Bit8s*/byte quo8s=(/*Bit8s*/byte)(quo&0xff);
-        if (quo!=(/*Bit16s*/short)quo8s) {
-            return op.EXCEPTION(0);
-        }
-        CPU_Regs.reg_eax.high(rem);
-        CPU_Regs.reg_eax.low(quo8s);
-        return Constants.BR_Normal;
-    }
-
-    static public int IDIVWr(Op op, int l) {
-        /*Bits*/int val=(/*Bit16s*/short)(l);
-        if (val==0) {
-            return op.EXCEPTION(0);
-        }
-        /*Bits*/int num=((CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word());
-        /*Bits*/int quo=num/val;
-        /*Bit16s*/short rem=(/*Bit16s*/short)(num % val);
-        /*Bit16s*/short quo16s=(/*Bit16s*/short)quo;
-        if (quo!=(/*Bit32s*/int)quo16s) {
-            return op.EXCEPTION(0);
-        }
-        CPU_Regs.reg_edx.word(rem);
-        CPU_Regs.reg_eax.word(quo16s);
-        return Constants.BR_Normal;
-    }
-
-    static public int IDIVDr(Op op, int val) {
-        if (val==0) {
-            return op.EXCEPTION(0);
-        }
-        /*Bit64s*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
-        /*Bit64s*/long quo=num/val;
-        /*Bit32s*/int rem=(/*Bit32s*/int)(num % val);
-        /*Bit32s*/int quo32s=(/*Bit32s*/int)(quo&0xffffffffl);
-        if (quo!=(/*Bit64s*/long)quo32s) {
-            return op.EXCEPTION(0);
-        }
-        CPU_Regs.reg_edx.dword=rem;
-        CPU_Regs.reg_eax.dword=quo32s;
-        return Constants.BR_Normal;
+        return true;
     }
 
     static public void IMULB(short l) {

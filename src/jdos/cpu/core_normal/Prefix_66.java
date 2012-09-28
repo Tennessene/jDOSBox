@@ -1707,20 +1707,20 @@ public class Prefix_66 extends Prefix_0f {
                     break;
                 case 0x06:											/* DIV Ed */
                     if (rm >= 0xc0 ) {
-                        DIVD(Modrm.GetEArd[rm].dword);
+                        if (!DIVD(Modrm.GetEArd[rm].dword)) return RUNEXCEPTION();
                     }
                     else {
                         int eaa = getEaa(rm);
-                        DIVD(Memory.mem_readd(eaa));
+                        if (!DIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();
                     }
                     break;
                 case 0x07:											/* IDIV Ed */
                     if (rm >= 0xc0 ) {
-                        IDIVD(Modrm.GetEArd[rm].dword);
+                        if (!IDIVD(Modrm.GetEArd[rm].dword)) return RUNEXCEPTION();
                     }
                     else {
                         int eaa = getEaa(rm);
-                        IDIVD(Memory.mem_readd(eaa));
+                        if (!IDIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();
                     }
                     break;
                 }

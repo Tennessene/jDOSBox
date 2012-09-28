@@ -613,7 +613,7 @@ public class CPU extends Module_base {
         cpu.direction=1-((CPU_Regs.flags & CPU_Regs.DF) >> 9);
     }
 
-    static private boolean CPU_PrepareException(/*Bitu*/int which,/*Bitu*/int error) {
+    static public boolean CPU_PrepareException(/*Bitu*/int which,/*Bitu*/int error) {
         cpu.exception.which=which;
         cpu.exception.error=error;
         return true;

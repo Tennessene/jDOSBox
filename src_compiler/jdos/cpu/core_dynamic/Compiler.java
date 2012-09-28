@@ -4098,6 +4098,10 @@ public class Compiler extends Helper {
                         method.append("return EXCEPTION(0);");
                         return false;
                     }
+                    method.append("Instructions.AAM(");
+                    method.append(o.ib);
+                    method.append(");");
+                    return true;
                 }
                 break;
             case 0xd5: // AAD o.ib
@@ -4574,32 +4578,30 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Grp3.DivAlEb_reg) {
                     Grp3.DivAlEb_reg o = (Grp3.DivAlEb_reg) op;
-                    method.append("int val = ");
+                    method.append("if (!Instructions.DIVB(");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (val==0)	{return EXCEPTION(0);} int quo=CPU_Regs.reg_eax.word() / val; int rem=(CPU_Regs.reg_eax.word() % val); int quo8=(quo&0xff); if (quo>0xff) {return EXCEPTION(0);}CPU_Regs.reg_eax.high(rem);CPU_Regs.reg_eax.low(quo8);");
+                    method.append(")) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.DivAlEb_mem) {
                     Grp3.DivAlEb_mem o = (Grp3.DivAlEb_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";int val = Memory.mem_readb(eaa);");
-                    method.append("if (val==0)	{return EXCEPTION(0);} int quo=CPU_Regs.reg_eax.word() / val; int rem=(CPU_Regs.reg_eax.word() % val); int quo8=(quo&0xff); if (quo>0xff) {return EXCEPTION(0);}CPU_Regs.reg_eax.high(rem);CPU_Regs.reg_eax.low(quo8);");
+                    method.append(";if (!Instructions.DIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAlEb_reg) {
                     Grp3.IDivAlEb_reg o = (Grp3.IDivAlEb_reg) op;
-                    method.append("int val = (byte)");
+                    method.append("if (!Instructions.IDIVB(");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (val==0)	{return EXCEPTION(0);} int quo=CPU_Regs.reg_eax.word() / val; int rem=(CPU_Regs.reg_eax.word() % val); int quo8=(quo&0xff); if (quo>0xff) {return EXCEPTION(0);}CPU_Regs.reg_eax.high(rem);CPU_Regs.reg_eax.low(quo8);");
+                    method.append(")) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAlEb_mem) {
                     Grp3.IDivAlEb_mem o = (Grp3.IDivAlEb_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";int val = (byte)Memory.mem_readb(eaa);");
-                    method.append("if (val==0)	{return EXCEPTION(0);} int quo=CPU_Regs.reg_eax.word() / val; int rem=(CPU_Regs.reg_eax.word() % val); int quo8=(quo&0xff); if (quo>0xff) {return EXCEPTION(0);}CPU_Regs.reg_eax.high(rem);CPU_Regs.reg_eax.low(quo8);");
+                    method.append(";if (!Instructions.IDIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();");
                     return true;
                 }
                 break;
@@ -4678,32 +4680,30 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Grp3.DivAxEw_reg) {
                     Grp3.DivAxEw_reg o = (Grp3.DivAxEw_reg) op;
-                    method.append("int val = ");
+                    method.append("if (!Instructions.DIVW(");
                     method.append(nameGet16(o.earw));
-                    method.append(";if (val==0)	{return EXCEPTION(0);}long num=((long)CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word();long quo=num/val;int rem=(int)((num % val));int quo16=(int)(quo&0xffff);if (quo!=quo16) {return EXCEPTION(0);}CPU_Regs.reg_edx.word(rem);CPU_Regs.reg_eax.word(quo16);");
+                    method.append(")) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.DivAxEw_mem) {
                     Grp3.DivAxEw_mem o = (Grp3.DivAxEw_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";int val = Memory.mem_readw(eaa);");
-                    method.append("if (val==0)	{return EXCEPTION(0);}long num=((long)CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word();long quo=num/val;int rem=(int)((num % val));int quo16=(int)(quo&0xffff);if (quo!=quo16) {return EXCEPTION(0);}CPU_Regs.reg_edx.word(rem);CPU_Regs.reg_eax.word(quo16);");
+                    method.append(";if (!Instructions.DIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAxEw_reg) {
                     Grp3.IDivAxEw_reg o = (Grp3.IDivAxEw_reg) op;
-                    method.append("int val = (short)");
+                    method.append("if (!Instructions.IDIVW(");
                     method.append(nameGet16(o.earw));
-                    method.append(";if (val==0)	{return EXCEPTION(0);}int num=(CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word();int quo=num/val;short rem=(short)((num % val));short quo16=(short)quo;if (quo!=(int)quo16) {return EXCEPTION(0);}CPU_Regs.reg_edx.word(rem);CPU_Regs.reg_eax.word(quo16);");
+                    method.append(")) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAxEw_mem) {
                     Grp3.IDivAxEw_mem o = (Grp3.IDivAxEw_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";int val = (short)Memory.mem_readw(eaa);");
-                    method.append("if (val==0)	{return EXCEPTION(0);}int num=(CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word();int quo=num/val;short rem=(short)((num % val));short quo16=(short)quo;if (quo!=(int)quo16) {return EXCEPTION(0);}CPU_Regs.reg_edx.word(rem);CPU_Regs.reg_eax.word(quo16);");
+                    method.append(";if (!Instructions.IDIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();");
                     return true;
                 }
                 break;

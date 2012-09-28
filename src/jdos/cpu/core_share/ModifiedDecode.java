@@ -7,45 +7,40 @@ public class ModifiedDecode {
     static public int call() {
         Core.cseip = CPU.Segs_CSphys + CPU_Regs.reg_eip;
         if (CPU.cpu.code.big) {
-            Core.opcode_index=0x200;
-            Core.prefixes=1;
+            Core.opcode_index = 0x200;
+            Core.prefixes = 1;
             Table_ea.EA16 = false;
         } else {
-            Core.opcode_index=0;
-            Core.prefixes=0;
+            Core.opcode_index = 0;
+            Core.prefixes = 0;
             Table_ea.EA16 = true;
         }
         while (true) {
-            int c = Core.opcode_index  + Core.Fetchb();
+            int c = Core.opcode_index + Core.Fetchb();
 //                    last = c;
 //                    Debug.start(Debug.TYPE_CPU, c);
 //                    try {
-            try {
-                int result = jdos.cpu.core_normal.Prefix_none.ops[c].call();
-                if (result != Prefix_helpers.HANDLED) {
-                    if (result == Prefix_helpers.CONTINUE) {
-                        break;
-                    } else if (result == Prefix_helpers.RETURN) {
-                        Data.callback = jdos.cpu.core_normal.Prefix_none.returnValue;
-                        return Constants.BR_CallBack;
-                    } else if (result == Prefix_helpers.RESTART) {
-                        continue;
-                    } else if (result == Prefix_helpers.CBRET_NONE) {
-                        Data.callback = Callback.CBRET_NONE;
-                        return Constants.BR_CallBack;
-                    } else if (result == Prefix_helpers.DECODE_END) {
-                        Prefix_helpers.SAVEIP();
-                        Flags.FillFlags();
-                        Data.callback = Callback.CBRET_NONE;
-                        return Constants.BR_CallBack;
-                    } else if (result == Prefix_helpers.NOT_HANDLED || result == Prefix_helpers.ILLEGAL_OPCODE) {
-                        CPU.CPU_Exception(6, 0);
-                        break;
-                    }
+            int result = jdos.cpu.core_normal.Prefix_none.ops[c].call();
+            if (result != Prefix_helpers.HANDLED) {
+                if (result == Prefix_helpers.CONTINUE) {
+                    break;
+                } else if (result == Prefix_helpers.RETURN) {
+                    Data.callback = jdos.cpu.core_normal.Prefix_none.returnValue;
+                    return Constants.BR_CallBack;
+                } else if (result == Prefix_helpers.RESTART) {
+                    continue;
+                } else if (result == Prefix_helpers.CBRET_NONE) {
+                    Data.callback = Callback.CBRET_NONE;
+                    return Constants.BR_CallBack;
+                } else if (result == Prefix_helpers.DECODE_END) {
+                    Prefix_helpers.SAVEIP();
+                    Flags.FillFlags();
+                    Data.callback = Callback.CBRET_NONE;
+                    return Constants.BR_CallBack;
+                } else if (result == Prefix_helpers.NOT_HANDLED || result == Prefix_helpers.ILLEGAL_OPCODE) {
+                    CPU.CPU_Exception(6, 0);
+                    break;
                 }
-                // necessary for Prefix_helpers.EXCEPTION
-            } catch (Prefix_helpers.ContinueException e) {
-                break;
             }
 //                    } finally {
 //                        Debug.stop(Debug.TYPE_CPU, c);

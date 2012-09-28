@@ -3409,32 +3409,30 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Grp3.DivAxEd_reg) {
                     Grp3.DivAxEd_reg o = (Grp3.DivAxEd_reg) op;
-                    method.append("int val = ");
+                    method.append("if (!Instructions.DIVD(");
                     method.append(nameGet32(o.eard));
-                    method.append(";if (Instructions.DIVDr(this, val)==Constants.BR_Jump) return Constants.BR_Jump;");
+                    method.append(")) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.DivAxEd_mem) {
                     Grp3.DivAxEd_mem o = (Grp3.DivAxEd_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";int val = Memory.mem_readd(eaa);");
-                    method.append("if (Instructions.DIVDr(this, val)==Constants.BR_Jump) return Constants.BR_Jump;");
+                    method.append(";if (!Instructions.DIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAxEd_reg) {
                     Grp3.IDivAxEd_reg o = (Grp3.IDivAxEd_reg) op;
-                    method.append("int val = ");
+                    method.append("if (!Instructions.IDIVD(");
                     method.append(nameGet32(o.eard));
-                    method.append(";if (Instructions.IDIVDr(this, val)==Constants.BR_Jump) return Constants.BR_Jump;");
+                    method.append(")) return RUNEXCEPTION();");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAxEd_mem) {
                     Grp3.IDivAxEd_mem o = (Grp3.IDivAxEd_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";int val = Memory.mem_readd(eaa);");
-                    method.append("if (Instructions.IDIVDr(this, val)==Constants.BR_Jump) return Constants.BR_Jump;");
+                    method.append(";if (!Instructions.IDIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();");
                     return true;
                 }
                 break;

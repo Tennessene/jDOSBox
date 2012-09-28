@@ -60,6 +60,7 @@ final public class DecodeBlock extends Op {
         }
         if (compiledOp!=null) {
             parent.code = compiledOp;
+            return compiledOp.call();
         }
 //        if ((runCount % 10000) == 0)
 //            System.out.println(op.toString()+":"+runCount);

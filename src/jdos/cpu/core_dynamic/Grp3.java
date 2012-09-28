@@ -292,7 +292,8 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            return Instructions.DIVBr(this, earb.get8());
+            if (!Instructions.DIVB(earb.get8())) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -319,7 +320,8 @@ public class Grp3 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            return Instructions.DIVBr(this, Memory.mem_readb(eaa));
+            if (!Instructions.DIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -345,7 +347,8 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            return Instructions.IDIVBr(this, earb.get8());
+            if (!Instructions.IDIVB(earb.get8())) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -372,7 +375,8 @@ public class Grp3 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            return Instructions.IDIVBr(this, Memory.mem_readb(eaa));
+            if (!Instructions.IDIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -675,7 +679,8 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            return Instructions.DIVWr(this, earw.word());
+            if (!Instructions.DIVW(earw.word())) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -702,7 +707,8 @@ public class Grp3 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            return Instructions.DIVWr(this, Memory.mem_readw(eaa));
+            if (!Instructions.DIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -728,7 +734,8 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            return Instructions.IDIVWr(this, earw.word());
+            if (!Instructions.IDIVW(earw.word())) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -755,7 +762,8 @@ public class Grp3 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            return Instructions.IDIVWr(this, Memory.mem_readw(eaa));
+            if (!Instructions.IDIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -1052,7 +1060,8 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            return Instructions.DIVDr(this, eard.dword);
+            if (!Instructions.DIVD(eard.dword)) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -1079,7 +1088,8 @@ public class Grp3 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            return Instructions.DIVDr(this, Memory.mem_readd(eaa));
+            if (!Instructions.DIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -1105,7 +1115,8 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            return Instructions.IDIVDr(this, eard.dword);
+            if (!Instructions.IDIVD(eard.dword)) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined
@@ -1132,7 +1143,8 @@ public class Grp3 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            return Instructions.IDIVDr(this, Memory.mem_readd(eaa));
+            if (!Instructions.IDIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();
+            return Constants.BR_Normal;
         }
 
         // Flags are undefined

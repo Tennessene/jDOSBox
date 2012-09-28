@@ -2467,7 +2467,7 @@ public class Prefix_none extends StringOp {
         /* AAM Ib */
         ops[0xd4] = new OP() {
           final public int call() {
-                Instructions.AAM(Fetchb());
+                if (!Instructions.AAM(Fetchb())) return RUNEXCEPTION();
                 return HANDLED;
             }
         };
@@ -2978,20 +2978,20 @@ public class Prefix_none extends StringOp {
                     break;
                 case 0x06:											/* DIV Eb */
                     if (rm >= 0xc0 ) {
-                        DIVB(Modrm.GetEArb[rm].get());
+                        if (!DIVB(Modrm.GetEArb[rm].get())) return RUNEXCEPTION();
                     }
                     else {
                         int eaa = getEaa(rm);
-                        DIVB(Memory.mem_readb(eaa));
+                        if (!DIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();
                     }
                     break;
                 case 0x07:											/* IDIV Eb */
                     if (rm >= 0xc0 ) {
-                        IDIVB(Modrm.GetEArb[rm].get());
+                        if (!IDIVB(Modrm.GetEArb[rm].get())) return RUNEXCEPTION();
                     }
                     else {
                         int eaa = getEaa(rm);
-                        IDIVB(Memory.mem_readb(eaa));
+                        if (!IDIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();
                     }
                     break;
                 }
@@ -3061,20 +3061,20 @@ public class Prefix_none extends StringOp {
                     break;
                 case 0x06:											/* DIV Ew */
                     if (rm >= 0xc0 ) {
-                        DIVW(Modrm.GetEArw[rm].word());
+                        if (!DIVW(Modrm.GetEArw[rm].word())) return RUNEXCEPTION();
                     }
                     else {
                         int eaa = getEaa(rm);
-                        DIVW(Memory.mem_readw(eaa));
+                        if (!DIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();
                     }
                     break;
                 case 0x07:											/* IDIV Ew */
                     if (rm >= 0xc0 ) {
-                        IDIVW(Modrm.GetEArw[rm].word());
+                        if (!IDIVW(Modrm.GetEArw[rm].word())) return RUNEXCEPTION();
                     }
                     else {
                         int eaa = getEaa(rm);
-                        IDIVW(Memory.mem_readw(eaa));
+                        if (!IDIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();
                     }
                     break;
                 }

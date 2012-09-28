@@ -35,8 +35,6 @@ public class Prefix_helpers extends Instructions {
         return CONTINUE;
     }
 
-    static public class ContinueException extends RuntimeException {}
-
     public static int EXCEPTION(int blah) {
         CPU.CPU_Exception(blah);
         return CONTINUE;

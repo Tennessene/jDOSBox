@@ -3,7 +3,7 @@ package jdos.cpu.core_dynamic;
 import jdos.misc.Log;
 
 public class Compiler2 extends Compiler {
-    static boolean compile_op(Op op, int setFlags, StringBuffer method) {
+    static boolean compile_op(Op op, int setFlags, StringBuffer method, String preException) {
         switch (op.c) {
             case 0x19a: // SETP
             case 0x39a:
@@ -111,7 +111,7 @@ public class Compiler2 extends Compiler {
             case 0x1a1: // POP FS
                 if (op instanceof Inst2.PopFS) {
                     Inst2.PopFS o = (Inst2.PopFS) op;
-                    method.append("if (CPU.CPU_PopSegFS(false)) return RUNEXCEPTION();");
+                    method.append("if (CPU.CPU_PopSegFS(false)){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
@@ -198,7 +198,7 @@ public class Compiler2 extends Compiler {
             case 0x1a9: // POP GS
                 if (op instanceof Inst2.PopGS) {
                     Inst2.PopGS o = (Inst2.PopGS) op;
-                    method.append("if (CPU.CPU_PopSegGS(false)) return RUNEXCEPTION();");
+                    method.append("if (CPU.CPU_PopSegGS(false)){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
@@ -335,7 +335,7 @@ public class Compiler2 extends Compiler {
                     Inst2.LssEw o = (Inst2.LssEw) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();");
+                    method.append(";if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameSet16(o.rw, "Memory.mem_readw(eaa)"));
                     method.append(";Core.base_ss=CPU.Segs_SSphys;");
                     return true;
@@ -370,7 +370,7 @@ public class Compiler2 extends Compiler {
                     Inst2.LfsEw o = (Inst2.LfsEw) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();");
+                    method.append(";if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+2))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameSet16(o.rw, "Memory.mem_readw(eaa)"));
                     method.append(";");
                     return true;
@@ -381,7 +381,7 @@ public class Compiler2 extends Compiler {
                     Inst2.LgsEw o = (Inst2.LgsEw) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();");
+                    method.append(";if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+2))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameSet16(o.rw, "Memory.mem_readw(eaa)"));
                     method.append(";");
                     return true;
@@ -788,7 +788,7 @@ public class Compiler2 extends Compiler {
             case 0x207: // POP ES
                 if (op instanceof Inst3.Pop32ES) {
                     Inst3.Pop32ES o = (Inst3.Pop32ES) op;
-                    method.append("if (CPU.CPU_PopSegES(true)) return RUNEXCEPTION();");
+                    method.append("if (CPU.CPU_PopSegES(true)){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
@@ -871,7 +871,7 @@ public class Compiler2 extends Compiler {
             case 0x217: // POP SS
                 if (op instanceof Inst3.Pop32SS) {
                     Inst3.Pop32SS o = (Inst3.Pop32SS) op;
-                    method.append("if (CPU.CPU_PopSegSS(true)) return RUNEXCEPTION();Core.base_ss=CPU.Segs_SSphys;");
+                    method.append("if (CPU.CPU_PopSegSS(true)){").append(preException).append("return RUNEXCEPTION();}Core.base_ss=CPU.Segs_SSphys;");
                     return true;
                 }
                 break;
@@ -916,7 +916,7 @@ public class Compiler2 extends Compiler {
             case 0x21f: // POP DS
                 if (op instanceof Inst3.Pop32DS) {
                     Inst3.Pop32DS o = (Inst3.Pop32DS) op;
-                    method.append("if (CPU.CPU_PopSegDS(true)) return RUNEXCEPTION();Core.base_ds=CPU.Segs_DSphys;Core.base_val_ds= CPU_Regs.ds;");
+                    method.append("if (CPU.CPU_PopSegDS(true)){").append(preException).append("return RUNEXCEPTION();}Core.base_ds=CPU.Segs_DSphys;Core.base_val_ds= CPU_Regs.ds;");
                     return true;
                 }
                 break;
@@ -1441,7 +1441,7 @@ public class Compiler2 extends Compiler {
                     Inst1.DoStringException o = (Inst1.DoStringException) op;
                     method.append("if (CPU.CPU_IO_Exception(CPU_Regs.reg_edx.word(),");
                     method.append(o.width);
-                    method.append(")) return RUNEXCEPTION();Core.rep_zero = ");
+                    method.append(")){").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
@@ -1456,7 +1456,7 @@ public class Compiler2 extends Compiler {
                     Inst1.DoStringException o = (Inst1.DoStringException) op;
                     method.append("if (CPU.CPU_IO_Exception(CPU_Regs.reg_edx.word(),");
                     method.append(o.width);
-                    method.append(")) return RUNEXCEPTION();Core.rep_zero = ");
+                    method.append(")){").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
@@ -2064,14 +2064,14 @@ public class Compiler2 extends Compiler {
             case 0x29c: // PUSHFD
                 if (op instanceof Inst3.Pushfd) {
                     Inst3.Pushfd o = (Inst3.Pushfd) op;
-                    method.append("if (CPU.CPU_PUSHF(true)) return RUNEXCEPTION();");
+                    method.append("if (CPU.CPU_PUSHF(true)){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
             case 0x29d: // POPFD
                 if (op instanceof Inst3.Popfd) {
                     Inst3.Popfd o = (Inst3.Popfd) op;
-                    method.append("if (CPU.CPU_POPF(true)) return RUNEXCEPTION();");
+                    method.append("if (CPU.CPU_POPF(true)){").append(preException).append("return RUNEXCEPTION();}");
                     if (CPU_TRAP_CHECK) {
                         method.append("if (CPU_Regs.GETFLAG(CPU_Regs.TF)!=0) {CPU.cpudecoder= Core_dynamic.CPU_Core_Dynrec_Trap_Run;return DECODE_END(");
                         method.append(o.eip_count);
@@ -2634,7 +2634,7 @@ public class Compiler2 extends Compiler {
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
                     // make sure all reads are done before writing something in case of a PF
-                    method.append(";int val=Memory.mem_readd(eaa);if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
+                    method.append(";int val=Memory.mem_readd(eaa);if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameGet32(o.rd));
                     method.append("=val;");
                     return true;
@@ -2646,7 +2646,7 @@ public class Compiler2 extends Compiler {
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
                     // make sure all reads are done before writing something in case of a PF
-                    method.append(";int val=Memory.mem_readd(eaa); if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
+                    method.append(";int val=Memory.mem_readd(eaa); if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameGet32(o.rd));
                     method.append("=val;Core.base_ds=CPU.Segs_DSphys;Core.base_val_ds= CPU_Regs.ds;");
                     return true;
@@ -3220,7 +3220,7 @@ public class Compiler2 extends Compiler {
                     Inst3.InEaxIb o = (Inst3.InEaxIb) op;
                     method.append("if (CPU.CPU_IO_Exception(");
                     method.append(o.port);
-                    method.append(",4)) return RUNEXCEPTION();CPU_Regs.reg_eax.dword=IO.IO_ReadD(");
+                    method.append(",4)){").append(preException).append("return RUNEXCEPTION();}CPU_Regs.reg_eax.dword=IO.IO_ReadD(");
                     method.append(o.port);
                     method.append(");");
                     return true;
@@ -3231,7 +3231,7 @@ public class Compiler2 extends Compiler {
                     Inst3.OutEaxIb o = (Inst3.OutEaxIb) op;
                     method.append("if (CPU.CPU_IO_Exception(");
                     method.append(o.port);
-                    method.append(",4)) return RUNEXCEPTION();IO.IO_WriteD(");
+                    method.append(",4)){").append(preException).append("return RUNEXCEPTION();}IO.IO_WriteD(");
                     method.append(o.port);
                     method.append(",CPU_Regs.reg_eax.dword);");
                     return true;
@@ -3411,28 +3411,28 @@ public class Compiler2 extends Compiler {
                     Grp3.DivAxEd_reg o = (Grp3.DivAxEd_reg) op;
                     method.append("if (!Instructions.DIVD(");
                     method.append(nameGet32(o.eard));
-                    method.append(")) return RUNEXCEPTION();");
+                    method.append(")){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 if (op instanceof Grp3.DivAxEd_mem) {
                     Grp3.DivAxEd_mem o = (Grp3.DivAxEd_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (!Instructions.DIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();");
+                    method.append(";if (!Instructions.DIVD(Memory.mem_readd(eaa))){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAxEd_reg) {
                     Grp3.IDivAxEd_reg o = (Grp3.IDivAxEd_reg) op;
                     method.append("if (!Instructions.IDIVD(");
                     method.append(nameGet32(o.eard));
-                    method.append(")) return RUNEXCEPTION();");
+                    method.append(")){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 if (op instanceof Grp3.IDivAxEd_mem) {
                     Grp3.IDivAxEd_mem o = (Grp3.IDivAxEd_mem) op;
                     method.append("int eaa = ");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (!Instructions.IDIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();");
+                    method.append(";if (!Instructions.IDIVD(Memory.mem_readd(eaa))){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
@@ -3563,14 +3563,14 @@ public class Compiler2 extends Compiler {
                     Inst4.Lgdt_mem o = (Inst4.Lgdt_mem) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);CPU.CPU_LGDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa + 2));");
+                    method.append(";if (CPU.cpu.pmode && CPU.cpu.cpl!=0) {").append(preException).append("return EXCEPTION(CPU.EXCEPTION_GP);}CPU.CPU_LGDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa + 2));");
                     return true;
                 }
                 if (op instanceof Inst4.Lidt_mem) {
                     Inst4.Lidt_mem o = (Inst4.Lidt_mem) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);CPU.CPU_LIDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa + 2));");
+                    method.append(";if (CPU.cpu.pmode && CPU.cpu.cpl!=0) {").append(preException).append("return EXCEPTION(CPU.EXCEPTION_GP);}CPU.CPU_LIDT(Memory.mem_readw(eaa),Memory.mem_readd(eaa + 2));");
                     return true;
                 }
                 if (op instanceof Inst2.Smsw_mem) {
@@ -3584,22 +3584,22 @@ public class Compiler2 extends Compiler {
                     Inst2.Lmsw_mem o = (Inst2.Lmsw_mem) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_LMSW(Memory.mem_readw(eaa))) return RUNEXCEPTION();");
+                    method.append(";if (CPU.CPU_LMSW(Memory.mem_readw(eaa))){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 if (op instanceof Inst2.Invlpg) {
                     Inst2.Invlpg o = (Inst2.Invlpg) op;
-                    method.append("if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);Paging.PAGING_ClearTLB();");
+                    method.append("if (CPU.cpu.pmode && CPU.cpu.cpl!=0) {").append(preException).append("return EXCEPTION(CPU.EXCEPTION_GP);}Paging.PAGING_ClearTLB();");
                     return true;
                 }
                 if (op instanceof Inst2.Lgdt_reg) {
                     Inst2.Lgdt_reg o = (Inst2.Lgdt_reg) op;
-                    method.append("if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);return Constants.BR_Illegal;");
+                    method.append("if (CPU.cpu.pmode && CPU.cpu.cpl!=0) {").append(preException).append("return EXCEPTION(CPU.EXCEPTION_GP);}return Constants.BR_Illegal;");
                     return false;
                 }
                 if (op instanceof Inst2.Lidt_reg) {
                     Inst2.Lidt_reg o = (Inst2.Lidt_reg) op;
-                    method.append("if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);return Constants.BR_Illegal;");
+                    method.append("if (CPU.cpu.pmode && CPU.cpu.cpl!=0) {").append(preException).append("return EXCEPTION(CPU.EXCEPTION_GP);}return Constants.BR_Illegal;");
                     return false;
                 }
                 if (op instanceof Inst4.Smsw_reg) {
@@ -3612,7 +3612,7 @@ public class Compiler2 extends Compiler {
                     Inst4.Lmsw_reg o = (Inst4.Lmsw_reg) op;
                     method.append("if (CPU.CPU_LMSW(");
                     method.append(nameGet32(o.eard));
-                    method.append(")) return RUNEXCEPTION();");
+                    method.append(")){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
@@ -3786,7 +3786,7 @@ public class Compiler2 extends Compiler {
             case 0x3a1: // POP FS
                 if (op instanceof Inst4.PopFS) {
                     Inst4.PopFS o = (Inst4.PopFS) op;
-                    method.append("if (CPU.CPU_PopSegFS(true)) return RUNEXCEPTION();");
+                    method.append("if (CPU.CPU_PopSegFS(true)){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
@@ -3895,7 +3895,7 @@ public class Compiler2 extends Compiler {
             case 0x3a9: // POP GS
                 if (op instanceof Inst4.PopGS) {
                     Inst4.PopGS o = (Inst4.PopGS) op;
-                    method.append("if (CPU.CPU_PopSegGS(true)) return RUNEXCEPTION();");
+                    method.append("if (CPU.CPU_PopSegGS(true)){").append(preException).append("return RUNEXCEPTION();}");
                     return true;
                 }
                 break;
@@ -4059,7 +4059,7 @@ public class Compiler2 extends Compiler {
                     Inst4.LssEd o = (Inst4.LssEd) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
+                    method.append(";if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameGet32(o.rd));
                     method.append("=Memory.mem_readd(eaa);Core.base_ss=CPU.Segs_SSphys;");
                     return true;
@@ -4094,7 +4094,7 @@ public class Compiler2 extends Compiler {
                     Inst4.LfsEd o = (Inst4.LfsEd) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
+                    method.append(";if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameGet32(o.rd));
                     method.append("=Memory.mem_readd(eaa);");
                     return true;
@@ -4105,7 +4105,7 @@ public class Compiler2 extends Compiler {
                     Inst4.LgsEd o = (Inst4.LgsEd) op;
                     method.append("int eaa=");
                     toStringValue(o.get_eaa, method);
-                    method.append(";if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();");
+                    method.append(";if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameGet32(o.rd));
                     method.append("=Memory.mem_readd(eaa);");
                     return true;

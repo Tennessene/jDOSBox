@@ -8,6 +8,8 @@ import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.Data;
 
 abstract public class Op {
+    static final public int EAX = 1;
+
     public int c=-1;
     public int eip_count=0;
     public Op next;
@@ -38,6 +40,7 @@ abstract public class Op {
 
     public int sets() { return 0; }
     public int gets() { return 0; }
+
     public boolean returnsIllegal() {return false;}
 //    public boolean throwsException() {return true;}
 //    public boolean accessesMemory() {return true;}

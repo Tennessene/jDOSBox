@@ -2965,8 +2965,8 @@ public class Inst3 extends Helper {
 
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+        public boolean usesEip() {return true;}
+        public boolean setsEip() {return true;}
     }
 
      final static public class MovEaxOd extends Inst1.GetEADirect {

@@ -5165,8 +5165,8 @@ public class Inst1 extends Helper {
 
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+        public boolean usesEip() {return true;}
+        public boolean setsEip() {return true;}
     }
 
     final static public class Sahf extends Op {
@@ -6902,8 +6902,8 @@ public class Inst1 extends Helper {
 
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+        public boolean usesEip() {return true;}
+        public boolean setsEip() {return true;}
     }
 
     final static public class Cld extends Op {

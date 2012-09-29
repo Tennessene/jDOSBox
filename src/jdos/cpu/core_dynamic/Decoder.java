@@ -2,6 +2,7 @@ package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU;
 import jdos.cpu.Core;
+import jdos.cpu.PageFaultException;
 import jdos.cpu.Paging;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
@@ -167,7 +168,7 @@ public class Decoder extends Inst1 {
             } else {
                 result = RESULT_ILLEGAL_INSTRUCTION; // op code spanned two pages, run with normal core in case of page fault
             }
-        } catch (Paging.PageFaultException e) {
+        } catch (PageFaultException e) {
             Log.exit("Oops");
         }
         Cache.cache_closeblock();

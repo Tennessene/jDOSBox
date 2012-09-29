@@ -364,7 +364,7 @@ public class Paging extends Module_base {
                     CPU.cpudecoder = old_cpudecoder;
                     old_cpudecoder = null;
                     System.out.println("Forcing PF exit");
-                    throw new PageFaultException();
+                    throw new PageFaultException(false);
                 }
             }
             return 0;
@@ -509,8 +509,6 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 }
 */
 
-    static public class PageFaultException extends RuntimeException {}
-
     static public boolean pageFault = false;
 
     static private CPU.CPU_Decoder old_cpudecoder = null;
@@ -534,9 +532,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             // Callbacks are not re-entrant
             if (Callback.inHandler==0) {
                 CPU_Regs.FillFlags();
-                pageFault = true;
-                CPU.CPU_Exception(CPU.EXCEPTION_PF, faultcode);
-                pageFault = false;
+                CPU.CPU_PrepareException(CPU.EXCEPTION_PF, faultcode);
                 throw new PageFaultException();
             }
             // Save the state of the cpu cores

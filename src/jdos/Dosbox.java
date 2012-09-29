@@ -2,6 +2,7 @@ package jdos;
 
 import jdos.cpu.CPU;
 import jdos.cpu.Callback;
+import jdos.cpu.PageFaultException;
 import jdos.cpu.Paging;
 import jdos.cpu.core_dynamic.Compiler;
 import jdos.debug.Debug;
@@ -66,7 +67,12 @@ public class Dosbox {
                             Callback.inHandler++;
                             /*Bitu*/int blah=Callback.CallBack_Handlers[ret].call();
                             if (blah!=0) return blah;
-                        } catch(Paging.PageFaultException e) {
+                        } catch(PageFaultException e) {
+                            if (e.shouldRunException) {
+                                Paging.pageFault = true;
+                                CPU.CPU_Exception(CPU.cpu.exception.which, CPU.cpu.exception.error);
+                                Paging.pageFault = false;
+                            }
                             Log.exit("This should not happen");
                         } finally {
                             Callback.inHandler--;
@@ -190,7 +196,12 @@ public class Dosbox {
         do {
             try {
                 ret=loop.call();
-            } catch (Paging.PageFaultException e) {
+            } catch (PageFaultException e) {
+                if (e.shouldRunException) {
+                    Paging.pageFault = true;
+                    CPU.CPU_Exception(CPU.cpu.exception.which, CPU.cpu.exception.error);
+                    Paging.pageFault = false;
+                }
                 ret = 0;
             }
         } while (ret==0);

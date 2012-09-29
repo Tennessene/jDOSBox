@@ -305,7 +305,59 @@ public class Compiler extends Helper {
                         }
                     } else */
 
-                    if (op.c == 0xe2) {
+                    if (op.c == 0xe0) {
+                        if (op instanceof Inst1.Loopnz32) {
+                            Inst1.Loopnz32 l = (Inst1.Loopnz32)op;
+                            if (eipTotal + op.eip_count == -l.offset) {
+                                method.append("CPU_Regs.reg_ecx.dword--;");
+                                method.append("if (CPU_Regs.reg_ecx.dword!=0 && !Flags.get_ZF()) {");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                                method.insert(loopPos, "while (true) {");
+                                method.append("}");
+                                loopClosed = true;
+                            }
+                        } else if (op instanceof Inst1.Loopnz16) {
+                            Inst1.Loopnz16 l = (Inst1.Loopnz16)op;
+                            if (eipTotal + op.eip_count == -l.offset) {
+                                method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
+                                method.append("if (CPU_Regs.reg_ecx.word()!=0 && !Flags.get_ZF()) {");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                                method.insert(loopPos, "while (true) {");
+                                method.append("}");
+                                loopClosed = true;
+                            }
+                        }
+                    } else if (op.c == 0xe1) {
+                        if (op instanceof Inst1.Loopz32) {
+                            Inst1.Loopz32 l = (Inst1.Loopz32)op;
+                            if (eipTotal + op.eip_count == -l.offset) {
+                                method.append("CPU_Regs.reg_ecx.dword--;");
+                                method.append("if (CPU_Regs.reg_ecx.dword!=0 && Flags.get_ZF()) {");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                                method.insert(loopPos, "while (true) {");
+                                method.append("}");
+                                loopClosed = true;
+                            }
+                        } else if (op instanceof Inst1.Loopz16) {
+                            Inst1.Loopz16 l = (Inst1.Loopz16)op;
+                            if (eipTotal + op.eip_count == -l.offset) {
+                                method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
+                                method.append("if (CPU_Regs.reg_ecx.word()!=0 && Flags.get_ZF()) {");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                                method.insert(loopPos, "while (true) {");
+                                method.append("}");
+                                loopClosed = true;
+                            }
+                        }
+                    } else if (op.c == 0xe2) {
                         if (op instanceof Inst1.Loop32) {
                             Inst1.Loop32 l = (Inst1.Loop32)op;
                             if (eipTotal + op.eip_count == -l.offset) {
@@ -339,9 +391,13 @@ public class Compiler extends Helper {
                         if (combineEIP) {
                             method.append("}");
                             if (tryPageFault) {
-                                method.append("catch (PageFaultException e) {CPU_Regs.reg_eip+=");
-                                method.append(runningEipCount);
-                                method.append("; throw e;}");
+                                method.append("catch (PageFaultException e) {");
+                                if (runningEipCount>0) {
+                                    method.append("CPU_Regs.reg_eip+=");
+                                    method.append(runningEipCount);
+                                    method.append(";");
+                                }
+                                method.append("throw e;}");
                             }
                             method.append("\n");
                             runningEipCount+=op.eip_count;
@@ -355,9 +411,13 @@ public class Compiler extends Helper {
                     } else {
                         method.append("}");
                         if (tryPageFault) {
-                            method.append("catch (PageFaultException e) {CPU_Regs.reg_eip+=");
-                            method.append(runningEipCount);
-                            method.append("; throw e;}");
+                            method.append("catch (PageFaultException e) {");
+                            if (runningEipCount>0) {
+                                method.append("CPU_Regs.reg_eip+=");
+                                method.append(runningEipCount);
+                                method.append(";");
+                            }
+                            method.append("throw e;}");
                         }
                         jump = true;
                         if (op.next != null) {

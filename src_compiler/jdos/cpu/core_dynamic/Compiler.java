@@ -116,6 +116,108 @@ public class Compiler extends Helper {
         // Always set the flag before a jump
         return result | flag;
     }
+
+    static private boolean isO(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_o) || (op instanceof Inst3.JumpCond32_b_o) || (op instanceof Inst2.JumpCond16_w_o) || (op instanceof Inst1.JumpCond16_b_o);
+    }
+    static private boolean isNO(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_no) || (op instanceof Inst3.JumpCond32_b_no) || (op instanceof Inst2.JumpCond16_w_no) || (op instanceof Inst1.JumpCond16_b_no);
+    }
+    static private boolean isB(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_b) || (op instanceof Inst3.JumpCond32_b_b) || (op instanceof Inst2.JumpCond16_w_b) || (op instanceof Inst1.JumpCond16_b_b);
+    }
+    static private boolean isNB(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nb) || (op instanceof Inst3.JumpCond32_b_nb) || (op instanceof Inst2.JumpCond16_w_nb) || (op instanceof Inst1.JumpCond16_b_nb);
+    }
+    static private boolean isZ(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_z) || (op instanceof Inst3.JumpCond32_b_z) || (op instanceof Inst2.JumpCond16_w_z) || (op instanceof Inst1.JumpCond16_b_z);
+    }
+    static private boolean isNZ(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nz) || (op instanceof Inst3.JumpCond32_b_nz) || (op instanceof Inst2.JumpCond16_w_nz) || (op instanceof Inst1.JumpCond16_b_nz);
+    }
+    static private boolean isL(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_l) || (op instanceof Inst3.JumpCond32_b_l) || (op instanceof Inst2.JumpCond16_w_l) || (op instanceof Inst1.JumpCond16_b_l);
+    }
+    static private boolean isNL(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nl) || (op instanceof Inst3.JumpCond32_b_nl) || (op instanceof Inst2.JumpCond16_w_nl) || (op instanceof Inst1.JumpCond16_b_nl);
+    }
+    static private boolean isS(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_s) || (op instanceof Inst3.JumpCond32_b_s) || (op instanceof Inst2.JumpCond16_w_s) || (op instanceof Inst1.JumpCond16_b_s);
+    }
+    static private boolean isNS(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_ns) || (op instanceof Inst3.JumpCond32_b_ns) || (op instanceof Inst2.JumpCond16_w_ns) || (op instanceof Inst1.JumpCond16_b_ns);
+    }
+    static private boolean isP(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_p) || (op instanceof Inst3.JumpCond32_b_p) || (op instanceof Inst2.JumpCond16_w_p) || (op instanceof Inst1.JumpCond16_b_p);
+    }
+    static private boolean isNP(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_np) || (op instanceof Inst3.JumpCond32_b_np) || (op instanceof Inst2.JumpCond16_w_np) || (op instanceof Inst1.JumpCond16_b_np);
+    }
+    static private boolean isLE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_le) || (op instanceof Inst3.JumpCond32_b_le) || (op instanceof Inst2.JumpCond16_w_le) || (op instanceof Inst1.JumpCond16_b_le);
+    }
+    static private boolean isNLE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nle) || (op instanceof Inst3.JumpCond32_b_nle) || (op instanceof Inst2.JumpCond16_w_nle) || (op instanceof Inst1.JumpCond16_b_nle);
+    }
+    static private boolean isBE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_be) || (op instanceof Inst3.JumpCond32_b_be) || (op instanceof Inst2.JumpCond16_w_be) || (op instanceof Inst1.JumpCond16_b_be);
+    }
+    static private boolean isNBE(Op op) {
+        return (op instanceof Inst4.JumpCond32_d_nbe) || (op instanceof Inst3.JumpCond32_b_nbe) || (op instanceof Inst2.JumpCond16_w_nbe) || (op instanceof Inst1.JumpCond16_b_nbe);
+    }
+    static private boolean isJump(Op op) {
+        return (op instanceof Inst3.JumpCond32_b || op instanceof Inst1.JumpCond16_b || op instanceof Inst4.JumpCond32_d || op instanceof Inst2.JumpCond16_w);
+    }
+    static private boolean isTest(Op op) {
+        return op instanceof Inst3.TestEdGd_reg || op instanceof Inst3.TestEdGd_mem || op instanceof Inst3.TestEaxId || op instanceof Inst1.TestAlIb  || op instanceof Inst1.TestAxIw ||
+                op instanceof Inst1.TestEbGb_mem || op instanceof Inst1.TestEbGb_reg || op instanceof Inst1.TestEwGw_mem || op instanceof Inst1.TestEwGw_reg;
+    }
+    static private boolean isCmp(Op op) {
+        return (op instanceof Inst3.Cmpd_reg || op instanceof Inst3.CmpEaxId || op instanceof Inst3.CmpEdGd_mem || op instanceof Inst3.CmpGdEd_mem || op instanceof Inst1.CmpAlIb ||
+                op instanceof Inst1.CmpAxIw || op instanceof Inst1.Cmpb_reg || op instanceof Inst1.CmpEbGb_mem || op instanceof Inst1.CmpEwGw_mem || op instanceof Inst1.CmpGbEb_mem ||
+                op instanceof Inst1.CmpGwEw_mem || op instanceof Inst1.Cmpw_reg);
+    }
+    static private String getJumpCondition(Op jump) {
+        if (isO(jump)) {
+            return "Flags.TFLG_O()";
+        } else if (isNO(jump)) {
+            return "Flags.TFLG_NO()";
+        } else if (isB(jump)) {
+            return "Flags.TFLG_B()";
+        } else if (isNB(jump)) {
+            return "Flags.TFLG_NB()";
+        } else if (isZ(jump)) {
+            return "Flags.TFLG_Z()";
+        } else if (isNZ(jump)) {
+            return "Flags.TFLG_NZ()";
+        } else if (isBE(jump)) {
+            return "Flags.TFLG_BE()";
+        } else if (isNBE(jump)) {
+            return "Flags.TFLG_NBE()";
+        } else if (isS(jump)) {
+            return "Flags.TFLG_S()";
+        } else if (isNS(jump)) {
+            return "Flags.TFLG_NS()";
+        } else if (isP(jump)) {
+            return "Flags.TFLG_P()";
+        } else if (isNP(jump)) {
+            return "Flags.TFLG_NP()";
+        } else if (isLE(jump)) {
+            return "Flags.TFLG_LE()";
+        } else if (isNLE(jump)) {
+            return "Flags.TFLG_NLE()";
+        } else if (isL(jump)) {
+            return "Flags.TFLG_L()";
+        } else if (isNL(jump)) {
+            return "Flags.TFLG_NL()";
+        }
+        return null;
+    }
+
+    static private boolean isDec(Op op) {
+        return (op instanceof Inst3.Decd_reg || op instanceof Inst3.Decd_mem || op instanceof Inst1.Decw_reg || op instanceof Inst1.Decb_reg || op instanceof Inst1.Decb_mem || op instanceof Inst1.Decw_mem || op instanceof Inst1.Decw);
+    }
+
     static final boolean combineEIP = true;  // about 3-4% improvement
     static final boolean combineMemoryAccessEIP = false; // less than 1% improvement
     static public Op do_compile(Op op) {
@@ -125,10 +227,15 @@ public class Compiler extends Helper {
         int count = 0;
         Op start = prev;
 
-        method.append("Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds= CPU_Regs.ds;CPU.CPU_Cycles-=");
+        method.append("Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds= CPU_Regs.ds;");
+        int loopPos = method.length();
+        int eipTotal = 0;
+        method.append("CPU.CPU_Cycles-=");
         method.append(op.cycle);
         method.append(";");
         int runningEipCount = 0;
+        boolean loop = false;
+        String loopCondition = null;
         while (op != null) {
             try {
                 boolean jump = false;
@@ -139,7 +246,7 @@ public class Compiler extends Helper {
                         start = prev;
                     }
                     if (combineEIP) {
-                        if (op.usesEip() || op.next==null || (!combineMemoryAccessEIP && op.accessesMemory())) {
+                        if (loop || op.usesEip() || op.next==null || (!combineMemoryAccessEIP && op.accessesMemory())) {
                             if (runningEipCount > 0) {
                                 method.append("CPU_Regs.reg_eip+=");
                                 method.append(runningEipCount);
@@ -170,10 +277,65 @@ public class Compiler extends Helper {
                         if ((op.sets() & CPU_Regs.PF)!=0)
                             shouldSet = searchFlag(op.next, CPU_Regs.PF, shouldSet);
                     }
+                    boolean loopClosed = false;
+                    if (loop) {
+                        loop = false;
+
+                        if (op instanceof Inst1.JumpCond16_b)
+                            loop = compile((Inst1.JumpCond16_b)op, loopCondition, method, eipTotal);
+                        else if (op instanceof Inst3.JumpCond32_b)
+                            loop = compile((Inst2.JumpCond16_w)op, loopCondition, method, eipTotal);
+                        else if (op instanceof Inst2.JumpCond16_w)
+                            loop = compile((Inst3.JumpCond32_b)op, loopCondition, method, eipTotal);
+                        else if (op instanceof Inst4.JumpCond32_d)
+                            loop = compile((Inst4.JumpCond32_d)op, loopCondition, method, eipTotal);
+
+                        if (loop) {
+                            method.insert(loopPos, "while (true) {");
+                            method.append("}");
+                            loopClosed = true;
+                        }
+                    }
+                    loopCondition = null;
+                    /*
+                    if ((isTest(op) || isCmp(op) || isDec(op)) && isJump(op.next)) {
+                        loopCondition = getJumpCondition(op.next);
+                        if (loopCondition != null) {
+                            loop = true;
+                        }
+                    } else */
+
+                    if (op.c == 0xe2) {
+                        if (op instanceof Inst1.Loop32) {
+                            Inst1.Loop32 l = (Inst1.Loop32)op;
+                            if (eipTotal + op.eip_count == -l.offset) {
+                                method.append("CPU_Regs.reg_ecx.dword--;");
+                                method.append("if (CPU_Regs.reg_ecx.dword!=0) {");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                                method.insert(loopPos, "while (true) {");
+                                method.append("}");
+                                loopClosed = true;
+                            }
+                        } else if (op instanceof Inst1.Loop16) {
+                            Inst1.Loop16 l = (Inst1.Loop16)op;
+                            if (eipTotal + op.eip_count == -l.offset) {
+                                method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
+                                method.append("if (CPU_Regs.reg_ecx.word()!=0) {");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                                method.insert(loopPos, "while (true) {");
+                                method.append("}");
+                                loopClosed = true;
+                            }
+                        }
+                    }
                     if (shouldSet!=0) {
                         method.append("/* Should set flags */");
                     }
-                    if (compile_op(op, alwayUseFastVersion?0:shouldSet, method, "CPU_Regs.reg_eip+="+runningEipCount+";")) {
+                    if (!loopClosed && compile_op(op, alwayUseFastVersion?0:shouldSet, method, "CPU_Regs.reg_eip+="+runningEipCount+";")) {
                         if (combineEIP) {
                             method.append("}");
                             if (tryPageFault) {
@@ -183,6 +345,7 @@ public class Compiler extends Helper {
                             }
                             method.append("\n");
                             runningEipCount+=op.eip_count;
+                            eipTotal+=op.eip_count;
                         } else {
                             method.append("CPU_Regs.reg_eip+=");
                             method.append(op.eip_count);
@@ -555,27 +718,71 @@ public class Compiler extends Helper {
     }
     static void compile(Inst1.JumpCond16_b op, String cond, StringBuffer method) {
         method.append("if (");method.append(cond);method.append(") {");
-        method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.offset);method.append("+");method.append(op.eip_count);method.append(");");
+        method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.offset+op.eip_count);method.append(");");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
     }
     static void compile(Inst2.JumpCond16_w op, String cond, StringBuffer method) {
         method.append("if (");method.append(cond);method.append(") {");
-        method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.offset);method.append("+");method.append(op.eip_count);method.append(");");
+        method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.offset+op.eip_count);method.append(");");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
     }
     static void compile(Inst3.JumpCond32_b op, String cond, StringBuffer method) {
         method.append("if (");method.append(cond);method.append(") {");
-        method.append("CPU_Regs.reg_eip+=");method.append(op.offset);method.append("+");method.append(op.eip_count);method.append(";");
+        method.append("CPU_Regs.reg_eip+=");method.append(op.offset+op.eip_count);method.append(";");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
     }
     static void compile(Inst4.JumpCond32_d op, String cond, StringBuffer method) {
         method.append("if (");method.append(cond);method.append(") {");
-        method.append("CPU_Regs.reg_eip+=");method.append(op.offset);method.append("+");method.append(op.eip_count);method.append(";");
+        method.append("CPU_Regs.reg_eip+=");method.append(op.offset+op.eip_count);method.append(";");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
+    }
+
+    static boolean compile(Inst1.JumpCond16_b op, String cond, StringBuffer method, int eipCount) {
+        if (eipCount + op.eip_count == -op.offset) {
+            method.append("if (");method.append(cond);method.append(") {");
+            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipCount);
+            method.append(");continue;}");
+            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+            return true;
+        }
+        return false;
+    }
+
+    static boolean compile(Inst2.JumpCond16_w op, String cond, StringBuffer method, int eipCount) {
+        if (eipCount + op.eip_count == -op.offset) {
+            method.append("if (");method.append(cond);method.append(") {");
+            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipCount);
+            method.append(");continue;}");
+            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+            return true;
+        }
+        return false;
+    }
+
+    static boolean compile(Inst3.JumpCond32_b op, String cond, StringBuffer method, int eipCount) {
+        if (eipCount + op.eip_count == -op.offset) {
+            method.append("if (");method.append(cond);method.append(") {");
+            method.append("CPU_Regs.reg_eip-=");method.append(eipCount);
+            method.append(";continue;}");
+            method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
+            return true;
+        }
+        return false;
+    }
+
+    static boolean compile(Inst4.JumpCond32_d op, String cond, StringBuffer method, int eipCount) {
+        if (eipCount + op.eip_count == -op.offset) {
+            method.append("if (");method.append(cond);method.append(") {");
+            method.append("CPU_Regs.reg_eip-=");method.append(eipCount);
+            method.append(";continue;}");
+            method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
+            return true;
+        }
+        return false;
     }
 
     static void memory_readb(EaaBase eaa, StringBuffer method) {

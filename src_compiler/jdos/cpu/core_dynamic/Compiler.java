@@ -223,7 +223,7 @@ public class Compiler extends Helper {
     static public Op do_compile(Op op) {
         Op prev = op;
         op = op.next;
-        StringBuffer method = new StringBuffer();
+        StringBuilder method = new StringBuilder();
         int count = 0;
         Op start = prev;
 
@@ -446,7 +446,7 @@ public class Compiler extends Helper {
                     }
                 }
                 if (method.length() > 0)
-                    method = new StringBuffer();
+                    method = new StringBuilder();
                 start = null;
                 count = 0;
             } finally {
@@ -463,7 +463,7 @@ public class Compiler extends Helper {
         return "CPU_Regs.reg_"+reg.getParent().getName()+".high()";
     }
 
-    static void nameGet8(CPU_Regs.Reg reg, StringBuffer method) {
+    static void nameGet8(CPU_Regs.Reg reg, StringBuilder method) {
         if (reg.getParent()==null && reg.getName()==null)
             method.append(String.valueOf(reg.dword));
         else {
@@ -482,7 +482,7 @@ public class Compiler extends Helper {
         return "CPU_Regs.reg_"+reg.getName()+".word()";
     }
 
-    static void nameGet16(CPU_Regs.Reg reg, StringBuffer method) {
+    static void nameGet16(CPU_Regs.Reg reg, StringBuilder method) {
         if (reg.getName()==null)
             method.append(String.valueOf(reg.dword));
         else {
@@ -497,8 +497,8 @@ public class Compiler extends Helper {
         return "CPU_Regs.reg_"+reg.getName()+".dword";
     }
 
-    static void nameGet32(CPU_Regs.Reg reg, StringBuffer method) {
-        if (reg.getName()==null)
+    static void nameGet32(CPU_Regs.Reg reg, StringBuilder method) {
+        if (reg.getName() == null)
             method.append(String.valueOf(reg.dword));
         else {
             method.append("CPU_Regs.reg_");
@@ -512,7 +512,7 @@ public class Compiler extends Helper {
         return "CPU_Regs.reg_"+reg.getParent().getName()+".high("+value+")";
     }
 
-    static void nameSet8(CPU_Regs.Reg reg, StringBuffer method) {
+    static void nameSet8(CPU_Regs.Reg reg, StringBuilder method) {
         method.append("CPU_Regs.reg_");
         if (reg.getParent()==null) {
             method.append(reg.getName());
@@ -523,34 +523,71 @@ public class Compiler extends Helper {
         }
     }
 
-    static String nameSet16(CPU_Regs.Reg reg, String value) {
-        return "CPU_Regs.reg_"+reg.getName()+".word("+value+")";
+    static void nameSet16(CPU_Regs.Reg reg, String value, StringBuilder method) {
+        method.append("CPU_Regs.reg_");
+        method.append(reg.getName());
+        method.append(".word(");
+        method.append(value);
+        method.append(")");
     }
 
-    static void nameSet16(CPU_Regs.Reg reg, StringBuffer method) {
+    static void nameSet16(CPU_Regs.Reg reg, String value, String value2, String value3, StringBuilder method) {
+        method.append("CPU_Regs.reg_");
+        method.append(reg.getName());
+        method.append(".word(");
+        method.append(value);
+        method.append(value2);
+        method.append(value3);
+        method.append(")");
+    }
+
+    static void nameSet16(CPU_Regs.Reg reg, String value, String value2, String value3, String value4, String value5, StringBuilder method) {
+        method.append("CPU_Regs.reg_");
+        method.append(reg.getName());
+        method.append(".word(");
+        method.append(value);
+        method.append(value2);
+        method.append(value3);
+        method.append(value4);
+        method.append(value5);
+        method.append(")");
+    }
+
+    static void nameSet16(CPU_Regs.Reg reg, String value, String value2, String value3, String value4, String value5, String value6, String value7, StringBuilder method) {
+        method.append("CPU_Regs.reg_");
+        method.append(reg.getName());
+        method.append(".word(");
+        method.append(value);
+        method.append(value2);
+        method.append(value3);
+        method.append(value4);
+        method.append(value5);
+        method.append(value6);
+        method.append(value7);
+        method.append(")");
+    }
+    static void nameSet16(CPU_Regs.Reg reg, StringBuilder method) {
         method.append("CPU_Regs.reg_");
         method.append(reg.getName());
         method.append(".word(");
     }
 
-    static String nameSet32(CPU_Regs.Reg reg, String value) {
-        return "CPU_Regs.reg_"+reg.getName()+".dword="+value;
+    static String nameSet32(CPU_Regs.Reg reg) {
+        return reg.getFullName32();
     }
 
-    static void nameSet32(CPU_Regs.Reg reg, StringBuffer method) {
-        method.append("CPU_Regs.reg_");
-        method.append(reg.getName());
-        method.append(".dword=(");
+    static void nameSet32(CPU_Regs.Reg reg, StringBuilder method) {
+        method.append(reg.getFullName32());
     }
 
     static String nameRef(CPU_Regs.Reg reg) {
         return "CPU_Regs.reg_"+reg.getName();
     }
 
-    static void toStringValue(EaaBase eaa, StringBuffer method) {
+    static void toStringValue(EaaBase eaa, StringBuilder method) {
         toStringValue(eaa, method, false);
     }
-    static void toStringValue(EaaBase eaa, StringBuffer method, boolean zero) {
+    static void toStringValue(EaaBase eaa, StringBuilder method, boolean zero) {
         if (eaa instanceof Eaa.EA_16_00_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -562,11 +599,11 @@ public class Compiler extends Helper {
         } else if (eaa instanceof Eaa.EA_16_02_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+(short)CPU_Regs.reg_esi.word()) & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+(short)CPU_Regs.reg_esi.word()) & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_03_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+(short)CPU_Regs.reg_edi.word()) & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+(short)CPU_Regs.reg_edi.word()) & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_04_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -594,11 +631,11 @@ public class Compiler extends Helper {
         } else if (eaa instanceof Eaa.EA_16_42_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+(short)CPU_Regs.reg_esi.word()+");method.append(((Eaa.EA_16_42_n)eaa).i);method.append(") & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+(short)CPU_Regs.reg_esi.word()+");method.append(((Eaa.EA_16_42_n)eaa).i);method.append(") & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_43_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+(short)CPU_Regs.reg_edi.word()+");method.append(((Eaa.EA_16_43_n)eaa).i);method.append(") & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+(short)CPU_Regs.reg_edi.word()+");method.append(((Eaa.EA_16_43_n)eaa).i);method.append(") & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_44_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -610,7 +647,7 @@ public class Compiler extends Helper {
         } else if (eaa instanceof Eaa.EA_16_46_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+");method.append(((Eaa.EA_16_46_n)eaa).i);method.append(") & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+");method.append(((Eaa.EA_16_46_n)eaa).i);method.append(") & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_47_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -626,11 +663,11 @@ public class Compiler extends Helper {
         } else if (eaa instanceof Eaa.EA_16_82_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+(short)CPU_Regs.reg_esi.word()+");method.append(((Eaa.EA_16_82_n)eaa).i);method.append(") & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+(short)CPU_Regs.reg_esi.word()+");method.append(((Eaa.EA_16_82_n)eaa).i);method.append(") & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_83_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+(short)CPU_Regs.reg_edi.word()+");method.append(((Eaa.EA_16_83_n)eaa).i);method.append(") & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+(short)CPU_Regs.reg_edi.word()+");method.append(((Eaa.EA_16_83_n)eaa).i);method.append(") & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_84_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -642,7 +679,7 @@ public class Compiler extends Helper {
         } else if (eaa instanceof Eaa.EA_16_86_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("((CPU_Regs.reg_ebp.word()+");method.append(((Eaa.EA_16_86_n)eaa).i);method.append(") & 0xFFFF)");
+            method.append("((");nameGet16(CPU_Regs.reg_ebp,method);method.append("+");method.append(((Eaa.EA_16_86_n)eaa).i);method.append(") & 0xFFFF)");
         } else if (eaa instanceof Eaa.EA_16_87_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -723,7 +760,7 @@ public class Compiler extends Helper {
         } else if (eaa instanceof Eaa.EA_32_45_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("CPU_Regs.reg_ebp.dword+");method.append(((Eaa.EA_32_45_n)eaa).i);
+            nameGet32(CPU_Regs.reg_ebp,method);method.append("+");method.append(((Eaa.EA_32_45_n)eaa).i);
         } else if (eaa instanceof Eaa.EA_32_46_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -765,7 +802,7 @@ public class Compiler extends Helper {
         } else if (eaa instanceof Eaa.EA_32_85_n) {
             if (!zero)
                 method.append("Core.base_ss+");
-            method.append("CPU_Regs.reg_ebp.dword+");method.append(((Eaa.EA_32_85_n)eaa).i);
+            nameGet32(CPU_Regs.reg_ebp,method);method.append("+");method.append(((Eaa.EA_32_85_n)eaa).i);
         } else if (eaa instanceof Eaa.EA_32_86_n) {
             if (!zero)
                 method.append("Core.base_ds+");
@@ -776,32 +813,32 @@ public class Compiler extends Helper {
             method.append("CPU_Regs.reg_edi.dword+");method.append(((Eaa.EA_32_87_n)eaa).i);
         }
     }
-    static void compile(Inst1.JumpCond16_b op, String cond, StringBuffer method) {
+    static void compile(Inst1.JumpCond16_b op, String cond, StringBuilder method) {
         method.append("if (");method.append(cond);method.append(") {");
         method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.offset+op.eip_count);method.append(");");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
     }
-    static void compile(Inst2.JumpCond16_w op, String cond, StringBuffer method) {
+    static void compile(Inst2.JumpCond16_w op, String cond, StringBuilder method) {
         method.append("if (");method.append(cond);method.append(") {");
         method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.offset+op.eip_count);method.append(");");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
     }
-    static void compile(Inst3.JumpCond32_b op, String cond, StringBuffer method) {
+    static void compile(Inst3.JumpCond32_b op, String cond, StringBuilder method) {
         method.append("if (");method.append(cond);method.append(") {");
         method.append("CPU_Regs.reg_eip+=");method.append(op.offset+op.eip_count);method.append(";");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
     }
-    static void compile(Inst4.JumpCond32_d op, String cond, StringBuffer method) {
+    static void compile(Inst4.JumpCond32_d op, String cond, StringBuilder method) {
         method.append("if (");method.append(cond);method.append(") {");
         method.append("CPU_Regs.reg_eip+=");method.append(op.offset+op.eip_count);method.append(";");
         method.append("return Constants.BR_Link1;}");
         method.append("CPU_Regs.reg_eip+=");method.append(op.eip_count);method.append(";return Constants.BR_Link2;");
     }
 
-    static boolean compile(Inst1.JumpCond16_b op, String cond, StringBuffer method, int eipCount) {
+    static boolean compile(Inst1.JumpCond16_b op, String cond, StringBuilder method, int eipCount) {
         if (eipCount + op.eip_count == -op.offset) {
             method.append("if (");method.append(cond);method.append(") {");
             method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipCount);
@@ -812,7 +849,7 @@ public class Compiler extends Helper {
         return false;
     }
 
-    static boolean compile(Inst2.JumpCond16_w op, String cond, StringBuffer method, int eipCount) {
+    static boolean compile(Inst2.JumpCond16_w op, String cond, StringBuilder method, int eipCount) {
         if (eipCount + op.eip_count == -op.offset) {
             method.append("if (");method.append(cond);method.append(") {");
             method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipCount);
@@ -823,7 +860,7 @@ public class Compiler extends Helper {
         return false;
     }
 
-    static boolean compile(Inst3.JumpCond32_b op, String cond, StringBuffer method, int eipCount) {
+    static boolean compile(Inst3.JumpCond32_b op, String cond, StringBuilder method, int eipCount) {
         if (eipCount + op.eip_count == -op.offset) {
             method.append("if (");method.append(cond);method.append(") {");
             method.append("CPU_Regs.reg_eip-=");method.append(eipCount);
@@ -834,7 +871,7 @@ public class Compiler extends Helper {
         return false;
     }
 
-    static boolean compile(Inst4.JumpCond32_d op, String cond, StringBuffer method, int eipCount) {
+    static boolean compile(Inst4.JumpCond32_d op, String cond, StringBuilder method, int eipCount) {
         if (eipCount + op.eip_count == -op.offset) {
             method.append("if (");method.append(cond);method.append(") {");
             method.append("CPU_Regs.reg_eip-=");method.append(eipCount);
@@ -845,64 +882,66 @@ public class Compiler extends Helper {
         return false;
     }
 
-    static void memory_readb(EaaBase eaa, StringBuffer method) {
+    static void memory_readb(EaaBase eaa, StringBuilder method) {
 
     }
-    static void memory_readw(EaaBase eaa, StringBuffer method) {
+    static void memory_readw(EaaBase eaa, StringBuilder method) {
 
     }
-    static void memory_readd(EaaBase eaa, StringBuffer method) {
+    static void memory_readd(EaaBase eaa, StringBuilder method) {
 
     }
-    static void memory_writeb(EaaBase eaa, StringBuffer method) {
+    static void memory_writeb(EaaBase eaa, StringBuilder method) {
 
     }
-    static void memory_writew(EaaBase eaa, StringBuffer method) {
+    static void memory_writew(EaaBase eaa, StringBuilder method) {
 
     }
-    static void memory_writed(EaaBase eaa, StringBuffer method) {
+    static void memory_writed(EaaBase eaa, StringBuilder method) {
 
     }
-    static void memory_start(EaaBase eaa, StringBuffer method) {
+    static void memory_start(EaaBase eaa, StringBuilder method) {
         method.append("int eaa = ");
         toStringValue(eaa, method);
         method.append(";");
     }
 
-    static void memory_start(EaaBase eaa, StringBuffer method, boolean zero) {
+    static void memory_start(EaaBase eaa, StringBuilder method, boolean zero) {
         method.append("int eaa = ");
         toStringValue(eaa, method, zero);
         method.append(";");
     }
-    static void memory_readb(StringBuffer method) {
+    static void memory_readb(StringBuilder method) {
         method.append("Memory.mem_readb(eaa)");
     }
-    static void memory_readw(StringBuffer method) {
+    static void memory_readw(StringBuilder method) {
         method.append("Memory.mem_readw(eaa)");
     }
-    static void memory_readd(StringBuffer method) {
+    static void memory_readd(StringBuilder method) {
         method.append("Memory.mem_readd(eaa)");
     }
-    static void memory_writeb(StringBuffer method) {
+    static void memory_writeb(StringBuilder method) {
         method.append("Memory.mem_writeb(eaa, ");
     }
-    static void memory_writew(StringBuffer method) {
+    static void memory_writew(StringBuilder method) {
         method.append("Memory.mem_writew(eaa, ");
     }
-    static void memory_writed(StringBuffer method) {
+    static void memory_writed(StringBuilder method) {
         method.append("Memory.mem_writed(eaa, ");
     }
 
-    static void nameSet(CPU_Regs.Reg reg, int bits, StringBuffer method) {
+    static void nameSet(CPU_Regs.Reg reg, int bits, StringBuilder method) {
         if (bits == 8)
             nameSet8(reg, method);
         else if (bits == 16)
             nameSet16(reg, method);
-        else if (bits == 32)
+        else if (bits == 32) {
             nameSet32(reg, method);
+            method.append("=(");
+        }
     }
 
-    static void nameGet(CPU_Regs.Reg reg, int bits, StringBuffer method) {
+    static void nameGet(CPU_Regs.Reg reg, int bits, StringBuilder method) {
         if (bits == 8)
             nameGet8(reg, method);
         else if (bits == 16)
@@ -911,7 +950,7 @@ public class Compiler extends Helper {
            nameGet32(reg, method);
     }
 
-    static void instructionEG(boolean fast, int bits, CPU_Regs.Reg e, CPU_Regs.Reg g, String inst, String extraInst, String instCall, StringBuffer method) {
+    static void instructionEG(boolean fast, int bits, CPU_Regs.Reg e, CPU_Regs.Reg g, String inst, String extraInst, String instCall, StringBuilder method) {
         nameSet(e, bits, method);
         if (fast) {
             nameGet(e, bits, method);
@@ -935,7 +974,7 @@ public class Compiler extends Helper {
             method.append("));");
         }
     }
-    static void instructionEG(boolean fast, int bits, EaaBase e, CPU_Regs.Reg g, String inst, String extraInst, String instCall, StringBuffer method) {
+    static void instructionEG(boolean fast, int bits, EaaBase e, CPU_Regs.Reg g, String inst, String extraInst, String instCall, StringBuilder method) {
         memory_start(e, method);
         if (bits == 8)
             memory_writeb(method);
@@ -973,7 +1012,7 @@ public class Compiler extends Helper {
             method.append("));");
         }
     }
-    static void instructionGE(boolean fast, int bits, CPU_Regs.Reg e, EaaBase g, String inst, String extraInst, String instCall, StringBuffer method) {
+    static void instructionGE(boolean fast, int bits, CPU_Regs.Reg e, EaaBase g, String inst, String extraInst, String instCall, StringBuilder method) {
         memory_start(g, method);
         nameSet(e, bits, method);
         if (fast) {
@@ -1006,7 +1045,7 @@ public class Compiler extends Helper {
             method.append("));");
         }
     }
-    static void instructionAI(boolean fast, int bits, int i, String inst, String extraInst, String instCall, StringBuffer method) {
+    static void instructionAI(boolean fast, int bits, int i, String inst, String extraInst, String instCall, StringBuilder method) {
         nameSet(CPU_Regs.reg_eax, bits, method);
         if (fast) {
             nameGet(CPU_Regs.reg_eax, bits, method);
@@ -1028,12 +1067,11 @@ public class Compiler extends Helper {
             method.append("));");
         }
     }
-    static void inc(boolean fast, int bits, CPU_Regs.Reg r, StringBuffer method) {
+    static void inc(boolean fast, int bits, CPU_Regs.Reg r, StringBuilder method) {
         if (fast) {
             if (bits==32) {
-                method.append("CPU_Regs.reg_");
-                method.append(r.getName());
-                method.append(".dword++;");
+                method.append(nameSet32(r));
+                method.append("++;");
             } else {
                 nameSet(r, bits, method);
                 nameGet(r, bits, method);
@@ -1053,12 +1091,11 @@ public class Compiler extends Helper {
             method.append("));");
         }
     }
-    static void dec(boolean fast, int bits, CPU_Regs.Reg r, StringBuffer method) {
+    static void dec(boolean fast, int bits, CPU_Regs.Reg r, StringBuilder method) {
         if (fast) {
             if (bits==32) {
-                method.append("CPU_Regs.reg_");
-                method.append(r.getName());
-                method.append(".dword--;");
+                method.append(nameSet32(r));
+                method.append("--;");
             } else {
                 nameSet(r, bits, method);
                 nameGet(r, bits, method);
@@ -1079,7 +1116,7 @@ public class Compiler extends Helper {
         }
     }
 
-    static private boolean compile_op(Op op, int setFlags, StringBuffer method, String preException) {
+    static private boolean compile_op(Op op, int setFlags, StringBuilder method, String preException) {
         switch (op.c) {
             case 0x00: // ADD Eb,Gb
             case 0x200:
@@ -1937,7 +1974,7 @@ public class Compiler extends Helper {
             case 0x58: // POP AX
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -1945,7 +1982,7 @@ public class Compiler extends Helper {
             case 0x59: // POP CX
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -1953,7 +1990,7 @@ public class Compiler extends Helper {
             case 0x5a: // POP DX
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -1961,7 +1998,7 @@ public class Compiler extends Helper {
             case 0x5b: // POP BX
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -1969,7 +2006,7 @@ public class Compiler extends Helper {
             case 0x5c: // POP SP
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -1977,7 +2014,7 @@ public class Compiler extends Helper {
             case 0x5d: // POP BP
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -1985,7 +2022,7 @@ public class Compiler extends Helper {
             case 0x5e: // POP SI
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -1993,7 +2030,7 @@ public class Compiler extends Helper {
             case 0x5f: // POP DI
                 if (op instanceof Inst1.Popw) {
                     Inst1.Popw o = (Inst1.Popw) op;
-                    method.append(nameSet16(o.reg, "CPU.CPU_Pop16()"));
+                    nameSet16(o.reg, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -2001,13 +2038,13 @@ public class Compiler extends Helper {
             case 0x60: // PUSHA
                 if (op instanceof Inst1.Pusha) {
                     Inst1.Pusha o = (Inst1.Pusha) op;
-                    method.append("int old_sp=CPU_Regs.reg_esp.word();int esp = CPU_Regs.reg_esp.dword;esp = CPU.CPU_Push16(esp, CPU_Regs.reg_eax.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ecx.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_edx.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ebx.word());esp = CPU.CPU_Push16(esp, old_sp);esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ebp.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_esi.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_edi.word());CPU_Regs.reg_esp.word(esp);");
+                    method.append("int old_sp=CPU_Regs.reg_esp.word();int esp = CPU_Regs.reg_esp.dword;esp = CPU.CPU_Push16(esp, CPU_Regs.reg_eax.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ecx.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_edx.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_ebx.word());esp = CPU.CPU_Push16(esp, old_sp);esp = CPU.CPU_Push16(esp, ");nameGet16(CPU_Regs.reg_ebp,method);method.append(");esp = CPU.CPU_Push16(esp, CPU_Regs.reg_esi.word());esp = CPU.CPU_Push16(esp, CPU_Regs.reg_edi.word());CPU_Regs.reg_esp.word(esp);");
                     return true;
                 }
                 break;
             case 0x61: // POPA
                 if (op instanceof Inst1.Popa) {
-                    Inst1.Popa o = (Inst1.Popa) op;
+                    //Inst1.Popa o = (Inst1.Popa) op;
                     method.append("CPU_Regs.reg_edi.word(CPU.CPU_Pop16());CPU_Regs.reg_esi.word(CPU.CPU_Pop16());CPU_Regs.reg_ebp.word(CPU.CPU_Pop16());CPU.CPU_Pop16();CPU_Regs.reg_ebx.word(CPU.CPU_Pop16());CPU_Regs.reg_edx.word(CPU.CPU_Pop16());CPU_Regs.reg_ecx.word(CPU.CPU_Pop16());CPU_Regs.reg_eax.word(CPU.CPU_Pop16());");
                     return true;
                 }
@@ -2030,8 +2067,8 @@ public class Compiler extends Helper {
                     method.append(nameGet16(o.earw));
                     method.append(");CPU.CPU_ARPL(ref,");
                     method.append(nameGet16(o.rw));
-                    method.append(");");
-                    method.append(nameSet16(o.earw, "ref.value"));
+                    method.append(");");                    
+                    nameSet16(o.earw, "ref.value", method);
                     method.append(";");
                     return true;
                 }
@@ -2079,14 +2116,14 @@ public class Compiler extends Helper {
             case 0x69: // IMUL Gw,Ew,Iw
                 if (op instanceof Inst1.IMULGwEwIw_reg) {
                     Inst1.IMULGwEwIw_reg o = (Inst1.IMULGwEwIw_reg) op;
-                    method.append(nameSet16(o.rw, "Instructions.DIMULW(" + nameGet16(o.earw) + ", " + o.op3 + ")"));
+                    nameSet16(o.rw, "Instructions.DIMULW(", nameGet16(o.earw), ", ", String.valueOf(o.op3), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst1.IMULGwEwIw_mem) {
                     Inst1.IMULGwEwIw_mem o = (Inst1.IMULGwEwIw_mem) op;
                     memory_start(o.get_eaa, method);
-                    method.append(nameSet16(o.rw, "Instructions.DIMULW(Memory.mem_readw(eaa)," + o.op3 + ")"));
+                    nameSet16(o.rw, "Instructions.DIMULW(Memory.mem_readw(eaa),", String.valueOf(o.op3), ")", method);
                     method.append(";");
                     return true;
                 }
@@ -2103,14 +2140,14 @@ public class Compiler extends Helper {
             case 0x6b: // IMUL Gw,Ew,Ib
                 if (op instanceof Inst1.IMULGwEwIb_reg) {
                     Inst1.IMULGwEwIb_reg o = (Inst1.IMULGwEwIb_reg) op;
-                    method.append(nameSet16(o.rw, "Instructions.DIMULW(" + nameGet16(o.earw) + ", " + o.op3 + ")"));
+                    nameSet16(o.rw, "Instructions.DIMULW(", nameGet16(o.earw), ", ", String.valueOf(o.op3), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst1.IMULGwEwIb_mem) {
                     Inst1.IMULGwEwIb_mem o = (Inst1.IMULGwEwIb_mem) op;
                     memory_start(o.get_eaa, method);
-                    method.append(nameSet16(o.rw, "Instructions.DIMULW(Memory.mem_readw(eaa)," + o.op3 + ")"));
+                    nameSet16(o.rw, "Instructions.DIMULW(Memory.mem_readw(eaa),", String.valueOf(o.op3), ")", method);
                     method.append(";");
                     return true;
                 }
@@ -2630,9 +2667,9 @@ public class Compiler extends Helper {
                     method.append("int oldrmrw = ");
                     method.append(nameGet16(o.rw));
                     method.append(";");
-                    method.append(nameSet16(o.rw, nameGet16(o.earw)));
+                    nameSet16(o.rw, nameGet16(o.earw), method);
                     method.append(";");
-                    method.append(nameSet16(o.earw, "oldrmrw"));
+                    nameSet16(o.earw, "oldrmrw", method);
                     method.append(";");
                     return true;
                 }
@@ -2643,7 +2680,7 @@ public class Compiler extends Helper {
                     method.append(";");
                     memory_start(o.get_eaa, method);
                     method.append("int newrw = Memory.mem_readw(eaa);Memory.mem_writew(eaa,oldrmrw);");
-                    method.append(nameSet16(o.rw, "newrw"));
+                    nameSet16(o.rw, "newrw", method);
                     method.append(";");
                     return true;
                 }
@@ -2677,7 +2714,7 @@ public class Compiler extends Helper {
             case 0x89: // MOV Ew,Gw
                 if (op instanceof Inst1.MovEwGw_reg) {
                     Inst1.MovEwGw_reg o = (Inst1.MovEwGw_reg) op;
-                    method.append(nameSet16(o.earw, nameGet16(o.rw)));
+                    nameSet16(o.earw, nameGet16(o.rw), method);
                     method.append(";");
                     return true;
                 }
@@ -2709,14 +2746,14 @@ public class Compiler extends Helper {
             case 0x8b: // MOV Gw,Ew
                 if (op instanceof Inst1.MovGwEw_reg) {
                     Inst1.MovGwEw_reg o = (Inst1.MovGwEw_reg) op;
-                    method.append(nameSet16(o.rw, nameGet16(o.earw)));
+                    nameSet16(o.rw, nameGet16(o.earw), method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst1.MovGwEw_mem) {
                     Inst1.MovGwEw_mem o = (Inst1.MovGwEw_mem) op;
                     memory_start(o.get_eaa, method);
-                    method.append(nameSet16(o.rw, "Memory.mem_readw(eaa)"));
+                    nameSet16(o.rw, "Memory.mem_readw(eaa)", method);
                     method.append(";");
                     return true;
                 }
@@ -2724,7 +2761,7 @@ public class Compiler extends Helper {
             case 0x8c: // Mov Ew,Sw
                 if (op instanceof Inst1.MovEwEs_reg) {
                     Inst1.MovEwEs_reg o = (Inst1.MovEwEs_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.Segs_ESval"));
+                    nameSet16(o.earw, "CPU.Segs_ESval", method);
                     method.append(";");
                     return true;
                 }
@@ -2737,7 +2774,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Inst1.MovEwCs_reg) {
                     Inst1.MovEwCs_reg o = (Inst1.MovEwCs_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.Segs_CSval"));
+                    nameSet16(o.earw, "CPU.Segs_CSval", method);
                     method.append(";");
                     return true;
                 }
@@ -2750,7 +2787,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Inst1.MovEwSs_reg) {
                     Inst1.MovEwSs_reg o = (Inst1.MovEwSs_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.Segs_SSval"));
+                    nameSet16(o.earw, "CPU.Segs_SSval", method);
                     method.append(";");
                     return true;
                 }
@@ -2763,7 +2800,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Inst1.MovEwDs_reg) {
                     Inst1.MovEwDs_reg o = (Inst1.MovEwDs_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.Segs_DSval"));
+                    nameSet16(o.earw, "CPU.Segs_DSval", method);
                     method.append(";");
                     return true;
                 }
@@ -2776,7 +2813,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Inst1.MovEwFs_reg) {
                     Inst1.MovEwFs_reg o = (Inst1.MovEwFs_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.Segs_FSval"));
+                    nameSet16(o.earw, "CPU.Segs_FSval", method);
                     method.append(";");
                     return true;
                 }
@@ -2789,7 +2826,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Inst1.MovEwGs_reg) {
                     Inst1.MovEwGs_reg o = (Inst1.MovEwGs_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.Segs_GSval"));
+                    nameSet16(o.earw, "CPU.Segs_GSval", method);
                     method.append(";");
                     return true;
                 }
@@ -2805,14 +2842,14 @@ public class Compiler extends Helper {
                 if (op instanceof Inst1.LeaGw_32) {
                     Inst1.LeaGw_32 o = (Inst1.LeaGw_32) op;
                     memory_start(o.get_eaa, method, true);
-                    method.append(nameSet16(o.rw, "eaa"));
+                    nameSet16(o.rw, "eaa", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst1.LeaGw_16) {
                     Inst1.LeaGw_16 o = (Inst1.LeaGw_16) op;
                     memory_start(o.get_eaa, method, true);
-                    method.append(nameSet16(o.rw, "eaa"));
+                    nameSet16(o.rw, "eaa", method);
                     method.append(";");
                     return true;
                 }
@@ -2888,7 +2925,7 @@ public class Compiler extends Helper {
             case 0x8f: // POP Ew
                 if (op instanceof Inst1.PopEw_reg) {
                     Inst1.PopEw_reg o = (Inst1.PopEw_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.CPU_Pop16()"));
+                    nameSet16(o.earw, "CPU.CPU_Pop16()", method);
                     method.append(";");
                     return true;
                 }
@@ -2913,7 +2950,7 @@ public class Compiler extends Helper {
                     method.append("int old = ");
                     method.append(nameGet16(o.reg));
                     method.append(";");
-                    method.append(nameSet16(o.reg, "CPU_Regs.reg_eax.word()"));
+                    nameSet16(o.reg, "CPU_Regs.reg_eax.word()", method);
                     method.append(";CPU_Regs.reg_eax.word(old);");
                     return true;
                 }
@@ -2924,7 +2961,7 @@ public class Compiler extends Helper {
                     method.append("int old = ");
                     method.append(nameGet16(o.reg));
                     method.append(";");
-                    method.append(nameSet16(o.reg, "CPU_Regs.reg_eax.word()"));
+                    nameSet16(o.reg, "CPU_Regs.reg_eax.word()", method);
                     method.append(";CPU_Regs.reg_eax.word(old);");
                     return true;
                 }
@@ -2935,7 +2972,7 @@ public class Compiler extends Helper {
                     method.append("int old = ");
                     method.append(nameGet16(o.reg));
                     method.append(";");
-                    method.append(nameSet16(o.reg, "CPU_Regs.reg_eax.word()"));
+                    nameSet16(o.reg, "CPU_Regs.reg_eax.word()", method);
                     method.append(";CPU_Regs.reg_eax.word(old);");
                     return true;
                 }
@@ -2946,7 +2983,7 @@ public class Compiler extends Helper {
                     method.append("int old = ");
                     method.append(nameGet16(o.reg));
                     method.append(";");
-                    method.append(nameSet16(o.reg, "CPU_Regs.reg_eax.word()"));
+                    nameSet16(o.reg, "CPU_Regs.reg_eax.word()", method);
                     method.append(";CPU_Regs.reg_eax.word(old);");
                     return true;
                 }
@@ -2957,7 +2994,7 @@ public class Compiler extends Helper {
                     method.append("int old = ");
                     method.append(nameGet16(o.reg));
                     method.append(";");
-                    method.append(nameSet16(o.reg, "CPU_Regs.reg_eax.word()"));
+                    nameSet16(o.reg, "CPU_Regs.reg_eax.word()", method);
                     method.append(";CPU_Regs.reg_eax.word(old);");
                     return true;
                 }
@@ -2968,7 +3005,7 @@ public class Compiler extends Helper {
                     method.append("int old = ");
                     method.append(nameGet16(o.reg));
                     method.append(";");
-                    method.append(nameSet16(o.reg, "CPU_Regs.reg_eax.word()"));
+                    nameSet16(o.reg, "CPU_Regs.reg_eax.word()", method);
                     method.append(";CPU_Regs.reg_eax.word(old);");
                     return true;
                 }
@@ -2979,7 +3016,7 @@ public class Compiler extends Helper {
                     method.append("int old = ");
                     method.append(nameGet16(o.reg));
                     method.append(";");
-                    method.append(nameSet16(o.reg, "CPU_Regs.reg_eax.word()"));
+                    nameSet16(o.reg, "CPU_Regs.reg_eax.word()", method);
                     method.append(";CPU_Regs.reg_eax.word(old);");
                     return true;
                 }
@@ -3340,7 +3377,7 @@ public class Compiler extends Helper {
             case 0xb8: // MOV AX,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3348,7 +3385,7 @@ public class Compiler extends Helper {
             case 0xb9: // MOV CX,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3356,7 +3393,7 @@ public class Compiler extends Helper {
             case 0xba: // MOV DX,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3364,7 +3401,7 @@ public class Compiler extends Helper {
             case 0xbb: // MOV BX,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3372,7 +3409,7 @@ public class Compiler extends Helper {
             case 0xbc: // MOV SP,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3380,7 +3417,7 @@ public class Compiler extends Helper {
             case 0xbd: // MOV BP.Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3388,7 +3425,7 @@ public class Compiler extends Helper {
             case 0xbe: // MOV SI,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3396,7 +3433,7 @@ public class Compiler extends Helper {
             case 0xbf: // MOV DI,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3544,7 +3581,7 @@ public class Compiler extends Helper {
                     method.append(";if (Instructions.valid_ROLW(e, ");
                     method.append(o.val);
                     method.append(")) ");
-                    method.append(nameSet16(o.earw, "Instructions.do_ROLW(" + o.val + ", e)"));
+                    nameSet16(o.earw, "Instructions.do_ROLW(", String.valueOf(o.val), ", e)", method);
                     method.append(";");
                     return true;
                 }
@@ -3555,14 +3592,14 @@ public class Compiler extends Helper {
                     method.append(";if (Instructions.valid_RORW(e, ");
                     method.append(o.val);
                     method.append(")) ");
-                    method.append(nameSet16(o.earw, "Instructions.do_RORW(" + o.val + ", e)"));
+                    nameSet16(o.earw, "Instructions.do_RORW(", String.valueOf(o.val), ", e)", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.RCLW_reg) {
                     Grp2.RCLW_reg o = (Grp2.RCLW_reg) op;
                     if (Instructions.valid_RCLW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_RCLW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_RCLW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -3570,7 +3607,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.RCRW_reg) {
                     Grp2.RCRW_reg o = (Grp2.RCRW_reg) op;
                     if (Instructions.valid_RCRW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_RCRW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_RCRW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -3578,7 +3615,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.SHLW_reg) {
                     Grp2.SHLW_reg o = (Grp2.SHLW_reg) op;
                     if (Instructions.valid_SHLW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_SHLW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_SHLW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -3586,7 +3623,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.SHRW_reg) {
                     Grp2.SHRW_reg o = (Grp2.SHRW_reg) op;
                     if (Instructions.valid_SHRW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_SHRW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_SHRW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -3594,7 +3631,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.SARW_reg) {
                     Grp2.SARW_reg o = (Grp2.SARW_reg) op;
                     if (Instructions.valid_SARW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_SARW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_SARW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -3692,7 +3729,7 @@ public class Compiler extends Helper {
                     memory_start(o.get_eaa, method);
                     // make sure all reads are done before writing something in case of a PF
                     method.append("int val=Memory.mem_readw(eaa);if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+2))) {").append(preException).append("return RUNEXCEPTION();}");
-                    method.append(nameSet16(o.rw, "val"));
+                    nameSet16(o.rw, "val", method);
                     method.append(";");
                     return true;
                 }
@@ -3703,7 +3740,7 @@ public class Compiler extends Helper {
                     memory_start(o.get_eaa, method);
                     // make sure all reads are done before writing something in case of a PF
                     method.append("int val=Memory.mem_readw(eaa);if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+2))) {").append(preException).append("return RUNEXCEPTION();}");
-                    method.append(nameSet16(o.rw, "val"));
+                    nameSet16(o.rw, "val", method);
                     method.append(";Core.base_ds=CPU.Segs_DSphys;Core.base_val_ds= CPU_Regs.ds;");
                     return true;
                 }
@@ -3729,7 +3766,7 @@ public class Compiler extends Helper {
             case 0xc7: // MOV EW,Iw
                 if (op instanceof Inst1.MovIw) {
                     Inst1.MovIw o = (Inst1.MovIw) op;
-                    method.append(nameSet16(o.reg, String.valueOf(o.ib)));
+                    nameSet16(o.reg, String.valueOf(o.ib), method);
                     method.append(";");
                     return true;
                 }
@@ -3756,8 +3793,8 @@ public class Compiler extends Helper {
                 break;
             case 0xc9: // LEAVE
                 if (op instanceof Inst1.Leave) {
-                    Inst1.Leave o = (Inst1.Leave) op;
-                    method.append("CPU_Regs.reg_esp.dword&=CPU.cpu.stack.notmask;CPU_Regs.reg_esp.dword|=(CPU_Regs.reg_ebp.dword & CPU.cpu.stack.mask);CPU_Regs.reg_ebp.word(CPU.CPU_Pop16());");
+                    // Inst1.Leave o = (Inst1.Leave) op;
+                    method.append("CPU_Regs.reg_esp.dword&=CPU.cpu.stack.notmask;CPU_Regs.reg_esp.dword|=(");nameGet32(CPU_Regs.reg_ebp, method);method.append(" & CPU.cpu.stack.mask);CPU_Regs.reg_ebp.word(CPU.CPU_Pop16());");
                     return true;
                 }
                 break;
@@ -3984,7 +4021,7 @@ public class Compiler extends Helper {
                     method.append(";if (Instructions.valid_ROLW(e, ");
                     method.append(o.val);
                     method.append(")) ");
-                    method.append(nameSet16(o.earw, "Instructions.do_ROLW(" + o.val + ", e)"));
+                    nameSet16(o.earw, "Instructions.do_ROLW(", String.valueOf(o.val), ", e)", method);
                     method.append(";");
                     return true;
                 }
@@ -3995,14 +4032,14 @@ public class Compiler extends Helper {
                     method.append(";if (Instructions.valid_RORW(e, ");
                     method.append(o.val);
                     method.append(")) ");
-                    method.append(nameSet16(o.earw, "Instructions.do_RORW(" + o.val + ", e)"));
+                    nameSet16(o.earw, "Instructions.do_RORW(", String.valueOf(o.val), ", e)", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.RCLW_reg) {
                     Grp2.RCLW_reg o = (Grp2.RCLW_reg) op;
                     if (Instructions.valid_RCLW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_RCLW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_RCLW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -4010,7 +4047,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.RCRW_reg) {
                     Grp2.RCRW_reg o = (Grp2.RCRW_reg) op;
                     if (Instructions.valid_RCRW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_RCRW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_RCRW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -4018,7 +4055,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.SHLW_reg) {
                     Grp2.SHLW_reg o = (Grp2.SHLW_reg) op;
                     if (Instructions.valid_SHLW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_SHLW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_SHLW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -4026,7 +4063,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.SHRW_reg) {
                     Grp2.SHRW_reg o = (Grp2.SHRW_reg) op;
                     if (Instructions.valid_SHRW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_SHRW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_SHRW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -4034,7 +4071,7 @@ public class Compiler extends Helper {
                 if (op instanceof Grp2.SARW_reg) {
                     Grp2.SARW_reg o = (Grp2.SARW_reg) op;
                     if (Instructions.valid_SARW(o.val)) {
-                        method.append(nameSet16(o.earw, "Instructions.do_SARW(" + o.val + ", " + nameGet16(o.earw) + ")"));
+                        nameSet16(o.earw, "Instructions.do_SARW(", String.valueOf(o.val), ", ", nameGet16(o.earw), ")", method);
                         method.append(";");
                     }
                     return true;
@@ -4219,7 +4256,7 @@ public class Compiler extends Helper {
                     method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;int e = ");
                     method.append(nameGet16(o.earw));
                     method.append(";if (Instructions.valid_ROLW(e, val))");
-                    method.append(nameSet16(o.earw, "Instructions.do_ROLW(val, e)"));
+                    nameSet16(o.earw, "Instructions.do_ROLW(val, e)", method);
                     method.append(";");
                     return true;
                 }
@@ -4228,42 +4265,42 @@ public class Compiler extends Helper {
                     method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;int e = ");
                     method.append(nameGet16(o.earw));
                     method.append(";if (Instructions.valid_RORW(e, val))");
-                    method.append(nameSet16(o.earw, "Instructions.do_RORW(val, e)"));
+                    nameSet16(o.earw, "Instructions.do_RORW(val, e)", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.RCLW_reg_cl) {
                     Grp2.RCLW_reg_cl o = (Grp2.RCLW_reg_cl) op;
                     method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (Instructions.valid_RCLW (val))");
-                    method.append(nameSet16(o.earw, "Instructions.do_RCLW(val, " + nameGet16(o.earw) + ")"));
+                    nameSet16(o.earw, "Instructions.do_RCLW(val, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.RCRW_reg_cl) {
                     Grp2.RCRW_reg_cl o = (Grp2.RCRW_reg_cl) op;
                     method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (Instructions.valid_RCRW (val))");
-                    method.append(nameSet16(o.earw, "Instructions.do_RCRW(val, " + nameGet16(o.earw) + ")"));
+                    nameSet16(o.earw, "Instructions.do_RCRW(val, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.SHLW_reg_cl) {
                     Grp2.SHLW_reg_cl o = (Grp2.SHLW_reg_cl) op;
                     method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (Instructions.valid_SHLW (val))");
-                    method.append(nameSet16(o.earw, "Instructions.do_SHLW(val, " + nameGet16(o.earw) + ")"));
+                    nameSet16(o.earw, "Instructions.do_SHLW(val, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.SHRW_reg_cl) {
                     Grp2.SHRW_reg_cl o = (Grp2.SHRW_reg_cl) op;
                     method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (Instructions.valid_SHRW (val))");
-                    method.append(nameSet16(o.earw, "Instructions.do_SHRW(val, " + nameGet16(o.earw) + ")"));
+                    nameSet16(o.earw, "Instructions.do_SHRW(val, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.SARW_reg_cl) {
                     Grp2.SARW_reg_cl o = (Grp2.SARW_reg_cl) op;
                     method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (Instructions.valid_SARW (val))");
-                    method.append(nameSet16(o.earw, "Instructions.do_SARW(val, " + nameGet16(o.earw) + ")"));
+                    nameSet16(o.earw, "Instructions.do_SARW(val, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
@@ -4845,7 +4882,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Grp3.NotEw_reg) {
                     Grp3.NotEw_reg o = (Grp3.NotEw_reg) op;
-                    method.append(nameSet16(o.earw, "~" + nameGet16(o.earw)));
+                    nameSet16(o.earw, "~" + nameGet16(o.earw), method);
                     method.append(";");
                     return true;
                 }
@@ -4857,7 +4894,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Grp3.NegEw_reg) {
                     Grp3.NegEw_reg o = (Grp3.NegEw_reg) op;
-                    method.append(nameSet16(o.earw, "Instructions.Negw(" + nameGet16(o.earw) + ")"));
+                    nameSet16(o.earw, "Instructions.Negw(", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
@@ -5105,7 +5142,7 @@ public class Compiler extends Helper {
                 if (op instanceof Inst2.Sldt_reg) {
                     Inst2.Sldt_reg o = (Inst2.Sldt_reg) op;
                     method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
-                    method.append(nameSet16(o.earw, "CPU.CPU_SLDT()"));
+                    nameSet16(o.earw, "CPU.CPU_SLDT()", method);
                     method.append(";");
                     return true;
                 }
@@ -5119,7 +5156,7 @@ public class Compiler extends Helper {
                 if (op instanceof Inst2.Str_reg) {
                     Inst2.Str_reg o = (Inst2.Str_reg) op;
                     method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
-                    method.append(nameSet16(o.earw, "CPU.CPU_STR()"));
+                    nameSet16(o.earw, "CPU.CPU_STR()", method);
                     method.append(";");
                     return true;
                 }
@@ -5241,7 +5278,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Inst2.Smsw_reg) {
                     Inst2.Smsw_reg o = (Inst2.Smsw_reg) op;
-                    method.append(nameSet16(o.earw, "CPU.CPU_SMSW()"));
+                    nameSet16(o.earw, "CPU.CPU_SMSW()", method);
                     method.append(";");
                     return true;
                 }
@@ -5261,7 +5298,7 @@ public class Compiler extends Helper {
                     method.append(");CPU.CPU_LAR(");
                     method.append(nameGet16(o.earw));
                     method.append(",value);");
-                    method.append(nameSet16(o.rw, "value.value"));
+                    nameSet16(o.rw, "value.value", method);
                     method.append(";");
                     return true;
                 }
@@ -5271,7 +5308,7 @@ public class Compiler extends Helper {
                     method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;IntRef value=new IntRef(");
                     method.append(nameGet16(o.rw));
                     method.append(");CPU.CPU_LAR(Memory.mem_readw(eaa),value);");
-                    method.append(nameSet16(o.rw, "value.value"));
+                    nameSet16(o.rw, "value.value", method);
                     method.append(";");
                     return true;
                 }
@@ -5284,7 +5321,7 @@ public class Compiler extends Helper {
                     method.append(");CPU.CPU_LSL(");
                     method.append(nameGet16(o.earw));
                     method.append(",value);");
-                    method.append(nameSet16(o.rw, "value.value"));
+                    nameSet16(o.rw, "value.value", method);
                     method.append(";");
                     return true;
                 }
@@ -5295,7 +5332,7 @@ public class Compiler extends Helper {
                     method.append("IntRef value = new IntRef(");
                     method.append(nameGet16(o.rw));
                     method.append(");CPU.CPU_LSL(Memory.mem_readw(eaa),value);");
-                    method.append(nameSet16(o.rw, "value.value"));
+                    nameSet16(o.rw, "value.value", method);
                     method.append(";");
                     return true;
                 }
@@ -5720,7 +5757,7 @@ public class Compiler extends Helper {
 
     static private int count = 0;
 
-    static private Op compileMethod(Op op, StringBuffer method, boolean jump) {
+    static private Op compileMethod(Op op, StringBuilder method, boolean jump) {
         //System.out.println(method.toString());
         try {
             String className = "CacheBlock" + (count++);

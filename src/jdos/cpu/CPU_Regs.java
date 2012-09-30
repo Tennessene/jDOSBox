@@ -113,6 +113,7 @@ public class CPU_Regs extends Flags {
     public static final class Reg {
         Reg parent;
         String name = null;
+        String fullName32 = null;
 
         public Reg() {
         }
@@ -121,6 +122,7 @@ public class CPU_Regs extends Flags {
         }
         public Reg(String name) {
             this.name = name;
+            this.fullName32 = "CPU_Regs.reg_"+name+".dword";
         }
 
         public Reg(Reg parent) {
@@ -129,6 +131,9 @@ public class CPU_Regs extends Flags {
 
         public String getName() {
             return name;
+        }
+        public String getFullName32() {
+            return fullName32;
         }
         public Reg getParent() {
             return parent;

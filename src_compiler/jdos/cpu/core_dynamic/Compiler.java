@@ -139,171 +139,149 @@ public class Compiler extends Helper {
         boolean loop = false;
         String loopCondition = null;
         while (op != null) {
-            try {
-                boolean jump = false;
-                boolean tryPageFault = false;
-                if (true) {
-                    count++;
-                    if (start == null) {
-                        start = prev;
-                    }
-                    if (combineEIP) {
-                        if (loop || op.usesEip() || op.next==null || (!combineMemoryAccessEIP && op.accessesMemory())) {
-                            if (runningEipCount > 0) {
-                                method.append("CPU_Regs.reg_eip+=");
-                                method.append(runningEipCount);
-                                method.append(";\n  ");
-                                runningEipCount = 0;
-                            }
-                        } else if (combineMemoryAccessEIP && op.accessesMemory()) {
-                            method.append("try ");
-                            tryPageFault = true;
+            boolean tryPageFault = false;
+            if (true) {
+                count++;
+                if (start == null) {
+                    start = prev;
+                }
+                if (combineEIP) {
+                    if (loop || op.usesEip() || op.next==null || (!combineMemoryAccessEIP && op.accessesMemory())) {
+                        if (runningEipCount > 0) {
+                            method.append("CPU_Regs.reg_eip+=");
+                            method.append(runningEipCount);
+                            method.append(";\n  ");
+                            runningEipCount = 0;
                         }
+                    } else if (combineMemoryAccessEIP && op.accessesMemory()) {
+                        method.append("try ");
+                        tryPageFault = true;
                     }
-                    method.append("{");
-                    method.append("/*" + Integer.toHexString(op.c) + "*/");
-                    if (op.gets()!=0)
-                        method.append("/* Uses Flags */");
-                    int shouldSet = 0;
-                    if (op.sets()!=0) {
-                        if ((op.sets() & CPU_Regs.CF)!=0)
-                            shouldSet = searchFlag(op.next, CPU_Regs.CF, shouldSet);
-                        if ((op.sets() & CPU_Regs.OF)!=0)
-                            shouldSet = searchFlag(op.next, CPU_Regs.OF, shouldSet);
-                        if ((op.sets() & CPU_Regs.SF)!=0)
-                            shouldSet = searchFlag(op.next, CPU_Regs.SF, shouldSet);
-                        if ((op.sets() & CPU_Regs.ZF)!=0)
-                            shouldSet = searchFlag(op.next, CPU_Regs.ZF, shouldSet);
-                        if ((op.sets() & CPU_Regs.AF)!=0)
-                            shouldSet = searchFlag(op.next, CPU_Regs.AF, shouldSet);
-                        if ((op.sets() & CPU_Regs.PF)!=0)
-                            shouldSet = searchFlag(op.next, CPU_Regs.PF, shouldSet);
-                    }
-                    boolean loopClosed = false;
+                }
+                method.append("{");
+                method.append("/*" + Integer.toHexString(op.c) + "*/");
+                if (op.gets()!=0)
+                    method.append("/* Uses Flags */");
+                int shouldSet = 0;
+                if (op.sets()!=0) {
+                    if ((op.sets() & CPU_Regs.CF)!=0)
+                        shouldSet = searchFlag(op.next, CPU_Regs.CF, shouldSet);
+                    if ((op.sets() & CPU_Regs.OF)!=0)
+                        shouldSet = searchFlag(op.next, CPU_Regs.OF, shouldSet);
+                    if ((op.sets() & CPU_Regs.SF)!=0)
+                        shouldSet = searchFlag(op.next, CPU_Regs.SF, shouldSet);
+                    if ((op.sets() & CPU_Regs.ZF)!=0)
+                        shouldSet = searchFlag(op.next, CPU_Regs.ZF, shouldSet);
+                    if ((op.sets() & CPU_Regs.AF)!=0)
+                        shouldSet = searchFlag(op.next, CPU_Regs.AF, shouldSet);
+                    if ((op.sets() & CPU_Regs.PF)!=0)
+                        shouldSet = searchFlag(op.next, CPU_Regs.PF, shouldSet);
+                }
+                boolean loopClosed = false;
+                if (loop) {
+                    loop = false;
+
+                    if (op instanceof Inst1.JumpCond16_b)
+                        loop = compile((Inst1.JumpCond16_b)op, loopCondition, method, eipTotal);
+                    else if (op instanceof Inst3.JumpCond32_b)
+                        loop = compile((Inst2.JumpCond16_w)op, loopCondition, method, eipTotal);
+                    else if (op instanceof Inst2.JumpCond16_w)
+                        loop = compile((Inst3.JumpCond32_b)op, loopCondition, method, eipTotal);
+                    else if (op instanceof Inst4.JumpCond32_d)
+                        loop = compile((Inst4.JumpCond32_d)op, loopCondition, method, eipTotal);
+
                     if (loop) {
-                        loop = false;
+                        method.insert(loopPos, "while (true) {");
+                        method.append("}");
+                        loopClosed = true;
+                    }
+                }
+                loopCondition = null;
 
-                        if (op instanceof Inst1.JumpCond16_b)
-                            loop = compile((Inst1.JumpCond16_b)op, loopCondition, method, eipTotal);
-                        else if (op instanceof Inst3.JumpCond32_b)
-                            loop = compile((Inst2.JumpCond16_w)op, loopCondition, method, eipTotal);
-                        else if (op instanceof Inst2.JumpCond16_w)
-                            loop = compile((Inst3.JumpCond32_b)op, loopCondition, method, eipTotal);
-                        else if (op instanceof Inst4.JumpCond32_d)
-                            loop = compile((Inst4.JumpCond32_d)op, loopCondition, method, eipTotal);
-
-                        if (loop) {
+                if (op.c == 0xe0) {
+                    if (op instanceof Inst1.Loopnz32) {
+                        Inst1.Loopnz32 l = (Inst1.Loopnz32)op;
+                        if (eipTotal + op.eip_count == -l.offset) {
+                            method.append("CPU_Regs.reg_ecx.dword--;");
+                            method.append("if (CPU_Regs.reg_ecx.dword!=0 && !Flags.get_ZF()) {");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                            method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                            method.insert(loopPos, "while (true) {");
+                            method.append("}");
+                            loopClosed = true;
+                        }
+                    } else if (op instanceof Inst1.Loopnz16) {
+                        Inst1.Loopnz16 l = (Inst1.Loopnz16)op;
+                        if (eipTotal + op.eip_count == -l.offset) {
+                            method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
+                            method.append("if (CPU_Regs.reg_ecx.word()!=0 && !Flags.get_ZF()) {");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                            method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
                             method.insert(loopPos, "while (true) {");
                             method.append("}");
                             loopClosed = true;
                         }
                     }
-                    loopCondition = null;
-
-                    if (op.c == 0xe0) {
-                        if (op instanceof Inst1.Loopnz32) {
-                            Inst1.Loopnz32 l = (Inst1.Loopnz32)op;
-                            if (eipTotal + op.eip_count == -l.offset) {
-                                method.append("CPU_Regs.reg_ecx.dword--;");
-                                method.append("if (CPU_Regs.reg_ecx.dword!=0 && !Flags.get_ZF()) {");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
-                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
-                                method.insert(loopPos, "while (true) {");
-                                method.append("}");
-                                loopClosed = true;
-                            }
-                        } else if (op instanceof Inst1.Loopnz16) {
-                            Inst1.Loopnz16 l = (Inst1.Loopnz16)op;
-                            if (eipTotal + op.eip_count == -l.offset) {
-                                method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
-                                method.append("if (CPU_Regs.reg_ecx.word()!=0 && !Flags.get_ZF()) {");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
-                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
-                                method.insert(loopPos, "while (true) {");
-                                method.append("}");
-                                loopClosed = true;
-                            }
+                } else if (op.c == 0xe1) {
+                    if (op instanceof Inst1.Loopz32) {
+                        Inst1.Loopz32 l = (Inst1.Loopz32)op;
+                        if (eipTotal + op.eip_count == -l.offset) {
+                            method.append("CPU_Regs.reg_ecx.dword--;");
+                            method.append("if (CPU_Regs.reg_ecx.dword!=0 && Flags.get_ZF()) {");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                            method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                            method.insert(loopPos, "while (true) {");
+                            method.append("}");
+                            loopClosed = true;
                         }
-                    } else if (op.c == 0xe1) {
-                        if (op instanceof Inst1.Loopz32) {
-                            Inst1.Loopz32 l = (Inst1.Loopz32)op;
-                            if (eipTotal + op.eip_count == -l.offset) {
-                                method.append("CPU_Regs.reg_ecx.dword--;");
-                                method.append("if (CPU_Regs.reg_ecx.dword!=0 && Flags.get_ZF()) {");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
-                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
-                                method.insert(loopPos, "while (true) {");
-                                method.append("}");
-                                loopClosed = true;
-                            }
-                        } else if (op instanceof Inst1.Loopz16) {
-                            Inst1.Loopz16 l = (Inst1.Loopz16)op;
-                            if (eipTotal + op.eip_count == -l.offset) {
-                                method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
-                                method.append("if (CPU_Regs.reg_ecx.word()!=0 && Flags.get_ZF()) {");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
-                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
-                                method.insert(loopPos, "while (true) {");
-                                method.append("}");
-                                loopClosed = true;
-                            }
+                    } else if (op instanceof Inst1.Loopz16) {
+                        Inst1.Loopz16 l = (Inst1.Loopz16)op;
+                        if (eipTotal + op.eip_count == -l.offset) {
+                            method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
+                            method.append("if (CPU_Regs.reg_ecx.word()!=0 && Flags.get_ZF()) {");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                            method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                            method.insert(loopPos, "while (true) {");
+                            method.append("}");
+                            loopClosed = true;
                         }
-                    } else if (op.c == 0xe2) {
-                        if (op instanceof Inst1.Loop32) {
-                            Inst1.Loop32 l = (Inst1.Loop32)op;
-                            if (eipTotal + op.eip_count == -l.offset) {
-                                method.append("CPU_Regs.reg_ecx.dword--;");
-                                method.append("if (CPU_Regs.reg_ecx.dword!=0) {");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
-                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
-                                method.insert(loopPos, "while (true) {");
-                                method.append("}");
-                                loopClosed = true;
-                            }
-                        } else if (op instanceof Inst1.Loop16) {
-                            Inst1.Loop16 l = (Inst1.Loop16)op;
-                            if (eipTotal + op.eip_count == -l.offset) {
-                                method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
-                                method.append("if (CPU_Regs.reg_ecx.word()!=0) {");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
-                                method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
-                                method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
-                                method.insert(loopPos, "while (true) {");
-                                method.append("}");
-                                loopClosed = true;
-                            }
+                    }
+                } else if (op.c == 0xe2) {
+                    if (op instanceof Inst1.Loop32) {
+                        Inst1.Loop32 l = (Inst1.Loop32)op;
+                        if (eipTotal + op.eip_count == -l.offset) {
+                            method.append("CPU_Regs.reg_ecx.dword--;");
+                            method.append("if (CPU_Regs.reg_ecx.dword!=0) {");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                            method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                            method.insert(loopPos, "while (true) {");
+                            method.append("}");
+                            loopClosed = true;
+                        }
+                    } else if (op instanceof Inst1.Loop16) {
+                        Inst1.Loop16 l = (Inst1.Loop16)op;
+                        if (eipTotal + op.eip_count == -l.offset) {
+                            method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
+                            method.append("if (CPU_Regs.reg_ecx.word()!=0) {");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()-");method.append(eipTotal);
+                            method.append(");if (CPU.CPU_Cycles<0) return Constants.BR_Link1; else continue;}");
+                            method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.eip_count);method.append(");return Constants.BR_Link2;");
+                            method.insert(loopPos, "while (true) {");
+                            method.append("}");
+                            loopClosed = true;
                         }
                     }
                     if (shouldSet!=0) {
                         method.append("/* Should set flags */");
                     }
-                    if (!loopClosed && compile_op(op, alwayUseFastVersion?0:shouldSet, method, "CPU_Regs.reg_eip+="+runningEipCount+";")) {
-                        if (combineEIP) {
-                            method.append("}");
-                            if (tryPageFault) {
-                                method.append("catch (PageFaultException e) {");
-                                if (runningEipCount>0) {
-                                    method.append("CPU_Regs.reg_eip+=");
-                                    method.append(runningEipCount);
-                                    method.append(";");
-                                }
-                                method.append("throw e;}");
-                            }
-                            method.append("\n");
-                            runningEipCount+=op.eip_count;
-                            eipTotal+=op.eip_count;
-                        } else {
-                            method.append("CPU_Regs.reg_eip+=");
-                            method.append(op.eip_count);
-                            method.append(";}\n  ");
-                        }
-                        continue;
-                    } else {
+                }
+                if (!loopClosed && compile_op(op, alwayUseFastVersion?0:shouldSet, method, "CPU_Regs.reg_eip+="+runningEipCount+";")) {
+                    if (combineEIP) {
                         method.append("}");
                         if (tryPageFault) {
                             method.append("catch (PageFaultException e) {");
@@ -314,39 +292,43 @@ public class Compiler extends Helper {
                             }
                             method.append("throw e;}");
                         }
-                        jump = true;
-                        if (op.next != null) {
-                            Log.exit("Instruction "+Integer.toHexString(op.c)+" jumped but there was another instruction after it: "+Integer.toHexString(op.next.c));
+                        method.append("\n");
+                        runningEipCount+=op.eip_count;
+                        eipTotal+=op.eip_count;
+                    } else {
+                        method.append("CPU_Regs.reg_eip+=");
+                        method.append(op.eip_count);
+                        method.append(";}\n  ");
+                    }
+                } else {
+                    method.append("}");
+                    if (tryPageFault) {
+                        method.append("catch (PageFaultException e) {");
+                        if (runningEipCount>0) {
+                            method.append("CPU_Regs.reg_eip+=");
+                            method.append(runningEipCount);
+                            method.append(";");
                         }
+                        method.append("throw e;}");
+                    }
+                    if (op.next != null) {
+                        Log.exit("Instruction "+Integer.toHexString(op.c)+" jumped but there was another instruction after it: "+Integer.toHexString(op.next.c));
                     }
                 }
-//                if (op.next!=null) {
-//                    System.out.println(Integer.toHexString(op.c));
-//                    System.exit(1);
-//                }
-                if (count >= min_block_size) {
-                    Op compiled = compileMethod(start, method, jump);
-                    if (compiled != null) {
-                        // set it up first
-                        if (!jump)
-                            compiled.next = op;  // only happens when this is a mixed block
-
-                        // once this is assigned it is live
-                        start.next = compiled;
-                        compiledMethods++;
-                        if ((compiledMethods % 250)==0) {
-                            System.out.println("Compiled "+compiledMethods+" blocks");
-                        }
-                        return compiled;
-                    }
-                }
-                if (method.length() > 0)
-                    method = new StringBuilder();
-                start = null;
-                count = 0;
-            } finally {
                 prev = op;
                 op = op.next;
+            }
+        }
+        if (count >= min_block_size) {
+            Op compiled = compileMethod(start, method, true);
+            if (compiled != null) {
+                // once this is assigned it is live
+                start.next = compiled;
+                compiledMethods++;
+                if ((compiledMethods % 250)==0) {
+                    System.out.println("Compiled "+compiledMethods+" blocks");
+                }
+                return compiled;
             }
         }
         return null; // This will happen if the block is too short

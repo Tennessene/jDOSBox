@@ -103,8 +103,6 @@ public class Compiler extends Helper {
         }
     }
 
-    static private int cacheCount = 0;
-
     static private int searchFlag(Op searchOp, int flag, int result) {
         while (searchOp!=null) {
             if ((searchOp.gets() & flag) != 0)
@@ -117,109 +115,13 @@ public class Compiler extends Helper {
         return result | flag;
     }
 
-    static private boolean isO(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_o) || (op instanceof Inst3.JumpCond32_b_o) || (op instanceof Inst2.JumpCond16_w_o) || (op instanceof Inst1.JumpCond16_b_o);
-    }
-    static private boolean isNO(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_no) || (op instanceof Inst3.JumpCond32_b_no) || (op instanceof Inst2.JumpCond16_w_no) || (op instanceof Inst1.JumpCond16_b_no);
-    }
-    static private boolean isB(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_b) || (op instanceof Inst3.JumpCond32_b_b) || (op instanceof Inst2.JumpCond16_w_b) || (op instanceof Inst1.JumpCond16_b_b);
-    }
-    static private boolean isNB(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_nb) || (op instanceof Inst3.JumpCond32_b_nb) || (op instanceof Inst2.JumpCond16_w_nb) || (op instanceof Inst1.JumpCond16_b_nb);
-    }
-    static private boolean isZ(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_z) || (op instanceof Inst3.JumpCond32_b_z) || (op instanceof Inst2.JumpCond16_w_z) || (op instanceof Inst1.JumpCond16_b_z);
-    }
-    static private boolean isNZ(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_nz) || (op instanceof Inst3.JumpCond32_b_nz) || (op instanceof Inst2.JumpCond16_w_nz) || (op instanceof Inst1.JumpCond16_b_nz);
-    }
-    static private boolean isL(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_l) || (op instanceof Inst3.JumpCond32_b_l) || (op instanceof Inst2.JumpCond16_w_l) || (op instanceof Inst1.JumpCond16_b_l);
-    }
-    static private boolean isNL(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_nl) || (op instanceof Inst3.JumpCond32_b_nl) || (op instanceof Inst2.JumpCond16_w_nl) || (op instanceof Inst1.JumpCond16_b_nl);
-    }
-    static private boolean isS(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_s) || (op instanceof Inst3.JumpCond32_b_s) || (op instanceof Inst2.JumpCond16_w_s) || (op instanceof Inst1.JumpCond16_b_s);
-    }
-    static private boolean isNS(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_ns) || (op instanceof Inst3.JumpCond32_b_ns) || (op instanceof Inst2.JumpCond16_w_ns) || (op instanceof Inst1.JumpCond16_b_ns);
-    }
-    static private boolean isP(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_p) || (op instanceof Inst3.JumpCond32_b_p) || (op instanceof Inst2.JumpCond16_w_p) || (op instanceof Inst1.JumpCond16_b_p);
-    }
-    static private boolean isNP(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_np) || (op instanceof Inst3.JumpCond32_b_np) || (op instanceof Inst2.JumpCond16_w_np) || (op instanceof Inst1.JumpCond16_b_np);
-    }
-    static private boolean isLE(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_le) || (op instanceof Inst3.JumpCond32_b_le) || (op instanceof Inst2.JumpCond16_w_le) || (op instanceof Inst1.JumpCond16_b_le);
-    }
-    static private boolean isNLE(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_nle) || (op instanceof Inst3.JumpCond32_b_nle) || (op instanceof Inst2.JumpCond16_w_nle) || (op instanceof Inst1.JumpCond16_b_nle);
-    }
-    static private boolean isBE(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_be) || (op instanceof Inst3.JumpCond32_b_be) || (op instanceof Inst2.JumpCond16_w_be) || (op instanceof Inst1.JumpCond16_b_be);
-    }
-    static private boolean isNBE(Op op) {
-        return (op instanceof Inst4.JumpCond32_d_nbe) || (op instanceof Inst3.JumpCond32_b_nbe) || (op instanceof Inst2.JumpCond16_w_nbe) || (op instanceof Inst1.JumpCond16_b_nbe);
-    }
-    static private boolean isJump(Op op) {
-        return (op instanceof Inst3.JumpCond32_b || op instanceof Inst1.JumpCond16_b || op instanceof Inst4.JumpCond32_d || op instanceof Inst2.JumpCond16_w);
-    }
-    static private boolean isTest(Op op) {
-        return op instanceof Inst3.TestEdGd_reg || op instanceof Inst3.TestEdGd_mem || op instanceof Inst3.TestEaxId || op instanceof Inst1.TestAlIb  || op instanceof Inst1.TestAxIw ||
-                op instanceof Inst1.TestEbGb_mem || op instanceof Inst1.TestEbGb_reg || op instanceof Inst1.TestEwGw_mem || op instanceof Inst1.TestEwGw_reg;
-    }
-    static private boolean isCmp(Op op) {
-        return (op instanceof Inst3.Cmpd_reg || op instanceof Inst3.CmpEaxId || op instanceof Inst3.CmpEdGd_mem || op instanceof Inst3.CmpGdEd_mem || op instanceof Inst1.CmpAlIb ||
-                op instanceof Inst1.CmpAxIw || op instanceof Inst1.Cmpb_reg || op instanceof Inst1.CmpEbGb_mem || op instanceof Inst1.CmpEwGw_mem || op instanceof Inst1.CmpGbEb_mem ||
-                op instanceof Inst1.CmpGwEw_mem || op instanceof Inst1.Cmpw_reg);
-    }
-    static private String getJumpCondition(Op jump) {
-        if (isO(jump)) {
-            return "Flags.TFLG_O()";
-        } else if (isNO(jump)) {
-            return "Flags.TFLG_NO()";
-        } else if (isB(jump)) {
-            return "Flags.TFLG_B()";
-        } else if (isNB(jump)) {
-            return "Flags.TFLG_NB()";
-        } else if (isZ(jump)) {
-            return "Flags.TFLG_Z()";
-        } else if (isNZ(jump)) {
-            return "Flags.TFLG_NZ()";
-        } else if (isBE(jump)) {
-            return "Flags.TFLG_BE()";
-        } else if (isNBE(jump)) {
-            return "Flags.TFLG_NBE()";
-        } else if (isS(jump)) {
-            return "Flags.TFLG_S()";
-        } else if (isNS(jump)) {
-            return "Flags.TFLG_NS()";
-        } else if (isP(jump)) {
-            return "Flags.TFLG_P()";
-        } else if (isNP(jump)) {
-            return "Flags.TFLG_NP()";
-        } else if (isLE(jump)) {
-            return "Flags.TFLG_LE()";
-        } else if (isNLE(jump)) {
-            return "Flags.TFLG_NLE()";
-        } else if (isL(jump)) {
-            return "Flags.TFLG_L()";
-        } else if (isNL(jump)) {
-            return "Flags.TFLG_NL()";
-        }
-        return null;
-    }
-
     static private boolean isDec(Op op) {
         return (op instanceof Inst3.Decd_reg || op instanceof Inst3.Decd_mem || op instanceof Inst1.Decw_reg || op instanceof Inst1.Decb_reg || op instanceof Inst1.Decb_mem || op instanceof Inst1.Decw_mem || op instanceof Inst1.Decw);
     }
 
     static final boolean combineEIP = true;  // about 3-4% improvement
     static final boolean combineMemoryAccessEIP = false; // less than 1% improvement
+
     static public Op do_compile(Op op) {
         Op prev = op;
         op = op.next;
@@ -297,13 +199,6 @@ public class Compiler extends Helper {
                         }
                     }
                     loopCondition = null;
-                    /*
-                    if ((isTest(op) || isCmp(op) || isDec(op)) && isJump(op.next)) {
-                        loopCondition = getJumpCondition(op.next);
-                        if (loopCondition != null) {
-                            loop = true;
-                        }
-                    } else */
 
                     if (op.c == 0xe0) {
                         if (op instanceof Inst1.Loopnz32) {

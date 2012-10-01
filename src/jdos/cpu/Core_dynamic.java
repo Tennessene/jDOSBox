@@ -108,7 +108,6 @@ public class Core_dynamic {
 
                 // find correct Dynamic Block to run
                 CacheBlockDynRec block=chandler.FindCacheBlock(page_ip_point);
-                int ret = 0;
                 if (block==null) {
                     // no block found, thus translate the instruction stream
                     // unless the instruction is known to be modified
@@ -131,26 +130,21 @@ public class Core_dynamic {
 
         //run_block:
                 while (true) {
-                    // now we're ready to run the dynamic code block
-            //		BlockReturn ret=((BlockReturn (*)(void))(block->cache.start))();
-                    if (block != null) {
-                        if (Config.DYNAMIC_CORE_VERIFY) {
-                            int offset = Paging.getDirectIndexRO(CPU.Segs_CSphys+ CPU_Regs.reg_eip);
-                            for (int i=0;i<block.originalByteCode.length;i++) {
-                                if (block.originalByteCode[i]!=Memory.host_readbs(i+offset)) {
-                                    Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+Integer.toString(CPU.Segs_CSphys,16) + ":" + Integer.toString(CPU_Regs.reg_eip,16)+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(Memory.host_readb(offset),16)+" memory value @ "+offset+"\n    block="+block);
-                                }
+                    if (Config.DYNAMIC_CORE_VERIFY) {
+                        int offset = Paging.getDirectIndexRO(CPU.Segs_CSphys+ CPU_Regs.reg_eip);
+                        for (int i=0;i<block.originalByteCode.length;i++) {
+                            if (block.originalByteCode[i]!=Memory.host_readbs(i+offset)) {
+                                Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+Integer.toString(CPU.Segs_CSphys,16) + ":" + Integer.toString(CPU_Regs.reg_eip,16)+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(Memory.host_readb(offset),16)+" memory value @ "+offset+"\n    block="+block);
                             }
                         }
-                        ret=block.code.call();
                     }
 
-                    switch (ret) {
+                    switch (block.code.call()) {
                     case Constants.BR_Link1:
                     {
                         CacheBlockDynRec next = block.link1.to;
                         if (next == null)
-                            block=LinkBlocks(block, ret);
+                            block=LinkBlocks(block, Constants.BR_Link1);
                         else
                             block = next;
                         if (block!=null && CPU.CPU_Cycles>0) continue;
@@ -160,7 +154,7 @@ public class Core_dynamic {
                     {
                         CacheBlockDynRec next = block.link2.to;
                         if (next == null)
-                            block=LinkBlocks(block, ret);
+                            block=LinkBlocks(block, Constants.BR_Link2);
                         else
                             block = next;
                         if (block!=null && CPU.CPU_Cycles>0) continue;
@@ -185,7 +179,7 @@ public class Core_dynamic {
                         CPU.CPU_Exception(6,0);
                         break;
                     default:
-                        Log.exit("Invalid return code "+ret);
+                        Log.exit("Invalid return code");
                     }
                     break;
                 }

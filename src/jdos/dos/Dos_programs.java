@@ -910,11 +910,28 @@ public class Dos_programs {
 
     private static class RESCAN extends Program {
         public void Run() {
-            // Get current drive
+            boolean all = false;
+
             /*Bit8u*/short drive = Dos_files.DOS_GetDefaultDrive();
-            if (Dos_files.Drives[drive]!=null) {
-                Dos_files.Drives[drive].EmptyCache();
+
+            if((temp_line=cmd.FindCommand(1))!=null) {
+                //-A -All /A /All
+                if(temp_line.length() >= 2 && (temp_line.charAt(0) == '-' ||temp_line.charAt(0) =='/')&& (temp_line.charAt(1) == 'a' || temp_line.charAt(1) =='A') ) all = true;
+                else if(temp_line.length() == 2 && temp_line.charAt(1) == ':') {
+                    drive  = (short)(temp_line.toLowerCase().charAt(0) - 'a');
+                }
+            }
+            // Get current drive
+            if (all) {
+                for(/*Bitu*/int i =0; i<Dos_files.DOS_DRIVES;i++) {
+                    if (Dos_files.Drives[i]!=null) Dos_files.Drives[i].EmptyCache();
+                }
                 WriteOut(Msg.get("PROGRAM_RESCAN_SUCCESS"));
+            } else {
+                if (drive < Dos_files.DOS_DRIVES && Dos_files.Drives[drive]!=null) {
+                    Dos_files.Drives[drive].EmptyCache();
+                    WriteOut(Msg.get("PROGRAM_RESCAN_SUCCESS"));
+                }
             }
         }
     }

@@ -912,7 +912,9 @@ public class Dos_files {
         Dos_FCB fcb=new Dos_FCB(seg,offset);
         StringRef shortname=new StringRef();/*Bit16u*/IntRef handle=new IntRef(0);
         fcb.GetName(shortname);
-        if (!DOS_CreateFile(shortname.value,Dos_system.DOS_ATTR_ARCHIVE,handle)) return false;
+        ShortRef attr = new ShortRef(Dos_system.DOS_ATTR_ARCHIVE);
+	    fcb.GetAttr(attr);
+        if (!DOS_CreateFile(shortname.value,attr.value,handle)) return false;
         fcb.FileOpen((/*Bit8u*/short)handle.value);
         return true;
     }
@@ -1154,10 +1156,11 @@ public class Dos_files {
      * stored. This can not be the tempdta as that one is used by fcbfindfirst
      */
         /*RealPt*/int old_dta=Dos.dos.dta();Dos.dos.dta((int)Dos.dos.tables.tempdta_fcbdelete);
-        Dos_FCB fcb=new Dos_FCB(Memory.RealSeg(Dos.dos.dta()),Memory.RealOff(Dos.dos.dta()));
+        /*RealPt*/int new_dta=Dos.dos.dta();
         boolean nextfile = false;
         boolean return_value = false;
         nextfile = DOS_FCBFindFirst(seg,offset);
+        Dos_FCB fcb=new Dos_FCB(Memory.RealSeg(new_dta),Memory.RealOff(new_dta));
         while(nextfile) {
             StringRef shortname = new StringRef();
             fcb.GetName(shortname);

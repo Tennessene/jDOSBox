@@ -71,24 +71,25 @@ public class VGA_draw {
 
     private static /*Bitu*/int[] temp = new int[643];
 
+    private static int CGA16_READER(int base, int vidstart, int OFF) { return Memory.host_readb(base+((vidstart +(OFF))& (8*1024 -1)));}
+
     private static VGA_Line_Handler VGA_Draw_CGA16_Line = new VGA_Line_Handler() {
         public int call(/*Bitu*/int vidstart, /*Bitu*/int line) {
             int base = VGA.vga.tandy.draw_base + ((line & VGA.vga.tandy.line_mask) << VGA.vga.tandy.line_shift);
-            int reader = base + vidstart;
             int draw = TempLine;
             //Generate a temporary bitline to calculate the avarage
             //over bit-2  bit-1  bit  bit+1.
             //Combine this number with the current colour to get
-            //an unigue index in the pallete. Or it with bit 7 as they are stored
+            //an unique index in the pallete. Or it with bit 7 as they are stored
             //in the upperpart to keep them from interfering the regular cga stuff
 
             for(/*Bitu*/int x = 0; x < 640; x++)
-                temp[x+2] = (( Memory.host_readb(reader+(x>>3)) >> (7-(x&7)) )&1) << 4;
+                temp[x+2] = (( CGA16_READER(base, vidstart, x>>3)>> (7-(x&7)) )&1) << 4;
 
                 //shift 4 as that is for the index.
             /*Bitu*/int i = 0,temp1,temp2,temp3,temp4;
             for (/*Bitu*/int x=0;x<VGA.vga.draw.blocks;x++) {
-                /*Bitu*/int val1 = Memory.host_readb(reader++);
+                /*Bitu*/int val1 = CGA16_READER(base, vidstart, x);
                 /*Bitu*/int val2 = val1&0xf;
                 val1 >>= 4;
 

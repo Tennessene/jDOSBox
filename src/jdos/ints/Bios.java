@@ -957,6 +957,7 @@ public class Bios extends Module_base {
                         Callback.CALLBACK_Idle();
                     }
                     Callback.CALLBACK_SCF(false);
+                    break;
                 }
             case 0x87:	/* Copy extended memory */
                 {

@@ -35,6 +35,7 @@ public class Callback {
     static public final int CB_IPXESR=18;
     static public final int CB_IPXESR_RET=19;
 	static public final int CB_INT21=20;
+    static public final int CB_INT13=21;
 
     static public final int CB_MAX = 128;
     static public final int CB_SIZE = 32;
@@ -485,7 +486,18 @@ public class Callback {
             Memory.phys_writeb(physAddress+0x09,0x59);		// pop cx
             Memory.phys_writeb(physAddress+0x0A,0xCF);		//An IRET Instruction
             return (use_cb?15:11);
-
+        case CB_INT13:
+            Memory.phys_writeb(physAddress,0xFB);		//STI
+            if (use_cb) {
+                Memory.phys_writeb(physAddress+0x01,0xFE);	//GRP 4
+                Memory.phys_writeb(physAddress+0x02,0x38);	//Extra Callback instruction
+                Memory.phys_writew(physAddress+0x03,callback);	//The immediate word
+                physAddress+=4;
+            }
+            Memory.phys_writeb(physAddress+0x01,0xCF);		//An IRET Instruction
+            Memory.phys_writew(physAddress+0x02,0x0ECD);		// int 0e
+            Memory.phys_writeb(physAddress+0x04,0xCF);		//An IRET Instruction
+            return (use_cb?9:5);
         default:
             Log.exit("CALLBACK:Setup:Illegal type "+type);
         }

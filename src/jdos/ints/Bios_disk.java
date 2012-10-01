@@ -373,12 +373,14 @@ public class Bios_disk {
                         if ((Dosbox.machine== MachineType.MCH_CGA) || (Dosbox.machine==MachineType.MCH_PCJR)) {
                             /* those bioses call floppy drive reset for invalid drive values */
                             if (((imageDiskList[0]!=null) && (imageDiskList[0].active)) || ((imageDiskList[1]!=null) && (imageDiskList[1].active))) {
+                                if (CPU_Regs.reg_edx.low()<0x80) CPU_Regs.reg_ip(CPU_Regs.reg_ip()+1);
                                 last_status = 0x00;
                                 Callback.CALLBACK_SCF(false);
                             }
                         }
                         return Callback.CBRET_NONE;
                     }
+                    if (CPU_Regs.reg_edx.low()<0x80) CPU_Regs.reg_ip(CPU_Regs.reg_ip()+1);
                     last_status = 0x00;
                     Callback.CALLBACK_SCF(false);
                 }
@@ -546,7 +548,7 @@ public class Bios_disk {
 
     /* TODO Start the time correctly */
         call_int13=Callback.CALLBACK_Allocate();
-        Callback.CALLBACK_Setup(call_int13,INT13_DiskHandler,Callback.CB_IRET_STI,"Int 13 Bios disk");
+        Callback.CALLBACK_Setup(call_int13,INT13_DiskHandler,Callback.CB_INT13,"Int 13 Bios disk");
         Memory.RealSetVec(0x13,Callback.CALLBACK_RealPointer(call_int13));
         int i;
         for(i=0;i<4;i++) {

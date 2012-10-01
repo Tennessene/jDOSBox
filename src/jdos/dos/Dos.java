@@ -243,6 +243,7 @@ public class Dos extends Module_base {
                     /*Bit8u*/short free=Memory.mem_readb(data);
                     /*Bit8u*/short read=0;/*Bit8u*/byte[] c=new byte[1];/*Bit16u*/IntRef n=new IntRef(1);
                     if (free==0) break;
+                    free--;
                     for(;;) {
                         Dos_files.DOS_ReadFile(Dos_files.STDIN,c,n);
                         if (c[0] == 8) {			// Backspace
@@ -255,7 +256,7 @@ public class Dos extends Module_base {
                             }
                             continue;
                         }
-                        if (read >= free) {		// Keyboard buffer full
+                        if (read == free && c[0] != 13) {		// Keyboard buffer full
                             /*Bit8u*/byte[] bell=new byte[] {7};
                             Dos_files.DOS_WriteFile(Dos_files.STDOUT, bell, n);
                             continue;

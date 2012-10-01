@@ -643,6 +643,7 @@ public class VGA_memory {
     //			|Paging.PFLAG_NOCODE;
         }
         public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
+            // Odd banks are limited to 16kB and repeated
             if ((VGA.vga.tandy.mem_bank & 1)!=0)
                 phys_page&=0x03;
             else
@@ -661,9 +662,9 @@ public class VGA_memory {
         }
         public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
             phys_page-=0xb8;
-            //test for a unaliged bank, then replicate 2x16kb
-            if ((VGA.vga.tandy.mem_bank & 1)!=0)
-                phys_page&=0x03;
+            // The 16kB map area is repeated in the 32kB range
+		    // On CGA CPU A14 is not decoded so it repeats there too
+		    phys_page&=0x03;
             return VGA.vga.tandy.mem_base + (phys_page * 4096);
         }
         public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {

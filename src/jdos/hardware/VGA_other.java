@@ -72,7 +72,9 @@ public class VGA_other {
                 VGA.vga.draw.cursor.eline = (/*Bit8u*/short)(val&0x1f);
                 break;
             case 0x0C:	/* Start Address High Register */
-                VGA.vga.config.display_start=(VGA.vga.config.display_start & 0x00FF) | (val << 8);
+                // Bit 12 (depending on video mode) and 13 are actually masked too,
+		        // but so far no need to implement it.
+		        VGA.vga.config.display_start=(VGA.vga.config.display_start & 0x00FF) | ((val&0x3F) << 8);
                 break;
             case 0x0D:	/* Start Address Low Register */
                 VGA.vga.config.display_start=(VGA.vga.config.display_start & 0xFF00) | val;
@@ -491,10 +493,19 @@ public class VGA_other {
                 write_tandy_reg((/*Bit8u*/short)val);
                 break;
             case 0x3df:
+                // CRT/processor page register
+                // See the comments on the PCJr version of this register.
+                // A difference to it is:
+                // Bit 3-5: Processor page CPU_PG
+                // The remapped range is 32kB instead of 16. Therefore CPU_PG bit 0
+                // appears to be ORed with CPU A14 (to preserve some sort of
+                // backwards compatibility?), resulting in odd pages being mapped
+                // as 2x16kB. Implemeted in vga_memory.cpp Tandy handler.
+
                 VGA.vga.tandy.line_mask = (/*Bit8u*/short)(val >> 6);
                 VGA.vga.tandy.draw_bank = (short)(val & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
-                if (VGA.vga.tandy.line_mask==3) VGA.vga.tandy.draw_bank &= ~1; // LSB unused in 32k modes
-                VGA.vga.tandy.mem_bank = (short)((val >> 3) & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
+                VGA.vga.tandy.mem_bank = (short)((val >> 3) & 7);
+
                 TandyCheckLineMask();
                 VGA_memory.VGA_SetupHandlers();
                 break;
@@ -516,9 +527,38 @@ public class VGA_other {
                 VGA.vga.tandy.pcjr_flipflop=!VGA.vga.tandy.pcjr_flipflop;
                 break;
             case 0x3df:
+                // CRT/processor page register
+
+                // Bit 0-2: CRT page PG0-2
+                // In one- and two bank modes, bit 0-2 select the 16kB memory
+                // area of system RAM that is displayed on the screen.
+                // In 4-banked modes, bit 1-2 select the 32kB memory area.
+                // Bit 2 only has effect when the PCJR upgrade to 128k is installed.
+
+                // Bit 3-5: Processor page CPU_PG
+                // Selects the 16kB area of system RAM that is mapped to
+                // the B8000h IBM PC video memory window. Since A14-A16 of the
+                // processor are unconditionally replaced with these bits when
+                // B8000h is accessed, the 16kB area is mapped to the 32kB
+                // range twice in a row. (Scuba Venture writes across the boundary)
+
+                // Bit 6-7: Video Address mode
+                // 0: CRTC addresses A0-12 directly, accessing 8k characters
+                //    (+8k attributes). Used in text modes (one bank).
+                //    PG0-2 in effect. 16k range.
+                // 1: CRTC A12 is replaced with CRTC RA0 (see max_scanline).
+                //    This results in the even/odd scanline two bank system.
+                //    PG0-2 in effect. 16k range.
+                // 2: Documented as unused. CRTC addresses A0-12, PG0 is replaced
+                //    with RA1. Looks like nonsense.
+                //    PG1-2 in effect. 32k range which cannot be used completely.
+                // 3: CRTC A12 is replaced with CRTC RA0, PG0 is replaced with
+                //    CRTC RA1. This results in the 4-bank mode.
+                //    PG1-2 in effect. 32k range.
+
                 VGA.vga.tandy.line_mask = (/*Bit8u*/short)(val >> 6);
                 VGA.vga.tandy.draw_bank = (short)(val & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
-                VGA.vga.tandy.mem_bank = (short)((val >> 3) & ((VGA.vga.tandy.line_mask&2)!=0 ? 0x6 : 0x7));
+                VGA.vga.tandy.mem_bank = (short)((val >> 3) & 7);
                 VGA.vga.tandy.draw_base = VGA.vga.tandy.draw_bank * 16 * 1024;
                 VGA.vga.tandy.mem_base = VGA.vga.tandy.mem_bank * 16 * 1024;
                 TandyCheckLineMask();
@@ -679,6 +719,9 @@ public class VGA_other {
             write_pcjr.call( 0x3df, 0x7 | (0x7 << 3), 0 );
             IoHandler.IO_RegisterWriteHandler(0x3da,write_pcjr,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3df,write_pcjr,IoHandler.IO_MB);
+            // additional CRTC access documented
+            IoHandler.IO_RegisterWriteHandler(0x3d0,write_crtc_index_other,IoHandler.IO_MB);
+            IoHandler.IO_RegisterWriteHandler(0x3d1,write_crtc_data_other,IoHandler.IO_MB);
         }
         if (Dosbox.machine==MachineType.MCH_HERC) {
             /*Bitu*/int base=0x3b0;

@@ -115,7 +115,7 @@ public abstract class Program {
     	}
     	Dos_shell.full_arguments=""; //Clear so it gets even more save
     }
-
+    static byte last_written_character = 0;//For 0xA to OxD 0xA expansion
     protected void WriteOut(String format) {
         WriteOut(format, new Object[0]);
     }
@@ -124,10 +124,10 @@ public abstract class Program {
     	/*Bit16u*/int size = buf.length();
     	for(/*Bit16u*/int i = 0; i < size;i++) {
     		/*Bit8u*/byte[] out=new byte[1];/*Bit16u*/IntRef s=new IntRef(1);
-    		if(buf.charAt(i) == 0xA && i > 0 && buf.charAt(i-1) !=0xD) {
+    		if(buf.charAt(i) == 0xA && last_written_character != 0xD) {
     			out[0] = 0xD;Dos_files.DOS_WriteFile(Dos_files.STDOUT,out,s);
     		}
-    		out[0] = (byte)buf.charAt(i);
+    		last_written_character =out[0] = (byte)buf.charAt(i);
     		Dos_files.DOS_WriteFile(Dos_files.STDOUT,out,s);
     	}
 
@@ -138,10 +138,10 @@ public abstract class Program {
         /*Bit16u*/int size = format.length();
     	for(/*Bit16u*/int i = 0; i < size;i++) {
     		/*Bit8u*/byte[] out=new byte[1];/*Bit16u*/IntRef s=new IntRef(1);
-    		if(format.charAt(i) == 0xA && i > 0 && format.charAt(i-1) !=0xD) {
+    		if(format.charAt(i) == 0xA && last_written_character != 0xD) {
     			out[0] = 0xD;Dos_files.DOS_WriteFile(Dos_files.STDOUT,out,s);
     		}
-    		out[0] = (byte)format.charAt(i);
+    		last_written_character =out[0] = (byte)format.charAt(i);
     		Dos_files.DOS_WriteFile(Dos_files.STDOUT,out,s);
     	}
 

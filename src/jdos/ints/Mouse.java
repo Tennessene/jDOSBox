@@ -37,11 +37,11 @@ public class Mouse {
     static private final int MOUSE_IRQ = 12;
 
     static public short POS_X() {
-        return ((/*Bit16s*/short)((short)mouse.x & mouse.granMask));
+        return ((/*Bit16s*/short)((short)mouse.x & mouse.gran_x));
     }
 
     static public short POS_Y() {
-        return (/*Bit16s*/short)(mouse.y);
+        return ((/*Bit16s*/short)((short)mouse.y & mouse.gran_y));
     }
 
     static private final int CURSORX = 16;
@@ -217,7 +217,8 @@ public class Mouse {
                 writeBool(os, timer_in_progress);
                 writeBool(os, in_UIR);
                 write8u(os, mode);
-                write16s(os, granMask);
+                write16s(os, gran_x);
+                write16s(os, gran_y);
                 return bos.toByteArray();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -289,7 +290,8 @@ public class Mouse {
                 timer_in_progress = readBool(is);
                 in_UIR = readBool(is);
                 mode = read8u(is);
-                granMask = read16s(is);
+                gran_x = read16s(is);
+                gran_y = read16s(is);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -344,7 +346,7 @@ public class Mouse {
         boolean timer_in_progress;
         boolean in_UIR;
         /*Bit8u*/short mode;
-        /*Bit16s*/short granMask;
+        /*Bit16s*/short gran_x,gran_y;
     }
     static public _mouse mouse = new _mouse();
 
@@ -483,6 +485,7 @@ public class Mouse {
         // Save Background
         mouse.backposx		= (short)(POS_X()>>>3);
         mouse.backposy		= (short)(POS_Y()>>>3);
+        if (mouse.mode < 2) mouse.backposx >>= 1;
 
         //use current page (CV program)
         /*Bit8u*/short page = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE);
@@ -820,27 +823,31 @@ public class Mouse {
         /* Get the correct resolution from the current video mode */
         /*Bit8u*/short mode=Memory.mem_readb(Bios.BIOS_VIDEO_MODE);
         if(mode == mouse.mode) {if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MOUSE, LogSeverities.LOG_NORMAL,"New video is the same as the old"); /*return;*/}
+        mouse.gran_x = mouse.gran_y = (short)0xffff;
         switch (mode) {
         case 0x00:
         case 0x01:
         case 0x02:
-        case 0x03: {
-            /*Bitu*/int rows=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_ROWS);
-            if ((rows==0) || (rows>250)) rows=25-1;
-            mouse.max_y=(short)(8*(rows+1)-1);
-            break;
+        case 0x03:
+        case 0x07: {
+            mouse.gran_x = (short)((mode<2)?0xfff0:0xfff8);
+            mouse.gran_y = (short)0xfff8;
+            /*Bitu*/int rows = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_NB_ROWS);
+            if ((rows == 0) || (rows > 250)) rows = 25 - 1;
+            mouse.max_y = (short)(8*(rows+1) - 1);
+		    break;
         }
         case 0x04:
         case 0x05:
         case 0x06:
-        case 0x07:
         case 0x08:
         case 0x09:
         case 0x0a:
         case 0x0d:
         case 0x0e:
         case 0x13:
-            mouse.max_y=199;
+            if (mode == 0x0d || mode == 0x13) mouse.gran_x = (short)0xfffe;
+		    mouse.max_y = 199;
             break;
         case 0x0f:
         case 0x10:
@@ -860,7 +867,6 @@ public class Mouse {
         mouse.max_x = 639;
         mouse.min_x = 0;
         mouse.min_y = 0;
-        mouse.granMask = (short)((mode == 0x0d || mode == 0x13) ? 0xfffe : 0xffff);
 
         mouse.events = 0;
         mouse.timer_in_progress = false;

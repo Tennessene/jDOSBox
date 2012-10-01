@@ -466,8 +466,11 @@ public class Keyboard {
                 else keyb.repeat.wait=keyb.repeat.pause;
                 keyb.repeat.key=keytype;
             } else {
-                keyb.repeat.key=KBD_KEYS.KBD_NONE;
-                keyb.repeat.wait=0;
+                if (keyb.repeat.key == keytype) {
+                    /* repeated key being released */
+                    keyb.repeat.key = KBD_KEYS.KBD_NONE;
+                    keyb.repeat.wait = 0;
+                }
                 ret+=128;
             }
             if (extend) KEYBOARD_AddBuffer(0xe0);

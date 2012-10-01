@@ -33,7 +33,7 @@ public class Dos_shell extends Program {
 
     /* The shell's variables */
     /*Bit16u*/int input_handle;
-    BatchFile bf;
+    public BatchFile bf;
     boolean echo;
     boolean exit;
     boolean call;
@@ -263,7 +263,7 @@ public class Dos_shell extends Program {
                 /*Bit16u*/IntRef dummy=new IntRef(0);
                 Dos_files.DOS_CloseFile(input_handle);
                 Dos_files.DOS_OpenFile("con",2,dummy);
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"Reopening the input handle.This is a bug!");
+                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"Reopening the input handle. This is a bug!");
             }
             if (n.value == 0) {
                 size=0;			//Kill the while loop
@@ -382,6 +382,25 @@ public class Dos_shell extends Program {
                             }
                             line[--str_len]=0;
                             size++;
+                        }
+                        break;
+                    case 15:		/* Shift-Tab */
+                        if (l_completion.size()!=0) {
+                            if (it_completion == 0) it_completion = l_completion.size();
+                            it_completion--;
+                            String s = (String)l_completion.elementAt(it_completion);
+                            if (s.length()!=0) {
+                                for (;str_index > completion_index; str_index--) {
+                                    // removes all characters
+                                    outc(8); outc(' '); outc(8);
+                                }
+
+                                StringHelper.strcpy(line, completion_index, s);
+                                len.value = s.length();
+                                str_len = str_index = completion_index + len.value;
+                                size = Shell.CMD_MAXLINE - str_index - 2;
+                                Dos_files.DOS_WriteFile(Dos_files.STDOUT, s.getBytes(), len);
+                            }
                         }
                         break;
                     default:

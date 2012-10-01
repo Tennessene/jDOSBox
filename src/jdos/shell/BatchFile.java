@@ -180,5 +180,5 @@ public class BatchFile {
     Dos_shell shell;
     BatchFile prev;
     CommandLine cmd;
-    String filename;
+    public String filename;
 }

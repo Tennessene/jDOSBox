@@ -165,7 +165,7 @@ public class Core_dynamic {
                         // the block was exited due to a non-predictable control flow
                         // modifying instruction (like ret) or some nontrivial cpu state
                         // changing instruction (for example switch to/from pmode),
-                        // or the maximal number of instructions to translate was reached
+                        // or the maximam number of instructions to translate was reached
                         if (Config.C_HEAVY_DEBUG)
                             if (Debug.DEBUG_HeavyIsBreakpoint()) return Debug.debugCallback;
                         break;

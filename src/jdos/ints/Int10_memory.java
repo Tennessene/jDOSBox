@@ -137,7 +137,7 @@ public class Int10_memory {
                 Int10.int10.rom.video_dcc_table=Memory.RealMake(0xC000,Int10.int10.rom.used);
                 Memory.phys_writeb(rom_base+Int10.int10.rom.used++,(short)0x10);	// number of entries
                 Memory.phys_writeb(rom_base+Int10.int10.rom.used++,(short)1);		// version number
-                Memory.phys_writeb(rom_base+Int10.int10.rom.used++,(short)8);		// maximal display code
+                Memory.phys_writeb(rom_base+Int10.int10.rom.used++,(short)8);		// maximum display code
                 Memory.phys_writeb(rom_base+Int10.int10.rom.used++,(short)0);		// reserved
                 // display combination codes
                 Memory.phys_writew(rom_base+Int10.int10.rom.used,0x0000);	Int10.int10.rom.used+=2;

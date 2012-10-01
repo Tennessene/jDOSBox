@@ -484,7 +484,7 @@ public class Dos_devices {
 
         private /*Bit8u*/byte readcache;
         private /*Bit8u*/byte lastwrite;
-        private static class Ansi { /* should create a constructor which fills them with the appriorate values */
+        private static class Ansi { /* should create a constructor, which would fill them with the appropriate values */
             boolean esc;
             boolean sci;
             boolean enabled;

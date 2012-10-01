@@ -1294,7 +1294,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
     }
 
     public static void PAGING_Enable(boolean enabled) {
-        /* If paging is disable we work from a default paging table */
+        /* If paging is disabled, we work from a default paging table */
         if (paging.enabled == enabled) return;
         paging.enabled = enabled;
         if (enabled) {

@@ -302,7 +302,7 @@ public class Dos_files {
         }
 
         if (Drives[drivenew.value].Rename(fullold.value,fullnew.value)) return true;
-        /* If it still fails. which error should we give ? PATH NOT FOUND or EACCESS */
+        /* If it still fails, which error should we give ? PATH NOT FOUND or EACCESS */
         if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FILES,LogSeverities.LOG_NORMAL,"Rename fails for "+oldname+" to "+newname+", no proper errorcode returned.");
         Dos.DOS_SetError(Dos.DOSERR_FILE_NOT_FOUND);
         return false;

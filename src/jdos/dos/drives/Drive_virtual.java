@@ -61,7 +61,7 @@ public class Drive_virtual extends Dos_Drive {
             return true;
         }
         public boolean Write(byte[] data,/*Bit16u*/IntRef size) {
-            /* Not really writeable */
+            /* Not really writable */
 	        return false;
         }
         public boolean Seek(/*Bit32u*/LongRef new_pos,/*Bit32u*/int type) {

@@ -914,6 +914,7 @@ public class Dos_files {
         fcb.GetName(shortname);
         ShortRef attr = new ShortRef(Dos_system.DOS_ATTR_ARCHIVE);
 	    fcb.GetAttr(attr);
+        if (attr.value==0) attr.value = Dos_system.DOS_ATTR_ARCHIVE; //Better safe than sorry
         if (!DOS_CreateFile(shortname.value,attr.value,handle)) return false;
         fcb.FileOpen((/*Bit8u*/short)handle.value);
         return true;

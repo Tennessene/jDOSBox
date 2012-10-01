@@ -273,7 +273,8 @@ public class Prefix_0f extends Prefix_none {
         ops[0x131] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return ILLEGAL_OPCODE;
-                /*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double)CPU.CPU_CycleMax);
+                /* Use a fixed number when in auto cycles mode as else the reported value changes constantly */
+			    /*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double) (CPU.CPU_CycleAutoAdjust?70000:CPU.CPU_CycleMax));
                 reg_edx.dword=(int)((tsc>>>32));
                 reg_eax.dword=(int)((tsc&0xffffffffl));
                 return HANDLED;

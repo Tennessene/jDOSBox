@@ -5311,7 +5311,7 @@ public class Compiler extends Helper {
             case 0x331:
                 if (op instanceof Inst2.Rdtsc) {
                     Inst2.Rdtsc o = (Inst2.Rdtsc) op;
-                    method.append("if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return Constants.BR_Illegal;long tsc=(long)(Pic.PIC_FullIndex()*(double)CPU.CPU_CycleMax);CPU_Regs.reg_edx.dword=(int)(tsc>>>32);CPU_Regs.reg_eax.dword=(int)tsc;");
+                    method.append("if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return Constants.BR_Illegal;long tsc=(long)(Pic.PIC_FullIndex()*(double) (CPU.CPU_CycleAutoAdjust?70000:CPU.CPU_CycleMax));CPU_Regs.reg_edx.dword=(int)(tsc>>>32);CPU_Regs.reg_eax.dword=(int)tsc;");
                     return true;
                 }
                 break;

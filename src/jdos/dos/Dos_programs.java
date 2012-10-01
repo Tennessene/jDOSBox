@@ -16,6 +16,7 @@ import jdos.misc.Msg;
 import jdos.misc.Program;
 import jdos.misc.setup.Section;
 import jdos.shell.Dos_shell;
+import jdos.shell.Shell;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.types.MachineType;
@@ -26,6 +27,38 @@ import java.util.Vector;
 
 public class Dos_programs {
     private static class MOUNT extends Program {
+        static private short ZDRIVE_NUM = 25;
+        void ListMounts() {
+            StringRef name=new StringRef();/*Bit32u*/LongRef size=new LongRef(0);/*Bit16u*/IntRef date=new IntRef(0);/*Bit16u*/IntRef time=new IntRef(0);/*Bit8u*/ShortRef attr=new ShortRef(0);
+            /* Command uses dta so set it to our internal dta */
+            /*RealPt*/int save_dta = Dos.dos.dta();
+            Dos.dos.dta(Dos.dos.tables.tempdta);
+            Dos_DTA dta = new Dos_DTA(Dos.dos.dta());
+
+            WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_1"));
+            WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_FORMAT"), new Object[] {"Drive","Type","Label"});
+            for(int p = 0;p < 8;p++) WriteOut("----------");
+
+            for (int d = 0;d < Dos_files.DOS_DRIVES;d++) {
+                if (Dos_files.Drives[d] == null) continue;
+
+                String root = String.valueOf((char)('A'+d))+":\\";
+                boolean ret = Dos_files.DOS_FindFirst(root, Dos_system.DOS_ATTR_VOLUME);
+                if (ret) {
+                    dta.GetResult(name,size,date,time,attr);
+                    Dos_files.DOS_FindNext(); //Mark entry as invalid
+                } else name.value = "";
+
+                /* Change 8.3 to 11.0 */
+                int dot = name.value.indexOf('.');
+                if (dot==8) {
+                    name.value = name.value.substring(0, 8)+name.value.substring(9);
+                }
+
+                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_FORMAT"),new Object[] {root.substring(0,1), Dos_files.Drives[d].GetInfo(),name});
+            }
+            Dos.dos.dta(save_dta);
+        }
         public void Run() {
             Dos_Drive newdrive=null;char drive='C';
             String label;
@@ -36,17 +69,12 @@ public class Dos_programs {
             /* Parse the command line */
             /* if the command line is empty show current mounts */
             if (cmd.GetCount()==0) {
-                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_1"));
-                for (int d=0;d<Dos_files.DOS_DRIVES;d++) {
-                    if (Dos_files.Drives[d]!=null) {
-                        WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"),new Object[]{new Character((char)(d+'A')),Dos_files.Drives[d].GetInfo()});
-                    }
-                }
+                ListMounts();
                 return;
             }
 
             /* In secure mode don't allow people to change mount points.
-       * Neither mount nor unmount */
+            * Neither mount nor unmount */
             if(Dosbox.control.SecureMode()) {
                 WriteOut(Msg.get("PROGRAM_CONFIG_SECURE_DISALLOW"));
                 return;
@@ -61,7 +89,7 @@ public class Dos_programs {
                         case 0:
                             Dos_files.Drives[i_drive] = null;
                             if(i_drive == Dos_files.DOS_GetDefaultDrive())
-                                Dos_files.DOS_SetDrive((short)('Z' - 'A'));
+                                Dos_files.DOS_SetDrive(ZDRIVE_NUM);
                             WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_SUCCESS"),new Object[]{umount});
                             break;
                         case 1:
@@ -77,6 +105,37 @@ public class Dos_programs {
                 return;
             }
 
+            /* Check for moving Z: */
+            /* Only allowing moving it once. It is merely a convenience added for the wine team */
+            String newz;
+            if (ZDRIVE_NUM == 25 && (newz=cmd.FindString("-z",false))!=null) {
+                newz = newz.toUpperCase();
+                int i_newz = newz.charAt(0) - 'A';
+                if (i_newz >= 0 && i_newz < Dos_files.DOS_DRIVES-1 && Dos_files.Drives[i_newz]==null) {
+                    ZDRIVE_NUM = (short)i_newz;
+                    /* remap drives */
+                    Dos_files.Drives[i_newz] = Dos_files.Drives[25];
+                    Dos_files.Drives[25] = null;
+                    Dos_shell fs = (Dos_shell) Shell.first_shell;
+                    /* Update environment */
+                    StringRef line = new StringRef();
+                    if (fs.GetEnvStr("PATH",line)){
+                        line.value = StringHelper.replace(line.value, "Z:\\", newz+":\\");
+                    }
+                    if (line.value.length()==0) line.value = newz+":\\";
+                    fs.SetEnv("PATH",line.value);
+                    fs.SetEnv("COMSPEC",newz+":\\COMMAND.COM");
+
+                    /* Update batch file if running from Z: (very likely: autoexec) */
+                    if (fs.bf != null) {
+                        if (fs.bf.filename.length()>2 && fs.bf.filename.startsWith("Z:"))
+                            fs.bf.filename = newz+fs.bf.filename.substring(1);
+                    }
+                    /* Change the active drive */
+                    if (Dos_files.DOS_GetDefaultDrive() == 25) Dos_files.DOS_SetDrive((short)i_newz);
+                }
+                return;
+            }
             // Show list of cdroms
             if (cmd.FindExist("-cd",false)) {
                 File[] roots = File.listRoots();
@@ -1338,8 +1397,9 @@ public class Dos_programs {
         /*Add Messages */
 
         Msg.add("PROGRAM_MOUNT_CDROMS_FOUND","CDROMs found: %d\n");
+        Msg.add("PROGRAM_MOUNT_STATUS_FORMAT", "%-5s  %-58s %-12s\n");
         Msg.add("PROGRAM_MOUNT_STATUS_2","Drive %c is mounted as %s\n");
-        Msg.add("PROGRAM_MOUNT_STATUS_1","Current mounted drives are:\n");
+        Msg.add("PROGRAM_MOUNT_STATUS_1","The currently mounted drives are:\n");
         Msg.add("PROGRAM_MOUNT_ERROR_1","Directory %s doesn't exist.\n");
         Msg.add("PROGRAM_MOUNT_ERROR_2","%s isn't a directory\n");
         Msg.add("PROGRAM_MOUNT_ILL_TYPE","Illegal type %s\n");

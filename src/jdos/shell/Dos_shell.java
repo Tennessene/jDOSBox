@@ -988,6 +988,7 @@ public class Dos_shell extends Program {
             while(ScanCMDBool(args,"A")) ;
             ScanCMDBool(args,"Y");
             ScanCMDBool(args,"-Y");
+            ScanCMDBool(args,"V");
 
             String rem=ScanCMDRemain(args);
             if (rem!=null) {

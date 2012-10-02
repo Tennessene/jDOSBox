@@ -74,6 +74,8 @@ public class Decoder extends Inst1 {
         Prefix_66_0f.init(ops);
     }
 
+    public static final boolean removeRedundantSegs = true;
+
     public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/int start,/*Bitu*/int max_opcodes) {
         // initialize a load of variables
         decode.code_start=start;
@@ -109,6 +111,8 @@ public class Decoder extends Inst1 {
         int opcode = 0;
         int count = 0;
         int cycles = 0;
+        int previousSeg = -1;
+        Op previousSegParent = null;
 
         try {
             while (max_opcodes-->0 && result==0) {
@@ -118,6 +122,9 @@ public class Decoder extends Inst1 {
 
                 opcode=opcode_index+decode_fetchb();
                 result = ops[opcode].call(op);
+                //if (printNextOp && op.next!=null) {
+                //    System.out.println(Integer.toHexString(opcode)+" "+op.next.getClass().getName());
+                //}
                 if (decode.modifiedAlot) {
                     result = RESULT_ILLEGAL_INSTRUCTION;
                     break;
@@ -132,11 +139,40 @@ public class Decoder extends Inst1 {
                 op.c = opcode;
                 ++cycles;
                 if (result == RESULT_CONTINUE_SEG) {
+                    // This will remove redundant segment prefixes and remove the op that returns the base back to DS
+                    //
+                    // The following 2 instructions, each with a segment prefix used to become 6 ops
+                    //
+                    // Core.DO_PREFIX_SEG_ES();
+                    // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
+                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    // Core.DO_PREFIX_SEG_ES();
+                    // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
+                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    //
+                    // Now it will be 4 ops
+                    //
+                    // Core.DO_PREFIX_SEG_ES();
+                    // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
+                    // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
+                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    //
+                    // See below for a list of ops that prevent this from working since they set the segment
+                    //
+                    // This only works for instructions with prefixes that are back to back
+                    if (removeRedundantSegs) {
+                        if (previousSegParent != null && previousSeg == opcode) {
+                            op = previousSegParent;
+                        }
+                        previousSeg = opcode;
+                    }
                     result = RESULT_HANDLED;
                     max_opcodes++;
                     seg_changed = true;
                     continue;
                 }
+                if (removeRedundantSegs)
+                    previousSegParent = null;
                 begin_op = op;
                 op.eip_count = count;
                 count = 0;
@@ -154,6 +190,11 @@ public class Decoder extends Inst1 {
                     EA16 = true;
                 }
                 if (seg_changed && result==0) {
+                    if (removeRedundantSegs) {
+                        if (opcode != 0x8e && opcode != 0x2c4 && opcode != 0xc4 && opcode != 0x3b2 && opcode != 0x1b2 && opcode != 0xc5 && opcode != 0x2c5 && opcode != 0x3b4 && opcode != 0x1b4 && opcode != 0x3b5 && opcode != 0x1b5) {
+                            previousSegParent = op;
+                        }
+                    }
                     seg_changed = false;
                     op.next = new HandledSegChange();
                     op = op.next;

@@ -1291,7 +1291,7 @@ public class Compiler2 extends Compiler {
             case 0x260: // PUSHAD
                 if (op instanceof Inst3.Pushad) {
                     Inst3.Pushad o = (Inst3.Pushad) op;
-                    method.append("int tmpesp = CPU_Regs.reg_esp.dword;int esp = CPU_Regs.reg_esp.dword;esp = CPU.CPU_Push32(esp, CPU_Regs.reg_eax.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ecx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ebx.dword);esp = CPU.CPU_Push32(esp, tmpesp);esp = CPU.CPU_Push32(esp, ");nameGet32(CPU_Regs.reg_ebp, method);method.append(");esp = CPU.CPU_Push32(esp, CPU_Regs.reg_esi.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edi.dword);CPU_Regs.reg_esp.word(esp);");
+                    method.append("int tmpesp = CPU_Regs.reg_esp.dword;int esp = CPU_Regs.reg_esp.dword;esp = CPU.CPU_Push32(esp, CPU_Regs.reg_eax.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ecx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ebx.dword);esp = CPU.CPU_Push32(esp, tmpesp);esp = CPU.CPU_Push32(esp, ");nameGet32(CPU_Regs.reg_ebp, method);method.append(");esp = CPU.CPU_Push32(esp, CPU_Regs.reg_esi.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edi.dword);CPU_Regs.reg_esp.dword=esp;");
                     return true;
                 }
                 break;

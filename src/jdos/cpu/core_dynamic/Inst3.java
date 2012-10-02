@@ -1237,7 +1237,7 @@ public class Inst3 extends Helper {
             esp = CPU.CPU_Push32(esp, reg_esi.dword);
             esp = CPU.CPU_Push32(esp, reg_edi.dword);
             // Don't store ESP until all the memory writes are done in case of a PF so that this op can be reentrant
-            reg_esp.word(esp);
+            reg_esp.dword=esp;
             return Constants.BR_Normal;
         }
 

@@ -157,12 +157,12 @@ public class Decoder extends Inst1 {
                     // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
                     // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
                     //
-                    // See below for a list of ops that prevent this from working since they set the segment
-                    //
                     // This only works for instructions with prefixes that are back to back
                     if (removeRedundantSegs) {
                         if (previousSegParent != null && previousSeg == opcode) {
                             op = previousSegParent;
+                            begin_op = previousSegParent;
+                            max_opcodes++;
                         }
                         previousSeg = opcode;
                     }
@@ -191,7 +191,7 @@ public class Decoder extends Inst1 {
                 }
                 if (seg_changed && result==0) {
                     if (removeRedundantSegs) {
-                        if (opcode != 0x8e && opcode != 0x2c4 && opcode != 0xc4 && opcode != 0x3b2 && opcode != 0x1b2 && opcode != 0xc5 && opcode != 0x2c5 && opcode != 0x3b4 && opcode != 0x1b4 && opcode != 0x3b5 && opcode != 0x1b5) {
+                        if ((op.setsSeg() & Op.FROM_MEMORY)==0) {
                             previousSegParent = op;
                         }
                     }

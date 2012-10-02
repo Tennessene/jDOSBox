@@ -10,6 +10,16 @@ import jdos.cpu.core_share.Data;
 abstract public class Op {
     static final public int EAX = 1;
 
+    static final public int ES = 0x01;
+    static final public int CS = 0x02;
+    static final public int DS = 0x03;
+    static final public int FS = 0x04;
+    static final public int GS = 0x05;
+    static final public int SS = 0x06;
+    static final public int FROM_REG = 0x10;
+    static final public int FROM_STACK = 0x20;
+    static final public int FROM_MEMORY = 0x30;
+
     public int c=-1;
     public int eip_count=0;
     public Op next;
@@ -42,6 +52,8 @@ abstract public class Op {
     public int gets() { return 0; }
 
     public boolean returnsIllegal() {return false;}
+    public int setsSeg() {return 0;}
+
 //    public boolean throwsException() {return true;}
 //    public boolean accessesMemory() {return true;}
 //    public  boolean usesEip() {return true;}

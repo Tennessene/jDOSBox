@@ -1818,6 +1818,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return ES|FROM_STACK;}
     }
 
     final static public class PushCS extends Op {
@@ -1879,6 +1880,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return SS|FROM_STACK;}
     }
 
     final static public class PushDS extends Op {
@@ -1921,6 +1923,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return DS|FROM_STACK;}
     }
 
     final static public class SegES extends Op {
@@ -4745,6 +4748,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return ES|FROM_REG;}
     }
 
     final static public class MovEsEw_mem extends Op {
@@ -4771,6 +4775,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return ES|FROM_MEMORY;}
     }
 
     final static public class MovSsEw_reg extends Op {
@@ -4797,6 +4802,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return SS|FROM_REG;}
     }
 
     final static public class MovSsEw_mem extends Op {
@@ -4824,6 +4830,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return SS|FROM_MEMORY;}
     }
 
     final static public class MovDsEw_reg extends Op {
@@ -4851,6 +4858,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return DS|FROM_REG;}
     }
 
     final static public class MovDsEw_mem extends Op {
@@ -4879,6 +4887,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return DS|FROM_MEMORY;}
     }
 
     final static public class MovFsEw_reg extends Op {
@@ -4904,6 +4913,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return FS|FROM_REG;}
     }
 
     final static public class MovFsEw_mem extends Op {
@@ -4930,6 +4940,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return FS|FROM_MEMORY;}
     }
 
     final static public class MovGsEw_reg extends Op {
@@ -4955,6 +4966,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return GS|FROM_REG;}
     }
 
     final static public class MovGsEw_mem extends Op {
@@ -4981,6 +4993,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return GS|FROM_MEMORY;}
     }
 
     final static public class PopEw_reg extends Op {
@@ -5544,6 +5557,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return ES|FROM_MEMORY;}
     }
 
     final static public class Lds extends Op {
@@ -5577,6 +5591,7 @@ public class Inst1 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return DS|FROM_MEMORY;}
     }
 
     final static public class EnterIwIb extends Op {

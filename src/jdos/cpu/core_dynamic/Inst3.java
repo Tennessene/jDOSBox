@@ -158,6 +158,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return ES|FROM_STACK;}
     }
 
     final static public class Ord_reg extends Op {
@@ -447,6 +448,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return SS|FROM_STACK;}
     }
 
     final static public class Sbbd_reg extends Op {
@@ -601,6 +603,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return DS|FROM_STACK;}
     }
 
     final static public class Andd_reg extends Op {
@@ -3171,6 +3174,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return ES|FROM_MEMORY;}
     }
 
     final static public class Lds32 extends Op {
@@ -3205,6 +3209,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return DS|FROM_MEMORY;}
     }
 
     final static public class Enter32IwIb extends Op {

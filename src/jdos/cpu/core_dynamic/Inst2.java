@@ -2131,6 +2131,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return FS|FROM_STACK;}
     }
 
     final static public class CPUID extends Op {
@@ -2380,6 +2381,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return GS|FROM_STACK;}
     }
 
     final static public class BtsEwGw_reg extends Op {
@@ -2805,6 +2807,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return SS|FROM_MEMORY;}
     }
 
     final static public class BtrEwGw_reg extends Op {
@@ -2900,6 +2903,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return FS|FROM_MEMORY;}
     }
 
     final static public class LgsEw extends Op {
@@ -2930,6 +2934,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int setsSeg() {return GS|FROM_MEMORY;}
     }
 
     final static public class MovzxGwEb_reg extends Op {

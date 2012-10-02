@@ -168,6 +168,9 @@ public class Core_dynamic {
                         // or the maximam number of instructions to translate was reached
                         if (Config.C_HEAVY_DEBUG)
                             if (Debug.DEBUG_HeavyIsBreakpoint()) return Debug.debugCallback;
+                        Core.base_ds= CPU.Segs_DSphys;
+                        Core.base_ss=CPU.Segs_SSphys;
+                        Core.base_val_ds= CPU_Regs.ds;
                         break;
 
                     case Constants.BR_CallBack:
@@ -177,6 +180,9 @@ public class Core_dynamic {
 
                     case Constants.BR_Illegal:
                         CPU.CPU_Exception(6,0);
+                        Core.base_ds= CPU.Segs_DSphys;
+                        Core.base_ss=CPU.Segs_SSphys;
+                        Core.base_val_ds= CPU_Regs.ds;
                         break;
                     default:
                         Log.exit("Invalid return code");

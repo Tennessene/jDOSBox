@@ -129,7 +129,6 @@ public class Compiler extends Helper {
         int count = 0;
         Op start = prev;
 
-        method.append("Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds= CPU_Regs.ds;");
         int loopPos = method.length();
         int eipTotal = 0;
         method.append("CPU.CPU_Cycles-=");

@@ -66,9 +66,6 @@ final public class DecodeBlock extends Op {
 //            System.out.println(op.toString()+":"+runCount);
         Op o = op;
         int result;
-        Core.base_ds= CPU.Segs_DSphys;
-        Core.base_ss=CPU.Segs_SSphys;
-        Core.base_val_ds= CPU_Regs.ds;
         while (true) {
             if (Config.DEBUG_LOG) {
                 if (o.c>=0) Debug.start(Debug.TYPE_CPU, o.c);

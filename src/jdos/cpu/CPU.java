@@ -559,13 +559,13 @@ public class CPU extends Module_base {
 
     public static void CPU_Push16(/*Bitu*/int value) {
         /*Bit32u*/int new_esp=(CPU_Regs.reg_esp.dword & cpu.stack.notmask) | ((CPU_Regs.reg_esp.dword - 2) & cpu.stack.mask);
-        Memory.mem_writew(Segs_SSphys + (new_esp & cpu.stack.mask) ,value & 0xFFFF);
+        Memory.mem_writew(Segs_SSphys + (new_esp & cpu.stack.mask) ,value);
         CPU_Regs.reg_esp.dword=new_esp;
     }
 
     public static int CPU_Push16(int esp, /*Bitu*/int value) {
         /*Bit32u*/int new_esp=(esp & cpu.stack.notmask) | ((esp - 2) & cpu.stack.mask);
-        Memory.mem_writew(Segs_SSphys + (new_esp & cpu.stack.mask) ,value & 0xFFFF);
+        Memory.mem_writew(Segs_SSphys + (new_esp & cpu.stack.mask) ,value);
         return new_esp;
     }
 

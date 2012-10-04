@@ -31,6 +31,7 @@ package jdos.hardware;
 
 import jdos.host.Ethernet;
 import jdos.host.RxFrame;
+import jdos.host.UserEthernet;
 import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
@@ -1506,12 +1507,12 @@ public class NE2000 extends Module_base {
                 e.printStackTrace();
             }
         }
-//        if (ethernet == null) {
-//            ethernet = new UserEthernet();
-//            if (!ethernet.open(section, mac)) {
-//                ethernet = null;
-//            }
-//        }
+        if (ethernet == null) {
+            ethernet = new UserEthernet();
+            if (!ethernet.open(section, mac)) {
+                ethernet = null;
+            }
+        }
         if (ethernet == null) {
             Log.log_msg("Network card disabled");
             load_success = false;

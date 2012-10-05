@@ -860,6 +860,11 @@ public class SBlaster extends Module_base {
         case 0x76:  /* 074h : Single Cycle 3-bit(2.6bit) ADPCM */
             DSP_PrepareDMA_Old(DSP_DMA_3,false,false);
             break;
+        case 0x7d:	/* Auto Init 4-bit ADPCM Reference */
+		    if (DSP_SB2_ABOVE()) break;
+		    sb.adpcm.haveref=true;
+		    DSP_PrepareDMA_Old(DSP_DMA_4,true,false);
+		    break;
         case 0x17:	/* 017h : Single Cycle 2-bit ADPCM Reference*/
             sb.adpcm.haveref=true;
         case 0x16:  /* 074h : Single Cycle 2-bit ADPCM */
@@ -967,7 +972,7 @@ public class SBlaster extends Module_base {
             break;
         case 0xe8:	/* Read Test Register */
             DSP_FlushData();
-            DSP_AddData(sb.dsp.test_register);;
+            DSP_AddData(sb.dsp.test_register);
             break;
         case 0xf2:	/* Trigger 8bit IRQ */
             SB_RaiseIRQ(SB_IRQ_8);
@@ -987,7 +992,7 @@ public class SBlaster extends Module_base {
             if (DSP_SB2_ABOVE()) break;
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented MIDI UART command "+Integer.toString(sb.dsp.cmd,16));
             break;
-        case 0x7d: case 0x7f: case 0x1f:
+        case 0x7f: case 0x1f:
             if (DSP_SB2_ABOVE()) break;
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_ERROR,"DSP:Unimplemented auto-init DMA ADPCM command "+Integer.toString(sb.dsp.cmd,16));
             break;

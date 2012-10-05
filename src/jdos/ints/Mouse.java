@@ -1264,7 +1264,7 @@ public class Mouse {
                 } else if (useps2callback) {
                     CPU.CPU_Push16(Memory.RealSeg(Callback.CALLBACK_RealPointer(int74_ret_callback)));
                     CPU.CPU_Push16(Memory.RealOff(Callback.CALLBACK_RealPointer(int74_ret_callback)));
-                    DoPS2Callback(mouse.event_queue[mouse.events].buttons, POS_X(), POS_Y());
+                    DoPS2Callback(mouse.event_queue[mouse.events].buttons, (short)mouse.x, (short)mouse.y);
                 } else {
                     CPU_Regs.SegSet16CS(Memory.RealSeg(Callback.CALLBACK_RealPointer(int74_ret_callback)));
                     CPU_Regs.reg_ip(Memory.RealOff(Callback.CALLBACK_RealPointer(int74_ret_callback)));

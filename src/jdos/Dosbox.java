@@ -684,6 +684,8 @@ public class Dosbox {
             Pbool.Set_help("Enable ipx over UDP/IP emulation.");
         }
         if (Config.C_NE2000) {
+
+	        Pstring = secprop.Add_string("ne2000",Property.Changeable.WhenIdle,"false");
             secprop=control.AddSection_prop("ne2000",NE2000.NE2000_Init,true);
             Msg.add("NE2000_CONFIGFILE_HELP",
                 "macaddr -- The physical address the emulator will use on your network.\n" +
@@ -697,45 +699,38 @@ public class Dosbox {
                 "           name, e.g. VIA here.\n"
             );
 
-            Pbool = secprop.Add_bool("ne2000", Property.Changeable.WhenIdle, true);
-            Pbool.Set_help("Enable Ethernet passthrough. Requires [Win]Pcap.");
+            String[] ne2000_settings = new String[]{ "false", "user", "pcap", "pcaphost"};
+            Pstring = secprop.Add_string("mode", Property.Changeable.WhenIdle, "false");
+            Pstring.Set_values(ne2000_settings);
 
-            Pbool = secprop.Add_bool("pcap", Property.Changeable.WhenIdle, false);
-            Pbool.Set_help("Use pcap to access the host ethernet card.  This requires\n" +
-                    "jnetpcap.jar, the appropriate native jnetpcap libaries and [Win]Pcap\n" +
-                    "installed on the host computer.");
+            Pstring.Set_help( "none -- Hardware is not enabled.  This is the default.\n" +
+                "user -- Internal router will be used.  Currently only DHCP works.\n" +
+                "        UDP/TCP has not been implemented so the internet in\n" +
+                "        Win98 won't work yet.\n" +
+                "pcap -- This requires jnetpcap.jar, the appropriate native jnetpcap\n" +
+                "        libaries and [Win]Pcap installed on the host computer.\n" +
+                "        This is the best option if you want to browse network\n" +
+                "        shares and use the internet on Win98\n" +
+                "pcaphost -- This is not a reliable option yet and used for testing.\n");
 
-            Pstring = secprop.Add_string("pcaphost", Property.Changeable.WhenIdle, "");
-            Pstring.Set_help("When set, pcap passthrough requests will be fowarded.  This is a good option"+
-                            "to use when you want an unsigned applet to work with ne2000 or you just " +
-                            "don't want to bother a client to install pcap.  With an unsigned applet, the" +
-                            "pcaphost must be set to the same server that is hosting the applet.  Also keep" +
-                            "in mind that pcap is bound to the server and the network will be visible to" +
-                            "jdosbox, you may want to set up a virtual network.  To run jDosbox in pcap" +
-                            "forward mode, just start it with a -pcap <device> -pcapport <port> where <device>"+
-                            "is the index from the pcap list or a partial name for the device.  You can pass"+
-                            "in -pcap list to see all the devices");
             Pint = secprop.Add_int("pcapport", Property.Changeable.WhenIdle, 15654);
-            Pint.Set_help("Port to connect to when forwarding pcap requests");
+            Pint.Set_help("Used with mode=pcaphost. Port to connect to when forwarding pcap requests");
             Phex = secprop.Add_hex("nicbase", Property.Changeable.WhenIdle, new Hex(0x300));
             Phex.Set_help("The base address of the NE2000 board.");
-
             Pint = secprop.Add_int("nicirq", Property.Changeable.WhenIdle, 3);
             Pint.Set_help("The interrupt it uses. Note serial2 uses IRQ3 as default.");
-
             Pstring = secprop.Add_string("macaddr", Property.Changeable.WhenIdle,"AC:DE:48:88:99:AA");
             Pstring.Set_help("The physical address the emulator will use on your network.\n" +
                 "If you have multiple DOSBoxes running on your network,\n" +
                 "this has to be changed for each. AC:DE:48 is an address range reserved for\n" +
                 "private use, so modify the last three number blocks.\n" +
                 "I.e. AC:DE:48:88:99:AB.");
-
             Pstring = secprop.Add_string("realnic", Property.Changeable.WhenIdle,"list");
             Pstring.Set_help("Specifies which of your network interfaces is used.\n" +
                 "Write \'list\' here to see the list of devices in the\n" +
                 "Status Window. Then make your choice and put either the\n" +
                 "interface number (2 or something) or a part of your adapters\n" +
-                "name, e.g. VIA here.");
+                "name, e.g. VIA here.  This option is used for mode=\"pcap\"");
         }
         //	secprop.AddInitFunction(&CREDITS_Init);
 

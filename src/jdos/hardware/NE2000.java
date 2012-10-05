@@ -1445,8 +1445,8 @@ public class NE2000 extends Module_base {
 
         load_success = true;
         // enabled?
-
-        if (!section.Get_bool("ne2000")) {
+        String mode = section.Get_string("mode");
+        if (mode == null || mode.length()==0 || mode.equalsIgnoreCase("false")) {
             load_success = false;
             return;
         }
@@ -1486,7 +1486,7 @@ public class NE2000 extends Module_base {
             mac[5] = (byte) 0xaa;
         }
 
-        if (section.Get_bool("pcap")) {
+        if (mode.equalsIgnoreCase("pcap")) {
             try {
                 Class c = Class.forName("jdos.host.PCapEthernet");
                 ethernet = (Ethernet)c.newInstance();
@@ -1496,8 +1496,7 @@ public class NE2000 extends Module_base {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        if (ethernet == null && section.Get_string("pcaphost").length()>0) {
+        }  else if (mode.equalsIgnoreCase("pcaphost")) {
             try {
                 Class c = Class.forName("jdos.host.FowardPCapEthernet");
                 ethernet = (Ethernet)c.newInstance();
@@ -1506,15 +1505,14 @@ public class NE2000 extends Module_base {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        if (ethernet == null) {
+        } else if (mode.equalsIgnoreCase("user")) {
             ethernet = new UserEthernet();
             if (!ethernet.open(section, mac)) {
                 ethernet = null;
             }
         }
         if (ethernet == null) {
-            Log.log_msg("Network card disabled");
+            Log.log_msg("Network card disabled. mode="+mode+" not found.");
             load_success = false;
             return;
         }

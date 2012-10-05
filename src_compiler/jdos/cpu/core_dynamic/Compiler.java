@@ -279,7 +279,7 @@ public class Compiler extends Helper {
                         method.append("/* Should set flags */");
                     }
                 }
-                if (!loopClosed && compile_op(op, alwayUseFastVersion?0:shouldSet, method, "CPU_Regs.reg_eip+="+runningEipCount+";")) {
+                if (!loopClosed && compile_op(op, alwayUseFastVersion?0:shouldSet, method, (runningEipCount>0)?"CPU_Regs.reg_eip+="+runningEipCount+";":"")) {
                     if (combineEIP) {
                         method.append("}");
                         if (tryPageFault) {
@@ -1473,7 +1473,13 @@ public class Compiler extends Helper {
             case 0x230:
                 if (op instanceof Inst1.Xorb_reg) {
                     Inst1.Xorb_reg o = (Inst1.Xorb_reg) op;
-                    instructionEG((setFlags & o.sets())==0, 8, o.e, o.g, "^", "", "XORB", method);
+                    boolean fast = (setFlags & o.sets())==0;
+                    if (fast && o.e == o.g) {
+                        nameSet8(o.e, method);
+                        method.append("0);");
+                    } else {
+                        instructionEG(fast, 8, o.e, o.g, "^", "", "XORB", method);
+                    }
                     return true;
                 }
                 if (op instanceof Inst1.XorEbGb_mem) {
@@ -1485,7 +1491,13 @@ public class Compiler extends Helper {
             case 0x31: // XOR Ew,Gw
                 if (op instanceof Inst1.Xorw_reg) {
                     Inst1.Xorw_reg o = (Inst1.Xorw_reg) op;
-                    instructionEG((setFlags & o.sets())==0, 16, o.e, o.g, "^", "", "XORW", method);
+                    boolean fast = (setFlags & o.sets())==0;
+                    if (fast && o.e == o.g) {
+                        nameSet16(o.e, method);
+                        method.append("0);");
+                    } else {
+                        instructionEG(fast, 16, o.e, o.g, "^", "", "XORW", method);
+                    }
                     return true;
                 }
                 if (op instanceof Inst1.XorEwGw_mem) {

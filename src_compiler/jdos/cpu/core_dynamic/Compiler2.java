@@ -965,7 +965,13 @@ public class Compiler2 extends Compiler {
             case 0x231: // XOR Ed,Gd
                 if (op instanceof Inst3.Xord_reg) {
                     Inst3.Xord_reg o = (Inst3.Xord_reg) op;
-                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "^", "", "XORD", method);
+                    boolean fast = (setFlags & o.sets())==0;
+                    if (fast && o.e == o.g) {
+                        nameSet32(o.e, method);
+                        method.append("=0;");
+                    } else {
+                        instructionEG(fast, 32, o.e, o.g, "^", "", "XORD", method);
+                    }
                     return true;
                 }
                 if (op instanceof Inst3.XorEdGd_mem) {

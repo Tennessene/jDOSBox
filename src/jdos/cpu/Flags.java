@@ -72,7 +72,7 @@ public class Flags {
     }
 
     public static void lf_var1d(int v) {
-        lflags.var1=(int)v;
+        lflags.var1=v;
     }
 
     public static int lf_var2d() {

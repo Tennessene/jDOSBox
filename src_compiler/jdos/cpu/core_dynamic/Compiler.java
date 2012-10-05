@@ -840,11 +840,11 @@ public class Compiler extends Helper {
             method.append("Instructions.");
             method.append(instCall);
             method.append("(");
-            if (g.getName() == null && bits==8)
+            if (g.getName() == null && g.getParent()==null && bits==8)
                 method.append("(short)");
             nameGet(g, bits, method);
             method.append(", ");
-            if (e.getName() == null && bits==8)
+            if (e.getName() == null && e.getParent()==null && bits==8)
                 method.append("(short)");
             nameGet(e, bits, method);
             method.append("));");

@@ -32,7 +32,7 @@ public class Int10_memory {
         /*PhysPt*/int ftwhere= Memory.PhysMake(0xa000,map_offset[map & 0x7]+(offset*32));
         IoHandler.IO_Write(0x3c4,0x2);IoHandler.IO_Write(0x3c5,0x4);	//Enable plane 2
         IoHandler.IO_Write(0x3ce,0x6);/*Bitu*/int old_6=IoHandler.IO_Read(0x3cf);
-        IoHandler.IO_Write(0x3cf,0x0);	//Disable odd/even and a0000 adressing
+        IoHandler.IO_Write(0x3cf,0x0);	//Disable odd/even and a0000 addressing
         for (/*Bitu*/int i=0;i<count;i++) {
             Memory.MEM_BlockCopy(ftwhere,font,height);
             ftwhere+=32;
@@ -40,7 +40,7 @@ public class Int10_memory {
         }
         IoHandler.IO_Write(0x3c4,0x2);IoHandler.IO_Write(0x3c5,0x3);	//Enable textmode planes (0,1)
         IoHandler.IO_Write(0x3ce,0x6);
-        if (Dosbox.IS_VGA_ARCH()) IoHandler.IO_Write(0x3cf,old_6);	//odd/even and b8000 adressing
+        if (Dosbox.IS_VGA_ARCH()) IoHandler.IO_Write(0x3cf,old_6);	//odd/even and b8000 addressing
         else IoHandler.IO_Write(0x3cf,0x0e);
         /* Reload tables and registers with new values based on this height */
         if (reload) {

@@ -1448,7 +1448,7 @@ public class Dos_shell extends Program {
             args=args.substring(1);//skip first character. either a slash or dot or space
             //TODO check input of else ook nodig is.
             if(args.endsWith("\r")) {
-                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Hu ? carriage return allready present. Is this possible?");
+                Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Hu ? carriage return already present. Is this possible?");
                 WriteOut(args+"\n");
             } else WriteOut(args+"\r\n");
         }

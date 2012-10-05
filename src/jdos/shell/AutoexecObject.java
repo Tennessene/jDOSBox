@@ -18,14 +18,14 @@ public class AutoexecObject {
     }
 
     public void Install(String in) {
-        if(installed) Log.exit("autoexec: allready created "+buf);
+        if(installed) Log.exit("autoexec: already created "+buf);
         installed = true;
         buf = in;
         autoexec_strings.add(buf);
         CreateAutoexec();
 
         //autoexec.bat is normally created AUTOEXEC_Init.
-        //But if we are allready running (first_shell)
+        //But if we are already running (first_shell)
         //we have to update the envirionment to display changes
 
         if(Shell.first_shell!=null)	{

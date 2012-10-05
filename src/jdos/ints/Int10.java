@@ -538,7 +538,7 @@ public class Int10 {
                     CPU_Regs.reg_eax.low(0x12);
                     break;
                 }
-            case 0x32:							/* Video adressing */
+            case 0x32:							/* Video addressing */
                 if (!Dosbox.IS_VGA_ARCH()) break;
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Function 12:Call "+Integer.toString(CPU_Regs.reg_ebx.low(), 16)+" not handled");
                 if (Dosbox.svgaCard==SVGACards.SVGA_TsengET4K) CPU_Regs.reg_eax.low((CPU_Regs.reg_eax.low() & 1));

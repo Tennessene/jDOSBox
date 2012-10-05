@@ -80,7 +80,7 @@ public class VGA_draw {
             //Generate a temporary bitline to calculate the avarage
             //over bit-2  bit-1  bit  bit+1.
             //Combine this number with the current colour to get
-            //an unique index in the pallete. Or it with bit 7 as they are stored
+            //an unique index in the pallette. Or it with bit 7 as they are stored
             //in the upperpart to keep them from interfering the regular cga stuff
 
             for(/*Bitu*/int x = 0; x < 640; x++)
@@ -517,7 +517,7 @@ public class VGA_draw {
             // draw the text mode cursor if needed
             if ((VGA.vga.draw.cursor.count & 0x8)!=0 && (line >= VGA.vga.draw.cursor.sline) &&
                 (line <= VGA.vga.draw.cursor.eline) && VGA.vga.draw.cursor.enabled) {
-                // the adress of the attribute that makes up the cell the cursor is in
+                // the address of the attribute that makes up the cell the cursor is in
                 /*Bits*/int attr_addr = (VGA.vga.draw.cursor.address-vidstart) >> 1;
                 if (attr_addr >= 0 && attr_addr < VGA.vga.draw.blocks) {
                     /*Bitu*/int index = attr_addr * (VGA.vga.draw.char9dot? 18:16);

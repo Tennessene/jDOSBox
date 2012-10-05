@@ -437,7 +437,7 @@ public class Mixer extends Program {
                 installed = true;
                 return MIXER_AddChannel(handler,freq,name);
             } else {
-                Log.exit("allready added mixer channel.");
+                Log.exit("already added mixer channel.");
                 return null; //Compiler happy
             }
         }

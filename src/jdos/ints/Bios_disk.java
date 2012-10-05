@@ -252,7 +252,7 @@ public class Bios_disk {
         /*Bits*/int swapPos = swapPosition;
         int i;
 
-        /* Check to make sure there's atleast one setup image */
+        /* Check to make sure there is at least one setup image */
         for(i=0;i<MAX_SWAPPABLE_DISKS;i++) {
             if(diskSwap[i]!=null) {
                 allNull = false;

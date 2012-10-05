@@ -57,7 +57,7 @@ public class Msg {
                     name=linein.substring(1);
                 /* End of string marker */
                 } else if (linein.startsWith(".")) {
-                    /* Replace/Add the string to the internal langaugefile */
+                    /* Replace/Add the string to the internal languagefile */
 			        /* Remove last newline (marker is \n.\n) */
                     if (string.endsWith("\n"))
                         string = string.substring(0, string.length()-1); //Second if should not be needed, but better be safe.

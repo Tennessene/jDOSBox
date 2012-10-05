@@ -523,7 +523,7 @@ public class Bios_keyboard {
                     CPU_Regs.reg_eax.word(temp.value);
                 }
                 break;
-            case 0x02:	/* GET SHIFT FlAGS */
+            case 0x02:	/* GET SHIFT FLAGS */
                 CPU_Regs.reg_eax.low(Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS1));
                 break;
             case 0x03:	/* SET TYPEMATIC RATE AND DELAY */
@@ -570,7 +570,7 @@ public class Bios_keyboard {
         Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_HEAD,0x1e);
         Memory.mem_writew(Bios.BIOS_KEYBOARD_BUFFER_TAIL,0x1e);
         /*Bit8u*/short flag1 = 0;
-        /*Bit8u*/short leds = 16; /* Ack recieved */
+        /*Bit8u*/short leds = 16; /* Ack received */
     //MAPPER_Init takes care of this now ?
     //	if(startup_state_capslock) { flag1|=0x40; leds|=0x04;}
     //	if(startup_state_numlock){ flag1|=0x20; leds|=0x02;}

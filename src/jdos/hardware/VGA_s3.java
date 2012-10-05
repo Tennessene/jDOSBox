@@ -326,7 +326,7 @@ public class VGA_s3 {
                 VGA.vga.svga.bank_write = VGA.vga.svga.bank_read;
                 VGA_memory.VGA_SetupHandlers();
                 break;
-            case 0x6b:	// BIOS scratchpad: LFB adress
+            case 0x6b:	// BIOS scratchpad: LFB address
                 VGA.vga.s3.reg_6b=(short)val;
                 break;
             default:

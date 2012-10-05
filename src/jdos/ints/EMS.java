@@ -1130,7 +1130,7 @@ public class EMS extends Module_base {
 
                 CPU_Regs.reg_esp.dword+=6;		// skip ip of CALL and error code of EXCEPTION 0x0d
 
-                /* Get adress of faulting instruction */
+                /* Get address of faulting instruction */
                 /*Bit16u*/int v86_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask));
                 /*Bit16u*/int v86_ip=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask));
                 /*Bit8u*/short v86_opcode=Memory.mem_readb((v86_cs<<4)+v86_ip);

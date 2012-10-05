@@ -505,7 +505,7 @@ public class EMS extends Module_base {
                     Memory.mem_writew(data,segment);data+=2;
                     Memory.MEM_BlockWrite(data,emm_mappings[page].data,EMM_Mapping.size);
                     data+=EMM_Mapping.size;
-                } else if (((segment>=EMM_PAGEFRAME-0x1000) && (segment<EMM_PAGEFRAME)) || ((segment>=0xa000) && (segment<0xb000))) {
+                } else if ((ems_type==1) || (ems_type==3) || ((segment>=EMM_PAGEFRAME-0x1000) && (segment<EMM_PAGEFRAME)) || ((segment>=0xa000) && (segment<0xb000))) {
                     Memory.mem_writew(data,segment);data+=2;
                     Memory.MEM_BlockWrite(data,emm_segmentmappings[segment>>10].data,EMM_Mapping.size);
                     data+=EMM_Mapping.size;
@@ -522,7 +522,7 @@ public class EMS extends Module_base {
                 if ((segment>=EMM_PAGEFRAME) && (segment<EMM_PAGEFRAME+0x1000)) {
                     /*Bit16u*/int page = (segment-EMM_PAGEFRAME) / (EMM_PAGE_SIZE>>4);
                     Memory.MEM_BlockRead(data,emm_mappings[page].data,EMM_Mapping.size);
-                } else if (((segment>=EMM_PAGEFRAME-0x1000) && (segment<EMM_PAGEFRAME)) || ((segment>=0xa000) && (segment<0xb000))) {
+                } else if ((ems_type==1) || (ems_type==3) || ((segment>=EMM_PAGEFRAME-0x1000) && (segment<EMM_PAGEFRAME)) || ((segment>=0xa000) && (segment<0xb000))) {
                     Memory.MEM_BlockRead(data,emm_segmentmappings[segment>>10].data,EMM_Mapping.size);
                 } else {
                     return EMM_ILL_PHYS;

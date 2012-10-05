@@ -604,7 +604,7 @@ public class Dos_shell extends Program {
             if (line.charAt(0)=='/') break;
             if (line.charAt(0)=='\t') break;
             if (line.charAt(0)=='=') break;
-            if (line.charAt(0)==':') break;
+            //if (line.charAt(0)==':') break; //This breaks drive switching as that is handled at a later stage.
             if ((line.charAt(0)=='.') ||(line.charAt(0) =='\\')) {  //allow stuff like cd.. and dir.exe cd\kees
                 //cmd_buffer.append((char)0);
                 /*Bit32u*/int cmd_index=0;

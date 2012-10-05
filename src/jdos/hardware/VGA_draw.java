@@ -799,7 +799,7 @@ public class VGA_draw {
                 break;
             }
             //Check if we can actually render, else skip the rest (frameskip)
-            if (!Render.RENDER_StartUpdate())
+            if (VGA.vga.draw.vga_override || !Render.RENDER_StartUpdate())
                 return;
 
             VGA.vga.draw.address_line = VGA.vga.config.hlines_skip;
@@ -1530,7 +1530,8 @@ public class VGA_draw {
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,"Width "+width+", Height "+height+", fps "+fps);
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGA,LogSeverities.LOG_NORMAL,(doublewidth ? "double":"normal")+" width, "+(doubleheight ? "double":"normal")+" height aspect "+aspect_ratio);
                 }
-                Render.RENDER_SetSize(width,height,bpp,(float)fps,aspect_ratio,doublewidth,doubleheight);
+                if (!VGA.vga.draw.vga_override)
+                    Render.RENDER_SetSize(width,height,bpp,(float)fps,aspect_ratio,doublewidth,doubleheight);
             }
         }
     };
@@ -1541,7 +1542,19 @@ public class VGA_draw {
         Pic.PIC_RemoveEvents(VGA_DrawEGASingleLine);
         VGA.vga.draw.parts_left = 0;
         VGA.vga.draw.lines_done = ~0;
-        Render.RENDER_EndUpdate(true);
+        if (!VGA.vga.draw.vga_override) Render.RENDER_EndUpdate(true);
     }
-    
+
+    void VGA_SetOverride(boolean vga_override) {
+        if (VGA.vga.draw.vga_override!=vga_override) {
+            if (vga_override) {
+                VGA_KillDrawing();
+                VGA.vga.draw.vga_override=true;
+            } else {
+                VGA.vga.draw.vga_override=false;
+                VGA.vga.draw.width=0; // change it so the output window gets updated
+                VGA_SetupDrawing.call(0);
+            }
+        }
+    }
 }

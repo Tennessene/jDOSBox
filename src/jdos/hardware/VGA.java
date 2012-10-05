@@ -161,6 +161,7 @@ public class VGA {
         public Cursor cursor = new Cursor();
         public int mode;
         public boolean vret_triggered;
+        public boolean vga_override;
     }
 
     public static class VGA_HWCURSOR {

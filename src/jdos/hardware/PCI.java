@@ -7,6 +7,7 @@ import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
+import jdos.util.IntRef;
 
 public class PCI extends Module_base {
     static final private int PCI_MAX_PCIDEVICES = 10;
@@ -105,6 +106,7 @@ public class PCI extends Module_base {
         }
 
         public abstract /*Bits*/int ParseReadRegister(/*Bit8u*/int regnum);
+        public abstract boolean OverrideReadRegister(/*Bit8u*/int regnum, /*Bit8u**/IntRef rval, /*Bit8u**/IntRef rval_mask);
         public abstract /*Bits*/int ParseWriteRegister(/*Bit8u*/int regnum,/*Bit8u*/int value);
         public abstract boolean InitializeRegisters(/*Bit8u*/byte[] registers);
     }
@@ -211,6 +213,12 @@ public class PCI extends Module_base {
         /*Bits*/int parsed_regnum=dev.ParseReadRegister(regnum);
         if ((parsed_regnum>=0) && (parsed_regnum<256))
             return pci_cfg_data[dev.PCIId()][dev.PCISubfunction()][parsed_regnum];
+
+        /*Bit8u*/IntRef newval = new IntRef(0), mask = new IntRef(0);
+        if (dev.OverrideReadRegister(regnum, newval, mask)) {
+            /*Bit8u*/int oldval=pci_cfg_data[dev.PCIId()][dev.PCISubfunction()][regnum] & (~mask.value);
+            return oldval | (newval.value & mask.value);
+        }
 
         return 0xff;
     }

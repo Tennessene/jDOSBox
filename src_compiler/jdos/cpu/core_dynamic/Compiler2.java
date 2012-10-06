@@ -4445,7 +4445,13 @@ public class Compiler2 extends Compiler {
                     method.append("return Constants.BR_Jump;");
                     return false; // compile block
                 } else if (op instanceof Decoder.ModifiedDecodeOp) {
-                    method.append("return ModifiedDecode.call();");
+                    method.append("Core.base_ds=");
+                    method.append(seg.ds);
+                    method.append(";Core.base_ss=");
+                    method.append(seg.ss);
+                    method.append(";Core.base_val_ds=");
+                    method.append(seg.val);
+                    method.append(";return ModifiedDecode.call();");
                     return false;
                 } else {
                     Log.exit("[Compiler] Unhandled op: " + op);

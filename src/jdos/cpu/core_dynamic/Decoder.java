@@ -141,7 +141,7 @@ public class Decoder extends Inst1 {
                 if (result == RESULT_CONTINUE_SEG) {
                     // This will remove redundant segment prefixes and remove the op that returns the base back to DS
                     //
-                    // The following 2 instructions, each with a segment prefix used to become 6 ops
+                    // The following 2 instructions, each with a segment prefix used to become 6 oline
                     //
                     // Core.DO_PREFIX_SEG_ES();
                     // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
@@ -157,11 +157,26 @@ public class Decoder extends Inst1 {
                     // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
                     // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
                     //
+                    // or 5 ops if the recompiler is on
+                    //
+                    // Core.DO_PREFIX_SEG_ES();
+                    // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
+                    // Core.DO_PREFIX_SEG_ES();
+                    // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
+                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    //
                     // This only works for instructions with prefixes that are back to back
                     if (removeRedundantSegs) {
                         if (previousSegParent != null && previousSeg == opcode) {
-                            op = previousSegParent;
-                            begin_op = previousSegParent;
+
+                            if (DecodeBlock.compilerEnabled) {
+                                // we can loose the HandleSegChange block, be we need this seg instruction for the recompiler
+                                previousSegParent.next = op; // This will drop HandleSegChange
+                                begin_op = previousSegParent.next;
+                            } else {
+                                op = previousSegParent;
+                                begin_op = previousSegParent;
+                            }
                             max_opcodes++;
                         }
                         previousSeg = opcode;

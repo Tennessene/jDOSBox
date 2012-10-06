@@ -54,18 +54,23 @@ final public class DecodeBlock extends Op {
         }
     }
     final public int call() {
-        runCount++;
-        if (runCount==compileThreshold && !compiled && compilerEnabled) {
-            jdos.cpu.core_dynamic.Compiler.compile(this);
-        }
-        if (compiledOp!=null) {
-            parent.code = compiledOp;
-            return compiledOp.call();
+        if (Compiler.ENABLED) {
+            runCount++;
+            if (runCount==compileThreshold && !compiled && compilerEnabled) {
+                jdos.cpu.core_dynamic.Compiler.compile(this);
+            }
+            if (compiledOp!=null) {
+                parent.code = compiledOp;
+                return compiledOp.call();
+            }
         }
 //        if ((runCount % 10000) == 0)
 //            System.out.println(op.toString()+":"+runCount);
         Op o = op;
         int result;
+        Core.base_ds= CPU.Segs_DSphys;
+        Core.base_ss=CPU.Segs_SSphys;
+        Core.base_val_ds= CPU_Regs.ds;
         while (true) {
             if (Config.DEBUG_LOG) {
                 if (o.c>=0) Debug.start(Debug.TYPE_CPU, o.c);

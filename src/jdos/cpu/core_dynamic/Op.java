@@ -58,8 +58,8 @@ abstract public class Op {
 //    public boolean accessesMemory() {return true;}
 //    public  boolean usesEip() {return true;}
 //    public  boolean setsEip() {return true;}
-    public abstract boolean throwsException();
-    public abstract boolean accessesMemory();
-    public abstract boolean usesEip();
-    public abstract boolean setsEip();
+    public boolean throwsException() {return false;}
+    public boolean accessesMemory() {return false;}
+    public boolean usesEip() {return false;}
+    public boolean setsEip() {return false;}
 }

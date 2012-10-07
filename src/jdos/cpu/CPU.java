@@ -893,7 +893,7 @@ public class CPU extends Module_base {
         } else {
 
             /* Setup the new cr3 */
-            if (Paging.paging.cr3 != new_cr3) {
+            if (Paging.cr3 != new_cr3) {
 			    // if they are the same it is not flushed
 			    // according to the 386 manual
 			    Paging.PAGING_SetDirBase(new_cr3);
@@ -1918,7 +1918,7 @@ public class CPU extends Module_base {
 
     static public void CPU_SetCPL(/*Bitu*/int newcpl) {
         if (newcpl != cpu.cpl) {
-            if (Paging.paging.enabled) {
+            if (Paging.enabled) {
                 if ( ((cpu.cpl < 3) && (newcpl == 3)) || ((cpu.cpl == 3) && (newcpl < 3)) )
                 Paging.PAGING_SwitchCPL(newcpl == 3);
             }
@@ -2042,7 +2042,7 @@ public class CPU extends Module_base {
                 break;
             }
         case 2:
-            Paging.paging.cr2=value;
+            Paging.cr2=value;
             break;
         case 3:
             Paging.PAGING_SetDirBase(value);
@@ -2071,7 +2071,7 @@ public class CPU extends Module_base {
             else if (CPU_ArchitectureType>=CPU_ARCHTYPE_486OLD) return (cpu.cr0 & 0xe005003f);
             else return (cpu.cr0 | 0x7ffffff0);
         case 2:
-            return Paging.paging.cr2;
+            return Paging.cr2;
         case 3:
             return Paging.PAGING_GetDirBase() & 0xfffff000;
         default:

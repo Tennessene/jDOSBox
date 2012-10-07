@@ -328,7 +328,7 @@ public class DMA extends Module_base {
         /* if EMS is not present, this will result in a 1:1 mapping */
         /*Bitu*/int i;
         for (i=0;i<0x10;i++) {
-            ems_board_mapping[EMM_PAGEFRAME4K+i]=Paging.paging.firstmb[EMM_PAGEFRAME4K+i];
+            ems_board_mapping[EMM_PAGEFRAME4K+i]=Paging.firstmb[EMM_PAGEFRAME4K+i];
         }
     }
 
@@ -347,9 +347,9 @@ public class DMA extends Module_base {
             offset &= dma_wrap;
             /*Bitu*/int page = highpart_addr_page+(offset >>> 12);
             /* care for EMS pageframe etc. */
-            if (page < EMM_PAGEFRAME4K) page = (int)Paging.paging.firstmb[page];
+            if (page < EMM_PAGEFRAME4K) page = (int)Paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];
-            else if (page < Paging.LINK_START) page = (int)Paging.paging.firstmb[page];
+            else if (page < Paging.LINK_START) page = (int)Paging.firstmb[page];
             if (left) {
                 data[dataOffset] = (short)Memory.phys_readb(page*4096 + (offset & 4095));
             } else {
@@ -369,9 +369,9 @@ public class DMA extends Module_base {
             offset &= dma_wrap;
             /*Bitu*/int page = highpart_addr_page+(offset >>> 12);
             /* care for EMS pageframe etc. */
-            if (page < EMM_PAGEFRAME4K) page = (int)Paging.paging.firstmb[page];
+            if (page < EMM_PAGEFRAME4K) page = (int)Paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];
-            else if (page < Paging.LINK_START) page = (int)Paging.paging.firstmb[page];
+            else if (page < Paging.LINK_START) page = (int)Paging.firstmb[page];
             data[dataOffset++]=Memory.host_readbs(page*4096 + (offset & 4095));
         }
     }
@@ -389,9 +389,9 @@ public class DMA extends Module_base {
             offset &= dma_wrap;
             /*Bitu*/int page = highpart_addr_page+(offset >>> 12);
             /* care for EMS pageframe etc. */
-            if (page < EMM_PAGEFRAME4K) page = (int)Paging.paging.firstmb[page];
+            if (page < EMM_PAGEFRAME4K) page = (int)Paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];
-            else if (page < Paging.LINK_START) page = (int)Paging.paging.firstmb[page];
+            else if (page < Paging.LINK_START) page = (int)Paging.firstmb[page];
             Memory.phys_writeb(page*4096 + (offset & 4095), data[data_offset+i]);
         }
     }

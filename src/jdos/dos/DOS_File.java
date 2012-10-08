@@ -13,6 +13,7 @@ public abstract class DOS_File {
         attr=orig.attr;
         refCtr=orig.refCtr;
         open=orig.open;
+        hdrive=orig.hdrive;
         name=orig.name;
     }
     public abstract boolean	Read(byte[] data,/*Bit16u*/IntRef size);

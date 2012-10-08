@@ -371,7 +371,7 @@ public class StringOp extends Prefix_helpers {
             }
             break;
         case R_INSD:
-            add_index<<=1;
+            add_index<<=2;
             for (;count>0;count--) {
                 Memory.mem_writed(di_base+reg_edi.dword,IO.IO_ReadD(reg_edx.word()));
                 reg_edi.dword+=add_index;

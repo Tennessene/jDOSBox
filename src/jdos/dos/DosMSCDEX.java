@@ -532,8 +532,13 @@ public class DosMSCDEX {
             /*PhysPt*/int ptoc = GetTempBuffer();
             success = ReadVTOC(drive,0x00,ptoc,error);
             if (success) {
-                Memory.MEM_BlockCopy(data,ptoc+702,37);
-                Memory.mem_writeb(data+37,0);
+                /*Bitu*/int len;
+                for (len=0;len<37;len++) {
+                    /*Bit8u*/short c=Memory.mem_readb(ptoc+702+len);
+                    if (c==0 || c==0x20) break;
+                }
+                Memory.MEM_BlockCopy(data,ptoc+702,len);
+                Memory.mem_writeb(data+len,0);
             }
             return success;
         }
@@ -544,8 +549,13 @@ public class DosMSCDEX {
             /*PhysPt*/int ptoc = GetTempBuffer();
             success = ReadVTOC(drive,0x00,ptoc,error);
             if (success) {
-                Memory.MEM_BlockCopy(data,ptoc+739,37);
-                Memory.mem_writeb(data+37,0);
+                /*Bitu*/int len;
+                for (len=0;len<37;len++) {
+                    /*Bit8u*/short c=Memory.mem_readb(ptoc+739+len);
+                    if (c==0 || c==0x20) break;
+                }
+                Memory.MEM_BlockCopy(data,ptoc+739,len);
+                Memory.mem_writeb(data+len,0);
             }
             return success;
         }
@@ -556,8 +566,13 @@ public class DosMSCDEX {
             /*PhysPt*/int ptoc = GetTempBuffer();
             success = ReadVTOC(drive,0x00,ptoc,error);
             if (success) {
-                Memory.MEM_BlockCopy(data,ptoc+776,37);
-                Memory.mem_writeb(data+37,0);
+                /*Bitu*/int len;
+                for (len=0;len<37;len++) {
+                    /*Bit8u*/short c=Memory.mem_readb(ptoc+776+len);
+                    if (c==0 || c==0x20) break;
+                }
+                Memory.MEM_BlockCopy(data,ptoc+776,len);
+                Memory.mem_writeb(data+len,0);
             }
             return success;
         }

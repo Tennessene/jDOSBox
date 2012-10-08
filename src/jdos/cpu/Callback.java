@@ -271,24 +271,25 @@ public class Callback {
             Memory.phys_writeb(physAddress+0x06,0xcf);		//An IRET Instruction
             return (use_cb?0x0b:0x07);
         case CB_IRQ0:	// timer int8
+            Memory.phys_writeb(physAddress,0xFB);		//STI
             if (use_cb) {
-                Memory.phys_writeb(physAddress,0xFE);	//GRP 4
-                Memory.phys_writeb(physAddress+0x01,0x38);	//Extra Callback instruction
-                Memory.phys_writew(physAddress+0x02,callback);		//The immediate word
+                Memory.phys_writeb(physAddress+0x01,0xFE);	//GRP 4
+                Memory.phys_writeb(physAddress+0x02,0x38);	//Extra Callback instruction
+                Memory.phys_writew(physAddress+0x03,callback);		//The immediate word
                 physAddress+=4;
             }
-            Memory.phys_writeb(physAddress,0x50);		// push ax
-            Memory.phys_writeb(physAddress+0x01,0x52);		// push dx
-            Memory.phys_writeb(physAddress+0x02,0x1e);		// push ds
-            Memory.phys_writew(physAddress+0x03,0x1ccd);	// int 1c
-            Memory.phys_writeb(physAddress+0x05,0xfa);		// cli
-            Memory.phys_writeb(physAddress+0x06,0x1f);		// pop ds
-            Memory.phys_writeb(physAddress+0x07,0x5a);		// pop dx
-            Memory.phys_writew(physAddress+0x08,0x20b0);	// mov al, 0x20
-            Memory.phys_writew(physAddress+0x0a,0x20e6);	// out 0x20, al
+            Memory.phys_writeb(physAddress+0x01,0x1e);		// push ds
+            Memory.phys_writeb(physAddress+0x02,0x50);		// push ax
+            Memory.phys_writeb(physAddress+0x03,0x52);		// push dx
+            Memory.phys_writew(physAddress+0x04,0x1ccd);	// int 1c
+            Memory.phys_writeb(physAddress+0x06,0xfa);		// cli
+            Memory.phys_writew(physAddress+0x07,0x20b0);	// mov al, 0x20
+            Memory.phys_writew(physAddress+0x09,0x20e6);	// out 0x20, al
+            Memory.phys_writeb(physAddress+0x0b,0x5a);		// pop dx
             Memory.phys_writeb(physAddress+0x0c,0x58);		// pop ax
-            Memory.phys_writeb(physAddress+0x0d,0xcf);		//An IRET Instruction
-            return (use_cb?0x12:0x0e);
+            Memory.phys_writeb(physAddress+0x0d,0x1f);		// pop ds
+            Memory.phys_writeb(physAddress+0x0e,0xcf);		//An IRET Instruction
+            return (use_cb?0x13:0x0f);
         case CB_IRQ1:	// keyboard int9
             Memory.phys_writeb(physAddress,0x50);			// push ax
             Memory.phys_writew(physAddress+0x01,0x60e4);		// in al, 0x60

@@ -14,6 +14,7 @@ public class MPU401 extends Module_base {
     static final private int MPU401_REVISION = 0x01;
     static final private int MPU401_QUEUE = 32;
     static final private float MPU401_TIMECONSTANT = (60000000/1000.0f);
+    static final private float MPU401_RESETBUSY = 27.0f;
 
     static final private int M_UART = 0;
     static final private int M_INTELLIGENT = 1;
@@ -62,8 +63,9 @@ public class MPU401 extends Module_base {
             boolean wsd,wsm,wsd_start;
             boolean run_irq,irq_pending;
             boolean send_now;
+            boolean eoi_scheduled;
             /*Bits*/int data_onoff;
-            /*Bitu*/int command_byte;
+            /*Bitu*/int command_byte, cmd_pending;
             /*Bit8u*/short tmask,cmask,amask;
             /*Bit16u*/int midi_mask;
             /*Bit16u*/int req_mask;
@@ -106,6 +108,7 @@ public class MPU401 extends Module_base {
     private static final IoHandler.IO_ReadHandler MPU401_ReadStatus = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             /*Bit8u*/short ret=0x3f;	/* Bits 6 and 7 clear */
+            if (mpu.state.cmd_pending!=0) ret|=0x40;
             if (mpu.queue_used==0) ret|=0x80;
             return ret;
         }
@@ -113,7 +116,7 @@ public class MPU401 extends Module_base {
 
     private static final IoHandler.IO_WriteHandler MPU401_WriteCommand = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
-            mpu.state.reset=false;
+            if (mpu.state.reset) {mpu.state.cmd_pending=val+1;return;}
             if (val<=0x2f) {
                 switch (val&3) { /* MIDI stop, start, continue */
                     case 1: {Midi.MIDI_RawOutByte(0xfc);break;}
@@ -235,18 +238,16 @@ public class MPU401 extends Module_base {
                     break;
                 case 0xff:	/* Reset MPU-401 */
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_NORMAL,"MPU-401:Reset "+Integer.toString(val,16));
-                    mpu.state.reset=true;
-                    if (CPU.CPU_Cycles > 5) { //It came from the desert wants a fast irq
-                        CPU.CPU_CycleLeft += CPU.CPU_Cycles;
-                        CPU.CPU_Cycles = 5;
-                    }
+                    Pic.PIC_AddEvent(MPU401_ResetDone,MPU401_RESETBUSY);
+			        mpu.state.reset=true;
                     MPU401_Reset();
+                    if (mpu.mode==M_UART) return;//do not send ack in UART mode
                     break;
                 case 0x3f:	/* UART mode */
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_NORMAL,"MPU-401:Set UART mode "+Integer.toString(val,16));
                     mpu.mode=M_UART;
                     break;
-                default:;
+                default:
                     //Log.log(LogType.LOG_MISC, LogSeverity.LOG_NORMALS,"MPU-401:Unhandled command %X",val);
             }
             QueueByte(MSG_MPU_ACK);
@@ -282,7 +283,7 @@ public class MPU401 extends Module_base {
             }
             if (ret==MSG_MPU_END || ret==MSG_MPU_CLOCK || ret==MSG_MPU_ACK) {
                 mpu.state.data_onoff=-1;
-                MPU401_EOIHandler();
+                MPU401_EOIHandlerDispatch();
             }
             return ret;
         }
@@ -390,7 +391,7 @@ public class MPU401 extends Module_base {
                         if (val<0xf0) mpu.state.data_onoff++;
                         else {
                             mpu.state.data_onoff=-1;
-                            MPU401_EOIHandler();
+                            MPU401_EOIHandlerDispatch();
                             return;
                         }
                         if (val==0) mpu.state.send_now=true;
@@ -402,13 +403,13 @@ public class MPU401 extends Module_base {
                         if (val==0xf8 || val==0xf9) mpu.condbuf.type=T_OVERFLOW;
                         mpu.condbuf.value[mpu.condbuf.vlength]=(short)val;
                         mpu.condbuf.vlength++;
-                        if ((val&0xf0)!=0xe0) MPU401_EOIHandler();
+                        if ((val&0xf0)!=0xe0) MPU401_EOIHandlerDispatch();
                         else mpu.state.data_onoff++;
                         break;
                     case  2:/* Command byte #2 */
                         mpu.condbuf.value[mpu.condbuf.vlength]=(short)val;
                         mpu.condbuf.vlength++;
-                        MPU401_EOIHandler();
+                        MPU401_EOIHandlerDispatch();
                         break;
                 }
                 return;
@@ -420,7 +421,7 @@ public class MPU401 extends Module_base {
                     if (val<0xf0) mpu.state.data_onoff=1;
                     else {
                         mpu.state.data_onoff=-1;
-                        MPU401_EOIHandler();
+                        MPU401_EOIHandlerDispatch();
                         return;
                     }
                     if (val==0) mpu.state.send_now=true;
@@ -461,7 +462,7 @@ public class MPU401 extends Module_base {
                         }
                     }
                     if (!(posd==1 && val>=0xf0)) mpu.playbuf[mpu.state.channel].value[posd-1]=(short)val;
-                    if (posd==length) MPU401_EOIHandler();
+                    if (posd==length) MPU401_EOIHandlerDispatch();
             }
         }
     };
@@ -534,7 +535,7 @@ public class MPU401 extends Module_base {
                         mpu.state.req_mask|=(1<<13);
                     }
                 }
-                if (!mpu.state.irq_pending && mpu.state.req_mask!=0) MPU401_EOIHandler();
+                if (!mpu.state.irq_pending && mpu.state.req_mask!=0) MPU401_EOIHandler.call(0);
             }
             Pic.PIC_RemoveEvents(MPU401_Event);
             /*Bitu*/int new_time;
@@ -543,27 +544,51 @@ public class MPU401 extends Module_base {
         }
     };
 
-    private static void MPU401_EOIHandler() {
+    private static void MPU401_EOIHandlerDispatch() {
         if (mpu.state.send_now) {
-            mpu.state.send_now=false;
-            if (mpu.state.cond_req) UpdateConductor();
-            else UpdateTrack(mpu.state.channel);
+            mpu.state.eoi_scheduled=true;
+            Pic.PIC_AddEvent(MPU401_EOIHandler,0.06f); //Possible a bit longer
         }
-        mpu.state.irq_pending=false;
-        if (!mpu.state.playing || mpu.state.req_mask==0) return;
-        /*Bitu*/int i=0;
-        do {
-            if ((mpu.state.req_mask & (1<<i))!=0) {
-                QueueByte(0xf0+i);
-                mpu.state.req_mask&=~(1<<i);
-                break;
-            }
-        } while ((i++)<16);
+        else if (!mpu.state.eoi_scheduled) MPU401_EOIHandler.call(0);
     }
+
+    //Updates counters and requests new data on "End of Input"
+    static private final Pic.PIC_EventHandler MPU401_EOIHandler = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            mpu.state.eoi_scheduled=false;
+            if (mpu.state.send_now) {
+                mpu.state.send_now=false;
+                if (mpu.state.cond_req) UpdateConductor();
+                else UpdateTrack(mpu.state.channel);
+            }
+            mpu.state.irq_pending=false;
+            if (!mpu.state.playing || mpu.state.req_mask==0) return;
+            /*Bitu*/int i=0;
+            do {
+                if ((mpu.state.req_mask & (1<<i))!=0) {
+                    QueueByte(0xf0+i);
+                    mpu.state.req_mask&=~(1<<i);
+                    break;
+                }
+            } while ((i++)<16);
+        }
+    };
+
+    static private final Pic.PIC_EventHandler MPU401_ResetDone = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            mpu.state.reset=false;
+            if (mpu.state.cmd_pending!=0) {
+                MPU401_WriteCommand.call(0x331,mpu.state.cmd_pending-1,1);
+                mpu.state.cmd_pending=0;
+            }
+        }
+    };
 
     private static void MPU401_Reset() {
         Pic.PIC_DeActivateIRQ(mpu.irq);
         mpu.mode=(mpu.intelligent ? M_INTELLIGENT : M_UART);
+        Pic.PIC_RemoveEvents(MPU401_EOIHandler);
+	    mpu.state.eoi_scheduled=false;
         mpu.state.wsd=false;
         mpu.state.wsm=false;
         mpu.state.conductor=false;

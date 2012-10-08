@@ -12,14 +12,9 @@ import jdos.types.LogTypes;
 import jdos.types.MachineType;
 
 public class Pic extends Module_base {
-    public interface PIC_EOIHandler {
-        public void call();
-    }
     public interface PIC_EventHandler {
         public void call(/*Bitu*/int val);
     }
-    public static final int PIC_MAXIRQ = 15;
-    public static final int PIC_NOIRQ = 0xFF;
 
     public static float PIC_TickIndex() {
         return (CPU.CPU_CycleMax-CPU.CPU_CycleLeft-CPU.CPU_Cycles)/(float)CPU.CPU_CycleMax;

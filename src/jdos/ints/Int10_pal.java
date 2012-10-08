@@ -1,6 +1,7 @@
 package jdos.ints;
 
 import jdos.Dosbox;
+import jdos.dos.Dos;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
 import jdos.hardware.VGA;
@@ -307,11 +308,21 @@ public class Int10_pal {
     }
 
     public static void INT10_SetBackgroundBorder(/*Bit8u*/short val) {
-        /*Bit8u*/short temp=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL);
-        temp=(short)((temp & 0xe0) | (val & 0x1f));
-        Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL,temp);
-        if (Dosbox.machine == MachineType.MCH_CGA || Dosbox.IS_TANDY_ARCH())
-            IoHandler.IO_Write(0x3d9,temp);
+        /*Bit8u*/short color_select=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL);
+        color_select=(short)((color_select & 0xe0) | (val & 0x1f));
+        Memory.real_writeb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_PAL, color_select);
+
+        if (Dosbox.machine == MachineType.MCH_CGA || Dosbox.machine == MachineType.MCH_TANDY)
+            IoHandler.IO_Write(0x3d9,color_select);
+        else if (Dosbox.machine == MachineType.MCH_PCJR) {
+            IoHandler.IO_Read(Int10.VGAREG_TDY_RESET); // reset the flipflop
+            if (VGA.vga.mode!=VGA.M_TANDY_TEXT) {
+                IoHandler.IO_Write(Int10.VGAREG_TDY_ADDRESS, 0x10);
+                IoHandler.IO_Write(Int10.VGAREG_PCJR_DATA, color_select&0xf);
+            }
+            IoHandler.IO_Write(Int10.VGAREG_TDY_ADDRESS, 0x2); // border color
+            IoHandler.IO_Write(Int10.VGAREG_PCJR_DATA, color_select&0xf);
+        }
         else if (Dosbox.IS_EGAVGA_ARCH()) {
             val = (short)(((val << 1) & 0x10) | (val & 0x7));
             /* Always set the overscan color */
@@ -320,12 +331,12 @@ public class Int10_pal {
             if (Int10_modes.CurMode.mode <= 3)
                 return;
             INT10_SetSinglePaletteRegister( (short)0, val );
-            val = (short)((temp & 0x10) | 2 | ((temp & 0x20) >> 5));
+            val = (short)((color_select & 0x10) | 2 | ((color_select & 0x20) >> 5));
             INT10_SetSinglePaletteRegister( (short)1, val );
             val+=2;
             INT10_SetSinglePaletteRegister( (short)2, val );
             val+=2;
-            INT10_SetSinglePaletteRegister( (short)3, val );
+            INT10_SetSinglePaletteRegister((short) 3, val);
         }
     }
 
@@ -333,9 +344,32 @@ public class Int10_pal {
         /*Bit8u*/short temp=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL);
         temp=(short)((temp & 0xdf) | ((val & 1)!=0 ? 0x20 : 0x0));
         Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL,temp);
-        if (Dosbox.machine == MachineType.MCH_CGA || Dosbox.IS_TANDY_ARCH())
+        if (Dosbox.machine == MachineType.MCH_CGA || Dosbox.machine == MachineType.MCH_TANDY)
             IoHandler.IO_Write(0x3d9,temp);
-        else if (Dosbox.IS_EGAVGA_ARCH()) {
+        else if (Dosbox.machine ==  MachineType.MCH_PCJR) {
+            IoHandler.IO_Read(Int10.VGAREG_TDY_RESET); // reset the flipflop
+            switch(VGA.vga.mode) {
+            case VGA.M_TANDY2:
+                IoHandler.IO_Write(Int10.VGAREG_TDY_ADDRESS, 0x11);
+                IoHandler.IO_Write(Int10.VGAREG_PCJR_DATA, ((val & 1) != 0) ? 0xf : 0);
+                break;
+            case VGA.M_TANDY4:
+                final byte[] t4_table = new byte[]{0,2,4,6, 0,3,5,0xf};
+                for(int i = 0x11; i < 0x14; i++) {
+                    IoHandler.IO_Write(Int10.VGAREG_TDY_ADDRESS, i);
+                    IoHandler.IO_Write(Int10.VGAREG_PCJR_DATA, t4_table[(i - 0x10) + (((val & 1) != 0) ? 4 : 0)]);
+                }
+                break;
+            default:
+                // 16-color modes: always write the same palette
+                for(int i = 0x11; i < 0x20; i++) {
+                    IoHandler.IO_Write(Int10.VGAREG_TDY_ADDRESS, i);
+                    IoHandler.IO_Write(Int10.VGAREG_PCJR_DATA, i - 0x10);
+                }
+                break;
+            }
+            IoHandler.IO_Write(Int10.VGAREG_TDY_ADDRESS, 0); // enable palette
+        } else if (Dosbox.IS_EGAVGA_ARCH()) {
             if (Int10_modes.CurMode.mode <= 3) //Maybe even skip the total function!
                 return;
             val = (short)((temp & 0x10) | 2 | val);

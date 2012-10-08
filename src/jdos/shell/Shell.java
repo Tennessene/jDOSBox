@@ -122,7 +122,7 @@ public class Shell {
                         if (buffer != null && new File(buffer).exists()) {
                             autoexec[12].Install("MOUNT C \"" + buffer + "\"");
                             autoexec[13].Install("C:");
-                            /* Save the non modified filename (so boot and imgmount can use it (long filenames, case sensivitive)*/
+                            /* Save the non-modified filename (so boot and imgmount can use it (long filenames, case sensivitive) */
                             String name = buffer.substring(name_pos+1);
                             String orig = name;
                             name = name.toUpperCase();
@@ -136,11 +136,13 @@ public class Shell {
                                 /* Boot image files */
                                 autoexec[15].Install("BOOT " + orig);
                             } else if(name.indexOf(".ISO") != 0 || name.indexOf(".CUE")>=0) {
-                                if(secure) autoexec[14].Install("z:\\config.com -securemode");
                                 /* imgmount CD image files */
-                                autoexec[15].Install("IMGMOUNT D \"" + orig + "\" -t iso");
+                                /* securemode gets a different number from the previous branches! */
+                                autoexec[14].Install("IMGMOUNT D \"" + orig + "\" -t iso");
                                 //autoexec[16].Install("D:");
+                                if(secure) autoexec[15].Install("z:\\config.com -securemode");
                                 /* Makes no sense to exit here */
+
                             } else {
                                 if(secure) autoexec[14].Install("z:\\config.com -securemode");
                                 autoexec[15].Install(name);

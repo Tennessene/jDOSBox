@@ -38,79 +38,81 @@ public class Pic extends Module_base {
     }
 
     public static void PIC_ActivateIRQ(/*Bitu*/int irq) {
-        if (CPU.CPU_Cycles!=0) {
-            // CPU_Cycles nonzero means the interrupt was triggered by an I/O
+        /*Bitu*/int t = irq>7 ? (irq - 8): irq;
+        PIC_Controller pic = pics[irq>7 ? 1 : 0];
+
+        /*Bit32s*/int OldCycles = CPU.CPU_Cycles;
+        pic.raise_irq(t); //Will set the CPU_Cycles to zero if this IRQ will be handled directly
+
+        if (OldCycles != CPU.CPU_Cycles) {
+            // if CPU_Cycles have changed, this means that the interrupt was triggered by an I/O
             // register write rather than an event.
             // Real hardware executes 0 to ~13 NOPs or comparable instructions
             // before the processor picks up the interrupt. Let's try with 2
             // cycles here.
             // Required by Panic demo (irq0), It came from the desert (MPU401)
             // Does it matter if CPU_CycleLeft becomes negative?
-            CPU.CPU_CycleLeft += (CPU.CPU_Cycles-2);
-            CPU.CPU_Cycles=2;
-        }
-        if( irq < 8 ) {
-            irqs[irq].active = true;
-            if (!irqs[irq].masked) {
-                PIC_IRQCheck|=(1 << irq);
-            }
-        } else 	if (irq < 16) {
-            irqs[irq].active = true;
-            PIC_IRQOnSecondPicActive|=(1 << irq);
-            if (!irqs[irq].masked && !irqs[2].masked) {
-                PIC_IRQCheck|=(1 << irq);
-            }
+
+            // It might be an idea to do this always in order to simulate this
+            // So on write mask and EOI as well. (so inside the activate function)
+    //		CPU_CycleLeft += (CPU_Cycles-2);
+            CPU.CPU_CycleLeft -= 2;
+            CPU.CPU_Cycles = 2;
         }
     }
+
     public static void PIC_DeActivateIRQ(/*Bitu*/int irq) {
-        if (irq<16) {
-		    irqs[irq].active=false;
-            PIC_IRQCheck&=~(1 << irq);
-            PIC_IRQOnSecondPicActive&=~(1 << irq);
+        /*Bitu*/int t = irq>7 ? (irq - 8): irq;
+        PIC_Controller pic = pics[irq>7 ? 1 : 0];
+        pic.lower_irq(t);
+    }
+
+    static void slave_startIRQ(){
+        /*Bit8u*/int pic1_irq = 8;
+        final int p = (slave.irr & slave.imrr)&slave.isrr;
+        final int max = slave.special?8:slave.active_irq;
+        for(/*Bit8u*/int i = 0,s = 1;i < max;i++, s<<=1){
+            if ((p & s)!=0){
+                pic1_irq = i;
+                break;
+            }
         }
+        // Maybe change the E_Exit to a return
+        if (pic1_irq == 8) Log.exit("irq 2 is active, but no irq active on the slave PIC.");
+
+        slave.start_irq(pic1_irq);
+        master.start_irq(2);
+        CPU.CPU_HW_Interrupt(slave.vector_base + pic1_irq);
+    }
+
+    static void master_startIRQ(/*Bitu*/int i){
+        master.start_irq(i);
+        CPU.CPU_HW_Interrupt(master.vector_base + i);
     }
 
     public static void PIC_runIRQs() {
-        //System.out.println("PIC_runIRQs");
         if (CPU_Regs.GETFLAG(CPU_Regs.IF)==0) return;
-        if (PIC_IRQCheck == 0) return;
-        if (CPU.cpudecoder == Core_normal.CPU_Core_Normal_Trap_Run) return;
+        if (PIC_IRQCheck==0) return;
+        if (CPU.cpudecoder==Core_normal.CPU_Core_Normal_Trap_Run) return;
 
-        /*Bitu*/final int[] IRQ_priority_order = { 0,1,2,8,9,10,11,12,13,14,15,3,4,5,6,7 };
-        /*Bit16u*/final int[] IRQ_priority_lookup = { 0,1,2,11,12,13,14,15,3,4,5,6,7,8,9,10,16 };
-        /*Bit16u*/int activeIRQ = PIC_IRQActive;
-        if (activeIRQ == PIC_NOIRQ) activeIRQ = 16;
-        /* Get the priority of the active irq */
-        /*Bit16u*/int Priority_Active_IRQ = IRQ_priority_lookup[activeIRQ];
-
-        /*Bitu*/int i,j;
-        /* j is the priority (walker)
-         * i is the irq at the current priority */
-
-        /* If one of the pics is in special mode use a check that cares for that. */
-        if(!PIC_Special_Mode) {
-            for (j = 0; j < Priority_Active_IRQ; j++) {
-                i = IRQ_priority_order[j];
-                if (!irqs[i].masked && irqs[i].active) {
-                    if(PIC_startIRQ(i)) return;
+        final int p = (master.irr & master.imrr)&master.isrr;
+        final int max = master.special?8:master.active_irq;
+        for(/*Bit8u*/int i = 0,s = 1;i < max;i++, s<<=1){
+            if ((p & s)!=0) {
+                if (i==2) { //second pic
+                    slave_startIRQ();
+                } else {
+                    master_startIRQ(i);
                 }
-            }
-        } else {	/* Special mode variant */
-            for (j = 0; j<= 15; j++) {
-                i = IRQ_priority_order[j];
-                if ( (j < Priority_Active_IRQ) || (pics[ ((i&8)>>3) ].special) ) {
-                    if (!irqs[i].masked && irqs[i].active) {
-                        /* the irq line is active. it's not masked and
-                         * the irq is allowed priority wise. So let's start it */
-                        /* If started successfully return, else go for the next */
-                        if(PIC_startIRQ(i)) return;
-                    }
-                }
+                break;
             }
         }
+        //Disable check variable.
+        PIC_IRQCheck = 0;
     }
+
     public static boolean PIC_RunQueue() {
-        /* Check to see if a new milisecond needs to be started */
+        /* Check to see if a new millisecond needs to be started */
         CPU.CPU_CycleLeft+=CPU.CPU_Cycles;
         CPU.CPU_Cycles=0;
         if (CPU.CPU_CycleLeft<=0) {
@@ -218,64 +220,145 @@ public class Pic extends Module_base {
     }
 
     public static void PIC_SetIRQMask(/*Bitu*/int irq, boolean masked) {
-        if(irqs[irq].masked == masked) return;	/* Do nothing if mask doesn't change */
-        boolean old_irq2_mask = irqs[2].masked;
-        irqs[irq].masked=masked;
-        if(irq < 8) {
-            if (irqs[irq].active && !irqs[irq].masked) {
-                PIC_IRQCheck|=(1 << (irq));
-            } else {
-                PIC_IRQCheck&=~(1 << (irq));
-            }
-        } else {
-            if (irqs[irq].active && !irqs[irq].masked && !irqs[2].masked) {
-                PIC_IRQCheck|=(1 << (irq));
-            } else {
-                PIC_IRQCheck&=~(1 << (irq));
-            }
-        }
-        if(irqs[2].masked != old_irq2_mask) {
-        /* Irq 2 mask has changed recheck second pic */
-            for(/*Bitu*/int i=8;i<=15;i++) {
-                if (irqs[i].active && !irqs[i].masked && !irqs[2].masked) PIC_IRQCheck|=(1 << (i));
-                else PIC_IRQCheck&=~(1 << (i));
-            }
-        }
-        if (PIC_IRQCheck!=0) {
-            CPU.CPU_CycleLeft+=CPU.CPU_Cycles;
-            CPU.CPU_Cycles=0;
-        }
+        /*Bitu*/int t = irq>7 ? (irq - 8): irq;
+        PIC_Controller pic=pics[irq>7 ? 1 : 0];
+        //clear bit
+        /*Bit8u*/int bit = 1 <<(t);
+        /*Bit8u*/int newmask = pic.imr;
+        newmask &= ~bit;
+        if (masked) newmask |= bit;
+        pic.set_imr(newmask);
     }
 
     static private int PIC_QUEUESIZE = 512;
     
-    static private class IRQ_Block {
-        boolean masked;
-        boolean active;
-        boolean inservice;
-        /*Bitu*/int vector;
-    }
     static private class PIC_Controller {
         /*Bitu*/int icw_words;
         /*Bitu*/int icw_index;
-        /*Bitu*/int masked;
 
         boolean special;
         boolean auto_eoi;
         boolean rotate_on_auto_eoi;
         boolean single;
         boolean request_issr;
-        /*Bit8u*/short vector_base;
+        /*Bit8u*/int vector_base;
+
+        /*Bit8u*/int irr;        // request register
+	    /*Bit8u*/int imr;        // mask register
+	    /*Bit8u*/int imrr;       // mask register reversed (makes bit tests simpler)
+	    /*Bit8u*/int isr;        // in service register
+	    /*Bit8u*/int isrr;       // in service register reversed (makes bit tests simpler)
+	    /*Bit8u*/int active_irq; //currently active irq
+
+        void set_imr(/*Bit8u*/int val) {
+            if (Dosbox.machine==MachineType.MCH_PCJR) {
+                //irq 6 is a NMI on the PCJR
+                if (this == master) val &= ~(1 <<(6));
+            }
+            /*Bit8u*/int change = (imr) ^ (val); //Bits that have changed become 1.
+            imr  =  val;
+            imrr = ~val;
+
+            //Test if changed bits are set in irr and are not being served at the moment
+            //Those bits have impact on whether the cpu emulation should be paused or not.
+            if (((irr & change) & isrr)!=0) check_for_irq();
+        }
+
+        void check_after_EOI(){
+            //Update the active_irq as an EOI is likely to change that.
+            update_active_irq();
+            if (((irr & imrr) & isrr)!=0) check_for_irq();
+        }
+
+        void update_active_irq() {
+            if(isr == 0) {active_irq = 8; return;}
+            for(int i = 0, s = 1; i < 8;i++, s<<=1){
+                if ((isr & s)!=0) {
+                    active_irq = i;
+                    return;
+                }
+            }
+        }
+
+        void check_for_irq(){
+            final /*Bit8u*/int possible_irq = (irr&imrr)&isrr;
+            if (possible_irq!=0) {
+                final /*Bit8u*/int a_irq = special?8:active_irq;
+                for(int i = 0, s = 1; i < a_irq;i++, s<<=1){
+                    if ((possible_irq & s)!=0) {
+                        //There is an irq ready to be served => signal master and/or cpu
+                        activate();
+                        return;
+                    }
+                }
+            }
+            deactivate(); //No irq, remove signal to master and/or cpu
+        }
+
+        //Signals master/cpu that there is an irq ready.
+        void activate() {
+            //Stops CPU if master, signals master if slave
+            if(this == master) {
+                PIC_IRQCheck = 1;
+                //cycles 0, take care of the port IO stuff added in raise_irq base caller.
+                CPU.CPU_CycleLeft += CPU.CPU_Cycles;
+                CPU.CPU_Cycles = 0;
+                //maybe when coming from a EOI, give a tiny delay. (for the cpu to pick it up) (see PIC_Activate_IRQ)
+            } else {
+                master.raise_irq(2);
+            }
+        }
+
+        //Removes signal to master/cpu that there is an irq ready.
+        void deactivate() {
+            //removes irq check value  if master, signals master if slave
+            if(this == master) {
+                PIC_IRQCheck = 0;
+            } else {
+                master.lower_irq(2);
+            }
+        }
+
+        void raise_irq(/*Bit8u*/int val){
+            /*Bit8u*/int bit = 1 << (val);
+            if((irr & bit)==0) { //value changed (as it is currently not active)
+                irr|=bit;
+                if (((bit & imrr) & isrr)!=0) { //not masked and not in service
+                    if(special || val < active_irq) activate();
+                }
+            }
+        }
+
+        void lower_irq(/*Bit8u*/int val){
+            /*Bit8u*/int bit = 1 << ( val);
+            if ((irr & bit)!=0) { //value will change (as it is currently active)
+                irr&=~bit;
+                if (((bit & imrr) & isrr)!=0) { //not masked and not in service
+                    //This irq might have toggled PIC_IRQCheck/caused irq 2 on master, when it was raised.
+                    //If it is active, then recheck it, we can't just deactivate as there might be more IRQS raised.
+                    if(special || val < active_irq) check_for_irq();
+                }
+            }
+        }
+
+        //handles all bits and logic related to starting this IRQ, it does NOT start the interrupt on the CPU.
+        void start_irq(/*Bit8u*/int val) {
+            irr&=~(1<<(val));
+            if (!auto_eoi) {
+                active_irq = val;
+                isr |= 1<<(val);
+                isrr = ~isr;
+            } else if (rotate_on_auto_eoi) {
+                Log.exit("rotate on auto EOI not handled");
+            }
+        }
     }
 
-    static public /*Bitu*/int PIC_Ticks;
-    static public /*Bitu*/int PIC_IRQCheck;
-    static public /*Bitu*/int PIC_IRQOnSecondPicActive;
-    static public /*Bitu*/int PIC_IRQActive;
-
-    static private IRQ_Block[] irqs = new IRQ_Block[16];
-    static private PIC_Controller[] pics = new PIC_Controller[2];
-    static private boolean PIC_Special_Mode = false; //Saves one compare in the pic_run_irqloop
+    static private final PIC_Controller[] pics = new PIC_Controller[2];
+    static private PIC_Controller master = null;
+    static private PIC_Controller slave  = null;
+    static public /*Bitu*/int PIC_Ticks = 0;
+    static public /*Bitu*/int PIC_IRQCheck = 0; //Maybe make it a bool and/or ensure 32bit size (x86 dynamic core seems to assume 32 bit variable size)
 
     static public class PICEntry {
         double index;
@@ -298,9 +381,6 @@ public class Pic extends Module_base {
     static private IoHandler.IO_WriteHandler write_command = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             PIC_Controller pic=pics[port==0x20 ? 0 : 1];
-            /*Bitu*/int irq_base=port==0x20 ? 0 : 8;
-            /*Bitu*/int i;
-            final /*Bit16u*/int[] IRQ_priority_table = { 0,1,2,8,9,10,11,12,13,14,15,3,4,5,6,7 };
             if ((val&0x10)!=0) {		// ICW1 issued
                 if ((val&0x04)!=0) Log.exit("PIC: 4 byte interval not handled");
                 if ((val&0x08)!=0) Log.exit("PIC: level triggered mode not handled");
@@ -317,40 +397,24 @@ public class Pic extends Module_base {
                 if ((val&0x40)!=0) {		// special mask select
                     if ((val&0x20)!=0) pic.special=true;
                     else pic.special=false;
-                    if(pics[0].special || pics[1].special) // :TODO: what was the original intention of if(pic[0].special || pics[1].special) :update Qbix from dosbox forum says that it should have and s
-                        PIC_Special_Mode = true; else
-                        PIC_Special_Mode = false;
-                    if (PIC_IRQCheck!=0) { //Recheck irqs
-                        CPU.CPU_CycleLeft += CPU.CPU_Cycles;
-                        CPU.CPU_Cycles = 0;
-                    }
+                    //Check if there are irqs ready to run, as the priority system has possibly been changed.
+			        pic.check_for_irq();
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,"port "+Integer.toString(port, 16)+" : special mask "+((pic.special)?"ON":"OFF"));
                 }
             } else {	// OCW2 issued
                 if ((val&0x20)!=0) {		// EOI commands
                     if ((val&0x80)!=0) Log.exit("rotate mode not supported");
                     if ((val&0x40)!=0) {		// specific EOI
-                        if (PIC_IRQActive==(irq_base+val-0x60)) {
-                            irqs[PIC_IRQActive].inservice=false;
-                            PIC_IRQActive=PIC_NOIRQ;
-                            for (i=0; i<=15; i++) {
-                                if (irqs[IRQ_priority_table[i]].inservice) {
-                                    PIC_IRQActive=IRQ_priority_table[i];
-                                    break;
-                                }
-                            }
-                        }
+                        pic.isr &= ~(1<< ((val-0x60)));
+				        pic.isrr = ~pic.isr;
+				        pic.check_after_EOI();
         //				if (val&0x80);	// perform rotation
                     } else {		// nonspecific EOI
-                        if (PIC_IRQActive<(irq_base+8)) {
-                            irqs[PIC_IRQActive].inservice=false;
-                            PIC_IRQActive=PIC_NOIRQ;
-                            for (i=0; i<=15; i++){
-                                if(irqs[IRQ_priority_table[i]].inservice) {
-                                    PIC_IRQActive=IRQ_priority_table[i];
-                                    break;
-                                }
-                            }
+                        if (pic.active_irq != 8) {
+                            //If there is no irq in service, ignore the call, some games send an eoi to both pics when a sound irq happens (regardless of the irq).
+                            pic.isr &= ~(1 << (pic.active_irq));
+                            pic.isrr = ~pic.isr;
+                            pic.check_after_EOI();
                         }
         //				if (val&0x80);	// perform rotation
                     }
@@ -369,43 +433,13 @@ public class Pic extends Module_base {
     static private IoHandler.IO_WriteHandler write_data = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             PIC_Controller pic=pics[port==0x21 ? 0 : 1];
-            /*Bitu*/int irq_base=(port==0x21) ? 0 : 8;
-            /*Bitu*/int i;
-            boolean old_irq2_mask = irqs[2].masked;
             switch(pic.icw_index) {
             case 0:                        /* mask register */
-                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,(port==0x21 ? 0 : 1)+" mask "+Integer.toString(val,16));
-                for (i=0;i<=7;i++) {
-                    irqs[i+irq_base].masked=(val&(1<<i))>0;
-                    if(port==0x21) {
-                        if (irqs[i+irq_base].active && !irqs[i+irq_base].masked) PIC_IRQCheck|=(1 << (i+irq_base));
-                        else PIC_IRQCheck&=~(1 << (i+irq_base));
-                    } else {
-                        if (irqs[i+irq_base].active && !irqs[i+irq_base].masked && !irqs[2].masked) PIC_IRQCheck|=(1 << (i+irq_base));
-                        else PIC_IRQCheck&=~(1 << (i+irq_base));
-                    }
-                }
-                if (Dosbox.machine== MachineType.MCH_PCJR) {
-                    /* irq6 cannot be disabled as it serves as pseudo-NMI */
-                    irqs[6].masked=false;
-                }
-                if(irqs[2].masked != old_irq2_mask) {
-                /* Irq 2 mask has changed recheck second pic */
-                    for(i=8;i<=15;i++) {
-                        if (irqs[i].active && !irqs[i].masked && !irqs[2].masked) PIC_IRQCheck|=(1 << (i));
-                        else PIC_IRQCheck&=~(1 << (i));
-                    }
-                }
-                if (PIC_IRQCheck!=0) {
-                    CPU.CPU_CycleLeft+=CPU.CPU_Cycles;
-                    CPU.CPU_Cycles=0;
-                }
+                pic.set_imr(val);
                 break;
             case 1:                        /* icw2          */
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIC,LogSeverities.LOG_NORMAL,(port==0x21 ? 0 : 1)+":Base vector "+Integer.toString(val,16));
-                for (i=0;i<=7;i++) {
-                    irqs[i+irq_base].vector=(val&0xf8)+i;
-                };
+                pic.vector_base = val&0xf8;
                 if(pic.icw_index++ >= pic.icw_words) pic.icw_index=0;
                 else if(pic.single) pic.icw_index=3;		/* skip ICW3 in single mode */
                 break;
@@ -441,53 +475,20 @@ public class Pic extends Module_base {
     static private IoHandler.IO_ReadHandler read_command = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             PIC_Controller pic=pics[port==0x20 ? 0 : 1];
-            /*Bitu*/int irq_base=(port==0x20) ? 0 : 8;
-            /*Bitu*/int i;/*Bit8u*/int ret=0;/*Bit8u*/int b=1;
-            if (pic.request_issr) {
-                for (i=irq_base;i<irq_base+8;i++) {
-                    if (irqs[i].inservice) ret|=b;
-                    b <<= 1;
-                }
+            if (pic.request_issr){
+                return pic.isr;
             } else {
-                for (i=irq_base;i<irq_base+8;i++) {
-                    if (irqs[i].active)	ret|=b;
-                    b <<= 1;
-                }
-                if (irq_base==0 && (PIC_IRQCheck&0xff00)!=0) ret |=4;
+                return pic.irr;
             }
-            return ret;
         }
     };
 
     static private IoHandler.IO_ReadHandler read_data = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
-            /*Bitu*/int irq_base=(port==0x21) ? 0 : 8;
-            /*Bitu*/int i;/*Bit8u*/int ret=0;/*Bit8u*/int b=1;
-            for (i=irq_base;i<=irq_base+7;i++) {
-                if (irqs[i].masked)	ret|=b;
-                b <<= 1;
-            }
-            return ret;
+            PIC_Controller pic=pics[port==0x21 ? 0 : 1];
+	        return pic.imr;
         }
     };
-
-    static private boolean PIC_startIRQ(/*Bitu*/int i) {
-        //System.out.println("PIC_startIRQ "+i);
-        /* irqs on second pic only if irq 2 isn't masked */
-        if( i > 7 && irqs[2].masked) return false;
-        irqs[i].active = false;
-        PIC_IRQCheck&= ~(1 << i);
-        PIC_IRQOnSecondPicActive&= ~(1 << i);
-        CPU.CPU_HW_Interrupt(irqs[i].vector);
-        /*Bitu*/int pic=(i&8)>>3;
-        if (!pics[pic].auto_eoi) { //irq 0-7 => pic 0 else pic 1
-            PIC_IRQActive = i;
-            irqs[i].inservice = true;
-        } else if (pics[pic].rotate_on_auto_eoi) {
-            Log.exit("rotate on auto EOI not handled");
-        }
-        return true;
-    }
 
     static private void AddEntry(PICEntry entry) {
         PICEntry find_entry=pic_queue.next_entry;
@@ -531,7 +532,6 @@ public class Pic extends Module_base {
     public Pic(Section configuration) {
         super(configuration);
         PIC_IRQCheck=0;
-		PIC_IRQActive=PIC_NOIRQ;
 		PIC_Ticks=0;
 		/*Bitu*/int i;
         for (i=0;i<ReadHandler.length;i++)
@@ -539,7 +539,6 @@ public class Pic extends Module_base {
         for (i=0;i<WriteHandler.length;i++)
             WriteHandler[i] = new IoHandler.IO_WriteHandleObject();
 		for (i=0;i<2;i++) {
-			pics[i].masked=0xff;
 			pics[i].auto_eoi=false;
 			pics[i].rotate_on_auto_eoi=false;
 			pics[i].request_issr=false;
@@ -547,24 +546,21 @@ public class Pic extends Module_base {
 			pics[i].single=false;
 			pics[i].icw_index=0;
 			pics[i].icw_words=0;
+            pics[i].irr = pics[i].isr = pics[i].imrr = 0;
+			pics[i].isrr = pics[i].imr = 0xff;
+			pics[i].active_irq = 8;
 		}
-		for (i=0;i<=7;i++) {
-			irqs[i].active=false;
-			irqs[i].masked=true;
-			irqs[i].inservice=false;
-			irqs[i+8].active=false;
-			irqs[i+8].masked=true;
-			irqs[i+8].inservice=false;
-			irqs[i].vector=0x8+i;
-			irqs[i+8].vector=0x70+i;
-		}
-		irqs[0].masked=false;					/* Enable system timer */
-		irqs[1].masked=false;					/* Enable Keyboard IRQ */
-		irqs[2].masked=false;					/* Enable second pic */
-		irqs[8].masked=false;					/* Enable RTC IRQ */
+        master.vector_base = 0x08;
+        slave.vector_base = 0x70;
+
+        PIC_SetIRQMask(0,false);					/* Enable system timer */
+        PIC_SetIRQMask(1,false);					/* Enable system timer */
+        PIC_SetIRQMask(2,false);					/* Enable second pic */
+        PIC_SetIRQMask(8,false);					/* Enable RTC IRQ */
+
 		if (Dosbox.machine==MachineType.MCH_PCJR) {
 			/* Enable IRQ6 (replacement for the NMI for PCJr) */
-			irqs[6].masked=false;
+			PIC_SetIRQMask(6,false);
 		}
 		ReadHandler[0].Install(0x20,read_command,IoHandler.IO_MB);
 		ReadHandler[1].Install(0x21,read_data,IoHandler.IO_MB);
@@ -588,10 +584,10 @@ public class Pic extends Module_base {
     public static Section.SectionFunction PIC_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             test = null;
-            for (int i=0;i<irqs.length;i++)
-                irqs[i] = null;
             for (int i=0;i<pics.length;i++)
                 pics[i] = null;
+            master = null;
+            slave = null;
             pic_queue = null;
         }
     };
@@ -599,10 +595,10 @@ public class Pic extends Module_base {
     public static Section.SectionFunction PIC_Init = new Section.SectionFunction() {
         public void call(Section section) {
             pic_queue = new Pic_queue();
-            for (int i=0;i<irqs.length;i++)
-                irqs[i] = new IRQ_Block();
             for (int i=0;i<pics.length;i++)
                 pics[i] = new PIC_Controller();
+            master = pics[0];
+            slave = pics[1];
             test = new Pic(section);
             if (section!=null)
                 section.AddDestroyFunction(PIC_Destroy);

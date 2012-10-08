@@ -107,7 +107,17 @@ public class Dos_execute {
         StringRef name = new StringRef();
         mcb.GetFileName(name);
         if (name.value.length()==0) name.value="DOSBOX";
-        RunningProgram=name.value;
+        StringBuffer result = new StringBuffer();
+        for (int i=0;i<8 && i<name.value.length();i++) {
+            char c = name.value.charAt(i);
+            if (c==0)
+                break;
+            if (!Character.isISOControl(c))
+                result.append(c);
+            else
+                result.append('?');
+        }
+        RunningProgram=result.toString();
         Main.GFX_SetTitle(-1,-1,false);
     }
 

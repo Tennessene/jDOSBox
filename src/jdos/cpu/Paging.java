@@ -265,6 +265,15 @@ public class Paging extends Module_base {
     }
 
     public static /*Bit32u*/int mem_readd_inline(/*PhysPt*/int address) {
+        int rem = (address & 0x3);
+        if (rem == 0) {
+            int tlb_addr = get_tlb_read(address);
+            if (tlb_addr != INVALID_ADDRESS)
+                return Memory.direct[(address + tlb_addr) >>> 2];
+            else {
+                return get_tlb_readhandler(address).readd(address);
+            }
+        }
         if ((address & 0xfff) < 0xffd) {
             /*HostPt*/
             int tlb_addr = get_tlb_read(address);
@@ -290,6 +299,16 @@ public class Paging extends Module_base {
     }
 
     public static void mem_writed_inline(/*PhysPt*/int address,/*Bit32u*/int val) {
+        int rem = (address & 0x3);
+        if (rem == 0) {
+            int tlb_addr = get_tlb_write(address);
+            if (tlb_addr != INVALID_ADDRESS) {
+                Memory.direct[(address+tlb_addr) >>> 2]=val;
+                return;
+            } else {
+                get_tlb_writehandler(address).writed(address, val);
+            }
+        }
         if ((address & 0xfff) < 0xffd) {
             /*HostPt*/
             int tlb_addr = get_tlb_write(address);

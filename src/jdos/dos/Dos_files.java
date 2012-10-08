@@ -1216,9 +1216,12 @@ public class Dos_files {
     }
 
     public static boolean DOS_GetAllocationInfo(/*Bit8u*/short drive,/*Bit16u*/IntRef _bytes_sector,/*Bit8u*/ShortRef _sectors_cluster,/*Bit16u*/IntRef _total_clusters) {
-        if (drive==0) drive =  DOS_GetDefaultDrive();
+        if (drive==0) drive = DOS_GetDefaultDrive();
         else drive--;
-        if (drive >= DOS_DRIVES || Drives[drive]==null) return false;
+        if (drive >= DOS_DRIVES || Drives[drive]==null) {
+            Dos.DOS_SetError(Dos.DOSERR_INVALID_DRIVE);
+            return false;
+        }
         /*Bit16u*/IntRef _free_clusters=new IntRef(0);
         Drives[drive].AllocationInfo(_bytes_sector,_sectors_cluster,_total_clusters,_free_clusters);
         CPU_Regs.SegSet16DS(Memory.RealSeg(Dos.dos.tables.mediaid));

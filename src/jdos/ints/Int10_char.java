@@ -193,6 +193,17 @@ public class Int10_char {
         if(page==0xFF) page=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE);
         /*PhysPt*/int  base=Int10_modes.CurMode.pstart+page*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE);
 
+        if (Dosbox.machine==MachineType.MCH_PCJR) {
+            if (Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_MODE) >= 9) {
+                // PCJr cannot handle these modes at 0xb800
+                // See INT10_PutPixel M_TANDY16
+                /*Bitu*/int cpupage = (Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CRTCPU_PAGE) >> 3) & 0x7;
+
+                base = cpupage << 14;
+                base += page*Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_PAGE_SIZE);
+            }
+        }
+
         /* See how much lines need to be copied */
         /*Bit8u*/int start=0,end=0;/*Bits*/int next=0;
         /* Copy some lines */

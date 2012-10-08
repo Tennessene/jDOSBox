@@ -18,33 +18,42 @@ public class Int10_put_pixel {
     public static void INT10_PutPixel(/*Bit16u*/int x,/*Bit16u*/int y,/*Bit8u*/short page,/*Bit8u*/short color) {
 
         switch (Int10_modes.CurMode.type) {
-        case VGA.M_CGA4:
+            case VGA.M_CGA4:
             {
-                    if (Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MODE)<=5) {
-                        /*Bit16u*/int off=(y>>1)*80+(x>>2);
-                        if ((y&1)!=0) off+=8*1024;
+                if (Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_MODE)<=5) {
+                    // this is a 16k mode
+                    /*Bit16u*/int off=(y>>1)*80+(x>>2);
+                    if ((y&1) != 0) off+=8*1024;
 
-                        /*Bit8u*/short old=Memory.real_readb(0xb800,off);
-                        if ((color & 0x80)!=0) {
-                            color&=3;
-                            old^=color << (2*(3-(x&3)));
-                        } else {
-                            old=(short)((old&cga_masks[x&3])|((color&3) << (2*(3-(x&3)))));
-                        }
-                        Memory.real_writeb(0xb800,off,old);
+                    /*Bit8u*/short old=Memory.real_readb(0xb800,off);
+                    if ((color & 0x80)!=0) {
+                        color&=3;
+                        old^=color << (2*(3-(x&3)));
                     } else {
-                        /*Bit16u*/int off=(y>>2)*160+((x>>2)&(~1));
-                        off+=(8*1024) * (y & 3);
-
-                        /*Bit16u*/int old=Memory.real_readw(0xb800,off);
-                        if ((color & 0x80)!=0) {
-                            old^=(color&1) << (7-(x&7));
-                            old^=((color&2)>>1) << ((7-(x&7))+8);
-                        } else {
-                            old=(old&(~(0x101<<(7-(x&7))))) | ((color&1) << (7-(x&7))) | (((color&2)>>1) << ((7-(x&7))+8));
-                        }
-                        Memory.real_writew(0xb800,off,old);
+                        old=(short)((old&cga_masks[x&3])|((color&3) << (2*(3-(x&3)))));
                     }
+                    Memory.real_writeb(0xb800,off,old);
+                } else {
+                    // a 32k mode: PCJr special case (see M_TANDY16)
+                    /*Bit16u*/int seg;
+                    if (Dosbox.machine==MachineType.MCH_PCJR) {
+                        /*Bitu*/int cpupage = (Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CRTCPU_PAGE) >> 3) & 0x7;
+                        seg = cpupage << 10; // A14-16 to addr bits 14-16
+                    } else
+                        seg = 0xb800;
+
+                    /*Bit16u*/int off=(y>>2)*160+((x>>2)&(~1));
+                    off+=(8*1024) * (y & 3);
+
+                    /*Bit16u*/int old=Memory.real_readw(seg,off);
+                    if ((color & 0x80)!=0) {
+                        old^=(color&1) << (7-(x&7));
+                        old^=((color&2)>>1) << ((7-(x&7))+8);
+                    } else {
+                        old=(old&(~(0x101<<(7-(x&7))))) | ((color&1) << (7-(x&7))) | (((color&2)>>1) << ((7-(x&7))+8));
+                    }
+                    Memory.real_writew(seg,off,old);
+                }
             }
             break;
         case VGA.M_CGA2:
@@ -62,26 +71,49 @@ public class Int10_put_pixel {
             }
             break;
         case VGA.M_TANDY16:
-            {
-                IoHandler.IO_Write(0x3d4,(byte)0x09);
-                /*Bit8u*/short scanlines_m1=IoHandler.IO_Read(0x3d5);
-                /*Bit16u*/int off=(y>>((scanlines_m1==1)?1:2))*(Int10_modes.CurMode.swidth>>1)+(x>>1);
-                off+=(8*1024) * (y & scanlines_m1);
-                /*Bit8u*/short old=Memory.real_readb(0xb800,off);
-                /*Bit8u*/short[] p=new short[2];
-                p[1] = (short)((old >> 4) & 0xf);
-                p[0] = (short)(old & 0xf);
-                /*Bitu*/int ind = 1-(x & 0x1);
+        {
+            // find out if we are in a 32k mode (0x9 or 0xa)
+            // This requires special handling on the PCJR
+            // because only 16k are mapped at 0xB800
+            boolean is_32k = (Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_MODE) >= 9);
 
-                if ((color & 0x80)!=0) {
-                    p[ind]^=(color & 0x7f);
+            /*Bit16u*/int segment, offset;
+            if (is_32k) {
+                if (Dosbox.machine==MachineType.MCH_PCJR) {
+                    /*Bitu*/int cpupage = (Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CRTCPU_PAGE) >> 3) & 0x7;
+                    segment = cpupage << 10; // A14-16 to addr bits 14-16
                 } else {
-                    p[ind]=color;
+                    segment = 0xb800;
                 }
-                old = (short)((p[1] << 4) | p[0]);
-                Memory.real_writeb(0xb800,off,old);
+                // bits 1 and 0 of y select the bank
+                // two pixels per byte (thus x>>1)
+                offset = (y >> 2) * (Int10_modes.CurMode.swidth >> 1) + (x>>1);
+                // select the scanline bank
+                offset += (8*1024) * (y & 3);
+            } else {
+                segment = 0xb800;
+                // bit 0 of y selects the bank
+                offset = (y >> 1) * (Int10_modes.CurMode.swidth >> 1) + (x>>1);
+                offset += (8*1024) * (y & 1);
             }
+
+            // update the pixel
+            /*Bit8u*/short old=Memory.real_readb(segment, offset);
+            /*Bit8u*/int[] p = new int[2];
+            p[1] = (old >> 4) & 0xf;
+            p[0] = old & 0xf;
+            /*Bitu*/int ind = 1-(x & 0x1);
+
+            if ((color & 0x80)!=0) {
+                // color is to be XORed
+                p[ind]^=(color & 0x7f);
+            } else {
+                p[ind]=color;
+            }
+            old = (short)((p[1] << 4) | p[0]);
+            Memory.real_writeb(segment,offset, old);
             break;
+        }
         case VGA.M_LIN4:
             if ((Dosbox.machine!= MachineType.MCH_VGA) || (Dosbox.svgaCard!= SVGACards.SVGA_TsengET4K) ||
                     (Int10_modes.CurMode.swidth>800)) {

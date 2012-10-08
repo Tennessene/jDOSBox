@@ -174,6 +174,9 @@ public class Dos_PSP extends MemStruct {
     }
 
 	public boolean	SetNumFiles(/*Bit16u*/int fileNum) {
+        //20 minimum. clipper program.
+	    if (fileNum < 20) fileNum = 20;
+
         if (fileNum>20) {
             // Allocate needed paragraphs
             fileNum+=2;	// Add a few more files for safety

@@ -684,8 +684,13 @@ public class Mouse {
         if((Math.abs(yrel) > 1.0) || (mouse.senv_y < 1.0)) dy *= mouse.senv_y;
         if (useps2callback) dy *= 2;
 
-        mouse.mickey_x += dx;
-        mouse.mickey_y += dy;
+        mouse.mickey_x += (dx * mouse.mickeysPerPixel_x);
+        mouse.mickey_y += (dy * mouse.mickeysPerPixel_y);
+        if (mouse.mickey_x >= 32768.0) mouse.mickey_x -= 65536.0;
+        else if (mouse.mickey_x <= -32769.0) mouse.mickey_x += 65536.0;
+        if (mouse.mickey_y >= 32768.0) mouse.mickey_y -= 65536.0;
+        else if (mouse.mickey_y <= -32769.0) mouse.mickey_y += 65536.0;
+
         if (emulate) {
             mouse.x += dx;
             mouse.y += dy;
@@ -714,6 +719,11 @@ public class Mouse {
             if (mouse.x < mouse.min_x) mouse.x = mouse.min_x;
             if (mouse.y > mouse.max_y) mouse.y = mouse.max_y;
             if (mouse.y < mouse.min_y) mouse.y = mouse.min_y;
+        } else {
+            if (mouse.x >= 32768.0) mouse.x -= 65536.0;
+            else if (mouse.x <= -32769.0) mouse.x += 65536.0;
+            if (mouse.y >= 32768.0) mouse.y -= 65536.0;
+            else if (mouse.y <= -32769.0) mouse.y += 65536.0;
         }
         Mouse_AddEvent(MOUSE_HAS_MOVED);
         DrawCursor();
@@ -1036,8 +1046,8 @@ public class Mouse {
                 mouse.textXorMask = CPU_Regs.reg_edx.word();
                 break;
             case 0x0b:	/* Read Motion Data */
-                CPU_Regs.reg_ecx.word((short)(mouse.mickey_x*mouse.mickeysPerPixel_x));
-                CPU_Regs.reg_edx.word((short)(mouse.mickey_y*mouse.mickeysPerPixel_y));
+                CPU_Regs.reg_ecx.word((short)(mouse.mickey_x));
+                CPU_Regs.reg_edx.word((short)(mouse.mickey_y));
                 mouse.mickey_x=0;
                 mouse.mickey_y=0;
                 break;
@@ -1253,8 +1263,8 @@ public class Mouse {
                     CPU_Regs.reg_ebx.word(mouse.event_queue[mouse.events].buttons);
                     CPU_Regs.reg_ecx.word(POS_X());
                     CPU_Regs.reg_edx.word(POS_Y());
-                    CPU_Regs.reg_esi.word((/*Bit16s*/short)(mouse.mickey_x*mouse.mickeysPerPixel_x));
-                    CPU_Regs.reg_edi.word((/*Bit16s*/short)(mouse.mickey_y*mouse.mickeysPerPixel_y));
+                    CPU_Regs.reg_esi.word((/*Bit16s*/short)(mouse.mickey_x));
+                    CPU_Regs.reg_edi.word((/*Bit16s*/short)(mouse.mickey_y));
                     CPU.CPU_Push16(Memory.RealSeg(Callback.CALLBACK_RealPointer(int74_ret_callback)));
                     CPU.CPU_Push16(Memory.RealOff(Callback.CALLBACK_RealPointer(int74_ret_callback)));
                     CPU_Regs.SegSet16CS(mouse.sub_seg);

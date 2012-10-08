@@ -327,13 +327,8 @@ public class Drive_iso extends Dos_Drive {
         dta.GetSearchParams(attr, pattern);
 
         if (attr.value == Dos_system.DOS_ATTR_VOLUME) {
-            if (discLabel.length() != 0) {
-                dta.SetResult(discLabel, 0, 0, 0, (short)Dos_system.DOS_ATTR_VOLUME);
-                return true;
-            } else {
-                Dos.DOS_SetError(Dos.DOSERR_NO_MORE_FILES);
-                return false;
-            }
+            dta.SetResult(discLabel, 0, 0, 0, (short)Dos_system.DOS_ATTR_VOLUME);
+            return true;
         } else if ((attr.value & Dos_system.DOS_ATTR_VOLUME)!=0 && isRoot && !fcb_findfirst) {
             if (Drives.WildFileCmp(discLabel,pattern.value)) {
                 // Get Volume Label (DOS_ATTR_VOLUME) and only in basedir and if it matches the searchstring

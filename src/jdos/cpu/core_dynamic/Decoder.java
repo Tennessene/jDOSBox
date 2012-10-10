@@ -1,5 +1,6 @@
 package jdos.cpu.core_dynamic;
 
+import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.Core;
 import jdos.cpu.PageFaultException;
@@ -169,7 +170,7 @@ public class Decoder extends Inst1 {
                     if (removeRedundantSegs) {
                         if (previousSegParent != null && previousSeg == opcode) {
 
-                            if (DecodeBlock.compilerEnabled) {
+                            if (Dosbox.allPrivileges) {
                                 // we can loose the HandleSegChange block, be we need this seg instruction for the recompiler
                                 previousSegParent.next = op; // This will drop HandleSegChange
                                 begin_op = previousSegParent.next;

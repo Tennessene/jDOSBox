@@ -7,6 +7,7 @@ import jdos.gui.Mapper;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.misc.setup.*;
+import jdos.sdl.JavaMapper;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.IntRef;
@@ -2927,8 +2928,8 @@ public class CPU extends Module_base {
         Core_full.CPU_Core_Full_Init();
         if (Config.C_DYNAMIC)
             Core_dynamic.CPU_Core_Dynamic_Init();
-        Mapper.MAPPER_AddHandler(CPU_CycleDecrease,Mapper.MapKeys.MK_f11,Mapper.MMOD1,"cycledown","Dec Cycles");
-        Mapper.MAPPER_AddHandler(CPU_CycleIncrease,Mapper.MapKeys.MK_f12,Mapper.MMOD1,"cycleup"  ,"Inc Cycles");
+        JavaMapper.MAPPER_AddHandler(CPU_CycleDecrease, Mapper.MapKeys.MK_f11, Mapper.MMOD1, "cycledown", "Dec Cycles");
+        JavaMapper.MAPPER_AddHandler(CPU_CycleIncrease, Mapper.MapKeys.MK_f12, Mapper.MMOD1, "cycleup", "Inc Cycles");
         Change_Config(configuration);
         CPU_JMP(false,0,0,0);					//Setup the first cpu core
     }

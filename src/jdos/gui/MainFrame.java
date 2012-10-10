@@ -70,19 +70,20 @@ public class MainFrame implements GUI {
     static private int fullscreen_cx = 0;
     static private int fullscreen_cy = 0;
     static private int fullscreen_cx_offset = 0;
-    static private int cx = 0;
-    static private int cy = 0;
+
     public void fullScreenToggle() {
         if (fullscreen) {
+            frame.dispose();
             frame.setVisible(false);
             fullscreen = false;
             frame.setUndecorated(false);
             frame.setExtendedState(Frame.NORMAL);
-            setSize(cx, cy);
+            setSize(Main.screen_width, Main.screen_height);
         } else {
             Toolkit tk = Toolkit.getDefaultToolkit();
             fullscreen_cx = ((int) tk.getScreenSize().getWidth());
             fullscreen_cy = ((int) tk.getScreenSize().getHeight());
+            frame.dispose();
             frame.setVisible(false);
             frame.setUndecorated(true);
             frame.setResizable(false);
@@ -99,8 +100,6 @@ public class MainFrame implements GUI {
     }
 
     public void setSize(int width, int height) {
-        cx = width;
-        cy = height;
         if (fullscreen)
             return;
         panel.setMinimumSize(new Dimension(width, height));
@@ -277,8 +276,10 @@ public class MainFrame implements GUI {
 
         public void windowGainedFocus(WindowEvent e) {
             Main.addEvent(new Main.FocusChangeEvent(true));
-            synchronized (Main.pauseMutex) {
-                Main.pauseMutex.notify();
+            if (!Main.keyboardPaused) {
+                synchronized (Main.pauseMutex) {
+                    Main.pauseMutex.notify();
+                }
             }
         }
 

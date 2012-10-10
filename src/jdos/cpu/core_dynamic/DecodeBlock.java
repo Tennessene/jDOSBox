@@ -1,5 +1,6 @@
 package jdos.cpu.core_dynamic;
 
+import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core;
@@ -16,7 +17,6 @@ final public class DecodeBlock extends Op {
     public int codeLen;
     public int runCount = 0;
     static public int compileThreshold = 0;
-    static public boolean compilerEnabled = true;
 
     public static boolean smc = false;
     private boolean compiled = false;
@@ -56,7 +56,7 @@ final public class DecodeBlock extends Op {
     final public int call() {
         if (Compiler.ENABLED) {
             runCount++;
-            if (runCount==compileThreshold && !compiled && compilerEnabled) {
+            if (runCount==compileThreshold && !compiled && Dosbox.allPrivileges) {
                 jdos.cpu.core_dynamic.Compiler.compile(this);
             }
             if (compiledOp!=null) {

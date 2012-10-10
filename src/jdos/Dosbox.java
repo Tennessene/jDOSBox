@@ -5,7 +5,6 @@ import jdos.cpu.Callback;
 import jdos.cpu.PageFaultException;
 import jdos.cpu.Paging;
 import jdos.cpu.core_dynamic.Compiler;
-import jdos.cpu.core_dynamic.DecodeBlock;
 import jdos.debug.Debug;
 import jdos.debug.Debug_gui;
 import jdos.dos.*;
@@ -21,11 +20,14 @@ import jdos.misc.Log;
 import jdos.misc.Msg;
 import jdos.misc.Program;
 import jdos.misc.setup.*;
+import jdos.sdl.JavaMapper;
 import jdos.shell.Shell;
 import jdos.types.MachineType;
 import jdos.types.SVGACards;
 
 public class Dosbox {
+    static public boolean allPrivileges = true;
+
     static private interface LoopHandler {
         public /*Bitu*/int call();
     }
@@ -243,7 +245,7 @@ public class Dosbox {
             DOSBOX_SetLoop(Normal_Loop);
             Msg.init(section);
 
-            Mapper.MAPPER_AddHandler(DOSBOX_UnlockSpeed, Mapper.MapKeys.MK_f12, Mapper.MMOD2,"speedlock","Speedlock");
+            JavaMapper.MAPPER_AddHandler(DOSBOX_UnlockSpeed, Mapper.MapKeys.MK_f12, Mapper.MMOD2, "speedlock", "Speedlock");
             String cmd_machine;
             if ((cmd_machine=control.cmdline.FindString("-machine",true))!=null) {
                 //update value in config (else no matching against suggested values
@@ -426,7 +428,7 @@ public class Dosbox {
         Pint.SetMinMax(1,1000000);
         Pint.Set_help("Setting it lower than 100 will be a percentage.");
 
-        if (DecodeBlock.compilerEnabled) {
+        if (allPrivileges) {
             secprop=control.AddSection_prop("compiler", Compiler.Compiler_Init,true);
             Pint = secprop.Add_int("threshold",Property.Changeable.Always,1000);
             Pint.Set_help("How many times a block is seen before it is compiled.  0 turns off the compiler, 1 compiles everything (And will like cause problems with self modifying code).\nOnly used when dynamic_core is active. Values between 100-1000 yield the best results.");

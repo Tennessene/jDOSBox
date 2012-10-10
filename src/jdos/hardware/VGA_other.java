@@ -5,6 +5,7 @@ import jdos.gui.Mapper;
 import jdos.gui.Render;
 import jdos.ints.Int10_memory;
 import jdos.misc.Log;
+import jdos.sdl.JavaMapper;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.types.MachineType;
@@ -698,13 +699,13 @@ public class VGA_other {
         if (Dosbox.machine==MachineType.MCH_HERC) {
             for (int i=0;i<256;i++)	System.arraycopy(Int10_memory.int10_font_14, i*14, VGA.vga.draw.font, i*32, 14);
             VGA.vga.draw.font_tables[0]=VGA.vga.draw.font_tables[1]=new Ptr(VGA.vga.draw.font,0);
-            Mapper.MAPPER_AddHandler(CycleHercPal, Mapper.MapKeys.MK_f11,0,"hercpal","Herc Pal");
+            JavaMapper.MAPPER_AddHandler(CycleHercPal, Mapper.MapKeys.MK_f11, 0, "hercpal", "Herc Pal");
         }
         if (Dosbox.machine==MachineType.MCH_CGA) {
             IoHandler.IO_RegisterWriteHandler(0x3d8,write_cga,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x3d9,write_cga,IoHandler.IO_MB);
-            Mapper.MAPPER_AddHandler(IncreaseHue,Mapper.MapKeys.MK_f11,Mapper.MMOD2,"inchue","Inc Hue");
-            Mapper.MAPPER_AddHandler(DecreaseHue,Mapper.MapKeys.MK_f11,0,"dechue","Dec Hue");
+            JavaMapper.MAPPER_AddHandler(IncreaseHue, Mapper.MapKeys.MK_f11, Mapper.MMOD2, "inchue", "Inc Hue");
+            JavaMapper.MAPPER_AddHandler(DecreaseHue, Mapper.MapKeys.MK_f11, 0, "dechue", "Dec Hue");
         }
         if (Dosbox.machine==MachineType.MCH_TANDY) {
             write_tandy.call( 0x3df, 0x0, 0 );

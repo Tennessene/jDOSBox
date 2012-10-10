@@ -3,7 +3,7 @@ package jdos.hardware;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
-import jdos.sdl.SDL_Mapper;
+import jdos.sdl.JavaMapper;
 
 public class Joystick extends Module_base {
     static private final class JoystickType {
@@ -217,7 +217,7 @@ public class Joystick extends Module_base {
 			ReadHandler.Install(0x201,read_p201,IoHandler.IO_MB);
 			WriteHandler.Install(0x201,write_p201,IoHandler.IO_MB);
 		}
-		SDL_Mapper.autofire = section.Get_bool("autofire");
+		JavaMapper.autofire = section.Get_bool("autofire");
 		swap34 = section.Get_bool("swap34");
 		button_wrapping_enabled = section.Get_bool("buttonwrap");
 		stick[0].enabled = false;

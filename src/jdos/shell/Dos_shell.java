@@ -1,14 +1,14 @@
 package jdos.shell;
 
 import jdos.Dosbox;
-import jdos.ints.Bios;
-import jdos.ints.Bios_keyboard;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.dos.*;
 import jdos.dos.drives.Drive_local;
 import jdos.hardware.Memory;
+import jdos.ints.Bios;
+import jdos.ints.Bios_keyboard;
 import jdos.misc.Log;
 import jdos.misc.Msg;
 import jdos.misc.Program;
@@ -849,26 +849,6 @@ public class Dos_shell extends Program {
         return args;
     }
 
-    static private String StripWord(StringRef line) {
-        String scan=line.value;
-        scan=scan.trim();
-        if (scan.startsWith("\"")) {
-            int end_quote=scan.indexOf('"',1);
-            if (end_quote>=0) {
-                line.value=scan.substring(end_quote+1).trim();
-                return scan.substring(1, end_quote);
-            }
-        }
-        for (int i=0;i<scan.length();i++) {
-            if (StringHelper.isspace(scan.charAt(i))) {
-                line.value = scan.substring(i).trim();
-                return scan.substring(0, i);
-            }
-        }
-        line.value = "";
-        return scan;
-    }
-
     static String FormatNumber(/*Bitu*/long num) {
         /*Bitu*/long numm,numk,numb,numg;
         numb=num % 1000;
@@ -1001,7 +981,7 @@ public class Dos_shell extends Program {
             // Concatating files go as follows: All parts except for the last bear the concat flag.
             // This construction allows them to be counted (only the non concat set)
             String source_p;
-            while ( (source_p = StripWord(args))!=null && source_p.length()>0 ) {
+            while ( (source_p = StringHelper.StripWord(args))!=null && source_p.length()>0 ) {
                 do {
                     int plus = source_p.indexOf('+');
                     String source_x;
@@ -1612,7 +1592,7 @@ public class Dos_shell extends Program {
                 args.value = args.value.substring(10);	//skip text
                 //Strip spaces and ==
                 args.value = StripSpaces(args.value,'=');
-                String word = StripWord(args);
+                String word = StringHelper.StripWord(args);
                 if(!StringHelper.isdigit(word.charAt(0))) {
                     WriteOut(Msg.get("SHELL_CMD_IF_ERRORLEVEL_MISSING_NUMBER"));
                     return;
@@ -1635,7 +1615,7 @@ public class Dos_shell extends Program {
             if(args.value.toUpperCase().startsWith("EXIST ")) {
                 args.value = args.value.substring(6);	//skip text
                 args.value = StripSpaces(args.value);
-                String word = StripWord(args);
+                String word = StringHelper.StripWord(args);
                 if (word.length()==0) {
                     WriteOut(Msg.get("SHELL_CMD_IF_EXIST_MISSING_FILENAME"));
                     return;
@@ -1758,7 +1738,7 @@ public class Dos_shell extends Program {
             }
             /*Bit16u*/IntRef handle=new IntRef(0);
             while (true) {
-                String word=StripWord(args);
+                String word=StringHelper.StripWord(args);
                 if (!Dos_files.DOS_OpenFile(word,0,handle)) {
                     WriteOut(Msg.get("SHELL_CMD_FILE_NOT_FOUND"),new Object[]{word});
                     return;
@@ -1789,7 +1769,7 @@ public class Dos_shell extends Program {
             args.value = StripSpaces(args.value);
             if(args.value.length()==0) {SyntaxError();return;}
             if(args.value.indexOf('*')>=0 || args.value.indexOf('?')>=0 ) { WriteOut(Msg.get("SHELL_CMD_NO_WILD"));return;}
-            String arg1=StripWord(args);
+            String arg1=StringHelper.StripWord(args);
             int slash = arg1.lastIndexOf('\\');
             if(slash>=0) {
                 /* If directory specified (crystal caves installer)
@@ -2071,9 +2051,9 @@ public class Dos_shell extends Program {
             StringRef args = new StringRef(a);
             if (HELP(args, "VER")) return;
             if (args.value.length()>0) {
-                String word = StripWord(args);
+                String word = StringHelper.StripWord(args);
                 if(!word.equalsIgnoreCase("set")) return;
-                word = StripWord(args);
+                word = StringHelper.StripWord(args);
                 try {
                     Dos.dos.version.major = (byte)Integer.parseInt(word);
                     Dos.dos.version.minor = (byte)Integer.parseInt(args.value);

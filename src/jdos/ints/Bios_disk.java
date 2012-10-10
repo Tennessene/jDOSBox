@@ -11,6 +11,7 @@ import jdos.gui.Mapper;
 import jdos.hardware.Cmos;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
+import jdos.sdl.JavaMapper;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.types.MachineType;
@@ -578,7 +579,7 @@ public class Bios_disk {
     /* Setup the Bios Area */
         Memory.mem_writeb(Bios.BIOS_HARDDISK_COUNT,2);
 
-        Mapper.MAPPER_AddHandler(swapInNextDisk,Mapper.MapKeys.MK_f4,Mapper.MMOD1,"swapimg","Swap Image");
+        JavaMapper.MAPPER_AddHandler(swapInNextDisk, Mapper.MapKeys.MK_f4, Mapper.MMOD1, "swapimg", "Swap Image");
         killRead = false;
         swapping_requested = false;
     }

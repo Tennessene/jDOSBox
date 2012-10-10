@@ -3,6 +3,26 @@ package jdos.util;
 import java.util.Vector;
 
 public class StringHelper {
+    static public String StripWord(StringRef line) {
+        String scan=line.value;
+        scan=scan.trim();
+        if (scan.startsWith("\"")) {
+            int end_quote=scan.indexOf('"',1);
+            if (end_quote>=0) {
+                line.value=scan.substring(end_quote+1).trim();
+                return scan.substring(1, end_quote);
+            }
+        }
+        for (int i=0;i<scan.length();i++) {
+            if (StringHelper.isspace(scan.charAt(i))) {
+                line.value = scan.substring(i).trim();
+                return scan.substring(0, i);
+            }
+        }
+        line.value = "";
+        return scan;
+    }
+
     public static String sprintf(String format, Object[] args) {
         int pos = format.indexOf('%');
         if (pos>=0) {

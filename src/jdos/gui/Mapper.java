@@ -26,9 +26,7 @@ public class Mapper {
         public static final int MK_scrolllock=14;
         public static final int MK_printscreen=15;
         public static final int MK_pause=16;
+        public static final int MK_home=17;
     }
 
-    public static void MAPPER_AddHandler(MAPPER_Handler handler,int key,/*Bitu*/int mods,String eventname,String buttonname) {
-
-    }
 }

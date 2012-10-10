@@ -1,6 +1,6 @@
 package jdos.gui;
 
-import jdos.cpu.core_dynamic.DecodeBlock;
+import jdos.Dosbox;
 import jdos.sdl.GUI;
 import jdos.util.FileHelper;
 import jdos.util.Progress;
@@ -53,7 +53,49 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
             setCursor(transparentCursor);
     }
 
+    Frame frame = new Frame();
+    Container parent;
+    boolean fullscreen=false;
+    static private int fullscreen_cx = 0;
+    static private int fullscreen_cy = 0;
+    static private int monitor_cx = 0;
+    static private int monitor_cy = 0;
+    static private int fullscreen_cx_offset = 0;
+
     public void fullScreenToggle() {
+        if (!fullscreen) {
+            if (this.parent == null)
+                this.parent = getParent();
+            this.frame = new Frame();
+
+            Toolkit tk = Toolkit.getDefaultToolkit();
+            monitor_cx = fullscreen_cx = ((int) tk.getScreenSize().getWidth());
+            monitor_cy = fullscreen_cy = ((int) tk.getScreenSize().getHeight());
+            frame.dispose();
+            frame.setVisible(false);
+            this.frame.add(this);
+            frame.setUndecorated(true);
+            frame.setResizable(false);
+            frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+            frame.setVisible(true);
+            fullscreen_cx_offset = 0;
+            if ((float)fullscreen_cx/fullscreen_cy > 4.0/3.0) {
+                int new_fullscreen_cx = fullscreen_cy*4/3;
+                fullscreen_cx_offset = (fullscreen_cx - new_fullscreen_cx)/2;
+                fullscreen_cx = new_fullscreen_cx;
+            }
+            this.fullscreen = true;
+        } else {
+            if (this.parent != null)
+                this.parent.add(this);
+            if (this.frame != null) {
+                this.frame.dispose();
+                this.frame = null;
+            }
+            this.fullscreen = false;
+        }
+        this.setBounds(0, 0, this.getParent().getSize().width, this.getParent().getSize().height);
+        this.requestFocus();
     }
 
     public void setSize(int width, int height) {
@@ -236,7 +278,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
             System.out.println("Applet is not signed");
             System.out.println("    mouse capture will not work");
             System.out.println("    disabling compiler");
-            DecodeBlock.compilerEnabled = false;
+            Dosbox.allPrivileges = false;
         }
         if (thread != null) {
             System.out.println("Applet.init force stop");
@@ -341,25 +383,34 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         return 0;
     }
     private void draw(Graphics g) {
-        int x = 0;
-        int y = 0;
-        if (Main.screen_width<this.getWidth()) {
-            x = getScreenX();
-            g.setColor(backgroundColor);
-            g.fillRect(0, 0, x, getHeight());
-            g.fillRect(x+Main.screen_width, 0, getWidth()-(x+Main.screen_width), getHeight());
-        }
-        if (Main.screen_height<this.getHeight()) {
-            y = getScreenY();
-            g.setColor(backgroundColor);
-            g.fillRect(0, 0, getWidth(), y);
-            g.fillRect(0, y+Main.screen_height, getWidth(), getHeight()-(y+Main.screen_height));
-        }
-        if (Render.render!=null && Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
-            BufferedImage resized = MainFrame.resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g.drawImage(resized, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.screen_width, Main.screen_height, null);
+        if (fullscreen) {
+            if (fullscreen_cx_offset>0) {
+                g.setColor(backgroundColor);
+                g.fillRect(0, 0, fullscreen_cx_offset, fullscreen_cy);
+                g.fillRect(monitor_cx-fullscreen_cx_offset, 0, fullscreen_cx_offset, fullscreen_cy);
+            }
+            g.drawImage(Main.buffer, fullscreen_cx_offset, 0, fullscreen_cx+fullscreen_cx_offset,  fullscreen_cy, 0, 0, Main.buffer_width, Main.buffer_height, null);
         } else {
-            g.drawImage(Main.buffer, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.buffer_width, Main.buffer_height, null);
+            int x = 0;
+            int y = 0;
+            if (Main.screen_width<this.getWidth()) {
+                x = getScreenX();
+                g.setColor(backgroundColor);
+                g.fillRect(0, 0, x, getHeight());
+                g.fillRect(x+Main.screen_width, 0, getWidth()-(x+Main.screen_width), getHeight());
+            }
+            if (Main.screen_height<this.getHeight()) {
+                y = getScreenY();
+                g.setColor(backgroundColor);
+                g.fillRect(0, 0, getWidth(), y);
+                g.fillRect(0, y+Main.screen_height, getWidth(), getHeight()-(y+Main.screen_height));
+            }
+            if (Render.render!=null && Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
+                BufferedImage resized = MainFrame.resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                g.drawImage(resized, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.screen_width, Main.screen_height, null);
+            } else {
+                g.drawImage(Main.buffer, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.buffer_width, Main.buffer_height, null);
+            }
         }
     }
     public void update( Graphics g ) {

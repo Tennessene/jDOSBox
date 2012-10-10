@@ -1,9 +1,10 @@
 package jdos.misc;
 
+import jdos.Dosbox;
 import jdos.misc.setup.Config;
 import jdos.util.BooleanRef;
-import jdos.util.StringRef;
 import jdos.util.FileHelper;
+import jdos.util.StringRef;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
@@ -84,6 +85,7 @@ public class Cross {
     }
 
     static public String CreatePlatformConfigDir() {
+        if (!Dosbox.allPrivileges) return "";
         String result = System.getProperty("user.dir");
         if (result != null && result.length()!=0 && new File(result).exists()) {
             result += File.separator + ".dosbox";

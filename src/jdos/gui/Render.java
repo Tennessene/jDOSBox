@@ -4,6 +4,7 @@ import jdos.hardware.Hardware;
 import jdos.misc.Log;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
+import jdos.sdl.JavaMapper;
 import jdos.util.IntRef;
 import jdos.util.Ptr;
 
@@ -308,8 +309,8 @@ public class Render {
             if(!running) render.updating=true;
             running = true;
 
-            Mapper.MAPPER_AddHandler(DecreaseFrameSkip,Mapper.MapKeys.MK_f7,Mapper.MMOD1,"decfskip","Dec Fskip");
-            Mapper.MAPPER_AddHandler(IncreaseFrameSkip,Mapper.MapKeys.MK_f8,Mapper.MMOD1,"incfskip","Inc Fskip");
+            JavaMapper.MAPPER_AddHandler(DecreaseFrameSkip, Mapper.MapKeys.MK_f7, Mapper.MMOD1, "decfskip", "Dec Fskip");
+            JavaMapper.MAPPER_AddHandler(IncreaseFrameSkip, Mapper.MapKeys.MK_f8, Mapper.MMOD1, "incfskip", "Inc Fskip");
             Main.GFX_SetTitle(-1,render.frameskip.max,false);
             section.AddDestroyFunction(RENDER_ShutDown);
         }

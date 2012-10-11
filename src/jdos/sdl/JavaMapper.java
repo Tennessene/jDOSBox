@@ -6,8 +6,6 @@ import jdos.misc.Log;
 import jdos.misc.setup.Prop_path;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
-import jdos.types.LogSeverities;
-import jdos.types.LogTypes;
 import jdos.util.FileIOFactory;
 import jdos.util.StringHelper;
 import jdos.util.StringRef;
@@ -33,6 +31,7 @@ public class JavaMapper {
     private static final int BFLG_Repeat = 0x0004;
     private static final int BFLG_Right = 0x0010;
     private static final int BFLG_Left = 0x0020;
+    private static final int BFLG_Numpad = 0x0040;
 
     private static final int BC_Mod1 = 1;
     private static final int BC_Mod2 = 2;
@@ -56,143 +55,6 @@ public class JavaMapper {
     static private CEventButton last_clicked = null;
     static private CKeyEvent caps_lock_event = null;
     static private CKeyEvent num_lock_event = null;
-
-    static private int getKey(int key) {
-        int result = 0;
-        switch (key) {
-            case KeyEvent.VK_ESCAPE:result=Keyboard.KBD_KEYS.KBD_esc;break;
-            case KeyEvent.VK_NUMPAD1:result=Keyboard.KBD_KEYS.KBD_kp1;break;
-            case KeyEvent.VK_1:result=Keyboard.KBD_KEYS.KBD_1;break;
-            case KeyEvent.VK_NUMPAD2:result=Keyboard.KBD_KEYS.KBD_kp2;break;
-            case KeyEvent.VK_2:result=Keyboard.KBD_KEYS.KBD_2;break;
-            case KeyEvent.VK_NUMPAD3:result=Keyboard.KBD_KEYS.KBD_kp3;break;
-            case KeyEvent.VK_3:result=Keyboard.KBD_KEYS.KBD_3;break;
-            case KeyEvent.VK_NUMPAD4:result=Keyboard.KBD_KEYS.KBD_kp4;break;
-            case KeyEvent.VK_4:result=Keyboard.KBD_KEYS.KBD_4;break;
-            case KeyEvent.VK_NUMPAD5:result=Keyboard.KBD_KEYS.KBD_kp5;break;
-            case KeyEvent.VK_5:result=Keyboard.KBD_KEYS.KBD_5;break;
-            case KeyEvent.VK_NUMPAD6:result=Keyboard.KBD_KEYS.KBD_kp6;break;
-            case KeyEvent.VK_6:result=Keyboard.KBD_KEYS.KBD_6;break;
-            case KeyEvent.VK_NUMPAD7:result=Keyboard.KBD_KEYS.KBD_kp7;break;
-            case KeyEvent.VK_7:result=Keyboard.KBD_KEYS.KBD_7;break;
-            case KeyEvent.VK_NUMPAD8:result=Keyboard.KBD_KEYS.KBD_kp8;break;
-            case KeyEvent.VK_8:result=Keyboard.KBD_KEYS.KBD_8;break;
-            case KeyEvent.VK_NUMPAD9:result=Keyboard.KBD_KEYS.KBD_kp9;break;
-            case KeyEvent.VK_9:result=Keyboard.KBD_KEYS.KBD_9;break;
-            case KeyEvent.VK_NUMPAD0:result=Keyboard.KBD_KEYS.KBD_kp0;break;
-            case KeyEvent.VK_0:result=Keyboard.KBD_KEYS.KBD_0;break;
-            case KeyEvent.VK_SUBTRACT:result=Keyboard.KBD_KEYS.KBD_kpminus;break;
-            case KeyEvent.VK_MINUS:result=Keyboard.KBD_KEYS.KBD_minus;break;
-            case KeyEvent.VK_EQUALS:result=Keyboard.KBD_KEYS.KBD_equals;break;
-            case KeyEvent.VK_BACK_SPACE:result=Keyboard.KBD_KEYS.KBD_backspace;break;
-            case KeyEvent.VK_TAB:result=Keyboard.KBD_KEYS.KBD_tab;break;
-
-            case KeyEvent.VK_Q:result=Keyboard.KBD_KEYS.KBD_q;break;
-            case KeyEvent.VK_W:result=Keyboard.KBD_KEYS.KBD_w;break;
-            case KeyEvent.VK_E:result=Keyboard.KBD_KEYS.KBD_e;break;
-            case KeyEvent.VK_R:result=Keyboard.KBD_KEYS.KBD_r;break;
-            case KeyEvent.VK_T:result=Keyboard.KBD_KEYS.KBD_t;break;
-            case KeyEvent.VK_Y:result=Keyboard.KBD_KEYS.KBD_y;break;
-            case KeyEvent.VK_U:result=Keyboard.KBD_KEYS.KBD_u;break;
-            case KeyEvent.VK_I:result=Keyboard.KBD_KEYS.KBD_i;break;
-            case KeyEvent.VK_O:result=Keyboard.KBD_KEYS.KBD_o;break;
-            case KeyEvent.VK_P:result=Keyboard.KBD_KEYS.KBD_p;break;
-
-            case KeyEvent.VK_OPEN_BRACKET:result=Keyboard.KBD_KEYS.KBD_leftbracket;break;
-            case KeyEvent.VK_CLOSE_BRACKET:result=Keyboard.KBD_KEYS.KBD_rightbracket;break;
-            case KeyEvent.VK_ENTER:result=Keyboard.KBD_KEYS.KBD_enter;break;
-            case KeyEvent.VK_CONTROL:
-                //if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT)
-                    result=Keyboard.KBD_KEYS.KBD_leftctrl;
-                //else
-                //    result=Keyboard.KBD_KEYS.KBD_rightctrl;
-                break;
-
-            case KeyEvent.VK_A:result=Keyboard.KBD_KEYS.KBD_a;break;
-            case KeyEvent.VK_S:result=Keyboard.KBD_KEYS.KBD_s;break;
-            case KeyEvent.VK_D:result=Keyboard.KBD_KEYS.KBD_d;break;
-            case KeyEvent.VK_F:result=Keyboard.KBD_KEYS.KBD_f;break;
-            case KeyEvent.VK_G:result=Keyboard.KBD_KEYS.KBD_g;break;
-            case KeyEvent.VK_H:result=Keyboard.KBD_KEYS.KBD_h;break;
-            case KeyEvent.VK_J:result=Keyboard.KBD_KEYS.KBD_j;break;
-            case KeyEvent.VK_K:result=Keyboard.KBD_KEYS.KBD_k;break;
-            case KeyEvent.VK_L:result=Keyboard.KBD_KEYS.KBD_l;break;
-
-            case KeyEvent.VK_SEMICOLON:result=Keyboard.KBD_KEYS.KBD_semicolon;break;
-            case KeyEvent.VK_QUOTE:result=Keyboard.KBD_KEYS.KBD_quote;break;
-            case KeyEvent.VK_BACK_QUOTE:result=Keyboard.KBD_KEYS.KBD_grave;break;
-            case KeyEvent.VK_SHIFT:
-                //if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT)
-                    result=Keyboard.KBD_KEYS.KBD_leftshift;
-                //else
-                //    result=Keyboard.KBD_KEYS.KBD_rightshift;
-                break;
-            case KeyEvent.VK_BACK_SLASH:result=Keyboard.KBD_KEYS.KBD_backslash;break;
-            case KeyEvent.VK_Z:result=Keyboard.KBD_KEYS.KBD_z;break;
-            case KeyEvent.VK_X:result=Keyboard.KBD_KEYS.KBD_x;break;
-            case KeyEvent.VK_C:result=Keyboard.KBD_KEYS.KBD_c;break;
-            case KeyEvent.VK_V:result=Keyboard.KBD_KEYS.KBD_v;break;
-            case KeyEvent.VK_B:result=Keyboard.KBD_KEYS.KBD_b;break;
-            case KeyEvent.VK_N:result=Keyboard.KBD_KEYS.KBD_n;break;
-            case KeyEvent.VK_M:result=Keyboard.KBD_KEYS.KBD_m;break;
-
-            case KeyEvent.VK_COMMA:result=Keyboard.KBD_KEYS.KBD_comma;break;
-            case KeyEvent.VK_PERIOD:result=Keyboard.KBD_KEYS.KBD_period;break;
-            case KeyEvent.VK_DECIMAL:result=Keyboard.KBD_KEYS.KBD_kpperiod;break;
-            case KeyEvent.VK_SLASH:result=Keyboard.KBD_KEYS.KBD_slash;break;
-            //case KeyEvent.VK_SHIFT:result=Keyboard.KBD_KEYS.KBD_rightshift;break;
-            case KeyEvent.VK_MULTIPLY:result=Keyboard.KBD_KEYS.KBD_kpmultiply;break;
-            case KeyEvent.VK_ALT:
-                //if (key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT)
-                    result=Keyboard.KBD_KEYS.KBD_leftalt;
-                //else
-                //    result=Keyboard.KBD_KEYS.KBD_rightalt;
-                break;
-            case KeyEvent.VK_SPACE:result=Keyboard.KBD_KEYS.KBD_space;break;
-            case KeyEvent.VK_CAPS_LOCK:result=Keyboard.KBD_KEYS.KBD_capslock;break;
-
-            case KeyEvent.VK_F1:result=Keyboard.KBD_KEYS.KBD_f1;break;
-            case KeyEvent.VK_F2:result=Keyboard.KBD_KEYS.KBD_f2;break;
-            case KeyEvent.VK_F3:result=Keyboard.KBD_KEYS.KBD_f3;break;
-            case KeyEvent.VK_F4:result=Keyboard.KBD_KEYS.KBD_f4;break;
-            case KeyEvent.VK_F5:result=Keyboard.KBD_KEYS.KBD_f5;break;
-            case KeyEvent.VK_F6:result=Keyboard.KBD_KEYS.KBD_f6;break;
-            case KeyEvent.VK_F7:result=Keyboard.KBD_KEYS.KBD_f7;break;
-            case KeyEvent.VK_F8:result=Keyboard.KBD_KEYS.KBD_f8;break;
-            case KeyEvent.VK_F9:result=Keyboard.KBD_KEYS.KBD_f9;break;
-            case KeyEvent.VK_F10:result=Keyboard.KBD_KEYS.KBD_f10;break;
-
-            case KeyEvent.VK_NUM_LOCK:result=Keyboard.KBD_KEYS.KBD_numlock;break;
-            case KeyEvent.VK_SCROLL_LOCK:result=Keyboard.KBD_KEYS.KBD_scrolllock;break;
-
-            case KeyEvent.VK_PLUS:result=Keyboard.KBD_KEYS.KBD_kpplus;break;
-
-            case KeyEvent.VK_LESS:result=Keyboard.KBD_KEYS.KBD_extra_lt_gt;break;
-            case KeyEvent.VK_F11:result=Keyboard.KBD_KEYS.KBD_f11;break;
-            case KeyEvent.VK_F12:result=Keyboard.KBD_KEYS.KBD_f12;break;
-
-            //The Extended keys
-
-            case KeyEvent.VK_DIVIDE:result=Keyboard.KBD_KEYS.KBD_kpdivide;break;
-            case KeyEvent.VK_ADD:result=Keyboard.KBD_KEYS.KBD_kpplus;break;
-            case KeyEvent.VK_HOME:result=Keyboard.KBD_KEYS.KBD_home;break;
-            case KeyEvent.VK_UP:result=Keyboard.KBD_KEYS.KBD_up;break;
-            case KeyEvent.VK_PAGE_UP:result=Keyboard.KBD_KEYS.KBD_pageup;break;
-            case KeyEvent.VK_LEFT:result=Keyboard.KBD_KEYS.KBD_left;break;
-            case KeyEvent.VK_RIGHT:result=Keyboard.KBD_KEYS.KBD_right;break;
-            case KeyEvent.VK_END:result=Keyboard.KBD_KEYS.KBD_end;break;
-            case KeyEvent.VK_DOWN:result=Keyboard.KBD_KEYS.KBD_down;break;
-            case KeyEvent.VK_PAGE_DOWN:result=Keyboard.KBD_KEYS.KBD_pagedown;break;
-            case KeyEvent.VK_INSERT:result=Keyboard.KBD_KEYS.KBD_insert;break;
-            case KeyEvent.VK_DELETE:result=Keyboard.KBD_KEYS.KBD_delete;break;
-            case KeyEvent.VK_PAUSE:result=Keyboard.KBD_KEYS.KBD_pause;break;
-            case KeyEvent.VK_PRINTSCREEN:result=Keyboard.KBD_KEYS.KBD_printscreen;break;
-            default:
-                if (Log.level<= LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_GUI, LogSeverities.LOG_WARN, "Unknown key code: "+key);
-                return 0;
-        }
-        return result;
-    }
 
     static private int MapSDLCode(int skey) {
 	    return skey;
@@ -303,7 +165,7 @@ public class JavaMapper {
             }
             for (CBind it: list) {
             /*BUG:CRASH if keymapper key is removed*/
-                if (validmod==it.mods && (!it.isLeft() && !it.isRight()) || (it.isLeft() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT) || (it.isRight() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_RIGHT))
+                if (validmod==it.mods && (!it.isLeft() && !it.isRight() && !it.isNumpad()) || (it.isLeft() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT) || (it.isRight() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_RIGHT) || (it.isNumpad() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_NUMPAD))
                     it.ActivateBind(value,ev_trigger);
             }
         }
@@ -405,6 +267,7 @@ public class JavaMapper {
             if ((flags & BFLG_Hold)!=0) buf+=" hold";
             if ((flags & BFLG_Right)!=0) buf+=" right";
             if ((flags & BFLG_Left)!=0) buf+=" left";
+            if ((flags & BFLG_Numpad)!=0) buf+=" numpad";
             return buf;
         }
         void SetFlags(String buf) {
@@ -419,6 +282,7 @@ public class JavaMapper {
                 if (word.equalsIgnoreCase("hold")) flags|=BFLG_Hold;
                 if (word.equalsIgnoreCase("right")) flags|=BFLG_Right;
                 if (word.equalsIgnoreCase("left")) flags|=BFLG_Left;
+                if (word.equalsIgnoreCase("numpad")) flags|=BFLG_Numpad;
             }
         }
         void ActivateBind(/*Bits*/int _value,boolean ev_trigger) {
@@ -472,6 +336,9 @@ public class JavaMapper {
         }
         public boolean isRight() {
             return (flags & BFLG_Right)!=0;
+        }
+        public boolean isNumpad() {
+            return (flags & BFLG_Numpad)!=0;
         }
         /*Bitu*/int mods,flags;
         /*Bit16s*/int value;
@@ -1141,15 +1008,15 @@ public class JavaMapper {
         new DefaultKey("kp_0",KeyEvent.VK_NUMPAD0),	        new DefaultKey("kp_1",KeyEvent.VK_NUMPAD1),	        new DefaultKey("kp_2",KeyEvent.VK_NUMPAD2),	new DefaultKey("kp_3",KeyEvent.VK_NUMPAD3),
         new DefaultKey("kp_4",KeyEvent.VK_NUMPAD4),	        new DefaultKey("kp_5",KeyEvent.VK_NUMPAD5),	        new DefaultKey("kp_6",KeyEvent.VK_NUMPAD6),	new DefaultKey("kp_7",KeyEvent.VK_NUMPAD7),
         new DefaultKey("kp_8",KeyEvent.VK_NUMPAD8),	        new DefaultKey("kp_9",KeyEvent.VK_NUMPAD9),	        new DefaultKey("numlock",KeyEvent.VK_NUM_LOCK),
-        new DefaultKey("kp_divide",KeyEvent.VK_DIVIDE),	new DefaultKey("kp_multiply",KeyEvent.VK_MULTIPLY),
-        new DefaultKey("kp_minus",KeyEvent.VK_MINUS),	new DefaultKey("kp_plus",KeyEvent.VK_PLUS),
-        new DefaultKey("kp_period",KeyEvent.VK_PERIOD),	new DefaultKey("kp_enter",KeyEvent.VK_ENTER),
+        new DefaultKey("kp_divide",KeyEvent.VK_DIVIDE, KeyEvent.KEY_LOCATION_NUMPAD),	new DefaultKey("kp_multiply",KeyEvent.VK_MULTIPLY, KeyEvent.KEY_LOCATION_NUMPAD),
+        new DefaultKey("kp_minus",KeyEvent.VK_SUBTRACT, KeyEvent.KEY_LOCATION_NUMPAD),	new DefaultKey("kp_plus",KeyEvent.VK_ADD),
+        new DefaultKey("kp_period",KeyEvent.VK_PERIOD, KeyEvent.KEY_LOCATION_NUMPAD),	new DefaultKey("kp_enter",KeyEvent.VK_ENTER, KeyEvent.KEY_LOCATION_NUMPAD),
         new DefaultKey("lessthan",KeyEvent.VK_LESS)
     };
 
     static void CreateDefaultBinds() {
         for (DefaultKey key : DefaultKeys) {
-            CreateStringBind("key_"+key.eventend+" \"key "+key.key+((key.location==KeyEvent.KEY_LOCATION_RIGHT?" right":""))+((key.location==KeyEvent.KEY_LOCATION_LEFT?" left":""))+"\"");
+            CreateStringBind("key_"+key.eventend+" \"key "+key.key+((key.location==KeyEvent.KEY_LOCATION_RIGHT?" right":""))+((key.location==KeyEvent.KEY_LOCATION_LEFT?" left":""))+((key.location==KeyEvent.KEY_LOCATION_NUMPAD?" numpad":""))+"\"");
         }
         CreateStringBind("mod_1 \"key "+KeyEvent.VK_CONTROL+" right\"");
         CreateStringBind("mod_2 \"key "+KeyEvent.VK_ALT+" right\"");

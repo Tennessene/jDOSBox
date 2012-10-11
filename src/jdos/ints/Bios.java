@@ -405,7 +405,7 @@ public class Bios extends Module_base {
 
     private static Callback.Handler INT1A_Handler = new Callback.Handler() {
         public String getName() {
-            return "Bios.INT1A_Handler";
+            return "Bios.INT1A_Handler 0x"+Integer.toHexString(CPU_Regs.reg_eax.high());
         }
         public /*Bitu*/int call() {
             switch (CPU_Regs.reg_eax.high() & 0xFF) {

@@ -144,7 +144,7 @@ public class Cmos extends Module_base {
             case 0x09:		/* Year */
                 return 	MAKE_RETURN(c.get(Calendar.YEAR) % 100);
             case 0x32:		/* Century */
-                return 	MAKE_RETURN(c.get(Calendar.YEAR) / 100 + 19);
+                return 	MAKE_RETURN(c.get(Calendar.YEAR) / 100);
             case 0x01:		/* Seconds Alarm */
             case 0x03:		/* Minutes Alarm */
             case 0x05:		/* Hours Alarm */

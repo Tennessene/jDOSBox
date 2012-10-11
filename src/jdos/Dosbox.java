@@ -68,6 +68,8 @@ public class Dosbox {
                         if (ret >= Callback.CB_MAX) return 0;
                         try {
                             Callback.inHandler++;
+                            //if (ret != 15 && ret !=7 && ret != 19)
+                            //   System.out.println(Callback.CallBack_Handlers[ret].getName());
                             /*Bitu*/int blah=Callback.CallBack_Handlers[ret].call();
                             if (blah!=0) return blah;
                         } catch(PageFaultException e) {

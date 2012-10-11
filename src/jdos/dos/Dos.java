@@ -5,7 +5,6 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.IO;
 import jdos.hardware.Memory;
-import jdos.hardware.Pic;
 import jdos.hardware.Timer;
 import jdos.hardware.serialport.Serialports;
 import jdos.ints.Bios;
@@ -18,8 +17,6 @@ import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.ShortRef;
 import jdos.util.StringRef;
-
-import java.util.Calendar;
 
 public class Dos extends Module_base {
     static final public int DOS_INFOBLOCK_SEG = 0x80;	// sysvars (list of lists)
@@ -127,9 +124,320 @@ public class Dos extends Module_base {
 
     static private Callback.Handler DOS_21Handler = new Callback.Handler() {
         long time_start = 0; //For emulating temporary time changes.
+
         public String getName() {
-            return "Dos.DOS_21Handler";
+            String result = "";
+            switch (CPU_Regs.reg_eax.high() & 0xFF) {
+                case 0x00:
+                    result = "Terminate Program";
+                    break;
+                case 0x01:
+                    result = "Read character from STDIN, with echo";
+                    break;
+                case 0x02:
+                    result = "Write character to STDOUT";
+                    break;
+                case 0x03:
+                    result = "Read character from STDAUX";
+                    break;
+                case 0x04:
+                    result = "Write Character to STDAUX";
+                    break;
+                case 0x05:
+                    result = "Write Character to PRINTER";
+                    break;
+                case 0x06:
+                    result = "Direct Console Output / Input";
+                    break;
+                case 0x07:
+                    result = "Character Input, without echo";
+                    break;
+                case 0x08:
+                    result = "Direct Character Input, without echo";
+                    break;
+                case 0x09:
+                    result = "Write string to STDOUT";
+                    break;
+                case 0x0a:
+                    result = "Buffered Input";
+                    break;
+                case 0x0b:
+                    result = "Get STDIN Status";
+                    break;
+                case 0x0c:
+                    result = "Flush Buffer and read STDIN call";
+                    break;
+                case 0x0d:
+                    result = "Disk Reset";
+                    break;
+                case 0x0e:
+                    result = "Select Default Drive";
+                    break;
+                case 0x0f:
+                    result = "Open File using FCB";
+                    break;
+                case 0x10:
+                    result = "Close File using FCB";
+                    break;
+                case 0x11:
+                    result = "Find First Matching File using FCB";
+                    break;
+                case 0x12:
+                    result = "Find Next Matching File using FCB";
+                    break;
+                case 0x13:
+                    result = "Delete File using FCB";
+                    break;
+                case 0x14:
+                    result = "Sequential read from FCB";
+                    break;
+                case 0x15:
+                    result = "Sequential write to FCB";
+                    break;
+                case 0x16:
+                    result = "Create or truncate file using FCB";
+                    break;
+                case 0x17:
+                    result = "Rename file using FCB";
+                    break;
+                case 0x1b:
+                    result = "Get allocation info for default drive";
+                    break;
+                case 0x1c:
+                    result = "Get allocation info for specific drive";
+                    break;
+                case 0x21:
+                    result = "Read random record from FCB";
+                    break;
+                case 0x22:
+                    result = "Write random record to FCB";
+                    break;
+                case 0x23:
+                    result = "Get file size for FCB";
+                    break;
+                case 0x24:
+                    result = "Set Random Record number for FCB";
+                    break;
+                case 0x27:
+                    result = "Random block read from FCB";
+                    break;
+                case 0x28:
+                    result = "Random Block write to FCB";
+                    break;
+                case 0x29:
+                    result = "Parse filename into FCB";
+                    break;
+                case 0x19:
+                    result = "Get current default drive";
+                    break;
+                case 0x1a:
+                    result = "Set Disk Transfer Area Address";
+                    break;
+                case 0x25:
+                    result = "Set Interrupt Vector";
+                    break;
+                case 0x26:
+                    result = "Create new PSP";
+                    break;
+                case 0x2a:
+                    result = "Get System Date";
+                    break;
+                case 0x2b:
+                    result = "Set System Date";
+                    break;
+                case 0x2c:
+                    result = "Get System Time";
+                    break;
+                case 0x2d:
+                    result = "Set System Time";
+                    break;
+                case 0x2e:
+                    result = "Set Verify flag";
+                    break;
+                case 0x2f:
+                    result = "Get Disk Transfer Area";
+                    break;
+                case 0x30:
+                    result = "Get DOS Version";
+                    break;
+                case 0x31:
+                    result = "Terminate and stay resident";
+                    break;
+                case 0x1f:
+                    result = "Get drive parameter block for default drive";
+                    break;
+                case 0x32:
+                    result = "Get drive parameter block for specific drive";
+                    break;
+                case 0x33:
+                    result = "Extended Break Checking";
+                    break;
+                case 0x34:
+                    result = "Get INDos Flag";
+                    break;
+                case 0x35:
+                    result = "Get interrupt vector";
+                    break;
+                case 0x36:
+                    result = "Get Free Disk Space";
+                    break;
+                case 0x37:
+                    result = "Get/Set Switch char Get/Set Availdev thing";
+                    break;
+                case 0x38:
+                    result = "Set Country Code";
+                    break;
+                case 0x39:
+                    result = "MKDIR Create directory";
+                    break;
+                case 0x3a:
+                    result = "RMDIR Remove directory";
+                    break;
+                case 0x3b:
+                    result = "CHDIR Set current directory";
+                    break;
+                case 0x3c:
+                    result = "CREATE Create of truncate file";
+                    break;
+                case 0x3d:
+                    result = "OPEN Open existing file";
+                    break;
+                case 0x3e:
+                    result = "CLOSE Close file";
+                    break;
+                case 0x3f:
+                    result = "READ Read from file or device";
+                    break;
+                case 0x40:
+                    result = "WRITE Write to file or device";
+                    break;
+                case 0x41:
+                    result = "UNLINK Delete file";
+                    break;
+                case 0x42:
+                    result = "LSEEK Set current file position";
+                    break;
+                case 0x43:
+                    result = "Get/Set file attributes";
+                    break;
+                case 0x44:
+                    result = "IOCTL Functions";
+                    break;
+                case 0x45:
+                    result = "DUP Duplicate file handle";
+                    break;
+                case 0x46:
+                    result = "DUP2,FORCEDUP Force duplicate file handle";
+                    break;
+                case 0x47:
+                    result = "CWD Get current directory";
+                    break;
+                case 0x48:
+                    result = "Allocate memory";
+                    break;
+                case 0x49:
+                    result = "Free memory";
+                    break;
+                case 0x4a:
+                    result = "Resize memory block";
+                    break;
+                case 0x4b:
+                    result = "EXEC Load and/or execute program";
+                    break;
+                case 0x4c:
+                    result = "EXIT Terminate with return code";
+                    break;
+                case 0x4d:
+                    result = "Get Return code";
+                    break;
+                case 0x4e:
+                    result = "FINDFIRST Find first matching file";
+                    break;
+                case 0x4f:
+                    result = "FINDNEXT Find next matching file";
+                    break;
+                case 0x50:
+                    result = "Set current PSP";
+                    break;
+                case 0x51:
+                    result = "Get current PSP";
+                    break;
+                case 0x52:
+                    result = "Get list of lists";
+                    break;
+                case 0x53:
+                    result = "Translate BIOS parameter block to drive parameter block";
+                    break;
+                case 0x54:
+                    result = "Get verify flag";
+                    break;
+                case 0x55:
+                    result = "Create Child PSP";
+                    break;
+                case 0x56:
+                    result = "RENAME Rename file";
+                    break;
+                case 0x57:
+                    result = "Get/Set File's Date and Time";
+                    break;
+                case 0x58:
+                    result = "Get/Set Memory allocation strategy";
+                    break;
+                case 0x59:
+                    result = "Get Extended error information";
+                    break;
+                case 0x5a:
+                    result = "Create temporary file";
+                    break;
+                case 0x5b:
+                    result = "Create new file";
+                    break;
+                case 0x5c:
+                    result = "FLOCK File region locking";
+                    break;
+                case 0x5d:
+                    result = "Network Functions";
+                    break;
+                case 0x5f:
+                    result = "Network redirection";
+                    break;
+                case 0x60:
+                    result = "Canonicalize filename or path";
+                    break;
+                case 0x62:
+                    result = "Get Current PSP Address";
+                    break;
+                case 0x63:
+                    result = "DOUBLE BYTE CHARACTER SET";
+                    break;
+                case 0x64:
+                    result = "Set device driver lookahead flag";
+                    break;
+                case 0x65:
+                    result = "Get extented country information and a lot of other useless shit";
+                    break;
+                case 0x66:
+                    result = "Get/Set global code page table";
+                    break;
+                case 0x67:
+                    result = "Set handle count";
+                    break;
+                case 0x68:
+                    result = "FFLUSH Commit file";
+                    break;
+                case 0x69:
+                    result = "Get/Set disk serial number";
+                    break;
+                case 0x6c:
+                    result = "Extended Open/Create";
+                    break;
+                case 0x71:
+                    result = "Unknown probably 4dos detection";
+                    break;
+            }
+            return "Dos.DOS_21Handler " + result;
         }
+
         public /*Bitu*/int call() {
             if (((CPU_Regs.reg_eax.high() != 0x50) && (CPU_Regs.reg_eax.high() != 0x51) && (CPU_Regs.reg_eax.high() != 0x62) && (CPU_Regs.reg_eax.high() != 0x64)) && (CPU_Regs.reg_eax.high()<0x6c)) {
                 Dos_PSP psp = new Dos_PSP(dos.psp());

@@ -146,19 +146,27 @@ public class Midi extends Module_base {
 		midi.status=0x00;
 		midi.cmd_pos=0;
 		midi.cmd_len=0;
-        MidiDevice.Info[] devices = MidiSystem.getMidiDeviceInfo();
+        MidiDevice.Info[] devices = null;
+
+        try {
+            devices = MidiSystem.getMidiDeviceInfo();
+        } catch (Exception e) {
+
+        }
         boolean def = dev.equalsIgnoreCase("default");
 
         if (!def) {
-            for (int i=0;i<devices.length;i++) {
-                if (devices[i].getName().equalsIgnoreCase(dev)) {
-                    try {
-                        MidiDevice device = MidiSystem.getMidiDevice(devices[0]);
-                        device.open();
-                        midi.handler =  device.getReceiver();
-                        midi.device = device;
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            if (devices != null) {
+                for (int i=0;i<devices.length;i++) {
+                    if (devices[i].getName().equalsIgnoreCase(dev)) {
+                        try {
+                            MidiDevice device = MidiSystem.getMidiDevice(devices[0]);
+                            device.open();
+                            midi.handler =  device.getReceiver();
+                            midi.device = device;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -176,7 +184,10 @@ public class Midi extends Module_base {
             }
             if (synth != null) {
                 String fileName = "default";
-                soundbank = synth.getDefaultSoundbank();
+                try {
+                    soundbank = synth.getDefaultSoundbank();
+                } catch (Exception e) {
+                }
                 if (soundbank == null) {
                     fileName = "soundbank-deluxe.gm";
                     InputStream is = Dosbox.class.getResourceAsStream(fileName);
@@ -200,7 +211,7 @@ public class Midi extends Module_base {
                     try {
                         synth.open();
                         if (synth.isSoundbankSupported(soundbank) && synth.loadAllInstruments(soundbank)) {
-                            Log.log_msg("Using Soundbank: "+fileName);
+                            Log.log_msg("MIDI: Using Soundbank: "+fileName);
                             midi.handler = synth.getReceiver();
                             midi.device = synth;
                         } else {
@@ -211,16 +222,21 @@ public class Midi extends Module_base {
                 }
             }
         }
-        for (int i=0;i<devices.length && midi.handler == null;i++) {
-            try {
-                MidiDevice device = MidiSystem.getMidiDevice(devices[i]);
-                device.open();
-                midi.handler =  device.getReceiver();
-                midi.device = device;
-                Log.log_msg("MIDI:Opened device:"+devices[i].getName());
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (devices != null) {
+            for (int i=0;i<devices.length && midi.handler == null;i++) {
+                try {
+                    MidiDevice device = MidiSystem.getMidiDevice(devices[i]);
+                    device.open();
+                    midi.handler =  device.getReceiver();
+                    midi.device = device;
+                    Log.log_msg("MIDI:Opened device:"+devices[i].getName());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+        }
+        if (midi.device == null) {
+            Log.log_msg("MIDI:Can't find any device");
         }
     }
 

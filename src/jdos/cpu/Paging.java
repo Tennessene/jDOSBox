@@ -304,10 +304,10 @@ public class Paging extends Module_base {
             int tlb_addr = get_tlb_write(address);
             if (tlb_addr != INVALID_ADDRESS) {
                 Memory.direct[(address+tlb_addr) >>> 2]=val;
-                return;
             } else {
                 get_tlb_writehandler(address).writed(address, val);
             }
+            return;
         }
         if ((address & 0xfff) < 0xffd) {
             /*HostPt*/

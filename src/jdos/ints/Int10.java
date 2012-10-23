@@ -178,7 +178,7 @@ public class Int10 {
 
     static private Callback.Handler INT10_Handler = new Callback.Handler() {
         public String getName() {
-            return "Int10.INT10_Handler";
+            return "Int10.INT10_Handler 0x"+(CPU_Regs.reg_eax.high() & 0xFF);
         }
     public /*Bitu*/int call() {
         if (false) {

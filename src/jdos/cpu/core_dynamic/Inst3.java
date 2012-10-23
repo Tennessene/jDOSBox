@@ -34,6 +34,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADD "+e.getName()+", "+g.getName();}
     }
 
     final static public class AddEdGd_mem extends Op {
@@ -63,6 +64,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADD "+e.description32()+", "+g.getName();}
     }
 
     final static public class AddGdEd_mem extends Op {
@@ -92,6 +94,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADD "+e.getName()+", "+g.description32();}
     }
 
     final static public class AddEaxId extends Op {
@@ -118,6 +121,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADD "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Push32ES extends Op {
@@ -138,6 +142,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH ES";}
     }
 
     final static public class Pop32ES extends Op {
@@ -159,6 +164,7 @@ public class Inst3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public int setsSeg() {return ES|FROM_STACK;}
+        public String description() {return "POP ES";}
     }
 
     final static public class Ord_reg extends Op {
@@ -188,6 +194,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OR "+e.getName()+", "+g.getName();}
     }
 
     final static public class OrEdGd_mem extends Op {
@@ -218,6 +225,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OR "+e.description32()+", "+g.getName();}
     }
 
     final static public class OrGdEd_mem extends Op {
@@ -248,6 +256,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OR "+e.getName()+", "+g.description32();}
     }
 
     final static public class OrEaxId extends Op {
@@ -275,6 +284,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OR "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Push32CS extends Op {
@@ -295,6 +305,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH CS";}
     }
 
     final static public class Adcd_reg extends Op {
@@ -323,6 +334,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADC "+e.getName()+", "+g.getName();}
     }
 
     final static public class AdcEdGd_mem extends Op {
@@ -352,6 +364,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADC "+e.description32()+", "+g.getName();}
     }
 
     final static public class AdcGdEd_mem extends Op {
@@ -381,6 +394,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADC "+e.getName()+", "+g.description32();}
     }
 
     final static public class AdcEaxId extends Op {
@@ -407,6 +421,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADC "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Push32SS extends Op {
@@ -427,6 +442,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH SS";}
     }
 
     final static public class Pop32SS extends Op {
@@ -449,6 +465,7 @@ public class Inst3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public int setsSeg() {return SS|FROM_STACK;}
+        public String description() {return "POP SS";}
     }
 
     final static public class Sbbd_reg extends Op {
@@ -477,6 +494,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SBB "+e.getName()+", "+g.getName();}
     }
 
     final static public class SbbEdGd_mem extends Op {
@@ -506,6 +524,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SBB "+e.description32()+", "+g.getName();}
     }
 
     final static public class SbbGdEd_mem extends Op {
@@ -535,6 +554,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SBB "+e.getName()+", "+g.description32();}
     }
 
     final static public class SbbEaxId extends Op {
@@ -561,6 +581,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SBB "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Push32DS extends Op {
@@ -581,6 +602,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH DS";}
     }
 
     final static public class Pop32DS extends Op {
@@ -604,6 +626,7 @@ public class Inst3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public int setsSeg() {return DS|FROM_STACK;}
+        public String description() {return "POP DS";}
     }
 
     final static public class Andd_reg extends Op {
@@ -633,6 +656,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "AND "+e.getName()+", "+g.getName();}
     }
 
     final static public class AndEdGd_mem extends Op {
@@ -663,6 +687,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "AND "+e.description32()+", "+g.getName();}
     }
 
     final static public class AndGdEd_mem extends Op {
@@ -693,6 +718,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "AND "+e.getName()+", "+g.description32();}
     }
 
     final static public class AndEaxId extends Op {
@@ -720,6 +746,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "AND "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Subd_reg extends Op {
@@ -748,6 +775,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SUB "+e.getName()+", "+g.getName();}
     }
 
     final static public class SubEdGd_mem extends Op {
@@ -777,6 +805,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SUB "+e.description32()+", "+g.getName();}
     }
 
     final static public class SubGdEd_mem extends Op {
@@ -806,6 +835,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SUB "+e.getName()+", "+g.description32();}
     }
 
     final static public class SubEaxId extends Op {
@@ -832,6 +862,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SUB "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Xord_reg extends Op {
@@ -861,6 +892,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XOR "+e.getName()+", "+g.getName();}
     }
 
     final static public class XorEdGd_mem extends Op {
@@ -891,6 +923,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XOR "+e.description32()+", "+g.getName();}
     }
 
     final static public class XorGdEd_mem extends Op {
@@ -921,6 +954,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XOR "+e.getName()+", "+g.description32();}
     }
 
     final static public class XorEaxId extends Op {
@@ -948,6 +982,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XOR "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Cmpd_reg extends Op {
@@ -976,6 +1011,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CMP "+e.getName()+", "+g.getName();}
     }
 
     final static public class CmpEdGd_mem extends Op {
@@ -1005,6 +1041,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CMP "+e.description32()+", "+g.getName();}
     }
 
     final static public class CmpGdEd_mem extends Op {
@@ -1034,6 +1071,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CMP "+e.getName()+", "+g.description32();}
     }
 
     final static public class CmpEaxId extends Op {
@@ -1060,6 +1098,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CMP "+CPU_Regs.reg_eax.getName()+", "+i;}
     }
 
     final static public class Incd_reg extends Op {
@@ -1087,6 +1126,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "INC "+reg.getName();}
     }
 
     final static public class Incd_mem extends Op {
@@ -1115,6 +1155,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "INC "+get_eaa.description32();}
     }
 
     final static public class Decd_reg extends Op {
@@ -1142,6 +1183,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "DEC "+reg.getName();}
     }
 
     final static public class Decd_mem extends Op {
@@ -1170,6 +1212,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "DEC "+get_eaa.description32();}
     }
 
     final static public class Push32_reg extends Op {
@@ -1196,6 +1239,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH "+reg.getName();}
     }
 
     final static public class Pop32_reg extends Op {
@@ -1222,6 +1266,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "POP "+reg.getName();}
     }
 
     final static public class Pushad extends Op {
@@ -1253,6 +1298,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSHA";}
     }
 
     final static public class Popad extends Op {
@@ -1279,6 +1325,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "POPA";}
     }
 
     final static public class BoundEd extends Op {
@@ -1315,6 +1362,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "BOUND "+rd.getName()+", "+get_eaa.description32();}
     }
 
     final static public class ArplEdRd_reg extends Op {
@@ -1347,6 +1395,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ARPL "+eard.getName()+", "+rd.getName();}
     }
 
     final static public class ArplEdRd_mem extends Op {
@@ -1379,6 +1428,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ARPL "+get_eaa.description32()+", "+rd.getName();}
     }
 
     final static public class PushId extends Op {
@@ -1404,6 +1454,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH "+id;}
     }
 
     final static public class ImulGdEdId_reg extends Op {
@@ -1434,6 +1485,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "IMUL "+rd.getName()+", "+eard.getName()+", "+op3;}
     }
 
     final static public class ImulGdEdId_mem extends Op {
@@ -1465,6 +1517,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "IMUL "+rd.getName()+", "+get_eaa.description32()+", "+op3;}
     }
 
     final static public class PushIb extends Op {
@@ -1490,6 +1543,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH "+id;}
     }
 
     final static public class ImulGdEdIb_reg extends Op {
@@ -1520,6 +1574,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "IMUL "+rd.getName()+", "+eard.getName()+", "+op3;}
     }
 
     final static public class ImulGdEdIb_mem extends Op {
@@ -1551,6 +1606,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "IMUL "+rd.getName()+", "+get_eaa.description32()+", "+op3;}
     }
 
     static abstract public class JumpCond32_b extends Op {
@@ -1572,6 +1628,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return " off="+offset;}
     }
 
     final static public class JumpCond32_b_o extends JumpCond32_b {
@@ -1586,6 +1643,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.OF;
         }
+        public String description() {return "JO"+super.description();}
     }
 
     final static public class JumpCond32_b_no extends JumpCond32_b {
@@ -1600,6 +1658,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.OF;
         }
+        public String description() {return "JNO"+super.description();}
     }
 
     final static public class JumpCond32_b_b extends JumpCond32_b {
@@ -1614,6 +1673,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.CF;
         }
+        public String description() {return "JB"+super.description();}
     }
 
     final static public class JumpCond32_b_nb extends JumpCond32_b {
@@ -1628,6 +1688,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.CF;
         }
+        public String description() {return "JNB"+super.description();}
     }
 
     final static public class JumpCond32_b_z extends JumpCond32_b {
@@ -1642,6 +1703,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "JZ"+super.description();}
     }
 
     final static public class JumpCond32_b_nz extends JumpCond32_b {
@@ -1656,6 +1718,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "JNZ"+super.description();}
     }
 
     final static public class JumpCond32_b_be extends JumpCond32_b {
@@ -1670,6 +1733,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.CF | CPU_Regs.ZF;
         }
+        public String description() {return "JBE"+super.description();}
     }
 
     final static public class JumpCond32_b_nbe extends JumpCond32_b {
@@ -1684,6 +1748,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.CF | CPU_Regs.ZF;
         }
+        public String description() {return "JNBE"+super.description();}
     }
 
     final static public class JumpCond32_b_s extends JumpCond32_b {
@@ -1698,6 +1763,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.SF;
         }
+        public String description() {return "JS"+super.description();}
     }
 
     final static public class JumpCond32_b_ns extends JumpCond32_b {
@@ -1712,6 +1778,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.SF;
         }
+        public String description() {return "JNS"+super.description();}
     }
 
     final static public class JumpCond32_b_p extends JumpCond32_b {
@@ -1726,6 +1793,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.PF;
         }
+        public String description() {return "JP"+super.description();}
     }
 
     final static public class JumpCond32_b_np extends JumpCond32_b {
@@ -1740,6 +1808,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.PF;
         }
+        public String description() {return "JNP"+super.description();}
     }
 
     final static public class JumpCond32_b_l extends JumpCond32_b {
@@ -1754,6 +1823,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
+        public String description() {return "JL"+super.description();}
     }
 
     final static public class JumpCond32_b_nl extends JumpCond32_b {
@@ -1768,6 +1838,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
+        public String description() {return "JNL"+super.description();}
     }
 
     final static public class JumpCond32_b_le extends JumpCond32_b {
@@ -1782,6 +1853,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
+        public String description() {return "JLE"+super.description();}
     }
 
     final static public class JumpCond32_b_nle extends JumpCond32_b {
@@ -1796,6 +1868,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
+        public String description() {return "JNLE"+super.description();}
     }
 
     final static public class GrplEdId_reg_add extends Op {
@@ -1827,6 +1900,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADD "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_reg_or extends Op {
@@ -1859,6 +1933,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OR "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_reg_adc extends Op {
@@ -1890,6 +1965,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADC "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_reg_sbb extends Op {
@@ -1921,6 +1997,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SBB "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_reg_and extends Op {
@@ -1952,6 +2029,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "AND "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_reg_sub extends Op {
@@ -1983,6 +2061,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SUB "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_reg_xor extends Op {
@@ -2015,6 +2094,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XOR "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_reg_cmp extends Op {
@@ -2046,6 +2126,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CMP "+eard.getName()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_add extends Op {
@@ -2078,6 +2159,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADD "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_or extends Op {
@@ -2110,6 +2192,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OR "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_adc extends Op {
@@ -2142,6 +2225,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ADC "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_sbb extends Op {
@@ -2174,6 +2258,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SBB "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_and extends Op {
@@ -2207,6 +2292,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "AND "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_sub extends Op {
@@ -2239,6 +2325,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SUB "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_xor extends Op {
@@ -2272,6 +2359,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XOR "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class GrplEdId_mem_cmp extends Op {
@@ -2304,6 +2392,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CMP "+get_eaa.description32()+", "+ib;}
     }
 
     final static public class TestEdGd_reg extends Op {
@@ -2333,6 +2422,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "TEST "+eard.getName()+", "+rd.getName();}
     }
 
     final static public class TestEdGd_mem extends Op {
@@ -2363,6 +2453,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "TEST "+get_eaa.description32()+", "+rd.getName();}
     }
 
     final static public class XchgEdGd_reg extends Op {
@@ -2393,6 +2484,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XCHG "+eard.getName()+", "+rd.getName();}
     }
 
     final static public class XchgEdGd_mem extends Op {
@@ -2425,6 +2517,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XCHG "+get_eaa.description32()+", "+rd.getName();}
     }
 
     final static public class MovEdGd_reg extends Op {
@@ -2453,6 +2546,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+eard.getName()+", "+rd.getName();}
     }
 
     final static public class MovEdGd_mem extends Op {
@@ -2482,6 +2576,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+get_eaa.description32()+", "+rd.getName();}
     }
 
     final static public class MovGdEd_reg extends Op {
@@ -2510,6 +2605,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+rd.getName()+", "+eard.getName();}
     }
 
     final static public class MovGdEd_mem extends Op {
@@ -2539,6 +2635,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+rd.getName()+", "+get_eaa.description32();}
     }
 
     final static public class MovEdEs_reg extends Op {
@@ -2565,6 +2662,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+eard.getName()+", ES";}
     }
 
     final static public class MovEdCs_reg extends Op {
@@ -2591,6 +2689,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+eard.getName()+", CS";}
     }
 
     final static public class MovEdSs_reg extends Op {
@@ -2617,6 +2716,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+eard.getName()+", SS";}
     }
 
     final static public class MovEdDs_reg extends Op {
@@ -2643,6 +2743,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+eard.getName()+", DS";}
     }
 
     final static public class MovEdFs_reg extends Op {
@@ -2669,6 +2770,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+eard.getName()+", FS";}
     }
 
     final static public class MovEdGs_reg extends Op {
@@ -2695,6 +2797,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+eard.getName()+", GS";}
     }
 
     final static public class LeaGd_16 extends Op {
@@ -2728,6 +2831,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LEA "+rd.getName()+", "+get_eaa.descriptionZero();}
     }
 
     final static public class LeaGd_32 extends Op {
@@ -2762,6 +2866,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LEA "+rd.getName()+", "+get_eaa.descriptionZero();}
     }
 
     final static public class PopEd_reg extends Op {
@@ -2788,6 +2893,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "POP "+eard.getName();}
     }
 
     final static public class PopEd_mem extends Op {
@@ -2815,6 +2921,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "POP "+get_eaa.description32();}
     }
 
     final static public class XchgEax extends Op {
@@ -2843,6 +2950,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "XCHG "+CPU_Regs.reg_eax.getName()+", "+reg.getName();}
     }
 
     final static public class Cwde extends Op {
@@ -2863,6 +2971,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CWDE";}
     }
 
     final static public class Cdq extends Op {
@@ -2884,6 +2993,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "CDQ";}
     }
 
     final static public class CallFarAp extends Op {
@@ -2920,6 +3030,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "CALL FAR "+Integer.toHexString(newcs)+":"+Integer.toHexString(newip);}
     }
 
     final static public class Pushfd extends Op {
@@ -2941,6 +3052,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSHF";}
     }
 
     final static public class Popfd extends Op {
@@ -2970,6 +3082,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "POPF";}
     }
 
      final static public class MovEaxOd extends Inst1.GetEADirect {
@@ -2987,10 +3100,11 @@ public class Inst3 extends Helper {
             return 0;
         }
 
-         public boolean throwsException() {return false;}
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+CPU_Regs.reg_eax.getName()+", 0x"+Integer.toHexString(Core.base_ds+value);}
     }
 
     final static public class MovOdEax extends Inst1.GetEADirect {
@@ -3012,6 +3126,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV 0x"+Integer.toHexString(Core.base_ds+value)+", "+CPU_Regs.reg_eax.getName();}
     }
 
     final static public class TestEaxId extends Op {
@@ -3039,6 +3154,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "TEST "+CPU_Regs.reg_eax.getName()+", "+id;}
     }
 
     final static public class MovId extends Op {
@@ -3067,6 +3183,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+reg.getName()+", "+id;}
     }
 
     final static public class MovId_mem extends Op {
@@ -3096,6 +3213,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV "+get_eaa.description32()+", "+id;}
     }
 
     final static public class Retn32Iw extends Op {
@@ -3123,6 +3241,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return true;}
+        public String description() {return "RETN "+offset;}
     }
 
     final static public class Retn32 extends Op {
@@ -3143,6 +3262,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return true;}
+        public String description() {return "RETN";}
     }
 
     final static public class Les32 extends Op {
@@ -3175,6 +3295,7 @@ public class Inst3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public int setsSeg() {return ES|FROM_MEMORY;}
+        public String description() {return "LES "+rd.getName()+", "+get_eaa.description32();}
     }
 
     final static public class Lds32 extends Op {
@@ -3210,6 +3331,7 @@ public class Inst3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public int setsSeg() {return DS|FROM_MEMORY;}
+        public String description() {return "LDS "+rd.getName()+", "+get_eaa.description32();}
     }
 
     final static public class Enter32IwIb extends Op {
@@ -3238,6 +3360,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ENTER "+bytes+", "+level;}
     }
 
     final static public class Leave32 extends Op {
@@ -3260,6 +3383,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LEAVE";}
     }
 
     final static public class Retf32Iw extends Op {
@@ -3285,6 +3409,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "RETF "+words;}
     }
 
     final static public class Retf32 extends Op {
@@ -3306,6 +3431,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "RETF";}
     }
 
     final static public class IRet32 extends Op {
@@ -3335,6 +3461,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "IRET";}
     }
 
     final static public class Loopnz32 extends JumpCond32_b {
@@ -3350,6 +3477,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "LOOPNZ";}
     }
 
     final static public class Loopnz16 extends JumpCond32_b {
@@ -3365,6 +3493,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "LOOPNZ";}
     }
 
     final static public class Loopz32 extends JumpCond32_b {
@@ -3380,6 +3509,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "LOOPZ";}
     }
 
     final static public class Loopz16 extends JumpCond32_b {
@@ -3395,6 +3525,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "LOOPZ";}
     }
 
     final static public class Loop32 extends JumpCond32_b {
@@ -3410,6 +3541,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return 0;
         }
+        public String description() {return "LOOP";}
     }
 
     final static public class Loop16 extends JumpCond32_b {
@@ -3425,6 +3557,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return 0;
         }
+        public String description() {return "LOOP";}
     }
 
     final static public class Jcxz extends JumpCond32_b {
@@ -3445,6 +3578,7 @@ public class Inst3 extends Helper {
         public int gets() {
             return 0;
         }
+        public String description() {return "JCXZ";}
     }
 
     final static public class InEaxIb extends Op {
@@ -3472,6 +3606,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "IN "+CPU_Regs.reg_eax.getName()+", 0x"+Integer.toHexString(port);}
     }
 
     final static public class OutEaxIb extends Op {
@@ -3499,6 +3634,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OUT "+CPU_Regs.reg_eax.getName()+", 0x"+Integer.toHexString(port);}
     }
 
     final static public class CallJd extends Op {
@@ -3526,6 +3662,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "CALL "+addip;}
     }
 
     final static public class JmpJd extends Op {
@@ -3552,6 +3689,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "JMP "+addip;}
     }
 
     final static public class JmpAd extends Op {
@@ -3585,6 +3723,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "JMP "+Integer.toHexString(newcs)+":"+Integer.toHexString(newip);}
     }
 
     final static public class JmpJb extends Op {
@@ -3611,6 +3750,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "JMP "+addip;}
     }
 
     final static public class InEaxDx extends Op {
@@ -3631,6 +3771,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "IN "+CPU_Regs.reg_eax.getName()+", "+CPU_Regs.reg_edx.getName();}
     }
 
     final static public class OutEaxDx extends Op {
@@ -3651,6 +3792,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "OUT "+CPU_Regs.reg_eax.getName()+", "+CPU_Regs.reg_edx.getName();}
     }
 
     final static public class CallNearEd_reg extends Op {
@@ -3679,6 +3821,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "CALL NEAR "+eard.getName();}
     }
 
     final static public class CallNearEd_mem extends Op {
@@ -3708,6 +3851,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "CALL NEAR "+get_eaa.description32();}
     }
 
     final static public class CallFarEd_mem extends Op {
@@ -3743,6 +3887,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "CALL FAR "+get_eaa.description32();}
     }
 
     final static public class JmpNearEd_reg extends Op {
@@ -3769,6 +3914,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return true;}
+        public String description() {return "JMP NEAR "+eard.getName();}
     }
 
     final static public class JmpNearEd_mem extends Op {
@@ -3796,6 +3942,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return true;}
+        public String description() {return "JMP NEAR "+get_eaa.description32();}
     }
 
     final static public class JmpFarEd_mem extends Op {
@@ -3832,6 +3979,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+        public String description() {return "JMP FAR "+get_eaa.description32();}
     }
 
     final static public class PushEd_reg extends Op {
@@ -3858,6 +4006,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH "+eard.getName();}
     }
 
     final static public class PushEd_mem extends Op {
@@ -3885,5 +4034,6 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH "+get_eaa.description32();}
     }
 }

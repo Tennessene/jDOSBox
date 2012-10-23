@@ -34,6 +34,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LGDT "+get_eaa.description32();}
     }
 
     final static public class Lidt_mem extends Op {
@@ -64,6 +65,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LIDT "+get_eaa.description32();}
     }
 
     final static public class Smsw_reg extends Op {
@@ -90,6 +92,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SMSW "+eard.getName();}
     }
 
     final static public class Lmsw_reg extends Op {
@@ -116,6 +119,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LMSW "+eard.getName();}
     }
 
     final static public class LarGdEd_reg extends Op {
@@ -148,6 +152,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LAR "+rd.getName() + ", "+earw.getName16();}
     }
 
     final static public class LarGdEd_mem extends Op {
@@ -181,6 +186,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LAR "+rd.getName() + ", "+get_eaa.description16();}
     }
 
     final static public class LslGdEd_reg extends Op {
@@ -214,6 +220,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LSL "+rd.getName() + ", "+earw.getName16();}
     }
 
     final static public class LslGdEd_mem extends Op {
@@ -248,6 +255,7 @@ public class Inst4 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "LAR "+rd.getName() + ", "+get_eaa.description16();}
     }
 
 static abstract public class JumpCond32_d extends Op {
@@ -270,6 +278,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
+    public String description() {return " off="+offset;}
     }
 
     final static public class JumpCond32_d_o extends JumpCond32_d {
@@ -284,6 +293,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.OF;
         }
+        public String description() {return "JO "+super.description();}
     }
 
     final static public class JumpCond32_d_no extends JumpCond32_d {
@@ -298,6 +308,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.OF;
         }
+        public String description() {return "JNO "+super.description();}
     }
 
     final static public class JumpCond32_d_b extends JumpCond32_d {
@@ -312,6 +323,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.CF;
         }
+        public String description() {return "JB "+super.description();}
     }
 
     final static public class JumpCond32_d_nb extends JumpCond32_d {
@@ -326,6 +338,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.CF;
         }
+        public String description() {return "JNB "+super.description();}
     }
 
     final static public class JumpCond32_d_z extends JumpCond32_d {
@@ -340,6 +353,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "JZ "+super.description();}
     }
 
     final static public class JumpCond32_d_nz extends JumpCond32_d {
@@ -354,6 +368,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.ZF;
         }
+        public String description() {return "JNZ "+super.description();}
     }
 
     final static public class JumpCond32_d_be extends JumpCond32_d {
@@ -368,6 +383,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.CF | CPU_Regs.ZF;
         }
+        public String description() {return "JBE "+super.description();}
     }
 
     final static public class JumpCond32_d_nbe extends JumpCond32_d {
@@ -382,6 +398,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.CF | CPU_Regs.ZF;
         }
+        public String description() {return "JNBE "+super.description();}
     }
 
     final static public class JumpCond32_d_s extends JumpCond32_d {
@@ -396,6 +413,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.SF;
         }
+        public String description() {return "JS "+super.description();}
     }
 
     final static public class JumpCond32_d_ns extends JumpCond32_d {
@@ -410,6 +428,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.SF;
         }
+        public String description() {return "JNS "+super.description();}
     }
 
     final static public class JumpCond32_d_p extends JumpCond32_d {
@@ -424,6 +443,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.PF;
         }
+        public String description() {return "JP "+super.description();}
     }
 
     final static public class JumpCond32_d_np extends JumpCond32_d {
@@ -438,6 +458,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.PF;
         }
+        public String description() {return "JNP "+super.description();}
     }
 
     final static public class JumpCond32_d_l extends JumpCond32_d {
@@ -452,6 +473,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
+        public String description() {return "JL "+super.description();}
     }
 
     final static public class JumpCond32_d_nl extends JumpCond32_d {
@@ -466,6 +488,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
+        public String description() {return "JNL "+super.description();}
     }
 
     final static public class JumpCond32_d_le extends JumpCond32_d {
@@ -480,6 +503,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
+        public String description() {return "JLE "+super.description();}
     }
 
     final static public class JumpCond32_d_nle extends JumpCond32_d {
@@ -494,6 +518,7 @@ static abstract public class JumpCond32_d extends Op {
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
+        public String description() {return "JNLE "+super.description();}
     }
 
     final static public class PushFS extends Op {
@@ -514,6 +539,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "PUSH FS";}
     }
 
     final static public class PopFS extends Op {
@@ -535,6 +561,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public int setsSeg() {return FS|FROM_STACK;}
+        public String description() {return "POP FS";}
     }
 
     final static public class BtEdGd_reg extends Op {

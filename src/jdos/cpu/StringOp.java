@@ -555,4 +555,31 @@ public class StringOp extends Prefix_helpers {
             Log.exit("Unhandled string op "+type);
         }
     }
+    
+    static public String description(int type) {
+        switch (type) {
+        case R_OUTSB: return "OUTSB";
+        case R_OUTSW: return "OUTSW";
+        case R_OUTSD: return "OUTSD";
+        case R_INSB: return "INSB";
+        case R_INSW: return "INSW";
+        case R_INSD: return "INSD";
+        case R_MOVSB: return "MOVSB";
+        case R_MOVSW: return "MOVSW";
+        case R_MOVSD: return "MOVSD";
+        case R_LODSB: return "LODSB";
+        case R_LODSW: return "LODSW";
+        case R_LODSD: return "LODSD";
+        case R_STOSB: return "STOSB";
+        case R_STOSW: return "STOSW";
+        case R_STOSD: return "STOSD";
+        case R_SCASB: return "SCASB";
+        case R_SCASW: return "SCASW";
+        case R_SCASD: return "SCASD";
+        case R_CMPSB: return "CMPSB";
+        case R_CMPSW: return "CMPSW";
+        case R_CMPSD: return "CMPSD";
+        }
+        return "";
+    }
 }

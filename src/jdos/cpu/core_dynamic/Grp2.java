@@ -34,6 +34,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+earb.getName8()+", "+val;}
     }
 
     static public class RORB_reg extends Op {
@@ -64,6 +65,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+earb.getName8()+", "+val;}
     }
 
     static public class RCLB_reg extends Op {
@@ -94,6 +96,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+earb.getName8()+", "+val;}
     }
 
     static public class RCRB_reg extends Op {
@@ -124,6 +127,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+earb.getName8()+", "+val;}
     }
 
     static public class SHLB_reg extends Op {
@@ -154,6 +158,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+earb.getName8()+", "+val;}
     }
 
     static public class SHRB_reg extends Op {
@@ -184,6 +189,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+earb.getName8()+", "+val;}
     }
 
     static public class SARB_reg extends Op {
@@ -214,6 +220,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+earb.getName8()+", "+val;}
     }
 
     static public class ROLB_mem extends Op {
@@ -245,6 +252,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+get_eaa.description8()+", "+val;}
     }
 
     static public class RORB_mem extends Op {
@@ -277,6 +285,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+get_eaa.description8()+", "+val;}
     }
 
     static public class RCLB_mem extends Op {
@@ -309,6 +318,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+get_eaa.description8()+", "+val;}
     }
 
     static public class RCRB_mem extends Op {
@@ -341,6 +351,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+get_eaa.description8()+", "+val;}
     }
 
     static public class SHLB_mem extends Op {
@@ -373,6 +384,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+get_eaa.description8()+", "+val;}
     }
 
     static public class SHRB_mem extends Op {
@@ -404,6 +416,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+get_eaa.description8()+", "+val;}
     }
 
     static public class SARB_mem extends Op {
@@ -435,6 +448,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+get_eaa.description8()+", "+val;}
     }
 
     static public class ROLW_reg extends Op {
@@ -465,6 +479,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+earw.getName16()+", "+val;}
     }
 
     static public class RORW_reg extends Op {
@@ -495,6 +510,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+earw.getName16()+", "+val;}
     }
 
     static public class RCLW_reg extends Op {
@@ -525,6 +541,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+earw.getName16()+", "+val;}
     }
 
     static public class RCRW_reg extends Op {
@@ -555,6 +572,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+earw.getName16()+", "+val;}
     }
 
     static public class SHLW_reg extends Op {
@@ -585,6 +603,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+earw.getName16()+", "+val;}
     }
 
     static public class SHRW_reg extends Op {
@@ -615,6 +634,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+earw.getName16()+", "+val;}
     }
 
     static public class SARW_reg extends Op {
@@ -645,6 +665,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+earw.getName16()+", "+val;}
     }
 
     static public class ROLW_mem extends Op {
@@ -676,6 +697,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+get_eaa.description16()+", "+val;}
     }
 
     static public class RORW_mem extends Op {
@@ -707,6 +729,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+get_eaa.description16()+", "+val;}
     }
 
     static public class RCLW_mem extends Op {
@@ -738,6 +761,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+get_eaa.description16()+", "+val;}
     }
 
     static public class RCRW_mem extends Op {
@@ -769,6 +793,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+get_eaa.description16()+", "+val;}
     }
 
     static public class SHLW_mem extends Op {
@@ -800,6 +825,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+get_eaa.description16()+", "+val;}
     }
 
     static public class SHRW_mem extends Op {
@@ -831,6 +857,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+get_eaa.description16()+", "+val;}
     }
 
     static public class SARW_mem extends Op {
@@ -862,6 +889,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+get_eaa.description16()+", "+val;}
     }
 
     static public class ROLB_reg_cl extends Op {
@@ -890,6 +918,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RORB_reg_cl extends Op {
@@ -918,6 +947,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCLB_reg_cl extends Op {
@@ -946,6 +976,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCRB_reg_cl extends Op {
@@ -974,6 +1005,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHLB_reg_cl extends Op {
@@ -1002,6 +1034,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHRB_reg_cl extends Op {
@@ -1030,6 +1063,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SARB_reg_cl extends Op {
@@ -1058,6 +1092,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class ROLB_mem_cl extends Op {
@@ -1088,6 +1123,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RORB_mem_cl extends Op {
@@ -1118,6 +1154,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCLB_mem_cl extends Op {
@@ -1148,6 +1185,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCRB_mem_cl extends Op {
@@ -1178,6 +1216,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHLB_mem_cl extends Op {
@@ -1208,6 +1247,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHRB_mem_cl extends Op {
@@ -1238,6 +1278,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SARB_mem_cl extends Op {
@@ -1268,6 +1309,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class ROLW_reg_cl extends Op {
@@ -1296,6 +1338,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RORW_reg_cl extends Op {
@@ -1324,6 +1367,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCLW_reg_cl extends Op {
@@ -1352,6 +1396,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCRW_reg_cl extends Op {
@@ -1381,6 +1426,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHLW_reg_cl extends Op {
@@ -1409,6 +1455,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHRW_reg_cl extends Op {
@@ -1437,6 +1484,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SARW_reg_cl extends Op {
@@ -1465,6 +1513,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class ROLW_mem_cl extends Op {
@@ -1495,6 +1544,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RORW_mem_cl extends Op {
@@ -1525,6 +1575,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCLW_mem_cl extends Op {
@@ -1555,6 +1606,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCRW_mem_cl extends Op {
@@ -1585,6 +1637,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHLW_mem_cl extends Op {
@@ -1615,6 +1668,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHRW_mem_cl extends Op {
@@ -1645,6 +1699,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SARW_mem_cl extends Op {
@@ -1675,6 +1730,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class ROLD_reg extends Op {
@@ -1704,6 +1760,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+eard.getName()+", "+val;}
     }
 
     static public class RORD_reg extends Op {
@@ -1733,6 +1790,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+eard.getName()+", "+val;}
     }
 
     static public class RCLD_reg extends Op {
@@ -1762,6 +1820,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+eard.getName()+", "+val;}
     }
 
     static public class RCRD_reg extends Op {
@@ -1791,6 +1850,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+eard.getName()+", "+val;}
     }
 
     static public class SHLD_reg extends Op {
@@ -1819,6 +1879,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+eard.getName()+", "+val;}
     }
 
     static public class SHRD_reg extends Op {
@@ -1847,6 +1908,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+eard.getName()+", "+val;}
     }
 
     static public class SARD_reg extends Op {
@@ -1875,6 +1937,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+eard.getName()+", "+val;}
     }
 
     static public class ROLD_mem extends Op {
@@ -1904,6 +1967,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+get_eaa.description32()+", "+val;}
     }
 
     static public class RORD_mem extends Op {
@@ -1933,6 +1997,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+get_eaa.description32()+", "+val;}
     }
 
     static public class RCLD_mem extends Op {
@@ -1962,6 +2027,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+get_eaa.description32()+", "+val;}
     }
 
     static public class RCRD_mem extends Op {
@@ -1991,6 +2057,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+get_eaa.description32()+", "+val;}
     }
 
     static public class SHLD_mem extends Op {
@@ -2020,6 +2087,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+get_eaa.description32()+", "+val;}
     }
 
     static public class SHRD_mem extends Op {
@@ -2049,6 +2117,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+get_eaa.description32()+", "+val;}
     }
 
     static public class SARD_mem extends Op {
@@ -2078,6 +2147,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+get_eaa.description32()+", "+val;}
     }
 
     static public class ROLD_reg_cl extends Op {
@@ -2106,6 +2176,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RORD_reg_cl extends Op {
@@ -2134,6 +2205,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCLD_reg_cl extends Op {
@@ -2162,6 +2234,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCRD_reg_cl extends Op {
@@ -2191,6 +2264,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHLD_reg_cl extends Op {
@@ -2219,6 +2293,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHRD_reg_cl extends Op {
@@ -2247,6 +2322,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SARD_reg_cl extends Op {
@@ -2275,6 +2351,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class ROLD_mem_cl extends Op {
@@ -2305,6 +2382,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROL "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RORD_mem_cl extends Op {
@@ -2335,6 +2413,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "ROR "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCLD_mem_cl extends Op {
@@ -2365,6 +2444,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCL "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class RCRD_mem_cl extends Op {
@@ -2395,6 +2475,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "RCR "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHLD_mem_cl extends Op {
@@ -2425,6 +2506,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHL "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SHRD_mem_cl extends Op {
@@ -2455,6 +2537,7 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SHR "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 
     static public class SARD_mem_cl extends Op {
@@ -2485,5 +2568,6 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "SAR "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
     }
 }

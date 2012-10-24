@@ -18,8 +18,11 @@ import jdos.types.MachineType;
 import jdos.util.IntRef;
 
 import java.util.Calendar;
+import java.util.Vector;
 
 public class Bios extends Module_base {
+    static public boolean boot = false;
+
     static public final int BIOS_BASE_ADDRESS_COM1          =0x400;
     static public final int BIOS_BASE_ADDRESS_COM2          =0x402;
     static public final int BIOS_BASE_ADDRESS_COM3          =0x404;
@@ -833,15 +836,40 @@ public class Bios extends Module_base {
 
     private static /*Bit16u*/int biosConfigSeg=0;
     private static boolean apm_realmode_connected = false;
+    static private class E820 {
+        public E820(int base, int len, boolean reserved) {
+            this.base = base;
+            this.len = len;
+            this.reserved = reserved;
+        }
+        int base;
+        int len;
+        boolean reserved;
+    }
+    private static Vector<E820> e820table = new Vector<E820>();
 
+    {
+        e820table.add(new E820(0, 0x09F000, false));
+        e820table.add(new E820(0xf0000, 0x010000, true));
+        e820table.add(new E820(0x100000, (Memory.MEM_TotalPages()*4096)-0x100000, false));
+         /* return a minimalist list:
+                                 *
+                                 *    0) 0x000000-0x09EFFF       Free memory
+                                 *    1) 0x0C0000-0x0FFFFF       Reserved
+                                 *    2) 0x100000-...            Free memory (no ACPI tables) */
+    }
     private static Callback.Handler INT15_Handler = new Callback.Handler() {
         public String getName() {
-            return "Bios.INT15_Handler";
+            return "Bios.INT15_Handler "+Integer.toHexString(CPU_Regs.reg_eax.high() & 0xFF);
         }
         public /*Bitu*/int call() {
             switch (CPU_Regs.reg_eax.high() & 0xFF) {
             case 0x06:
                 Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT15 Unkown Function 6");
+                break;
+            case 0xC1:
+                CPU_Regs.reg_eax.high(0x80);
+                Callback.CALLBACK_SCF(true);
                 break;
             case 0xC0:	/* Get Configuration*/
                 {
@@ -973,6 +1001,67 @@ public class Bios extends Module_base {
                     Callback.CALLBACK_SCF(false);
                     break;
                 }
+                case 0xE8:
+                    if (false) {
+                        CPU_Regs.reg_eax.word(other_memsystems!=0?0:size_extended);
+                        Callback.CALLBACK_SCF(false);
+                        break;
+                    }
+                    switch (CPU_Regs.reg_eax.low()) {
+                        case 0x01: {
+                            /* E801: memory size */
+                            int sz = Memory.MEM_TotalPages() * 4;
+                            if (sz >= 1024)
+                                sz -= 1024;
+                            else
+                                sz = 0;
+                            int t = (sz > 0x3C00) ? 0x3C00 : sz;
+                            CPU_Regs.reg_eax.word(t); /* extended memory between 1MB and 16MB in KBs */
+                            CPU_Regs.reg_ecx.word(t); /* extended memory between 1MB and 16MB in KBs */
+                            sz -= t;
+                            sz /= 64;    /* extended memory size from 16MB in 64KB blocks */
+                            if (sz > 65535) sz = 65535;
+                            CPU_Regs.reg_edx.word(sz);
+                            CPU_Regs.reg_ebx.word(sz);
+                            Callback.CALLBACK_SCF(false);
+                        }
+                        break;
+                        case 0x20: { /* E820: MEMORY LISTING */
+                            if (CPU_Regs.reg_edx.dword == 0x534D4150 && CPU_Regs.reg_ecx.dword >= 20 && (Memory.MEM_TotalPages() * 4) >= 24000) {
+                                if (CPU_Regs.reg_ebx.dword<e820table.size()) {
+                                    E820 e820 = e820table.elementAt(CPU_Regs.reg_ebx.dword);
+
+                                    /* write to ES:DI */
+                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x00, e820.base);
+                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x04, 0);
+                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x08, e820.len);
+                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x0C, 0);
+                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x10, e820.reserved?2:1);
+                                    CPU_Regs.reg_ecx.dword = 20;
+
+                                    /* return EBX pointing to next entry. wrap around, as most BIOSes do.
+                                    * the program is supposed to stop on CF=1 or when we return EBX == 0 */
+                                    if (++CPU_Regs.reg_ebx.dword >= e820table.size()) CPU_Regs.reg_ebx.dword = 0;
+                                } else {
+                                    Callback.CALLBACK_SCF(true);
+                                }
+                                CPU_Regs.reg_eax.dword = 0x534D4150;
+                            } else {
+                                CPU_Regs.reg_eax.dword = 0x8600;
+                                Callback.CALLBACK_SCF(true);
+                            }
+                        }
+                        break;
+                        default:
+                            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT15:Unknown call "+Integer.toString(CPU_Regs.reg_eax.word(),16));
+                            CPU_Regs.reg_eax.high(0x86);
+                            Callback.CALLBACK_SCF(true);
+                            if ((Dosbox.IS_EGAVGA_ARCH()) || (Dosbox.machine == MachineType.MCH_CGA)/* || (Dosbox.machine == MachineType.MCH_AMSTRAD)*/) {
+                                /* relict from comparisons, as int15 exits with a retf2 instead of an iret */
+                                Callback.CALLBACK_SZF(false);
+                            }
+                    }
+                    break;
             case 0x88:	/* SYSTEM - GET EXTENDED MEMORY SIZE (286+) */
                 CPU_Regs.reg_eax.word(other_memsystems!=0?0:size_extended);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"INT15:Function 0x88 Remaining "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" kb");
@@ -1354,6 +1443,9 @@ public class Bios extends Module_base {
         byte[] b_date = "01/01/92".getBytes();
         for(/*Bitu*/int i = 0; i < b_date.length; i++) Memory.phys_writeb(0xffff5+i,b_date[i]);
         Memory.phys_writeb(0xfffff,0x55); // signature
+
+        byte[] ident = "ISA".getBytes();
+        for(/*Bitu*/int i = 0; i < ident.length; i++) Memory.phys_writeb(0xfffd9+i,ident[i]);
 
         tandy_sb.port=0;
         tandy_dac.port=0;

@@ -10,6 +10,7 @@ import jdos.dos.DriveManager;
 import jdos.gui.Mapper;
 import jdos.hardware.Cmos;
 import jdos.hardware.Memory;
+import jdos.hardware.ide.IDE;
 import jdos.misc.Log;
 import jdos.sdl.JavaMapper;
 import jdos.types.LogSeverities;
@@ -175,7 +176,7 @@ public class Bios_disk {
         }
     }
 
-    static private final int MAX_HDD_IMAGES = 2;
+    static public final int MAX_HDD_IMAGES = 2;
 
     static private final int MAX_DISK_IMAGES = 4;
 
@@ -343,18 +344,46 @@ public class Bios_disk {
 
     static private Callback.Handler INT13_DiskHandler = new Callback.Handler() {
         public String getName() {
-            return "Bios.INT13_DiskHandler";
+            String result = "";
+            switch (CPU_Regs.reg_eax.high()) {
+                case 0x00:
+                    result = " Reset disk";
+                    break;
+                case 0x01:
+                    result = " Get status of last operation";
+                    break;
+                case 0x02:
+                    result = " Read sectors h="+CPU_Regs.reg_edx.high()+" c="+(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2))+" s="+((CPU_Regs.reg_ecx.low() & 63));
+                    break;
+                case 0x03:
+                    result = " Write sectors";
+                    break;
+                case 0x04:
+                    result = " Verify sectors";
+                    break;
+                case 0x08:
+                    result = " Get drive parameters";
+                    break;
+                case 0x11:
+                    result = " Recalibrate drive";
+                    break;
+                case 0x17:
+                    result = " Set disk type for format";
+                    break;
+            }
+            return "Bios.INT13_DiskHandler "+Integer.toHexString(CPU_Regs.reg_edx.low())+"h 0x"+Integer.toHexString(CPU_Regs.reg_eax.high())+result;
         }
         public /*Bitu*/int call() {
             /*Bit16u*/int segat, bufptr;
-            /*Bit8u*/byte[] sectbuf=new byte[512];
-            /*Bitu*/int  drivenum;
+            /*Bitu*/int  drivenum=0;
             /*Bitu*/int  i,t;
             last_drive = CPU_Regs.reg_edx.low();
-            drivenum = GetDosDriveNumber(last_drive);
             boolean any_images = false;
-            for(i = 0;i < MAX_DISK_IMAGES;i++) {
-                if(imageDiskList[i]!=null) any_images=true;
+            if (!Bios.boot || true) {
+                drivenum = GetDosDriveNumber(last_drive);
+                for(i = 0;i < MAX_DISK_IMAGES;i++) {
+                    if(imageDiskList[i]!=null) any_images=true;
+                }
             }
 
             // unconditionally enable the interrupt flag
@@ -397,77 +426,133 @@ public class Bios_disk {
                 }
                 break;
             case 0x2: /* Read sectors */
+            {
                 if (CPU_Regs.reg_eax.low()==0) {
                     CPU_Regs.reg_eax.high(0x01);
                     Callback.CALLBACK_SCF(true);
                     return Callback.CBRET_NONE;
                 }
-                if (!any_images) {
-                    // Inherit the Earth cdrom (uses it as disk test)
-                    if (((CPU_Regs.reg_edx.low()&0x80)==0x80) && (CPU_Regs.reg_edx.high()==0) && ((CPU_Regs.reg_ecx.low()&0x3f)==1)) {
-                        CPU_Regs.reg_eax.high(0);
-                        Callback.CALLBACK_SCF(false);
-                        return Callback.CBRET_NONE;
-                    }
-                }
-                if (driveInactive(drivenum)) {
-                    CPU_Regs.reg_eax.high(0xff);
-                    Callback.CALLBACK_SCF(true);
-                    return Callback.CBRET_NONE;
-                }
-
-                segat = (int)CPU.Segs_ESval;
+                /*Bit8u*/byte[] sectbuf=null;
+                segat = CPU.Segs_ESval;
                 bufptr = CPU_Regs.reg_ebx.word();
-                for(i=0;i<CPU_Regs.reg_eax.low();i++) {
-                    last_status = imageDiskList[drivenum].Read_Sector((/*Bit32u*/long)CPU_Regs.reg_edx.high(), (/*Bit32u*/long)(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2)), (/*Bit32u*/long)((CPU_Regs.reg_ecx.low() & 63)+i), sectbuf);
-                    if((last_status != 0x00) || (killRead)) {
-                        Log.log_msg("Error in disk read");
-                        killRead = false;
-                        CPU_Regs.reg_eax.high(0x04);
+                int head = CPU_Regs.reg_edx.high();
+                int cylinder = CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2);
+                int sector = (CPU_Regs.reg_ecx.low() & 63);
+
+                if (Bios.boot) {
+                    IDE.IDEState drive = IDE.getDrive(last_drive);
+                    if (drive == null) {
+                        Callback.CALLBACK_SCF(true);
+                        CPU_Regs.reg_eax.high(0xC0);
+                    }
+
+                    long lba = ( (cylinder * drive.heads + head) * drive.sectors ) + sector - 1L;
+                    int count = CPU_Regs.reg_eax.low();
+                    if (drive.drive_kind == IDE.IDE_CD) {
+                        lba*=4;
+                        count*=4;
+                    }
+                    sectbuf = new byte[count*512];
+                    drive.bs.drv.bdrv_read(drive.bs, lba, sectbuf, 0, count);
+                } else {
+                    if (!any_images) {
+                        // Inherit the Earth cdrom (uses it as disk test)
+                        if (((CPU_Regs.reg_edx.low()&0x80)==0x80) && (CPU_Regs.reg_edx.high()==0) && ((CPU_Regs.reg_ecx.low()&0x3f)==1)) {
+                            CPU_Regs.reg_eax.high(0);
+                            Callback.CALLBACK_SCF(false);
+                            return Callback.CBRET_NONE;
+                        }
+                    }
+                    if (driveInactive(drivenum)) {
+                        CPU_Regs.reg_eax.high(0xff);
                         Callback.CALLBACK_SCF(true);
                         return Callback.CBRET_NONE;
                     }
-                    for(t=0;t<512;t++) {
-                        Memory.real_writeb(segat,bufptr,sectbuf[t]);
-                        bufptr++;
+
+                    for(i=0;i<CPU_Regs.reg_eax.low();i++) {
+                        sectbuf=new byte[512];
+                        last_status = imageDiskList[drivenum].Read_Sector(head, cylinder, sector+i, sectbuf);
+                        if((last_status != 0x00) || (killRead)) {
+                            Log.log_msg("Error in disk read");
+                            killRead = false;
+                            CPU_Regs.reg_eax.high(0x04);
+                            Callback.CALLBACK_SCF(true);
+                            return Callback.CBRET_NONE;
+                        }
                     }
+                }
+                for(t=0;t<sectbuf.length;t++) {
+                    Memory.real_writeb(segat,bufptr,sectbuf[t]);
+                    bufptr++;
                 }
                 CPU_Regs.reg_eax.high(0x00);
                 Callback.CALLBACK_SCF(false);
                 break;
+            }
             case 0x3: /* Write sectors */
-
+            {
                 if(driveInactive(drivenum)) {
                     CPU_Regs.reg_eax.high(0xff);
                     Callback.CALLBACK_SCF(true);
                     return Callback.CBRET_NONE;
                 }
 
-
+                segat = CPU.Segs_ESval;
                 bufptr = CPU_Regs.reg_ebx.word();
-                for(i=0;i<CPU_Regs.reg_eax.low();i++) {
-                    for(t=0;t<imageDiskList[drivenum].getSectSize();t++) {
-                        sectbuf[t] = (byte)Memory.real_readb((int)CPU.Segs_ESval,bufptr);
-                        bufptr++;
+                int head = CPU_Regs.reg_edx.high();
+                int cylinder = CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2);
+                int sector = (CPU_Regs.reg_ecx.low() & 63);
+
+                if (Bios.boot) {
+                    IDE.IDEState drive = IDE.getDrive(last_drive);
+                    if (drive == null) {
+                        Callback.CALLBACK_SCF(true);
+                        CPU_Regs.reg_eax.high(0xC0);
                     }
 
-                    last_status = imageDiskList[drivenum].Write_Sector((/*Bit32u*/long)CPU_Regs.reg_edx.high(), (/*Bit32u*/long)(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0) << 2)), (/*Bit32u*/long)((CPU_Regs.reg_ecx.low() & 63) + i), sectbuf);
-                    if(last_status != 0x00) {
-                    Callback.CALLBACK_SCF(true);
-                        return Callback.CBRET_NONE;
+                    long lba = ( (cylinder * drive.heads + head) * drive.sectors ) + sector - 1L;
+                    int count = CPU_Regs.reg_eax.low();
+                    if (drive.drive_kind == IDE.IDE_CD) {
+                        lba*=4;
+                        count*=4;
+                    }
+                    byte[] sectbuf = new byte[count*512];
+                    for(t=0;t<sectbuf.length;t++) {
+                        sectbuf[t] = (byte)Memory.real_readb(CPU.Segs_ESval,bufptr);
+                        bufptr++;
+                    }
+                    drive.bs.drv.bdrv_write(drive.bs, lba, sectbuf, 0, count);
+                } else {
+                    /*Bit8u*/byte[] sectbuf=new byte[512];
+                    for(i=0;i<CPU_Regs.reg_eax.low();i++) {
+                        for(t=0;t<imageDiskList[drivenum].getSectSize();t++) {
+                            sectbuf[t] = (byte)Memory.real_readb(CPU.Segs_ESval,bufptr);
+                            bufptr++;
+                        }
+
+                        last_status = imageDiskList[drivenum].Write_Sector((/*Bit32u*/long)CPU_Regs.reg_edx.high(), (/*Bit32u*/long)(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0) << 2)), (/*Bit32u*/long)((CPU_Regs.reg_ecx.low() & 63) + i), sectbuf);
+                        if(last_status != 0x00) {
+                        Callback.CALLBACK_SCF(true);
+                            return Callback.CBRET_NONE;
+                        }
                     }
                 }
                 CPU_Regs.reg_eax.high(0x00);
                 Callback.CALLBACK_SCF(false);
                 break;
+            }
             case 0x04: /* Verify sectors */
                 if (CPU_Regs.reg_eax.low()==0) {
                     CPU_Regs.reg_eax.high(0x01);
                     Callback.CALLBACK_SCF(true);
                     return Callback.CBRET_NONE;
                 }
-                if(driveInactive(drivenum)) return Callback.CBRET_NONE;
-
+                if (Bios.boot) {
+                    IDE.IDEState drive = IDE.getDrive(last_drive);
+                    if (drive==null) return Callback.CBRET_NONE;
+                } else {
+                    if(driveInactive(drivenum)) return Callback.CBRET_NONE;
+                }
                 /* TODO: Finish coding this section */
     //            segat = SegValue(es);
     //            bufptr = CPU_Regs.reg_ebx.word();
@@ -491,45 +576,178 @@ public class Bios_disk {
 
                 break;
             case 0x08: /* Get drive parameters */
-                if(driveInactive(drivenum)) {
-                    last_status = 0x07;
-                    CPU_Regs.reg_eax.high(last_status);
-                    Callback.CALLBACK_SCF(true);
-                    return Callback.CBRET_NONE;
+            {
+                int heads = 0;
+                int cylinders = 0;
+                int sectors = 0;
+
+                if (Bios.boot) {
+                    IDE.IDEState drive = IDE.getDrive(last_drive);
+                    if (drive==null) {
+                        last_status = 0x07;
+                        CPU_Regs.reg_eax.high(last_status);
+                        Callback.CALLBACK_SCF(true);
+                        return Callback.CBRET_NONE;
+                    }
+                    if (drive.drive_kind == IDE.IDE_CD) {
+                        last_status = 0x01;
+                        CPU_Regs.reg_eax.high(last_status);
+                        Callback.CALLBACK_SCF(true);
+                        return Callback.CBRET_NONE;
+                    }
+                    CPU_Regs.reg_ebx.low(0); // HD
+                    CPU_Regs.reg_edx.low(IDE.getHDCount());
+                    heads = drive.heads;
+                    cylinders = drive.cylinders;
+                    sectors = drive.sectors;
+                } else {
+                    if(driveInactive(drivenum)) {
+                        last_status = 0x07;
+                        CPU_Regs.reg_eax.high(last_status);
+                        Callback.CALLBACK_SCF(true);
+                        return Callback.CBRET_NONE;
+                    }
+                    CPU_Regs.reg_ebx.low(imageDiskList[drivenum].GetBiosType());
+                    /*Bit32u*/LongRef tmpheads=new LongRef(0), tmpcyl=new LongRef(0), tmpsect=new LongRef(0), tmpsize=new LongRef(0);
+                    imageDiskList[drivenum].Get_Geometry(tmpheads, tmpcyl, tmpsect, tmpsize);
+                    heads = (int)tmpheads.value;
+                    cylinders = (int)tmpcyl.value;
+                    sectors = (int)tmpsect.value;
+                    if ((CPU_Regs.reg_edx.low()&0x80)!=0) {	// harddisks
+                        CPU_Regs.reg_edx.low(0);
+                        if(imageDiskList[2] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
+                        if(imageDiskList[3] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
+                    } else {		// floppy disks
+                        CPU_Regs.reg_edx.low(0);
+                        if(imageDiskList[0] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
+                        if(imageDiskList[1] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
+                    }
                 }
-                CPU_Regs.reg_eax.word(0x00);
-                CPU_Regs.reg_ebx.low(imageDiskList[drivenum].GetBiosType());
-                /*Bit32u*/LongRef tmpheads=new LongRef(0), tmpcyl=new LongRef(0), tmpsect=new LongRef(0), tmpsize=new LongRef(0);
-                imageDiskList[drivenum].Get_Geometry(tmpheads, tmpcyl, tmpsect, tmpsize);
-                if (tmpcyl.value==0) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT13 DrivParm: cylinder count zero!");
-                else tmpcyl.value--;		// cylinder count . max cylinder
-                if (tmpheads.value==0) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT13 DrivParm: head count zero!");
-                else tmpheads.value--;	// head count . max head
-                CPU_Regs.reg_ecx.high((/*Bit8u*/int)(tmpcyl.value & 0xff));
-                CPU_Regs.reg_ecx.low((/*Bit8u*/int)(((tmpcyl.value >> 2) & 0xc0) | (tmpsect.value & 0x3f)));
-                CPU_Regs.reg_edx.high((/*Bit8u*/int)tmpheads.value);
+                if (cylinders==0) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT13 DrivParm: cylinder count zero!");
+                else cylinders--;		// cylinder count . max cylinder
+                if (heads==0) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT13 DrivParm: head count zero!");
+                else heads--;	// head count . max head
                 last_status = 0x00;
-                if ((CPU_Regs.reg_edx.low()&0x80)!=0) {	// harddisks
-                    CPU_Regs.reg_edx.low(0);
-                    if(imageDiskList[2] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
-                    if(imageDiskList[3] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
-                } else {		// floppy disks
-                    CPU_Regs.reg_edx.low(0);
-                    if(imageDiskList[0] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
-                    if(imageDiskList[1] != null) CPU_Regs.reg_edx.low((CPU_Regs.reg_edx.low()+1));
-                }
+                CPU_Regs.reg_eax.high(0x00);
+                CPU_Regs.reg_ecx.high(cylinders);
+                CPU_Regs.reg_ecx.low(((cylinders >> 2) & 0xc0) | (sectors & 0x3f));
+                CPU_Regs.reg_edx.high(heads);
                 Callback.CALLBACK_SCF(false);
                 break;
+            }
             case 0x11: /* Recalibrate drive */
                 CPU_Regs.reg_eax.high(0x00);
                 Callback.CALLBACK_SCF(false);
                 break;
+            case 0x15: /* Get Drive Type */
+            {
+                if (Bios.boot) {
+
+                } else {
+                    if(driveInactive(drivenum)) {
+                        last_status = 0x07;
+                        CPU_Regs.reg_eax.high(last_status);
+                        Callback.CALLBACK_SCF(true);
+                        return Callback.CBRET_NONE;
+                    }
+                    /*Bit32u*/LongRef tmpheads=new LongRef(0), tmpcyl=new LongRef(0), tmpsect=new LongRef(0), tmpsize=new LongRef(0);
+                    imageDiskList[drivenum].Get_Geometry(tmpheads, tmpcyl, tmpsect, tmpsize);
+                    CPU_Regs.reg_eax.high(3); // HDD
+                    CPU_Regs.reg_edx.word((int)tmpsect.value);
+                    CPU_Regs.reg_ecx.word((int)(tmpsect.value >>> 16));
+                }
+                Callback.CALLBACK_SCF(false);
+                break;
+            }
             case 0x17: /* Set disk type for format */
                 /* Pirates! needs this to load */
                 killRead = true;
                 CPU_Regs.reg_eax.high(0x00);
                 Callback.CALLBACK_SCF(false);
                 break;
+            case 0x41: // Extensions - INSTALLATION CHECK
+                CPU_Regs.reg_eax.high(0x01);
+                CPU_Regs.reg_ebx.word(0x55AA);
+                Callback.CALLBACK_SCF(false);
+                break;
+            case 0x42: // needed by NT 4.0 boot disk
+            {
+                bufptr = CPU_Regs.reg_esi.word();
+                int packetSize = Memory.real_readb(CPU.Segs_DSval, bufptr);
+                int reserved = Memory.real_readb(CPU.Segs_DSval, bufptr + 1);
+                int count = Memory.real_readw(CPU.Segs_DSval, bufptr + 2);
+                int data = Memory.real_readw(CPU.Segs_DSval, bufptr + 4);
+                int seg = Memory.real_readw(CPU.Segs_DSval, bufptr + 6);
+                long lba = Memory.real_readd(CPU.Segs_DSval, bufptr + 8) | (Memory.real_readd(CPU.Segs_DSval,bufptr+8) << 32);
+                if (count>0) {
+                    IDE.IDEState drive = IDE.getDrive(last_drive);
+                    if (drive == null) {
+                        Callback.CALLBACK_SCF(true);
+                        CPU_Regs.reg_eax.high(0xC0);
+                    }
+                    if (drive.drive_kind == IDE.IDE_CD) {
+                        lba*=4;
+                        count*=4;
+                    }
+                    byte[] buf = new byte[count*512];
+                    drive.bs.drv.bdrv_read(drive.bs, lba, buf, 0, count);
+                    for (int j=0;j<buf.length;j++) {
+                        Memory.real_writeb(seg, data + j, buf[j]);
+                    }
+                }
+                Callback.CALLBACK_SCF(false);
+                CPU_Regs.reg_eax.high(0);
+                break;
+            }
+            case 0x48: // GET DRIVE PARAMETERS
+            {
+                IDE.IDEState drive = IDE.getDrive(last_drive);
+                if (drive == null) {
+                    Callback.CALLBACK_SCF(true);
+                    CPU_Regs.reg_eax.high(0xFF);
+                    break;
+                }
+                Memory.real_writew(CPU.Segs_DSval, CPU_Regs.reg_esi.word(), 26); // structure size
+                if (drive.drive_kind == IDE.IDE_CD) {
+                    Memory.real_writew(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+2, 0x74); // info
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word() + 4, 0xFFFFFFFF); // cylinders
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+8, 0xFFFFFFFF); // heads
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+12, 0xFFFFFFFF); // sectors
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+16, 0xFFFFFFFF); // totals sectors low
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+20, 0xFFFFFFFF); // totals sectors high
+                    Memory.real_writew(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+24, 2048); // bytes per sector
+                } else {
+                    Memory.real_writew(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+2, 0x02); // geometry is valid
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+4, drive.cylinders); // cylinders
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+8, drive.heads); // heads
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+12, drive.sectors); // sectors
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+16, (int)drive.nb_sectors); // totals sectors low
+                    Memory.real_writed(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+20, (int)(drive.nb_sectors >>> 32)); // totals sectors high
+                    Memory.real_writew(CPU.Segs_DSval, CPU_Regs.reg_esi.word() + 24, 512); // bytes per sector
+                }
+                Callback.CALLBACK_SCF(false);
+                CPU_Regs.reg_eax.high(0);
+                break;
+            }
+            case 0x4b: {
+                if (CPU_Regs.reg_eax.low()==0) { // Bootable CD-ROM - TERMINATE DISK EMULATION
+                    // DL = drive number or 7Fh to terminate all emulations
+                    Callback.CALLBACK_SCF(false);
+                    CPU_Regs.reg_eax.high(0);
+                } else if (CPU_Regs.reg_eax.low()==1) { // Bootable CD-ROM - GET STATUS
+                    IDE.IDEState drive = IDE.getDrive(last_drive);
+                    if (drive == null || drive.drive_kind != IDE.IDE_CD) {
+                        Callback.CALLBACK_SCF(true);
+                        CPU_Regs.reg_eax.high(0xFF);
+                    } else {
+                        Callback.CALLBACK_SCF(false);
+                        CPU_Regs.reg_eax.high(0);
+
+                        Memory.real_writeb(CPU.Segs_DSval, CPU_Regs.reg_esi.word()+2, 0x81);
+                    }
+                }
+                break;
+            }
             default:
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"INT13: Function "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" called on drive "+Integer.toString(CPU_Regs.reg_edx.low(), 16)+" (dos drive "+drivenum+")");
                 CPU_Regs.reg_eax.high(0xff);

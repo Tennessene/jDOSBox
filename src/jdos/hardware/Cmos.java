@@ -185,8 +185,8 @@ public class Cmos extends Module_base {
             /* First harddrive info */
             case 0x12:
                 hdparm = 0;
-                if(Bios_disk.imageDiskList[2] != null) hdparm |= 0xf;
-                if(Bios_disk.imageDiskList[3] != null) hdparm |= 0xf0;
+                if(Bios_disk.imageDiskList[3] != null) hdparm |= 0xf;
+                if(Bios_disk.imageDiskList[2] != null) hdparm |= 0xf0;
                 return hdparm;
             case 0x19:
                 if(Bios_disk.imageDiskList[2] != null) return 47; /* User defined type */
@@ -207,7 +207,7 @@ public class Cmos extends Module_base {
                 if(Bios_disk.imageDiskList[2] != null) return 0xff;
                 return 0;
             case 0x20:
-                if(Bios_disk.imageDiskList[2] != null) return (int)(0xc0 | (((Bios_disk.imageDiskList[2].heads) > 8)?1:0 << 3));
+                if(Bios_disk.imageDiskList[2] != null) return (int)(0xc0 | ((((Bios_disk.imageDiskList[2].heads) > 8)?1:0) << 3));
                 return 0;
             case 0x21:
                 if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].cylinders & 0xff);
@@ -253,8 +253,8 @@ public class Cmos extends Module_base {
                 return 0;
             case 0x3a:
                 return 0;
-
-
+            case 0x37: // Password Seed and Color Option
+                return 0x20;
             case 0x0b:		/* Status register B */
             case 0x0d:		/* Status register D */
             case 0x0f:		/* Shutdown status byte */

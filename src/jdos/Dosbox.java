@@ -14,6 +14,7 @@ import jdos.gui.Mapper;
 import jdos.gui.Midi;
 import jdos.gui.Render;
 import jdos.hardware.*;
+import jdos.hardware.ide.IDE;
 import jdos.hardware.serialport.Serialports;
 import jdos.ints.*;
 import jdos.misc.Log;
@@ -68,8 +69,8 @@ public class Dosbox {
                         if (ret >= Callback.CB_MAX) return 0;
                         try {
                             Callback.inHandler++;
-                            //if (ret != 15 && ret !=7 && ret != 19)
-                            //   System.out.println(Callback.CallBack_Handlers[ret].getName());
+//                            if (ret != 15 && ret !=7 && ret != 19 && ret != 16)
+//                               System.out.println(Callback.CallBack_Handlers[ret].getName());
                             /*Bitu*/int blah=Callback.CallBack_Handlers[ret].call();
                             if (blah!=0) return blah;
                         } catch(PageFaultException e) {
@@ -690,6 +691,24 @@ public class Dosbox {
             Pbool = secprop.Add_bool("ipx",Property.Changeable.WhenIdle, false);
             Pbool.Set_help("Enable ipx over UDP/IP emulation.");
         }
+        
+        /* IDE emulation options and setup */
+        secprop=control.AddSection_prop("ide, primary", IDE.IDE_Primary_Init,false);//done
+        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
+        Pbool.Set_help("Enable IDE interface");
+    
+        secprop=control.AddSection_prop("ide, secondary",IDE.IDE_Secondary_Init,false);//done
+        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
+        Pbool.Set_help("Enable IDE interface");
+    
+        secprop=control.AddSection_prop("ide, tertiary",IDE.IDE_Tertiary_Init,false);//done
+        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
+        Pbool.Set_help("Enable IDE interface");
+    
+        secprop=control.AddSection_prop("ide, quaternary",IDE.IDE_Quaternary_Init,false);//done
+        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
+        Pbool.Set_help("Enable IDE interface");
+        
         if (Config.C_NE2000) {
 
 	        Pstring = secprop.Add_string("ne2000",Property.Changeable.WhenIdle,"false");

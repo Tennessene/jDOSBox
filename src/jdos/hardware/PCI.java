@@ -2,6 +2,7 @@ package jdos.hardware;
 
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
+import jdos.hardware.pci.PCIHostBridge;
 import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
@@ -25,7 +26,7 @@ public class PCI extends Module_base {
 	    return 0;
     }
 
-    public abstract class PCI_Device {
+    static public abstract class PCI_Device {
         private /*Bits*/int pci_id, pci_subfunction;
         private /*Bit16u*/int vendor_id, device_id;
 
@@ -286,7 +287,7 @@ public class PCI extends Module_base {
     private static int num_rqueued_devices=0;
     private static PCI_Device[] rqueued_devices = new PCI_Device[max_rqueued_devices];
 
-    static private PCI pci_interface=null;
+    static public PCI pci_interface=null;
 
 	private boolean initialized;
 
@@ -468,6 +469,7 @@ public class PCI extends Module_base {
     public static Section.SectionFunction PCI_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             pci_interface = new PCI(sec);
+            new PCIHostBridge();
             sec.AddDestroyFunction(PCI_ShutDown,false);
         }
     };

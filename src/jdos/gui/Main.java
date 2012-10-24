@@ -102,7 +102,7 @@ public class Main {
         public boolean hasfocus;
     }
     static private class ShutdownException extends RuntimeException{}
-    static private class KillException extends RuntimeException{}
+    static public class KillException extends RuntimeException{}
 
     static public void GFX_Events() {
         while (events.size()>0) {

@@ -9,6 +9,9 @@ import jdos.dos.drives.Drive_iso;
 import jdos.dos.drives.Drive_local;
 import jdos.dos.drives.Drive_local_cdrom;
 import jdos.hardware.Memory;
+import jdos.hardware.ide.Block;
+import jdos.hardware.ide.IDE;
+import jdos.ints.Bios;
 import jdos.ints.Bios_disk;
 import jdos.misc.Cross;
 import jdos.misc.Log;
@@ -588,13 +591,41 @@ public class Dos_programs {
             Bios_disk.swapPosition = 0;
             Bios_disk.swapInDisks();
 
-            if(Bios_disk.imageDiskList[drive-65]==null) {
+            Block.BlockDriverState cdrom = IDE.getFirstCdrom();
+            if(Bios_disk.imageDiskList[drive-65]==null && cdrom == null) {
                 WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
                 return;
             }
-
+            int eip = 0x7c00;
             bootSector bootarea = new bootSector();
-            Bios_disk.imageDiskList[drive-65].Read_Sector(0,0,1,bootarea.rawdata);
+            if (cdrom != null) {
+                boolean found = false;
+                cdrom.drv.bdrv_read(cdrom, 0x11*4, bootarea.rawdata, 0, 1);
+                String label = "CD001\001EL TORITO SPECIFICATION";
+                if (bootarea.rawdata[0]==0 && new String(bootarea.rawdata, 1, label.length()).equals(label)) {
+                    int lba = IDE.readd(bootarea.rawdata, 0x47);
+                    cdrom.drv.bdrv_read(cdrom, lba*4, bootarea.rawdata, 0, 1);
+                    if (bootarea.rawdata[0] == 1 && bootarea.rawdata[1] == 0 && bootarea.rawdata[0x1E] == 0x55 && bootarea.rawdata[0x1F] == (byte)0xAA && bootarea.rawdata[0x20] == (byte)0x88) {
+                        int media = bootarea.rawdata[0x21];
+                        if (media == 0) {
+                            int bootSegment = IDE.readw(bootarea.rawdata, 0x22);
+                            if (bootSegment!=0)
+                                eip = bootSegment;
+                            lba = IDE.readd(bootarea.rawdata, 0x28);
+                            int count = IDE.readw(bootarea.rawdata, 0x26);
+                            bootarea.rawdata = new byte[2048*count];
+                            cdrom.drv.bdrv_read(cdrom, lba*4, bootarea.rawdata, 0, count);
+                            found = true;
+                        }
+                    }
+                }
+                if (!found) {
+                    WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
+                    return;
+                }
+            } else {
+                Bios_disk.imageDiskList[drive-65].Read_Sector(0,0,1,bootarea.rawdata);
+            }
             if ((bootarea.rawdata[0]==0x50) && (bootarea.rawdata[1]==0x43) && (bootarea.rawdata[2]==0x6a) && (bootarea.rawdata[3]==0x72)) {
                 if (Dosbox.machine!=MachineType.MCH_PCJR) WriteOut(Msg.get("PROGRAM_BOOT_CART_WO_PCJR"));
                 else {
@@ -760,14 +791,14 @@ public class Dos_programs {
                 disable_umb_ems_xms();
                 Memory.RemoveEMSPageFrame();
                 WriteOut(Msg.get("PROGRAM_BOOT_BOOT"), new Object[] {new Character(drive)});
-                for(i=0;i<512;i++) Memory.real_writeb(0, 0x7c00 + i, bootarea.rawdata[i]);
+                for(i=0;i<bootarea.rawdata.length;i++) Memory.real_writeb(0, 0x7c00 + i, bootarea.rawdata[i]);
 
                 /* revector some dos-allocated interrupts */
                 Memory.real_writed(0,0x01*4,0xf000ff53);
                 Memory.real_writed(0,0x03*4,0xf000ff53);
 
                 CPU_Regs.SegSet16CS(0);
-                CPU_Regs.reg_eip = 0x7c00;
+                CPU_Regs.reg_eip = eip;
                 CPU_Regs.SegSet16DS(0);
                 CPU_Regs.SegSet16ES(0);
                 /* set up stack at a safe place */
@@ -777,8 +808,18 @@ public class Dos_programs {
                 CPU_Regs.reg_ecx.dword=1;
                 CPU_Regs.reg_ebp.dword=0;
                 CPU_Regs.reg_eax.dword=0;
-                CPU_Regs.reg_edx.dword=0; //Head 0 drive 0
+                CPU_Regs.reg_edx.dword=0;
+
+                if (cdrom!=null) {
+                    CPU_Regs.reg_eax.word(0xAA55);
+                }
+                CPU_Regs.reg_edx.low(0x80+drive-'C');
+//                Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
+//                CPU.cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
+//                DecodeBlock.start = 1;
+
                 CPU_Regs.reg_ebx.dword=0x7c00; //Real code probably uses bx to load the image
+                Bios.boot = true;
             }
         }
     }
@@ -1031,11 +1072,19 @@ public class Dos_programs {
             }
 
 
+            BooleanRef ide_slave = new BooleanRef(false);
+		    IntRef ide_index = new IntRef(-1);
+		    String ideattach;
             String type;
             String fstype;
+
             type = cmd.FindString("-t",true);
             if (type == null) type = "hdd";
             else type = type.toLowerCase();
+
+            ideattach = cmd.FindString("-ide",true);
+            if (ideattach == null) ideattach = "auto";
+            else ideattach = type.toLowerCase();
 
             fstype = cmd.FindString("-fs",true);
             if (fstype == null) fstype = "fat";
@@ -1048,6 +1097,16 @@ public class Dos_programs {
 
                 String str_size="";
                 mediaid=0xF8;
+
+                if (ideattach.equals("auto")) {
+                    IDE.IDE_Auto(ide_index, ide_slave);
+                    System.out.println("IDE: index "+ide_index.value+" slave="+ide_slave.value);
+                } else if (!ideattach.equals("none") && ideattach.length()>0 && Character.isDigit(ideattach.charAt(0))) {
+                    ide_index.value = ideattach.charAt(0)-'1';
+                    if (ideattach.length()>1 && ideattach.charAt(1)=='s')
+                        ide_slave.value = true;
+                    System.out.println("IDE: index "+ide_index.value+" slave="+ide_slave.value);
+                }
 
                 if (type.equals("floppy")) {
                     mediaid=0xF0;
@@ -1263,11 +1322,15 @@ public class Dos_programs {
                 if (((Drive_fat)newdrive).loadedDisk.hardDrive) {
                     if (Bios_disk.imageDiskList[2] == null) {
                         Bios_disk.imageDiskList[2] = ((Drive_fat)newdrive).loadedDisk;
+                        Bios_disk.imageDisk imageDisk = Bios_disk.imageDiskList[2];
+                        if (ide_index.value >= 0) IDE.IDE_Attach(false, ide_index.value, ide_slave.value, imageDisk.diskimg, (int) imageDisk.cylinders, (int) imageDisk.heads, (int) imageDisk.sectors);
                         Bios_disk.updateDPT();
                         return;
                     }
                     if (Bios_disk.imageDiskList[3] == null) {
                         Bios_disk.imageDiskList[3] = ((Drive_fat)newdrive).loadedDisk;
+                        Bios_disk.imageDisk imageDisk = Bios_disk.imageDiskList[3];
+                        if (ide_index.value >= 0) IDE.IDE_Attach(false, ide_index.value, ide_slave.value, imageDisk.diskimg, (int) imageDisk.cylinders, (int) imageDisk.heads, (int) imageDisk.sectors);
                         Bios_disk.updateDPT();
                         return;
                     }
@@ -1316,6 +1379,15 @@ public class Dos_programs {
                 // Set the correct media byte in the table
                 Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
 
+                // If instructed, attach to IDE controller as ATAPI CD-ROM device
+			    if (ide_index.value >= 0) {
+                    try  {
+                        IDE.IDE_Attach(true, ide_index.value,ide_slave.value, FileIOFactory.open((String)paths.elementAt(0), FileIOFactory.MODE_READ), 0, 0 , 0);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 // Print status message (success)
                 WriteOut(Msg.get("MSCDEX_SUCCESS"));
                 String tmp = (String)paths.elementAt(0);
@@ -1329,6 +1401,8 @@ public class Dos_programs {
                 Bios_disk.imageDiskList[drive-'0'] = newImage;
                 Bios_disk.updateDPT();
                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_MOUNT_NUMBER"),new Object[]{new Integer(drive-'0'),temp_line});
+                // If instructed, attach to IDE controller as ATA hard disk
+			    if (ide_index.value >= 0) IDE.IDE_Attach(false, ide_index.value,ide_slave.value, newImage.diskimg, (int)newImage.cylinders, (int)newImage.heads, (int)newImage.sectors);
             }
 
             // check if volume label is given. becareful for cdrom

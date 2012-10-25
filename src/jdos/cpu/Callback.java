@@ -626,28 +626,31 @@ public class Callback {
 
             /* Only setup default handler for first part of interrupt table */
             for (/*Bit16u*/int ct=0;ct<0x60;ct++) {
-                Memory.real_writed(0,ct*4,CALLBACK_RealPointer(call_default));
+                // :TODO: why does Dosbox write these large addresses into the IVT.  NT 4.0 will read
+                // :TODO: that address and page fault with blue screen of death
+                // Memory.real_writed(0,ct*4,CALLBACK_RealPointer(call_default));
+                Memory.phys_writed(ct*4,CALLBACK_PhysPointer(call_default));
             }
-            for (/*Bit16u*/int ct=0x68;ct<0x70;ct++) {
-                Memory.real_writed(0,ct*4,CALLBACK_RealPointer(call_default));
+            for (/*Bit16u*/int ct=0x66;ct<0x70;ct++) {
+                Memory.phys_writed(ct*4,CALLBACK_PhysPointer(call_default));
             }
             /* Setup block of 0xCD 0xxx instructions */
             /*PhysPt*/int rint_base=CALLBACK_GetBase()+CB_MAX*CB_SIZE;
             for (i=0;i<=0xff;i++) {
-                Memory.phys_writeb((int)rint_base,0xCD);
-                Memory.phys_writeb((int)(rint_base+1),i);
-                Memory.phys_writeb((int)(rint_base+2),0xFE);
-                Memory.phys_writeb((int)(rint_base+3),0x38);
-                Memory.phys_writew((int)(rint_base+4),call_stop);
+                Memory.phys_writeb(rint_base,0xCD);
+                Memory.phys_writeb(rint_base+1,i);
+                Memory.phys_writeb(rint_base+2,0xFE);
+                Memory.phys_writeb(rint_base+3,0x38);
+                Memory.phys_writew(rint_base+4,call_stop);
                 rint_base+=6;
 
             }
             // setup a few interrupt handlers that point to bios IRETs by default
-            Memory.real_writed(0,0x0e*4,CALLBACK_RealPointer(call_default2));	//design your own railroad
-            Memory.real_writed(0,0x66*4,CALLBACK_RealPointer(call_default));	//war2d
-            Memory.real_writed(0,0x67*4,CALLBACK_RealPointer(call_default));
-            Memory.real_writed(0,0x68*4,CALLBACK_RealPointer(call_default));
-            Memory.real_writed(0,0x5c*4,CALLBACK_RealPointer(call_default));	//Network stuff
+            //Memory.real_writed(0,0x0e*4,CALLBACK_RealPointer(call_default2));	//design your own railroad
+            //Memory.real_writed(0,0x66*4,CALLBACK_RealPointer(call_default));	//war2d
+            //Memory.real_writed(0,0x67*4,CALLBACK_RealPointer(call_default));
+            //Memory.real_writed(0,0x68*4,CALLBACK_RealPointer(call_default));
+            //Memory.real_writed(0,0x5c*4,CALLBACK_RealPointer(call_default));	//Network stuff
             //real_writed(0,0xf*4,0); some games don't like it
 
             call_priv_io=CALLBACK_Allocate();

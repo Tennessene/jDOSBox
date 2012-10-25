@@ -813,7 +813,10 @@ public class Dos_programs {
                 if (cdrom!=null) {
                     CPU_Regs.reg_eax.word(0xAA55);
                 }
-                CPU_Regs.reg_edx.low(0x80+drive-'C');
+                if (drive>='C')
+                    CPU_Regs.reg_edx.low(0x80+drive-'C');
+                else
+                    CPU_Regs.reg_edx.low(drive-'A');
 //                Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
 //                CPU.cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
 //                DecodeBlock.start = 1;
@@ -1402,7 +1405,7 @@ public class Dos_programs {
                 Bios_disk.updateDPT();
                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_MOUNT_NUMBER"),new Object[]{new Integer(drive-'0'),temp_line});
                 // If instructed, attach to IDE controller as ATA hard disk
-			    if (ide_index.value >= 0) IDE.IDE_Attach(false, ide_index.value,ide_slave.value, newImage.diskimg, (int)newImage.cylinders, (int)newImage.heads, (int)newImage.sectors);
+			    if (ide_index.value >= 0 && drive>='2') IDE.IDE_Attach(false, ide_index.value,ide_slave.value, newImage.diskimg, (int)newImage.cylinders, (int)newImage.heads, (int)newImage.sectors);
             }
 
             // check if volume label is given. becareful for cdrom

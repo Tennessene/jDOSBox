@@ -374,7 +374,7 @@ public class Bios_disk {
             return "Bios.INT13_DiskHandler "+Integer.toHexString(CPU_Regs.reg_edx.low())+"h 0x"+Integer.toHexString(CPU_Regs.reg_eax.high())+result;
         }
         public /*Bitu*/int call() {
-            /*Bit16u*/int segat, bufptr;
+            /*Bit16u*/int bufptr;
             /*Bitu*/int  drivenum=0;
             /*Bitu*/int  i,t;
             last_drive = CPU_Regs.reg_edx.low();
@@ -398,7 +398,7 @@ public class Bios_disk {
                      * always succeed on reset disk. If there are diskimages then and only then
                      * do real checks
                      */
-                    if (any_images && driveInactive(drivenum)) {
+                    if (any_images && (driveInactive(drivenum))) {
                         /* driveInactive sets carry flag if the specified drive is not available */
                         if ((Dosbox.machine== MachineType.MCH_CGA) || (Dosbox.machine==MachineType.MCH_PCJR)) {
                             /* those bioses call floppy drive reset for invalid drive values */
@@ -433,17 +433,17 @@ public class Bios_disk {
                     return Callback.CBRET_NONE;
                 }
                 /*Bit8u*/byte[] sectbuf=null;
-                segat = CPU.Segs_ESval;
                 bufptr = CPU_Regs.reg_ebx.word();
                 int head = CPU_Regs.reg_edx.high();
                 int cylinder = CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2);
                 int sector = (CPU_Regs.reg_ecx.low() & 63);
 
-                if (Bios.boot) {
+                if (Bios.boot && drivenum>=2) {
                     IDE.IDEState drive = IDE.getDrive(last_drive);
                     if (drive == null) {
                         Callback.CALLBACK_SCF(true);
                         CPU_Regs.reg_eax.high(0xC0);
+                        return Callback.CBRET_NONE;
                     }
 
                     long lba = ( (cylinder * drive.heads + head) * drive.sectors ) + sector - 1L;
@@ -454,6 +454,10 @@ public class Bios_disk {
                     }
                     sectbuf = new byte[count*512];
                     drive.bs.drv.bdrv_read(drive.bs, lba, sectbuf, 0, count);
+                    for(t=0;t<sectbuf.length;t++) {
+                        Memory.real_writeb(CPU.Segs_ESval,bufptr,sectbuf[t]);
+                        bufptr++;
+                    }
                 } else {
                     if (!any_images) {
                         // Inherit the Earth cdrom (uses it as disk test)
@@ -469,8 +473,8 @@ public class Bios_disk {
                         return Callback.CBRET_NONE;
                     }
 
+                    sectbuf=new byte[512];
                     for(i=0;i<CPU_Regs.reg_eax.low();i++) {
-                        sectbuf=new byte[512];
                         last_status = imageDiskList[drivenum].Read_Sector(head, cylinder, sector+i, sectbuf);
                         if((last_status != 0x00) || (killRead)) {
                             Log.log_msg("Error in disk read");
@@ -479,11 +483,11 @@ public class Bios_disk {
                             Callback.CALLBACK_SCF(true);
                             return Callback.CBRET_NONE;
                         }
+                        for(t=0;t<sectbuf.length;t++) {
+                            Memory.real_writeb(CPU.Segs_ESval,bufptr,sectbuf[t]);
+                            bufptr++;
+                        }
                     }
-                }
-                for(t=0;t<sectbuf.length;t++) {
-                    Memory.real_writeb(segat,bufptr,sectbuf[t]);
-                    bufptr++;
                 }
                 CPU_Regs.reg_eax.high(0x00);
                 Callback.CALLBACK_SCF(false);
@@ -497,17 +501,17 @@ public class Bios_disk {
                     return Callback.CBRET_NONE;
                 }
 
-                segat = CPU.Segs_ESval;
                 bufptr = CPU_Regs.reg_ebx.word();
                 int head = CPU_Regs.reg_edx.high();
                 int cylinder = CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2);
                 int sector = (CPU_Regs.reg_ecx.low() & 63);
 
-                if (Bios.boot) {
+                if (Bios.boot && drivenum>=2) {
                     IDE.IDEState drive = IDE.getDrive(last_drive);
                     if (drive == null) {
                         Callback.CALLBACK_SCF(true);
                         CPU_Regs.reg_eax.high(0xC0);
+                        return Callback.CBRET_NONE;
                     }
 
                     long lba = ( (cylinder * drive.heads + head) * drive.sectors ) + sector - 1L;
@@ -547,7 +551,7 @@ public class Bios_disk {
                     Callback.CALLBACK_SCF(true);
                     return Callback.CBRET_NONE;
                 }
-                if (Bios.boot) {
+                if (Bios.boot && drivenum>=2) {
                     IDE.IDEState drive = IDE.getDrive(last_drive);
                     if (drive==null) return Callback.CBRET_NONE;
                 } else {
@@ -581,7 +585,7 @@ public class Bios_disk {
                 int cylinders = 0;
                 int sectors = 0;
 
-                if (Bios.boot) {
+                if (Bios.boot && drivenum>=2) {
                     IDE.IDEState drive = IDE.getDrive(last_drive);
                     if (drive==null) {
                         last_status = 0x07;
@@ -641,7 +645,7 @@ public class Bios_disk {
                 break;
             case 0x15: /* Get Drive Type */
             {
-                if (Bios.boot) {
+                if (false && Bios.boot) {
 
                 } else {
                     if(driveInactive(drivenum)) {
@@ -665,11 +669,11 @@ public class Bios_disk {
                 CPU_Regs.reg_eax.high(0x00);
                 Callback.CALLBACK_SCF(false);
                 break;
-            case 0x41: // Extensions - INSTALLATION CHECK
-                CPU_Regs.reg_eax.high(0x01);
-                CPU_Regs.reg_ebx.word(0x55AA);
-                Callback.CALLBACK_SCF(false);
-                break;
+//            case 0x41: // Extensions - INSTALLATION CHECK
+//                CPU_Regs.reg_eax.high(0x01);
+//                CPU_Regs.reg_ebx.word(0x55AA);
+//                Callback.CALLBACK_SCF(false);
+//                break;
             case 0x42: // needed by NT 4.0 boot disk
             {
                 bufptr = CPU_Regs.reg_esi.word();

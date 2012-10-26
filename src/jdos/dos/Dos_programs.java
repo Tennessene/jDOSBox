@@ -8,6 +8,9 @@ import jdos.dos.drives.Drive_fat;
 import jdos.dos.drives.Drive_iso;
 import jdos.dos.drives.Drive_local;
 import jdos.dos.drives.Drive_local_cdrom;
+import jdos.gui.Main;
+import jdos.hardware.Cmos;
+import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
 import jdos.hardware.ide.Block;
 import jdos.hardware.ide.IDE;
@@ -26,6 +29,7 @@ import jdos.types.MachineType;
 import jdos.util.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Vector;
 
 public class Dos_programs {
@@ -529,13 +533,19 @@ public class Dos_programs {
             LongRef rombytesize_2 = new LongRef(0);
             char drive = 'A';
             String cart_cmd="";
-
+            String bochs = null;
             if(cmd.GetCount()==0) {
                 printError();
                 return;
             }
             while(i<cmd.GetCount()) {
                 if ((temp_line=cmd.FindCommand(i+1))!=null) {
+                    if (temp_line.equalsIgnoreCase("-bochs")) {
+                        if ((temp_line=cmd.FindCommand(i+1))!=null) {
+                           bochs=temp_line.toUpperCase();
+                        }
+                        break;
+                    }
                     if (temp_line.equalsIgnoreCase("-l")) {
                         /* Specifying drive... next argument then is the drive */
                         i++;
@@ -591,13 +601,24 @@ public class Dos_programs {
             Bios_disk.swapPosition = 0;
             Bios_disk.swapInDisks();
 
-            Block.BlockDriverState cdrom = IDE.getFirstCdrom();
-            if(Bios_disk.imageDiskList[drive-65]==null && cdrom == null) {
+            if (bochs != null) {
+                if (bochs.startsWith("CD")) {
+                    Block.BlockDriverState cdrom = IDE.getFirstCdrom();
+                    if (cdrom == null) {
+                        WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
+                        return;
+                    }
+                }
+            } else if(Bios_disk.imageDiskList[drive-65]==null) {
                 WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
                 return;
             }
             int eip = 0x7c00;
             bootSector bootarea = new bootSector();
+
+
+            // This is a working progress to get CD booting to work with Dosbox's bios
+            /*
             if (cdrom != null) {
                 boolean found = false;
                 cdrom.drv.bdrv_read(cdrom, 0x11*4, bootarea.rawdata, 0, 1);
@@ -623,7 +644,8 @@ public class Dos_programs {
                     WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
                     return;
                 }
-            } else {
+            } else */
+            if (bochs == null) {
                 Bios_disk.imageDiskList[drive-65].Read_Sector(0,0,1,bootarea.rawdata);
             }
             if ((bootarea.rawdata[0]==0x50) && (bootarea.rawdata[1]==0x43) && (bootarea.rawdata[2]==0x6a) && (bootarea.rawdata[3]==0x72)) {
@@ -762,7 +784,6 @@ public class Dos_programs {
                         }
                     }
 
-
                     if (cart_cmd.length()==0) {
                         int old_int18=Memory.mem_readd(0x60);
                         /* run cartridge setup */
@@ -791,11 +812,77 @@ public class Dos_programs {
                 disable_umb_ems_xms();
                 Memory.RemoveEMSPageFrame();
                 WriteOut(Msg.get("PROGRAM_BOOT_BOOT"), new Object[] {new Character(drive)});
-                for(i=0;i<bootarea.rawdata.length;i++) Memory.real_writeb(0, 0x7c00 + i, bootarea.rawdata[i]);
 
                 /* revector some dos-allocated interrupts */
                 Memory.real_writed(0,0x01*4,0xf000ff53);
                 Memory.real_writed(0,0x03*4,0xf000ff53);
+
+                if (bochs != null) {
+                    try {
+                        FileInputStream fis = new FileInputStream("bios.bin");
+                        byte[] data = new byte[fis.available()];
+                        fis.read(data);
+                        int address = 0x100000 - data.length;
+                        for(i=0;i<data.length;i++) Memory.host_writeb(address + i, data[i]);
+                        fis.close();
+
+                        FileInputStream videofis = new FileInputStream("vgabios.bin");
+                        byte[] videoData = new byte[videofis.available()];
+                        videofis.read(videoData);
+                        address = 0xC0000;
+                        for(i=0;i<videoData.length;i++) Memory.host_writeb(address + i, videoData[i]);
+
+                        int endLoadAddress = (int) (0x100000000l - data.length);
+                        Memory.MEM_AddROM(endLoadAddress >>> 12, data.length >>> 12, data);
+                        CPU_Regs.reg_eip = 0xFFF0;
+                        CPU_Regs.SegSet16CS(0xF000);
+                        CPU_Regs.SegSet16DS(0);
+                        CPU_Regs.SegSet16ES(0);
+                        CPU_Regs.SegSet16SS(0);
+                        CPU_Regs.SegSet16FS(0);
+                        CPU_Regs.SegSet16GS(0);
+                        CPU_Regs.reg_edx.dword = 0x00000633; // Pentium II Model 3 Stepping 3
+
+                        IoHandler.IO_WriteHandler bios_write  = new IoHandler.IO_WriteHandler() {
+                            public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+                                if (port == 0x8900)
+                                    throw new Main.KillException();
+                                if (port == 0x402 || port == 0x403) {
+                                    System.out.print((char)val);
+                                } else if (port == 0x401 || port == 0x402) {
+                                    System.out.println("panic in rombios.c at line "+val);
+                                }
+                            }
+                        };
+                        new IoHandler.IO_WriteHandleObject().Install(0x400, bios_write, IoHandler.IO_MA);
+                        new IoHandler.IO_WriteHandleObject().Install(0x401, bios_write, IoHandler.IO_MA);
+                        new IoHandler.IO_WriteHandleObject().Install(0x402, bios_write, IoHandler.IO_MA);
+                        new IoHandler.IO_WriteHandleObject().Install(0x403, bios_write, IoHandler.IO_MA);
+                        new IoHandler.IO_WriteHandleObject().Install(0x8900, bios_write, IoHandler.IO_MA);
+                        IoHandler.IO_WriteHandler vga_write  = new IoHandler.IO_WriteHandler() {
+                            public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+                                if (port == 0x500 || port == 0x503) {
+                                    System.out.print((char)val);
+                                } else if (port == 0x501 || port == 0x502) {
+                                    System.out.println("panic in vgabios at line "+val);
+                                }
+                            }
+                        };
+                        new IoHandler.IO_WriteHandleObject().Install(0x500, vga_write, IoHandler.IO_MA);
+                        new IoHandler.IO_WriteHandleObject().Install(0x503, vga_write, IoHandler.IO_MA);
+                        new IoHandler.IO_WriteHandleObject().Install(0x501, vga_write, IoHandler.IO_MA);
+                        new IoHandler.IO_WriteHandleObject().Install(0x502, vga_write, IoHandler.IO_MA);
+                        Cmos.CMOS_SetRegister(0x14, (byte)7);
+                        //Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
+                        //CPU.cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
+                        //DecodeBlock.start=1;
+                        return;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                }
+                for(i=0;i<bootarea.rawdata.length;i++) Memory.real_writeb(0, 0x7c00 + i, bootarea.rawdata[i]);
 
                 CPU_Regs.SegSet16CS(0);
                 CPU_Regs.reg_eip = eip;
@@ -810,9 +897,11 @@ public class Dos_programs {
                 CPU_Regs.reg_eax.dword=0;
                 CPU_Regs.reg_edx.dword=0;
 
+                /*
                 if (cdrom!=null) {
                     CPU_Regs.reg_eax.word(0xAA55);
                 }
+                */
                 if (drive>='C')
                     CPU_Regs.reg_edx.low(0x80+drive-'C');
                 else

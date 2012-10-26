@@ -17,6 +17,7 @@ import jdos.util.Ptr;
 import jdos.util.StringHelper;
 
 import java.util.Arrays;
+import java.util.Vector;
 
 public class Memory extends Module_base {
     public static final int MEM_PAGESIZE = 4096;
@@ -319,6 +320,13 @@ public class Memory extends Module_base {
             Paging.PageHandler mmiohandler;
         }
         public Lfb lfb = new Lfb();
+        public static class ROM {
+            /*Bitu*/int		start_page;
+            /*Bitu*/int		end_page;
+            /*Bitu*/int		pages;
+            Paging.PageHandler handler;
+        }
+        public Vector<ROM> roms = new Vector<ROM>();
         public static class A20 {
             boolean enabled;
             /*Bit8u*/short controlport;
@@ -392,6 +400,43 @@ public class Memory extends Module_base {
     private static RAMPageHandler ram_page_handler = new RAMPageHandler();
     private static ROMPageHandler rom_page_handler = new ROMPageHandler();
 
+    private static class ROMDataPageHandler extends Paging.PageHandler {
+        byte[] data;
+        int address;
+        public ROMDataPageHandler(byte[] data, int address) {
+            this.data = data;
+            this.address = address;
+        }
+        public /*Bitu*/int readb(/*PhysPt*/int addr) {
+            return data[addr-address] & 0xFF;
+        }
+
+        public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
+        }
+
+        public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
+        }
+
+        public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
+        }
+
+        public /*HostPt*/int GetHostReadPt(/*Bitu*/int phys_page) {
+            return -1;
+        }
+
+        public /*HostPt*/int GetHostWritePt(/*Bitu*/int phys_page) {
+            return -1;
+        }
+    }
+    static public void MEM_AddROM(/*Bitu*/int page, /*Bitu*/int pages, byte[] data) {
+        MemoryBlock.ROM rom = new MemoryBlock.ROM();
+        rom.pages = pages;
+        rom.start_page = page;
+        rom.end_page = page+pages;
+        rom.handler = new ROMDataPageHandler(data, page << 12);
+        memory.roms.add(rom);
+    }
+
     static public void MEM_SetLFB(/*Bitu*/int page, /*Bitu*/int pages, Paging.PageHandler handler, Paging.PageHandler mmiohandler) {
         memory.lfb.handler=handler;
         memory.lfb.mmiohandler=mmiohandler;
@@ -409,6 +454,12 @@ public class Memory extends Module_base {
         } else if ((phys_page>=memory.lfb.start_page+0x01000000/4096) &&
                     (phys_page<memory.lfb.start_page+0x01000000/4096+16)) {
             return memory.lfb.mmiohandler;
+        }
+        for (int i=0;i<memory.roms.size();i++) {
+            MemoryBlock.ROM rom = memory.roms.elementAt(i);
+            if (phys_page>=rom.start_page && phys_page<rom.end_page) {
+                return rom.handler;
+            }
         }
         return illegal_page_handler;
     }

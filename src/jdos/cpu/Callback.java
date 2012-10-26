@@ -626,10 +626,7 @@ public class Callback {
 
             /* Only setup default handler for first part of interrupt table */
             for (/*Bit16u*/int ct=0;ct<0x60;ct++) {
-                // :TODO: why does Dosbox write these large addresses into the IVT.  NT 4.0 will read
-                // :TODO: that address and page fault with blue screen of death
                 Memory.real_writed(0,ct*4,CALLBACK_RealPointer(call_default));
-                //Memory.phys_writed(ct*4,CALLBACK_PhysPointer(call_default));
             }
             for (/*Bit16u*/int ct=0x66;ct<0x70;ct++) {
                 Memory.real_writed(0,ct*4,CALLBACK_RealPointer(call_default));

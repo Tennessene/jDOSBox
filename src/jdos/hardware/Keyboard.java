@@ -132,7 +132,21 @@ public class Keyboard {
         static public final int CMD_SETOUTPORT=3;
     }
 
+    /* Status Register Bits */
+    private static final byte KBD_STAT_OBF = (byte)0x01; /* Keyboard output buffer full */
+    private static final byte KBD_STAT_IBF = (byte)0x02; /* Keyboard input buffer full */
+    private static final byte KBD_STAT_SELFTEST = (byte)0x04; /* Self test successful */
+    private static final byte KBD_STAT_CMD = (byte)0x08; /* Last write was a command write (0=data) */
+    private static final byte KBD_STAT_UNLOCKED = (byte)0x10; /* Zero if keyboard locked */
+    private static final byte KBD_STAT_MOUSE_OBF = (byte)0x20; /* Mouse output buffer full */
+    private static final byte KBD_STAT_GTO = (byte)0x40; /* General receive/xmit timeout */
+    private static final byte KBD_STAT_PERR = (byte)0x80; /* Parity error */
+
     private static class Keyb {
+        /*Bit8u*/byte[] buf8042 = new byte[8];		/* for 8042 responses, taking priority over keyboard responses */
+        /*Bitu*/int buf8042_len;
+        /*Bitu*/int buf8042_pos;
+
         /*Bit8u*/byte[] buffer=new byte[KEYBUFSIZE];
         /*Bitu*/int used;
         /*Bitu*/int pos;
@@ -148,6 +162,7 @@ public class Keyboard {
         boolean active;
         boolean scanning;
         boolean scheduled;
+        int status = KBD_STAT_CMD | KBD_STAT_UNLOCKED;
     }
 
     private static Keyb keyb = new Keyb();
@@ -158,8 +173,24 @@ public class Keyboard {
         else Pic.PIC_ActivateIRQ(1);
     }
 
+    private static void updateIRQ() {
+        if (keyb.p60changed || keyb.buf8042_len>0) {
+            if (Dosbox.machine== MachineType.MCH_PCJR) Pic.PIC_ActivateIRQ(6);
+            else Pic.PIC_ActivateIRQ(1);
+        } else {
+            if (Dosbox.machine== MachineType.MCH_PCJR) Pic.PIC_DeActivateIRQ(6);
+            else Pic.PIC_DeActivateIRQ(1);
+        }
+    }
     private static Pic.PIC_EventHandler KEYBOARD_TransferBuffer = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
+            /* 8042 responses take priority over the keyboard */
+            if (keyb.buf8042_len != 0) {
+                KEYBOARD_SetPort60(keyb.buf8042[keyb.buf8042_pos]);
+                if (++keyb.buf8042_pos >= keyb.buf8042_len)
+                    keyb.buf8042_len = keyb.buf8042_pos = 0;
+                return;
+            }
             keyb.scheduled=false;
             if (keyb.used==0) {
                 Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Transfer started with empty buffer");
@@ -176,10 +207,28 @@ public class Keyboard {
 
 
     public static void KEYBOARD_ClrBuffer() {
+        keyb.buf8042_len=0;
+	    keyb.buf8042_pos=0;
         keyb.used=0;
         keyb.pos=0;
         Pic.PIC_RemoveEvents(KEYBOARD_TransferBuffer);
         keyb.scheduled=false;
+    }
+
+    static void KEYBOARD_Add8042Response(byte data) {
+        if (keyb.buf8042_pos >= keyb.buf8042_len)
+            keyb.buf8042_pos = keyb.buf8042_len = 0;
+        else if (keyb.buf8042_len == 0)
+            keyb.buf8042_pos = 0;
+
+        if (keyb.buf8042_pos >= keyb.buf8042.length) {
+            Log.log_msg("8042 Buffer full, dropping code");
+            return;
+        }
+
+        keyb.buf8042[keyb.buf8042_len++] = data;
+        if (Dosbox.machine== MachineType.MCH_PCJR) Pic.PIC_ActivateIRQ(6);
+        else Pic.PIC_ActivateIRQ(1);
     }
 
     private static void KEYBOARD_AddBuffer(/*Bit8u*/int data) {
@@ -200,6 +249,13 @@ public class Keyboard {
 
     private static IoHandler.IO_ReadHandler read_p60 = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            if (keyb.buf8042_len != 0) {
+                int result = keyb.buf8042[keyb.buf8042_pos];
+                if (++keyb.buf8042_pos >= keyb.buf8042_len) {
+                    keyb.buf8042_len = keyb.buf8042_pos = 0;
+                }
+                return result;
+            }
             keyb.p60changed=false;
             if (!keyb.scheduled && keyb.used!=0) {
                 keyb.scheduled=true;
@@ -218,33 +274,43 @@ public class Keyboard {
                 switch (val) {
                 case 0xed:	/* Set Leds */
                     keyb.command=KeyCommands.CMD_SETLEDS;
-                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
                     break;
                 case 0xee:	/* Echo */
-                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
                     break;
                 case 0xf2:	/* Identify keyboard */
                     /* AT's just send acknowledge */
-                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
                     break;
                 case 0xf3: /* Typematic rate programming */
                     keyb.command=KeyCommands.CMD_SETTYPERATE;
-                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
                     break;
                 case 0xf4:	/* Enable keyboard,clear buffer, start scanning */
                     Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Clear buffer,enable Scaning");
-                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
                     keyb.scanning=true;
                     break;
                 case 0xf5:	 /* Reset keyboard and disable scanning */
                     Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Reset, disable scanning");
                     keyb.scanning=false;
-                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
                     break;
                 case 0xf6:	/* Reset keyboard and enable scanning */
                     Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Reset, enable scanning");
-                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
                     keyb.scanning=false;
+                    break;
+                case 0:
+                case 0xFF:
+                    switch (val) {
+                        case 0xFF: // reset
+                            keyb.scanning = true;
+                            KEYBOARD_Add8042Response((byte)0xFA); // ACK
+                            KEYBOARD_Add8042Response((byte)0xAA); // Power on reset
+                            break;
+                    }
                     break;
                 default:
                     /* Just always acknowledge strange commands */
@@ -272,6 +338,14 @@ public class Keyboard {
                 keyb.command=KeyCommands.CMD_NONE;
                 KEYBOARD_ClrBuffer();
                 KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                break;
+            case 0x60: // write mode
+                // :TODO:
+                updateIRQ();
+                keyb.command=KeyCommands.CMD_NONE;
+                break;
+            case 0xF4:
+                keyb.scanning = true;
                 break;
             }
         }
@@ -314,8 +388,19 @@ public class Keyboard {
             case 0xd0:		/* Outport on buffer */
                 KEYBOARD_SetPort60((short)(Memory.MEM_A20_Enabled() ? 0x02 : 0));
                 break;
+            case 0x60: // write mode
+                keyb.command = val;
+                break;
             case 0xd1:		/* Write to outport */
                 keyb.command=KeyCommands.CMD_SETOUTPORT;
+                break;
+            case 0xaa:		/* Self test */
+                keyb.active=false; /* on real h/w it also seems to disable the keyboard */
+                keyb.status = keyb.status | KBD_STAT_SELFTEST;
+                KEYBOARD_Add8042Response((byte)0x55); /* OK */
+                break;
+            case 0xab:      /* Keyboard interface test */
+                KEYBOARD_Add8042Response((byte)0);
                 break;
             default:
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_ERROR,"Port 64 write with val "+val);
@@ -326,8 +411,7 @@ public class Keyboard {
 
     private static IoHandler.IO_ReadHandler read_p64 = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
-            /*Bit8u*/int status= 0x1c | (keyb.p60changed? 0x1 : 0x0);
-            return status;
+            return keyb.status | ((keyb.p60changed || keyb.buf8042_len>0)? 0x1 : 0x0);
         }
     };
 

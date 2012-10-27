@@ -444,12 +444,20 @@ public class Dosbox {
             secprop.AddInitFunction(FPU.FPU_Init);
 
         secprop.AddInitFunction(DMA.DMA_Init);//done
-        secprop.AddInitFunction(Keyboard.KEYBOARD_Init);
 
         if (Config.PCI_FUNCTIONALITY_ENABLED) {
             secprop=control.AddSection_prop("pci",PCI.PCI_Init,false); //PCI bus
         }
 
+        secprop=control.AddSection_prop("keyboard",Keyboard.KEYBOARD_Init);
+        Pbool = secprop.Add_bool("aux",Property.Changeable.OnlyAtStart,true);
+        Pbool.Set_help("Enable emulation of the 8042 auxiliary port. PS/2 mouse emulation requires this to be enabled");
+    
+        String[] auxdevices = {"none","2button","3button","intellimouse","intellimouse45"};
+        Pstring = secprop.Add_string("auxdevice",Property.Changeable.OnlyAtStart,"intellimouse");
+        Pstring.Set_values(auxdevices);
+        Pstring.Set_help("Type of PS/2 mouse attached to the AUX port");
+        
         secprop=control.AddSection_prop("mixer",Mixer.MIXER_Init);
         Pbool = secprop.Add_bool("nosound",Property.Changeable.OnlyAtStart,false);
         Pbool.Set_help("Enable silent mode, sound is still emulated though.");

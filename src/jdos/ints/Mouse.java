@@ -6,10 +6,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.dos.Dos_tables;
 import jdos.gui.Main;
-import jdos.hardware.IoHandler;
-import jdos.hardware.Memory;
-import jdos.hardware.Pic;
-import jdos.hardware.VGA;
+import jdos.hardware.*;
 import jdos.misc.Log;
 import jdos.misc.setup.Section;
 import jdos.types.LogSeverities;
@@ -680,6 +677,10 @@ public class Mouse {
         float dx = xrel * mouse.pixelPerMickey_x;
         float dy = yrel * mouse.pixelPerMickey_y;
 
+        if (Keyboard.KEYBOARD_AUX_Active()) {
+            Keyboard.KEYBOARD_AUX_Event(xrel,yrel,mouse.buttons);
+            return;
+        }
         if((Math.abs(xrel) > 1.0) || (mouse.senv_x < 1.0)) dx *= mouse.senv_x;
         if((Math.abs(yrel) > 1.0) || (mouse.senv_y < 1.0)) dy *= mouse.senv_y;
         if (useps2callback) dy *= 2;
@@ -736,6 +737,24 @@ public class Mouse {
     }
 
     static public void Mouse_ButtonPressed(/*Bit8u*/int button) {
+        if (Keyboard.KEYBOARD_AUX_Active()) {
+            switch (button) {
+                case 0:
+                    mouse.buttons|=1;
+                    break;
+                case 1:
+                    mouse.buttons|=2;
+                    break;
+                case 2:
+                    mouse.buttons|=4;
+                    break;
+                default:
+                    return;
+            }
+
+            Keyboard.KEYBOARD_AUX_Event(0,0,mouse.buttons);
+            return;
+        }
         switch (button) {
         case 0:
             if (MOUSE_BUTTONS >= 1) {
@@ -767,6 +786,24 @@ public class Mouse {
     }
 
     static public void Mouse_ButtonReleased(/*Bit8u*/int button) {
+        if (Keyboard.KEYBOARD_AUX_Active()) {
+            switch (button) {
+                case 0:
+                    mouse.buttons&=~1;
+                    break;
+                case 1:
+                    mouse.buttons&=~2;
+                    break;
+                case 2:
+                    mouse.buttons&=~4;
+                    break;
+                default:
+                    return;
+            }
+
+            Keyboard.KEYBOARD_AUX_Event(0,0,mouse.buttons);
+            return;
+        }
         switch (button) {
         case 0:
             if (MOUSE_BUTTONS >= 1) {
@@ -940,6 +977,7 @@ public class Mouse {
                 CPU_Regs.reg_ebx.word(MOUSE_BUTTONS);
                 Mouse_Reset();
                 Main.Mouse_AutoLock(true);
+                Keyboard.AUX_INT33_Takeover();
                 break;
             case 0x01:	/* Show Mouse */
                 if(mouse.hidden!=0) mouse.hidden--;

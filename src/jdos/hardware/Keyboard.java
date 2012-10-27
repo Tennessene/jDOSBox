@@ -1,8 +1,10 @@
 package jdos.hardware;
 
 import jdos.Dosbox;
+import jdos.gui.Main;
 import jdos.misc.Log;
 import jdos.misc.setup.Section;
+import jdos.misc.setup.Section_prop;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.types.MachineType;
@@ -130,7 +132,19 @@ public class Keyboard {
         static public final int CMD_SETLEDS=1;
         static public final int CMD_SETTYPERATE=2;
         static public final int CMD_SETOUTPORT=3;
+        static public final int CMD_SETCOMMAND=4;
+        static public final int CMD_WRITEOUTPUT=5;
+        static public final int CMD_WRITEAUXOUT=6;
+        static public final int CMD_SETSCANSET=7;
+        static public final int CMD_WRITEAUX=8;
     }
+
+    static public final int ACMD_NONE=0;
+	static public final int ACMD_SET_RATE=1;
+	static public final int ACMD_SET_RESOLUTION=2;
+    
+    static private final int AUX = 0x100;
+    static private final int RESETDELAY = 100;
 
     /* Status Register Bits */
     private static final byte KBD_STAT_OBF = (byte)0x01; /* Keyboard output buffer full */
@@ -142,12 +156,37 @@ public class Keyboard {
     private static final byte KBD_STAT_GTO = (byte)0x40; /* General receive/xmit timeout */
     private static final byte KBD_STAT_PERR = (byte)0x80; /* Parity error */
 
+    private static final byte MM_REMOTE=0;
+    private static final byte MM_WRAP=1;
+    private static final byte MM_STREAM=2;
+
+    private static final byte MOUSE_NONE=0;
+    private static final byte MOUSE_2BUTTON=1;
+    private static final byte MOUSE_3BUTTON=2;
+    private static final byte MOUSE_INTELLIMOUSE=3;
+    private static final byte MOUSE_INTELLIMOUSE45=4;
+
+    private static class ps2mouse {
+        int	type;			/* what kind of mouse we are emulating */
+        int	mode;			/* current mode */
+        int		samplerate;		/* current sample rate */
+        int		resolution;		/* current resolution */
+        int[]		last_srate=new int[3];		/* last 3 "set sample rate" values */
+        float		acx,acy;		/* accumulator */
+        boolean		reporting;		/* reporting */
+        boolean		scale21;		/* 2:1 scaling */
+        boolean		intellimouse_mode;	/* intellimouse scroll wheel */
+        boolean		intellimouse_btn45;	/* 4th & 5th buttons */
+        boolean		int33_taken;		/* for compatability with existing DOSBox code: allow INT 33H emulation to "take over" and disable us */
+        boolean		l,m,r;			/* mouse button states */
+    }
+
     private static class Keyb {
-        /*Bit8u*/byte[] buf8042 = new byte[8];		/* for 8042 responses, taking priority over keyboard responses */
+        /*Bit8u*/int[] buf8042 = new int[8];		/* for 8042 responses, taking priority over keyboard responses */
         /*Bitu*/int buf8042_len;
         /*Bitu*/int buf8042_pos;
 
-        /*Bit8u*/byte[] buffer=new byte[KEYBUFSIZE];
+        /*Bit8u*/int[] buffer=new int[KEYBUFSIZE];
         /*Bitu*/int used;
         /*Bitu*/int pos;
         static public class Repeat {
@@ -157,6 +196,19 @@ public class Keyboard {
         }
         Repeat repeat = new Repeat();
         int command;
+        int aux_command;
+
+        ps2mouse ps2mouse = new ps2mouse();
+        int scanset;
+        boolean enable_aux;
+        boolean reset;
+        boolean auxchanged;
+        boolean auxactive;
+        boolean cb_irq12;			/* PS/2 mouse */
+        boolean cb_irq1;
+        boolean cb_xlat;
+        boolean cb_sys;
+
         /*Bit8u*/short p60data;
         boolean p60changed;
         boolean active;
@@ -166,11 +218,70 @@ public class Keyboard {
     }
 
     private static Keyb keyb = new Keyb();
-    private static void KEYBOARD_SetPort60(/*Bit8u*/short val) {
+
+    /* NTS: INT33H emulation is coded to call this ONLY if it hasn't taken over the role of mouse input */
+    static public void KEYBOARD_AUX_Event(float x1,float y1,int buttons) {
+        keyb.ps2mouse.acx += x1;
+        keyb.ps2mouse.acy += y1;
+        keyb.ps2mouse.l = (buttons & 1)>0;
+        keyb.ps2mouse.r = (buttons & 2)>0;
+        keyb.ps2mouse.m = (buttons & 4)>0;
+
+        if (keyb.ps2mouse.reporting && keyb.ps2mouse.mode == MM_STREAM) {
+            if ((keyb.used+4) < KEYBUFSIZE) {
+                int x,y;
+
+                x = (int)(keyb.ps2mouse.acx * (1 << keyb.ps2mouse.resolution));
+                if (x < -256) x = -256;
+                else if (x > 255) x = 255;
+
+                y = -((int)(keyb.ps2mouse.acy * (1 << keyb.ps2mouse.resolution)));
+                if (y < -256) y = -256;
+                else if (y > 255) y = 255;
+
+                KEYBOARD_AddBuffer(AUX|
+                    ((y == -256 || y == 255) ? 0x80 : 0x00) |	/* Y overflow */
+                    ((x == -256 || x == 255) ? 0x40 : 0x00) |	/* X overflow */
+                    ((y & 0x100)!=0 ? 0x20 : 0x00) |			/* Y sign bit */
+                    ((x & 0x100)!=0 ? 0x10 : 0x00) |			/* X sign bit */
+                    0x08 |						/* always 1? */
+                    (keyb.ps2mouse.m ? 4 : 0) |			/* M */
+                    (keyb.ps2mouse.r ? 2 : 0) |			/* R */
+                    (keyb.ps2mouse.l ? 1 : 0));			/* L */
+                KEYBOARD_AddBuffer(AUX|(x&0xFF));
+                KEYBOARD_AddBuffer(AUX|(y&0xFF));
+                if (keyb.ps2mouse.intellimouse_btn45) {
+                    KEYBOARD_AddBuffer(AUX|0x00);			/* TODO: scrollwheel and 4th & 5th buttons */
+                }
+                else if (keyb.ps2mouse.intellimouse_mode) {
+                    KEYBOARD_AddBuffer(AUX|0x00);			/* TODO: scrollwheel */
+                }
+            }
+
+            keyb.ps2mouse.acx = 0;
+            keyb.ps2mouse.acy = 0;
+        }
+    }
+
+    static public boolean KEYBOARD_AUX_Active() {
+        /* NTS: We want to allow software to read by polling, which doesn't
+         *      require interrupts to be enabled. Whether or not IRQ12 is
+         *      unmasked is irrelevent */
+        return keyb.auxactive && !keyb.ps2mouse.int33_taken;
+    }
+
+    private static void KEYBOARD_SetPort60(/*Bit8u*/int val) {
+        keyb.auxchanged=(val&AUX)>0;
         keyb.p60changed=true;
-        keyb.p60data=val;
-        if (Dosbox.machine== MachineType.MCH_PCJR) Pic.PIC_ActivateIRQ(6);
-        else Pic.PIC_ActivateIRQ(1);
+        keyb.p60data=(byte)(val & 0xFF);
+        if (keyb.auxchanged) {
+            if (keyb.cb_irq12) {
+                Pic.PIC_ActivateIRQ(12);
+            }
+        } else if (keyb.cb_irq1) {
+            if (Dosbox.machine== MachineType.MCH_PCJR) Pic.PIC_ActivateIRQ(6);
+            else Pic.PIC_ActivateIRQ(1);
+        }
     }
 
     private static void updateIRQ() {
@@ -182,6 +293,15 @@ public class Keyboard {
             else Pic.PIC_DeActivateIRQ(1);
         }
     }
+
+    private static Pic.PIC_EventHandler KEYBOARD_ResetDelay = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            keyb.reset=false;
+            KEYBOARD_SetLEDs(0);
+            KEYBOARD_Add8042Response(0xAA);
+        }
+    };
+
     private static Pic.PIC_EventHandler KEYBOARD_TransferBuffer = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             /* 8042 responses take priority over the keyboard */
@@ -196,7 +316,7 @@ public class Keyboard {
                 Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Transfer started with empty buffer");
                 return;
             }
-            KEYBOARD_SetPort60((short)(keyb.buffer[keyb.pos] & 0xFF));
+            KEYBOARD_SetPort60(keyb.buffer[keyb.pos]);
             if (++keyb.pos>=KEYBUFSIZE) keyb.pos-=KEYBUFSIZE;
             keyb.used--;
         }
@@ -215,7 +335,7 @@ public class Keyboard {
         keyb.scheduled=false;
     }
 
-    static void KEYBOARD_Add8042Response(byte data) {
+    static void KEYBOARD_Add8042Response(int data) {
         if (keyb.buf8042_pos >= keyb.buf8042_len)
             keyb.buf8042_pos = keyb.buf8042_len = 0;
         else if (keyb.buf8042_len == 0)
@@ -227,8 +347,17 @@ public class Keyboard {
         }
 
         keyb.buf8042[keyb.buf8042_len++] = data;
-        if (Dosbox.machine== MachineType.MCH_PCJR) Pic.PIC_ActivateIRQ(6);
-        else Pic.PIC_ActivateIRQ(1);
+        if ((data & AUX) != 0)
+            keyb.auxchanged = true;
+        else
+            keyb.p60changed = true;
+
+        if (keyb.auxchanged) {
+            Pic.PIC_ActivateIRQ(12);
+        } else {
+            if (Dosbox.machine== MachineType.MCH_PCJR) Pic.PIC_ActivateIRQ(6);
+            else Pic.PIC_ActivateIRQ(1);
+        }
     }
 
     private static void KEYBOARD_AddBuffer(/*Bit8u*/int data) {
@@ -238,7 +367,7 @@ public class Keyboard {
         }
         /*Bitu*/int start=keyb.pos+keyb.used;
         if (start>=KEYBUFSIZE) start-=KEYBUFSIZE;
-        keyb.buffer[start]=(byte)data;
+        keyb.buffer[start]=data;
         keyb.used++;
         /* Start up an event to start the first IRQ */
         if (!keyb.scheduled && !keyb.p60changed) {
@@ -247,16 +376,24 @@ public class Keyboard {
         }
     }
 
+    static void KEYBOARD_SetLEDs(int bits) {
+        /* TODO: Maybe someday you could have DOSBox show the LEDs */
+        //LOG(LOG_KEYBOARD,LOG_NORMAL)("Keyboard LEDs: SCR=%u NUM=%u CAPS=%u",bits&1,(bits>>1)&1,(bits>>2)&1);
+    }
+
     private static IoHandler.IO_ReadHandler read_p60 = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             if (keyb.buf8042_len != 0) {
                 int result = keyb.buf8042[keyb.buf8042_pos];
                 if (++keyb.buf8042_pos >= keyb.buf8042_len) {
                     keyb.buf8042_len = keyb.buf8042_pos = 0;
+                    keyb.p60changed = false;
+                    keyb.auxchanged = false;
                 }
-                return result;
+                return result & 0xFF;
             }
             keyb.p60changed=false;
+            keyb.auxchanged = false;
             if (!keyb.scheduled && keyb.used!=0) {
                 keyb.scheduled=true;
                 Pic.PIC_AddEvent(KEYBOARD_TransferBuffer,KEYDELAY);
@@ -265,52 +402,198 @@ public class Keyboard {
         }
     };
 
+    static void KEYBOARD_AUX_Write(int val) {
+        if (keyb.ps2mouse.type == MOUSE_NONE)
+            return;
+
+        if (keyb.ps2mouse.mode == MM_WRAP) {
+            if (val != 0xFF && val != 0xEC) {
+                KEYBOARD_Add8042Response(AUX|val);
+                return;
+            }
+        }
+
+        switch (keyb.aux_command) {
+            case ACMD_NONE:
+                switch (val) {
+                    case 0xff:	/* reset */
+                        Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"AUX reset");
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        KEYBOARD_AddBuffer(AUX|0xaa);
+                        KEYBOARD_AddBuffer(AUX|0x0);	/* mouse type */
+                        Main.Mouse_AutoLock(false);
+                        AUX_Reset();
+                        break;
+                    case 0xf6:	/* set defaults */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        AUX_Reset();
+                        break;
+                    case 0xf5:	/* disable data reporting */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.reporting = false;
+                        break;
+                    case 0xf4:	/* enable data reporting */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.reporting = true;
+                        Main.Mouse_AutoLock(true);
+                        break;
+                    case 0xf3:	/* set sample rate */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.aux_command = ACMD_SET_RATE;
+                        break;
+                    case 0xf2:	/* get device ID */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+
+                        /* and then the ID */
+                        if (keyb.ps2mouse.intellimouse_btn45)
+                            KEYBOARD_AddBuffer(AUX|0x04);
+                        else if (keyb.ps2mouse.intellimouse_mode)
+                            KEYBOARD_AddBuffer(AUX|0x03);
+                        else
+                            KEYBOARD_AddBuffer(AUX|0x00);
+                        break;
+                    case 0xf0:	/* set remote mode */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.mode = MM_REMOTE;
+                        break;
+                    case 0xee:	/* set wrap mode */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.mode = MM_WRAP;
+                        break;
+                    case 0xec:	/* reset wrap mode */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.mode = MM_REMOTE;
+                        break;
+                    case 0xeb:	/* read data */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        KEYBOARD_AUX_Event(0,0,
+                            ((keyb.ps2mouse.m?1:0) << 2)|
+                            ((keyb.ps2mouse.r?1:0) << 1)|
+                            ((keyb.ps2mouse.l?1:0) << 0));
+                        break;
+                    case 0xea:	/* set stream mode */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.mode = MM_STREAM;
+                        break;
+                    case 0xe9:	/* status request */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        KEYBOARD_AddBuffer(AUX|
+                            (keyb.ps2mouse.mode == MM_REMOTE ? 0x40 : 0x00)|
+                            ((keyb.ps2mouse.reporting?1:0) << 5)|
+                            ((keyb.ps2mouse.scale21?1:0) << 4)|
+                            ((keyb.ps2mouse.m?1:0) << 2)|
+                            ((keyb.ps2mouse.r?1:0) << 1)|
+                            ((keyb.ps2mouse.l?1:0) << 0));
+                        KEYBOARD_AddBuffer(AUX|keyb.ps2mouse.resolution);
+                        KEYBOARD_AddBuffer(AUX|keyb.ps2mouse.samplerate);
+                        break;
+                    case 0xe8:	/* set resolution */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.aux_command = ACMD_SET_RESOLUTION;
+                        break;
+                    case 0xe7:	/* set scaling 2:1 */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.scale21 = true;
+                        Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse scaling 2:1");
+                        break;
+                    case 0xe6:	/* set scaling 1:1 */
+                        KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                        keyb.ps2mouse.scale21 = false;
+                        Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse scaling 1:1");
+                        break;
+                }
+                break;
+            case ACMD_SET_RATE:
+                KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                keyb.ps2mouse.last_srate[0] = keyb.ps2mouse.last_srate[1];
+                keyb.ps2mouse.last_srate[1] = keyb.ps2mouse.last_srate[2];
+                keyb.ps2mouse.last_srate[2] = val;
+                keyb.ps2mouse.samplerate = val;
+                keyb.aux_command = ACMD_NONE;
+                Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse sample rate set to "+val);
+                if (keyb.ps2mouse.type >= MOUSE_INTELLIMOUSE) {
+                    if (keyb.ps2mouse.last_srate[0] == 200 && keyb.ps2mouse.last_srate[2] == 80) {
+                        if (keyb.ps2mouse.last_srate[1] == 100) {
+                            if (!keyb.ps2mouse.intellimouse_mode) {
+                                Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Intellimouse mode enabled");
+                                keyb.ps2mouse.intellimouse_mode=true;
+                            }
+                        }
+                        else if (keyb.ps2mouse.last_srate[1] == 200 && keyb.ps2mouse.type >= MOUSE_INTELLIMOUSE45) {
+                            if (!keyb.ps2mouse.intellimouse_btn45) {
+                                Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Intellimouse 4/5-button mode enabled");
+                                keyb.ps2mouse.intellimouse_btn45=true;
+                            }
+                        }
+                    }
+                }
+                break;
+            case ACMD_SET_RESOLUTION:
+                keyb.aux_command = ACMD_NONE;
+                KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
+                keyb.ps2mouse.resolution = val & 3;
+                Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse resolution set to"+(1 << (val&3)));
+                break;
+        }
+    }
+
     private static IoHandler.IO_WriteHandler write_p60 = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             switch (keyb.command) {
             case KeyCommands.CMD_NONE:	/* None */
+                if (keyb.reset)
+			        return;
+
                 /* No active command this would normally get sent to the keyboard then */
                 KEYBOARD_ClrBuffer();
                 switch (val) {
                 case 0xed:	/* Set Leds */
                     keyb.command=KeyCommands.CMD_SETLEDS;
-                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response(0xfa);	/* Acknowledge */
                     break;
                 case 0xee:	/* Echo */
-                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response(0xfa);	/* Acknowledge */
+                    break;
+                case 0xf0:	/* set scancode set */
+                    keyb.command=KeyCommands.CMD_SETSCANSET;
+                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
                     break;
                 case 0xf2:	/* Identify keyboard */
                     /* AT's just send acknowledge */
-                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
+                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_AddBuffer(0xab);	/* ID */
+                    KEYBOARD_AddBuffer(0x41);
                     break;
                 case 0xf3: /* Typematic rate programming */
                     keyb.command=KeyCommands.CMD_SETTYPERATE;
-                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response(0xfa);	/* Acknowledge */
                     break;
                 case 0xf4:	/* Enable keyboard,clear buffer, start scanning */
                     Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Clear buffer,enable Scaning");
-                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response(0xfa);	/* Acknowledge */
                     keyb.scanning=true;
                     break;
                 case 0xf5:	 /* Reset keyboard and disable scanning */
                     Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Reset, disable scanning");
                     keyb.scanning=false;
-                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
+                    KEYBOARD_Add8042Response(0xfa);	/* Acknowledge */
                     break;
                 case 0xf6:	/* Reset keyboard and enable scanning */
                     Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Reset, enable scanning");
-                    KEYBOARD_Add8042Response((byte)0xfa);	/* Acknowledge */
-                    keyb.scanning=false;
+                    KEYBOARD_Add8042Response(0xfa);	/* Acknowledge */
+                    keyb.scanning=true;
                     break;
-                case 0:
-                case 0xFF:
-                    switch (val) {
-                        case 0xFF: // reset
-                            keyb.scanning = true;
-                            KEYBOARD_Add8042Response((byte)0xFA); // ACK
-                            KEYBOARD_Add8042Response((byte)0xAA); // Power on reset
-                            break;
-                    }
+                //case 0:
+                case 0xff:		/* keyboard resets take a long time (about 250ms), most keyboards flash the LEDs during reset */
+                    KEYBOARD_Reset();
+                    KEYBOARD_Add8042Response(0xFA);	/* ACK */
+                    KEYBOARD_Add8042Response(0xAA);
+                    //keyb.reset=true;
+                    KEYBOARD_SetLEDs(7); /* most keyboard I test with tend to flash the LEDs during reset */
+                    //Pic.PIC_AddEvent(KEYBOARD_ResetDelay,RESETDELAY);
+                    break;
+                case 0x05:
+                    KEYBOARD_Add8042Response(0xFE); // Resend
                     break;
                 default:
                     /* Just always acknowledge strange commands */
@@ -318,6 +601,40 @@ public class Keyboard {
                     KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
                 }
                 return;
+            case KeyCommands.CMD_SETSCANSET:
+                keyb.command=KeyCommands.CMD_NONE;
+                if (val == 0) { /* just asking */
+                    if (keyb.cb_xlat) {
+                        switch (keyb.scanset) {
+                            case 1:	KEYBOARD_AddBuffer(0x43); break;
+                            case 2:	KEYBOARD_AddBuffer(0x41); break;
+                            case 3:	KEYBOARD_AddBuffer(0x3F); break;
+                        }
+                    }
+                    else {
+                        KEYBOARD_AddBuffer(keyb.scanset);
+                    }
+                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                }
+                else {
+                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                    KEYBOARD_AddBuffer(0xfa);	/* Acknowledge again */
+                    if (val > 3) val = 3;
+                    keyb.scanset = val;
+                }
+                break;
+            case KeyCommands.CMD_WRITEAUX:
+                keyb.command=KeyCommands.CMD_NONE;
+                KEYBOARD_AUX_Write(val);
+                break;
+            case KeyCommands.CMD_WRITEOUTPUT:
+                keyb.command=KeyCommands.CMD_NONE;
+                KEYBOARD_ClrBuffer();
+                KEYBOARD_AddBuffer(val);	/* and now you return the byte as if it were typed in */
+                break;
+            case KeyCommands.CMD_WRITEAUXOUT:
+                KEYBOARD_AddBuffer(AUX|val); /* stuff into AUX output */
+                break;
             case KeyCommands.CMD_SETOUTPORT:
                 Memory.MEM_A20_Enable((val & 2)>0);
                 keyb.command = KeyCommands.CMD_NONE;
@@ -335,14 +652,25 @@ public class Keyboard {
                 }
                 /* Fallthrough! as setleds does what we want */
             case KeyCommands.CMD_SETLEDS:
+                if (keyb.reset)
+			        return;
                 keyb.command=KeyCommands.CMD_NONE;
                 KEYBOARD_ClrBuffer();
                 KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
+                KEYBOARD_SetLEDs(val&7);
                 break;
-            case 0x60: // write mode
-                // :TODO:
-                updateIRQ();
+            case KeyCommands.CMD_SETCOMMAND: /* 8042 command, not keyboard */
                 keyb.command=KeyCommands.CMD_NONE;
+                keyb.cb_xlat = ((val >> 6) & 1)!=0;
+                keyb.auxactive = ((val >> 5) & 1)==0;
+                keyb.active = ((val >> 4) & 1)==0;
+                keyb.cb_sys = ((val >> 2) & 1)!=0;
+                keyb.cb_irq12 = ((val >> 1) & 1)!=0;
+                keyb.cb_irq1 = ((val >> 0) & 1)!=0;
+                if (keyb.used!=0 && !keyb.scheduled && !keyb.p60changed && keyb.active) {
+                    keyb.scheduled=true;
+                    Pic.PIC_AddEvent(KEYBOARD_TransferBuffer,KEYDELAY);
+                }
                 break;
             case 0xF4:
                 keyb.scanning = true;
@@ -370,9 +698,52 @@ public class Keyboard {
         }
     };
 
+    private static int aux_warning = 0;
+
     private static IoHandler.IO_WriteHandler write_p64 = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             switch (val) {
+            case 0x20:		/* read command byte */
+                KEYBOARD_Add8042Response((
+                    ((keyb.cb_xlat?1:0) << 6)      | ((keyb.auxactive?0:1) << 5) |
+                    ((keyb.active?0:1) << 4)    | ((keyb.cb_sys?1:0) << 2) |
+                    ((keyb.cb_irq12?1:0) << 1)     |  (keyb.cb_irq1?1:0)));
+                break;
+            case 0x60:
+                keyb.command=KeyCommands.CMD_SETCOMMAND;
+                break;
+            case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x96: case 0x97:
+            case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9e: case 0x9f:
+                /* TODO: If bit 0 == 0, trigger system reset */
+                break;
+            case 0xa7:		/* disable aux */
+                if (keyb.enable_aux) {
+                    keyb.auxactive=false;
+                    Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"AUX De-Activated");
+                }
+                break;
+            case 0xa8:		/* enable aux */
+                if (keyb.enable_aux) {
+                    keyb.auxactive=true;
+                    if (keyb.used!=0 && !keyb.scheduled && !keyb.p60changed) {
+                        keyb.scheduled=true;
+                        Pic.PIC_AddEvent(KEYBOARD_TransferBuffer,KEYDELAY);
+                    }
+                    Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"AUX Activated");
+                }
+                break;
+            case 0xa9:		/* mouse interface test */
+                KEYBOARD_Add8042Response(0x00); /* OK */
+                break;
+            case 0xaa:		/* Self test */
+                keyb.active=false; /* on real h/w it also seems to disable the keyboard */
+                keyb.status = keyb.status | KBD_STAT_SELFTEST;
+                KEYBOARD_Add8042Response(0x55); /* OK */
+                break;
+            case 0xab:      /* Keyboard interface test */
+                keyb.active=false; /* on real h/w it also seems to disable the keyboard */
+                KEYBOARD_Add8042Response(0);
+                break;
             case 0xae:		/* Activate keyboard */
                 keyb.active=true;
                 if (keyb.used!=0 && !keyb.scheduled && !keyb.p60changed) {
@@ -385,22 +756,35 @@ public class Keyboard {
                 keyb.active=false;
                 Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"De-Activated");
                 break;
+            case 0xc0:		/* read input buffer */
+                KEYBOARD_Add8042Response(0x40);
+                break;
             case 0xd0:		/* Outport on buffer */
                 KEYBOARD_SetPort60((short)(Memory.MEM_A20_Enabled() ? 0x02 : 0));
-                break;
-            case 0x60: // write mode
-                keyb.command = val;
                 break;
             case 0xd1:		/* Write to outport */
                 keyb.command=KeyCommands.CMD_SETOUTPORT;
                 break;
-            case 0xaa:		/* Self test */
-                keyb.active=false; /* on real h/w it also seems to disable the keyboard */
-                keyb.status = keyb.status | KBD_STAT_SELFTEST;
-                KEYBOARD_Add8042Response((byte)0x55); /* OK */
+            case 0xd2:		/* write output register */
+                keyb.command=KeyCommands.CMD_WRITEOUTPUT;
                 break;
-            case 0xab:      /* Keyboard interface test */
-                KEYBOARD_Add8042Response((byte)0);
+            case 0xd3:		/* write AUX output */
+                if (keyb.enable_aux)
+                    keyb.command=KeyCommands.CMD_WRITEAUXOUT;
+                else if (aux_warning++ == 0)
+                    Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL, "Program is writing 8042 AUX. If you intend to use PS/2 mouse emulation you may consider adding aux=1 to your dosbox.conf");
+                break;
+            case 0xd4:		/* send byte to AUX */
+                if (keyb.enable_aux)
+                    keyb.command=KeyCommands.CMD_WRITEAUX;
+                break;
+            case 0xe0:		/* read test port */
+                KEYBOARD_Add8042Response(0x00);
+                break;
+            case 0xf0: case 0xf1: case 0xf2: case 0xf3: case 0xf4: case 0xf5: case 0xf6: case 0xf7:
+            case 0xf8: case 0xf9: case 0xfa: case 0xfb: case 0xfc: case 0xfd: case 0xfe: case 0xff:
+                /* pulse output register */
+                /* TODO: If bit 0 == 0, trigger system reset */
                 break;
             default:
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_ERROR,"Port 64 write with val "+val);
@@ -411,7 +795,7 @@ public class Keyboard {
 
     private static IoHandler.IO_ReadHandler read_p64 = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
-            return keyb.status | ((keyb.p60changed || keyb.buf8042_len>0)? 0x1 : 0x0);
+            return keyb.status | (keyb.p60changed? 0x1 : 0x0) | (keyb.auxchanged?0x20:0x00);
         }
     };
 
@@ -586,8 +970,32 @@ public class Keyboard {
     };
 
     public static Section.SectionFunction KEYBOARD_Init = new Section.SectionFunction() {
-        public void call(Section section) {
+        public void call(Section sec) {
             keyb = new Keyb();
+            Section_prop section=(Section_prop)(sec);
+            if (keyb.enable_aux=section.Get_bool("aux")) {
+                Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"Keyboard AUX emulation enabled");
+            }
+            keyb.ps2mouse.int33_taken = false;
+
+            String sbtype=section.Get_string("auxdevice");
+            keyb.ps2mouse.type = MOUSE_NONE;
+            if (sbtype != null) {
+                if (sbtype.equals("2button"))
+                    keyb.ps2mouse.type=MOUSE_2BUTTON;
+                else if (sbtype.equals("3button"))
+                    keyb.ps2mouse.type=MOUSE_3BUTTON;
+                else if (sbtype.equals("intellimouse"))
+                    keyb.ps2mouse.type=MOUSE_INTELLIMOUSE;
+                else if (sbtype.equals("intellimouse45"))
+                    keyb.ps2mouse.type=MOUSE_INTELLIMOUSE45;
+                else if (sbtype.equals("none"))
+                    keyb.ps2mouse.type=MOUSE_NONE;
+                else {
+                    keyb.ps2mouse.type=MOUSE_INTELLIMOUSE;
+                    Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_ERROR, "Assuming PS/2 intellimouse, I don't know what '"+sbtype+"' is");
+                }
+            }
             IoHandler.IO_RegisterWriteHandler(0x60,write_p60,IoHandler.IO_MB);
             IoHandler.IO_RegisterReadHandler(0x60,read_p60,IoHandler.IO_MB);
             IoHandler.IO_RegisterWriteHandler(0x61,write_p61,IoHandler.IO_MB);
@@ -610,4 +1018,55 @@ public class Keyboard {
                 section.AddDestroyFunction(KEYBOARD_ShutDown,false);
         }
     };
+
+    static private void AUX_Reset() {
+        keyb.ps2mouse.mode = MM_STREAM;
+        keyb.ps2mouse.acx = 0;
+        keyb.ps2mouse.acy = 0;
+        keyb.ps2mouse.samplerate = 80;
+        keyb.ps2mouse.last_srate[0] = keyb.ps2mouse.last_srate[1] = keyb.ps2mouse.last_srate[2] = 0;
+        keyb.ps2mouse.intellimouse_btn45 = false;
+        keyb.ps2mouse.intellimouse_mode = false;
+        keyb.ps2mouse.reporting = false;
+        keyb.ps2mouse.scale21 = false;
+        keyb.ps2mouse.resolution = 0;
+        if (keyb.ps2mouse.type != MOUSE_NONE && keyb.ps2mouse.int33_taken)
+            Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse emulation: taking over from INT 33h");
+        keyb.ps2mouse.int33_taken = false;
+        keyb.ps2mouse.l = keyb.ps2mouse.m = keyb.ps2mouse.r = false;
+    }
+
+    static public void AUX_INT33_Takeover() {
+        if (keyb.ps2mouse.type != MOUSE_NONE && keyb.ps2mouse.int33_taken)
+            Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse emulation: Program is using INT 33h, disabling direct AUX emulation");
+        keyb.ps2mouse.int33_taken = true;
+    }
+
+    static private void KEYBOARD_Reset() {
+        /* Init the keyb struct */
+        keyb.active=true;
+        keyb.scanning=true;
+        //keyb.pending_key=-1;
+        keyb.auxactive=false;
+        //keyb.pending_key_state=false;
+        keyb.command=KeyCommands.CMD_NONE;
+        keyb.aux_command=ACMD_NONE;
+        keyb.p60changed=false;
+        keyb.auxchanged=false;
+        //keyb.repeat.key=KBD_NONE;
+        keyb.repeat.pause=500;
+        keyb.repeat.rate=33;
+        keyb.repeat.wait=0;
+        keyb.scanset=1;
+        /* command byte */
+        keyb.cb_irq12=false;
+        keyb.cb_irq1=true;
+        keyb.cb_xlat=true;
+        keyb.cb_sys=true;
+        keyb.reset=false;
+        /* OK */
+        KEYBOARD_ClrBuffer();
+        KEYBOARD_SetLEDs(0);
+    }
+
 }

@@ -872,7 +872,7 @@ public class Dos_programs {
                         new IoHandler.IO_WriteHandleObject().Install(0x503, vga_write, IoHandler.IO_MA);
                         new IoHandler.IO_WriteHandleObject().Install(0x501, vga_write, IoHandler.IO_MA);
                         new IoHandler.IO_WriteHandleObject().Install(0x502, vga_write, IoHandler.IO_MA);
-                        Cmos.CMOS_SetRegister(0x14, (byte)7);
+                        Cmos.CMOS_SetRegister(0x14, (byte)6); // 2 math co process and 4 ps/2 mouse
                         //Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
                         //CPU.cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
                         //DecodeBlock.start=1;

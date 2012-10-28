@@ -1,5 +1,6 @@
 package jdos.hardware;
 
+import jdos.ints.Bios;
 import jdos.ints.Bios_disk;
 import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
@@ -184,72 +185,116 @@ public class Cmos extends Module_base {
                 return ((drive_a << 4) | (drive_b));
             /* First harddrive info */
             case 0x12:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 hdparm = 0;
                 if(Bios_disk.imageDiskList[3] != null) hdparm |= 0xf;
                 if(Bios_disk.imageDiskList[2] != null) hdparm |= 0xf0;
                 return hdparm;
             case 0x19:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return 47; /* User defined type */
                 return 0;
             case 0x1b:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].cylinders & 0xff);
                 return 0;
             case 0x1c:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return (int)((Bios_disk.imageDiskList[2].cylinders & 0xff00)>>8);
                 return 0;
             case 0x1d:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].heads);
                 return 0;
             case 0x1e:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return 0xff;
                 return 0;
             case 0x1f:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return 0xff;
                 return 0;
             case 0x20:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return (int)(0xc0 | ((((Bios_disk.imageDiskList[2].heads) > 8)?1:0) << 3));
                 return 0;
             case 0x21:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].cylinders & 0xff);
                 return 0;
             case 0x22:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return (int)((Bios_disk.imageDiskList[2].cylinders & 0xff00)>>8);
                 return 0;
             case 0x23:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].sectors);
                 return 0;
             /* Second harddrive info */
             case 0x1a:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return 47; /* User defined type */
                 return 0;
             case 0x24:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].cylinders & 0xff);
                 return 0;
             case 0x25:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return (int)((Bios_disk.imageDiskList[3].cylinders & 0xff00)>>8);
                 return 0;
             case 0x26:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].heads);
                 return 0;
             case 0x27:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return 0xff;
                 return 0;
             case 0x28:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return 0xff;
                 return 0;
             case 0x29:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return (int)(0xc0 | (((Bios_disk.imageDiskList[3].heads) > 8)?1:0 << 3));
                 return 0;
             case 0x2a:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].cylinders & 0xff);
                 return 0;
             case 0x2b:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return (int)((Bios_disk.imageDiskList[3].cylinders & 0xff00)>>8);
                 return 0;
             case 0x2c:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].sectors);
                 return 0;
             case 0x39:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
                 return 0;
             case 0x3a:
                 return 0;
@@ -265,8 +310,10 @@ public class Cmos extends Module_base {
             case 0x18:		/* Extended memory in KB High Byte */
             case 0x30:		/* Extended memory in KB Low Byte */
             case 0x31:		/* Extended memory in KB High Byte */
+            case 0x3d:      /* boot order */
+            case 0x38:      /* boot order */
         //		Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg %X : %04X",cmos.reg,cmos.regs[cmos.reg]);
-                return cmos.regs[cmos.reg];
+                return cmos.regs[cmos.reg] & 0xFF;
             default:
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg "+Integer.toString(cmos.reg,16));
                 return cmos.regs[cmos.reg];
@@ -274,7 +321,7 @@ public class Cmos extends Module_base {
         }
     };
 
-    static public void CMOS_SetRegister(/*Bitu*/int regNr, /*Bit8u*/short val) {
+    static public void CMOS_SetRegister(/*Bitu*/int regNr, /*Bit8u*/int val) {
         cmos.regs[regNr] = (byte)val;
     }
 

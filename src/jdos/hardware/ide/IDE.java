@@ -2328,7 +2328,7 @@ public class IDE extends Internal {
             Log.exit("secs must be between 1 and 255");
         }
         */
-        ide_init_drive(c.ifs[slave ? 1 : 0], bs, isCD?IDE_CD:IDE_HD, "version", "serial", "model", 0, cylinders.value, heads.value, sectors.value, trans.value);
+        ide_init_drive(c.ifs[slave ? 1 : 0], bs, isCD?IDE_CD:IDE_HD, "version", "serial", null, 0, cylinders.value, heads.value, sectors.value, trans.value);
     }
 
     public static Section.SectionFunction IDE_Primary_Init = new Section.SectionFunction() {

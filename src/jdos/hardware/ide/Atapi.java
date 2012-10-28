@@ -35,12 +35,12 @@ public class Atapi extends Internal {
                     buf[7] = 0;   /* default densities */
 
                     /* FIXME: 0x30000 per spec? */
-                    writed(buf, 8, 0); /* start sector */
-                    writed(buf, 12, total_sectors - 1); /* end sector */
-                    writed(buf, 16, total_sectors - 1); /* l0 end sector */
+                    be_writed(buf, 8, 0); /* start sector */
+                    be_writed(buf, 12, total_sectors - 1); /* end sector */
+                    be_writed(buf, 16, total_sectors - 1); /* l0 end sector */
 
                     /* Size of buffer, not including 2 byte size field */
-                    writew(buf, 0, 2048 + 2);
+                    be_writew(buf, 0, 2048 + 2);
 
                     /* 2k data + 4 byte header */
                     return (2048 + 4);
@@ -51,7 +51,7 @@ public class Atapi extends Internal {
                 buf[5] = 0; /* no region restrictions */
 
                 /* Size of buffer, not including 2 byte size field */
-                writew(buf, 0, 4 + 2);
+                be_writew(buf, 0, 4 + 2);
 
                 /* 4 byte header + 4 byte data */
                 return (4 + 4);
@@ -61,7 +61,7 @@ public class Atapi extends Internal {
 
             case 0x04: /* DVD disc manufacturing information */
                 /* Size of buffer, not including 2 byte size field */
-                writew(buf, 0, 2048 + 2);
+                be_writew(buf, 0, 2048 + 2);
 
                 /* 2k data + 4 byte header */
                 return (2048 + 4);
@@ -74,22 +74,22 @@ public class Atapi extends Internal {
 
                 buf[4] = 0x00; /* Physical format */
                 buf[5] = 0x40; /* Not writable, is readable */
-                writew(buf, 6, 2048 + 4);
+                be_writew(buf, 6, 2048 + 4);
 
                 buf[8] = 0x01; /* Copyright info */
                 buf[9] = 0x40; /* Not writable, is readable */
-                writew(buf, 10, 4 + 4);
+                be_writew(buf, 10, 4 + 4);
 
                 buf[12] = 0x03; /* BCA info */
                 buf[13] = 0x40; /* Not writable, is readable */
-                writew(buf, 14, 188 + 4);
+                be_writew(buf, 14, 188 + 4);
 
                 buf[16] = 0x04; /* Manufacturing info */
                 buf[17] = 0x40; /* Not writable, is readable */
-                writew(buf, 18, 2048 + 4);
+                be_writew(buf, 18, 2048 + 4);
 
                 /* Size of buffer, not including 2 byte size field */
-                writew(buf, 0, 16 + 2);
+                be_writew(buf, 0, 16 + 2);
 
                 /* data written + 4 byte header */
                 return (16 + 4);
@@ -157,7 +157,7 @@ public class Atapi extends Internal {
 //            gesn_event_header = (void *)buf;
 //
 //            max_len = be16_to_cpu(gesn_cdb.len);
-            max_len = readw(buf, 0);
+            max_len = be_readw(buf, 0);
             int polled = buf[1] & 0xFF;
             /* It is fine by the MMC spec to not support async mode operations */
             if ((/*gesn_cdb.*/polled & 0x01)==0) { /* asynchronous mode */
@@ -260,7 +260,7 @@ public class Atapi extends Internal {
             }
 
             /* XXX: could result in alignment problems in some architectures */
-            max_len = readw(buf, 7);
+            max_len = be_readw(buf, 7);
 
             /*
              * XXX: avoid overflow for io_buffer if max_len is bigger than
@@ -279,9 +279,9 @@ public class Atapi extends Internal {
              * to use as current.  0 means there is no media
              */
             if (media_is_dvd(s)) {
-                writew(buf, 6, Scsi.MMC_PROFILE_DVD_ROM);
+                be_writew(buf, 6, Scsi.MMC_PROFILE_DVD_ROM);
             } else if (media_is_cd(s)) {
-                writew(buf, 6, Scsi.MMC_PROFILE_CD_ROM);
+                be_writew(buf, 6, Scsi.MMC_PROFILE_CD_ROM);
             }
 
             buf[10] = 0x02 | 0x01; /* persistent and current */
@@ -289,7 +289,7 @@ public class Atapi extends Internal {
             IntRef index = new IntRef(0);
             len += ide_atapi_set_profile(buf, index, Scsi.MMC_PROFILE_DVD_ROM);
             len += ide_atapi_set_profile(buf, index, Scsi.MMC_PROFILE_CD_ROM);
-            writed(buf, 0, len - 4); /* data length */
+            be_writed(buf, 0, len - 4); /* data length */
 
             ide_atapi_cmd_reply(s, len, max_len);
         }
@@ -300,7 +300,7 @@ public class Atapi extends Internal {
             int action, code;
             int max_len;
 
-            max_len = readw(buf, 7);
+            max_len = be_readw(buf, 7);
             action = buf[2] >> 6;
             code = buf[2] & 0x3f;
 
@@ -308,7 +308,7 @@ public class Atapi extends Internal {
             case 0: /* current values */
                 switch(code) {
                 case Scsi.MODE_PAGE_R_W_ERROR: /* error recovery */
-                    writew(buf, 0, 16 - 2);
+                    be_writew(buf, 0, 16 - 2);
                     buf[2] = 0x70;
                     buf[3] = 0;
                     buf[4] = 0;
@@ -327,7 +327,7 @@ public class Atapi extends Internal {
                     ide_atapi_cmd_reply(s, 16, max_len);
                     break;
                 case Scsi.MODE_PAGE_AUDIO_CTL:
-                    writew(buf, 0, 24 - 2);
+                    be_writew(buf, 0, 24 - 2);
                     buf[2] = 0x70;
                     buf[3] = 0;
                     buf[4] = 0;
@@ -346,7 +346,7 @@ public class Atapi extends Internal {
                     ide_atapi_cmd_reply(s, 24, max_len);
                     break;
                 case Scsi.MODE_PAGE_CAPABILITIES:
-                    writew(buf, 0, 30 - 2);
+                    be_writew(buf, 0, 30 - 2);
                     buf[2] = 0x70;
                     buf[3] = 0;
                     buf[4] = 0;
@@ -368,11 +368,11 @@ public class Atapi extends Internal {
                         buf[14] |= 1 << 1;
                     }
                     buf[15] = 0x00; /* No volume & mute control, no changer */
-                    writew(buf, 16, 704); /* 4x read speed */
+                    be_writew(buf, 16, 704); /* 4x read speed */
                     buf[18] = 0; /* Two volume levels */
                     buf[19] = 2;
-                    writew(buf, 20, 512); /* 512k buffer */
-                    writew(buf, 22, 704); /* 4x read speed current */
+                    be_writew(buf, 20, 512); /* 512k buffer */
+                    be_writew(buf, 22, 704); /* 4x read speed current */
                     buf[24] = 0;
                     buf[25] = 0;
                     buf[26] = 0;
@@ -418,15 +418,16 @@ public class Atapi extends Internal {
 
     static private final AtapiCmdCallback cmd_read = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
-            int nb_sectors, lba;
+            int nb_sectors;
+            long lba;
 
             if (buf[0] == GPCMD_READ_10) {
-                nb_sectors = readw(buf, 7);
+                nb_sectors = be_readw(buf, 7);
             } else {
-                nb_sectors = readd(buf, 6);
+                nb_sectors = (int)be_readd(buf, 6);
             }
 
-            lba = readd(buf, 2);
+            lba = be_readd(buf, 2);
             if (nb_sectors == 0) {
                 ide_atapi_cmd_ok(s);
                 return;
@@ -438,10 +439,11 @@ public class Atapi extends Internal {
 
     static private final AtapiCmdCallback cmd_read_cd = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
-            int nb_sectors, lba, transfer_request;
+            int nb_sectors, transfer_request;
+            long lba;
 
             nb_sectors = (buf[6] << 16) | (buf[7] << 8) | buf[8];
-            lba = readd(buf, 2);
+            lba = be_readd(buf, 2);
 
             if (nb_sectors == 0) {
                 ide_atapi_cmd_ok(s);
@@ -472,10 +474,10 @@ public class Atapi extends Internal {
 
     static private final AtapiCmdCallback cmd_seek = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
-            int lba;
+            long lba;
             long total_sectors = s.nb_sectors >> 2;
 
-            lba = readd(buf, 2);
+            lba = be_readd(buf, 2);
             if (lba >= total_sectors) {
                 ide_atapi_cmd_error(s, Scsi.ILLEGAL_REQUEST, ASC_LOGICAL_BLOCK_OOR);
                 return;
@@ -510,15 +512,15 @@ public class Atapi extends Internal {
 
     static private final AtapiCmdCallback cmd_mechanism_status = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
-            int max_len = readw(buf, 8);
+            int max_len = be_readw(buf, 8);
 
-            writew(buf, 0, 0);
+            be_writew(buf, 0, 0);
             /* no current LBA */
             buf[2] = 0;
             buf[3] = 0;
             buf[4] = 0;
             buf[5] = 1;
-            writew(buf, 6, 0);
+            be_writew(buf, 6, 0);
             ide_atapi_cmd_reply(s, 8, max_len);
         }
     };
@@ -529,7 +531,7 @@ public class Atapi extends Internal {
             int max_len;
             long total_sectors = s.nb_sectors >> 2;
 
-            max_len = readw(buf, 7);
+            max_len = be_readw(buf, 7);
             format = buf[9] >> 6;
             msf = (buf[1] >> 1) & 1;
             start_track = buf[6];
@@ -570,8 +572,8 @@ public class Atapi extends Internal {
             long total_sectors = s.nb_sectors >> 2;
 
             /* NOTE: it is really the number of sectors minus 1 */
-            writed(buf, 0, total_sectors - 1);
-            writed(buf, 4, 2048);
+            be_writed(buf, 0, total_sectors - 1);
+            be_writed(buf, 4, 2048);
             ide_atapi_cmd_reply(s, 8, 8);
         }
     };
@@ -579,7 +581,7 @@ public class Atapi extends Internal {
     static private final AtapiCmdCallback cmd_read_disc_information = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
             int type = buf[1] & 7;
-            int max_len = readw(buf, 7);
+            int max_len = be_readw(buf, 7);
 
             /* Types 1/2 are only defined for Blu-Ray.  */
             if (type != 0) {
@@ -613,7 +615,7 @@ public class Atapi extends Internal {
             int format = buf[7];
             int ret;
 
-            max_len = readw(buf, 8);
+            max_len = be_readw(buf, 8);
 
             if (format < 0xff) {
                 if (media_is_cd(s)) {
@@ -728,7 +730,7 @@ public class Atapi extends Internal {
         return (media_present(s) && s.nb_sectors <= Scsi.CD_MAX_SECTORS);
     }
     
-    static void cd_data_to_raw(byte[] buf, int lba) {
+    static void cd_data_to_raw(byte[] buf, long lba) {
         /* sync bytes */
         buf[0] = 0x00;
         java.util.Arrays.fill(buf, 1, 11, (byte) 0xFF);
@@ -744,18 +746,18 @@ public class Atapi extends Internal {
         java.util.Arrays.fill(buf, offset, offset + 288, (byte) 0);
     }
 
-    static int cd_read_sector(IDEState s, int lba, byte[] buf, int sector_size) {
+    static int cd_read_sector(IDEState s, long lba, byte[] buf, int sector_size) {
         int ret;
     
         switch(sector_size) {
         case 2048:
             Block.bdrv_acct_start(s.bs, s.acct, 4 * Block.BDRV_SECTOR_SIZE, Block.BDRV_ACCT_READ);
-            ret = Block.bdrv_read(s.bs, (long)lba << 2, buf, 0, 4);
+            ret = Block.bdrv_read(s.bs, lba << 2, buf, 0, 4);
             Block.bdrv_acct_done(s.bs, s.acct);
             break;
         case 2352:
             Block.bdrv_acct_start(s.bs, s.acct, 4 * Block.BDRV_SECTOR_SIZE, Block.BDRV_ACCT_READ);
-            ret = Block.bdrv_read(s.bs, (long)lba << 2, buf, 16, 4);
+            ret = Block.bdrv_read(s.bs, lba << 2, buf, 16, 4);
             Block.bdrv_acct_done(s.bs, s.acct);
             if (ret < 0)
                 return ret;
@@ -888,7 +890,7 @@ public class Atapi extends Internal {
     }
     
     /* start a CD-CDROM read command */
-    static private void ide_atapi_cmd_read_pio(IDEState s, int lba, int nb_sectors, int sector_size)
+    static private void ide_atapi_cmd_read_pio(IDEState s, long lba, int nb_sectors, int sector_size)
     {
         s.lba = lba;
         s.packet_transfer_size = nb_sectors * sector_size;
@@ -919,7 +921,7 @@ public class Atapi extends Internal {
              * condition response unless a higher priority status, defined by the drive
              * here, is pending.
              */
-            if (s.sense_key == Scsi.UNIT_ATTENTION && (atapi_cmd_table[s.io_buffer[0]].flags & ALLOW_UA)==0) {
+            if (s.sense_key == Scsi.UNIT_ATTENTION && (atapi_cmd_table[s.io_buffer[0] & 0xFF].flags & ALLOW_UA)==0) {
                 ide_atapi_cmd_check_status(s);
                 return;
             }
@@ -940,7 +942,7 @@ public class Atapi extends Internal {
             }
 
             /* Report a Not Ready condition if appropriate for the command */
-            if ((atapi_cmd_table[s.io_buffer[0]].flags & CHECK_READY)!=0 &&
+            if ((atapi_cmd_table[s.io_buffer[0] & 0xFF].flags & CHECK_READY)!=0 &&
                 (!media_present(s) || !Block.bdrv_is_inserted(s.bs)))
             {
                 ide_atapi_cmd_error(s, Scsi.NOT_READY, ASC_MEDIUM_NOT_PRESENT);
@@ -948,8 +950,8 @@ public class Atapi extends Internal {
             }
 
             /* Execute the command */
-            if (atapi_cmd_table[s.io_buffer[0]].handler!=null) {
-                atapi_cmd_table[s.io_buffer[0]].handler.call(s, s.io_buffer);
+            if (atapi_cmd_table[s.io_buffer[0] & 0xFF].handler!=null) {
+                atapi_cmd_table[s.io_buffer[0] & 0xFF].handler.call(s, s.io_buffer);
                 return;
             }
 
@@ -1041,7 +1043,7 @@ public class Atapi extends Internal {
 
     /* start a CD-CDROM read command with DMA */
     /* XXX: test if DMA is available */
-    private static void ide_atapi_cmd_read_dma(IDEState s, int lba, int nb_sectors, int sector_size) {
+    private static void ide_atapi_cmd_read_dma(IDEState s, long lba, int nb_sectors, int sector_size) {
         s.lba = lba;
         s.packet_transfer_size = nb_sectors * sector_size;
         s.io_buffer_index = 0;
@@ -1055,7 +1057,7 @@ public class Atapi extends Internal {
         s.bus.dma.ops.start_dma.call(s.bus.dma, s, ide_atapi_cmd_read_dma_cb);
     }
 
-    private static void ide_atapi_cmd_read(IDEState s, int lba, int nb_sectors, int sector_size) {
+    private static void ide_atapi_cmd_read(IDEState s, long lba, int nb_sectors, int sector_size) {
         if (DEBUG_IDE_ATAPI)
             System.out.println("read "+(s.atapi_dma!=0 ? "dma" : "pio")+": LBA="+lba+" nb_sectors="+nb_sectors);
         if (s.atapi_dma!=0) {
@@ -1070,7 +1072,7 @@ public class Atapi extends Internal {
         int offset = 12; /* start of profiles */
 
         offset += (index.value * 4); /* start of indexed profile */
-        writew(buf, offset, profile);
+        be_writew(buf, offset, profile);
         buf[2+offset] = (byte)(((buf[offset] == buf[6]) && (buf[1+offset] == buf[7]))?-1:0);
 
         /* each profile adds 4 bytes to the response */

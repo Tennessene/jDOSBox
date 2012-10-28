@@ -14,6 +14,7 @@ import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
 import jdos.hardware.ide.Block;
 import jdos.hardware.ide.IDE;
+import jdos.hardware.ide.Internal;
 import jdos.ints.Bios;
 import jdos.ints.Bios_disk;
 import jdos.misc.Cross;
@@ -873,6 +874,26 @@ public class Dos_programs {
                         new IoHandler.IO_WriteHandleObject().Install(0x501, vga_write, IoHandler.IO_MA);
                         new IoHandler.IO_WriteHandleObject().Install(0x502, vga_write, IoHandler.IO_MA);
                         Cmos.CMOS_SetRegister(0x14, (byte)6); // 2 math co process and 4 ps/2 mouse
+                        if (bochs.startsWith("CD")) {
+                            Cmos.CMOS_SetRegister(0x3d, (byte)0x23); // boot order d then c
+                        }
+
+                        Cmos.CMOS_SetRegister(0x12, (IDE.getDrive(0, 0)!=null ? 0xf0 : 0) | (IDE.getDrive(0, 1)!=null ? 0x0f : 0));
+                        cmos_init_hd(0x19, 0x1b, IDE.getDrive(0, 0));
+                        cmos_init_hd(0x1a, 0x24, IDE.getDrive(0, 1));
+
+                        int val = 0;
+                        for (i = 0; i < 4; i++) {
+                            Internal.IDEState s = IDE.getDrive(i/2, i%2);
+                            /* NOTE: ide_get_geometry() returns the physical
+                               geometry.  It is always such that: 1 <= sects <= 63, 1
+                               <= heads <= 16, 1 <= cylinders <= 16383. The BIOS
+                               geometry can be different if a translation is done. */
+                            if (s != null && s.drive_kind == IDE.IDE_HD) {
+                                val |= s.chs_trans << (i * 2);
+                            }
+                        }
+                        Cmos.CMOS_SetRegister(0x39, val);
                         //Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
                         //CPU.cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
                         //DecodeBlock.start=1;
@@ -913,6 +934,23 @@ public class Dos_programs {
                 CPU_Regs.reg_ebx.dword=0x7c00; //Real code probably uses bx to load the image
                 Bios.boot = true;
             }
+        }
+
+        static void cmos_init_hd(int type_ofs, int info_ofs, Internal.IDEState hd)
+        {
+            if (hd == null || hd.drive_kind != IDE.IDE_HD)
+                return;
+            int cylinders = hd.cylinders, heads=hd.heads, sectors=hd.sectors;
+            Cmos.CMOS_SetRegister(type_ofs, 47);
+            Cmos.CMOS_SetRegister(info_ofs, cylinders);
+            Cmos.CMOS_SetRegister(info_ofs + 1, cylinders >> 8);
+            Cmos.CMOS_SetRegister(info_ofs + 2, heads);
+            Cmos.CMOS_SetRegister(info_ofs + 3, 0xff);
+            Cmos.CMOS_SetRegister(info_ofs + 4, 0xff);
+            Cmos.CMOS_SetRegister(info_ofs + 5, 0xc0 | (((heads > 8)?1:0) << 3));
+            Cmos.CMOS_SetRegister(info_ofs + 6, cylinders);
+            Cmos.CMOS_SetRegister(info_ofs + 7, cylinders >> 8);
+            Cmos.CMOS_SetRegister(info_ofs + 8, sectors);
         }
     }
 

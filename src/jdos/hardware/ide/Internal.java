@@ -387,7 +387,7 @@ public class Internal {
         public int packet_transfer_size;
         public int elementary_transfer_size;
         public int io_buffer_index;
-        public int lba;
+        public long lba;
         public int cd_sector_size;
         public int atapi_dma; /* true if dma is requested for the packet cmd */
         public Block.BlockAcctCookie acct = new Block.BlockAcctCookie();
@@ -558,5 +558,22 @@ public class Internal {
 	    b[offset+1]=(byte)((value >> 8));
         b[offset+2]=(byte)((value >> 16));
         b[offset+3]=(byte)((value >>> 24));
+    }
+
+    static long be_readd(byte[] b, int offset) {
+        return (b[offset+3] & 0xFF) | ((b[offset+2] & 0xFF) << 8) | ((b[offset+1] & 0xFF) << 16) | ((b[offset] & 0xFF) << 24);
+    }
+    static int be_readw(byte[] b, int offset) {
+        return (b[offset+1] & 0xFF) | ((b[offset] & 0xFF) << 8);
+    }
+    static void be_writew(byte[] b, int offset, int value) {
+        b[offset+1]=(byte)(value);
+	    b[offset]=(byte)((value >> 8));
+    }
+    static void be_writed(byte[] b, int offset, long value) {
+        b[offset+3]=(byte)(value);
+	    b[offset+2]=(byte)((value >> 8));
+        b[offset+1]=(byte)((value >> 16));
+        b[offset]=(byte)((value >>> 24));
     }
 }

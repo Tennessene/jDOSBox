@@ -542,7 +542,7 @@ public class Dos_programs {
             while(i<cmd.GetCount()) {
                 if ((temp_line=cmd.FindCommand(i+1))!=null) {
                     if (temp_line.equalsIgnoreCase("-bochs")) {
-                        if ((temp_line=cmd.FindCommand(i+1))!=null) {
+                        if ((temp_line=cmd.FindCommand(i+2))!=null) {
                            bochs=temp_line.toUpperCase();
                         }
                         break;
@@ -875,7 +875,9 @@ public class Dos_programs {
                         new IoHandler.IO_WriteHandleObject().Install(0x502, vga_write, IoHandler.IO_MA);
                         Cmos.CMOS_SetRegister(0x14, (byte)6); // 2 math co process and 4 ps/2 mouse
                         if (bochs.startsWith("CD")) {
-                            Cmos.CMOS_SetRegister(0x3d, (byte)0x23); // boot order d then c
+                            Cmos.CMOS_SetRegister(0x3d, (byte)0x3);
+                        } else {
+                            Cmos.CMOS_SetRegister(0x3d, (byte)0x2);
                         }
 
                         Cmos.CMOS_SetRegister(0x12, (IDE.getDrive(0, 0)!=null ? 0xf0 : 0) | (IDE.getDrive(0, 1)!=null ? 0x0f : 0));

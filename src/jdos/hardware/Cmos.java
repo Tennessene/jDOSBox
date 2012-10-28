@@ -300,6 +300,8 @@ public class Cmos extends Module_base {
                 return 0;
             case 0x37: // Password Seed and Color Option
                 return 0x20;
+            case 0x3d:      /* boot order */
+                return cmos.regs[cmos.reg] & 0xFF;
             case 0x0b:		/* Status register B */
             case 0x0d:		/* Status register D */
             case 0x0f:		/* Shutdown status byte */
@@ -310,8 +312,6 @@ public class Cmos extends Module_base {
             case 0x18:		/* Extended memory in KB High Byte */
             case 0x30:		/* Extended memory in KB Low Byte */
             case 0x31:		/* Extended memory in KB High Byte */
-            case 0x3d:      /* boot order */
-            case 0x38:      /* boot order */
         //		Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg %X : %04X",cmos.reg,cmos.regs[cmos.reg]);
                 return cmos.regs[cmos.reg] & 0xFF;
             default:

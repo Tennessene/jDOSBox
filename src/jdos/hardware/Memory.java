@@ -297,14 +297,13 @@ public class Memory extends Module_base {
 
     private static final int PAGES_IN_BLOCK = ((1024*1024)/ Paging.MEM_PAGE_SIZE);
     private static final int SAFE_MEMORY = 32;
-    private static final int MAX_MEMORY	= 64;
+    private static final int MAX_MEMORY	= 512;
     private static final int MAX_PAGE_ENTRIES = (MAX_MEMORY*1024*1024/4096);
     private static final int LFB_PAGES = 512;
-    private static final int MAX_LINKS = ((MAX_MEMORY*1024/4)+4096);		//Hopefully enough
 
     private static class LinkBlock {
         public /*Bitu*/int used;
-        public /*Bit32u*/long[] pages = new long[MAX_LINKS];
+        public /*Bit32u*/long[] pages = new long[((MEM_SIZE*1024/4)+4096)];
     }
 
     private static class MemoryBlock {
@@ -333,7 +332,7 @@ public class Memory extends Module_base {
         }
         A20 a20 = new A20();
     }
-    static private MemoryBlock memory = new MemoryBlock();
+    static private MemoryBlock memory;
 
     static /*HostPt*/Ptr MemBase;
 
@@ -918,16 +917,17 @@ public class Memory extends Module_base {
             /*Bitu*/int memsize=section.Get_int("memsize");
 
             if (memsize < 1) memsize = 1;
-            /* max 63 to solve problems with certain xms handlers */
-            if (memsize > MAX_MEMORY-1) {
+
+            if (memsize > MAX_MEMORY) {
                 Log.log_msg("Maximum memory size is "+(MAX_MEMORY - 1)+" MB");
-                memsize = MAX_MEMORY-1;
+                memsize = MAX_MEMORY;
             }
             if (memsize > SAFE_MEMORY-1) {
                 Log.log_msg("Memory sizes above "+(SAFE_MEMORY - 1)+" MB are NOT recommended.");
                 Log.log_msg("Stick with the default values unless you are absolutely certain.");
             }
             MEM_SIZE = memsize;
+            memory = new MemoryBlock();
             try {
                 Runtime.getRuntime().gc();
                 highwaterMark = memsize*1024*1024;

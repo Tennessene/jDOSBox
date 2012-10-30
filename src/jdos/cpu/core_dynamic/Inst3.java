@@ -3104,7 +3104,7 @@ public class Inst3 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
-        public String description() {return "MOV "+CPU_Regs.reg_eax.getName()+", 0x"+Integer.toHexString(Core.base_ds+value);}
+        public String description() {return "MOV "+CPU_Regs.reg_eax.getName()+", @0x"+Integer.toHexString(Core.base_ds+value);}
     }
 
     final static public class MovOdEax extends Inst1.GetEADirect {

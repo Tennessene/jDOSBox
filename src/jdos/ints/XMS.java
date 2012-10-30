@@ -284,9 +284,13 @@ public class XMS extends Module_base {
                 break;
             case XMS_QUERY_FREE_EXTENDED_MEMORY:						/* 08 */
             {
-                IntRef ax = new IntRef(CPU_Regs.reg_eax.word());
-                IntRef dx = new IntRef(CPU_Regs.reg_edx.word());
+                IntRef ax = new IntRef(CPU_Regs.reg_eax.dword);
+                IntRef dx = new IntRef(CPU_Regs.reg_edx.dword);
                 CPU_Regs.reg_ebx.low(XMS_QueryFreeMemory(ax,dx));
+                if (ax.value > 65535) /* cap sizes for older DOS programs. newer ones use function 0x88 */
+                    ax.value = 65535;
+                if (dx.value > 65535)
+                    dx.value = 65535;
                 CPU_Regs.reg_eax.word(ax.value);
                 CPU_Regs.reg_edx.word(dx.value);
             }
@@ -297,7 +301,7 @@ public class XMS extends Module_base {
             case XMS_ALLOCATE_EXTENDED_MEMORY:							/* 09 */
                 {
                 /*Bit16u*/IntRef handle = new IntRef(0);
-                SET_RESULT(XMS_AllocateMemory(CPU_Regs.reg_edx.word(),handle));
+                SET_RESULT(XMS_AllocateMemory(CPU_Regs.reg_edx.dword,handle));
                 CPU_Regs.reg_edx.word(handle.value);
                 } break;
             case XMS_FREE_EXTENDED_MEMORY:								/* 0a */
@@ -396,8 +400,8 @@ public class XMS extends Module_base {
                 CPU_Regs.reg_ebx.low(XMS_QueryFreeMemory(ax,dx));
                 CPU_Regs.reg_eax.word(ax.value);
                 CPU_Regs.reg_edx.word(dx.value);
-                CPU_Regs.reg_eax.dword&=0xffff;
-                CPU_Regs.reg_edx.dword&=0xffff;
+                //CPU_Regs.reg_eax.dword&=0xffff;
+                //CPU_Regs.reg_edx.dword&=0xffff;
                 CPU_Regs.reg_ecx.dword=(Memory.MEM_TotalPages()*Memory.MEM_PAGESIZE)-1;			// highest known physical memory address
                 break;
             }
@@ -410,7 +414,7 @@ public class XMS extends Module_base {
                 CPU_Regs.reg_edx.word(dx.value);
                 if (result != 0) CPU_Regs.reg_ebx.low(result);
                 else {
-                    CPU_Regs.reg_edx.dword&=0xffff;
+                    //CPU_Regs.reg_edx.dword&=0xffff;
                     CPU_Regs.reg_ecx.word(free_handles.value);
                 }
                 CPU_Regs.reg_eax.word((result==0)?1:0);

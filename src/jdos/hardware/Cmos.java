@@ -302,6 +302,10 @@ public class Cmos extends Module_base {
                 return 0x20;
             case 0x3d:      /* boot order */
                 return cmos.regs[cmos.reg] & 0xFF;
+            case 0x34:      /* extended memory over 64MB */
+                return cmos.regs[cmos.reg] & 0xFF;
+            case 0x35:      /* extended memory over 64MB */
+                return cmos.regs[cmos.reg] & 0xFF;
             case 0x0b:		/* Status register B */
             case 0x0d:		/* Status register D */
             case 0x0f:		/* Shutdown status byte */
@@ -348,10 +352,22 @@ public class Cmos extends Module_base {
 		cmos.regs[0x16]=(byte)0x02;
 		/* Fill in extended memory size */
 		/*Bitu*/int exsize=(Memory.MEM_TotalPages()*4)-1024;
+        if (exsize>65535)
+            exsize = 65535;
 		cmos.regs[0x17]=(byte)exsize;
 		cmos.regs[0x18]=(byte)(exsize >> 8);
 		cmos.regs[0x30]=(byte)exsize;
 		cmos.regs[0x31]=(byte)(exsize >> 8);
+
+        int val = 0;
+        int ramSize = (Memory.MEM_TotalPages()*4096);
+        if (ramSize > (16 * 1024 * 1024))
+            val = (ramSize / 65536) - ((16 * 1024 * 1024) / 65536);
+        if (val > 65535)
+            val = 65535;
+
+        cmos.regs[0x34]= (byte)val;
+        cmos.regs[0x35]= (byte)(val >> 8);
     }
 
     static Cmos test;

@@ -41,7 +41,7 @@ public class HdGeometry extends Internal {
             return -1;
         }
         /* test msdos magic */
-        if (buf[510] != 0x55 || buf[511] != 0xaa) {
+        if (buf[510] != 0x55 || buf[511] != (byte)0xaa) {
             return -1;
         }
         for (i = 0; i < 4; i++) {

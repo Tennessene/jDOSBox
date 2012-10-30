@@ -1004,16 +1004,8 @@ public class Keyboard {
             IoHandler.IO_RegisterReadHandler(0x64,read_p64,IoHandler.IO_MB);
             Timer.TIMER_AddTickHandler(KEYBOARD_TickHandler);
             write_p61.call(0,0,0);
-            /* Init the keyb struct */
-            keyb.active=true;
-            keyb.scanning=true;
-            keyb.command=KeyCommands.CMD_NONE;
-            keyb.p60changed=false;
-            keyb.repeat.key=KBD_KEYS.KBD_NONE;
-            keyb.repeat.pause=500;
-            keyb.repeat.rate=33;
-            keyb.repeat.wait=0;
-            KEYBOARD_ClrBuffer();
+            KEYBOARD_Reset();
+	        AUX_Reset();
             if (section != null)
                 section.AddDestroyFunction(KEYBOARD_ShutDown,false);
         }

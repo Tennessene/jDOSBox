@@ -10,7 +10,7 @@ import jdos.dos.DriveManager;
 import jdos.gui.Mapper;
 import jdos.hardware.Cmos;
 import jdos.hardware.Memory;
-import jdos.hardware.ide.IDE;
+import jdos.hardware.qemu.IDE;
 import jdos.misc.Log;
 import jdos.sdl.JavaMapper;
 import jdos.types.LogSeverities;

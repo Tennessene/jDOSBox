@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 import jdos.hardware.IoHandler;
 import jdos.misc.setup.Module_base;

@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 import jdos.util.IntRef;
 

@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 import jdos.util.IntRef;
 
@@ -1658,16 +1658,17 @@ public class Block {
 //        }
 //    }
 //
-//    /* Return < 0 if error. Important errors are:
-//      -EIO         generic I/O error (may happen for all errors)
-//      -ENOMEDIUM   No media inserted.
-//      -EINVAL      Invalid sector number or nb_sectors
-//      -EACCES      Trying to write a read-only device
-//    */
-//    static private int bdrv_write(BlockDriverState bs, long sector_num, byte[] buf, int nb_sectors)
-//    {
-//        return bdrv_rw_co(bs, sector_num, (uint8_t *)buf, nb_sectors, true);
-//    }
+    /* Return < 0 if error. Important errors are:
+      -EIO         generic I/O error (may happen for all errors)
+      -ENOMEDIUM   No media inserted.
+      -EINVAL      Invalid sector number or nb_sectors
+      -EACCES      Trying to write a read-only device
+    */
+    static public int bdrv_write(BlockDriverState bs, long sector_num, byte[] buf, int offset, int nb_sectors)
+    {
+        return bs.drv.bdrv_write(bs, sector_num, buf, offset, nb_sectors);
+        //return bdrv_rw_co(bs, sector_num, (uint8_t *)buf, nb_sectors, true);
+    }
 
     static private int bdrv_pread(BlockDriverState bs, int offset, byte[] buf, int count1) {
         byte[] tmp_buf = new byte[BDRV_SECTOR_SIZE];

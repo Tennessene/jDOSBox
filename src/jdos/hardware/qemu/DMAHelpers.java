@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 public class DMAHelpers {
     static public void qemu_sglist_destroy(DMA.QEMUSGList qsg) {

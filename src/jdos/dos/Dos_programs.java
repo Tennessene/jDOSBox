@@ -12,9 +12,10 @@ import jdos.gui.Main;
 import jdos.hardware.Cmos;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
-import jdos.hardware.ide.Block;
-import jdos.hardware.ide.IDE;
-import jdos.hardware.ide.Internal;
+import jdos.hardware.qemu.Block;
+import jdos.hardware.qemu.Floppy;
+import jdos.hardware.qemu.IDE;
+import jdos.hardware.qemu.Internal;
 import jdos.ints.Bios;
 import jdos.ints.Bios_disk;
 import jdos.misc.Cross;
@@ -876,6 +877,8 @@ public class Dos_programs {
                         Cmos.CMOS_SetRegister(0x14, (byte)6); // 2 math co process and 4 ps/2 mouse
                         if (bochs.startsWith("CD")) {
                             Cmos.CMOS_SetRegister(0x3d, (byte)0x3);
+                        } else if (bochs.startsWith("FD")) {
+                            Cmos.CMOS_SetRegister(0x3d, (byte)0x1);
                         } else {
                             Cmos.CMOS_SetRegister(0x3d, (byte)0x2);
                         }
@@ -1469,6 +1472,7 @@ public class Dos_programs {
                 }
                 if (!((Drive_fat)newdrive).loadedDisk.hardDrive) {
                     Bios_disk.imageDiskList[0] = ((Drive_fat)newdrive).loadedDisk;
+                    Floppy.Attach(0, Bios_disk.imageDiskList[0].diskimg);
                 }
             } else if (fstype.equals("iso")) {
                 if (Dos_files.Drives[drive-'A']!=null) {
@@ -1535,6 +1539,10 @@ public class Dos_programs {
                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_MOUNT_NUMBER"),new Object[]{new Integer(drive-'0'),temp_line});
                 // If instructed, attach to IDE controller as ATA hard disk
 			    if (ide_index.value >= 0 && drive>='2') IDE.IDE_Attach(false, ide_index.value,ide_slave.value, newImage.diskimg, (int)newImage.cylinders, (int)newImage.heads, (int)newImage.sectors);
+                if (drive==48)
+                    Floppy.Attach(0, Bios_disk.imageDiskList[0].diskimg);
+                else if (drive==49)
+                    Floppy.Attach(1, Bios_disk.imageDiskList[1].diskimg);
             }
 
             // check if volume label is given. becareful for cdrom

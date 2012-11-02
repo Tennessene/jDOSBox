@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 public class Cdrom extends Internal {
     static public void lba_to_msf(byte[] buf, int offset, long lba) {

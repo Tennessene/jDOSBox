@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 /*
  * QEMU IDE disk and CD/DVD-ROM Emulator

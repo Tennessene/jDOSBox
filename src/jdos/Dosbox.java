@@ -14,7 +14,8 @@ import jdos.gui.Mapper;
 import jdos.gui.Midi;
 import jdos.gui.Render;
 import jdos.hardware.*;
-import jdos.hardware.ide.IDE;
+import jdos.hardware.qemu.Floppy;
+import jdos.hardware.qemu.IDE;
 import jdos.hardware.serialport.Serialports;
 import jdos.ints.*;
 import jdos.misc.Log;
@@ -716,7 +717,11 @@ public class Dosbox {
         secprop=control.AddSection_prop("ide, quaternary",IDE.IDE_Quaternary_Init,false);//done
         Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
         Pbool.Set_help("Enable IDE interface");
-        
+
+        secprop=control.AddSection_prop("floppy", Floppy.Flopyy_Init, true);
+        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,true);
+        Pbool.Set_help("Enable Floppy controller");
+
         if (Config.C_NE2000) {
 
 	        Pstring = secprop.Add_string("ne2000",Property.Changeable.WhenIdle,"false");

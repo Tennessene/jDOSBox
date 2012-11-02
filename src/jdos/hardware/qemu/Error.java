@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 public class Error {
     static public final int ENOSPC = 1;

@@ -1,4 +1,4 @@
-package jdos.hardware.ide;
+package jdos.hardware.qemu;
 
 public class Scsi {
     /* Event notification classes for GET EVENT STATUS NOTIFICATION */

@@ -29,6 +29,7 @@ public class DMA extends Module_base {
         public /*Bit8u*/short channum;
         public /*Bit8u*/short pagenum;
         public /*Bit8u*/short DMA16;
+        public int mode;
         public boolean increment;
         public boolean autoinit;
         public /*Bit8u*/short trantype;
@@ -248,6 +249,7 @@ public class DMA extends Module_base {
                 chan=GetChannel((short)(val & 3));
                 chan.autoinit=(val & 0x10) > 0;
                 chan.increment=(val & 0x20) > 0;
+                chan.mode = val;
                 //TODO Maybe other bits?
                 break;
             case 0xc:		/* Clear Flip/Flip */
@@ -392,7 +394,7 @@ public class DMA extends Module_base {
             if (page < EMM_PAGEFRAME4K) page = (int)Paging.firstmb[page];
             else if (page < EMM_PAGEFRAME4K+0x10) page = (int)ems_board_mapping[page];
             else if (page < Paging.LINK_START) page = (int)Paging.firstmb[page];
-            Memory.phys_writeb(page*4096 + (offset & 4095), data[data_offset+i]);
+            Memory.phys_writeb(page*4096 + (offset & 4095), data[data_offset+i] & 0xFF);
         }
     }
 

@@ -10,8 +10,8 @@ import jdos.hardware.Pic;
 
 public class Internal {
     /* debug IDE devices */
-    static public final boolean DEBUG_IDE = true;
-    static public final boolean DEBUG_IDE_ATAPI = true;
+    static public final boolean DEBUG_IDE = false;
+    static public final boolean DEBUG_IDE_ATAPI = false;
     static public final boolean DEBUG_AIO = true;
     static public final boolean USE_DMA_CDROM = true;
 

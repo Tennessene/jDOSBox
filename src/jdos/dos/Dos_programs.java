@@ -874,7 +874,19 @@ public class Dos_programs {
                         new IoHandler.IO_WriteHandleObject().Install(0x503, vga_write, IoHandler.IO_MA);
                         new IoHandler.IO_WriteHandleObject().Install(0x501, vga_write, IoHandler.IO_MA);
                         new IoHandler.IO_WriteHandleObject().Install(0x502, vga_write, IoHandler.IO_MA);
-                        Cmos.CMOS_SetRegister(0x14, (byte)6); // 2 math co process and 4 ps/2 mouse
+                        int equipment = 0x02; /* FPU is there */
+                        equipment |= 0x04; /* PS/2 mouse installed */
+                        int fdCount = 0;
+                        if (Floppy.isDriveReady(0))
+                            fdCount++;
+                        if (Floppy.isDriveReady(1))
+                            fdCount++;
+                        if (fdCount == 1) {
+                            equipment|=0x01;
+                        } else if (fdCount == 2) {
+                            equipment|=0x41;
+                        }
+                        Cmos.CMOS_SetRegister(0x14, (byte)equipment);
                         if (bochs.startsWith("CD")) {
                             Cmos.CMOS_SetRegister(0x3d, (byte)0x3);
                         } else if (bochs.startsWith("FD")) {

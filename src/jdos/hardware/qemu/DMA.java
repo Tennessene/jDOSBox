@@ -62,15 +62,12 @@ public class DMA {
     public static int DMA_read_memory (int nchan, byte[] buf, int bufOffset, int pos, int len)
     {
         jdos.hardware.DMA.DmaChannel channel = jdos.hardware.DMA.GetDMAChannel(nchan);
-        channel.curraddr = pos; // :TODO: not sure about this
         return channel.Read(len, buf, bufOffset);
     }
 
     public static int DMA_write_memory (int nchan, byte[] buf, int bufOffset, int pos, int len)
     {
         jdos.hardware.DMA.DmaChannel channel = jdos.hardware.DMA.GetDMAChannel(nchan);
-        channel.pagebase += channel.baseaddr;
-        channel.curraddr = (channel.baseaddr & 0xFFF) + pos; // :TODO: not sure about this
         return channel.Write(len, buf, bufOffset);
     }
 

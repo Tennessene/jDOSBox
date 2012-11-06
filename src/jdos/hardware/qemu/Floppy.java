@@ -53,6 +53,7 @@ public class Floppy {
     static private final int FDRIVE_RATE_1M   = 0x03;  /*   1 Mbps */
 
     static private void FLOPPY_DPRINTF(String s) {
+        System.out.print("FLOPPY: ");
         System.out.println(s);
     }
     
@@ -299,7 +300,7 @@ public class Floppy {
             drv.drive = drive.value;
             drv.media_rate = rate.value;
         } else {
-            FLOPPY_DPRINTF("No drive connected\n");
+            FLOPPY_DPRINTF("No drive connected");
             drv.last_sect = 0;
             drv.max_track = 0;
             drv.flags &= ~FDISK_DBL_SIDES;
@@ -670,7 +671,7 @@ public class Floppy {
     static private void fdctrl_reset(FDCtrl fdctrl, boolean do_irq) {
         int i;
 
-        FLOPPY_DPRINTF("reset controller\n");
+        FLOPPY_DPRINTF("reset controller");
         fdctrl_reset_irq(fdctrl);
         /* Initialise controller */
         fdctrl.sra = 0;
@@ -1930,6 +1931,9 @@ public class Floppy {
         return result;
     }
 
+    static public boolean isDriveReady(int index) {
+        return isa.drives[index].drive != FDRIVE_DRV_NONE;
+    }
     static private FDCtrl isa = new FDCtrl();
 
     static private IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[6];
@@ -1953,7 +1957,7 @@ public class Floppy {
             isa.dma_chann = 2;
             isa.irq = 6;
             fdctrl_init_common(isa);
-            for (int i = 0; i <= 5; i++) {
+            for (int i = 0; i < ReadHandler.length; i++) {
                 WriteHandler[i] = new IoHandler.IO_WriteHandleObject();
                 ReadHandler[i] = new IoHandler.IO_ReadHandleObject();
                 WriteHandler[i].Install(base_io + i, write_handler, IoHandler.IO_MB);

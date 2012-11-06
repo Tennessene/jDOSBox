@@ -61,7 +61,21 @@ public class IDE extends Internal {
     static private void padstr(byte[] buffer, int offset, String src, int len)
     {
         int i, v;
-        System.arraycopy(src.getBytes(), 0, buffer, offset*2, src.length());
+        for (i = 0;i<src.length();i+=2) {
+            if (src.length()>i+1) {
+                 byte c = (byte)src.charAt(i+1);
+                if (c==0)
+                    c = ' ';
+                buffer[offset*2+i]=c;
+            } else {
+                buffer[offset*2+i]=' ';
+            }
+            byte c = (byte)src.charAt(i);
+            if (c==0)
+                c = ' ';
+            buffer[offset*2+i+1]=c;
+        }
+        //System.arraycopy(src.getBytes(), 0, buffer, offset*2, src.length());
         for(i = src.length(); i < len; i++) {
             buffer[i+offset*2] = ' ';
         }

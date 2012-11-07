@@ -2272,14 +2272,16 @@ public class IDE extends Internal {
         }
     };
 
-    static void IDE_Init(Section sec,int i) {
+    static void IDE_Init(Section sec,int i,String tag) {
         Section_prop section=(Section_prop)sec;
-        IDEBus ide;
-
-        if (!section.Get_bool("enable"))
+        if (!section.Get_bool(tag))
             return;
 
         idecontroller[i] = new IDEBus(sec,i);
+    }
+
+    static public IDEBus getIDEController(int index) {
+        return idecontroller[index];
     }
 
     static public void IDE_Auto(IntRef index,BooleanRef slave) {
@@ -2325,11 +2327,11 @@ public class IDE extends Internal {
         IntRef heads = new IntRef(hintHeads);
         IntRef sectors  = new IntRef(hintSector);
         IntRef trans = new IntRef(Block.BIOS_ATA_TRANSLATION_AUTO);
-        if (cylinders.value == 0 && heads.value == 0 && sectors.value==0) {
+        //if (cylinders.value == 0 && heads.value == 0 && sectors.value==0) {
             HdGeometry.hd_geometry_guess(bs, cylinders, heads, sectors, trans);
-        } else if (trans.value == Block.BIOS_ATA_TRANSLATION_AUTO) {
-            trans.value = hd_bios_chs_auto_trans(cylinders.value, heads.value, sectors.value);
-        }
+        //} else if (trans.value == Block.BIOS_ATA_TRANSLATION_AUTO) {
+        //    trans.value = hd_bios_chs_auto_trans(cylinders.value, heads.value, sectors.value);
+        //}
         // :TODO: this isn't right yet for larger hard drives
         /*
         if (cylinders.value < 1 || cylinders.value > 65535) {
@@ -2347,25 +2349,25 @@ public class IDE extends Internal {
 
     public static Section.SectionFunction IDE_Primary_Init = new Section.SectionFunction() {
         public void call(Section sec) {
-            IDE_Init(sec, 0);
+            IDE_Init(sec, 0, "primary");
         }
     };
 
     public static Section.SectionFunction IDE_Secondary_Init = new Section.SectionFunction() {
         public void call(Section sec) {
-            IDE_Init(sec,1);
+            IDE_Init(sec,1, "secondary");
         }
     };
 
     public static Section.SectionFunction IDE_Tertiary_Init = new Section.SectionFunction() {
         public void call(Section sec) {
-            IDE_Init(sec,2);
+            IDE_Init(sec,2, "tertiary");
         }
     };
 
     public static Section.SectionFunction IDE_Quaternary_Init = new Section.SectionFunction() {
         public void call(Section sec) {
-            IDE_Init(sec,3);
+            IDE_Init(sec,3, "quaternary");
         }
     };
 }

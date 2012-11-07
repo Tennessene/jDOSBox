@@ -29,6 +29,7 @@ import jdos.hardware.IoHandler;
 import jdos.hardware.Pic;
 import jdos.misc.Log;
 import jdos.misc.setup.Section;
+import jdos.misc.setup.Section_prop;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.FileIO;
@@ -1889,7 +1890,7 @@ public class Floppy {
     }
 
     static public void Attach(int index, FileIO file) {
-        if (index>=0 && index<MAX_FD) {
+        if (isa != null && index>=0 && index<MAX_FD) {
             Block.BlockDriverState bs = Block.bdrv_new("image");
             bs.on_read_error = Block.BlockErrorAction.BLOCK_ERR_REPORT;
             bs.on_write_error = Block.BlockErrorAction.BLOCK_ERR_STOP_ENOSPC;
@@ -1934,7 +1935,7 @@ public class Floppy {
     static public boolean isDriveReady(int index) {
         return isa.drives[index].drive != FDRIVE_DRV_NONE;
     }
-    static private FDCtrl isa = new FDCtrl();
+    static private FDCtrl isa;
 
     static private IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[6];
     static private IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[6];
@@ -1951,18 +1952,28 @@ public class Floppy {
         }
     };
 
-    public static Section.SectionFunction Flopyy_Init = new Section.SectionFunction() {
-        public void call(Section sec) {
+    public static void initIO() {
+        if (isa!=null) {
             int base_io = 0x3f0;
-            isa.dma_chann = 2;
-            isa.irq = 6;
-            fdctrl_init_common(isa);
             for (int i = 0; i < ReadHandler.length; i++) {
                 WriteHandler[i] = new IoHandler.IO_WriteHandleObject();
                 ReadHandler[i] = new IoHandler.IO_ReadHandleObject();
                 WriteHandler[i].Install(base_io + i, write_handler, IoHandler.IO_MB);
                 ReadHandler[i].Install(base_io + i, read_handler, IoHandler.IO_MB);
             }
+        }
+    }
+
+    public static Section.SectionFunction Flopyy_Init = new Section.SectionFunction() {
+        public void call(Section sec) {
+            Section_prop section=(Section_prop)sec;
+            if (!section.Get_bool("enable"))
+                return;
+
+            isa = new FDCtrl();
+            isa.dma_chann = 2;
+            isa.irq = 6;
+            fdctrl_init_common(isa);
         }
     };
 }

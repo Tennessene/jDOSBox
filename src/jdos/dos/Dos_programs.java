@@ -12,10 +12,7 @@ import jdos.gui.Main;
 import jdos.hardware.Cmos;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
-import jdos.hardware.qemu.Block;
-import jdos.hardware.qemu.Floppy;
-import jdos.hardware.qemu.IDE;
-import jdos.hardware.qemu.Internal;
+import jdos.hardware.qemu.*;
 import jdos.ints.Bios;
 import jdos.ints.Bios_disk;
 import jdos.misc.Cross;
@@ -906,14 +903,22 @@ public class Dos_programs {
                                geometry.  It is always such that: 1 <= sects <= 63, 1
                                <= heads <= 16, 1 <= cylinders <= 16383. The BIOS
                                geometry can be different if a translation is done. */
-                            if (s != null && s.drive_kind == IDE.IDE_HD) {
-                                val |= s.chs_trans << (i * 2);
+                            if (s != null && s.drive_kind == IDE.IDE_HD && s.chs_trans != Block.BIOS_ATA_TRANSLATION_AUTO) {
+                                val |= (s.chs_trans - 1) << (i * 2);
                             }
                         }
                         Cmos.CMOS_SetRegister(0x39, val);
                         //Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
                         //CPU.cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
                         //DecodeBlock.start=1;
+                        Bios.boot = true;
+
+                        Floppy.initIO();
+                        for (i=0;i<4;i++) {
+                            IDEBus controller = IDE.getIDEController(i);
+                            if (controller!=null)
+                                controller.initIO();
+                        }
                         return;
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -949,7 +954,6 @@ public class Dos_programs {
 //                DecodeBlock.start = 1;
 
                 CPU_Regs.reg_ebx.dword=0x7c00; //Real code probably uses bx to load the image
-                Bios.boot = true;
             }
         }
 

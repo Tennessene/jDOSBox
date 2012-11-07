@@ -702,30 +702,23 @@ public class Dosbox {
         }
         
         /* IDE emulation options and setup */
-        secprop=control.AddSection_prop("ide, primary", IDE.IDE_Primary_Init,false);//done
-        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
-        Pbool.Set_help("Enable IDE interface");
-    
-        secprop=control.AddSection_prop("ide, secondary",IDE.IDE_Secondary_Init,false);//done
-        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
-        Pbool.Set_help("Enable IDE interface");
-    
-        secprop=control.AddSection_prop("ide, tertiary",IDE.IDE_Tertiary_Init,false);//done
-        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
-        Pbool.Set_help("Enable IDE interface");
-    
-        secprop=control.AddSection_prop("ide, quaternary",IDE.IDE_Quaternary_Init,false);//done
-        Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,false);
-        Pbool.Set_help("Enable IDE interface");
+        secprop=control.AddSection_prop("ide", IDE.IDE_Primary_Init,false);
+        Pbool = secprop.Add_bool("primary",Property.Changeable.OnlyAtStart,true);
+        Pbool.Set_help("Enable IDE interface for use with Bochs bios");
+        Pbool = secprop.Add_bool("secondary",Property.Changeable.OnlyAtStart,false);
+        Pbool.Set_help("Enable IDE interface for use with Bochs bios");
+        Pbool = secprop.Add_bool("tertiary",Property.Changeable.OnlyAtStart,false);
+        Pbool.Set_help("Enable IDE interface for use with Bochs bios");
+        Pbool = secprop.Add_bool("quaternary",Property.Changeable.OnlyAtStart,false);
+        Pbool.Set_help("Enable IDE interface for use with Bochs bios");
 
         secprop=control.AddSection_prop("floppy", Floppy.Flopyy_Init, true);
         Pbool = secprop.Add_bool("enable",Property.Changeable.OnlyAtStart,true);
-        Pbool.Set_help("Enable Floppy controller");
+        Pbool.Set_help("Enable Floppy controller for use with Bochs bios");
 
         if (Config.C_NE2000) {
-
-	        Pstring = secprop.Add_string("ne2000",Property.Changeable.WhenIdle,"false");
             secprop=control.AddSection_prop("ne2000",NE2000.NE2000_Init,true);
+            //Pstring = secprop.Add_string("ne2000",Property.Changeable.WhenIdle,"false");
             Msg.add("NE2000_CONFIGFILE_HELP",
                 "macaddr -- The physical address the emulator will use on your network.\n" +
                 "           If you have multiple DOSBoxes running on your network,\n" +

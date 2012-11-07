@@ -66,6 +66,10 @@ public class IDEBus extends Module_base {
         for (int i=0;i< ifs.length;i++)
             ifs[i] = new Internal.IDEState();
 
+        IDE.ide_init2(this, irq);
+    }
+
+    public void initIO() {
         if (base_io != 0 || alt_io != 0 || irq >= 0)
             System.out.println("IDE: Adding IDE controller to port 0x" + Integer.toHexString(base_io) + "/%03x IRQ " + alt_io);
 
@@ -101,7 +105,5 @@ public class IDEBus extends Module_base {
             WriteHandlerAlt.Install(alt_io, IDE.ide_cmd_write_handler, IoHandler.IO_MB);
             ReadHandlerAlt.Install(alt_io, IDE.ide_status_read_handler, IoHandler.IO_MB);
         }
-
-        IDE.ide_init2(this, irq);
     }
 }

@@ -3344,6 +3344,7 @@ public class Block {
 //        qemu_coroutine_enter(co, acb);
 //
 //        return &acb.common;
+        cb.call(opaque, 0);
         return null;
     }
 

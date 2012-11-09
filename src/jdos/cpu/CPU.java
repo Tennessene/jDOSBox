@@ -12,6 +12,8 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.IntRef;
 
+import java.util.Hashtable;
+
 public class CPU extends Module_base {
     public static final int CPU_AUTODETERMINE_NONE=0x00;
     public static final int CPU_AUTODETERMINE_CORE=0x01;
@@ -27,6 +29,7 @@ public class CPU extends Module_base {
     public static final int CPU_ARCHTYPE_486OLD=0x40;
     public static final int CPU_ARCHTYPE_486NEW=0x45;
     public static final int CPU_ARCHTYPE_PENTIUM=0x50;
+    public static final int CPU_ARCHTYPE_PENTIUM_PRO=0x55;
 
     public static interface CPU_Decoder {
         public /*Bits*/int call();
@@ -61,6 +64,18 @@ public class CPU extends Module_base {
     public static final int CR0_FPUPRESENT=0x00000010;
     public static final int CR0_WRITEPROTECT=0x00010000;
     public static final int CR0_PAGING=0x80000000;
+
+    public static final int CR4_VIRTUAL8086_MODE_EXTENSIONS = 0x1;
+    public static final int CR4_PROTECTED_MODE_VIRTUAL_INTERRUPTS = 0x2;
+    public static final int CR4_TIME_STAMP_DISABLE = 0x4;
+    public static final int CR4_DEBUGGING_EXTENSIONS = 0x8;
+    public static final int CR4_PAGE_SIZE_EXTENSIONS = 0x10;
+    public static final int CR4_PHYSICAL_ADDRESS_EXTENSION = 0x20;
+    public static final int CR4_MACHINE_CHECK_ENABLE = 0x40;
+    public static final int CR4_PAGE_GLOBAL_ENABLE = 0x80;
+    public static final int CR4_PERFORMANCE_MONITORING_COUNTER_ENABLE = 0x100;
+    public static final int CR4_OS_SUPPORT_FXSAVE_FXSTORE = 0x200;
+    public static final int CR4_OS_SUPPORT_UNMASKED_SIMD_EXCEPTIONS = 0x400;
 
     // *********************************************************************
     // Descriptor
@@ -454,6 +469,7 @@ public class CPU extends Module_base {
         public /*Bitu*/int cpl;							/* Current Privilege */
         public /*Bitu*/int mpl;
         public /*Bitu*/int cr0;
+        public /*Bitu*/int cr4;
         public boolean pmode;							/* Is Protected mode enabled */
         final public GDTDescriptorTable gdt = new GDTDescriptorTable();
         final public DescriptorTable idt = new DescriptorTable();
@@ -2048,6 +2064,27 @@ public class CPU extends Module_base {
         case 3:
             Paging.PAGING_SetDirBase(value);
             break;
+        case 4:
+            if (cpu.cr4 == value)
+                return;
+            cpu.cr4 = (cpu.cr4 & ~0x5f) | (value & 0x5f);
+            if ((cpu.cr4 & CR4_VIRTUAL8086_MODE_EXTENSIONS) != 0)
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Virtual-8086 mode extensions enabled in the processor");
+            if ((cpu.cr4 & CR4_PROTECTED_MODE_VIRTUAL_INTERRUPTS) != 0)
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Protected mode virtual interrupts enabled in the processor");
+            if ((cpu.cr4 & CR4_OS_SUPPORT_UNMASKED_SIMD_EXCEPTIONS) != 0)
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"SIMD instruction support modified in the processor");
+            if ((cpu.cr4 & CR4_OS_SUPPORT_FXSAVE_FXSTORE) != 0)
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"FXSave and FXRStore enabled in the processor");
+            if ((cpu.cr4 & CR4_DEBUGGING_EXTENSIONS) != 0)
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Debugging extensions enabled");
+            if ((cpu.cr4 & CR4_TIME_STAMP_DISABLE) != 0)
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Timestamp restricted to CPL0");
+            if ((cpu.cr4 & CR4_PHYSICAL_ADDRESS_EXTENSION) != 0) {
+                Log.exit("36-bit addressing enabled");
+            }
+            Paging.PAGING_EnableGlobal((cpu.cr4 & CR4_PAGE_GLOBAL_ENABLE)!=0);
+            break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV CR"+cr+","+Integer.toString(value, 16));
             break;
@@ -2075,6 +2112,8 @@ public class CPU extends Module_base {
             return Paging.cr2;
         case 3:
             return Paging.PAGING_GetDirBase() & 0xfffff000;
+        case 4:
+            return cpu.cr4;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled MOV XXX, CR"+cr);
             break;
@@ -2729,6 +2768,17 @@ public class CPU extends Module_base {
                 CPU_Regs.reg_ebx.dword=0;			/* Not Supported */
                 CPU_Regs.reg_ecx.dword=0;			/* No features */
                 CPU_Regs.reg_edx.dword=0x00000011;	/* FPU+TimeStamp/RDTSC */
+                CPU_Regs.reg_edx.dword|= (1<<8);    /* CMPXCHG8B instruction */
+                CPU_Regs.reg_edx.dword|= (1<<5);    /* MSR */
+            } else if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUM_PRO) {
+                CPU_Regs.reg_eax.dword=0x611;		/* intel pentium pro */
+                CPU_Regs.reg_ebx.dword=0;			/* Not Supported */
+                CPU_Regs.reg_ecx.dword=0;			/* No features */
+                CPU_Regs.reg_edx.dword=0x00000011;	/* FPU+TimeStamp/RDTSC */
+                CPU_Regs.reg_edx.dword|= (1<<5);    /* MSR */
+                CPU_Regs.reg_edx.dword|= (1<<15);   /* support CMOV instructions */
+                CPU_Regs.reg_edx.dword|= (1<<13);   /* PTE Global Flag */
+                CPU_Regs.reg_edx.dword|= (1<<8);    /* CMPXCHG8B instruction */
             } else {
                 return false;
             }
@@ -2874,6 +2924,21 @@ public class CPU extends Module_base {
         Dosbox.ticksScheduled = 0;
     }
 
+    private static Hashtable<Integer, Long> msrs = new Hashtable<Integer, Long>();
+
+    public static long readMSR(int index) {
+        Integer i = new Integer(index);
+        Long result = msrs.get(i);
+        if (result != null) {
+            return result.longValue();
+        }
+        return 0;
+    }
+
+    public static void writeMSR(int index, long value) {
+        Integer i = new Integer(index);
+        msrs.put(i, new Long(value));
+    }
     private static boolean inited = false;
     static public void initialize() {
         inited = false;
@@ -2918,7 +2983,7 @@ public class CPU extends Module_base {
             cpu.drx[i]=0;
             cpu.trx[i]=0;
         }
-        if (CPU_ArchitectureType==CPU_ARCHTYPE_PENTIUM) {
+        if (CPU_ArchitectureType>=CPU_ARCHTYPE_PENTIUM) {
             cpu.drx[6]=0xffff0ff0;
         } else {
             cpu.drx[6]=0xffff1ff0;
@@ -3075,6 +3140,8 @@ public class CPU extends Module_base {
             }
         } else if (cputype.equals("pentium")) {
             CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM;
+        } else if (cputype.equals("p6")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM_PRO;
         }
 
         if (CPU_ArchitectureType>=CPU_ARCHTYPE_486NEW) CPU_extflags_toggle=(CPU_Regs.ID|CPU_Regs.AC);

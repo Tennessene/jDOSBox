@@ -85,6 +85,310 @@ public class Prefix_66_0f extends Helper {
             }
         };
 
+        /* WRMSR */
+        ops[0x330] = new Decode() {
+            final public int call(Op prev) {
+                prev.next = new Inst4.WriteMSR();
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* RDMSR */
+        ops[0x332] = new Decode() {
+            final public int call(Op prev) {
+                prev.next = new Inst4.ReadMSR();
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVO */
+        ops[0x340] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_o_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_o_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNO */
+        ops[0x341] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_no_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_no_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVB */
+        ops[0x342] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_b_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_b_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNB */
+        ops[0x343] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_nb_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_nb_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVZ */
+        ops[0x344] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_z_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_z_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNZ */
+        ops[0x345] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_nz_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_nz_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVBE */
+        ops[0x346] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_be_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_be_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNBE */
+        ops[0x347] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_nbe_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_nbe_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVS */
+        ops[0x348] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_s_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_s_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNS */
+        ops[0x349] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_ns_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_ns_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVP */
+        ops[0x34a] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_p_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_p_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNP */
+        ops[0x34b] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_np_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_np_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVL */
+        ops[0x34c] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_l_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_l_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNL */
+        ops[0x34d] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_nl_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_nl_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+        
+        /* CMOVLE */
+        ops[0x34e] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_le_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_le_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+
+        /* CMOVNLE */
+        ops[0x34f] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                }
+
+                int rm=decode_fetchb();
+                if (rm >= 0xc0) {
+                    prev.next = new Inst4.ConditionalMov_nle_reg(rm);
+                } else {
+                    prev.next = new Inst4.ConditionalMov_nle_mem(rm);
+                }
+                return RESULT_HANDLED;
+            }
+        };
+        
         /* JO */
         ops[0x380] = new Decode() {
             final public int call(Op prev) {
@@ -568,6 +872,26 @@ public class Prefix_66_0f extends Helper {
                         prev.next = new Inst4.XaddGdEd_reg(rm);
                     } else {
                         prev.next = new Inst4.XaddGdEd_mem(rm);
+                    }
+                    return RESULT_HANDLED;
+                }
+            }
+        };
+
+        ops[0x3c7] = new Decode() {
+            final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_PENTIUM) {
+                    prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
+                } else {
+                    int rm=decode_fetchb();
+                    switch (rm & 0x38) {
+                        case 8:
+                            prev.next = new Inst4.CompareExchange8B(rm);
+                            break;
+                        default:
+                            prev.next = new Inst1.Illegal("");
+                            return RESULT_JUMP;
                     }
                     return RESULT_HANDLED;
                 }

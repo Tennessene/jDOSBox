@@ -157,6 +157,7 @@ public class Paging extends Module_base {
 
     static public class Links {
         public /*Bitu*/ int used;
+        public /*Bit32u*/ boolean[] global = new boolean[PAGING_LINKS];
         public /*Bit32u*/ int[] entries = new int[PAGING_LINKS];
     }
 
@@ -181,6 +182,7 @@ public class Paging extends Module_base {
     final static public KR_Links kr_links = new KR_Links();
     final static public /*Bit32u*/ long[] firstmb = new long[LINK_START];
     static public boolean enabled;
+    static private boolean globalEnabled;
 
     private static /*HostPt*/int get_tlb_read(/*PhysPt*/int address) {
         return read[address >>> 12];
@@ -986,7 +988,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                         dirEntryAddr, tableEntryAddr, table_entry.load);
         */
                     // finally install the new page
-                    PAGING_LinkPageNew(lin_page, table_entry.block.base, result, dirty);
+                    PAGING_LinkPageNew(lin_page, table_entry.block.base, result, dirty, table_entry.block.g!=0);
                     break;
                 }
             } else { // paging off
@@ -1055,6 +1057,21 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
         links.used = 0;
     }
 
+    public static void PAGING_ClearNonGlobalTLB() {
+        for (int i = 0; links.used > 0; links.used--, i++) {
+            /*Bitu*/
+            int page = links.entries[i];
+            read[page] = INVALID_ADDRESS;
+            write[page] = INVALID_ADDRESS;
+            readhandler[page] = init_page_handler;
+            writehandler[page] = init_page_handler;
+        }
+        ur_links.used=0;
+	    krw_links.used=0;
+	    kr_links.used=0;
+        links.used = 0;
+    }
+
     public static void PAGING_UnlinkPages(/*Bitu*/int lin_page,/*Bitu*/int pages) {
         for (; pages > 0; pages--) {
             read[lin_page] = INVALID_ADDRESS;
@@ -1077,7 +1094,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
         }
     }
 
-    private static void PAGING_LinkPageNew(/*Bitu*/int lin_page, /*Bitu*/int ppage, /*Bitu*/int linkmode, boolean dirty) {
+    private static void PAGING_LinkPageNew(/*Bitu*/int lin_page, /*Bitu*/int ppage, /*Bitu*/int linkmode, boolean dirty, boolean global) {
         /*Bitu*/int xlat_index = linkmode | (wp? 8:0) | ((CPU.cpu.cpl==3)? 4:0);
         /*Bit8u*/int outcome = xlat_mapping[xlat_index];
 
@@ -1153,6 +1170,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                             // thus no need to modify it on a us <-> sv switch
             break;
         }
+        links.global[links.used] = global && enabled;
         links.entries[links.used++]=lin_page; // "master table"
     }
 
@@ -1291,7 +1309,10 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
         base.addr=cr3 & ~0xFFF;
 //	Log.log(LogTypes.LOG_PAGING,LogSeverities.LOG_NORMAL,"CR3:%X Base %X",cr3,base.page);
         if (enabled) {
-            PAGING_ClearTLB();
+            if (globalEnabled)
+                PAGING_ClearNonGlobalTLB();
+            else
+                PAGING_ClearTLB();
         }
     }
 
@@ -1299,6 +1320,13 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 	    wp = value;
 	    if (enabled)
 		    PAGING_ClearTLB();
+    }
+
+    public static void PAGING_EnableGlobal(boolean value) {
+        if (value == globalEnabled)
+            return;
+        globalEnabled = value;
+        PAGING_ClearTLB();
     }
 
     public static void PAGING_Enable(boolean value) {

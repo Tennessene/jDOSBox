@@ -981,7 +981,6 @@ public class Inst2 extends Helper {
 
     final static public class Rdtsc extends Op {
         public int call() {
-            if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return Constants.BR_Illegal;
             /* Use a fixed number when in auto cycles mode as else the reported value changes constantly */
 			/*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double) (CPU.CPU_CycleAutoAdjust?70000:CPU.CPU_CycleMax));
             reg_edx.dword=(int)(tsc>>>32);
@@ -997,7 +996,7 @@ public class Inst2 extends Helper {
             return 0;
         }
 
-        public boolean returnsIllegal() {return true;}
+        public boolean returnsIllegal() {return false;}
         public boolean throwsException() {return false;}
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
@@ -3724,5 +3723,469 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+    }
+
+    static abstract private class ConditionalMov_reg extends Op {
+        Reg ew;
+        Reg gw;
+
+        public ConditionalMov_reg(int rm) {
+            ew = Mod.ew(rm);
+            gw = Mod.gw(rm);
+        }
+
+        public int sets() {return 0;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
+    }
+
+    final static public class ConditionalMov_o_reg extends ConditionalMov_reg {
+        public ConditionalMov_o_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_O())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.OF;}
+        public String description() {return "CMOV_O "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_no_reg extends ConditionalMov_reg {
+        public ConditionalMov_no_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NO())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.OF;}
+        public String description() {return "CMOV_NO "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_b_reg extends ConditionalMov_reg {
+        public ConditionalMov_b_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_B())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF;}
+        public String description() {return "CMOV_B "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_nb_reg extends ConditionalMov_reg {
+        public ConditionalMov_nb_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NB())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF;}
+        public String description() {return "CMOV_NB "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_z_reg extends ConditionalMov_reg {
+        public ConditionalMov_z_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_Z())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.ZF;}
+        public String description() {return "CMOV_Z "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_nz_reg extends ConditionalMov_reg {
+        public ConditionalMov_nz_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NZ())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.ZF;}
+        public String description() {return "CMOV_NZ "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_be_reg extends ConditionalMov_reg {
+        public ConditionalMov_be_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_BE())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_BE "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_nbe_reg extends ConditionalMov_reg {
+        public ConditionalMov_nbe_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NBE())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_NBE "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_s_reg extends ConditionalMov_reg {
+        public ConditionalMov_s_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_S())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF;}
+        public String description() {return "CMOV_S "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_ns_reg extends ConditionalMov_reg {
+        public ConditionalMov_ns_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NS())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF;}
+        public String description() {return "CMOV_NS "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_p_reg extends ConditionalMov_reg {
+        public ConditionalMov_p_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_P())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.PF;}
+        public String description() {return "CMOV_P "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_np_reg extends ConditionalMov_reg {
+        public ConditionalMov_np_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NP())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF;}
+        public String description() {return "CMOV_NP "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_l_reg extends ConditionalMov_reg {
+        public ConditionalMov_l_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_L())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
+        public String description() {return "CMOV_L "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_nl_reg extends ConditionalMov_reg {
+        public ConditionalMov_nl_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NL())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
+        public String description() {return "CMOV_NL "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_le_reg extends ConditionalMov_reg {
+        public ConditionalMov_le_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_LE())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_LE "+gw.getName16()+", "+ew.getName16();}
+    }
+
+    final static public class ConditionalMov_nle_reg extends ConditionalMov_reg {
+        public ConditionalMov_nle_reg(int rm) {
+            super(rm);
+        }
+        public int call() {
+            if (Flags.TFLG_NLE())
+                gw.word(ew.word());
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_NLE "+gw.getName16()+", "+ew.getName16();}
+    }
+
+     static abstract private class ConditionalMov_mem extends Op {
+        EaaBase get_eaa;
+        Reg gw;
+
+        public ConditionalMov_mem(int rm) {
+            get_eaa= Mod.getEaa(rm);
+            gw = Mod.gw(rm);
+        }
+
+        public int sets() {return 0;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
+    }
+
+    final static public class ConditionalMov_o_mem extends ConditionalMov_mem {
+        public ConditionalMov_o_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_O())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.OF;}
+        public String description() {return "CMOV_O "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_no_mem extends ConditionalMov_mem {
+        public ConditionalMov_no_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NO())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.OF;}
+        public String description() {return "CMOV_NO "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_b_mem extends ConditionalMov_mem {
+        public ConditionalMov_b_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_B())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF;}
+        public String description() {return "CMOV_B "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_nb_mem extends ConditionalMov_mem {
+        public ConditionalMov_nb_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NB())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF;}
+        public String description() {return "CMOV_NB "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_z_mem extends ConditionalMov_mem {
+        public ConditionalMov_z_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_Z())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.ZF;}
+        public String description() {return "CMOV_Z "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_nz_mem extends ConditionalMov_mem {
+        public ConditionalMov_nz_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NZ())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.ZF;}
+        public String description() {return "CMOV_NZ "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_be_mem extends ConditionalMov_mem {
+        public ConditionalMov_be_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_BE())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_BE "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_nbe_mem extends ConditionalMov_mem {
+        public ConditionalMov_nbe_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NBE())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_NBE "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_s_mem extends ConditionalMov_mem {
+        public ConditionalMov_s_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_S())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF;}
+        public String description() {return "CMOV_S "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_ns_mem extends ConditionalMov_mem {
+        public ConditionalMov_ns_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NS())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF;}
+        public String description() {return "CMOV_NS "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_p_mem extends ConditionalMov_mem {
+        public ConditionalMov_p_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_P())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.PF;}
+        public String description() {return "CMOV_P "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_np_mem extends ConditionalMov_mem {
+        public ConditionalMov_np_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NP())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF;}
+        public String description() {return "CMOV_NP "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_l_mem extends ConditionalMov_mem {
+        public ConditionalMov_l_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_L())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
+        public String description() {return "CMOV_L "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_nl_mem extends ConditionalMov_mem {
+        public ConditionalMov_nl_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NL())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
+        public String description() {return "CMOV_NL "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_le_mem extends ConditionalMov_mem {
+        public ConditionalMov_le_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_LE())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_LE "+gw.getName16()+", "+get_eaa.description16();}
+    }
+
+    final static public class ConditionalMov_nle_mem extends ConditionalMov_mem {
+        public ConditionalMov_nle_mem(int rm) {
+            super(rm);
+        }
+        public int call() {
+            int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
+            if (Flags.TFLG_NLE())
+                gw.word(temp);
+            return Constants.BR_Normal;
+        }
+        public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
+        public String description() {return "CMOV_NLE "+gw.getName16()+", "+get_eaa.description16();}
     }
 }

@@ -400,7 +400,7 @@ public class Dosbox {
         Pstring.Set_values(cores);
         Pstring.Set_help("CPU Core used in emulation. auto will switch to dynamic if available and appropriate.");
 
-        String[] cputype_values = { "auto", "386", "486", "pentium", "386_prefetch", "486_prefetch"};
+        String[] cputype_values = { "auto", "386", "486", "pentium", "386_prefetch", "486_prefetch", "p6"};
         Pstring = secprop.Add_string("cputype",Property.Changeable.Always,"auto");
         Pstring.Set_values(cputype_values);
         Pstring.Set_help("CPU Type used in emulation. auto emulates a 486 which tolerates Pentium instructions.");

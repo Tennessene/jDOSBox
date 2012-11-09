@@ -2808,7 +2808,7 @@ public class Inst1 extends Helper {
         }
 
         public int gets() {
-            return CPU_Regs.CF;
+            return CPU_Regs.ZF;
         }
         public String description() {return "JNZ";}
     }

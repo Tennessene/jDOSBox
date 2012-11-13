@@ -1313,11 +1313,11 @@ public class Prefix_66 extends Helper {
         ops[0x2c4] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                if (rm >= 0xc0) {
-                    prev.next = new Inst1.Illegal("");
-                } else {
+                //if (rm >= 0xc0) {
+                //    prev.next = new Inst1.Illegal("");
+                //} else {
                     prev.next = new Inst3.Les32(rm);
-                }
+                //}
                 return RESULT_HANDLED;
             }
         };
@@ -1326,11 +1326,11 @@ public class Prefix_66 extends Helper {
         ops[0x2c5] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                if (rm >= 0xc0) {
-                    prev.next = new Inst1.Illegal("");
-                } else {
+                //if (rm >= 0xc0) {
+                //    prev.next = new Inst1.Illegal("");
+                //} else {
                     prev.next = new Inst3.Lds32(rm);
-                }
+                //}
                 return RESULT_HANDLED;
             }
         };

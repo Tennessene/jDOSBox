@@ -148,7 +148,13 @@ public class IO extends Module_base {
     #else
     */
     private static void log_io(/*Bitu*/int width, boolean write, /*Bitu*/int port, /*Bitu*/long val) {
-
+//        if (port == 0x3c9 || port == 0x3d4 || port == 0x3d5)
+//            return;
+//        if (write) {
+//            System.out.println("write 0x"+Integer.toHexString(port)+" "+IoHandler.io_writehandlers[width][port]+" val="+val);
+//        } else {
+//            System.out.println("read 0x"+Integer.toHexString(port)+" "+IoHandler.io_readhandlers[width][port]+" val="+val);
+//        }
     }
 
     public static void IO_WriteB(/*Bitu*/int port,/*Bitu*/int val) {

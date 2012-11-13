@@ -150,6 +150,362 @@ public class Prefix_66_0f extends Prefix_66 {
             }
         };
 
+        /* WRMSR */
+        ops[0x330] = new OP() {
+            final public int call() {
+                if (CPU.cpu.cpl != 0) return EXCEPTION(CPU.EXCEPTION_GP);
+                CPU.writeMSR(CPU_Regs.reg_ecx.dword, ((CPU_Regs.reg_edx.dword & 0xFFFFFFFFl) << 32) | (CPU_Regs.reg_eax.dword & 0xFFFFFFFFl));
+                return HANDLED;
+            }
+        };
+
+        /* RDMSR */
+        ops[0x332] = new OP() {
+            final public int call() {
+                if (CPU.cpu.cpl != 0) return EXCEPTION(CPU.EXCEPTION_GP);
+                long result = CPU.readMSR(CPU_Regs.reg_ecx.dword);
+                CPU_Regs.reg_eax.dword = (int)result;
+                CPU_Regs.reg_edx.dword = (int)(result >>> 32);
+                return HANDLED;
+            }
+        };
+
+        /* CMOVO */
+        ops[0x340] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_O())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_O())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNO */
+        ops[0x341] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NO())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NO())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVB */
+        ops[0x342] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_B())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_B())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNB */
+        ops[0x343] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NB())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NB())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVZ */
+        ops[0x344] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_Z())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_Z())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNZ */
+        ops[0x345] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NZ())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NZ())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVBE */
+        ops[0x346] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_BE())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_BE())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNBE */
+        ops[0x347] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NBE())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NBE())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVS */
+        ops[0x348] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_S())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_S())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNS */
+        ops[0x349] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NS())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NS())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVP */
+        ops[0x34a] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_P())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_P())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNP */
+        ops[0x34b] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NP())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NP())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVL */
+        ops[0x34c] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_L())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_L())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNL */
+        ops[0x34d] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NL())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NL())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVLE */
+        ops[0x34e] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_LE())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_LE())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
+        /* CMOVNLE */
+        ops[0x34f] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM_PRO) {
+                    return ILLEGAL_OPCODE;
+                }
+
+                int rm=Fetchb();
+                if (rm >= 0xc0) {
+                    if (Flags.TFLG_NLE())
+                        Modrm.Getrd[rm].dword = Modrm.GetEArd[rm].dword;
+                } else {
+                    int eaa = getEaa(rm);
+                    int temp = Memory.mem_readd(eaa); // must read before comparison so that it can throw errors
+                    if (Flags.TFLG_NLE())
+                        Modrm.Getrd[rm].dword=temp;
+                }
+                return HANDLED;
+            }
+        };
+
         /* JO */
         ops[0x380] = new OP() {
             final public int call() {
@@ -501,7 +857,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b2] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
                 Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
@@ -533,7 +889,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b4] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
                 Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
@@ -545,7 +901,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b5] = new OP() {
             final public int call() {
                 short rm=Fetchb();
-                if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
                 Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
@@ -718,6 +1074,35 @@ public class Prefix_66_0f extends Prefix_66 {
                     int result = Instructions.ADDD(Modrm.Getrd[rm].dword, value);
                     Memory.mem_writed(eaa,result);
                     Modrm.Getrd[rm].dword=value;
+                }
+                return HANDLED;
+            }
+        };
+
+        ops[0x3c7] = new OP() {
+            final public int call() {
+                if (CPU.CPU_ArchitectureType< CPU.CPU_ARCHTYPE_PENTIUM) return ILLEGAL_OPCODE;
+                int rm=Fetchb();
+                switch (rm & 0x38) {
+                    case 8: // CMPXCHG8B
+                    {
+                        long value1 = ((CPU_Regs.reg_edx.dword & 0xffffffffL) << 32) | (CPU_Regs.reg_eax.dword & 0xffffffffL);
+                        int eaa = getEaa(rm);
+                        long value2 = (Memory.mem_readd(eaa) & 0xffffffffl) | ((Memory.mem_readd(eaa+4) & 0xffffffffl) << 32);
+                        Flags.FillFlags();
+                        if (value1==value2) {
+                            CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, true);
+                            Memory.mem_writed(eaa, CPU_Regs.reg_ebx.dword);
+                            Memory.mem_writed(eaa+4, CPU_Regs.reg_ecx.dword);
+                        } else {
+                            CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, false);
+                            CPU_Regs.reg_edx.dword = (int)(value2 >>> 32);
+                            CPU_Regs.reg_eax.dword = (int)value2;
+                        }
+                    }
+                        break;
+                    default:
+                        return ILLEGAL_OPCODE;
                 }
                 return HANDLED;
             }

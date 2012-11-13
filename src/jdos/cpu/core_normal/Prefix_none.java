@@ -2279,7 +2279,7 @@ public class Prefix_none extends StringOp {
         ops[0xc4] = new OP() {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb();
-                if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 int val = Memory.mem_readw(eaa); // make sure all reads are done before writing something in case of a PF
                 if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
@@ -2292,7 +2292,7 @@ public class Prefix_none extends StringOp {
         ops[0xc5] = new OP() {
             final public int call() {
                 /*Bit8u*/short rm=Fetchb();
-                if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 int val = Memory.mem_readw(eaa); // make sure all reads are done before writing something in case of a PF
                 if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();

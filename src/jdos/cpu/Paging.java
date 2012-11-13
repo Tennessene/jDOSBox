@@ -159,27 +159,23 @@ public class Paging extends Module_base {
         public /*Bitu*/ int used;
         public /*Bit32u*/ boolean[] global = new boolean[PAGING_LINKS];
         public /*Bit32u*/ int[] entries = new int[PAGING_LINKS];
-    }
-
-    static public class UR_Links {
-        public /*Bitu*/ int used;
-        public /*Bit32u*/ int[] entries = new int[PAGING_LINKS];
-    }
-
-    static public class KRW_Links {
-        public /*Bitu*/ int used;
-        public /*Bit32u*/ int[] entries = new int[PAGING_LINKS];
-    }
-
-    static public class KR_Links {
-        public /*Bitu*/ int used;
-        public /*Bit32u*/ int[] entries = new int[PAGING_LINKS];
+        public void removeNonGlobal() {
+            int lastUsed = -1;
+            for (int i=0;i<used;i++) {
+                if (global[i]) {
+                    lastUsed++;
+                    global[lastUsed]=true;
+                    entries[lastUsed] = entries[i];
+                }
+            }
+            used = lastUsed+1;
+        }
     }
 
     final static public Links links = new Links();
-    final static public UR_Links ur_links = new UR_Links();
-    final static public KRW_Links krw_links = new KRW_Links();
-    final static public KR_Links kr_links = new KR_Links();
+    final static public Links ur_links = new Links();
+    final static public Links krw_links = new Links();
+    final static public Links kr_links = new Links();
     final static public /*Bit32u*/ long[] firstmb = new long[LINK_START];
     static public boolean enabled;
     static private boolean globalEnabled;
@@ -1058,18 +1054,27 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
     }
 
     public static void PAGING_ClearNonGlobalTLB() {
-        for (int i = 0; links.used > 0; links.used--, i++) {
+        for (int i = 0; i<links.used; i++) {
             /*Bitu*/
-            int page = links.entries[i];
-            read[page] = INVALID_ADDRESS;
-            write[page] = INVALID_ADDRESS;
-            readhandler[page] = init_page_handler;
-            writehandler[page] = init_page_handler;
+            if (globalEnabled && !links.global[i]) {
+                int page = links.entries[i];
+                read[page] = INVALID_ADDRESS;
+                write[page] = INVALID_ADDRESS;
+                readhandler[page] = init_page_handler;
+                writehandler[page] = init_page_handler;
+            }
         }
-        ur_links.used=0;
-	    krw_links.used=0;
-	    kr_links.used=0;
-        links.used = 0;
+        if (!globalEnabled) {
+            ur_links.used=0;
+	        krw_links.used=0;
+	        kr_links.used=0;
+            links.used = 0;
+        } else {
+            links.removeNonGlobal();
+            ur_links.removeNonGlobal();
+            krw_links.removeNonGlobal();
+            kr_links.removeNonGlobal();
+        }
     }
 
     public static void PAGING_UnlinkPages(/*Bitu*/int lin_page,/*Bitu*/int pages) {
@@ -1158,19 +1163,25 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
         switch(linkmode) {
         case ACCESS_KR:
+            kr_links.global[kr_links.used] = global;
             kr_links.entries[kr_links.used++]=lin_page;
             break;
         case ACCESS_KRW:
+            if (global == true) {
+                int ii=0;
+            }
+            krw_links.global[krw_links.used] = global;
             krw_links.entries[krw_links.used++]=lin_page;
             break;
         case ACCESS_UR:
+            ur_links.global[ur_links.used] = global;
             ur_links.entries[ur_links.used++]=lin_page;
             break;
         case ACCESS_URW:	// with this access right everything is possible
                             // thus no need to modify it on a us <-> sv switch
             break;
         }
-        links.global[links.used] = global && enabled;
+        links.global[links.used] = global;
         links.entries[links.used++]=lin_page; // "master table"
     }
 

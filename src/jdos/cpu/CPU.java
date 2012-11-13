@@ -2067,6 +2067,7 @@ public class CPU extends Module_base {
         case 4:
             if (cpu.cr4 == value)
                 return;
+            cpu.cr4 = value;
             cpu.cr4 = (cpu.cr4 & ~0x5f) | (value & 0x5f);
             if ((cpu.cr4 & CR4_VIRTUAL8086_MODE_EXTENSIONS) != 0)
                 if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Virtual-8086 mode extensions enabled in the processor");

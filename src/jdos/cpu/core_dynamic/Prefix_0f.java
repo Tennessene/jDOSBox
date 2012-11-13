@@ -162,6 +162,18 @@ public class Prefix_0f extends Helper {
         ops[0x109] = ops[0x108];
         ops[0x309] = ops[0x108];
 
+        /*
+            0F0D NOP
+            Intel 64 and IA-32 Architecture Software Developer's Manual Volume 2B: Instruction Set Reference, N-Z, Two-byte Opcode Map
+            AMD architecture maps 3DNow! PREFETCH instructions here
+        */
+        ops[0x10D] = new Decode() {
+            final public int call(Op prev) {
+                prev.next = new Inst1.Noop();
+                return RESULT_HANDLED;
+            }
+        };
+
         /* MOV Rd.CRx */
         ops[0x120] = new Decode() {
             final public int call(Op prev) {
@@ -1091,11 +1103,11 @@ public class Prefix_0f extends Helper {
         ops[0x1b2] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                if (rm >= 0xc0 ) {
-                    prev.next = new Inst1.Illegal("");
-                } else {
+                //if (rm >= 0xc0 ) {
+                //    prev.next = new Inst1.Illegal("");
+                //} else {
                     prev.next = new Inst2.LssEw(rm);
-                }
+                //}
                 return RESULT_HANDLED;
             }
         };
@@ -1117,11 +1129,11 @@ public class Prefix_0f extends Helper {
         ops[0x1b4] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                if (rm >= 0xc0 ) {
-                    prev.next = new Inst1.Illegal("");
-                } else {
+                //if (rm >= 0xc0 ) {
+                //    prev.next = new Inst1.Illegal("");
+                //} else {
                     prev.next = new Inst2.LfsEw(rm);
-                }
+                //}
                 return RESULT_HANDLED;
             }
         };
@@ -1130,11 +1142,11 @@ public class Prefix_0f extends Helper {
         ops[0x1b5] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                if (rm >= 0xc0 ) {
-                    prev.next = new Inst1.Illegal("");
-                } else {
+                //if (rm >= 0xc0 ) {
+                //    prev.next = new Inst1.Illegal("");
+                //} else {
                     prev.next = new Inst2.LgsEw(rm);
-                }
+                //}
                 return RESULT_HANDLED;
             }
         };

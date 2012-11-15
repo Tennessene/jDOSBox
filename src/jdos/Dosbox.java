@@ -702,10 +702,10 @@ public class Dosbox {
         }
         
         /* IDE emulation options and setup */
-        secprop=control.AddSection_prop("ide", IDE.IDE_Primary_Init,false);
+        secprop=control.AddSection_prop("ide", IDE.IDE_Init,false);
         Pbool = secprop.Add_bool("primary",Property.Changeable.OnlyAtStart,true);
         Pbool.Set_help("Enable IDE interface for use with Bochs bios");
-        Pbool = secprop.Add_bool("secondary",Property.Changeable.OnlyAtStart,false);
+        Pbool = secprop.Add_bool("secondary",Property.Changeable.OnlyAtStart,true);
         Pbool.Set_help("Enable IDE interface for use with Bochs bios");
         Pbool = secprop.Add_bool("tertiary",Property.Changeable.OnlyAtStart,false);
         Pbool.Set_help("Enable IDE interface for use with Bochs bios");

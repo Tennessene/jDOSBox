@@ -2347,27 +2347,12 @@ public class IDE extends Internal {
         ide_init_drive(c.ifs[slave ? 1 : 0], bs, isCD?IDE_CD:IDE_HD, "version", "serial", null, 0, cylinders.value, heads.value, sectors.value, trans.value);
     }
 
-    public static Section.SectionFunction IDE_Primary_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction IDE_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             IDE_Init(sec, 0, "primary");
-        }
-    };
-
-    public static Section.SectionFunction IDE_Secondary_Init = new Section.SectionFunction() {
-        public void call(Section sec) {
-            IDE_Init(sec,1, "secondary");
-        }
-    };
-
-    public static Section.SectionFunction IDE_Tertiary_Init = new Section.SectionFunction() {
-        public void call(Section sec) {
-            IDE_Init(sec,2, "tertiary");
-        }
-    };
-
-    public static Section.SectionFunction IDE_Quaternary_Init = new Section.SectionFunction() {
-        public void call(Section sec) {
-            IDE_Init(sec,3, "quaternary");
+            IDE_Init(sec, 1, "secondary");
+            IDE_Init(sec, 2, "tertiary");
+            IDE_Init(sec,3, " quaternary");
         }
     };
 }

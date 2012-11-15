@@ -1235,7 +1235,7 @@ public class Dos_programs {
 
             ideattach = cmd.FindString("-ide",true);
             if (ideattach == null) ideattach = "auto";
-            else ideattach = type.toLowerCase();
+            else ideattach = ideattach.toLowerCase();
 
             fstype = cmd.FindString("-fs",true);
             if (fstype == null) fstype = "fat";

@@ -1,5 +1,6 @@
 package jdos.cpu.core_dynamic;
 
+import javassist.*;
 import jdos.Dosbox;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Instructions;

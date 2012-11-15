@@ -1,7 +1,6 @@
 package jdos.cpu;
 
 import jdos.cpu.core_normal.Prefix_66_0f;
-import jdos.debug.Debug;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
@@ -76,6 +75,12 @@ public class Core_normal extends Prefix_66_0f {
         //restart_opcode:
                 while (true) {
                     int c = opcode_index+Fetchb();
+                    if ((prefixes & PREFIX_LOCK)!=0) {
+                        if (Core.isInvalidLock(c & ~0x200)) {
+                            CPU.CPU_Exception(6,0);
+                        }
+                        prefixes&=~PREFIX_LOCK;// only check the prefix once
+                    }
 //                    last = c;
 //                    if (Config.DEBUG_LOG)
 //                        Debug.start(Debug.TYPE_CPU, c);

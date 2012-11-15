@@ -1,6 +1,5 @@
 package jdos.cpu.core_dynamic;
 
-import javassist.*;
 import jdos.Dosbox;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Instructions;
@@ -4647,11 +4646,7 @@ public class Compiler extends Helper {
                 break;
             case 0xf0: // LOCK
             case 0x2f0:
-                if (op instanceof Inst1.Lock) {
-                    Inst1.Lock o = (Inst1.Lock) op;
-                    return true;
-                }
-                break;
+                return true;
             case 0xf1: // ICEBP
             case 0x2f1:
                 if (op instanceof Inst1.Icebp) {

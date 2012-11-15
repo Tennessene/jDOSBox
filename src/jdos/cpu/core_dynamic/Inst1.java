@@ -7010,27 +7010,6 @@ public class Inst1 extends Helper {
         public String description() {return "OUT "+CPU_Regs.reg_eax.getName16()+", "+CPU_Regs.reg_edx.getName16();}
     }
 
-    final static public class Lock extends Op {
-        public int call() {
-            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CPU:LOCK"); /* FIXME: see case D_LOCK in core_full/new Instructions.load()h */
-            return Constants.BR_Normal;
-        }
-
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
-        public String description() {return "LOCK";}
-    }
-
     final static public class Icebp extends Op {
         public int call() {
             CPU.CPU_SW_Interrupt_NoIOPLCheck(1,reg_eip+eip_count);

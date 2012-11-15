@@ -2675,8 +2675,8 @@ public class Prefix_none extends Helper {
         /* LOCK */
         ops[0xf0] = new Decode() {
             final public int call(Op prev) {
-                prev.next = new Inst1.Lock();
-                return RESULT_HANDLED;
+                // :TODO: check for illegal combinations like in the normal core
+                return RESULT_CONTINUE;
             }
         };
         ops[0x2f0] = ops[0xf0];

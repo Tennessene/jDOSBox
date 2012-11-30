@@ -1012,12 +1012,21 @@ public class CPU extends Module_base {
     public static void CPU_Exception( /*Bitu*/int which, /*Bitu*/int error ) {
 //	LOG_MSG("Exception %d error %x",which,error);
         cpu.exception.error=error;
-        CPU_Interrupt(which,CPU_INT_EXCEPTION | ((which>=8) ? CPU_INT_HAS_ERROR : 0),CPU_Regs.reg_eip);
+        int flags = CPU_INT_EXCEPTION;
+        if (which == 0x8 || which >= 0xA && which <= 0xE) {
+            flags |= CPU_INT_HAS_ERROR;
+        }
+        CPU_Interrupt(which,flags,CPU_Regs.reg_eip);
     }
 
-    static private void CPU_CHECK_COND(boolean cond, String msg, int exc, int sel) {
-        if (cond)
-            Log.exit(msg+" "+exc+" "+sel);
+    static private boolean CPU_CHECK_COND(boolean cond, String msg, int exc, int sel) {
+        if (cond) {
+            // Log.exit(msg+" "+exc+" "+sel);
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN, msg);
+            CPU_Exception(exc, sel);
+            return true;
+        }
+        return false;
     }
 
     static public/*Bit8u*/int lastint;
@@ -1096,34 +1105,41 @@ public class CPU extends Module_base {
             case DESC_286_INT_GATE:		case DESC_386_INT_GATE:
             case DESC_286_TRAP_GATE:	case DESC_386_TRAP_GATE:
                 {
-                    if (Config.C_DEBUG) CPU_CHECK_COND(gate_temp_1.saved.seg.p()==0, "INT:Gate segment not present", EXCEPTION_NP,num*8+2+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
-
+                    if (CPU_CHECK_COND(gate_temp_1.saved.seg.p()==0, "INT:Gate segment not present", EXCEPTION_NP,num*8+2+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                        return;
 
                      /*Bitu*/int gate_sel= gate_temp_1.GetSelector();
                      /*Bitu*/int gate_off= (int)gate_temp_1.GetOffset();
-                    if (Config.C_DEBUG) CPU_CHECK_COND((gate_sel & 0xfffc)==0, "INT:Gate with CS zero selector", EXCEPTION_GP,((type&CPU_INT_SOFTWARE)!=0)?0:1);
+                    if (CPU_CHECK_COND((gate_sel & 0xfffc)==0, "INT:Gate with CS zero selector", EXCEPTION_GP,((type&CPU_INT_SOFTWARE)!=0)?0:1))
+                        return;
                     boolean success = cpu.gdt.GetDescriptor(gate_sel,cs_desc_temp_1);
-                    if (Config.C_DEBUG) CPU_CHECK_COND(!success, "INT:Gate with CS beyond limit", EXCEPTION_GP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
+                    if (CPU_CHECK_COND(!success, "INT:Gate with CS beyond limit", EXCEPTION_GP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                        return;
 
                      /*Bitu*/int cs_dpl=cs_desc_temp_1.DPL();
-                    if (Config.C_DEBUG) CPU_CHECK_COND(cs_dpl>cpu.cpl, "Interrupt to higher privilege", EXCEPTION_GP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
+                    if (CPU_CHECK_COND(cs_dpl>cpu.cpl, "Interrupt to higher privilege", EXCEPTION_GP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                        return;
                     switch (cs_desc_temp_1.Type()) {
                     case DESC_CODE_N_NC_A:	case DESC_CODE_N_NC_NA:
                     case DESC_CODE_R_NC_A:	case DESC_CODE_R_NC_NA:
                         if (cs_dpl<cpu.cpl) {
                             /* Prepare for gate to inner level */
-                            if (Config.C_DEBUG) CPU_CHECK_COND(cs_desc_temp_1.saved.seg.p()==0, "INT:Inner level:CS segment not present", EXCEPTION_NP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
-                            if (Config.C_DEBUG) CPU_CHECK_COND((CPU_Regs.flags & CPU_Regs.VM)!=0 && (cs_dpl!=0), "V86 interrupt calling codesegment with DPL>0", EXCEPTION_GP,gate_sel & 0xfffc);
-
+                            if (CPU_CHECK_COND(cs_desc_temp_1.saved.seg.p()==0, "INT:Inner level:CS segment not present", EXCEPTION_NP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                                return;
+                            if (CPU_CHECK_COND((CPU_Regs.flags & CPU_Regs.VM)!=0 && (cs_dpl!=0), "V86 interrupt calling codesegment with DPL>0", EXCEPTION_GP,gate_sel & 0xfffc))
+                                return;
 
                             o_ss_1.value=Segs_SSval;
                             int o_esp=CPU_Regs.reg_esp.dword;
                             cpu_tss.Get_SSx_ESPx(cs_dpl,n_ss_1,n_esp_1);
-                            if (Config.C_DEBUG) CPU_CHECK_COND((n_ss_1.value & 0xfffc)==0, "INT:Gate with SS zero selector", EXCEPTION_TS,((type&CPU_INT_SOFTWARE)!=0)?0:1);
+                            if (CPU_CHECK_COND((n_ss_1.value & 0xfffc)==0, "INT:Gate with SS zero selector", EXCEPTION_TS,((type&CPU_INT_SOFTWARE)!=0)?0:1))
+                                return;
 
                             success = cpu.gdt.GetDescriptor(n_ss_1.value,n_ss_desc_temp_1);
-                            if (Config.C_DEBUG) CPU_CHECK_COND(!success, "INT:Gate with SS beyond limit", EXCEPTION_TS,(n_ss_1.value & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
-                            if (Config.C_DEBUG) CPU_CHECK_COND(((n_ss_1.value & 3)!=cs_dpl) || (n_ss_desc_temp_1.DPL()!=cs_dpl), "INT:Inner level with CS_DPL!=SS_DPL and SS_RPL", EXCEPTION_TS,(n_ss_1.value & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
+                            if (CPU_CHECK_COND(!success, "INT:Gate with SS beyond limit", EXCEPTION_TS,(n_ss_1.value & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                                return;
+                            if (CPU_CHECK_COND(((n_ss_1.value & 3)!=cs_dpl) || (n_ss_desc_temp_1.DPL()!=cs_dpl), "INT:Inner level with CS_DPL!=SS_DPL and SS_RPL", EXCEPTION_TS,(n_ss_1.value & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                                return;
 
                             // check if stack segment is a writable data segment
                             switch (n_ss_desc_temp_1.Type()) {
@@ -1133,7 +1149,8 @@ public class CPU extends Module_base {
                             default:
                                 Log.exit("INT:Inner level:Stack segment not writable.");		// or #TS(ss_sel+EXT)
                             }
-                            if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_temp_1.saved.seg.p()==0, "INT:Inner level with nonpresent SS", EXCEPTION_SS,(n_ss_1.value & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
+                            if (CPU_CHECK_COND(n_ss_desc_temp_1.saved.seg.p()==0, "INT:Inner level with nonpresent SS", EXCEPTION_SS,(n_ss_1.value & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                                return;
 
                             // commit point
                             Segs_SSphys=(int)n_ss_desc_temp_1.GetBase();
@@ -1185,7 +1202,8 @@ public class CPU extends Module_base {
                     case DESC_CODE_N_C_A:	case DESC_CODE_N_C_NA:
                     case DESC_CODE_R_C_A:	case DESC_CODE_R_C_NA:
                         /* Prepare stack for gate to same priviledge */
-                        if (Config.C_DEBUG) CPU_CHECK_COND(cs_desc_temp_1.saved.seg.p()==0, "INT:Same level:CS segment not present", EXCEPTION_NP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
+                        if (CPU_CHECK_COND(cs_desc_temp_1.saved.seg.p()==0, "INT:Same level:CS segment not present", EXCEPTION_NP,(gate_sel & 0xfffc)+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                            return;
                         if ((CPU_Regs.flags & CPU_Regs.VM)!=0 && (cs_dpl<cpu.cpl))
                             Log.exit("V86 interrupt doesn't change to pl0");	// or #GP(cs_sel)
 
@@ -1222,7 +1240,8 @@ public class CPU extends Module_base {
                     return;
                 }
             case DESC_TASK_GATE:
-                if (Config.C_DEBUG) CPU_CHECK_COND(gate_temp_1.saved.seg.p()==0, "INT:Gate segment not present", EXCEPTION_NP,num*8+2+(((type&CPU_INT_SOFTWARE)!=0)?0:1));
+                if (CPU_CHECK_COND(gate_temp_1.saved.seg.p()==0, "INT:Gate segment not present", EXCEPTION_NP,num*8+2+(((type&CPU_INT_SOFTWARE)!=0)?0:1)))
+                    return;
 
                 CPU_SwitchTask(gate_temp_1.GetSelector(),TSwitchType.TSwitch_CALL_INT,oldeip);
                 if ((type & CPU_INT_HAS_ERROR)!=0) {
@@ -1295,7 +1314,8 @@ public class CPU extends Module_base {
             /* Check if this is task IRET */
             if (CPU_Regs.GETFLAG(CPU_Regs.NT)!=0) {
                 if (CPU_Regs.GETFLAG(CPU_Regs.VM)!=0) Log.exit("Pmode IRET with VM bit set");
-                if (Config.C_DEBUG) CPU_CHECK_COND(!cpu_tss.IsValid(), "TASK Iret without valid TSS", EXCEPTION_TS,cpu_tss.selector & 0xfffc);
+                if (CPU_CHECK_COND(!cpu_tss.IsValid(), "TASK Iret without valid TSS", EXCEPTION_TS,cpu_tss.selector & 0xfffc))
+                    return;
                 if (cpu_tss.desc.IsBusy()==0) {
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"TASK Iret:TSS not busy");
                 }
@@ -1353,26 +1373,34 @@ public class CPU extends Module_base {
 
                 if ((n_flags & CPU_Regs.VM)!=0) Log.exit("VM Flag in 16-bit iret");
             }
-            if (Config.C_DEBUG) CPU_CHECK_COND((n_cs_sel & 0xfffc)==0, "IRET:CS selector zero", EXCEPTION_GP,0);
+            if (CPU_CHECK_COND((n_cs_sel & 0xfffc)==0, "IRET:CS selector zero", EXCEPTION_GP,0))
+                return;
              /*Bitu*/int n_cs_rpl=n_cs_sel & 3;
 
             boolean success = cpu.gdt.GetDescriptor(n_cs_sel,n_cs_desc_2);
-            if (Config.C_DEBUG) CPU_CHECK_COND(!success, "IRET:CS selector beyond limits", EXCEPTION_GP,(n_cs_sel & 0xfffc));
-            if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_rpl<cpu.cpl, "IRET to lower privilege", EXCEPTION_GP,(n_cs_sel & 0xfffc));
+            if (CPU_CHECK_COND(!success, "IRET:CS selector beyond limits", EXCEPTION_GP,(n_cs_sel & 0xfffc))) {
+                return;
+            }
+            if (CPU_CHECK_COND(n_cs_rpl<cpu.cpl, "IRET to lower privilege", EXCEPTION_GP,(n_cs_sel & 0xfffc))) {
+                return;
+            }
 
             switch (n_cs_desc_2.Type()) {
             case DESC_CODE_N_NC_A:	case DESC_CODE_N_NC_NA:
             case DESC_CODE_R_NC_A:	case DESC_CODE_R_NC_NA:
-                if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_rpl!=n_cs_desc_2.DPL(), "IRET:NC:DPL!=RPL", EXCEPTION_GP,(n_cs_sel & 0xfffc));
+                if (CPU_CHECK_COND(n_cs_rpl!=n_cs_desc_2.DPL(), "IRET:NC:DPL!=RPL", EXCEPTION_GP,(n_cs_sel & 0xfffc)))
+                    return;
                 break;
             case DESC_CODE_N_C_A:	case DESC_CODE_N_C_NA:
             case DESC_CODE_R_C_A:	case DESC_CODE_R_C_NA:
-                if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_desc_2.DPL()>n_cs_rpl, "IRET:C:DPL>RPL", EXCEPTION_GP,(n_cs_sel & 0xfffc));
+                if (CPU_CHECK_COND(n_cs_desc_2.DPL()>n_cs_rpl, "IRET:C:DPL>RPL", EXCEPTION_GP,(n_cs_sel & 0xfffc)))
+                    return;
                 break;
             default:
                 Log.exit("IRET:Illegal descriptor type "+Integer.toString(n_cs_desc_2.Type(),16));
             }
-            if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_desc_2.saved.seg.p()==0, "IRET with nonpresent code segment",EXCEPTION_NP,(n_cs_sel & 0xfffc));
+            if (CPU_CHECK_COND(n_cs_desc_2.saved.seg.p()==0, "IRET with nonpresent code segment",EXCEPTION_NP,(n_cs_sel & 0xfffc)))
+                return;
 
             if (n_cs_rpl==cpu.cpl) {
                 /* Return to same level */
@@ -1402,12 +1430,16 @@ public class CPU extends Module_base {
                     tempesp=(tempesp&cpu.stack.notmask)|((tempesp+2)&cpu.stack.mask);
                     n_ss=Memory.mem_readw(Segs_SSphys + (tempesp & cpu.stack.mask));
                 }
-                if (Config.C_DEBUG) CPU_CHECK_COND((n_ss & 0xfffc)==0, "IRET:Outer level:SS selector zero", EXCEPTION_GP,0);
-                if (Config.C_DEBUG) CPU_CHECK_COND((n_ss & 3)!=n_cs_rpl, "IRET:Outer level:SS rpl!=CS rpl", EXCEPTION_GP,n_ss & 0xfffc);
+                if (CPU_CHECK_COND((n_ss & 0xfffc)==0, "IRET:Outer level:SS selector zero", EXCEPTION_GP,0))
+                    return;
+                if (CPU_CHECK_COND((n_ss & 3)!=n_cs_rpl, "IRET:Outer level:SS rpl!=CS rpl", EXCEPTION_GP,n_ss & 0xfffc))
+                    return;
 
                 success = cpu.gdt.GetDescriptor(n_ss,n_ss_desc_2);
-                if (Config.C_DEBUG) CPU_CHECK_COND(!success, "IRET:Outer level:SS beyond limit", EXCEPTION_GP,n_ss & 0xfffc);
-                if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_2.DPL()!=n_cs_rpl, "IRET:Outer level:SS dpl!=CS rpl", EXCEPTION_GP,n_ss & 0xfffc);
+                if (CPU_CHECK_COND(!success, "IRET:Outer level:SS beyond limit", EXCEPTION_GP,n_ss & 0xfffc))
+                    return;
+                if (CPU_CHECK_COND(n_ss_desc_2.DPL()!=n_cs_rpl, "IRET:Outer level:SS dpl!=CS rpl", EXCEPTION_GP,n_ss & 0xfffc))
+                    return;
 
                 // check if stack segment is a writable data segment
                 switch (n_ss_desc_2.Type()) {
@@ -1417,7 +1449,8 @@ public class CPU extends Module_base {
                 default:
                     Log.exit("IRET:Outer level:Stack segment not writable");		// or #GP(ss_sel)
                 }
-                if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_2.saved.seg.p()==0, "IRET:Outer level:Stack segment not present", EXCEPTION_NP,n_ss & 0xfffc);
+                if (CPU_CHECK_COND(n_ss_desc_2.saved.seg.p()==0, "IRET:Outer level:Stack segment not present", EXCEPTION_NP,n_ss & 0xfffc))
+                    return;
 
                 // commit point
 
@@ -1467,16 +1500,20 @@ public class CPU extends Module_base {
             CPU_Regs.SegSet16CS(selector);
             cpu.code.big=false;
         } else {
-            if (Config.C_DEBUG) CPU_CHECK_COND((selector & 0xfffc)==0, "JMP:CS selector zero", EXCEPTION_GP,0);
+            if (CPU_CHECK_COND((selector & 0xfffc)==0, "JMP:CS selector zero", EXCEPTION_GP,0))
+                return;
              /*Bitu*/int rpl=selector & 3;
 
             boolean success = cpu.gdt.GetDescriptor(selector,desc_3);
-            if (Config.C_DEBUG) CPU_CHECK_COND(!success, "JMP:CS beyond limits", EXCEPTION_GP,selector & 0xfffc);
+            if (CPU_CHECK_COND(!success, "JMP:CS beyond limits", EXCEPTION_GP,selector & 0xfffc))
+                return;
             switch (desc_3.Type()) {
             case DESC_CODE_N_NC_A:		case DESC_CODE_N_NC_NA:
             case DESC_CODE_R_NC_A:		case DESC_CODE_R_NC_NA:
-                if (Config.C_DEBUG) CPU_CHECK_COND(rpl>cpu.cpl, "JMP:NC:RPL>CPL", EXCEPTION_GP,selector & 0xfffc);
-                if (Config.C_DEBUG) CPU_CHECK_COND(cpu.cpl!=desc_3.DPL(), "JMP:NC:RPL != DPL", EXCEPTION_GP,selector & 0xfffc);
+                if (CPU_CHECK_COND(rpl>cpu.cpl, "JMP:NC:RPL>CPL", EXCEPTION_GP,selector & 0xfffc))
+                    return;
+                if (CPU_CHECK_COND(cpu.cpl!=desc_3.DPL(), "JMP:NC:RPL != DPL", EXCEPTION_GP,selector & 0xfffc))
+                    return;
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:Code:NC to "+Integer.toString(selector, 16)+":"+Integer.toString(offset, 16)+" big "+desc_3.Big());
                 //goto CODE_jmp;
                 if (desc_3.saved.seg.p()==0) {
@@ -1494,7 +1531,8 @@ public class CPU extends Module_base {
             case DESC_CODE_N_C_A:		case DESC_CODE_N_C_NA:
             case DESC_CODE_R_C_A:		case DESC_CODE_R_C_NA:
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:Code:C to "+Integer.toString(selector, 16)+":"+Integer.toString(offset, 16)+" big "+desc_3.Big());
-                if (Config.C_DEBUG) CPU_CHECK_COND(cpu.cpl<desc_3.DPL(), "JMP:C:CPL < DPL", EXCEPTION_GP,selector & 0xfffc);
+                if (CPU_CHECK_COND(cpu.cpl<desc_3.DPL(), "JMP:C:CPL < DPL", EXCEPTION_GP,selector & 0xfffc))
+                    return;
     //CODE_jmp:
                 if (desc_3.saved.seg.p()==0) {
                     // win
@@ -1509,8 +1547,10 @@ public class CPU extends Module_base {
                 CPU_Regs.reg_eip=offset;
                 return;
             case DESC_386_TSS_A:
-                if (Config.C_DEBUG) CPU_CHECK_COND(desc_3.DPL()<cpu.cpl, "JMP:TSS:dpl<cpl", EXCEPTION_GP,selector & 0xfffc);
-                if (Config.C_DEBUG) CPU_CHECK_COND(desc_3.DPL()<rpl, "JMP:TSS:dpl<rpl", EXCEPTION_GP,selector & 0xfffc);
+                if (CPU_CHECK_COND(desc_3.DPL()<cpu.cpl, "JMP:TSS:dpl<cpl", EXCEPTION_GP,selector & 0xfffc))
+                    return;
+                if (CPU_CHECK_COND(desc_3.DPL()<rpl, "JMP:TSS:dpl<rpl", EXCEPTION_GP,selector & 0xfffc))
+                    return;
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"JMP:TSS to "+Integer.toString(selector,16));
                 CPU_SwitchTask(selector,TSwitchType.TSwitch_JMP,oldeip);
                 break;
@@ -1542,19 +1582,23 @@ public class CPU extends Module_base {
             cpu.code.big=false;
             CPU_Regs.SegSet16CS(selector);
         } else {
-            if (Config.C_DEBUG) CPU_CHECK_COND((selector & 0xfffc)==0, "CALL:CS selector zero", EXCEPTION_GP,0);
+            if (CPU_CHECK_COND((selector & 0xfffc)==0, "CALL:CS selector zero", EXCEPTION_GP,0))
+                return;
              /*Bitu*/int rpl=selector & 3;
 
             boolean success = cpu.gdt.GetDescriptor(selector,call_4);
             int esp;
 
-            if (Config.C_DEBUG) CPU_CHECK_COND(!success, "CALL:CS beyond limits", EXCEPTION_GP,selector & 0xfffc);
+            if (CPU_CHECK_COND(!success, "CALL:CS beyond limits", EXCEPTION_GP,selector & 0xfffc))
+                return;
             /* Check for type of far call */
             switch (call_4.Type()) {
             case DESC_CODE_N_NC_A:case DESC_CODE_N_NC_NA:
             case DESC_CODE_R_NC_A:case DESC_CODE_R_NC_NA:
-                if (Config.C_DEBUG) CPU_CHECK_COND(rpl>cpu.cpl, "CALL:CODE:NC:RPL>CPL", EXCEPTION_GP,selector & 0xfffc);
-                if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()!=cpu.cpl, "CALL:CODE:NC:DPL!=CPL", EXCEPTION_GP,selector & 0xfffc);
+                if (CPU_CHECK_COND(rpl>cpu.cpl, "CALL:CODE:NC:RPL>CPL", EXCEPTION_GP,selector & 0xfffc))
+                    return;
+                if (CPU_CHECK_COND(call_4.DPL()!=cpu.cpl, "CALL:CODE:NC:DPL!=CPL", EXCEPTION_GP,selector & 0xfffc))
+                    return;
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:CODE:NC to "+Integer.toString(selector, 16)+":"+Long.toString(offset,16));
                 //goto call_code;
                 if (call_4.saved.seg.p()==0) {
@@ -1580,7 +1624,8 @@ public class CPU extends Module_base {
                 return;
             case DESC_CODE_N_C_A:case DESC_CODE_N_C_NA:
             case DESC_CODE_R_C_A:case DESC_CODE_R_C_NA:
-                if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()>cpu.cpl, "CALL:CODE:C:DPL>CPL", EXCEPTION_GP,selector & 0xfffc);
+                if (CPU_CHECK_COND(call_4.DPL()>cpu.cpl, "CALL:CODE:C:DPL>CPL", EXCEPTION_GP,selector & 0xfffc))
+                    return;
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:CODE:C to "+Integer.toString(selector, 16)+":"+Long.toString(offset,16));
     //call_code:
                 if (call_4.saved.seg.p()==0) {
@@ -1607,18 +1652,25 @@ public class CPU extends Module_base {
             case DESC_386_CALL_GATE:
             case DESC_286_CALL_GATE:
                 {
-                    if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()<cpu.cpl, "CALL:Gate:Gate DPL<CPL", EXCEPTION_GP,selector & 0xfffc);
-                    if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()<rpl, "CALL:Gate:Gate DPL<RPL", EXCEPTION_GP,selector & 0xfffc);
-                    if (Config.C_DEBUG) CPU_CHECK_COND(call_4.saved.seg.p()==0, "CALL:Gate:Segment not present", EXCEPTION_NP,selector & 0xfffc);
+                    if (CPU_CHECK_COND(call_4.DPL()<cpu.cpl, "CALL:Gate:Gate DPL<CPL", EXCEPTION_GP,selector & 0xfffc))
+                        return;
+                    if (CPU_CHECK_COND(call_4.DPL()<rpl, "CALL:Gate:Gate DPL<RPL", EXCEPTION_GP,selector & 0xfffc))
+                        return;
+                    if (CPU_CHECK_COND(call_4.saved.seg.p()==0, "CALL:Gate:Segment not present", EXCEPTION_NP,selector & 0xfffc))
+                        return;
 
                      /*Bitu*/int n_cs_sel=call_4.GetSelector();
 
-                    if (Config.C_DEBUG) CPU_CHECK_COND((n_cs_sel & 0xfffc)==0, "CALL:Gate:CS selector zero", EXCEPTION_GP,0);
+                    if (CPU_CHECK_COND((n_cs_sel & 0xfffc)==0, "CALL:Gate:CS selector zero", EXCEPTION_GP,0))
+                        return;
                     success = cpu.gdt.GetDescriptor(n_cs_sel,n_cs_desc_4);
-                    if (Config.C_DEBUG) CPU_CHECK_COND(!success, "CALL:Gate:CS beyond limits", EXCEPTION_GP,n_cs_sel & 0xfffc);
+                    if (CPU_CHECK_COND(!success, "CALL:Gate:CS beyond limits", EXCEPTION_GP,n_cs_sel & 0xfffc))
+                        return;
                      /*Bitu*/int n_cs_dpl	= n_cs_desc_4.DPL();
-                    if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_dpl>cpu.cpl, "CALL:Gate:CS DPL>CPL", EXCEPTION_GP,n_cs_sel & 0xfffc);
-                    if (Config.C_DEBUG) CPU_CHECK_COND(n_cs_desc_4.saved.seg.p()==0, "CALL:Gate:CS not present", EXCEPTION_NP,n_cs_sel & 0xfffc);
+                    if (CPU_CHECK_COND(n_cs_dpl>cpu.cpl, "CALL:Gate:CS DPL>CPL", EXCEPTION_GP,n_cs_sel & 0xfffc))
+                        return;
+                    if (CPU_CHECK_COND(n_cs_desc_4.saved.seg.p()==0, "CALL:Gate:CS not present", EXCEPTION_NP,n_cs_sel & 0xfffc))
+                        return;
 
                      /*Bitu*/int n_eip = (int)call_4.GetOffset();
                     switch (n_cs_desc_4.Type()) {
@@ -1628,10 +1680,13 @@ public class CPU extends Module_base {
                         if (n_cs_dpl < cpu.cpl) {
                             /* Get new SS:ESP out of TSS */
                             cpu_tss.Get_SSx_ESPx(n_cs_dpl,n_ss_sel_4,n_esp_4);
-                            if (Config.C_DEBUG) CPU_CHECK_COND((n_ss_sel_4.value & 0xfffc)==0, "CALL:Gate:NC:SS selector zero", EXCEPTION_TS,0);
+                            if (CPU_CHECK_COND((n_ss_sel_4.value & 0xfffc)==0, "CALL:Gate:NC:SS selector zero", EXCEPTION_TS,0))
+                                return;
                             success = cpu.gdt.GetDescriptor(n_ss_sel_4.value,n_ss_desc_4);
-                            if (Config.C_DEBUG) CPU_CHECK_COND(!success, "CALL:Gate:Invalid SS selector", EXCEPTION_TS,n_ss_sel_4.value & 0xfffc);
-                            if (Config.C_DEBUG) CPU_CHECK_COND(((n_ss_sel_4.value & 3)!=n_cs_desc_4.DPL()) || (n_ss_desc_4.DPL()!=n_cs_desc_4.DPL()), "CALL:Gate:Invalid SS selector privileges", EXCEPTION_TS,n_ss_sel_4.value & 0xfffc);
+                            if (CPU_CHECK_COND(!success, "CALL:Gate:Invalid SS selector", EXCEPTION_TS,n_ss_sel_4.value & 0xfffc))
+                                return;
+                            if (CPU_CHECK_COND(((n_ss_sel_4.value & 3)!=n_cs_desc_4.DPL()) || (n_ss_desc_4.DPL()!=n_cs_desc_4.DPL()), "CALL:Gate:Invalid SS selector privileges", EXCEPTION_TS,n_ss_sel_4.value & 0xfffc))
+                                return;
 
                             switch (n_ss_desc_4.Type()) {
                             case DESC_DATA_EU_RW_NA:		case DESC_DATA_EU_RW_A:
@@ -1641,7 +1696,8 @@ public class CPU extends Module_base {
                             default:
                                 Log.exit("Call:Gate:SS no writable data segment");	// or #TS(ss_sel)
                             }
-                            if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_4.saved.seg.p()==0, "CALL:Gate:Stack segment not present", EXCEPTION_SS,n_ss_sel_4.value & 0xfffc);
+                            if (CPU_CHECK_COND(n_ss_desc_4.saved.seg.p()==0, "CALL:Gate:Stack segment not present", EXCEPTION_SS,n_ss_sel_4.value & 0xfffc))
+                                return;
 
                             /* Load the new SS:ESP and save data on it */
                              /*Bitu*/int o_esp		= CPU_Regs.reg_esp.dword;
@@ -1732,9 +1788,12 @@ public class CPU extends Module_base {
                 }			/* Call Gates */
                 break;
             case DESC_386_TSS_A:
-                if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()<cpu.cpl, "CALL:TSS:dpl<cpl", EXCEPTION_GP,selector & 0xfffc);
-                if (Config.C_DEBUG) CPU_CHECK_COND(call_4.DPL()<rpl, "CALL:TSS:dpl<rpl", EXCEPTION_GP,selector & 0xfffc);
-                if (Config.C_DEBUG) CPU_CHECK_COND(call_4.saved.seg.p()==0, "CALL:TSS:Segment not present", EXCEPTION_NP,selector & 0xfffc);
+                if (CPU_CHECK_COND(call_4.DPL()<cpu.cpl, "CALL:TSS:dpl<cpl", EXCEPTION_GP,selector & 0xfffc))
+                    return;
+                if (CPU_CHECK_COND(call_4.DPL()<rpl, "CALL:TSS:dpl<rpl", EXCEPTION_GP,selector & 0xfffc))
+                    return;
+                if (CPU_CHECK_COND(call_4.saved.seg.p()==0, "CALL:TSS:Segment not present", EXCEPTION_NP,selector & 0xfffc))
+                    return;
 
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"CALL:TSS to "+Integer.toString(selector,16));
                 CPU_SwitchTask(selector,TSwitchType.TSwitch_CALL_INT,oldeip);
@@ -1778,16 +1837,19 @@ public class CPU extends Module_base {
                 return;
             }
 
-            if (Config.C_DEBUG) CPU_CHECK_COND((selector & 0xfffc)==0, "RET:CS selector zero", EXCEPTION_GP,0);
+            if (CPU_CHECK_COND((selector & 0xfffc)==0, "RET:CS selector zero", EXCEPTION_GP,0))
+                return;
             boolean success = cpu.gdt.GetDescriptor(selector,desc_5);
-            if (Config.C_DEBUG) CPU_CHECK_COND(!success, "RET:CS beyond limits", EXCEPTION_GP,selector & 0xfffc);
+            if (CPU_CHECK_COND(!success, "RET:CS beyond limits", EXCEPTION_GP,selector & 0xfffc))
+                return;
 
             if (cpu.cpl==rpl) {
                 /* Return to same level */
                 switch (desc_5.Type()) {
                 case DESC_CODE_N_NC_A:case DESC_CODE_N_NC_NA:
                 case DESC_CODE_R_NC_A:case DESC_CODE_R_NC_NA:
-                    if (Config.C_DEBUG) CPU_CHECK_COND(cpu.cpl!=desc_5.DPL(), "RET to NC segment of other privilege", EXCEPTION_GP,selector & 0xfffc);
+                    if (CPU_CHECK_COND(cpu.cpl!=desc_5.DPL(), "RET to NC segment of other privilege", EXCEPTION_GP,selector & 0xfffc))
+                        return;
                     // goto RET_same_level;
                     if (desc_5.saved.seg.p()==0) {
                         // borland extender (RTM)
@@ -1817,7 +1879,8 @@ public class CPU extends Module_base {
                     return;
                 case DESC_CODE_N_C_A:case DESC_CODE_N_C_NA:
                 case DESC_CODE_R_C_A:case DESC_CODE_R_C_NA:
-                    if (Config.C_DEBUG) CPU_CHECK_COND(desc_5.DPL()>cpu.cpl, "RET to C segment of higher privilege", EXCEPTION_GP,selector & 0xfffc);
+                    if (CPU_CHECK_COND(desc_5.DPL()>cpu.cpl, "RET to C segment of higher privilege", EXCEPTION_GP,selector & 0xfffc))
+                        return;
                     break;
                 default:
                     Log.exit("RET from illegal descriptor type "+Integer.toString(desc_5.Type(),16));
@@ -1853,17 +1916,20 @@ public class CPU extends Module_base {
                 switch (desc_5.Type()) {
                 case DESC_CODE_N_NC_A:case DESC_CODE_N_NC_NA:
                 case DESC_CODE_R_NC_A:case DESC_CODE_R_NC_NA:
-                    if (Config.C_DEBUG) CPU_CHECK_COND(desc_5.DPL()!=rpl, "RET to outer NC segment with DPL!=RPL", EXCEPTION_GP,selector & 0xfffc);
+                    if (CPU_CHECK_COND(desc_5.DPL()!=rpl, "RET to outer NC segment with DPL!=RPL", EXCEPTION_GP,selector & 0xfffc))
+                        return;
                     break;
                 case DESC_CODE_N_C_A:case DESC_CODE_N_C_NA:
                 case DESC_CODE_R_C_A:case DESC_CODE_R_C_NA:
-                    if (Config.C_DEBUG) CPU_CHECK_COND(desc_5.DPL()>rpl, "RET to outer C segment with DPL>RPL", EXCEPTION_GP,selector & 0xfffc);
+                    if (CPU_CHECK_COND(desc_5.DPL()>rpl, "RET to outer C segment with DPL>RPL", EXCEPTION_GP,selector & 0xfffc))
+                        return;
                     break;
                 default:
                     Log.exit("RET from illegal descriptor type "+Integer.toString(desc_5.Type(),16));		// or #GP(selector)
                 }
 
-                if (Config.C_DEBUG) CPU_CHECK_COND(desc_5.saved.seg.p()==0, "RET:Outer level:CS not present", EXCEPTION_NP,selector & 0xfffc);
+                if (CPU_CHECK_COND(desc_5.saved.seg.p()==0, "RET:Outer level:CS not present", EXCEPTION_NP,selector & 0xfffc))
+                    return;
 
                 // commit point
                  /*Bitu*/int n_ss;
@@ -1882,11 +1948,14 @@ public class CPU extends Module_base {
                     n_ss = CPU_Pop16();
                 }
 
-                if (Config.C_DEBUG) CPU_CHECK_COND((n_ss & 0xfffc)==0, "RET to outer level with SS selector zero", EXCEPTION_GP,0);
+                if (CPU_CHECK_COND((n_ss & 0xfffc)==0, "RET to outer level with SS selector zero", EXCEPTION_GP,0))
+                    return;
 
                 boolean sucess = cpu.gdt.GetDescriptor(n_ss,n_ss_desc_5);
-                if (Config.C_DEBUG) CPU_CHECK_COND(!success, "RET:SS beyond limits", EXCEPTION_GP,n_ss & 0xfffc);
-                if (Config.C_DEBUG) CPU_CHECK_COND(((n_ss & 3)!=rpl) || (n_ss_desc_5.DPL()!=rpl), "RET to outer segment with invalid SS privileges", EXCEPTION_GP,n_ss & 0xfffc);
+                if (CPU_CHECK_COND(!success, "RET:SS beyond limits", EXCEPTION_GP,n_ss & 0xfffc))
+                    return;
+                if (CPU_CHECK_COND(((n_ss & 3)!=rpl) || (n_ss_desc_5.DPL()!=rpl), "RET to outer segment with invalid SS privileges", EXCEPTION_GP,n_ss & 0xfffc))
+                    return;
 
                 switch (n_ss_desc_5.Type()) {
                 case DESC_DATA_EU_RW_NA:		case DESC_DATA_EU_RW_A:
@@ -1895,7 +1964,8 @@ public class CPU extends Module_base {
                 default:
                     Log.exit("RET:SS selector type no writable data segment");	// or #GP(selector)
                 }
-                if (Config.C_DEBUG) CPU_CHECK_COND(n_ss_desc_5.saved.seg.p()==0, "RET:Stack segment not present", EXCEPTION_SS,n_ss & 0xfffc);
+                if (CPU_CHECK_COND(n_ss_desc_5.saved.seg.p()==0, "RET:Stack segment not present", EXCEPTION_SS,n_ss & 0xfffc))
+                    return;
 
                 CPU_SetCPL(rpl);
                 Segs_CSphys=(int)desc_5.GetBase();

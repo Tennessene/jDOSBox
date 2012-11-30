@@ -1108,9 +1108,21 @@ public class JavaMapper {
         return true;
     }
 
+    static boolean ctrAltDel=false;
+
     static public void MAPPER_CheckEvent(KeyEvent event) {
+        if (mapper.mods == 3 && event.getKeyCode() == KeyEvent.VK_INSERT && event.getID()==KeyEvent.KEY_PRESSED) {
+            ctrAltDel = true;
+        }
+        if (ctrAltDel && event.getKeyCode() == KeyEvent.VK_INSERT) {
+            event.setKeyCode(KeyEvent.VK_DELETE);
+        }
         for (CBindGroup it : bindgroups) {
             if (it.CheckEvent(event)) return;
+        }
+
+        if (ctrAltDel && event.getKeyCode() == KeyEvent.VK_INSERT && event.getID()==KeyEvent.KEY_RELEASED) {
+            ctrAltDel = false;
         }
     }
 

@@ -4352,6 +4352,14 @@ public class Compiler2 extends Compiler {
                     return true;
                 }
                 break;
+            case 0x3c7: // CMPXCHG8B
+                if (op instanceof Inst4.CompareExchange8B) {
+                    Inst4.CompareExchange8B o = (Inst4.CompareExchange8B) op;
+                    memory_start(o.get_eaa, seg, method);
+                    method.append("long value1 = ((CPU_Regs.reg_edx.dword & 0xffffffffL) << 32) | (CPU_Regs.reg_eax.dword & 0xffffffffL);long value2 = (Memory.mem_readd(eaa) & 0xffffffffl) | ((Memory.mem_readd(eaa+4) & 0xffffffffl) << 32);Flags.FillFlags();if (value1==value2) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, true);Memory.mem_writed(eaa, CPU_Regs.reg_ebx.dword);Memory.mem_writed(eaa+4, CPU_Regs.reg_ecx.dword);} else {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, false);CPU_Regs.reg_edx.dword = (int)(value2 >>> 32);CPU_Regs.reg_eax.dword = (int)value2;}");
+                    return true;
+                }
+                break;
             case 0x3c8: // BSWAP EAX
                 if (op instanceof Inst4.Bswapd) {
                     Inst4.Bswapd o = (Inst4.Bswapd) op;

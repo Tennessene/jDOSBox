@@ -865,6 +865,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV Rd,DRx "+eard.getName()+"=DRX["+which+"]";}
     }
 
     final static public class MovCrRd extends Op {
@@ -893,6 +894,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public String description() {return "MOV CRx,Rd CR["+which+"]="+eard.dword;}
     }
 
     final static public class MovDrRd extends Op {

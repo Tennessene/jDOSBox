@@ -1,8 +1,7 @@
 package jdos.debug;
 
-import jdos.Dosbox;
-import jdos.misc.Msg;
-import jdos.misc.setup.*;
+import jdos.misc.setup.Section;
+import jdos.misc.setup.Section_prop;
 import jdos.types.LogTypes;
 
 import java.io.FileOutputStream;
@@ -74,13 +73,13 @@ public class Debug_gui {
         loggrp[LogTypes.LOG_IO].front="IO";
 
         /* Register the log section */
-        Section_prop sect= Dosbox.control.AddSection_prop("log",LOG_Init);
-        Prop_string Pstring = sect.Add_string("logfile", Property.Changeable.Always,"");
-        Pstring.Set_help("file where the log messages will be saved to");
-        for (int i=1;i<LogTypes.LOG_MAX;i++) {
-            Prop_bool Pbool = sect.Add_bool(loggrp[i].front.toLowerCase(),Property.Changeable.Always,true);
-            Pbool.Set_help("Enable/Disable logging of this type.");
-        }
-        Msg.add("LOG_CONFIGFILE_HELP","Logging related options for the debugger.\n");
+//        Section_prop sect= Dosbox.control.AddSection_prop("log",LOG_Init);
+//        Prop_string Pstring = sect.Add_string("logfile", Property.Changeable.Always,"");
+//        Pstring.Set_help("file where the log messages will be saved to");
+//        for (int i=1;i<LogTypes.LOG_MAX;i++) {
+//            Prop_bool Pbool = sect.Add_bool(loggrp[i].front.toLowerCase(),Property.Changeable.Always,true);
+//            Pbool.Set_help("Enable/Disable logging of this type.");
+//        }
+//        Msg.add("LOG_CONFIGFILE_HELP","Logging related options for the debugger.\n");
     }
 }

@@ -378,7 +378,7 @@ public class Internal {
         public Block.BlockDriverState bs;
         public String version;
         /* ATAPI specific */
-        public unreported_events events;
+        public unreported_events events = new unreported_events();
         public int sense_key;
         public int asc;
         public boolean tray_open;

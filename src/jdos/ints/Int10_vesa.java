@@ -536,10 +536,10 @@ public class Int10_vesa {
 
     static private jdos.cpu.Callback.Handler VESA_PMSetWindow = new jdos.cpu.Callback.Handler() {
         public String getName() {
-            return "Int10_vesa.VESA_PMSetWindow";
+            return "Int10_vesa.VESA_PMSetWindow 0x"+Integer.toHexString(CPU_Regs.reg_edx.word());
         }
         public /*Bitu*/int call() {
-            VESA_SetCPUWindow((short)0,(/*Bit8u*/short) CPU_Regs.reg_edx.word());
+            VESA_SetCPUWindow((short)0, CPU_Regs.reg_edx.low());
             return 0;
         }
     };
@@ -556,7 +556,7 @@ public class Int10_vesa {
 
     static private jdos.cpu.Callback.Handler VESA_PMSetStart = new jdos.cpu.Callback.Handler() {
         public String getName() {
-            return "Int10_vesa.VESA_PMSetStart";
+            return "Int10_vesa.VESA_PMSetStart 0x"+Integer.toHexString((CPU_Regs.reg_edx.word() << 16) | CPU_Regs.reg_ecx.word());
         }
         public /*Bitu*/int call() {
             // This function is from VBE2 and directly sets the VGA

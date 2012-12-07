@@ -39,7 +39,7 @@ public class VGA_memory {
 //    }
 
     //Nice one from DosEmu
-    static private /*Bit32u*/long RasterOp(/*Bit32u*/long input,/*Bit32u*/int mask) {
+    static private /*Bit32u*/int RasterOp(/*Bit32u*/int input,/*Bit32u*/int mask) {
         switch (VGA.vga.config.raster_op) {
         case 0x00:	/* None */
             return (input & mask) | (VGA.vga.latch.d & ~mask);
@@ -53,8 +53,8 @@ public class VGA_memory {
         return 0;
     }
 
-    static private /*Bit32u*/long ModeOperation(/*Bit8u*/int val) {
-        /*Bit32u*/long full;
+    static private /*Bit32u*/int ModeOperation(/*Bit8u*/int val) {
+        /*Bit32u*/int full;
         switch (VGA.vga.config.write_mode) {
         case 0x00:
             // Write Mode 0: In this mode, the host data is first rotated as per the Rotate Count field, then the Enable Set/Reset mechanism selects data from this or the Set/Reset field. Then the selected Logical Operation is performed on the resulting data and the data in the latch register. Then the Bit Mask field is used to select which bits come from the resulting data and which come from the latch register. Finally, only the bit planes enabled by the Memory Plane Write Enable field are written to memory.
@@ -105,7 +105,7 @@ public class VGA_memory {
             case 1:
                 VGA.VGA_Latch templatch=new VGA.VGA_Latch();
                 templatch.d=(VGA.vga.latch.d &	VGA.FillTable[VGA.vga.config.color_dont_care]) ^ VGA.FillTable[VGA.vga.config.color_compare & VGA.vga.config.color_dont_care];
-                return (/*Bit8u*/short)~(templatch.b(0) | templatch.b(1) | templatch.b(2) | templatch.b(3));
+                return (~(templatch.b(0) | templatch.b(1) | templatch.b(2) | templatch.b(3))) & 0xFF;
             }
             return 0;
         }
@@ -222,7 +222,7 @@ public class VGA_memory {
     private static class VGA_UnchainedEGA_Handler extends VGA_UnchainedRead_Handler {
         //template< bool wrapping>
         public void writeHandler(/*PhysPt*/int start, /*Bit8u*/short val) {
-            /*Bit32u*/long data=ModeOperation(val);
+            /*Bit32u*/int data=ModeOperation(val);
             /* Update video memory and the pixel buffer */
             VGA.VGA_Latch pixels = new VGA.VGA_Latch();
             pixels.d=Memory.host_readd(VGA.vga.mem.linear+start*4);
@@ -367,7 +367,7 @@ public class VGA_memory {
      static private class VGA_UnchainedVGA_Handler extends VGA_UnchainedRead_Handler {
         public void writeHandler( /*PhysPt*/int addr, /*Bit8u*/int val ) {
             addr <<= 2;
-            /*Bit32u*/long data=ModeOperation(val);
+            /*Bit32u*/int data=ModeOperation(val);
             int d=Memory.host_readd(VGA.vga.mem.linear+addr);
             d&=VGA.vga.config.full_not_map_mask;
             d|=(data & VGA.vga.config.full_map_mask);
@@ -387,7 +387,7 @@ public class VGA_memory {
             writeHandler(a,val);
         }
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
-            int a = (int)(Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask);
+            int a = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_write_full;
             //addr = CHECKED2(addr);
             //MEM_CHANGED( addr << 2);
@@ -395,7 +395,7 @@ public class VGA_memory {
             writeHandler(a+1,val >> 8);
         }
         public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
-            int a = (int)(Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask);
+            int a = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_write_full;
             //addr = CHECKED2(addr);
             //MEM_CHANGED( addr << 2);

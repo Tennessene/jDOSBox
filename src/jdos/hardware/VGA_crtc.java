@@ -85,7 +85,7 @@ public class VGA_crtc {
                 //Line compare bit ignores read only */
                 VGA.vga.config.line_compare=(VGA.vga.config.line_compare & 0x6ff) | (val & 0x10) << 4;
                 if (VGA.vga.crtc.read_only) break;
-                if (((VGA.vga.crtc.overflow ^ val) & 0xd6)!=0) {
+                if ((((VGA.vga.crtc.overflow & 0xFF) ^ val) & 0xd6)!=0) {
                     VGA.vga.crtc.overflow=(byte)val;
                     VGA.VGA_StartResize();
                 } else VGA.vga.crtc.overflow=(byte)val;

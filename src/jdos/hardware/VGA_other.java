@@ -292,7 +292,7 @@ public class VGA_other {
             switch (port) {
             case 0x3d8:
                 VGA.vga.tandy.mode_control=(short)val;
-                VGA.vga.attr.disabled = (short)((val&0x8)!=0? 0: 1);
+                VGA.vga.attr.disabled = (byte)((val&0x8)!=0? 0: 1);
                 if ((VGA.vga.tandy.mode_control & 0x2)!=0) {		// graphics mode
                     if ((VGA.vga.tandy.mode_control & 0x10)!=0) {// highres mode
                         if ((val & 0x4)==0) {				// burst on
@@ -631,8 +631,8 @@ public class VGA_other {
                 break;
                 }
             case 0x3bf:
-                if ((VGA.vga.herc.enable_bits ^ val)!=0) {
-                    VGA.vga.herc.enable_bits=(short)val;
+                if (((VGA.vga.herc.enable_bits & 0xFF) ^ val)!=0) {
+                    VGA.vga.herc.enable_bits=(byte)val;
                     // Bit 1 enables the upper 32k of video memory,
                     // so update the handlers
                     VGA_memory.VGA_SetupHandlers();

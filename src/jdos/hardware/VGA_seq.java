@@ -29,7 +29,7 @@ public class VGA_seq {
             case 1:		/* Clocking Mode */
                 if (val!=(VGA.vga.seq.clocking_mode & 0xFF)) {
                     // don't resize if only the screen off bit was changed
-                    if ((val&(~0x20))!=(VGA.vga.seq.clocking_mode&(~0x20))) {
+                    if ((val&(0xDF))!=(VGA.vga.seq.clocking_mode&(0xDF))) {
                         VGA.vga.seq.clocking_mode=(byte)val;
                         VGA.VGA_StartResize();
                     } else {

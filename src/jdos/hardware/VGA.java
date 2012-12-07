@@ -95,12 +95,12 @@ public class VGA {
         public /*Bit8u*/short raster_op;
 
         public /*Bit32u*/int full_bit_mask;
-        public /*Bit32u*/long full_map_mask;
-        public /*Bit32u*/long full_not_map_mask;
-        public /*Bit32u*/long full_set_reset;
-        public /*Bit32u*/long full_not_enable_set_reset;
-        public /*Bit32u*/long full_enable_set_reset;
-        public /*Bit32u*/long full_enable_and_set_reset;
+        public /*Bit32u*/int full_map_mask;
+        public /*Bit32u*/int full_not_map_mask;
+        public /*Bit32u*/int full_set_reset;
+        public /*Bit32u*/int full_not_enable_set_reset;
+        public /*Bit32u*/int full_enable_set_reset;
+        public /*Bit32u*/int full_enable_and_set_reset;
     }
 
     static final class Drawmode {
@@ -221,8 +221,8 @@ public class VGA {
     }
 
     public static class VGA_HERC {
-        public /*Bit8u*/short mode_control;
-        public /*Bit8u*/short enable_bits;
+        public /*Bit8u*/byte mode_control;
+        public /*Bit8u*/byte enable_bits;
     }
 
     public static class VGA_OTHER {
@@ -276,7 +276,7 @@ public class VGA {
         public /*Bit8u*/short color_plane_enable;
         public /*Bit8u*/short color_select;
         public /*Bit8u*/short index;
-        public /*Bit8u*/short disabled; // Used for disabling the screen.
+        public /*Bit8u*/byte disabled; // Used for disabling the screen.
                         // Bit0: screen disabled by attribute controller index
                         // Bit1: screen disabled by sequencer index 1 bit 5
                         // These are put together in one variable for performance reasons:

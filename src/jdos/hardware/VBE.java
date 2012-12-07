@@ -255,7 +255,6 @@ public class VBE {
 //                            /* no double scan */
 //                            IoHandler.IO_Write(0x3d4, 0x09);
 //                            IoHandler.IO_Write(0x3d5, (VGA.vga.crtc.maximum_scan_line & ~0x9f) & 0xFF);
-
                             if (VGA.vga.draw.resizing) {
                                 VGA.vga.draw.resizing = false;
                                 Pic.PIC_RemoveEvents(VGA_draw.VGA_SetupDrawing);

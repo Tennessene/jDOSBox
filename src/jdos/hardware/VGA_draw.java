@@ -1031,7 +1031,7 @@ public class VGA_draw {
             /*Bitu*/int vblank_skip;
             if (Dosbox.IS_EGAVGA_ARCH()) {
                 htotal = VGA.vga.crtc.horizontal_total;
-                hdend = VGA.vga.crtc.horizontal_display_end;
+                hdend = VGA.vga.crtc.horizontal_display_end & 0xFF;
                 hbend = VGA.vga.crtc.end_horizontal_blanking&0x1F;
                 hbstart = VGA.vga.crtc.start_horizontal_blanking;
                 hrstart = VGA.vga.crtc.start_horizontal_retrace;
@@ -1317,7 +1317,7 @@ public class VGA_draw {
             case VGA.M_LIN15:
             case VGA.M_LIN16:
                 // 15/16 bpp modes double the horizontal values
-                width<<=2;
+                width<<=3;
                 if ((VGA.vga.crtc.mode_control & 0x8)!=0 || (Dosbox.svgaCard == SVGACards.SVGA_S3Trio && (VGA.vga.s3.pll.cmd & 0x10)!=0))
                     doublewidth = true;
                 /* Use HW mouse cursor drawer if enabled */

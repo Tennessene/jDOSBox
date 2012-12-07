@@ -27,13 +27,13 @@ public class VGA_seq {
                 VGA.vga.seq.reset=(short)val;
                 break;
             case 1:		/* Clocking Mode */
-                if (val!=VGA.vga.seq.clocking_mode) {
+                if (val!=(VGA.vga.seq.clocking_mode & 0xFF)) {
                     // don't resize if only the screen off bit was changed
                     if ((val&(~0x20))!=(VGA.vga.seq.clocking_mode&(~0x20))) {
-                        VGA.vga.seq.clocking_mode=(short)val;
+                        VGA.vga.seq.clocking_mode=(byte)val;
                         VGA.VGA_StartResize();
                     } else {
-                        VGA.vga.seq.clocking_mode=(short)val;
+                        VGA.vga.seq.clocking_mode=(byte)val;
                     }
                     if ((val & 0x20)!=0) VGA.vga.attr.disabled |= 0x2;
                     else VGA.vga.attr.disabled &= ~0x2;
@@ -52,7 +52,7 @@ public class VGA_seq {
                 */
                 break;
             case 2:		/* Map Mask */
-                VGA.vga.seq.map_mask=(short)(val & 15);
+                VGA.vga.seq.map_mask=(byte)(val & 15);
                 VGA.vga.config.full_map_mask=VGA.FillTable[val & 15];
                 VGA.vga.config.full_not_map_mask=~VGA.vga.config.full_map_mask;
                 /*
@@ -116,9 +116,9 @@ public class VGA_seq {
             case 0:			/* Reset */
                 return VGA.vga.seq.reset;
             case 1:			/* Clocking Mode */
-                return VGA.vga.seq.clocking_mode;
+                return VGA.vga.seq.clocking_mode & 0xFF;
             case 2:			/* Map Mask */
-                return VGA.vga.seq.map_mask;
+                return VGA.vga.seq.map_mask & 0xFF;
             case 3:			/* Character Map Select */
                 return VGA.vga.seq.character_map_select;
             case 4:			/* Memory Mode */

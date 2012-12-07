@@ -209,11 +209,11 @@ public class Int10_char {
         /* Copy some lines */
         boolean gotofilling = false;
         if (nlines>0) {
-            start=rlr-nlines+1;
+            start=(rlr-nlines+1) & 0xFF;
             end=rul;
             next=-1;
         } else if (nlines<0) {
-            start=rul-nlines-1;
+            start=(rul-nlines-1) & 0xFF;
             end=rlr;
             next=1;
         } else {
@@ -223,7 +223,7 @@ public class Int10_char {
         }
         if (!gotofilling) {
             while (start!=end) {
-                start+=next;
+                start=(start+next) & 0xFF;
                 switch (Int10_modes.CurMode.type) {
                 case VGA.M_TEXT:
                     TEXT_CopyRow(cul,clr,(short)start,(short)(start+nlines),base);break;

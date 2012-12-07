@@ -31,8 +31,8 @@ public class VGA_crtc {
                 break;
             case 0x01:	/* Horizontal Display End Register */
                 if (VGA.vga.crtc.read_only) break;
-                if (val != VGA.vga.crtc.horizontal_display_end) {
-                    VGA.vga.crtc.horizontal_display_end=(short)val;
+                if (val != (VGA.vga.crtc.horizontal_display_end & 0xFF)) {
+                    VGA.vga.crtc.horizontal_display_end=(byte)val;
                     VGA.VGA_StartResize();
                 }
                 /* 	0-7  Number of Character Clocks Displayed -1 */
@@ -86,9 +86,9 @@ public class VGA_crtc {
                 VGA.vga.config.line_compare=(VGA.vga.config.line_compare & 0x6ff) | (val & 0x10) << 4;
                 if (VGA.vga.crtc.read_only) break;
                 if (((VGA.vga.crtc.overflow ^ val) & 0xd6)!=0) {
-                    VGA.vga.crtc.overflow=(short)val;
+                    VGA.vga.crtc.overflow=(byte)val;
                     VGA.VGA_StartResize();
-                } else VGA.vga.crtc.overflow=(short)val;
+                } else VGA.vga.crtc.overflow=(byte)val;
                 /*
                     0  Bit 8 of Vertical Total (3d4h index 6)
                     1  Bit 8 of Vertical Display End (3d4h index 12h)
@@ -121,19 +121,19 @@ public class VGA_crtc {
                 if (Dosbox.IS_VGA_ARCH() && (Dosbox.svgaCard== SVGACards.SVGA_None) && (VGA.vga.mode==VGA.M_EGA || VGA.vga.mode==VGA.M_VGA)) {
                     // in vgaonly mode we take special care of line repeats (excluding CGA modes)
                     if (((VGA.vga.crtc.maximum_scan_line ^ val) & 0x20)!=0) {
-                        VGA.vga.crtc.maximum_scan_line=(short)val;
+                        VGA.vga.crtc.maximum_scan_line=(byte)val;
                         VGA.VGA_StartResize();
                     } else {
-                        VGA.vga.crtc.maximum_scan_line=(short)val;
+                        VGA.vga.crtc.maximum_scan_line=(byte)val;
                     }
                     VGA.vga.draw.address_line_total = (val &0x1F) + 1;
                     if ((val&0x80)!=0) VGA.vga.draw.address_line_total*=2;
                 } else {
                     if (((VGA.vga.crtc.maximum_scan_line ^ val) & 0xbf)!=0) {
-                        VGA.vga.crtc.maximum_scan_line=(short)val;
+                        VGA.vga.crtc.maximum_scan_line=(byte)val;
                         VGA.VGA_StartResize();
                     } else {
-                        VGA.vga.crtc.maximum_scan_line=(short)val;
+                        VGA.vga.crtc.maximum_scan_line=(byte)val;
                     }
                 }
                 /*
@@ -239,7 +239,7 @@ public class VGA_crtc {
                 */
                 break;
             case 0x13:	/* Offset register */
-                VGA.vga.crtc.offset=(short)val;
+                VGA.vga.crtc.offset=(byte)val;
                 VGA.vga.config.scan_len&=0x300;
                 VGA.vga.config.scan_len|=val;
                 VGA_draw.VGA_CheckScanLength();
@@ -353,7 +353,7 @@ public class VGA_crtc {
             case 0x00:	/* Horizontal Total Register */
                 return VGA.vga.crtc.horizontal_total;
             case 0x01:	/* Horizontal Display End Register */
-                return VGA.vga.crtc.horizontal_display_end;
+                return VGA.vga.crtc.horizontal_display_end & 0xFF;
             case 0x02:	/* Start Horizontal Blanking Register */
                 return VGA.vga.crtc.start_horizontal_blanking;
             case 0x03:	/* End Horizontal Blanking Register */
@@ -365,11 +365,11 @@ public class VGA_crtc {
             case 0x06: /* Vertical Total Register */
                 return VGA.vga.crtc.vertical_total;
             case 0x07:	/* Overflow Register */
-                return VGA.vga.crtc.overflow;
+                return VGA.vga.crtc.overflow & 0xFF;
             case 0x08:	/* Preset Row Scan Register */
                 return VGA.vga.crtc.preset_row_scan;
             case 0x09: /* Maximum Scan Line Register */
-                return VGA.vga.crtc.maximum_scan_line;
+                return VGA.vga.crtc.maximum_scan_line & 0xFF;
             case 0x0A:	/* Cursor Start Register */
                 return VGA.vga.crtc.cursor_start;
             case 0x0B:	/* Cursor End Register */
@@ -389,7 +389,7 @@ public class VGA_crtc {
             case 0x12:	/* Vertical Display End Register */
                 return VGA.vga.crtc.vertical_display_end;
             case 0x13:	/* Offset register */
-                return VGA.vga.crtc.offset;
+                return VGA.vga.crtc.offset & 0xFF;
             case 0x14:	/* Underline Location Register */
                 return VGA.vga.crtc.underline_location;
             case 0x15:	/* Start Vertical Blank Register */

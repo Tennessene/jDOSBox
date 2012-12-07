@@ -83,9 +83,9 @@ static boolean index9warned=false;
                 break;
             case 5: /* Mode Register */
                 if (((VGA.vga.gfx.mode ^ val) & 0xf0)!=0) {
-                    VGA.vga.gfx.mode=(short)val;
+                    VGA.vga.gfx.mode=(byte)val;
                     VGA.VGA_DetermineMode();
-                } else VGA.vga.gfx.mode=(short)val;
+                } else VGA.vga.gfx.mode=(byte)val;
                 VGA.vga.config.write_mode=(short)(val & 3);
                 VGA.vga.config.read_mode=(short)((val >> 3) & 1);
         //		LOG_DEBUG("Write Mode %d Read Mode %d val %d",VGA.vga.config.write_mode,VGA.vga.config.read_mode,val);
@@ -130,9 +130,9 @@ static boolean index9warned=false;
                 break;
             case 6: /* Miscellaneous Register */
                 if (((VGA.vga.gfx.miscellaneous ^ val) & 0x0c)!=0) {
-                    VGA.vga.gfx.miscellaneous=(short)val;
+                    VGA.vga.gfx.miscellaneous=(byte)val;
                     VGA.VGA_DetermineMode();
-                } else VGA.vga.gfx.miscellaneous=(short)val;
+                } else VGA.vga.gfx.miscellaneous=(byte)val;
                 VGA_memory.VGA_SetupHandlers();
                 /*
                     0	Indicates Graphics Mode if set, Alphanumeric mode else.
@@ -196,7 +196,7 @@ static boolean index9warned=false;
             case 5: /* Mode Register */
                 return VGA.vga.gfx.mode;
             case 6: /* Miscellaneous Register */
-                return VGA.vga.gfx.miscellaneous;
+                return VGA.vga.gfx.miscellaneous & 0xFF;
             case 7: /* Color Don't Care Register */
                 return VGA.vga.gfx.color_dont_care;
             case 8: /* Bit Mask Register */

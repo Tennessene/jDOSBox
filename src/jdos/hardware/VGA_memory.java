@@ -10,8 +10,6 @@ import jdos.types.MachineType;
 import jdos.types.SVGACards;
 import jdos.util.Ptr;
 
-import javax.xml.transform.Result;
-
 public class VGA_memory {
     static public boolean VGA_KEEP_CHANGES = false;
 
@@ -814,7 +812,7 @@ public class VGA_memory {
             newHandler = vgaph.map;
             break;
         }
-        switch ((VGA.vga.gfx.miscellaneous >> 2) & 3) {
+        switch ((VGA.vga.gfx.miscellaneous >>> 2) & 3) {
         case 0:
             vgapages.base = VGA_PAGE_A0;
             switch (Dosbox.svgaCard) {

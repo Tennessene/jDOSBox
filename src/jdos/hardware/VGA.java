@@ -262,8 +262,8 @@ public class VGA {
     public static class VGA_Seq {
         public /*Bit8u*/short index;
         public /*Bit8u*/short reset;
-        public /*Bit8u*/short clocking_mode;
-        public /*Bit8u*/short map_mask;
+        public /*Bit8u*/byte clocking_mode;
+        public /*Bit8u*/byte map_mask;
         public /*Bit8u*/short character_map_select;
         public /*Bit8u*/short memory_mode;
     }
@@ -286,15 +286,15 @@ public class VGA {
 
     public static class VGA_Crtc {
         public /*Bit8u*/short horizontal_total;
-        public /*Bit8u*/short horizontal_display_end;
+        public /*Bit8u*/byte horizontal_display_end;
         public /*Bit8u*/short start_horizontal_blanking;
         public /*Bit8u*/short end_horizontal_blanking;
         public /*Bit8u*/short start_horizontal_retrace;
         public /*Bit8u*/short end_horizontal_retrace;
         public /*Bit8u*/short vertical_total;
-        public /*Bit8u*/short overflow;
+        public /*Bit8u*/byte overflow;
         public /*Bit8u*/short preset_row_scan;
-        public /*Bit8u*/short maximum_scan_line;
+        public /*Bit8u*/byte maximum_scan_line;
         public /*Bit8u*/short cursor_start;
         public /*Bit8u*/short cursor_end;
         public /*Bit8u*/short start_address_high;
@@ -304,7 +304,7 @@ public class VGA {
         public /*Bit8u*/short vertical_retrace_start;
         public /*Bit8u*/short vertical_retrace_end;
         public /*Bit8u*/short vertical_display_end;
-        public /*Bit8u*/short offset;
+        public /*Bit8u*/byte offset;
         public /*Bit8u*/short underline_location;
         public /*Bit8u*/short start_vertical_blanking;
         public /*Bit8u*/short end_vertical_blanking;
@@ -322,8 +322,8 @@ public class VGA {
         public /*Bit8u*/short color_compare;
         public /*Bit8u*/short data_rotate;
         public /*Bit8u*/short read_map_select;
-        public /*Bit8u*/short mode;
-        public /*Bit8u*/short miscellaneous;
+        public /*Bit8u*/byte mode;
+        public /*Bit8u*/byte miscellaneous;
         public /*Bit8u*/short color_dont_care;
         public /*Bit8u*/short bit_mask;
     }

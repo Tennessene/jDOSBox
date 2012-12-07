@@ -453,6 +453,8 @@ public class Memory extends Module_base {
         } else if ((phys_page>=memory.lfb.start_page+0x01000000/4096) &&
                     (phys_page<memory.lfb.start_page+0x01000000/4096+16)) {
             return memory.lfb.mmiohandler;
+        } else if (VBE.initialized && phys_page >= 0xE0000 && phys_page < 0xE0000 + (VGA.vga.vmemsize >>> 12)) {
+            return VBE.handler;
         }
         for (int i=0;i<memory.roms.size();i++) {
             MemoryBlock.ROM rom = memory.roms.elementAt(i);

@@ -62,18 +62,18 @@ public class Int10_modes {
         new Int10.VideoModeBlock( 0x10C  ,VGA.M_TEXT   ,1056,480, 132,60, 8,  8, 2 ,0xB8000 ,0x4000, 160, 531, 132,480, 0   ),
 
     /* VESA higher color modes */
-        new Int10.VideoModeBlock( 0x10D  ,VGA.M_LIN15  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,100 ,449 ,80 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),
-        new Int10.VideoModeBlock( 0x10E  ,VGA.M_LIN16  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,100 ,449 ,80 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),
+        new Int10.VideoModeBlock( 0x10D  ,VGA.M_LIN15  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,100 ,449 ,40 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),
+        new Int10.VideoModeBlock( 0x10E  ,VGA.M_LIN16  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,100 ,449 ,40 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),
         new Int10.VideoModeBlock( 0x10F  ,VGA.M_LIN32  ,320 ,200 ,40 ,25 ,8 ,8  ,1 ,0xA0000 ,0x10000,50  ,449 ,40 ,400 , _VGA_PIXEL_DOUBLE | _EGA_LINE_DOUBLE ),
-        new Int10.VideoModeBlock( 0x110  ,VGA.M_LIN15  ,640 ,480 ,80 ,30 ,8 ,16 ,1 ,0xA0000 ,0x10000,200 ,525 ,160,480 ,0   ),
-        new Int10.VideoModeBlock( 0x111  ,VGA.M_LIN16  ,640 ,480 ,80 ,30 ,8 ,16 ,1 ,0xA0000 ,0x10000,200 ,525 ,160,480 ,0   ),
+        new Int10.VideoModeBlock( 0x110  ,VGA.M_LIN15  ,640 ,480 ,80 ,30 ,8 ,16 ,1 ,0xA0000 ,0x10000,200 ,525 ,80,480 ,0   ),
+        new Int10.VideoModeBlock( 0x111  ,VGA.M_LIN16  ,640 ,480 ,80 ,30 ,8 ,16 ,1 ,0xA0000 ,0x10000,200 ,525 ,80,480 ,0   ),
         new Int10.VideoModeBlock( 0x112  ,VGA.M_LIN32  ,640 ,480 ,80 ,30 ,8 ,16 ,1 ,0xA0000 ,0x10000,100 ,525 ,80 ,480 ,0   ),
-        new Int10.VideoModeBlock( 0x113  ,VGA.M_LIN15  ,800 ,600 ,100,37 ,8 ,16 ,1 ,0xA0000 ,0x10000,264 ,628 ,200,600 ,0   ),
-        new Int10.VideoModeBlock( 0x114  ,VGA.M_LIN16  ,800 ,600 ,100,37 ,8 ,16 ,1 ,0xA0000 ,0x10000,264 ,628 ,200,600 ,0   ),
+        new Int10.VideoModeBlock( 0x113  ,VGA.M_LIN15  ,800 ,600 ,100,37 ,8 ,16 ,1 ,0xA0000 ,0x10000,264 ,628 ,100,600 ,0   ),
+        new Int10.VideoModeBlock( 0x114  ,VGA.M_LIN16  ,800 ,600 ,100,37 ,8 ,16 ,1 ,0xA0000 ,0x10000,264 ,628 ,100,600 ,0   ),
         new Int10.VideoModeBlock( 0x115  ,VGA.M_LIN32  ,800 ,600 ,100,37 ,8 ,16 ,1 ,0xA0000 ,0x10000,132 ,628 ,100,600 ,0   ),
 
-        new Int10.VideoModeBlock( 0x116  ,VGA.M_LIN15  ,1024,768 ,128,48 ,8 ,16 ,1 ,0xA0000 ,0x10000,336 ,806 ,256,768 ,0	),
-        new Int10.VideoModeBlock( 0x117  ,VGA.M_LIN16  ,1024,768 ,128,48 ,8 ,16 ,1 ,0xA0000 ,0x10000,336 ,806 ,256,768 ,0	),
+        new Int10.VideoModeBlock( 0x116  ,VGA.M_LIN15  ,1024,768 ,128,48 ,8 ,16 ,1 ,0xA0000 ,0x10000,336 ,806 ,128,768 ,0	),
+        new Int10.VideoModeBlock( 0x117  ,VGA.M_LIN16  ,1024,768 ,128,48 ,8 ,16 ,1 ,0xA0000 ,0x10000,336 ,806 ,128,768 ,0	),
         new Int10.VideoModeBlock( 0x118  ,VGA.M_LIN32  ,1024,768 ,128,48 ,8 ,16 ,1 ,0xA0000 ,0x10000,168 ,806 ,128,768 ,0	),
         /* those should be interlaced but ok */
         //new Int10.VideoModeBlock( 0x119  ,VGA.M_LIN15  ,1280,1024,160,64 ,8 ,16 ,1 ,0xA0000 ,0x10000,424 ,1066,320,1024,0	),

@@ -12,6 +12,7 @@ import jdos.gui.Main;
 import jdos.hardware.Cmos;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
+import jdos.hardware.VBE;
 import jdos.hardware.qemu.*;
 import jdos.ints.Bios;
 import jdos.ints.Bios_disk;
@@ -826,13 +827,14 @@ public class Dos_programs {
                         fis.close();
 
                         FileInputStream videofis = new FileInputStream("vgabios.bin");
-                        byte[] videoData = new byte[videofis.available()];
+                        byte[] videoData = new byte[0x10000];
                         videofis.read(videoData);
                         address = 0xC0000;
                         for(i=0;i<videoData.length;i++) Memory.host_writeb(address + i, videoData[i]);
 
                         int endLoadAddress = (int) (0x100000000l - data.length);
                         Memory.MEM_AddROM(endLoadAddress >>> 12, data.length >>> 12, data);
+                        //Memory.MEM_AddROM(0xC0, 0x10, videoData);
                         CPU_Regs.reg_eip = 0xFFF0;
                         CPU_Regs.SegSet16CS(0xF000);
                         CPU_Regs.SegSet16DS(0);
@@ -871,6 +873,9 @@ public class Dos_programs {
                         new IoHandler.IO_WriteHandleObject().Install(0x503, vga_write, IoHandler.IO_MA);
                         new IoHandler.IO_WriteHandleObject().Install(0x501, vga_write, IoHandler.IO_MA);
                         new IoHandler.IO_WriteHandleObject().Install(0x502, vga_write, IoHandler.IO_MA);
+
+                        VBE.registerIoPorts();
+
                         int equipment = 0x02; /* FPU is there */
                         equipment |= 0x04; /* PS/2 mouse installed */
                         int fdCount = 0;

@@ -42,6 +42,9 @@ public class VBE {
     static private int vbeIndex;
     static private final int[] vbeRegs = new int[VBE_DISPI_INDEX_NB];
 
+    static public int vbeLineOffset = 0;
+    static public int vbeStartAddress = 0;
+
     static {
         vbeRegs[VBE_DISPI_INDEX_ID] = VBE_DISPI_ID0;
         vbeRegs[VBE_DISPI_INDEX_XRES] = VBE_DISPI_MAX_XRES;
@@ -142,20 +145,17 @@ public class VBE {
                         break;
                     case VBE_DISPI_INDEX_ENABLE:
                         if ((data & VBE_DISPI_ENABLED) != 0) {
-
                             vbeRegs[VBE_DISPI_INDEX_VIRT_WIDTH] = vbeRegs[VBE_DISPI_INDEX_XRES];
                             vbeRegs[VBE_DISPI_INDEX_VIRT_HEIGHT] = vbeRegs[VBE_DISPI_INDEX_YRES];
                             vbeRegs[VBE_DISPI_INDEX_X_OFFSET] = 0;
                             vbeRegs[VBE_DISPI_INDEX_Y_OFFSET] = 0;
 
-                            int vbeLineOffset;
                             if (vbeRegs[VBE_DISPI_INDEX_BPP] == 4)
                                 vbeLineOffset = vbeRegs[VBE_DISPI_INDEX_XRES] >>> 1;
                             else
                                 vbeLineOffset = vbeRegs[VBE_DISPI_INDEX_XRES] * ((vbeRegs[VBE_DISPI_INDEX_BPP] + 7) >>> 3);
 
-                            // :TODO:
-                            // vbeStartAddress = 0;
+                            vbeStartAddress = 0;
 
                             /* clear the screen (should be done in BIOS) */
                             if ((vbeRegs[VBE_DISPI_INDEX_ENABLE] & VBE_DISPI_NOCLEARMEM) == 0)
@@ -167,6 +167,18 @@ public class VBE {
                             int x = vbeRegs[VBE_DISPI_INDEX_XRES];
                             int mode = -1;
                             switch(vbeRegs[VBE_DISPI_INDEX_BPP]) {
+                                case 8:
+                                         if (x == 320 && y == 200) mode = 0x150;
+                                    else if (x == 320 && y == 240) mode = 0x151;
+                                    else if (x == 320 && y == 400) mode = 0x152;
+                                    else if (x == 320 && y == 480) mode = 0x153;
+                                    else if (x == 640 && y == 400) mode = 0x100;
+                                    else if (x == 640 && y == 480) mode = 0x101;
+                                    else if (x == 800 && y == 600) mode = 0x103;
+                                    else if (x ==1024 && y == 768) mode = 0x105;
+                                    //else if (x ==1152 && y == 864) mode = 0x209;
+                                    else if (x ==1280 && y == 768) mode = 0x107;
+                                    break;
                                 case 15:
                                          if (x == 320 && y == 200) mode = 0x10D;
                                     else if (x == 320 && y == 240) mode = 0x160;
@@ -177,95 +189,43 @@ public class VBE {
                                     else if (x == 800 && y == 600) mode = 0x113;
                                     else if (x ==1024 && y == 768) mode = 0x116;
                                     else if (x ==1152 && y == 864) mode = 0x209;
+                                    break;
+                                case 16:
+                                         if (x == 320 && y == 200) mode = 0x10E;
+                                    else if (x == 320 && y == 240) mode = 0x170;
+                                    else if (x == 320 && y == 400) mode = 0x171;
+                                    else if (x == 320 && y == 480) mode = 0x172;
+                                    else if (x == 640 && y == 400) mode = 0x175;
+                                    else if (x == 640 && y == 480) mode = 0x111;
+                                    else if (x == 800 && y == 600) mode = 0x114;
+                                    else if (x ==1024 && y == 768) mode = 0x117;
+                                    else if (x ==1152 && y == 864) mode = 0x20A;
+                                case 32:
+                                         if (x == 320 && y == 200) mode = 0x10F;
+                                    else if (x == 320 && y == 240) mode = 0x190;
+                                    else if (x == 320 && y == 400) mode = 0x191;
+                                    else if (x == 320 && y == 480) mode = 0x192;
+                                    else if (x == 640 && y == 400) mode = 0x213;
+                                    else if (x == 640 && y == 480) mode = 0x112;
+                                    else if (x == 800 && y == 600) mode = 0x115;
+                                    else if (x ==1024 && y == 768) mode = 0x118;
+                                    //else if (x ==1152 && y == 864) mode = 0x209;
                             }
                             if (mode == -1)
                                 return;
-                            VGA.vga.crtc.read_only = false;
                             Int10_vesa.VESA_SetSVGAMode(mode);
-                            VGA.vga.config.compatible_chain4 = false;
-
-//                            /* we initialise the VGA graphic mode */
-//                            /* (should be done in BIOS) */
-//                            /* graphic mode + memory map 1 */
-//                            //VGA.vga.gfx.miscellaneous = (byte)((VGA.vga.gfx.miscellaneous & ~0x0c) | 0x05);
-//                            IoHandler.IO_Write(0x3ce, 0x06);
-//                            IoHandler.IO_Write(0x3cf, ((VGA.vga.gfx.miscellaneous & ~0x0c) | 0x05) & 0xFF);
-//
-//                            /* no CGA modes */
-//                            //VGA.vga.crtc.mode_control|=3;
-//                            IoHandler.IO_Write(0x3d4, 0x17);
-//                            IoHandler.IO_Write(0x3d5, VGA.vga.crtc.mode_control|=3);
-//
-//                            // VGA.vga.crtc.offset = (byte)(vbeLineOffset >>> 3);
-//                            IoHandler.IO_Write(0x3d4, 0x13);
-//                            IoHandler.IO_Write(0x3d5, vbeLineOffset >>> 3);
-//
-//                            /* width */
-//                            //VGA.vga.crtc.horizontal_display_end = (byte)((vbeRegs[VBE_DISPI_INDEX_XRES] >>> 3) - 1);
-//                            IoHandler.IO_Write(0x3d4, 0x01);
-//                            IoHandler.IO_Write(0x3d5, (vbeRegs[VBE_DISPI_INDEX_XRES] >>> 3) - 1);
-//
-//                            /* height */
-//                            int h = vbeRegs[VBE_DISPI_INDEX_YRES] - 1;
-//                            // VGA.vga.crtc.vertical_display_end = (short)h;
-//                            IoHandler.IO_Write(0x3d4, 0x12);
-//                            IoHandler.IO_Write(0x3d5, h);
-//
-//                            // VGA.vga.crtc.overflow = (byte)((VGA.vga.crtc.overflow & ~ 0x42) | ((h >>> 7) & 0x02) | ((h >>> 3) & 40));
-//                            IoHandler.IO_Write(0x3d4, 0x07);
-//                            IoHandler.IO_Write(0x3d5, ((VGA.vga.crtc.overflow & ~ 0x42) | ((h >>> 7) & 0x02) | ((h >>> 3) & 40)) & 0xFF);
-//
-//                            /* line compare to 1023 */
-//                            // VGA.vga.crtc.line_compare = 0xff;
-//                            IoHandler.IO_Write(0x3d4, 0x18);
-//                            IoHandler.IO_Write(0x3d5, 0xff);
-//
-//                            // VGA.vga.crtc.overflow |= 0x10;
-//                            IoHandler.IO_Write(0x3d4, 0x07);
-//                            IoHandler.IO_Write(0x3d5, VGA.vga.crtc.overflow | 0x10);
-//
-//                            // VGA.vga.crtc.maximum_scan_line |= 0x40;
-//                            IoHandler.IO_Write(0x3d4, 0x09);
-//                            IoHandler.IO_Write(0x3d5, VGA.vga.crtc.maximum_scan_line | 0x40);
-//
-//                            int shiftControl;
-//                            if (vbeRegs[VBE_DISPI_INDEX_BPP] == 4) {
-//                                shiftControl = 0;
-//                                // VGA.vga.seq.clocking_mode &= 0x8;
-//                                /* no double line */
-//                                IoHandler.IO_Write(0x3c4, 0x01);
-//                                IoHandler.IO_Write(0x3c5, VGA.vga.seq.clocking_mode & 0x8);
-//                            } else {
-//                                shiftControl = 2;
-//                                // VGA.vga.seq.memory_mode |= 0x08;
-//                                /* set chain 4 mode */
-//                                IoHandler.IO_Write(0x3c4, 0x04);
-//                                IoHandler.IO_Write(0x3c5, VGA.vga.seq.memory_mode | 0x08);
-//
-//                                // VGA.vga.seq.map_mask |= 0x0f;
-//                                /* activate all planes */
-//                                IoHandler.IO_Write(0x3c4, 0x02);
-//                                IoHandler.IO_Write(0x3c5, VGA.vga.seq.map_mask | 0x0f);
-//                            }
-//                            // VGA.vga.gfx.mode = (byte)((VGA.vga.gfx.mode & ~0x60) | (shiftControl << 5));
-//                            IoHandler.IO_Write(0x3ce, 0x05);
-//                            IoHandler.IO_Write(0x3cf, ((VGA.vga.gfx.mode & ~0x60) | (shiftControl << 5)) & 0xFF);
-//
-//                            // VGA.vga.crtc.maximum_scan_line &= ~0x9f;
-//                            /* no double scan */
-//                            IoHandler.IO_Write(0x3d4, 0x09);
-//                            IoHandler.IO_Write(0x3d5, (VGA.vga.crtc.maximum_scan_line & ~0x9f) & 0xFF);
                             if (VGA.vga.draw.resizing) {
                                 VGA.vga.draw.resizing = false;
                                 Pic.PIC_RemoveEvents(VGA_draw.VGA_SetupDrawing);
                                 VGA_draw.VGA_SetupDrawing.call(0);
                             }
                             //DecodeBlock.start = 1;
-                            VGA.vga.crtc.read_only = true;
+                            //VGA.vga.crtc.read_only = true;
                         } else {
                             /* XXX: the bios should do that */
                             // :TODO:
                             // bankOffset = 0;
+                            vbeLineOffset = 0;
                         }
                         vbeRegs[vbeIndex] = data;
                         break;
@@ -286,8 +246,7 @@ public class VBE {
                             return;
                         vbeRegs[VBE_DISPI_INDEX_VIRT_WIDTH] = w;
                         vbeRegs[VBE_DISPI_INDEX_VIRT_HEIGHT] = h;
-                        // :TODO:
-                        // vbeLineOffset = lineOffset;
+                        vbeLineOffset = lineOffset;
                     }
                     break;
                     case VBE_DISPI_INDEX_X_OFFSET:

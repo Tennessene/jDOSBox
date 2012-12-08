@@ -672,6 +672,11 @@ public class VGA_draw {
 
     private static Pic.PIC_EventHandler VGA_DrawPart = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
+            int address_add;
+            if (VBE.vbeLineOffset!=0)
+                address_add = VBE.vbeLineOffset;
+            else
+                address_add = VGA.vga.draw.address_add;
             while (val--!=0) {
                 int data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
                 Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
@@ -679,10 +684,10 @@ public class VGA_draw {
                 VGA.vga.draw.address_line++;
                 if (VGA.vga.draw.address_line>=VGA.vga.draw.address_line_total) {
                     VGA.vga.draw.address_line=0;
-                    VGA.vga.draw.address+=VGA.vga.draw.address_add;
+                    VGA.vga.draw.address+=address_add;
                 }
                 VGA.vga.draw.lines_done++;
-                if (VGA.vga.draw.split_line==VGA.vga.draw.lines_done) {
+                if (VGA.vga.draw.split_line==VGA.vga.draw.lines_done && VBE.vbeLineOffset==0) {
                     if (VGA_memory.VGA_KEEP_CHANGES)
                         VGA_ChangesEnd( );
                     VGA_ProcessSplit();

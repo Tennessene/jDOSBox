@@ -819,16 +819,38 @@ public class Dos_programs {
 
                 if (bochs != null) {
                     try {
-                        FileInputStream fis = new FileInputStream("bios.bin");
-                        byte[] data = new byte[fis.available()];
-                        fis.read(data);
+                        byte[] data = null;
+                        try {
+                            FileInputStream fis = new FileInputStream("bios.bin");
+                            data = new byte[fis.available()];
+                            fis.read(data);
+                            fis.close();
+                        } catch (Exception e) {
+                            data = null;
+                        }
+                        if (data == null) {
+                            FileIO fileIO = FileIOFactory.open("jar://bios.bin", FileIOFactory.MODE_READ);
+                            data = new byte[(int)fileIO.length()];
+                            fileIO.read(data);
+                            fileIO.close();
+                        }
                         int address = 0x100000 - data.length;
                         for(i=0;i<data.length;i++) Memory.host_writeb(address + i, data[i]);
-                        fis.close();
 
-                        FileInputStream videofis = new FileInputStream("vgabios.bin");
                         byte[] videoData = new byte[0x10000];
-                        videofis.read(videoData);
+                        boolean videoBiosFound = false;
+                        try {
+                            FileInputStream videofis = new FileInputStream("vgabios.bin");
+                            videofis.read(videoData);
+                            videofis.close();
+                            videoBiosFound = true;
+                        } catch (Exception e) {
+                        }
+                        if (!videoBiosFound) {
+                            FileIO fileIO = FileIOFactory.open("jar://vgabios.bin", FileIOFactory.MODE_READ);
+                            fileIO.read(videoData, 0, (int)fileIO.length());
+                            fileIO.close();
+                        }
                         address = 0xC0000;
                         for(i=0;i<videoData.length;i++) Memory.host_writeb(address + i, videoData[i]);
 

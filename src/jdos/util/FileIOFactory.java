@@ -1,13 +1,13 @@
 package jdos.util;
 
-import jdos.gui.Main;
 import jdos.Dosbox;
+import jdos.gui.Main;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class FileIOFactory {
     static public final int MODE_READ = 0x01;
@@ -203,7 +203,7 @@ public class FileIOFactory {
         public int read(byte[] b, int off, int len) throws IOException {
             if (b == null)
                 throw new NullPointerException();
-            if (off<0 || off+len>=this.len)
+            if (off<0 || off+len>this.len)
                 throw new IndexOutOfBoundsException();
 
             if (pos>=this.len)
@@ -329,7 +329,7 @@ public class FileIOFactory {
         }
     }
     static public boolean isRemote(String path) {
-        return (path.toLowerCase().startsWith("http://") || path.toLowerCase().startsWith("jar://"));
+        return (path.toLowerCase().startsWith("http://") || path.toLowerCase().startsWith("jar://") || path.toLowerCase().startsWith("jar_tmp://"));
     }
     static private class MyByteArrayOutputStream extends ByteArrayOutputStream {
         public MyByteArrayOutputStream(int size) {
@@ -445,6 +445,38 @@ public class FileIOFactory {
             }
             try {is.close();} catch (Exception e) {}
             return new JarIO(path, mode);
+        } else if (path.toLowerCase().startsWith("jar_tmp://")) {
+            path = path.substring(10);
+            System.out.println("Opening "+path);
+            InputStream is = Dosbox.class.getResourceAsStream(path);
+            if (is == null) {
+                System.out.println("File not found: "+path);
+                return null;
+            }
+            try {
+                File tmpFile = new File(FileHelper.getHomeDirectory()+File.separator+".jdosbox"+File.separator+path);
+                if (tmpFile.exists())
+                    tmpFile.delete();
+                OutputStream out = new FileOutputStream(tmpFile);
+                byte[] buffer = new byte[16384];
+                int read;
+                int count = 0;
+                do {
+                    read = is.read(buffer);
+                    if (read>0) {
+                        count+=read;
+                        out.write(buffer, 0, read);
+                    }
+                } while (read>0);
+                tmpFile.deleteOnExit();
+                System.out.println("Copied "+count+" bytes to "+tmpFile.getAbsolutePath());
+                try {is.close();} catch (Exception e) {}
+                try {out.close();} catch (Exception e) {}
+                return new RandomIO(tmpFile, "rw");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
         } else {
             path = FileHelper.resolve_path(path);
             File f = new File(path);

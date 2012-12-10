@@ -48,7 +48,6 @@ public class Bios_disk {
 
         public /*Bit32u*/long sector_size;
         public /*Bit32u*/long heads,cylinders,sectors;
-        public /*Bit32u*/long current_fpos;
 
         public void close() {
             if (diskimg != null) {
@@ -74,9 +73,8 @@ public class Bios_disk {
             bytenum = sectnum * sector_size;
 
             try {
-                if (bytenum!=current_fpos) diskimg.seek(bytenum);
+                diskimg.seek(bytenum);
 	            /*size_t*/int ret=diskimg.read(data, off, (int)sector_size);
-	            current_fpos=bytenum+ret;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -101,9 +99,8 @@ public class Bios_disk {
             //LOG_MSG("Writing sectors to %ld at bytenum %d", sectnum, bytenum);
             int ret = (int)sector_size;
             try {
-                if (bytenum!=current_fpos) diskimg.seek(bytenum);
+                diskimg.seek(bytenum);
                 diskimg.write(data, off, (int)sector_size);
-                current_fpos = bytenum + sector_size;
             } catch (Exception e) {
                 ret = 0;
                 e.printStackTrace();
@@ -116,7 +113,6 @@ public class Bios_disk {
             cylinders = 0;
             sectors = 0;
             sector_size = 512;
-            current_fpos = 0;
             diskimg = imgFile;
             try {diskimg.seek(0);} catch (Exception e) {}
             diskname = imgName;

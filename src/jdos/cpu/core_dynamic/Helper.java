@@ -11,6 +11,7 @@ public class Helper extends CPU_Regs {
     static protected boolean EA16 = false;
     static protected int prefixes = 0;
     static protected int opcode_index = 0;
+    static protected int opcode_seg = 0;
 
     static protected final long[] AddrMaskTable={0x0000ffffl,0xffffffffl};
     static protected final int[] AddrMaskTable1={0x0000ffff,0xffffffff};
@@ -29,7 +30,6 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_RETURN = 4;
     public final static int RESULT_ANOTHER = 5;
     public final static int RESULT_JUMP = 6;
-    public final static int RESULT_CONTINUE_SEG = 7;
 
     // fetch the next byte of the instruction stream
     static /*Bit8u*/byte decode_fetchbs() {

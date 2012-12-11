@@ -1,10 +1,6 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.Dosbox;
-import jdos.cpu.CPU;
-import jdos.cpu.Core;
-import jdos.cpu.PageFaultException;
-import jdos.cpu.Paging;
+import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
 import jdos.hardware.Memory;
@@ -33,6 +29,81 @@ public class Decoder extends Inst1 {
         for (int i=0;i<ops.length;i++)
             ops[i] = not_handled;
     }
+
+    abstract public static class SegOp extends Op {
+        public Op op;
+        public void reset() {
+            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_val_ds=ds;
+        }
+
+        public int sets() { return 0; }
+        public int gets() { return 0; }
+
+        public boolean returnsIllegal() {return op.returnsIllegal();}
+        public int setsSeg() {return op.setsSeg();}
+        public boolean throwsException() {return op.throwsException();}
+        public boolean accessesMemory() {return op.accessesMemory();}
+        public boolean usesEip() {return op.accessesMemory();}
+        public boolean setsEip() {return op.setsEip();}
+    }
+
+    public static class SegEsOp extends SegOp {
+        public int call() {
+            Core.DO_PREFIX_SEG_ES();
+            int result = op.call();
+            reset();
+            return result;
+        }
+        public String description() {return "ES: "+op.description();}
+    }
+    public static class SegCsOp extends SegOp {
+        public int call() {
+            Core.DO_PREFIX_SEG_CS();
+            int result = op.call();
+            reset();
+            return result;
+        }
+        public String description() {return "CS: "+op.description();}
+    }
+    public static class SegSsOp extends SegOp {
+        public int call() {
+            Core.DO_PREFIX_SEG_SS();
+            int result = op.call();
+            reset();
+            return result;
+        }
+        public String description() {return "SS: "+op.description();}
+    }
+    public static class SegDsOp extends SegOp {
+        public int call() {
+            Core.DO_PREFIX_SEG_DS();
+            int result = op.call();
+            reset();
+            return result;
+        }
+        public String description() {return "DS: "+op.description();}
+    }
+    public static class SegFsOp extends SegOp {
+        public int call() {
+            Core.DO_PREFIX_SEG_FS();
+            int result = op.call();
+            reset();
+            return result;
+        }
+        public String description() {return "FS: "+op.description();}
+    }
+    public static class SegGsOp extends SegOp {
+        public int call() {
+            Core.DO_PREFIX_SEG_GS();
+            int result = op.call();
+            reset();
+            return result;
+        }
+        public String description() {return "GS: "+op.description();}
+    }
+
     private static class StartDecode extends Op {
         public int call() {
             return Constants.BR_Normal;
@@ -53,29 +124,12 @@ public class Decoder extends Inst1 {
         public boolean setsEip() {return false;}
     }
 
-    public static class HandledSegChange extends Op {
-        public int call() {
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
-            Core.base_val_ds=ds;
-            return Constants.BR_Normal;
-        }
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
-    }
-
-    static private int count=0;
-
     static {
         Prefix_none.init(ops);
         Prefix_0f.init(ops);
         Prefix_66.init(ops);
         Prefix_66_0f.init(ops);
     }
-
-    public static final boolean removeRedundantSegs = true;
 
     public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/int start,/*Bitu*/int max_opcodes) {
         // initialize a load of variables
@@ -108,13 +162,11 @@ public class Decoder extends Inst1 {
         Op op = new StartDecode();
         Op start_op = op;
         Op begin_op = start_op;
-        boolean seg_changed = false;
         int opcode = 0;
         int count = 0;
         int cycles = 0;
-        int previousSeg = -1;
-        Op previousSegParent = null;
 
+        opcode_seg = -1;
         try {
             while (max_opcodes-->0 && result==0) {
                 decode.cycles++;
@@ -136,59 +188,25 @@ public class Decoder extends Inst1 {
                     max_opcodes++;
                     continue;
                 }
+                if (opcode_seg>=0) {
+                    SegOp segOp = null;
+                    switch (opcode_seg) {
+                        case CPU_Regs.es: segOp = new SegEsOp(); break;
+                        case CPU_Regs.cs: segOp = new SegCsOp(); break;
+                        case CPU_Regs.ss: segOp = new SegSsOp(); break;
+                        case CPU_Regs.ds: segOp = new SegDsOp(); break;
+                        case CPU_Regs.fs: segOp = new SegFsOp(); break;
+                        case CPU_Regs.gs: segOp = new SegGsOp(); break;
+                    }
+                    segOp.op = op.next;
+                    segOp.op.eip_count = count;
+                    segOp.op.c = opcode;
+                    op.next = segOp;
+                }
                 op = op.next;
                 op.c = opcode;
                 ++cycles;
-                if (result == RESULT_CONTINUE_SEG) {
-                    // This will remove redundant segment prefixes and remove the op that returns the base back to DS
-                    //
-                    // The following 2 instructions, each with a segment prefix used to become 6 oline
-                    //
-                    // Core.DO_PREFIX_SEG_ES();
-                    // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
-                    // Core.DO_PREFIX_SEG_ES();
-                    // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
-                    //
-                    // Now it will be 4 ops
-                    //
-                    // Core.DO_PREFIX_SEG_ES();
-                    // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
-                    // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
-                    //
-                    // or 5 ops if the recompiler is on
-                    //
-                    // Core.DO_PREFIX_SEG_ES();
-                    // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
-                    // Core.DO_PREFIX_SEG_ES();
-                    // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
-                    //
-                    // This only works for instructions with prefixes that are back to back
-                    if (removeRedundantSegs) {
-                        if (previousSegParent != null && previousSeg == opcode) {
 
-                            if (Dosbox.allPrivileges) {
-                                // we can loose the HandleSegChange block, be we need this seg instruction for the recompiler
-                                previousSegParent.next = op; // This will drop HandleSegChange
-                                begin_op = previousSegParent.next;
-                            } else {
-                                op = previousSegParent;
-                                begin_op = previousSegParent;
-                            }
-                            max_opcodes++;
-                        }
-                        previousSeg = opcode;
-                    }
-                    result = RESULT_HANDLED;
-                    max_opcodes++;
-                    seg_changed = true;
-                    continue;
-                }
-                if (removeRedundantSegs)
-                    previousSegParent = null;
                 begin_op = op;
                 op.eip_count = count;
                 count = 0;
@@ -205,19 +223,7 @@ public class Decoder extends Inst1 {
                     prefixes=0;
                     EA16 = true;
                 }
-                if (seg_changed && result==0) {
-                    if (removeRedundantSegs) {
-                        if ((op.setsSeg() & Op.FROM_MEMORY)==0) {
-                            previousSegParent = op;
-                        }
-                    }
-                    seg_changed = false;
-                    op.next = new HandledSegChange();
-                    op = op.next;
-                    op.c = -1;
-                    op.cycle = cycles;
-                    begin_op = op;
-                }
+                opcode_seg = -1;
             }
         } catch (ChangePageException e) {
             if (decode.code -decode.op_start + count == 0) {

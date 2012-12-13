@@ -2054,7 +2054,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean setsEip() {return false;}
     }
     
-    static abstract private class ConditionalMov_reg extends Op {
+    static abstract public class ConditionalMov_reg extends Op {
         Reg ed;
         Reg gd;
 
@@ -2278,7 +2278,7 @@ static abstract public class JumpCond32_d extends Op {
         public String description() {return "CMOV_NLE "+gd.getName()+", "+ed.getName();}
     }
 
-     static abstract private class ConditionalMov_mem extends Op {
+     static abstract public class ConditionalMov_mem extends Op {
         EaaBase get_eaa;
         Reg gd;
 
@@ -2563,7 +2563,7 @@ static abstract public class JumpCond32_d extends Op {
             return Constants.BR_Normal;
         }
 
-        public boolean throwsException() {return false;}
+        public boolean throwsException() {return true;}
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
@@ -2578,7 +2578,7 @@ static abstract public class JumpCond32_d extends Op {
             return Constants.BR_Normal;
         }
 
-        public boolean throwsException() {return false;}
+        public boolean throwsException() {return true;}
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}

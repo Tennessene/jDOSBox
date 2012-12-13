@@ -3716,7 +3716,7 @@ public class Inst2 extends Helper {
         public boolean setsEip() {return false;}
     }
 
-    static abstract private class ConditionalMov_reg extends Op {
+    static abstract public class ConditionalMov_reg extends Op {
         Reg ew;
         Reg gw;
 
@@ -3940,7 +3940,7 @@ public class Inst2 extends Helper {
         public String description() {return "CMOV_NLE "+gw.getName16()+", "+ew.getName16();}
     }
 
-     static abstract private class ConditionalMov_mem extends Op {
+     static abstract public class ConditionalMov_mem extends Op {
         EaaBase get_eaa;
         Reg gw;
 

@@ -4179,8 +4179,9 @@ public class Compiler extends Helper {
                     declareVal(method);
                     method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;");
                     declareVal2(method);
-                    method.append("val2 = ");nameGet16(o.earw);
-                    method.append("if (Instructions.valid_ROLW(val2, val))");
+                    method.append("val2 = ");
+                    method.append(nameGet16(o.earw));
+                    method.append(";if (Instructions.valid_ROLW(val2, val))");
                     nameSet16(o.earw, "Instructions.do_ROLW(val, val2)", method);
                     method.append(";");
                     return true;
@@ -4190,7 +4191,8 @@ public class Compiler extends Helper {
                     declareVal(method);
                     method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;");
                     declareVal2(method);
-                    method.append("val2 = ");nameGet16(o.earw);
+                    method.append("val2 = ");
+                    method.append(nameGet16(o.earw));
                     method.append(";if (Instructions.valid_RORW(val2, val))");
                     nameSet16(o.earw, "Instructions.do_RORW(val, val2)", method);
                     method.append(";");
@@ -5362,6 +5364,101 @@ public class Compiler extends Helper {
                     method.append("if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_PENTIUM) return Constants.BR_Illegal;");
                     declareLongVal(method);
                     method.append("lval=(long)(Pic.PIC_FullIndex()*(double) (CPU.CPU_CycleAutoAdjust?70000:CPU.CPU_CycleMax));CPU_Regs.reg_edx.dword=(int)(lval>>>32);CPU_Regs.reg_eax.dword=(int)lval;");
+                    return true;
+                }
+                break;
+            case 0x140: // CMOVO
+            case 0x141: // CMOVNO
+            case 0x142: // CMOVB
+            case 0x143: // CMOVNB
+            case 0x144: // CMOVZ
+            case 0x145: // CMOVNZ
+            case 0x146: // CMOVBE
+            case 0x147: // CMOVNBE
+            case 0x148: // CMOVS
+            case 0x149: // CMOVNS
+            case 0x14a: // CMOVP
+            case 0x14b: // CMOVNP
+            case 0x14c: // CMOVL
+            case 0x14d: // CMOVNL
+            case 0x14e: // CMOVLE
+            case 0x14f: // CMOVNLE
+                if (op instanceof Inst2.ConditionalMov_reg) {
+                    if (op instanceof Inst2.ConditionalMov_o_reg)
+                        method.append("if (Flags.TFLG_O()) ");
+                    else if (op instanceof Inst2.ConditionalMov_no_reg)
+                        method.append("if (Flags.TFLG_NO()) ");
+                    else if (op instanceof Inst2.ConditionalMov_b_reg)
+                        method.append("if (Flags.TFLG_B()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nb_reg)
+                        method.append("if (Flags.TFLG_NB()) ");
+                    else if (op instanceof Inst2.ConditionalMov_z_reg)
+                        method.append("if (Flags.TFLG_Z()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nz_reg)
+                        method.append("if (Flags.TFLG_NZ()) ");
+                    else if (op instanceof Inst2.ConditionalMov_be_reg)
+                        method.append("if (Flags.TFLG_BE()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nbe_reg)
+                        method.append("if (Flags.TFLG_NBE()) ");
+                    else if (op instanceof Inst2.ConditionalMov_s_reg)
+                        method.append("if (Flags.TFLG_S()) ");
+                    else if (op instanceof Inst2.ConditionalMov_ns_reg)
+                        method.append("if (Flags.TFLG_NS()) ");
+                    else if (op instanceof Inst2.ConditionalMov_p_reg)
+                        method.append("if (Flags.TFLG_P()) ");
+                    else if (op instanceof Inst2.ConditionalMov_np_reg)
+                        method.append("if (Flags.TFLG_NP()) ");
+                    else if (op instanceof Inst2.ConditionalMov_l_reg)
+                        method.append("if (Flags.TFLG_L()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nl_reg)
+                        method.append("if (Flags.TFLG_NL()) ");
+                    else if (op instanceof Inst2.ConditionalMov_le_reg)
+                        method.append("if (Flags.TFLG_LE()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nle_reg)
+                        method.append("if (Flags.TFLG_NLE()) ");
+                    Inst2.ConditionalMov_reg o = (Inst2.ConditionalMov_reg)op;
+                    nameSet16(o.gw, nameGet16(o.ew), method);
+                    method.append(";");
+                    return true;
+                } else if (op instanceof Inst2.ConditionalMov_o_mem) {
+                    Inst2.ConditionalMov_mem o = (Inst2.ConditionalMov_mem)op;
+                    memory_start(o.get_eaa, seg, method);
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);");
+                    if (op instanceof Inst2.ConditionalMov_o_mem)
+                        method.append("if (Flags.TFLG_O()) ");
+                    else if (op instanceof Inst2.ConditionalMov_no_mem)
+                        method.append("if (Flags.TFLG_NO()) ");
+                    else if (op instanceof Inst2.ConditionalMov_b_mem)
+                        method.append("if (Flags.TFLG_B()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nb_mem)
+                        method.append("if (Flags.TFLG_NB()) ");
+                    else if (op instanceof Inst2.ConditionalMov_z_mem)
+                        method.append("if (Flags.TFLG_Z()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nz_mem)
+                        method.append("if (Flags.TFLG_NZ()) ");
+                    else if (op instanceof Inst2.ConditionalMov_be_mem)
+                        method.append("if (Flags.TFLG_BE()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nbe_mem)
+                        method.append("if (Flags.TFLG_NBE()) ");
+                    else if (op instanceof Inst2.ConditionalMov_s_mem)
+                        method.append("if (Flags.TFLG_S()) ");
+                    else if (op instanceof Inst2.ConditionalMov_ns_mem)
+                        method.append("if (Flags.TFLG_NS()) ");
+                    else if (op instanceof Inst2.ConditionalMov_p_mem)
+                        method.append("if (Flags.TFLG_P()) ");
+                    else if (op instanceof Inst2.ConditionalMov_np_mem)
+                        method.append("if (Flags.TFLG_NP()) ");
+                    else if (op instanceof Inst2.ConditionalMov_l_mem)
+                        method.append("if (Flags.TFLG_L()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nl_mem)
+                        method.append("if (Flags.TFLG_NL()) ");
+                    else if (op instanceof Inst2.ConditionalMov_le_mem)
+                        method.append("if (Flags.TFLG_LE()) ");
+                    else if (op instanceof Inst2.ConditionalMov_nle_mem)
+                        method.append("if (Flags.TFLG_NLE()) ");
+                    nameSet16(o.gw, "val", method);
+                    method.append(";");
                     return true;
                 }
                 break;

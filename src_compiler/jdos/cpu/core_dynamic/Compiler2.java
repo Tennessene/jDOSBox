@@ -137,13 +137,15 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst2.BtEwGw_mem) {
                     Inst2.BtEwGw_mem o = (Inst2.BtEwGw_mem) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
-                    method.append(nameGet16(o.rw));
-                    method.append(" & 15);");
+                    method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
                     method.append("eaa+=(((short)");
                     method.append(nameGet16(o.rw));
-                    method.append(")>>4)*2;int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);");
+                    method.append(")>>4)*2;");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val & (1 << (");
+                    method.append(nameGet16(o.rw));
+                    method.append(" & 15)))!=0);");
                     return true;
                 }
                 break;
@@ -171,19 +173,21 @@ public class Compiler2 extends Compiler {
             case 0x1a5: // SHLD Ew,Gw,CL
                 if (op instanceof Inst2.ShldEwGwCl_reg) {
                     Inst2.ShldEwGwCl_reg o = (Inst2.ShldEwGwCl_reg) op;
-                    method.append("short s = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(s))");
-                    nameSet16(o.earw, "Instructions.do_DSHLW(", nameGet16(o.rw), ", s, ", nameGet16(o.earw), ")", method);
+                    declareShortVal(method);
+                    method.append("sval  = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(sval))");
+                    nameSet16(o.earw, "Instructions.do_DSHLW(", nameGet16(o.rw), ", sval, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst2.ShldEwGwCl_mem) {
                     Inst2.ShldEwGwCl_mem o = (Inst2.ShldEwGwCl_mem) op;
-                    method.append("short s = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(s)) {");
+                    declareShortVal(method);
+                    method.append("sval = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(sval)) {");
                     memory_start(o.get_eaa, seg, method);
                     memory_writew(method);
                     method.append("Instructions.do_DSHLW(");
                     nameGet16(o.rw, method);
-                    method.append(", s, ");
+                    method.append(", sval, ");
                     memory_readw(method);
                     method.append("));");
                     return true;
@@ -206,24 +210,30 @@ public class Compiler2 extends Compiler {
             case 0x1ab: // BTS Ew,Gw
                 if (op instanceof Inst2.BtsEwGw_reg) {
                     Inst2.BtsEwGw_reg o = (Inst2.BtsEwGw_reg) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet16(o.rw));
                     method.append(" & 15);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet16(o.earw));
-                    method.append(" & mask)!=0);");
-                    nameSet16(o.earw, nameGet16(o.earw) + " | mask", method);
+                    method.append(" & val)!=0);");
+                    nameSet16(o.earw, nameGet16(o.earw) + " | val", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst2.BtsEwGw_mem) {
                     Inst2.BtsEwGw_mem o = (Inst2.BtsEwGw_mem) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet16(o.rw));
                     method.append(" & 15);");
                     memory_start(o.get_eaa, seg, method);
                     method.append("eaa+=(((short)");
                     method.append(nameGet16(o.rw));
-                    method.append(")>>4)*2;int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);Memory.mem_writew(eaa,old | mask);");
+                    method.append(")>>4)*2;");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val2 & val)!=0);Memory.mem_writew(eaa,val2 | val);");
                     return true;
                 }
                 break;
@@ -251,19 +261,21 @@ public class Compiler2 extends Compiler {
             case 0x1ad: // SHRD Ew,Gw,CL
                 if (op instanceof Inst2.ShrdEwGwCl_reg) {
                     Inst2.ShrdEwGwCl_reg o = (Inst2.ShrdEwGwCl_reg) op;
-                    method.append("int s = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHRW(s))");
-                    nameSet16(o.earw, "Instructions.do_DSHRW(", nameGet16(o.rw), ", s, ", nameGet16(o.earw), ")", method);
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHRW(val))");
+                    nameSet16(o.earw, "Instructions.do_DSHRW(", nameGet16(o.rw), ", val, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst2.ShrdEwGwCl_mem) {
                     Inst2.ShrdEwGwCl_mem o = (Inst2.ShrdEwGwCl_mem) op;
-                    method.append("int s = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHRW(s)) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHRW(val)) {");
                     memory_start(o.get_eaa, seg, method);
                     memory_writew(method);
                     method.append("Instructions.do_DSHRW(");
                     nameGet16(o.rw, method);
-                    method.append(", s, ");
+                    method.append(", val, ");
                     memory_readw(method);
                     method.append("));}");
                     return true;
@@ -301,9 +313,10 @@ public class Compiler2 extends Compiler {
                     Inst2.CmpxchgEbGb_mem o = (Inst2.CmpxchgEbGb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("short val = Memory.mem_readb(eaa);if (CPU_Regs.reg_eax.low() == val) {Memory.mem_writeb(eaa,");
+                    declareShortVal(method);
+                    method.append("sval = Memory.mem_readb(eaa);if (CPU_Regs.reg_eax.low() == sval) {Memory.mem_writeb(eaa,");
                     method.append(nameGet8(o.rb));
-                    method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writeb(eaa,val);CPU_Regs.reg_eax.low(val);CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
+                    method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writeb(eaa,sval);CPU_Regs.reg_eax.low(sval);CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
                     return true;
                 }
                 break;
@@ -323,7 +336,8 @@ public class Compiler2 extends Compiler {
                     Inst2.CmpxchgEwGw_mem o = (Inst2.CmpxchgEwGw_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int val = Memory.mem_readw(eaa);if (CPU_Regs.reg_eax.word() == val) {Memory.mem_writew(eaa,");
+                    declareVal(method);
+                    method.append("val = Memory.mem_readw(eaa);if (CPU_Regs.reg_eax.word() == val) {Memory.mem_writew(eaa,");
                     method.append(nameGet16(o.rw));
                     method.append(";CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writew(eaa,val);CPU_Regs.reg_eax.word(val);CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
                     return true;
@@ -342,23 +356,29 @@ public class Compiler2 extends Compiler {
             case 0x1b3: // BTR Ew,Gw
                 if (op instanceof Inst2.BtrEwGw_reg) {
                     Inst2.BtrEwGw_reg o = (Inst2.BtrEwGw_reg) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet16(o.rw));
                     method.append(" & 15);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet16(o.earw));
-                    method.append(" & mask)!=0);");
-                    nameSet16(o.earw, nameGet16(o.earw) + " & ~mask", method);
+                    method.append(" & val)!=0);");
+                    nameSet16(o.earw, nameGet16(o.earw) + " & ~val", method);
                     method.append(";");
                     return false;
                 }
                 if (op instanceof Inst2.BtrEwGw_mem) {
                     Inst2.BtrEwGw_mem o = (Inst2.BtrEwGw_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet16(o.rw));
                     method.append(" & 15);eaa+=(((short)");
                     method.append(nameGet16(o.rw));
-                    method.append(")>>4)*2;int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);Memory.mem_writew(eaa,old & ~mask);");
+                    method.append(")>>4)*2;");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val2 & val)!=0);Memory.mem_writew(eaa,val2 & ~val);");
                     return true;
                 }
                 break;
@@ -460,7 +480,7 @@ public class Compiler2 extends Compiler {
                     Inst2.BtEwIb_mem o = (Inst2.BtEwIb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    method.append("CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(Memory.mem_readw(eaa) & ");
                     method.append(o.mask);
                     method.append(")!=0);");
                     return true;
@@ -469,9 +489,10 @@ public class Compiler2 extends Compiler {
                     Inst2.BtsEwIb_mem o = (Inst2.BtsEwIb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val & ");
                     method.append(o.mask);
-                    method.append(")!=0);Memory.mem_writew(eaa,old|");
+                    method.append(")!=0);Memory.mem_writew(eaa,val|");
                     method.append(o.mask);
                     method.append(");");
                     return true;
@@ -480,9 +501,10 @@ public class Compiler2 extends Compiler {
                     Inst2.BtrEwIb_mem o = (Inst2.BtrEwIb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val & ");
                     method.append(o.mask);
-                    method.append(")!=0);Memory.mem_writew(eaa,old & ~");
+                    method.append(")!=0);Memory.mem_writew(eaa,val & ~");
                     method.append(o.mask);
                     method.append(");");
                     return true;
@@ -491,9 +513,10 @@ public class Compiler2 extends Compiler {
                     Inst2.BtcEwIb_mem o = (Inst2.BtcEwIb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val & ");
                     method.append(o.mask);
-                    method.append(")!=0);Memory.mem_writew(eaa,old ^ ");
+                    method.append(")!=0);Memory.mem_writew(eaa,val ^ ");
                     method.append(o.mask);
                     method.append(");");
                     return true;
@@ -502,33 +525,40 @@ public class Compiler2 extends Compiler {
             case 0x1bb: // BTC Ew,Gw
                 if (op instanceof Inst2.BtcEwGw_reg) {
                     Inst2.BtcEwGw_reg o = (Inst2.BtcEwGw_reg) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet16(o.rw));
                     method.append(" & 15);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet16(o.earw));
-                    method.append(" & mask)!=0);");
-                    nameSet16(o.earw, nameGet16(o.earw) + " ^ mask", method);
+                    method.append(" & val)!=0);");
+                    nameSet16(o.earw, nameGet16(o.earw) + " ^ val", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst2.BtcEwGw_mem) {
                     Inst2.BtcEwGw_mem o = (Inst2.BtcEwGw_mem) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet16(o.rw));
                     method.append(" & 15);");
                     memory_start(o.get_eaa, seg, method);
                     method.append("eaa+=(((short)");
                     method.append(nameGet16(o.rw));
-                    method.append(")>>4)*2;int old=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);Memory.mem_writew(eaa,old ^ mask);");
+                    method.append(")>>4)*2;");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readw(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val2 & val)!=0);Memory.mem_writew(eaa,val2 ^ val);");
                     return true;
                 }
                 break;
             case 0x1bc: // BSF Gw,Ew
                 if (op instanceof Inst2.BsfGwEw_reg) {
                     Inst2.BsfGwEw_reg o = (Inst2.BsfGwEw_reg) op;
-                    method.append("int value=");
+                    declareVal(method);
+                    method.append("val=");
                     method.append(nameGet16(o.earw));
-                    method.append(";if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0; while ((value & 0x01)==0) { result++; value>>=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0; while ((val & 0x01)==0) { result++; val>>=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
                     method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -536,7 +566,8 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst2.BsfGwEw_mem) {
                     Inst2.BsfGwEw_mem o = (Inst2.BsfGwEw_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int value=Memory.mem_readw(eaa);if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((value & 0x01)==0) { result++; value>>=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readw(eaa);if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((val & 0x01)==0) { result++; val>>=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
                     method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -545,9 +576,10 @@ public class Compiler2 extends Compiler {
             case 0x1bd: // BSR Gw,Ew
                 if (op instanceof Inst2.BsrGwEw_reg) {
                     Inst2.BsrGwEw_reg o = (Inst2.BsrGwEw_reg) op;
-                    method.append("int value=");
+                    declareVal(method);
+                    method.append("val=");
                     method.append(nameGet16(o.earw));
-                    method.append(";if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 15;while ((value & 0x8000)==0) { result--; value<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 15;while ((val & 0x8000)==0) { result--; val<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
                     method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -555,7 +587,8 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst2.BsrGwEw_mem) {
                     Inst2.BsrGwEw_mem o = (Inst2.BsrGwEw_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int value=Memory.mem_readw(eaa);if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 15;while ((value & 0x8000)==0) { result--; value<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readw(eaa);if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 15;while ((val & 0x8000)==0) { result--; val<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
                     method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -581,21 +614,24 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst2.XaddGbEb_reg) {
                     Inst2.XaddGbEb_reg o = (Inst2.XaddGbEb_reg) op;
                     if ((setFlags & o.sets())==0) {
-                        method.append("short oldrmrb=");
+                        declareShortVal(method);
+                        method.append("sval = ");
                         method.append(nameGet8(o.rb));
+                        method.append(";");
                         method.append(nameSet8(o.rb, nameGet8(o.earb)));
                         method.append(";");
-                        method.append(nameSet8(o.earb, "(short)(" + nameGet8(o.earb) + "+oldrmrb)"));
+                        method.append(nameSet8(o.earb, "(short)(" + nameGet8(o.earb) + "+sval)"));
                         method.append(";");
                     } else {
-                        method.append("short result=Instructions.ADDB(");
+                        declareShortVal(method);
+                        method.append("sval=Instructions.ADDB(");
                         method.append(nameGet8(o.rb));
                         method.append(", ");
                         method.append(nameGet8(o.earb));
                         method.append(");");
                         method.append(nameSet8(o.rb, nameGet8(o.earb)));
                         method.append(";");
-                        method.append(nameSet8(o.earb, "result"));
+                        method.append(nameSet8(o.earb, "sval"));
                         method.append(";");
                     }
                     return true;
@@ -604,16 +640,15 @@ public class Compiler2 extends Compiler {
                     Inst2.XaddGbEb_mem o = (Inst2.XaddGbEb_mem) op;
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
-                        method.append("short oldrmrb=");
-                        method.append(nameGet8(o.rb));
-                        method.append(";short val = Memory.mem_readb(eaa);Memory.mem_writeb(eaa,val+oldrmrb);");
-                        method.append(nameSet8(o.rb, "val"));
+                        declareShortVal(method);
+                        method.append("sval = Memory.mem_readb(eaa);Memory.mem_writeb(eaa,val+");method.append(nameGet8(o.rb));method.append(");");
+                        method.append(nameSet8(o.rb, "sval"));
                         method.append(";");
                     } else {
-                        method.append("short val = Memory.mem_readb(eaa);short result = Instructions.ADDB(");
-                        method.append(nameGet8(o.rb));
-                        method.append(", val);Memory.mem_writeb(eaa,val+result);");
-                        method.append(nameSet8(o.rb, "val"));
+                        declareShortVal(method);
+                        method.append("sval = Memory.mem_readb(eaa);");
+                        method.append("Memory.mem_writeb(eaa,");method.append("Instructions.ADDB(");method.append(nameGet8(o.rb));method.append(", sval)");method.append(");");
+                        method.append(nameSet8(o.rb, "sval"));
                         method.append(";");
                     }
                     return true;
@@ -623,22 +658,24 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst2.XaddGwEw_reg) {
                     Inst2.XaddGwEw_reg o = (Inst2.XaddGwEw_reg) op;
                     if ((setFlags & o.sets())==0) {
-                        method.append("int oldrmrw=");
+                        declareVal(method);
+                        method.append("val=");
                         method.append(nameGet16(o.rw));
                         method.append(";");
                         nameSet16(o.rw, nameGet16(o.earw), method);
                         method.append(";");
-                        nameSet16(o.earw, nameGet16(o.earw) + "+oldrmrw", method);
+                        nameSet16(o.earw, nameGet16(o.earw) + "+val", method);
                         method.append(";");
                     } else {
-                        method.append("int result=Instructions.ADDW(");
+                        declareVal(method);
+                        method.append("val=Instructions.ADDW(");
                         method.append(nameGet16(o.rw));
                         method.append(", ");
                         method.append(nameGet16(o.earw));
                         method.append(");");
                         nameSet16(o.rw, nameGet16(o.earw), method);
                         method.append(";");
-                        nameSet16(o.earw, "result", method);
+                        nameSet16(o.earw, "val", method);
                         method.append(";");
                     }
                     return true;
@@ -647,15 +684,17 @@ public class Compiler2 extends Compiler {
                     Inst2.XaddGwEw_mem o = (Inst2.XaddGwEw_mem) op;
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
-                        method.append("int oldrmrb=");
-                        method.append(nameGet16(o.rw));
-                        method.append(";int val = Memory.mem_readw(eaa);Memory.mem_writew(eaa,val+oldrmrb);");
+                        declareVal(method);
+                        method.append("val = Memory.mem_readw(eaa);Memory.mem_writew(eaa,val+");method.append(nameGet16(o.rw));method.append(");");
                         nameSet16(o.rw, "val", method);
                         method.append(";");
                     } else {
-                        method.append("int val = Memory.mem_readw(eaa);int result = Instructions.ADDW(");
+                        declareVal(method);
+                        method.append("val = Memory.mem_readw(eaa);");
+                        declareVal2(method);
+                        method.append("val2 = Instructions.ADDW(");
                         method.append(nameGet16(o.rw));
-                        method.append(", val);Memory.mem_writew(eaa,val+result);");
+                        method.append(", val);Memory.mem_writew(eaa,val2);");
                         nameSet16(o.rw, "val", method);
                         method.append(";");
                     }
@@ -1296,7 +1335,10 @@ public class Compiler2 extends Compiler {
             case 0x260: // PUSHAD
                 if (op instanceof Inst3.Pushad) {
                     Inst3.Pushad o = (Inst3.Pushad) op;
-                    method.append("int tmpesp = CPU_Regs.reg_esp.dword;int esp = CPU_Regs.reg_esp.dword;esp = CPU.CPU_Push32(esp, CPU_Regs.reg_eax.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ecx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edx.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_ebx.dword);esp = CPU.CPU_Push32(esp, tmpesp);esp = CPU.CPU_Push32(esp, ");nameGet32(CPU_Regs.reg_ebp, method);method.append(");esp = CPU.CPU_Push32(esp, CPU_Regs.reg_esi.dword);esp = CPU.CPU_Push32(esp, CPU_Regs.reg_edi.dword);CPU_Regs.reg_esp.dword=esp;");
+                    declareVal2(method);
+                    method.append("val2 = CPU_Regs.reg_esp.dword;");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_esp.dword;val = CPU.CPU_Push32(val, CPU_Regs.reg_eax.dword);val = CPU.CPU_Push32(val, CPU_Regs.reg_ecx.dword);val = CPU.CPU_Push32(val, CPU_Regs.reg_edx.dword);val = CPU.CPU_Push32(val, CPU_Regs.reg_ebx.dword);val = CPU.CPU_Push32(val, val2);val = CPU.CPU_Push32(val, ");nameGet32(CPU_Regs.reg_ebp, method);method.append(");val = CPU.CPU_Push32(val, CPU_Regs.reg_esi.dword);val = CPU.CPU_Push32(val, CPU_Regs.reg_edi.dword);CPU_Regs.reg_esp.dword=val;");
                     return true;
                 }
                 break;
@@ -1311,7 +1353,7 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst3.BoundEd) {
                     Inst3.BoundEd o = (Inst3.BoundEd) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int bound_min=Memory.mem_readd(eaa);int bound_max=Memory.mem_readd(eaa + 4);int rmrd = rd.dword;if (rmrd < bound_min || rmrd > bound_max) {return EXCEPTION(5);}");
+                    method.append("if (");method.append(nameGet32(o.rd));method.append(" < Memory.mem_readd(eaa) || ");method.append(nameGet32(o.rd));method.append(" > Memory.mem_readd(eaa + 4) {return EXCEPTION(5);}");
                     return true;
                 }
                 break;
@@ -1319,24 +1361,25 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst3.ArplEdRd_reg) {
                     Inst3.ArplEdRd_reg o = (Inst3.ArplEdRd_reg) op;
                     method.append("if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
-                    method.append("IntRef ref = new IntRef(");
+                    declareVal(method);
+                    method.append("val=");
                     method.append(nameGet32(o.eard));
-                    method.append(");");
-                    method.append("CPU.CPU_ARPL(ref, ");
+                    method.append(";val=CPU.CPU_ARPL(val, ");
                     method.append(nameGet16(o.rd));
                     method.append(");");
                     method.append(nameSet32(o.eard));
-                    method.append("=ref.value;");
+                    method.append("=val;");
                     return true;
                 }
                 if (op instanceof Inst3.ArplEdRd_mem) {
                     Inst3.ArplEdRd_mem o = (Inst3.ArplEdRd_mem) op;
                     method.append("if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("IntRef ref = new IntRef(Memory.mem_readw(eaa));");
-                    method.append("CPU.CPU_ARPL(ref, ");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readw(eaa);");
+                    method.append("val=CPU.CPU_ARPL(val, ");
                     method.append(nameGet16(o.rd));
-                    method.append(");Memory.mem_writed(eaa,ref.value);");
+                    method.append(");Memory.mem_writed(eaa,val);");
                     return true;
                 }
                 break;
@@ -1760,7 +1803,8 @@ public class Compiler2 extends Compiler {
             case 0x287: // XCHG Ed,Gd
                 if (op instanceof Inst3.XchgEdGd_reg) {
                     Inst3.XchgEdGd_reg o = (Inst3.XchgEdGd_reg) op;
-                    method.append("int oldrmrd = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet32(o.rd));
                     method.append(";");
                     method.append(nameSet32(o.rd));
@@ -1768,17 +1812,16 @@ public class Compiler2 extends Compiler {
                     method.append(nameGet32(o.eard));
                     method.append(";");
                     method.append(nameSet32(o.eard));
-                    method.append("=oldrmrd;");
+                    method.append("=val;");
                     return true;
                 }
                 if (op instanceof Inst3.XchgEdGd_mem) {
                     Inst3.XchgEdGd_mem o = (Inst3.XchgEdGd_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int oldrmrd = ");
-                    method.append(nameGet32(o.rd));
-                    method.append("; int tmp = Memory.mem_readd(eaa);Memory.mem_writed(eaa, oldrmrd);");
+                    declareVal(method);
+                    method.append("val = Memory.mem_readd(eaa);Memory.mem_writed(eaa, ");method.append(nameGet32(o.rd));method.append(");");
                     method.append(nameSet32(o.rd));
-                    method.append("=tmp;");
+                    method.append("=val;");
                     return true;
                 }
                 break;
@@ -1925,86 +1968,28 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst3.PopEd_mem) {
                     Inst3.PopEd_mem o = (Inst3.PopEd_mem) op;
-                    method.append("int val = CPU.CPU_Pop32();");
+                    declareVal(method);
+                    method.append("val = CPU.CPU_Pop32();");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, val);");
                     return true;
                 }
                 break;
             case 0x291: // XCHG ECX,EAX
-                if (op instanceof Inst3.XchgEax) {
-                    Inst3.XchgEax o = (Inst3.XchgEax) op;
-                    method.append("int old = ");
-                    method.append(nameGet32(o.reg));
-                    method.append(";");
-                    method.append(nameSet32(o.reg));
-                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=old;");
-                    return true;
-                }
-                break;
             case 0x292: // XCHG EDX,EAX
-                if (op instanceof Inst3.XchgEax) {
-                    Inst3.XchgEax o = (Inst3.XchgEax) op;
-                    method.append("int old = ");
-                    method.append(nameGet32(o.reg));
-                    method.append(";");
-                    method.append(nameSet32(o.reg));
-                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=old;");
-                    return true;
-                }
-                break;
             case 0x293: // XCHG EBX,EAX
-                if (op instanceof Inst3.XchgEax) {
-                    Inst3.XchgEax o = (Inst3.XchgEax) op;
-                    method.append("int old = ");
-                    method.append(nameGet32(o.reg));
-                    method.append(";");
-                    method.append(nameSet32(o.reg));
-                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=old;");
-                    return true;
-                }
-                break;
             case 0x294: // XCHG ESP,EAX
-                if (op instanceof Inst3.XchgEax) {
-                    Inst3.XchgEax o = (Inst3.XchgEax) op;
-                    method.append("int old = ");
-                    method.append(nameGet32(o.reg));
-                    method.append(";");
-                    method.append(nameSet32(o.reg));
-                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=old;");
-                    return true;
-                }
-                break;
             case 0x295: // XCHG EBP,EAX
-                if (op instanceof Inst3.XchgEax) {
-                    Inst3.XchgEax o = (Inst3.XchgEax) op;
-                    method.append("int old = ");
-                    method.append(nameGet32(o.reg));
-                    method.append(";");
-                    method.append(nameSet32(o.reg));
-                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=old;");
-                    return true;
-                }
-                break;
             case 0x296: // XCHG ESI,EAX
-                if (op instanceof Inst3.XchgEax) {
-                    Inst3.XchgEax o = (Inst3.XchgEax) op;
-                    method.append("int old = ");
-                    method.append(nameGet32(o.reg));
-                    method.append(";");
-                    method.append(nameSet32(o.reg));
-                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=old;");
-                    return true;
-                }
-                break;
             case 0x297: // XCHG EDI,EAX
                 if (op instanceof Inst3.XchgEax) {
                     Inst3.XchgEax o = (Inst3.XchgEax) op;
-                    method.append("int old = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet32(o.reg));
                     method.append(";");
                     method.append(nameSet32(o.reg));
-                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=old;");
+                    method.append("=CPU_Regs.reg_eax.dword;CPU_Regs.reg_eax.dword=val;");
                     return true;
                 }
                 break;
@@ -2428,7 +2413,8 @@ public class Compiler2 extends Compiler {
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
                         // (Ed << Ib) | (Ed >>> (32-Ib))
-                        method.append("int val = ");
+                        declareVal(method);
+                        method.append("val = ");
                         memory_readd(method);
                         method.append(";");
                         memory_writed(method);
@@ -2452,7 +2438,8 @@ public class Compiler2 extends Compiler {
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
                         // (Ed >>> Ib) | (Ed << (32-Ib))
-                        method.append("int val = ");
+                        declareVal(method);
+                        method.append("val = ");
                         memory_readd(method);
                         method.append(";");
                         memory_writed(method);
@@ -2485,7 +2472,8 @@ public class Compiler2 extends Compiler {
                             memory_readd(method);
                             method.append(" << 1) | (Flags.get_CF()?1:0));");
                         } else {
-                            method.append("int val = ");
+                            declareVal(method);
+                            method.append("val = ");
                             memory_readd(method);
                             method.append(";");
                             memory_writed(method);
@@ -2521,7 +2509,8 @@ public class Compiler2 extends Compiler {
                             memory_readd(method);
                             method.append(" >>> 1) | ((Flags.get_CF()?1:0) << 31));");
                         } else {
-                            method.append("int val = ");
+                            declareVal(method);
+                            method.append("val = ");
                             memory_readd(method);
                             method.append(";");
                             memory_writed(method);
@@ -2622,7 +2611,8 @@ public class Compiler2 extends Compiler {
                     Inst3.Les32 o = (Inst3.Les32) op;
                     memory_start(o.get_eaa, seg, method);
                     // make sure all reads are done before writing something in case of a PF
-                    method.append("int val=Memory.mem_readd(eaa);if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameSet32(o.rd));
                     method.append("=val;");
                     return true;
@@ -2633,7 +2623,8 @@ public class Compiler2 extends Compiler {
                     Inst3.Lds32 o = (Inst3.Lds32) op;
                     memory_start(o.get_eaa, seg, method);
                     // make sure all reads are done before writing something in case of a PF
-                    method.append("int val=Memory.mem_readd(eaa); if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa); if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))){").append(preException).append("return RUNEXCEPTION();}");
                     method.append(nameSet32(o.rd));
                     method.append("=val;");
                     return true;
@@ -2848,7 +2839,8 @@ public class Compiler2 extends Compiler {
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
                         // (Ed << 1) | (Ed >>> (32-1))
-                        method.append("int val = ");
+                        declareVal(method);
+                        method.append("val = ");
                         memory_readd(method);
                         method.append(";");
                         memory_writed(method);
@@ -2868,7 +2860,8 @@ public class Compiler2 extends Compiler {
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
                         // (Ed >>> 1) | (Ed << (32-1))
-                        method.append("int val = ");
+                        declareVal(method);
+                        method.append("val = ");
                         memory_readd(method);
                         method.append(";");
                         memory_writed(method);
@@ -2974,7 +2967,8 @@ public class Compiler2 extends Compiler {
             case 0x2d3: // GRP2 Ed,CL
                 if (op instanceof Grp2.ROLD_reg_cl) {
                     Grp2.ROLD_reg_cl o = (Grp2.ROLD_reg_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
                     method.append(nameSet32(o.eard));
                     method.append("=");
                     if ((setFlags & o.sets())==0) {
@@ -2993,7 +2987,8 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Grp2.RORD_reg_cl) {
                     Grp2.RORD_reg_cl o = (Grp2.RORD_reg_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
                     method.append(nameSet32(o.eard));
                     method.append("=");
                     if ((setFlags & o.sets())==0) {
@@ -3012,7 +3007,8 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Grp2.RCLD_reg_cl) {
                     Grp2.RCLD_reg_cl o = (Grp2.RCLD_reg_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
                     nameGet32(o.eard, method);
                     method.append("=");
                     if ((setFlags & o.sets())==0) {
@@ -3034,7 +3030,8 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Grp2.RCRD_reg_cl) {
                     Grp2.RCRD_reg_cl o = (Grp2.RCRD_reg_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
                     nameGet32(o.eard, method);
                     method.append("=");
                     if ((setFlags & o.sets())==0) {
@@ -3056,7 +3053,8 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Grp2.SHLD_reg_cl) {
                     Grp2.SHLD_reg_cl o = (Grp2.SHLD_reg_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
                     nameGet32(o.eard, method);
                     method.append("=");
                     if ((setFlags & o.sets())==0) {
@@ -3072,7 +3070,8 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Grp2.SHRD_reg_cl) {
                     Grp2.SHRD_reg_cl o = (Grp2.SHRD_reg_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
                     nameGet32(o.eard, method);
                     method.append("=");
                     if ((setFlags & o.sets())==0) {
@@ -3088,7 +3087,8 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Grp2.SARD_reg_cl) {
                     Grp2.SARD_reg_cl o = (Grp2.SARD_reg_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val!=0) ");
                     nameGet32(o.eard, method);
                     method.append("=");
                     if ((setFlags & o.sets())==0) {
@@ -3105,49 +3105,56 @@ public class Compiler2 extends Compiler {
                 // :TODO: implement fast versions
                 if (op instanceof Grp2.ROLD_mem_cl) {
                     Grp2.ROLD_mem_cl o = (Grp2.ROLD_mem_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.ROLD(val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 if (op instanceof Grp2.RORD_mem_cl) {
                     Grp2.RORD_mem_cl o = (Grp2.RORD_mem_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.RORD(val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 if (op instanceof Grp2.RCLD_mem_cl) {
                     Grp2.RCLD_mem_cl o = (Grp2.RCLD_mem_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.RCLD(val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 if (op instanceof Grp2.RCRD_mem_cl) {
                     Grp2.RCRD_mem_cl o = (Grp2.RCRD_mem_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.RCRD(val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 if (op instanceof Grp2.SHLD_mem_cl) {
                     Grp2.SHLD_mem_cl o = (Grp2.SHLD_mem_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.SHLD(val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 if (op instanceof Grp2.SHRD_mem_cl) {
                     Grp2.SHRD_mem_cl o = (Grp2.SHRD_mem_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.SHRD(val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 if (op instanceof Grp2.SARD_mem_cl) {
                     Grp2.SARD_mem_cl o = (Grp2.SARD_mem_cl) op;
-                    method.append("int val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;if (val != 0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.SARD(val, Memory.mem_readd(eaa)));}");
                     return true;
@@ -3345,9 +3352,10 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Grp3.MulAxEd_reg) {
                     Grp3.MulAxEd_reg o = (Grp3.MulAxEd_reg) op;
                     if ((setFlags & o.sets())==0) {
-                        method.append("long tempu=(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl)*(");
+                        declareLongVal(method);
+                        method.append("lval=(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl)*(");
                         method.append(nameGet32(o.eard));
-                        method.append(" & 0xFFFFFFFFl);CPU_Regs.reg_eax.dword=(int)tempu;CPU_Regs.reg_edx.dword=(int)(tempu >> 32);");
+                        method.append(" & 0xFFFFFFFFl);CPU_Regs.reg_eax.dword=(int)lval;CPU_Regs.reg_edx.dword=(int)(lval >> 32);");
                     } else {
                         method.append("Instructions.MULD(");
                         method.append(nameGet32(o.eard));
@@ -3359,7 +3367,8 @@ public class Compiler2 extends Compiler {
                     Grp3.MulAxEd_mem o = (Grp3.MulAxEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
-                        method.append("long tempu=(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl)*(Memory.mem_readd(eaa) & 0xFFFFFFFFl);CPU_Regs.reg_eax.dword=(int)tempu;CPU_Regs.reg_edx.dword=(int)(tempu >> 32);");
+                        declareLongVal(method);
+                        method.append("lval=(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl)*(Memory.mem_readd(eaa) & 0xFFFFFFFFl);CPU_Regs.reg_eax.dword=(int)lval;CPU_Regs.reg_edx.dword=(int)(lval >> 32);");
                     } else {
                         method.append("Instructions.MULD(Memory.mem_readd(eaa));");
                     }
@@ -3368,9 +3377,10 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Grp3.IMulAxEd_reg) {
                     Grp3.IMulAxEd_reg o = (Grp3.IMulAxEd_reg) op;
                     if ((setFlags & o.sets())==0) {
-                        method.append("long tempu=(long)CPU_Regs.reg_eax.dword*");
+                        declareLongVal(method);
+                        method.append("lval=(long)CPU_Regs.reg_eax.dword*");
                         method.append(nameGet32(o.eard));
-                        method.append(";CPU_Regs.reg_eax.dword=(int)tempu;CPU_Regs.reg_edx.dword=(int)(tempu >> 32);");
+                        method.append(";CPU_Regs.reg_eax.dword=(int)lval;CPU_Regs.reg_edx.dword=(int)(lval >> 32);");
                     } else {
                         method.append("Instructions.IMULD(");
                         method.append(nameGet32(o.eard));
@@ -3382,7 +3392,8 @@ public class Compiler2 extends Compiler {
                     Grp3.IMulAxEd_mem o = (Grp3.IMulAxEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
-                        method.append("long tempu=(long)CPU_Regs.reg_eax.dword*Memory.mem_readd(eaa);CPU_Regs.reg_eax.dword=(int)tempu;CPU_Regs.reg_edx.dword=(int)(tempu >> 32);");
+                        declareLongVal(method);
+                        method.append("lval=(long)CPU_Regs.reg_eax.dword*Memory.mem_readd(eaa);CPU_Regs.reg_eax.dword=(int)lval;CPU_Regs.reg_edx.dword=(int)(lval >> 32);");
                     } else {
                         method.append("Instructions.IMULD(Memory.mem_readd(eaa));");
                     }
@@ -3450,9 +3461,7 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst3.CallNearEd_reg) {
                     Inst3.CallNearEd_reg o = (Inst3.CallNearEd_reg) op;
-                    method.append("int old = CPU_Regs.reg_eip+");
-                    method.append(o.eip_count);
-                    method.append(";CPU.CPU_Push32(old);CPU_Regs.reg_eip=");
+                    method.append("CPU.CPU_Push32(CPU_Regs.reg_eip+");method.append(o.eip_count);method.append(");CPU_Regs.reg_eip=");
                     method.append(nameGet32(o.eard));
                     method.append(";return Constants.BR_Jump;");
                     return false;
@@ -3460,15 +3469,17 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst3.CallNearEd_mem) {
                     Inst3.CallNearEd_mem o = (Inst3.CallNearEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old = CPU_Regs.reg_eip+");
-                    method.append(o.eip_count);
-                    method.append(";int eip = Memory.mem_readd(eaa); CPU.CPU_Push32(old);CPU_Regs.reg_eip = eip;return Constants.BR_Jump;");
+                    declareVal(method);
+                    method.append("val = Memory.mem_readd(eaa); CPU.CPU_Push32(CPU_Regs.reg_eip+");method.append(o.eip_count);method.append(");CPU_Regs.reg_eip = val;return Constants.BR_Jump;");
                     return false;
                 }
                 if (op instanceof Inst3.CallFarEd_mem) {
                     Inst3.CallFarEd_mem o = (Inst3.CallFarEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int newip=Memory.mem_readd(eaa);int newcs=Memory.mem_readw(eaa+4);Flags.FillFlags();CPU.CPU_CALL(true,newcs,newip,CPU_Regs.reg_eip+");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readw(eaa+4);Flags.FillFlags();CPU.CPU_CALL(true,val2,val,CPU_Regs.reg_eip+");
                     method.append(o.eip_count);
                     method.append(");");
                     if (CPU_TRAP_CHECK) {
@@ -3493,7 +3504,10 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst3.JmpFarEd_mem) {
                     Inst3.JmpFarEd_mem o = (Inst3.JmpFarEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int newip=Memory.mem_readd(eaa);int newcs=Memory.mem_readw(eaa+4);Flags.FillFlags();CPU.CPU_JMP(true,newcs,newip,CPU_Regs.reg_eip+");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readw(eaa+4);Flags.FillFlags();CPU.CPU_JMP(true,val2,val,CPU_Regs.reg_eip+");
                     method.append(o.eip_count);
                     method.append(");");
                     if (CPU_TRAP_CHECK) {
@@ -3585,48 +3599,46 @@ public class Compiler2 extends Compiler {
             case 0x302: // LAR Gd,Ed
                 if (op instanceof Inst4.LarGdEd_reg) {
                     Inst4.LarGdEd_reg o = (Inst4.LarGdEd_reg) op;
-                    method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;IntRef value=new IntRef(");
-                    method.append(nameGet32(o.rd));
-                    method.append(");CPU.CPU_LAR(");
-                    method.append(nameGet16(o.earw));
-                    method.append(",value);");
+                    method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
                     method.append(nameSet32(o.rd));
-                    method.append("=value.value;");
+                    method.append("=CPU.CPU_LAR(");
+                    method.append(nameGet16(o.earw));
+                    method.append(",");
+                    method.append(nameGet32(o.rd));
+                    method.append(");");
                     return true;
                 }
                 if (op instanceof Inst4.LarGdEd_mem) {
                     Inst4.LarGdEd_mem o = (Inst4.LarGdEd_mem) op;
                     method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("IntRef value=new IntRef(");
-                    method.append(nameGet32(o.rd));
-                    method.append(");CPU.CPU_LAR(Memory.mem_readw(eaa),value);");
                     method.append(nameSet32(o.rd));
-                    method.append("=value.value;");
+                    method.append("=CPU.CPU_LAR(Memory.mem_readw(eaa),");
+                    method.append(nameGet32(o.rd));
+                    method.append(");");
                     return true;
                 }
                 break;
             case 0x303: // LSL Gd,Ew
                 if (op instanceof Inst4.LslGdEd_reg) {
                     Inst4.LslGdEd_reg o = (Inst4.LslGdEd_reg) op;
-                    method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;IntRef value=new IntRef(");
-                    method.append(nameGet32(o.rd));
-                    method.append(");CPU.CPU_LSL(");
-                    method.append(nameGet16(o.earw));
-                    method.append(",value);");
+                    method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
                     method.append(nameSet32(o.rd));
-                    method.append("=value.value;");
+                    method.append("=CPU.CPU_LSL(");
+                    method.append(nameGet16(o.earw));
+                    method.append(",");
+                    method.append(nameGet32(o.rd));
+                    method.append(");");
                     return true;
                 }
                 if (op instanceof Inst4.LslGdEd_mem) {
                     Inst4.LslGdEd_mem o = (Inst4.LslGdEd_mem) op;
                     method.append("if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("IntRef value=new IntRef(");
-                    method.append(nameGet32(o.rd));
-                    method.append(");CPU.CPU_LSL(Memory.mem_readw(eaa),value);");
                     method.append(nameSet32(o.rd));
-                    method.append("=value.value;");
+                    method.append("=CPU.CPU_LSL(Memory.mem_readw(eaa),");
+                    method.append(nameGet32(o.rd));
+                    method.append(");");
                     return true;
                 }
                 break;
@@ -3759,22 +3771,19 @@ public class Compiler2 extends Compiler {
             case 0x3a3: // BT Ed,Gd
                 if (op instanceof Inst4.BtEdGd_reg) {
                     Inst4.BtEdGd_reg o = (Inst4.BtEdGd_reg) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
-                    method.append(nameGet32(o.rd));
-                    method.append(" & 31);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
+                    method.append("Flags.FillFlags();");
+                    method.append("CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet32(o.eard));
-                    method.append(" & mask)!=0);");
+                    method.append(" & (1 << (");method.append(nameGet32(o.rd));method.append(" & 31)))!=0);");
                     return true;
                 }
                 if (op instanceof Inst4.BtEdGd_mem) {
                     Inst4.BtEdGd_mem o = (Inst4.BtEdGd_mem) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
-                    method.append(nameGet32(o.rd));
-                    method.append(" & 31);");
+                    method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
                     method.append("eaa+=(");
                     method.append(nameGet32(o.rd));
-                    method.append(">>5)*4;int old=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);");
+                    method.append(">>5)*4;CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(Memory.mem_readd(eaa) & (1 << (");method.append(nameGet32(o.rd));method.append(" & 31)))!=0);");
                     return true;
                 }
                 break;
@@ -3830,22 +3839,24 @@ public class Compiler2 extends Compiler {
             case 0x3a5: // SHLD Ed,Gd,CL
                 if (op instanceof Inst4.ShldEdGdCl_reg) {
                     Inst4.ShldEdGdCl_reg o = (Inst4.ShldEdGdCl_reg) op;
-                    method.append("int op3=CPU_Regs.reg_ecx.low() & 0x1F;if (op3!=0)");
+                    declareVal(method);
+                    method.append("val=CPU_Regs.reg_ecx.low() & 0x1F;if (val!=0)");
                     method.append(nameSet32(o.eard));
                     method.append("=Instructions.DSHLD(");
                     method.append(nameGet32(o.rd));
-                    method.append(", op3, ");
+                    method.append(", val, ");
                     method.append(nameGet32(o.eard));
                     method.append(");");
                     return true;
                 }
                 if (op instanceof Inst4.ShldEdGdCl_mem) {
                     Inst4.ShldEdGdCl_mem o = (Inst4.ShldEdGdCl_mem) op;
-                    method.append("int op3=CPU_Regs.reg_ecx.low() & 0x1F;if (op3!=0) {");
+                    declareVal(method);
+                    method.append("val=CPU_Regs.reg_ecx.low() & 0x1F;if (val!=0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.DSHLD(");
                     method.append(nameGet32(o.rd));
-                    method.append(", op3, Memory.mem_readd(eaa)));}");
+                    method.append(", val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 break;
@@ -3866,24 +3877,30 @@ public class Compiler2 extends Compiler {
             case 0x3ab: // BTS Ed,Gd
                 if (op instanceof Inst4.BtsEdGd_reg) {
                     Inst4.BtsEdGd_reg o = (Inst4.BtsEdGd_reg) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet32(o.rd));
                     method.append(" & 31);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet32(o.eard));
-                    method.append(" & mask)!=0);");
+                    method.append(" & val)!=0);");
                     method.append(nameSet32(o.eard));
-                    method.append("|=mask;");
+                    method.append("|=val;");
                     return true;
                 }
                 if (op instanceof Inst4.BtsEdGd_mem) {
                     Inst4.BtsEdGd_mem o = (Inst4.BtsEdGd_mem) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet32(o.rd));
                     method.append(" & 31);");
                     memory_start(o.get_eaa, seg, method);
                     method.append("eaa+=(");
                     method.append(nameGet32(o.rd));
-                    method.append(">>5)*4;int old=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);Memory.mem_writed(eaa,old | mask);");
+                    method.append(">>5)*4;");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val2 & val)!=0);Memory.mem_writed(eaa,val2 | val);");
                     return true;
                 }
                 break;
@@ -3939,22 +3956,24 @@ public class Compiler2 extends Compiler {
             case 0x3ad: // SHRD Ed,Gd,CL
                 if (op instanceof Inst4.ShrdEdGdCl_reg) {
                     Inst4.ShrdEdGdCl_reg o = (Inst4.ShrdEdGdCl_reg) op;
-                    method.append("int op3 = CPU_Regs.reg_ecx.low() & 0x1F;if (op3!=0)");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low() & 0x1F;if (val!=0)");
                     method.append(nameSet32(o.eard));
                     method.append("=Instructions.DSHRD(");
                     method.append(nameGet32(o.rd));
-                    method.append(", op3, ");
+                    method.append(", val, ");
                     method.append(nameGet32(o.eard));
                     method.append(");");
                     return true;
                 }
                 if (op instanceof Inst4.ShrdEdGdCl_mem) {
                     Inst4.ShrdEdGdCl_mem o = (Inst4.ShrdEdGdCl_mem) op;
-                    method.append("int op3=CPU_Regs.reg_ecx.low() & 0x1F;if (op3!=0) {");
+                    declareVal(method);
+                    method.append("val=CPU_Regs.reg_ecx.low() & 0x1F;if (val!=0) {");
                     memory_start(o.get_eaa, seg, method);
                     method.append("Memory.mem_writed(eaa, Instructions.DSHRD(");
                     method.append(nameGet32(o.rd));
-                    method.append(", op3, Memory.mem_readd(eaa)));}");
+                    method.append(", val, Memory.mem_readd(eaa)));}");
                     return true;
                 }
                 break;
@@ -4011,7 +4030,8 @@ public class Compiler2 extends Compiler {
                     Inst4.CmpxchgEdGd_mem o = (Inst4.CmpxchgEdGd_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int val = Memory.mem_readd(eaa);if (CPU_Regs.reg_eax.dword == val) {Memory.mem_writed(eaa,");
+                    declareVal(method);
+                    method.append("val = Memory.mem_readd(eaa);if (CPU_Regs.reg_eax.dword == val) {Memory.mem_writed(eaa,");
                     method.append(nameGet32(o.rd));
                     method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writed(eaa,val);CPU_Regs.reg_eax.dword=val;CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
                     return true;
@@ -4030,23 +4050,29 @@ public class Compiler2 extends Compiler {
             case 0x3b3: // BTR Ed,Gd
                 if (op instanceof Inst4.BtrEdGd_reg) {
                     Inst4.BtrEdGd_reg o = (Inst4.BtrEdGd_reg) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet32(o.rd));
                     method.append(" & 31);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet32(o.eard));
-                    method.append(" & mask)!=0);");
+                    method.append(" & val)!=0);");
                     method.append(nameSet32(o.eard));
-                    method.append("&=~mask;");
+                    method.append("&=~val;");
                     return true;
                 }
                 if (op instanceof Inst4.BtrEdGd_mem) {
                     Inst4.BtrEdGd_mem o = (Inst4.BtrEdGd_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet32(o.rd));
                     method.append(" & 31);eaa+=(");
                     method.append(nameGet32(o.rd));
-                    method.append(">>5)*4;int old=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);Memory.mem_writed(eaa,old & ~mask);");
+                    method.append(">>5)*4;");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val2 & val)!=0);Memory.mem_writed(eaa,val2 & ~val);");
                     return true;
                 }
                 break;
@@ -4162,9 +4188,8 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst4.BtEdIb_mem) {
                     Inst4.BtEdIb_mem o = (Inst4.BtEdIb_mem) op;
-                    method.append("Flags.FillFlags();int old=Memory.mem_readd(");
-                    toStringValue(o.get_eaa, seg, method);
-                    method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    method.append("Flags.FillFlags();");
+                    method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(Memory.mem_readd(");toStringValue(o.get_eaa, seg, method);method.append(") & ");
                     method.append(o.mask);
                     method.append(")!=0);");
                     return true;
@@ -4173,9 +4198,10 @@ public class Compiler2 extends Compiler {
                     Inst4.BtsEdIb_mem o = (Inst4.BtsEdIb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val & ");
                     method.append(o.mask);
-                    method.append(")!=0);Memory.mem_writed(eaa,old|");
+                    method.append(")!=0);Memory.mem_writed(eaa,val|");
                     method.append(o.mask);
                     method.append(");");
                     return true;
@@ -4184,9 +4210,10 @@ public class Compiler2 extends Compiler {
                     Inst4.BtrEdIb_mem o = (Inst4.BtrEdIb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val & ");
                     method.append(o.mask);
-                    method.append(")!=0);Memory.mem_writed(eaa,old & ~");
+                    method.append(")!=0);Memory.mem_writed(eaa,val & ~");
                     method.append(o.mask);
                     method.append(");");
                     return true;
@@ -4195,47 +4222,53 @@ public class Compiler2 extends Compiler {
                     Inst4.BtcEdIb_mem o = (Inst4.BtcEdIb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int old=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & ");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val & ");
                     method.append(o.mask);
-                    method.append(")!=0);if (CPU_Regs.GETFLAG(CPU_Regs.CF)!=0) old&=~");
+                    method.append(")!=0);if (CPU_Regs.GETFLAG(CPU_Regs.CF)!=0) val&=~");
                     method.append(o.mask);
-                    method.append(";else old|=");
+                    method.append(";else val|=");
                     method.append(o.mask);
-                    method.append(";Memory.mem_writed(eaa,old);");
+                    method.append(";Memory.mem_writed(eaa,val);");
                     return true;
                 }
                 break;
             case 0x3bb: // BTC Ed,Gd
                 if (op instanceof Inst4.BtcEdGd_reg) {
                     Inst4.BtcEdGd_reg o = (Inst4.BtcEdGd_reg) op;
-                    method.append("Flags.FillFlags();int mask=1 << (");
+                    method.append("Flags.FillFlags();");
+                    method.append("val=1 << (");
                     method.append(nameGet32(o.rd));
                     method.append(" & 31);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(");
                     method.append(nameGet32(o.eard));
-                    method.append(" & mask)!=0);");
+                    method.append(" & val)!=0);");
                     method.append(nameSet32(o.eard));
-                    method.append("^=mask;");
+                    method.append("^=val;");
                     return true;
                 }
                 if (op instanceof Inst4.BtcEdGd_mem) {
                     Inst4.BtcEdGd_mem o = (Inst4.BtcEdGd_mem) op;
                     method.append("Flags.FillFlags();");
-                    method.append("int mask=1 << (");
+                    declareVal(method);
+                    method.append("val=1 << (");
                     method.append(nameGet32(o.rd));
                     method.append(" & 31);");
                     memory_start(o.get_eaa, seg, method);
                     method.append("eaa+=(");
                     method.append(nameGet32(o.rd));
-                    method.append(">>5)*4;int old=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(old & mask)!=0);Memory.mem_writed(eaa,old ^ mask);");
+                    method.append(">>5)*4;");
+                    declareVal2(method);
+                    method.append("val2=Memory.mem_readd(eaa);CPU_Regs.SETFLAGBIT(CPU_Regs.CF,(val2 & val)!=0);Memory.mem_writed(eaa,val2 ^ val);");
                     return true;
                 }
                 break;
             case 0x3bc: // BSF Gd,Ed
                 if (op instanceof Inst4.BsfGdEd_reg) {
                     Inst4.BsfGdEd_reg o = (Inst4.BsfGdEd_reg) op;
-                    method.append("int value=");
+                    declareVal(method);
+                    method.append("val=");
                     method.append(nameGet32(o.eard));
-                    method.append(";if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((value & 0x01)==0) { result++; value>>>=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((val & 0x01)==0) { result++; val>>>=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
                     method.append("=result;}Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -4243,8 +4276,9 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst4.BsfGdEd_mem) {
                     Inst4.BsfGdEd_mem o = (Inst4.BsfGdEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int value=Memory.mem_readd(eaa);");
-                    method.append("if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((value & 0x01)==0) { result++; value>>>=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);");
+                    method.append("if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((val & 0x01)==0) { result++; val>>>=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
                     method.append("=result;}Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -4253,9 +4287,10 @@ public class Compiler2 extends Compiler {
             case 0x3bd: // BSR Gd,Ed
                 if (op instanceof Inst4.BsrGdEd_reg) {
                     Inst4.BsrGdEd_reg o = (Inst4.BsrGdEd_reg) op;
-                    method.append("int value=");
+                    declareVal(method);
+                    method.append("val=");
                     method.append(nameGet32(o.eard));
-                    method.append(";if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 31;while ((value & 0x80000000)==0) { result--; value<<=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 31;while ((val & 0x80000000)==0) { result--; val<<=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
                     method.append("=result;} Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -4263,7 +4298,8 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst4.BsrGdEd_mem) {
                     Inst4.BsrGdEd_mem o = (Inst4.BsrGdEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("int value=Memory.mem_readd(eaa);if (value==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 31;while ((value & 0x80000000)==0) { result--; value<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
+                    declareVal(method);
+                    method.append("val=Memory.mem_readd(eaa);if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 31;while ((val & 0x80000000)==0) { result--; val<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
                     method.append("=result;}Flags.lflags.type=Flags.t_UNKNOWN;");
                     return true;
@@ -4309,7 +4345,8 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst4.XaddGdEd_reg) {
                     Inst4.XaddGdEd_reg o = (Inst4.XaddGdEd_reg) op;
                     if ((setFlags & o.sets())==0) {
-                        method.append("int oldrmrd=");
+                        declareVal(method);
+                        method.append("val=");
                         method.append(nameGet32(o.rd));
                         method.append(";");
                         method.append(nameSet32(o.rd));
@@ -4317,9 +4354,10 @@ public class Compiler2 extends Compiler {
                         method.append(nameGet32(o.eard));
                         method.append(";");
                         method.append(nameSet32(o.eard));
-                        method.append("+=oldrmrd;");
+                        method.append("+=val;");
                     } else {
-                        method.append("int result=Instructions.ADDD(");
+                        declareVal(method);
+                        method.append("val=Instructions.ADDD(");
                         method.append(nameGet32(o.rd));
                         method.append(",");
                         method.append(nameGet32(o.eard));
@@ -4329,7 +4367,7 @@ public class Compiler2 extends Compiler {
                         method.append(nameGet32(o.eard));
                         method.append(";");
                         method.append(nameSet32(o.eard));
-                        method.append("=result;");
+                        method.append("=val;");
                     }
                     return true;
                 }
@@ -4337,15 +4375,17 @@ public class Compiler2 extends Compiler {
                     Inst4.XaddGdEd_mem o = (Inst4.XaddGdEd_mem) op;
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
-                        method.append("int oldrmrd=");
-                        method.append(nameGet32(o.rd));
-                        method.append(";int val = Memory.mem_readd(eaa);Memory.mem_writed(eaa,val+oldrmrd);");
+                        declareVal(method);
+                        method.append("val = Memory.mem_readd(eaa);Memory.mem_writed(eaa,val+");method.append(nameGet32(o.rd));method.append(");");
                         method.append(nameSet32(o.rd));
                         method.append("=val;");
                     } else {
-                        method.append("int val = Memory.mem_readd(eaa);int result = Instructions.ADDD(");
+                        declareVal(method);
+                        method.append("val = Memory.mem_readd(eaa);");
+                        declareVal2(method);
+                        method.append("val2 = Instructions.ADDD(");
                         method.append(nameGet32(o.rd));
-                        method.append(",val);Memory.mem_writed(eaa,result);");
+                        method.append(",val);Memory.mem_writed(eaa,val2);");
                         method.append(nameSet32(o.rd));
                         method.append("=val;");
                     }
@@ -4356,7 +4396,7 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst4.CompareExchange8B) {
                     Inst4.CompareExchange8B o = (Inst4.CompareExchange8B) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("long value1 = ((CPU_Regs.reg_edx.dword & 0xffffffffL) << 32) | (CPU_Regs.reg_eax.dword & 0xffffffffL);long value2 = (Memory.mem_readd(eaa) & 0xffffffffl) | ((Memory.mem_readd(eaa+4) & 0xffffffffl) << 32);Flags.FillFlags();if (value1==value2) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, true);Memory.mem_writed(eaa, CPU_Regs.reg_ebx.dword);Memory.mem_writed(eaa+4, CPU_Regs.reg_ecx.dword);} else {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, false);CPU_Regs.reg_edx.dword = (int)(value2 >>> 32);CPU_Regs.reg_eax.dword = (int)value2;}");
+                    method.append("{long value1 = ((CPU_Regs.reg_edx.dword & 0xffffffffL) << 32) | (CPU_Regs.reg_eax.dword & 0xffffffffL);long value2 = (Memory.mem_readd(eaa) & 0xffffffffl) | ((Memory.mem_readd(eaa+4) & 0xffffffffl) << 32);Flags.FillFlags();if (value1==value2) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, true);Memory.mem_writed(eaa, CPU_Regs.reg_ebx.dword);Memory.mem_writed(eaa+4, CPU_Regs.reg_ecx.dword);} else {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, false);CPU_Regs.reg_edx.dword = (int)(value2 >>> 32);CPU_Regs.reg_eax.dword = (int)value2;}}");
                     return true;
                 }
                 break;

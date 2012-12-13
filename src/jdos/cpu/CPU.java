@@ -2302,28 +2302,29 @@ public class CPU extends Module_base {
         return false;
     }
 
-    public static void CPU_ARPL( /*Bitu*/IntRef dest_sel, /*Bitu*/int src_sel) {
+    public static int CPU_ARPL( /*Bitu*/int dest_sel, /*Bitu*/int src_sel) {
         Flags.FillFlags();
-        if ((dest_sel.value & 3) < (src_sel & 3)) {
-            dest_sel.value=(dest_sel.value & 0xfffc) + (src_sel & 3);
+        if ((dest_sel & 3) < (src_sel & 3)) {
+            dest_sel=(dest_sel & 0xfffc) + (src_sel & 3);
 //		dest_sel|=0xff3f0000;
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);
         } else {
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
         }
+        return dest_sel;
     }
 
     static final private Descriptor desc_17 = new Descriptor();
-    public static void CPU_LAR( /*Bitu*/int selector, /*Bitu*/IntRef ar) {
+    public static int CPU_LAR( /*Bitu*/int selector, /*Bitu*/int ar) {
         Flags.FillFlags();
         if (selector == 0) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-            return;
+            return ar;
         }
         /*Bitu*/int rpl=selector & 3;
         if (!cpu.gdt.GetDescriptor(selector,desc_17)){
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-            return;
+            return ar;
         }
         switch (desc_17.Type()){
         case DESC_CODE_N_C_A:	case DESC_CODE_N_C_NA:
@@ -2333,7 +2334,7 @@ public class CPU extends Module_base {
         case DESC_286_INT_GATE:		case DESC_286_TRAP_GATE:
         case DESC_386_INT_GATE:		case DESC_386_TRAP_GATE:
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-            return;
+            return ar;
 
 
         case DESC_LDT:
@@ -2354,29 +2355,30 @@ public class CPU extends Module_base {
         case DESC_CODE_R_NC_A:		case DESC_CODE_R_NC_NA:
             if (desc_17.DPL()<cpu.cpl || desc_17.DPL() < rpl) {
                 CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-                return;
+                return ar;
             }
             break;
         default:
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-            return;
+            return ar;
         }
         /* Valid descriptor */
-        ar.value=desc_17.saved.get_fill(1) & 0x00ffff00;
+        ar = desc_17.saved.get_fill(1) & 0x00ffff00;
         CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);
+        return ar;
     }
 
     private static final Descriptor desc_7 = new Descriptor();
-    public static void CPU_LSL( /*Bitu*/int selector, /*Bitu*/IntRef limit) {
+    public static int CPU_LSL( /*Bitu*/int selector, /*Bitu*/int limit) {
         Flags.FillFlags();
         if (selector == 0) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-            return;
+            return limit;
         }
         /*Bitu*/int rpl=selector & 3;
         if (!cpu.gdt.GetDescriptor(selector,desc_7)){
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-            return;
+            return limit;
         }
         switch (desc_7.Type()){
         case DESC_CODE_N_C_A:	case DESC_CODE_N_C_NA:
@@ -2399,15 +2401,16 @@ public class CPU extends Module_base {
         case DESC_CODE_R_NC_A:		case DESC_CODE_R_NC_NA:
             if (desc_7.DPL()<cpu.cpl || desc_7.DPL() < rpl) {
                 CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-                return;
+                return limit;
             }
             break;
         default:
             CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);
-            return;
+            return limit;
         }
-        limit.value=(int)desc_7.GetLimit();
+        limit=(int)desc_7.GetLimit();
         CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);
+        return limit;
     }
 
     private static final Descriptor desc_9 = new Descriptor();

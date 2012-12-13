@@ -3,7 +3,6 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
-import jdos.util.IntRef;
 
 public class Inst4 extends Helper {
     final static public class Lgdt_mem extends Op {
@@ -133,9 +132,7 @@ public class Inst4 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef(rd.dword);
-            CPU.CPU_LAR(earw.word(),value);
-            rd.dword=value.value;
+            rd.dword = CPU.CPU_LAR(earw.word(),rd.dword);
             return Constants.BR_Normal;
         }
 
@@ -167,9 +164,7 @@ public class Inst4 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef(rd.dword);
-            CPU.CPU_LAR(Memory.mem_readw(eaa),value);
-            rd.dword=value.value;
+            rd.dword = CPU.CPU_LAR(Memory.mem_readw(eaa),rd.dword);
             return Constants.BR_Normal;
         }
 
@@ -192,7 +187,6 @@ public class Inst4 extends Helper {
     final static public class LslGdEd_reg extends Op {
         Reg earw;
         Reg rd;
-        IntRef value = new IntRef(0);
 
         public LslGdEd_reg(int rm) {
             earw = Mod.ew(rm);
@@ -201,9 +195,7 @@ public class Inst4 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            value.value = rd.dword;
-            CPU.CPU_LSL(earw.word(),value);
-            rd.dword=value.value;
+            rd.dword = CPU.CPU_LSL(earw.word(),rd.dword);
             return Constants.BR_Normal;
         }
 
@@ -226,7 +218,6 @@ public class Inst4 extends Helper {
     final static public class LslGdEd_mem extends Op {
         EaaBase get_eaa;
         Reg rd;
-        IntRef value=new IntRef(0);
 
         public LslGdEd_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -236,9 +227,7 @@ public class Inst4 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            value.value = rd.dword;
-            CPU.CPU_LSL(Memory.mem_readw(eaa),value);
-            rd.dword=value.value;
+            rd.dword = CPU.CPU_LSL(Memory.mem_readw(eaa),rd.dword);
             return Constants.BR_Normal;
         }
 

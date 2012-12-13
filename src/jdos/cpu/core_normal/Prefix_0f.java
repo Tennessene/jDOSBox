@@ -6,12 +6,8 @@ import jdos.hardware.Pic;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.util.IntRef;
-import jdos.util.LongRef;
 
 public class Prefix_0f extends Prefix_none {
-    static final private /*Bitu*/IntRef int_ref_1=new IntRef(0);
-    static final private /*Bitu*/LongRef long_ref_1=new LongRef(0);
     static {
         /* GRP 6 Exxx */
         ops[0x100] = new OP() {
@@ -129,13 +125,13 @@ public class Prefix_0f extends Prefix_none {
         ops[0x102] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();int_ref_1.value=Modrm.Getrw[rm].word();
+                /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0) {
-                    CPU.CPU_LAR(Modrm.GetEArw[rm].word(),int_ref_1);
+                    Modrm.Getrw[rm].word(CPU.CPU_LAR(Modrm.GetEArw[rm].word(), Modrm.Getrw[rm].word()));
                 } else {
-                    /*PhysPt*/int eaa=getEaa(rm);CPU.CPU_LAR(Memory.mem_readw(eaa),int_ref_1);
+                    /*PhysPt*/int eaa=getEaa(rm);
+                    Modrm.Getrw[rm].word(CPU.CPU_LAR(Memory.mem_readw(eaa), Modrm.Getrw[rm].word()));
                 }
-                Modrm.Getrw[rm].word(int_ref_1.value);
                 return HANDLED;
             }
         };
@@ -144,13 +140,13 @@ public class Prefix_0f extends Prefix_none {
         ops[0x103] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();int_ref_1.value=Modrm.Getrw[rm].word();
+                /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0) {
-                    CPU.CPU_LSL(Modrm.GetEArw[rm].word(),int_ref_1);
+                    Modrm.Getrw[rm].word(CPU.CPU_LSL(Modrm.GetEArw[rm].word(), Modrm.Getrw[rm].word()));
                 } else {
-                    /*PhysPt*/int eaa=getEaa(rm);CPU.CPU_LSL(Memory.mem_readw(eaa),int_ref_1);
+                    /*PhysPt*/int eaa=getEaa(rm);
+                    Modrm.Getrw[rm].word(CPU.CPU_LSL(Memory.mem_readw(eaa), Modrm.Getrw[rm].word()));
                 }
-                Modrm.Getrw[rm].word(int_ref_1.value);
                 return HANDLED;
             }
         };

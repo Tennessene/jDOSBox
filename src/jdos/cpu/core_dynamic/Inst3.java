@@ -5,7 +5,6 @@ import jdos.cpu.core_share.Constants;
 import jdos.hardware.IO;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
-import jdos.util.IntRef;
 
 public class Inst3 extends Helper {
     final static public class Addd_reg extends Op {
@@ -1368,7 +1367,6 @@ public class Inst3 extends Helper {
     final static public class ArplEdRd_reg extends Op {
         Reg rd;
         Reg eard;
-        IntRef ref = new IntRef(0);
 
         public ArplEdRd_reg(int rm) {
             rd = Mod.gd(rm);
@@ -1377,9 +1375,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            ref.value = eard.dword;
-            CPU.CPU_ARPL(ref,rd.word());
-            eard.dword=ref.value;
+            eard.dword = CPU.CPU_ARPL(eard.dword, rd.word());
             return Constants.BR_Normal;
         }
 
@@ -1401,7 +1397,6 @@ public class Inst3 extends Helper {
     final static public class ArplEdRd_mem extends Op {
         EaaBase get_eaa;
         Reg rd;
-        IntRef ref = new IntRef(0);
 
         public ArplEdRd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1410,9 +1405,10 @@ public class Inst3 extends Helper {
         public int call() {
             if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             int eaa=get_eaa.call();
-            ref.value = Memory.mem_readw(eaa);
-            CPU.CPU_ARPL(ref,rd.word());
-            Memory.mem_writed(eaa,ref.value);
+            int value = Memory.mem_readw(eaa);
+            value = CPU.CPU_ARPL(value, rd.word());
+            // :TODO: if the value didn't change, should we issue a write?
+            Memory.mem_writed(eaa, value);
             return Constants.BR_Normal;
         }
 

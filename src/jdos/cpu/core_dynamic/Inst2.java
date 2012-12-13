@@ -4,7 +4,6 @@ import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
-import jdos.util.IntRef;
 
 public class Inst2 extends Helper {
     final static public class Sldt_reg extends Op {
@@ -649,9 +648,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef(rw.word());
-            CPU.CPU_LAR(earw.word(),value);
-            rw.word(value.value);
+            rw.word(CPU.CPU_LAR(earw.word(),rw.word()));
             return Constants.BR_Normal;
         }
 
@@ -682,9 +679,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            IntRef value=new IntRef(rw.word());
-            CPU.CPU_LAR(Memory.mem_readw(eaa),value);
-            rw.word(value.value);
+            rw.word(CPU.CPU_LAR(Memory.mem_readw(eaa),rw.word()));
             return Constants.BR_Normal;
         }
 
@@ -706,7 +701,6 @@ public class Inst2 extends Helper {
     final static public class LslGwEw_reg extends Op {
         Reg earw;
         Reg rw;
-        IntRef value = new IntRef(0);
 
         public LslGwEw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -715,9 +709,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            value.value=rw.word();
-            CPU.CPU_LSL(earw.word(),value);
-            rw.word(value.value);
+            rw.word(CPU.CPU_LSL(earw.word(),rw.word()));
             return Constants.BR_Normal;
         }
 
@@ -739,7 +731,6 @@ public class Inst2 extends Helper {
     final static public class LslGwEw_mem extends Op {
         EaaBase get_eaa;
         Reg rw;
-        IntRef value = new IntRef(0);
 
         public LslGwEw_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -749,9 +740,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            value.value=rw.word();
-            CPU.CPU_LSL(Memory.mem_readw(eaa),value);
-            rw.word(value.value);
+            rw.word(CPU.CPU_LSL(Memory.mem_readw(eaa),rw.word()));
             return Constants.BR_Normal;
         }
 
@@ -3618,7 +3607,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             short val = Memory.mem_readb(eaa);
             short result = Instructions.ADDB(rb.get8(), val);
-            Memory.mem_writeb(eaa,val+result);
+            Memory.mem_writeb(eaa,result);
             rb.set8(val);
             return Constants.BR_Normal;
         }

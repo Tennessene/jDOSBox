@@ -10,7 +10,6 @@ import jdos.misc.Log;
 import jdos.misc.setup.Config;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.util.IntRef;
 
 public class Prefix_none extends StringOp {
     static protected final boolean CPU_TRAP_CHECK = true;
@@ -20,7 +19,6 @@ public class Prefix_none extends StringOp {
     static public OP[] ops = new OP[0x400];
 
     static final CPU.Descriptor desc=new CPU.Descriptor();
-    static final private /*Bitu*/IntRef int_ref_1=new IntRef(0);
 
     static protected interface mov {
         public void call();
@@ -1172,13 +1170,13 @@ public class Prefix_none extends StringOp {
                  if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
                 /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0 ) {
-                    int_ref_1.value = Modrm.GetEArw[rm].word();
-                    CPU.CPU_ARPL(int_ref_1,Modrm.Getrw[rm].word());
-                    Modrm.GetEArw[rm].word(int_ref_1.value);
+                    int value = CPU.CPU_ARPL(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word());
+                    Modrm.GetEArw[rm].word(value);
                 } else {
-                    /*PhysPt*/int eaa=getEaa(rm);int_ref_1.value = Memory.mem_readw(eaa);
-                    CPU.CPU_ARPL(int_ref_1,Modrm.Getrw[rm].word());
-                    Memory.mem_writew(eaa,int_ref_1.value);
+                    /*PhysPt*/int eaa=getEaa(rm);
+                    int value = Memory.mem_readw(eaa);
+                    value = CPU.CPU_ARPL(value, Modrm.Getrw[rm].word());
+                    Memory.mem_writew(eaa,value);
                 }
                 return HANDLED;
             }

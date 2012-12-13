@@ -10,7 +10,6 @@ import jdos.hardware.Pic;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.util.IntRef;
 
 public class Inst1 extends Helper {
     final static public class Addb_reg extends Op {
@@ -2481,7 +2480,6 @@ public class Inst1 extends Helper {
     }
 
     final static public class ArplEwRw_reg extends Op {
-        IntRef ref = new IntRef(0);
         Reg earw;
         Reg rw;
 
@@ -2492,9 +2490,9 @@ public class Inst1 extends Helper {
 
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
-            ref.value = earw.word();
-            CPU.CPU_ARPL(ref,rw.word());
-            earw.word(ref.value);
+            int value = earw.word();
+            value = CPU.CPU_ARPL(value, rw.word());
+            earw.word(value);
             return Constants.BR_Normal;
         }
 
@@ -2516,7 +2514,6 @@ public class Inst1 extends Helper {
 
     final static public class ArplEwRw_mem extends Op {
         EaaBase get_eaa;
-        IntRef ref = new IntRef(0);
         Reg rw;
 
         public ArplEwRw_mem(int rm) {
@@ -2527,9 +2524,9 @@ public class Inst1 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             int eaa=get_eaa.call();
-            ref.value = Memory.mem_readw(eaa);
-            CPU.CPU_ARPL(ref,rw.word());
-            Memory.mem_writew(eaa,ref.value);
+            int value = Memory.mem_readw(eaa);
+            value = CPU.CPU_ARPL(value,rw.word());
+            Memory.mem_writew(eaa,value);
             return Constants.BR_Normal;
         }
 

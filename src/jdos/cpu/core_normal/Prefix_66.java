@@ -7,11 +7,8 @@ import jdos.hardware.Pic;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.util.IntRef;
 
 public class Prefix_66 extends Prefix_0f {
-    static final private /*Bitu*/IntRef int_ref_1=new IntRef(0);
-    
     static {
         /* ADD Ed,Gd */
         ops[0x201] = new OP() {
@@ -683,13 +680,12 @@ public class Prefix_66 extends Prefix_0f {
                 if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
                 /*Bit8u*/short rm=Fetchb();
                 if (rm >= 0xc0 ) {
-                    int_ref_1.value = Modrm.GetEArd[rm].dword;
-                    CPU.CPU_ARPL(int_ref_1,Modrm.Getrw[rm].word());
-                    Modrm.GetEArd[rm].dword=int_ref_1.value;
+                    Modrm.GetEArd[rm].dword = CPU.CPU_ARPL(Modrm.GetEArd[rm].dword,Modrm.Getrw[rm].word());
                 } else {
-                    /*PhysPt*/int eaa=getEaa(rm);int_ref_1.value = Memory.mem_readw(eaa);
-                    CPU.CPU_ARPL(int_ref_1,Modrm.Getrw[rm].word());
-                    Memory.mem_writed(eaa,int_ref_1.value);
+                    /*PhysPt*/int eaa=getEaa(rm);
+                    int value = Memory.mem_readw(eaa);
+                    value = CPU.CPU_ARPL(value,Modrm.Getrw[rm].word());
+                    Memory.mem_writed(eaa,value);
                 }
                 return HANDLED;
             }

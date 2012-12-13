@@ -82,17 +82,20 @@ final public class DecodeBlock extends Op {
             // if (CPU_Regs.reg_eip == 0xC0000001) {
             //     start = 1;
             // }
-            if (start>0) {
-                System.out.println(indent+start+" "+o.description()+" :: op=0x"+Integer.toHexString(o.c)+" eip=0x"+Integer.toHexString(CPU_Regs.reg_eip)+" eax=0x"+Integer.toHexString(CPU_Regs.reg_eax.dword)+" ecx=0x"+Integer.toHexString(CPU_Regs.reg_ecx.dword)+" edx=0x"+Integer.toHexString(CPU_Regs.reg_edx.dword)+" ebx=0x"+Integer.toHexString(CPU_Regs.reg_ebx.dword)+" esp=0x"+Integer.toHexString(CPU_Regs.reg_esp.dword)+" ebp=0x"+Integer.toHexString(CPU_Regs.reg_ebp.dword)+" esi=0x"+Integer.toHexString(CPU_Regs.reg_esi.dword)+" edi=0x"+Integer.toHexString(CPU_Regs.reg_edi.dword));
-                if (o.description().startsWith("CALL"))
-                    indent+="    ";
-                else if (o.description().startsWith("RETN") && indent.length()>=4)
-                    indent=indent.substring(0, indent.length()-4);
-                start++;
-            }
-            if (start % 1000 == 999) {
-                int ii=0;
-            }
+//            if (start>0) {
+//                if (indent.length()==44) {
+//                    int ii=0;
+//                }
+//                System.out.println(indent+start+" "+o.description()+" :: op=0x"+Integer.toHexString(o.c)+" eip=0x"+Integer.toHexString(CPU_Regs.reg_eip)+" eax=0x"+Integer.toHexString(CPU_Regs.reg_eax.dword)+" ecx=0x"+Integer.toHexString(CPU_Regs.reg_ecx.dword)+" edx=0x"+Integer.toHexString(CPU_Regs.reg_edx.dword)+" ebx=0x"+Integer.toHexString(CPU_Regs.reg_ebx.dword)+" esp=0x"+Integer.toHexString(CPU_Regs.reg_esp.dword)+" ebp=0x"+Integer.toHexString(CPU_Regs.reg_ebp.dword)+" esi=0x"+Integer.toHexString(CPU_Regs.reg_esi.dword)+" edi=0x"+Integer.toHexString(CPU_Regs.reg_edi.dword)+" flags=0x"+Integer.toHexString(Flags.FillFlags()));
+//                if (o.description().startsWith("CALL"))
+//                    indent+="    ";
+//                else if (o.description().startsWith("RETN") && indent.length()>=4)
+//                    indent=indent.substring(0, indent.length()-4);
+//                start++;
+//            }
+//            if (start % 1000 == 999) {
+//                int ii=0;
+//            }
             result = o.call();
             if (Config.DEBUG_LOG)
                 if (o.c>=0) Debug.stop(Debug.TYPE_CPU, o.c);

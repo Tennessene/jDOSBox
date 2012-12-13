@@ -38,8 +38,8 @@ public class Decoder extends Inst1 {
             Core.base_val_ds=ds;
         }
 
-        public int sets() { return 0; }
-        public int gets() { return 0; }
+        public int sets() { return op.sets(); }
+        public int gets() { return op.gets(); }
 
         public boolean returnsIllegal() {return op.returnsIllegal();}
         public int setsSeg() {return op.setsSeg();}

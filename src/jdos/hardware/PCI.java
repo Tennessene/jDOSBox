@@ -2,7 +2,6 @@ package jdos.hardware;
 
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
-import jdos.hardware.pci.PCIHostBridge;
 import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
@@ -469,7 +468,7 @@ public class PCI extends Module_base {
     public static Section.SectionFunction PCI_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             pci_interface = new PCI(sec);
-            new PCIHostBridge();
+            //new PCIHostBridge();
             sec.AddDestroyFunction(PCI_ShutDown,false);
         }
     };

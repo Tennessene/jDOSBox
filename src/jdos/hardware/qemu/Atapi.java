@@ -18,7 +18,7 @@ public class Atapi extends Internal {
         switch (format) {
             case 0x0: /* Physical format information */
                 {
-                    int layer = packet[6];
+                    int layer = packet[6] & 0xFF;
                     long total_sectors;
 
                     if (layer != 0)
@@ -213,7 +213,7 @@ public class Atapi extends Internal {
 
     static private final AtapiCmdCallback cmd_request_sense = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
-            int max_len = buf[4];
+            int max_len = buf[4] & 0xFF;
 
             java.util.Arrays.fill(buf, 0, 18, (byte)0);
             buf[0] = (byte)(0x70 | (1 << 7));
@@ -231,7 +231,7 @@ public class Atapi extends Internal {
 
     static private final AtapiCmdCallback cmd_inquiry = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
-            int max_len = buf[4];
+            int max_len = buf[4] & 0xFF;
 
             buf[0] = 0x05; /* CD-ROM */
             buf[1] = (byte)0x80; /* removable */
@@ -301,7 +301,7 @@ public class Atapi extends Internal {
             int max_len;
 
             max_len = be_readw(buf, 7);
-            action = buf[2] >> 6;
+            action = buf[2] >>> 6;
             code = buf[2] & 0x3f;
 
             switch(action) {
@@ -421,7 +421,7 @@ public class Atapi extends Internal {
             int nb_sectors;
             long lba;
 
-            if (buf[0] == GPCMD_READ_10) {
+            if ((buf[0] & 0xFF) == GPCMD_READ_10) {
                 nb_sectors = be_readw(buf, 7);
             } else {
                 nb_sectors = (int)be_readd(buf, 6);
@@ -442,7 +442,7 @@ public class Atapi extends Internal {
             int nb_sectors, transfer_request;
             long lba;
 
-            nb_sectors = (buf[6] << 16) | (buf[7] << 8) | buf[8];
+            nb_sectors = ((buf[6] & 0xFF) << 16) | ((buf[7] & 0xFF) << 8) | (buf[8] & 0xFF);
             lba = be_readd(buf, 2);
 
             if (nb_sectors == 0) {
@@ -450,7 +450,7 @@ public class Atapi extends Internal {
                 return;
             }
 
-            transfer_request = buf[9];
+            transfer_request = buf[9] & 0xFF;
             switch(transfer_request & 0xf8) {
             case 0x00:
                 /* nothing */
@@ -532,9 +532,9 @@ public class Atapi extends Internal {
             long total_sectors = s.nb_sectors >> 2;
 
             max_len = be_readw(buf, 7);
-            format = buf[9] >> 6;
-            msf = (buf[1] >> 1) & 1;
-            start_track = buf[6];
+            format = (buf[9] & 0xFF) >> 6;
+            msf = ((buf[1] & 0xFF) >> 1) & 1;
+            start_track = buf[6] & 0xFF;
 
             switch(format) {
             case 0:
@@ -611,8 +611,8 @@ public class Atapi extends Internal {
     static private final AtapiCmdCallback cmd_read_dvd_structure = new AtapiCmdCallback() {
         public void call(IDEState s, byte[] buf) {
             int max_len;
-            int media = buf[1];
-            int format = buf[7];
+            int media = buf[1] & 0xFF;
+            int format = buf[7] & 0xFF;
             int ret;
 
             max_len = be_readw(buf, 8);
@@ -850,7 +850,7 @@ public class Atapi extends Internal {
                     size = byte_count_limit;
                 }
                 s.lcyl = size;
-                s.hcyl = size >> 8;
+                s.hcyl = size >>> 8;
                 s.elementary_transfer_size = size;
                 /* we cannot transmit more than one sector at a time */
                 if (s.lba != -1) {

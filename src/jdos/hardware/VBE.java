@@ -35,9 +35,9 @@ public class VBE {
     private static final int VBE_DISPI_ID3 = 0xB0C3;
     private static final int VBE_DISPI_ID4 = 0xB0C4;
 
-    private static final int VBE_DISPI_MAX_XRES =           1600;
-    private static final int VBE_DISPI_MAX_YRES =           1200;
-    private static final int VBE_DISPI_MAX_BPP =            32;
+    private static final int VBE_DISPI_MAX_XRES =           1024;
+    private static final int VBE_DISPI_MAX_YRES =           768;
+    private static final int VBE_DISPI_MAX_BPP =            16; // until 24-bit is supported keep this at 16
 
     static private int vbeIndex;
     static private final int[] vbeRegs = new int[VBE_DISPI_INDEX_NB];
@@ -139,7 +139,7 @@ public class VBE {
                         if (data == 0)
                             data = 8;
                         if (data == 4 || data == 8 || data == 15 ||
-                            data == 16 || data == 24 || data == 32) {
+                            data == 16 || data == 32) {
                             vbeRegs[vbeIndex] = data;
                         }
                         break;
@@ -200,6 +200,7 @@ public class VBE {
                                     else if (x == 800 && y == 600) mode = 0x114;
                                     else if (x ==1024 && y == 768) mode = 0x117;
                                     else if (x ==1152 && y == 864) mode = 0x20A;
+                                    break;
                                 case 32:
                                          if (x == 320 && y == 200) mode = 0x10F;
                                     else if (x == 320 && y == 240) mode = 0x190;
@@ -210,6 +211,7 @@ public class VBE {
                                     else if (x == 800 && y == 600) mode = 0x115;
                                     else if (x ==1024 && y == 768) mode = 0x118;
                                     //else if (x ==1152 && y == 864) mode = 0x209;
+                                    break;
                             }
                             if (mode == -1)
                                 return;

@@ -339,7 +339,7 @@ public class Compiler2 extends Compiler {
                     declareVal(method);
                     method.append("val = Memory.mem_readw(eaa);if (CPU_Regs.reg_eax.word() == val) {Memory.mem_writew(eaa,");
                     method.append(nameGet16(o.rw));
-                    method.append(";CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writew(eaa,val);CPU_Regs.reg_eax.word(val);CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
+                    method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writew(eaa,val);CPU_Regs.reg_eax.word(val);CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
                     return true;
                 }
                 break;

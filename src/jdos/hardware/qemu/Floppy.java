@@ -54,8 +54,8 @@ public class Floppy {
     static private final int FDRIVE_RATE_1M   = 0x03;  /*   1 Mbps */
 
     static private void FLOPPY_DPRINTF(String s) {
-        System.out.print("FLOPPY: ");
-        System.out.println(s);
+        //System.out.print("FLOPPY: ");
+        //System.out.println(s);
     }
     
     static final private class FDFormat {

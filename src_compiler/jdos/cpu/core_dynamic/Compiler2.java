@@ -3713,7 +3713,7 @@ public class Compiler2 extends Compiler {
                     method.append(nameGet32(o.ed));
                     method.append(";");
                     return true;
-                } else if (op instanceof Inst4.ConditionalMov_o_mem) {
+                } else if (op instanceof Inst4.ConditionalMov_mem) {
                     Inst4.ConditionalMov_mem o = (Inst4.ConditionalMov_mem)op;
                     memory_start(o.get_eaa, seg, method);
                     declareVal(method);
@@ -3753,6 +3753,8 @@ public class Compiler2 extends Compiler {
                     method.append(nameSet32(o.gd));
                     method.append("=val;");
                     return true;
+                } else {
+                    Log.exit("[Compiler] Unhandled op: " + op);
                 }
                 break;
             case 0x380: // JO

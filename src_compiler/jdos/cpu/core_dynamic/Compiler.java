@@ -5420,7 +5420,7 @@ public class Compiler extends Helper {
                     nameSet16(o.gw, nameGet16(o.ew), method);
                     method.append(";");
                     return true;
-                } else if (op instanceof Inst2.ConditionalMov_o_mem) {
+                } else if (op instanceof Inst2.ConditionalMov_mem) {
                     Inst2.ConditionalMov_mem o = (Inst2.ConditionalMov_mem)op;
                     memory_start(o.get_eaa, seg, method);
                     declareVal(method);

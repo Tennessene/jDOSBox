@@ -4,7 +4,6 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Paging;
 import jdos.gui.Render;
 import jdos.ints.Int10_vesa;
-import jdos.misc.Log;
 
 public class VBE {
     static public boolean initialized = false;
@@ -92,7 +91,6 @@ public class VBE {
                             break;
                         default:
                             val = vbeRegs[vbeIndex];
-                            System.out.println("Ouch");
                     }
                 }
             } else if (vbeIndex == VBE_DISPI_INDEX_VIDEO_MEMORY_64K) {
@@ -129,11 +127,7 @@ public class VBE {
                     case VBE_DISPI_INDEX_BANK:
                         data &= (VGA.vga.vmemsize >>> 16)-1;
                         vbeRegs[vbeIndex] = data;
-                        // :TODO:
-                        if (data != 0) {
-                            Log.exit("Non 0 VBE_DISPI_INDEX_BANK not implemented yet");
-                        }
-                        // bankOffset = data << 16;
+                        IO.IO_WriteW(0x3d4,0x6a | (data << 8));
                         break;
                     case VBE_DISPI_INDEX_BPP:
                         if (data == 0)
@@ -226,7 +220,6 @@ public class VBE {
                         } else {
                             /* XXX: the bios should do that */
                             // :TODO:
-                            // bankOffset = 0;
                             vbeLineOffset = 0;
                         }
                         vbeRegs[vbeIndex] = data;

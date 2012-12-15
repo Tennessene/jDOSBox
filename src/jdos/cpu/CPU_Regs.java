@@ -104,7 +104,7 @@ public class CPU_Regs extends Flags {
         return reg_eip & 0xFFFF;
     }
     public static void reg_ip(int value) {
-        reg_eip = value & 0xFFFF | (reg_eip & 0xFFFF0000);
+        reg_eip = value & 0xFFFF;
     }
 
     public CPU_Regs() {

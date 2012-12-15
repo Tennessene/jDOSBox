@@ -2148,7 +2148,7 @@ public class CPU extends Module_base {
             if ((cpu.cr4 & CR4_OS_SUPPORT_FXSAVE_FXSTORE) != 0)
                 if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"FXSave and FXRStore enabled in the processor");
             if ((cpu.cr4 & CR4_DEBUGGING_EXTENSIONS) != 0)
-                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Debugging extensions enabled");
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Debugging extensions enabled");
             if ((cpu.cr4 & CR4_TIME_STAMP_DISABLE) != 0)
                 if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_WARN,"Timestamp restricted to CPL0");
             if ((cpu.cr4 & CR4_PHYSICAL_ADDRESS_EXTENSION) != 0) {

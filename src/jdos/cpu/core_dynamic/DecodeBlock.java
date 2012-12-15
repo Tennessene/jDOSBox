@@ -59,6 +59,7 @@ final public class DecodeBlock extends Op {
         if (Compiler.ENABLED) {
             runCount++;
             if (runCount==compileThreshold && !compiled && Dosbox.allPrivileges) {
+                compiled = true;
                 jdos.cpu.core_dynamic.Compiler.compile(this);
             }
             if (compiledOp!=null) {

@@ -104,6 +104,12 @@ public class Compiler extends Helper {
         }
     }
 
+    static public void removeFromQueue(DecodeBlock block) {
+        synchronized (compilerQueue) {
+            if (compilerQueue.remove(block))
+                System.out.println("Removed dead code from being compiled");
+        }
+    }
     static private int searchFlag(Op searchOp, int flag, int result) {
         while (searchOp!=null) {
             if ((searchOp.gets() & flag) != 0)
@@ -400,7 +406,7 @@ public class Compiler extends Helper {
                 start.next = compiled;
                 compiledMethods++;
                 if ((compiledMethods % 250)==0) {
-                    System.out.println("Compiled "+compiledMethods+" blocks");
+                    System.out.println("Compiled "+compiledMethods+" blocks ("+compilerQueue.size()+" in queue)");
                 }
                 return compiled;
             }

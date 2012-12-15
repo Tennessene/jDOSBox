@@ -13,6 +13,10 @@ public class CacheBlockDynRec {
     }
 	public void Clear() {
         /*Bitu*/int ind;
+        if (code instanceof DecodeBlock) {
+            DecodeBlock op = (DecodeBlock)code;
+            Compiler.removeFromQueue(op);
+        }
         // check if this is not a cross page block
         if (hash.index!=0) {
             for (ind=0;ind<2;ind++) {

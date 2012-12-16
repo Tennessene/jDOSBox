@@ -1518,6 +1518,16 @@ public class Dos_programs {
                     Floppy.Attach(0, Bios_disk.imageDiskList[0].diskimg);
                 }
             } else if (fstype.equals("iso")) {
+                // If instructed, attach to IDE controller as ATAPI CD-ROM device
+			    if (ide_index.value >= 0) {
+                    try  {
+                        IDE.IDE_Attach(true, ide_index.value,ide_slave.value, FileIOFactory.open((String)paths.elementAt(0), FileIOFactory.MODE_READ), 0, 0 , 0);
+                        WriteOut("Attached ISO to IDE\n");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 if (Dos_files.Drives[drive-'A']!=null) {
                     WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
                     return;
@@ -1557,15 +1567,6 @@ public class Dos_programs {
 
                 // Set the correct media byte in the table
                 Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
-
-                // If instructed, attach to IDE controller as ATAPI CD-ROM device
-			    if (ide_index.value >= 0) {
-                    try  {
-                        IDE.IDE_Attach(true, ide_index.value,ide_slave.value, FileIOFactory.open((String)paths.elementAt(0), FileIOFactory.MODE_READ), 0, 0 , 0);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
 
                 // Print status message (success)
                 WriteOut(Msg.get("MSCDEX_SUCCESS"));

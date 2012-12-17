@@ -882,10 +882,10 @@ public class VGA_memory {
             if (vga_allocsize<512*1024) vga_allocsize=512*1024;
             // We reserve extra 2K for one scan line
             vga_allocsize+=2048;
-            VGA.vga.mem.linear_orgptr = Memory.allocate(vga_allocsize+16);
+            VGA.vga.mem.linear_orgptr = Memory.allocate(vga_allocsize);
             VGA.vga.mem.linear=VGA.vga.mem.linear_orgptr;
 
-            VGA.vga.fastmem_orgptr = Memory.allocate((VGA.vga.vmemsize<<1)+4096+16);
+            VGA.vga.fastmem_orgptr = Memory.allocate(Memory.videoCacheSize+4096);
             VGA.vga.fastmem = VGA.vga.fastmem_orgptr;
 
             VGA_draw.TempLine = Memory.allocate(VGA_draw.TEMPLINE_SIZE);

@@ -331,6 +331,10 @@ public class Dosbox {
 		"For build engine games, use more memory than in the list above so it can\n" +
 		"use triple buffering and thus won't flicker.\n"
 		);
+        Pint = secprop.Add_int("vmemcachesize", 512);
+        Pint.SetMinMax(0,8192);
+        Pint.Set_help("The amount of video cache to use in kb.  Only certain video modes will\n"+
+                      "uses this.  0 will use the Dosbox standard value 2x video memory size.");
 
         Pstring = secprop.Add_path("captures",Property.Changeable.Always,"capture");
         Pstring.Set_help("Directory where things like wave, midi, screenshot get captured.");

@@ -910,6 +910,7 @@ public class Memory extends Module_base {
     private IoHandler.IO_ReadHandleObject ReadHandler = new IoHandler.IO_ReadHandleObject();
     private IoHandler.IO_WriteHandleObject WriteHandler = new IoHandler.IO_WriteHandleObject();
 
+    public static int videoCacheSize = 0;
     public Memory(Section configuration) {
         super(configuration);
         /*Bitu*/int i;
@@ -934,8 +935,11 @@ public class Memory extends Module_base {
                 Runtime.getRuntime().gc();
                 highwaterMark = memsize*1024*1024;
                 int videosize = section.Get_int("vmemsize");
+                videoCacheSize = section.Get_int("vmemcachesize");
                 if (videosize==0) videosize=2;
-                videosize*=3*1024*1024;
+                if (videoCacheSize==0) videoCacheSize = videosize*2048;
+                videosize*=1024*1024;
+                videosize+=videoCacheSize*1024;
                 System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM+VGA_draw.TEMPLINE_SIZE+videosize)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
                 direct = new int[(highwaterMark+EXTRA_MEM+videosize+VGA_draw.TEMPLINE_SIZE+3)>>2];
 //                host_memory = new Ptr(direct, 0);

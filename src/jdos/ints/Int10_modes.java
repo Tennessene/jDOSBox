@@ -390,7 +390,7 @@ public class Int10_modes {
             case VGA.M_LIN16:
             case VGA.M_LIN32:
                 Memory.host_zeroset(VGA.vga.mem.linear, VGA.vga.vmemsize);
-                Memory.host_zeroset(VGA.vga.fastmem, VGA.vga.vmemsize<<1);
+                Memory.host_zeroset(VGA.vga.fastmem, Memory.videoCacheSize);
             }
         }
         /* Setup the BIOS */

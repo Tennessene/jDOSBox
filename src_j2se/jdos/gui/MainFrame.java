@@ -38,9 +38,9 @@ public class MainFrame implements GUI {
         else {
             int rel_x = e.getX() - last_x - offX;
             int rel_y = e.getY() - last_y - offY;
-            float abs_x = (Mouse.mouse.x+rel_x*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_x);
-            float abs_y = (Mouse.mouse.y+rel_y*Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_y);
-            Main.addMouseEvent(new Main.MouseEvent2(e,rel_x, rel_y, abs_x, abs_y, offX, offY));
+            float abs_x = (Mouse.mouse.x+rel_x* Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_x);
+            float abs_y = (Mouse.mouse.y+rel_y* Main.mouse_sensitivity/100.0f)/(Mouse.mouse.max_y);
+            Main.addMouseEvent(new Main.MouseEvent2(e, rel_x, rel_y, abs_x, abs_y, offX, offY));
             robotCenter(rel);
         }
     }
@@ -215,7 +215,7 @@ public class MainFrame implements GUI {
                             g.drawImage(Main.buffer, fullscreen_cx_offset, 0, fullscreen_cx+fullscreen_cx_offset,  fullscreen_cy, 0, 0, Main.buffer_width, Main.buffer_height, null);
                         } else {
                             if (Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
-                                BufferedImage resized = resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                                BufferedImage resized = resizeImage(Main.buffer, Main.screen_width, Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                                 g.drawImage(resized, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.screen_width, Main.screen_height, null);
                             } else {
                                 g.drawImage(Main.buffer, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);

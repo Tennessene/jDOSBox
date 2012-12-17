@@ -371,14 +371,14 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
 
     private int getScreenX() {
         if (Main.screen_width<this.getWidth()) {
-            return (getWidth()-Main.screen_width)/2;
+            return (getWidth()- Main.screen_width)/2;
         }
         return 0;
     }
 
     private int getScreenY() {
         if (Main.screen_height<this.getHeight()) {
-            return (getHeight()-Main.screen_height)/2;
+            return (getHeight()- Main.screen_height)/2;
         }
         return 0;
     }
@@ -397,16 +397,16 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                 x = getScreenX();
                 g.setColor(backgroundColor);
                 g.fillRect(0, 0, x, getHeight());
-                g.fillRect(x+Main.screen_width, 0, getWidth()-(x+Main.screen_width), getHeight());
+                g.fillRect(x+ Main.screen_width, 0, getWidth()-(x+ Main.screen_width), getHeight());
             }
             if (Main.screen_height<this.getHeight()) {
                 y = getScreenY();
                 g.setColor(backgroundColor);
                 g.fillRect(0, 0, getWidth(), y);
-                g.fillRect(0, y+Main.screen_height, getWidth(), getHeight()-(y+Main.screen_height));
+                g.fillRect(0, y+ Main.screen_height, getWidth(), getHeight()-(y+ Main.screen_height));
             }
             if (Render.render!=null && Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
-                BufferedImage resized = MainFrame.resizeImage(Main.buffer,Main.screen_width,Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                BufferedImage resized = MainFrame.resizeImage(Main.buffer, Main.screen_width, Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 g.drawImage(resized, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.screen_width, Main.screen_height, null);
             } else {
                 g.drawImage(Main.buffer, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.buffer_width, Main.buffer_height, null);

@@ -1,5 +1,6 @@
 package jdos.sdl;
 
+import jdos.gui.KeyboardKey;
 import jdos.gui.Mapper;
 import jdos.hardware.Keyboard;
 import jdos.misc.Log;
@@ -10,7 +11,6 @@ import jdos.util.FileIOFactory;
 import jdos.util.StringHelper;
 import jdos.util.StringRef;
 
-import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
@@ -87,10 +87,10 @@ public class JavaMapper {
     static private final CBindBut bind_but = new CBindBut();
 
     static CBindList holdlist = new CBindList();
-    static private final CMapper mapper = new CMapper();
+    static public final CMapper mapper = new CMapper();
     static public String mapperfile = "mapper.txt";
 
-    static private class CMapper {
+    static public class CMapper {
         //SDL_Surface * surface;
         //SDL_Surface * draw_surface;
         boolean exit;
@@ -99,7 +99,7 @@ public class JavaMapper {
         int abindit;			//Location of active bind in list
         boolean redraw;
         boolean addbind;
-        int mods;
+        public int mods;
         /*
         struct {
             Bitu num_groups,num;
@@ -156,7 +156,7 @@ public class JavaMapper {
         }
         public void destroy() {
         }
-        void ActivateBindList(CBindList list,KeyEvent key, int value,boolean ev_trigger) {
+        void ActivateBindList(CBindList list,Object key, int value,boolean ev_trigger) {
             int validmod=0;
             for (CBind it : list) {
                 if ((it.mods & mapper.mods) == it.mods) {
@@ -165,7 +165,7 @@ public class JavaMapper {
             }
             for (CBind it: list) {
             /*BUG:CRASH if keymapper key is removed*/
-                if (validmod==it.mods && (!it.isLeft() && !it.isRight() && !it.isNumpad()) || (it.isLeft() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_LEFT) || (it.isRight() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_RIGHT) || (it.isNumpad() && key.getKeyLocation()==KeyEvent.KEY_LOCATION_NUMPAD))
+                if (validmod==it.mods && (!it.isLeft() && !it.isRight() && !it.isNumpad()) || (it.isLeft() && KeyboardKey.isLeft(key)) || (it.isRight() && KeyboardKey.isRight(key)) || (it.isNumpad() && KeyboardKey.isNumPad(key)))
                     it.ActivateBind(value,ev_trigger);
             }
         }
@@ -175,9 +175,9 @@ public class JavaMapper {
             }
         }
         public abstract CBind CreateConfigBind(StringRef buf);
-        public abstract CBind CreateEventBind(KeyEvent event);
+        public abstract CBind CreateEventBind(Object event);
 
-        public abstract boolean CheckEvent(KeyEvent event);
+        public abstract boolean CheckEvent(Object event);
         public abstract String ConfigStart();
         public abstract String BindStart();
     }
@@ -216,17 +216,17 @@ public class JavaMapper {
             CBind bind=CreateKeyBind(code);
             return bind;
         }
-        public CBind CreateEventBind(KeyEvent event) {
-            if (event.getID()!=KeyEvent.KEY_PRESSED) return null;
-            return CreateKeyBind(GetKeyCode(event.getKeyCode()));
+        public CBind CreateEventBind(Object event) {
+            if (!KeyboardKey.isPressed(event)) return null;
+            return CreateKeyBind(GetKeyCode(KeyboardKey.getKeyCode(event)));
         }
 
-        public boolean CheckEvent(KeyEvent event) {
-            if (event.getID()!=KeyEvent.KEY_PRESSED && event.getID()!=KeyEvent.KEY_RELEASED) return false;
-            int key=GetKeyCode(event.getKeyCode());
+        public boolean CheckEvent(Object event) {
+            if (!KeyboardKey.isPressed(event) && !KeyboardKey.isReleased(event)) return false;
+            int key=GetKeyCode(KeyboardKey.getKeyCode(event));
 //		LOG_MSG("key type %i is %x [%x %x]",event->type,key,event->key.keysym.sym,event->key.keysym.scancode);
             //assert(Bitu(event->key.keysym.sym)<keys);
-            if (event.getID()==KeyEvent.KEY_PRESSED) ActivateBindList(lists[key],event,0x7fff,true);
+            if (KeyboardKey.isPressed(event)) ActivateBindList(lists[key],event,0x7fff,true);
             else DeactivateBindList(lists[key],true);
             return false;
         }
@@ -506,32 +506,7 @@ public class JavaMapper {
             return buttonname;
         }
         void MakeDefaultBind(StringRef buf) {
-            /*Bitu*/int key=0;
-            switch (defkey) {
-            case Mapper.MapKeys.MK_f1:case Mapper.MapKeys.MK_f2:case Mapper.MapKeys.MK_f3:case Mapper.MapKeys.MK_f4:
-            case Mapper.MapKeys.MK_f5:case Mapper.MapKeys.MK_f6:case Mapper.MapKeys.MK_f7:case Mapper.MapKeys.MK_f8:
-            case Mapper.MapKeys.MK_f9:case Mapper.MapKeys.MK_f10:case Mapper.MapKeys.MK_f11:case Mapper.MapKeys.MK_f12:
-                key=KeyEvent.VK_F1+(defkey-Mapper.MapKeys.MK_f1);
-                break;
-            case Mapper.MapKeys.MK_return:
-                key=KeyEvent.VK_ENTER;
-                break;
-            case Mapper.MapKeys.MK_kpminus:
-                key=KeyEvent.VK_MINUS;
-                break;
-            case Mapper.MapKeys.MK_scrolllock:
-                key=KeyEvent.VK_SCROLL_LOCK;
-                break;
-            case Mapper.MapKeys.MK_pause:
-                key=KeyEvent.VK_PAUSE;
-                break;
-            case Mapper.MapKeys.MK_printscreen:
-                key=KeyEvent.VK_PRINTSCREEN;
-                break;
-            case Mapper.MapKeys.MK_home:
-                key=KeyEvent.VK_HOME;
-                break;
-            }
+            /*Bitu*/int key=KeyboardKey.translateMapKey(defkey);
             buf.value = entry+" \"key "+key+((defmod & 1)!=0 ? " mod1" : "")+((defmod & 2)!=0 ? " mod2" : "")+((defmod & 4)!=0 ? " mod3" : "")+"\"";
         }
         protected /*MapKeys*/int defkey;
@@ -932,7 +907,7 @@ public class JavaMapper {
         bind_but.bind_title.Change("Bind Title", null);
     }
 
-    static void CreateStringBind(String in) {
+    public static void CreateStringBind(String in) {
         StringRef line = new StringRef(in.trim());
         String eventname=StringHelper.StripWord(line);
         CEvent event = null;
@@ -962,64 +937,31 @@ public class JavaMapper {
         }
     }
 
-    static private class DefaultKey {
+    static public class DefaultKey {
         public DefaultKey(String s, int i) {
             eventend = s;
             key = i;
         }
-        public DefaultKey(String s, int i, int l) {
+        public DefaultKey(String s, int i, boolean isLeft, boolean isRight, boolean isNumPad) {
             eventend = s;
             key = i;
-            location = l;
+            this.isRight = isRight;
+            this.isLeft = isLeft;
+            this.isNumPad = isNumPad;
         }
         String eventend;
         /*Bitu*/int key;
-        int location;
+        boolean isRight;
+        boolean isLeft;
+        boolean isNumPad;
     }
-    static private final DefaultKey[] DefaultKeys = new DefaultKey[] {
-        new DefaultKey("f1",KeyEvent.VK_F1),		new DefaultKey("f2",KeyEvent.VK_F2),		new DefaultKey("f3",KeyEvent.VK_F3),		new DefaultKey("f4",KeyEvent.VK_F4),
-        new DefaultKey("f5",KeyEvent.VK_F5),		new DefaultKey("f6",KeyEvent.VK_F6),		new DefaultKey("f7",KeyEvent.VK_F7),		new DefaultKey("f8",KeyEvent.VK_F8),
-        new DefaultKey("f9",KeyEvent.VK_F9),		new DefaultKey("f10",KeyEvent.VK_F10),	    new DefaultKey("f11",KeyEvent.VK_F11),	    new DefaultKey("f12",KeyEvent.VK_F12),
 
-        new DefaultKey("1",KeyEvent.VK_1),		new DefaultKey("2",KeyEvent.VK_2),		new DefaultKey("3",KeyEvent.VK_3),		new DefaultKey("4",KeyEvent.VK_4),
-        new DefaultKey("5",KeyEvent.VK_5),		new DefaultKey("6",KeyEvent.VK_6),		new DefaultKey("7",KeyEvent.VK_7),		new DefaultKey("8",KeyEvent.VK_8),
-        new DefaultKey("9",KeyEvent.VK_9),		new DefaultKey("0",KeyEvent.VK_0),
-
-        new DefaultKey("a",KeyEvent.VK_A),		new DefaultKey("b",KeyEvent.VK_B),		new DefaultKey("c",KeyEvent.VK_C),		new DefaultKey("d",KeyEvent.VK_D),
-        new DefaultKey("e",KeyEvent.VK_E),		new DefaultKey("f",KeyEvent.VK_F),		new DefaultKey("g",KeyEvent.VK_G),		new DefaultKey("h",KeyEvent.VK_H),
-        new DefaultKey("i",KeyEvent.VK_I),		new DefaultKey("j",KeyEvent.VK_J),		new DefaultKey("k",KeyEvent.VK_K),		new DefaultKey("l",KeyEvent.VK_L),
-        new DefaultKey("m",KeyEvent.VK_M),		new DefaultKey("n",KeyEvent.VK_N),		new DefaultKey("o",KeyEvent.VK_O),		new DefaultKey("p",KeyEvent.VK_P),
-        new DefaultKey("q",KeyEvent.VK_Q),		new DefaultKey("r",KeyEvent.VK_R),		new DefaultKey("s",KeyEvent.VK_S),		new DefaultKey("t",KeyEvent.VK_T),
-        new DefaultKey("u",KeyEvent.VK_U),		new DefaultKey("v",KeyEvent.VK_V),		new DefaultKey("w",KeyEvent.VK_W),		new DefaultKey("x",KeyEvent.VK_X),
-        new DefaultKey("y",KeyEvent.VK_Y),		new DefaultKey("z",KeyEvent.VK_Z),		new DefaultKey("space",KeyEvent.VK_SPACE),
-
-        new DefaultKey("esc",KeyEvent.VK_ESCAPE),	        new DefaultKey("equals",KeyEvent.VK_EQUALS),		new DefaultKey("grave",KeyEvent.VK_BACK_QUOTE),
-        new DefaultKey("tab",KeyEvent.VK_TAB),		        new DefaultKey("enter",KeyEvent.VK_ENTER),		new DefaultKey("bspace",KeyEvent.VK_BACK_SPACE),
-        new DefaultKey("lbracket",KeyEvent.VK_OPEN_BRACKET),new DefaultKey("rbracket",KeyEvent.VK_CLOSE_BRACKET),
-        new DefaultKey("minus",KeyEvent.VK_MINUS),	        new DefaultKey("capslock",KeyEvent.VK_CAPS_LOCK),	new DefaultKey("semicolon",KeyEvent.VK_SEMICOLON),
-        new DefaultKey("quote", KeyEvent.VK_QUOTE),	    new DefaultKey("backslash",KeyEvent.VK_BACK_SLASH),	new DefaultKey("lshift",KeyEvent.VK_SHIFT, KeyEvent.KEY_LOCATION_LEFT),
-        new DefaultKey("rshift",KeyEvent.VK_SHIFT, KeyEvent.KEY_LOCATION_RIGHT),	    new DefaultKey("lalt",KeyEvent.VK_ALT, KeyEvent.KEY_LOCATION_LEFT),			new DefaultKey("ralt",KeyEvent.VK_ALT, KeyEvent.KEY_LOCATION_RIGHT),
-        new DefaultKey("lctrl",KeyEvent.VK_CONTROL, KeyEvent.KEY_LOCATION_LEFT),	        new DefaultKey("rctrl",KeyEvent.VK_CONTROL, KeyEvent.KEY_LOCATION_RIGHT),		    new DefaultKey("comma",KeyEvent.VK_COMMA),
-        new DefaultKey("period",KeyEvent.VK_PERIOD),	    new DefaultKey("slash",KeyEvent.VK_SLASH),		    new DefaultKey("printscreen",KeyEvent.VK_PRINTSCREEN),
-        new DefaultKey("scrolllock",KeyEvent.VK_SCROLL_LOCK),new DefaultKey("pause",KeyEvent.VK_PAUSE),		    new DefaultKey("pagedown",KeyEvent.VK_PAGE_DOWN),
-        new DefaultKey("pageup",KeyEvent.VK_PAGE_UP),	    new DefaultKey("insert",KeyEvent.VK_INSERT),		new DefaultKey("home",KeyEvent.VK_HOME),
-        new DefaultKey("delete",KeyEvent.VK_DELETE),	    new DefaultKey("end",KeyEvent.VK_END),			    new DefaultKey("up",KeyEvent.VK_UP),
-        new DefaultKey("left",KeyEvent.VK_LEFT),		    new DefaultKey("down",KeyEvent.VK_DOWN),			new DefaultKey("right",KeyEvent.VK_RIGHT),
-        new DefaultKey("kp_0",KeyEvent.VK_NUMPAD0),	        new DefaultKey("kp_1",KeyEvent.VK_NUMPAD1),	        new DefaultKey("kp_2",KeyEvent.VK_NUMPAD2),	new DefaultKey("kp_3",KeyEvent.VK_NUMPAD3),
-        new DefaultKey("kp_4",KeyEvent.VK_NUMPAD4),	        new DefaultKey("kp_5",KeyEvent.VK_NUMPAD5),	        new DefaultKey("kp_6",KeyEvent.VK_NUMPAD6),	new DefaultKey("kp_7",KeyEvent.VK_NUMPAD7),
-        new DefaultKey("kp_8",KeyEvent.VK_NUMPAD8),	        new DefaultKey("kp_9",KeyEvent.VK_NUMPAD9),	        new DefaultKey("numlock",KeyEvent.VK_NUM_LOCK),
-        new DefaultKey("kp_divide",KeyEvent.VK_DIVIDE, KeyEvent.KEY_LOCATION_NUMPAD),	new DefaultKey("kp_multiply",KeyEvent.VK_MULTIPLY, KeyEvent.KEY_LOCATION_NUMPAD),
-        new DefaultKey("kp_minus",KeyEvent.VK_SUBTRACT, KeyEvent.KEY_LOCATION_NUMPAD),	new DefaultKey("kp_plus",KeyEvent.VK_ADD),
-        new DefaultKey("kp_period",KeyEvent.VK_PERIOD, KeyEvent.KEY_LOCATION_NUMPAD),	new DefaultKey("kp_enter",KeyEvent.VK_ENTER, KeyEvent.KEY_LOCATION_NUMPAD),
-        new DefaultKey("lessthan",KeyEvent.VK_LESS)
-    };
 
     static void CreateDefaultBinds() {
-        for (DefaultKey key : DefaultKeys) {
-            CreateStringBind("key_"+key.eventend+" \"key "+key.key+((key.location==KeyEvent.KEY_LOCATION_RIGHT?" right":""))+((key.location==KeyEvent.KEY_LOCATION_LEFT?" left":""))+((key.location==KeyEvent.KEY_LOCATION_NUMPAD?" numpad":""))+"\"");
+        for (DefaultKey key : KeyboardKey.DefaultKeys) {
+            CreateStringBind("key_"+key.eventend+" \"key "+key.key+((key.isRight?" right":""))+((key.isLeft?" left":""))+((key.isNumPad?" numpad":""))+"\"");
         }
-        CreateStringBind("mod_1 \"key "+KeyEvent.VK_CONTROL+" right\"");
-        CreateStringBind("mod_2 \"key "+KeyEvent.VK_ALT+" right\"");
+        KeyboardKey.CreateDefaultBinds();
         for (CHandlerEvent it: handlergroup) {
             StringRef buffer = new StringRef();
             it.MakeDefaultBind(buffer);
@@ -1108,21 +1050,9 @@ public class JavaMapper {
         return true;
     }
 
-    static boolean ctrAltDel=false;
-
-    static public void MAPPER_CheckEvent(KeyEvent event) {
-        if (mapper.mods == 3 && event.getKeyCode() == KeyEvent.VK_INSERT && event.getID()==KeyEvent.KEY_PRESSED) {
-            ctrAltDel = true;
-        }
-        if (ctrAltDel && event.getKeyCode() == KeyEvent.VK_INSERT) {
-            event.setKeyCode(KeyEvent.VK_DELETE);
-        }
+    static public void MAPPER_CheckEvent(Object event) {
         for (CBindGroup it : bindgroups) {
             if (it.CheckEvent(event)) return;
-        }
-
-        if (ctrAltDel && event.getKeyCode() == KeyEvent.VK_INSERT && event.getID()==KeyEvent.KEY_RELEASED) {
-            ctrAltDel = false;
         }
     }
 

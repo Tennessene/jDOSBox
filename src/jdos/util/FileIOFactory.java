@@ -454,7 +454,11 @@ public class FileIOFactory {
                 return null;
             }
             try {
-                File tmpFile = new File(FileHelper.getHomeDirectory()+File.separator+".jdosbox"+File.separator+path);
+                String dirPath = FileHelper.getHomeDirectory()+File.separator+".jdosbox";
+                File dir = new File(dirPath);
+                if (!dir.exists())
+                    dir.mkdirs();
+                File tmpFile = new File(dirPath+File.separator+path);
                 if (tmpFile.exists())
                     tmpFile.delete();
                 OutputStream out = new FileOutputStream(tmpFile);

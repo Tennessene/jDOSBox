@@ -1,5 +1,6 @@
 package jdos.misc;
 
+import jdos.Dosbox;
 import jdos.cpu.Callback;
 import jdos.dos.Dos;
 import jdos.dos.Dos_PSP;
@@ -10,8 +11,10 @@ import jdos.misc.setup.CommandLine;
 import jdos.misc.setup.Section;
 import jdos.shell.Dos_shell;
 import jdos.shell.Shell;
-import jdos.util.*;
-import jdos.Dosbox;
+import jdos.util.FileIOFactory;
+import jdos.util.IntRef;
+import jdos.util.StringHelper;
+import jdos.util.StringRef;
 
 import java.util.Vector;
 
@@ -119,7 +122,7 @@ public abstract class Program {
     protected void WriteOut(String format) {
         WriteOut(format, new Object[0]);
     }
-    protected void WriteOut(String format, Object[] args) {
+    public void WriteOut(String format, Object[] args) {
         String buf = StringHelper.sprintf(format, args);
     	/*Bit16u*/int size = buf.length();
     	for(/*Bit16u*/int i = 0; i < size;i++) {

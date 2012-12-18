@@ -9,13 +9,6 @@ import jdos.util.FloatRef;
 import jdos.util.Ptr;
 import jdos.util.ShortPtr;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.SourceDataLine;
-
 public class Mixer extends Program {
     static public interface MIXER_MixHandler {
         public void call(/*Bit8u*/short[] sampdate, /*Bit32u*/int len);
@@ -478,7 +471,7 @@ public class Mixer extends Program {
         FloatRef[] mastervol=new FloatRef[2];
         MixerChannel channels;
         boolean nosound;
-        /*Bit32u*/long freq;
+        /*Bit32u*/int freq;
         /*Bit32u*/int blocksize;
     }
     static private _Mixer mixer;
@@ -760,11 +753,7 @@ public class Mixer extends Program {
     }
 
     private void ListMidi(){
-        MidiDevice.Info[] devices = MidiSystem.getMidiDeviceInfo();
-
-        for (int i=0;i<devices.length;i++) {
-            WriteOut("%2d\t \"%s\"\n",new Object[]{new Integer(i),devices[i].getName()});
-        }
+        AudioLayer.listMidi(this);
     }
 
     private static PROGRAMS_Main MIXER_ProgramStart = new PROGRAMS_Main() {
@@ -775,53 +764,13 @@ public class Mixer extends Program {
 
     public static Section.SectionFunction MIXER_Stop = new Section.SectionFunction() {
         public void call(Section section) {
-            audioThreadExit = true;
-            try {audioThread.join(2000);} catch (Exception e){}
-            line.drain();
-            line.stop();
+            AudioLayer.stop();
             mixer = null;
         }
     };
 
-    static public SourceDataLine line;
-    final static private Object audioMutex = new Object();
-    static private byte[] audioBuffer;
 
-    static private boolean audioThreadExit = false;
-
-
-    static private Thread audioThread;
-
-    private static boolean open(int bufferSize, AudioFormat format) {
-        try {
-            DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-            line = (SourceDataLine)AudioSystem.getLine(info);
-            line.open(format, bufferSize);
-            line.start();
-            audioThreadExit = false;
-            audioThread = new Thread() {
-                public void run() {
-                    while (!audioThreadExit) {
-                        boolean result;
-                        synchronized (audioMutex) {
-                            result = MIXER_CallBack(0, audioBuffer, audioBuffer.length);
-                        }
-                        if (result)
-                            line.write(audioBuffer, 0, audioBuffer.length);
-                        else {
-                            try {Thread.sleep(20);} catch (Exception e){}
-                        }
-                    }
-                }
-            };
-            audioBuffer = new byte[512]; // this needs to be smaller than buffer size passed into open other line.write will block
-            audioThread.start();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    final static public Object audioMutex = new Object();
 
     public static Section.SectionFunction MIXER_Init = new Section.SectionFunction() {
         public void call(Section sec) {
@@ -864,7 +813,7 @@ public class Mixer extends Program {
                 mixer.tick_add=((mixer.freq) << MIXER_SHIFT)/1000;
                 Timer.TIMER_AddTickHandler(MIXER_Mix_NoSound);
             }
-            else if (!open(section.Get_int("javabuffer"), new AudioFormat(mixer.freq, 16, 2, true, false))) {
+            else if (!AudioLayer.open(section.Get_int("javabuffer"), mixer.freq)) {
 //            else if (SDL_OpenAudio(&spec, &obtained) <0 ) {
 //                mixer.nosound = true;
 //                Log.log_msg("MIXER:Can't open audio: %s , running in nosound mode.",SDL_GetError());

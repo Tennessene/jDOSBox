@@ -12,6 +12,8 @@ public class Compiler {
 
     public static void compile(DecodeBlock op) {
     }
+    static public void removeFromQueue(DecodeBlock block) {
+    }
     final public static Section.SectionFunction Compiler_Init = new Section.SectionFunction() {
         public void call(Section newconfig) {
         }

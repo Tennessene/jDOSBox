@@ -4,24 +4,7 @@ import java.io.File;
 
 public class FileHelper {
     public static String getHomeDirectory() {
-        String result = System.getenv("USERPROFILE");
-        if (result == null) {
-            result = System.getenv("HOMEPATH");
-            if (result != null) {
-                String drive = System.getenv("HOMEDRIVE");
-                if (drive != null) {
-                    result = drive+result;
-                }
-            }
-        }
-        if (result == null)
-            result = System.getenv("HOME");
-        if (result == null)
-            result = System.getProperty("user.home");
-        if (result.endsWith("\\") || result.endsWith("/")) {
-            result = result.substring(0, result.length()-1);
-        }
-        return result;
+        return HomeDirectory.get();
     }
     public static String resolve_path(String path) {
         if (path.startsWith("~")) {

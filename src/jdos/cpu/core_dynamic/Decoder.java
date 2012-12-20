@@ -4,7 +4,6 @@ import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
 import jdos.hardware.Memory;
-import jdos.misc.Log;
 import jdos.misc.setup.Config;
 
 public class Decoder extends Inst1 {
@@ -144,8 +143,6 @@ public class Decoder extends Inst1 {
         decode.block.page.start=decode.page.index;
         codepage.AddCacheBlock(decode.block);
 
-        Decoder_basic.InitFlagsOptimization();
-
         decode.cycles = 0;
         int result = 0;
 
@@ -225,14 +222,12 @@ public class Decoder extends Inst1 {
                 }
                 opcode_seg = -1;
             }
-        } catch (ChangePageException e) {
+        } catch (PageFaultException e) {
             if (decode.code -decode.op_start + count == 0) {
                 result = RESULT_HANDLED; // begining of op code started on next page
             } else {
                 result = RESULT_ILLEGAL_INSTRUCTION; // op code spanned two pages, run with normal core in case of page fault
             }
-        } catch (PageFaultException e) {
-            Log.exit("Oops");
         }
         Cache.cache_closeblock();
         switch (result) {

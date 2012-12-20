@@ -1516,6 +1516,7 @@ public class Prefix_none extends Helper {
                     break;
                 default:
                     prev.next = new Inst1.Illegal("CPU:8c:Illegal RM Byte");
+                    return RESULT_JUMP;
                 }
                 return RESULT_HANDLED;
             }
@@ -1584,6 +1585,7 @@ public class Prefix_none extends Helper {
                     break;
                 default:
                     prev.next = new Inst1.Illegal("CPU:8e:Illegal RM Byte");
+                    return RESULT_JUMP;
                 }
                 return RESULT_HANDLED;
             }
@@ -2935,7 +2937,7 @@ public class Prefix_none extends Helper {
                     return RESULT_CALLBACK;
                 default:
                     prev.next = new Inst1.Illegal("Illegal GRP4 Call "+((rm>>3) & 7));
-                    break;
+                    return RESULT_JUMP;
                 }
                 return RESULT_HANDLED;
             }
@@ -3002,6 +3004,7 @@ public class Prefix_none extends Helper {
                     break;
                 default:
                     prev.next = new Inst1.Illegal("CPU:GRP5:Illegal Call "+Integer.toString(which,16));
+                    return RESULT_JUMP;
                 }
                 return RESULT_HANDLED;
             }

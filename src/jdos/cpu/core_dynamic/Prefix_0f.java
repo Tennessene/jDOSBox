@@ -52,6 +52,7 @@ public class Prefix_0f extends Helper {
                     break;
                 default:
                     prev.next = new Inst1.Illegal("");
+                    return RESULT_JUMP;
                 }
                 return RESULT_HANDLED;
             }
@@ -102,7 +103,7 @@ public class Prefix_0f extends Helper {
                         break;
                     default:
                         prev.next = new Inst1.Illegal("");
-                        break;
+                        return RESULT_JUMP;
                     }
                 }
                 return RESULT_HANDLED;
@@ -937,6 +938,10 @@ public class Prefix_0f extends Helper {
         /* CPUID */
         ops[0x1a2] = new Decode() {
             final public int call(Op prev) {
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486NEW) {
+                    prev.next = new Inst1.Illegal("CPUID");
+                    return RESULT_JUMP;
+                }
                 prev.next = new Inst2.CPUID();
                 return RESULT_HANDLED;
             }

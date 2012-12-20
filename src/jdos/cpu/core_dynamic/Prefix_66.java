@@ -981,6 +981,7 @@ public class Prefix_66 extends Helper {
                     break;
                 default:
                     prev.next = new Inst1.Illegal("CPU:28c:Illegal RM Byte");
+                    return RESULT_JUMP;
                 }
                 return RESULT_HANDLED;
             }

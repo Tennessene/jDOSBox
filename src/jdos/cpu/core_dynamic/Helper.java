@@ -1,12 +1,10 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU_Regs;
-import jdos.cpu.Core_dynamic;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 
 public class Helper extends CPU_Regs {
-    static private Core_dynamic.CodePageHandlerDynRecRef codeRef = new Core_dynamic.CodePageHandlerDynRecRef();
     public static final DynDecode decode = new DynDecode();
     static protected boolean EA16 = false;
     static protected int prefixes = 0;
@@ -35,13 +33,10 @@ public class Helper extends CPU_Regs {
     static /*Bit8u*/byte decode_fetchbs() {
         return (byte)decode_fetchb();
     }
-    static class ChangePageException extends RuntimeException {
-    }
 
     static /*Bit8u*/short decode_fetchb() {
         if (decode.page.index>=4096) {
-            throw new ChangePageException();
-            //decode_advancepage();
+            decode_advancepage();
         }
         if (decode.page.invmap!=null && decode.page.invmap.p[decode.page.index]>=4) {
             decode.modifiedAlot = true;
@@ -51,6 +46,26 @@ public class Helper extends CPU_Regs {
         decode.code+=1;
         return Memory.mem_readb(decode.code-1);
     }
+
+    static void decode_advancepage() {
+        // trigger possible page fault here
+        int faddr=(decode.page.first+1) << 12;
+        Memory.mem_readb(faddr);
+    	// Advance to the next page
+    	decode.active_block.page.end=4095;
+    	decode.page.first++;
+        decode.page.code = Decoder_basic.MakeCodePage(faddr);
+    	CacheBlockDynRec newblock=Cache.cache_getblock();
+    	decode.active_block.crossblock=newblock;
+    	newblock.crossblock=decode.active_block;
+    	decode.active_block=newblock;
+    	decode.active_block.page.start=0;
+    	decode.page.code.AddCrossBlock(decode.active_block);
+    	decode.page.wmap=decode.page.code.write_map;
+    	decode.page.invmap=decode.page.code.invalidation_map;
+    	decode.page.index=0;
+    }
+
     static void decode_putback(int count) {
         for (int i=0;i<count;i++) {
             decode.page.index--;

@@ -2821,8 +2821,7 @@ public class CPU extends Module_base {
         return false;
     }
 
-    public static boolean CPU_CPUID() {
-        if (CPU_ArchitectureType<CPU_ARCHTYPE_486NEW) return false;
+    public static void CPU_CPUID() {
         switch (CPU_Regs.reg_eax.dword) {
         case 0:	/* Vendor ID String and maximum level? */
             CPU_Regs.reg_eax.dword=1;  /* Maximum level */
@@ -2853,8 +2852,6 @@ public class CPU extends Module_base {
                 CPU_Regs.reg_edx.dword|= (1<<15);   /* support CMOV instructions */
                 CPU_Regs.reg_edx.dword|= (1<<13);   /* PTE Global Flag */
                 CPU_Regs.reg_edx.dword|= (1<<8);    /* CMPXCHG8B instruction */
-            } else {
-                return false;
             }
             break;
         case 0x80000000:
@@ -2867,7 +2864,6 @@ public class CPU extends Module_base {
             CPU_Regs.reg_edx.dword=0;
             break;
         }
-        return true;
     }
 
     final static private CPU_Decoder HLT_Decode = new CPU_Decoder() {

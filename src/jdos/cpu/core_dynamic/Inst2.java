@@ -2126,7 +2126,7 @@ public class Inst2 extends Helper {
 
     final static public class CPUID extends Op {
         public int call() {
-            if (!CPU.CPU_CPUID()) return Constants.BR_Illegal;
+            CPU.CPU_CPUID();
             return Constants.BR_Normal;
         }
 
@@ -2138,7 +2138,7 @@ public class Inst2 extends Helper {
             return 0;
         }
 
-        public boolean returnsIllegal() {return true;}
+        public boolean returnsIllegal() {return false;}
         public boolean throwsException() {return false;}
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}

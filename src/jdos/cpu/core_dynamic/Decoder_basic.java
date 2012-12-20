@@ -1,11 +1,9 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.Core_dynamic;
 import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.util.IntRef;
-import jdos.util.Ptr;
 import jdos.util.ShortRef;
 
 public class Decoder_basic {
@@ -16,43 +14,24 @@ public class Decoder_basic {
     private static final ShortRef rdval = new ShortRef(0);
     private static final IntRef phys_page = new IntRef(0);
 
-    static /*Bitu*/int mf_functions_num=0;
-    static public final class _mf_functions {
-        /*Bit8u*/ Ptr pos;
-        //void* fct_ptr;
-        /*Bitu*/int ftype;
-    }
-    static final _mf_functions[] mf_functions = new _mf_functions[64];
-
-    static {
-        for (int i=0;i<mf_functions.length;i++) {
-            mf_functions[i] = new _mf_functions();
-        }
-    }
-    public static void InitFlagsOptimization() {
-        mf_functions_num=0;
-    }
-    public static boolean MakeCodePage(/*Bitu*/int lin_addr, Core_dynamic.CodePageHandlerDynRecRef cph) {
+    public static CodePageHandlerDynRec MakeCodePage(/*Bitu*/int lin_addr) {
         Memory.mem_readb(lin_addr); // generate page fault here if necessary
 
         Paging.PageHandler handler=Paging.get_tlb_readhandler(lin_addr);
         if ((handler.flags & Paging.PFLAG_HASCODE)!=0) {
             // this is a codepage handler, and the one that we're looking for
-            cph.value=(CodePageHandlerDynRec)handler;
-            return false;
+            return (CodePageHandlerDynRec)handler;
         }
         if ((handler.flags & Paging.PFLAG_NOCODE)!=0) {
             //Log.log_msg("DYNREC:Can't run code in this page");
-            cph.value=null;
-            return false;
+            return null;
         }
         /*Bitu*/int lin_page=lin_addr>>>12;
         phys_page.value=lin_page;
         // find the physical page that the linear page is mapped to
         if (!Paging.PAGING_MakePhysPage(phys_page)) {
             Log.log_msg("DYNREC:Can't find physpage for lin addr "+Integer.toString(lin_addr, 16));
-            cph.value=null;
-            return false;
+            return null;
         }
         // find a free CodePage
         if (Cache.cache.free_pages==null) {
@@ -81,7 +60,6 @@ public class Decoder_basic {
         cpagehandler.SetupAt(phys_page.value,handler);
         Memory.MEM_SetPageHandler(phys_page.value,1,cpagehandler);
         Paging.PAGING_UnlinkPages(lin_page,1);
-        cph.value=cpagehandler;
-        return false;
+        return cpagehandler;
     }
 }

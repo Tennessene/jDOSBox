@@ -32,10 +32,6 @@ public class Core_dynamic {
     static public void CPU_Core_Dynamic_Cache_Close() {
 
     }
-    public static final class CodePageHandlerDynRecRef {
-        public CodePageHandlerDynRec value;
-    }
-    static private final CodePageHandlerDynRecRef chandlerRef = new  CodePageHandlerDynRecRef();
 
     public static final CPU.CPU_Decoder CPU_Core_Dynrec_Trap_Run = new CPU.CPU_Decoder() {
         public /*Bits*/int call() {
@@ -95,12 +91,7 @@ public class Core_dynamic {
                     chandler = (CodePageHandlerDynRec)handler;
                 if (chandler == null) {
                     // see if the current page is present and contains code
-                    if (Decoder_basic.MakeCodePage(ip_point, chandlerRef)) {
-                        // page not present, throw the exception
-                        CPU.CPU_Exception(CPU.cpu.exception.which,CPU.cpu.exception.error);
-                        continue;
-                    }
-                    chandler = chandlerRef.value;
+                    chandler = Decoder_basic.MakeCodePage(ip_point);
                 }
                 // page doesn't contain code or is special
                 if (chandler==null)

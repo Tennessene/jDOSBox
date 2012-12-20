@@ -52,7 +52,7 @@ public class Prefix_66_0f extends Helper {
                         break;
                     default:
                         prev.next = new Inst1.Illegal("");
-                        break;
+                        return RESULT_JUMP;
                     }
                 }
                 return RESULT_HANDLED;

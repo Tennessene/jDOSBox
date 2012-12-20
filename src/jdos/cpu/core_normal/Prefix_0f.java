@@ -916,7 +916,10 @@ public class Prefix_0f extends Prefix_none {
         /* CPUID */
         ops[0x1a2] = new OP() {
             final public int call() {
-                if (!CPU.CPU_CPUID()) return ILLEGAL_OPCODE;
+                if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486NEW) {
+                    return ILLEGAL_OPCODE;
+                }
+                CPU.CPU_CPUID();
                 return HANDLED;
             }
         };

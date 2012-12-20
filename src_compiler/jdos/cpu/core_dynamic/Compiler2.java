@@ -120,7 +120,7 @@ public class Compiler2 extends Compiler {
             case 0x3a2:
                 if (op instanceof Inst2.CPUID) {
                     Inst2.CPUID o = (Inst2.CPUID) op;
-                    method.append("if (!CPU.CPU_CPUID()) return Constants.BR_Illegal;");
+                    method.append("CPU.CPU_CPUID();");
                     return true;
                 }
                 break;

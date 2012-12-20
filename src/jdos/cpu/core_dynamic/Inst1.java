@@ -6835,8 +6835,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            reg_eip+=eip_count;
-            reg_ip(reg_eip+addip);
+            reg_ip(reg_eip+addip+eip_count);
             return Constants.BR_Link1;
         }
 
@@ -6899,8 +6898,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            reg_eip+=eip_count;
-            reg_ip(reg_eip+addip);
+            reg_ip(reg_eip+addip+eip_count);
             return Constants.BR_Link1;
         }
 

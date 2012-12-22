@@ -44,7 +44,7 @@ public class Helper extends CPU_Regs {
         decode.page.wmap.p[decode.page.index]+=0x01;
         decode.page.index++;
         decode.code+=1;
-        return Memory.mem_readb(decode.code-1);
+        return Memory.host_readb(decode.tlb+decode.code-1);
     }
 
     static void decode_advancepage() {
@@ -64,6 +64,7 @@ public class Helper extends CPU_Regs {
     	decode.page.wmap=decode.page.code.write_map;
     	decode.page.invmap=decode.page.code.invalidation_map;
     	decode.page.index=0;
+        decode.setTLB(faddr);
     }
 
     static void decode_putback(int count) {
@@ -92,7 +93,7 @@ public class Helper extends CPU_Regs {
         decode.page.wmap.p[decode.page.index]+=0x01;
         decode.page.wmap.p[decode.page.index+1]+=0x01;
         decode.code+=2;decode.page.index+=2;
-        return Memory.mem_readw(decode.code-2);
+        return Memory.host_readw(decode.tlb+decode.code-2);
     }
     static int decode_fetchds() {
         return decode_fetchd();
@@ -116,6 +117,6 @@ public class Helper extends CPU_Regs {
         decode.page.wmap.p[decode.page.index+2]+=0x01;
         decode.page.wmap.p[decode.page.index+3]+=0x01;
         decode.code+=4;decode.page.index+=4;
-        return Memory.mem_readd(decode.code - 4);
+        return Memory.host_readd(decode.tlb+decode.code - 4);
     }
 }

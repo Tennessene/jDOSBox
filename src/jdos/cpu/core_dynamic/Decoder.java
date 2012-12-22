@@ -141,6 +141,7 @@ public class Decoder extends Inst1 {
         decode.page.first=start >>> 12;
         decode.active_block=decode.block=Cache.cache_openblock();
         decode.block.page.start=decode.page.index;
+        decode.setTLB(start);
         codepage.AddCacheBlock(decode.block);
 
         decode.cycles = 0;

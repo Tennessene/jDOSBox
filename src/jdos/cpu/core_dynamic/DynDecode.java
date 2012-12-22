@@ -1,5 +1,6 @@
 package jdos.cpu.core_dynamic;
 
+import jdos.cpu.Paging;
 import jdos.util.Ptr;
 
 // decoding information used during translation of a code block
@@ -9,6 +10,7 @@ public final class DynDecode {
     /*PhysPt*/int code_start;		// pointer to the start of the current code block
     /*PhysPt*/int op_start;		// pointer to the start of the current instruction
     /*Bitu*/int cycles;			// number cycles used by currently translated code
+    int tlb;
 
     // block that contains the first instruction translated
     public CacheBlockDynRec block;
@@ -24,4 +26,12 @@ public final class DynDecode {
         /*Bitu*/int first;		// page number
     }
     public final Page page = new Page();
+
+    public void setTLB(int address) {
+        tlb = Paging.get_tlb_read(address);
+        if (tlb == Paging.INVALID_ADDRESS) {
+            Paging.get_tlb_readhandler(address).readb(address);
+            tlb = Paging.get_tlb_read(address);
+        }
+    }
 }

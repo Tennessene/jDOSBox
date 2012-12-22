@@ -180,7 +180,7 @@ public class Paging extends Module_base {
     static public boolean enabled;
     static private boolean globalEnabled;
 
-    private static /*HostPt*/int get_tlb_read(/*PhysPt*/int address) {
+    public static /*HostPt*/int get_tlb_read(/*PhysPt*/int address) {
         return read[address >>> 12];
     }
 

@@ -1284,7 +1284,7 @@ public class Prefix_0f extends Prefix_none {
                     SETFLAGBIT(ZF,false);
                     Modrm.Getrw[rm].word(result);
                 }
-                Flags.lflags.type=Flags.t_UNKNOWN;
+                Flags.type=Flags.t_UNKNOWN;
                 return HANDLED;
             }
         };
@@ -1304,7 +1304,7 @@ public class Prefix_0f extends Prefix_none {
                     SETFLAGBIT(ZF,false);
                     Modrm.Getrw[rm].word(result);
                 }
-                Flags.lflags.type=Flags.t_UNKNOWN;
+                Flags.type=Flags.t_UNKNOWN;
                 return HANDLED;
             }
         };

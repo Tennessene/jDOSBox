@@ -160,7 +160,7 @@ public class IO extends Module_base {
     public static void IO_WriteB(/*Bitu*/int port,/*Bitu*/int val) {
         log_io(0, true, port, val);
         if (CPU_Regs.GETFLAG(CPU_Regs.VM)!=0 && CPU.CPU_IO_Exception(port,1)) {
-            LazyFlags old_lflags = new LazyFlags(Flags.lflags);
+            LazyFlags old_lflags = new LazyFlags();
             CPU.CPU_Decoder old_cpudecoder;
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
@@ -183,7 +183,7 @@ public class IO extends Module_base {
 
             CPU_Regs.reg_eax.low(old_al);
             CPU_Regs.reg_edx.word(old_dx);
-            Flags.lflags.copy(old_lflags);
+            Flags.copy(old_lflags);
             CPU.cpudecoder=old_cpudecoder;
         }
         else {
@@ -195,7 +195,7 @@ public class IO extends Module_base {
     static public void IO_WriteW(/*Bitu*/int port,/*Bitu*/int val) {
         log_io(1, true, port, val);
         if (CPU_Regs.GETFLAG(CPU_Regs.VM)!=0 && CPU.CPU_IO_Exception(port,2)) {
-            LazyFlags old_lflags = new LazyFlags(Flags.lflags);
+            LazyFlags old_lflags = new LazyFlags();
             CPU.CPU_Decoder old_cpudecoder = CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
@@ -217,7 +217,7 @@ public class IO extends Module_base {
 
             CPU_Regs.reg_eax.word(old_ax);
             CPU_Regs.reg_edx.word(old_dx);
-            Flags.lflags.copy(old_lflags);
+            Flags.copy(old_lflags);
             CPU.cpudecoder=old_cpudecoder;
         }
         else {
@@ -229,7 +229,7 @@ public class IO extends Module_base {
     static public void IO_WriteD(/*Bitu*/int port,/*Bitu*/int val) {
         log_io(2, true, port, val);
         if (CPU_Regs.GETFLAG(CPU_Regs.VM)!=0 && CPU.CPU_IO_Exception(port,4)) {
-            LazyFlags old_lflags = new LazyFlags(Flags.lflags);
+            LazyFlags old_lflags = new LazyFlags();
             CPU.CPU_Decoder old_cpudecoder;
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
@@ -252,7 +252,7 @@ public class IO extends Module_base {
 
             CPU_Regs.reg_eax.dword=old_eax;
             CPU_Regs.reg_edx.word(old_dx);
-            Flags.lflags.copy(old_lflags);
+            Flags.copy(old_lflags);
             CPU.cpudecoder=old_cpudecoder;
         } else {
             IoHandler.io_writehandlers[2][port].call(port,val,4);
@@ -262,7 +262,7 @@ public class IO extends Module_base {
     static public/*Bitu*/int IO_ReadB(/*Bitu*/int port) {
         /*Bitu*/int retval;
         if (CPU_Regs.GETFLAG(CPU_Regs.VM)!=0 && CPU.CPU_IO_Exception(port,1)) {
-            LazyFlags old_lflags = new LazyFlags(Flags.lflags);
+            LazyFlags old_lflags = new LazyFlags();
             CPU.CPU_Decoder  old_cpudecoder;
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
@@ -283,7 +283,7 @@ public class IO extends Module_base {
 
             retval = CPU_Regs.reg_eax.low();
             CPU_Regs.reg_edx.word(old_dx);
-            Flags.lflags.copy(old_lflags);
+            Flags.copy(old_lflags);
             CPU.cpudecoder=old_cpudecoder;
             return retval;
         }
@@ -298,7 +298,7 @@ public class IO extends Module_base {
     static public /*Bitu*/int IO_ReadW(/*Bitu*/int port) {
         /*Bitu*/int retval;
         if (CPU_Regs.GETFLAG(CPU_Regs.VM)!=0 && CPU.CPU_IO_Exception(port,2)) {
-            LazyFlags old_lflags = new LazyFlags(Flags.lflags);
+            LazyFlags old_lflags = new LazyFlags();
             CPU.CPU_Decoder old_cpudecoder;
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
@@ -319,7 +319,7 @@ public class IO extends Module_base {
 
             retval = CPU_Regs.reg_eax.word();
             CPU_Regs.reg_edx.word(old_dx);
-            Flags.lflags.copy(old_lflags);
+            Flags.copy(old_lflags);
             CPU.cpudecoder=old_cpudecoder;
         }
         else {
@@ -333,7 +333,7 @@ public class IO extends Module_base {
     static public /*Bitu*/int IO_ReadD(/*Bitu*/int port) {
         /*Bitu*/int retval;
         if (CPU_Regs.GETFLAG(CPU_Regs.VM)!=0 && CPU.CPU_IO_Exception(port,4)) {
-            LazyFlags old_lflags = new LazyFlags(Flags.lflags);
+            LazyFlags old_lflags = new LazyFlags();
             CPU.CPU_Decoder old_cpudecoder;
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
@@ -354,7 +354,7 @@ public class IO extends Module_base {
 
             retval = CPU_Regs.reg_eax.dword;
             CPU_Regs.reg_edx.word(old_dx);
-            Flags.lflags.copy(old_lflags);
+            Flags.copy(old_lflags);
             CPU.cpudecoder=old_cpudecoder;
         } else {
             retval = IoHandler.io_readhandlers[2][port].call(port,4);

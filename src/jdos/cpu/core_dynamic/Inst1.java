@@ -2219,7 +2219,7 @@ public class Inst1 extends Helper {
             lf_var1w(reg.word());
             lf_resw(lf_var1w()+1);
             reg.word(lf_resw());
-            lflags.type=t_INCw;
+            type=t_INCw;
             return Constants.BR_Normal;
         }
 
@@ -2251,7 +2251,7 @@ public class Inst1 extends Helper {
             lf_var1w(reg.word());
             lf_resw(lf_var1w()-1);
             reg.word(lf_resw());
-            lflags.type=t_DECw;
+            type=t_DECw;
             return Constants.BR_Normal;
         }
 

@@ -1008,7 +1008,7 @@ public class Prefix_66_0f extends Prefix_66 {
                     SETFLAGBIT(ZF,false);
                     Modrm.Getrd[rm].dword=result;
                 }
-                lflags.type=t_UNKNOWN;
+                type=t_UNKNOWN;
                 return HANDLED;
             }
         };
@@ -1028,7 +1028,7 @@ public class Prefix_66_0f extends Prefix_66 {
                     SETFLAGBIT(ZF,false);
                     Modrm.Getrd[rm].dword=result;
                 }
-                lflags.type=t_UNKNOWN;
+                type=t_UNKNOWN;
                 return HANDLED;
             }
         };

@@ -542,7 +542,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                 throw new PageFaultException();
             }
             // Save the state of the cpu cores
-            LazyFlags old_lflags = new LazyFlags(Flags.lflags);
+            LazyFlags old_lflags = new LazyFlags();
             boolean set = false;
 
             if (old_cpudecoder == null) {
@@ -570,7 +570,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             pf_queue.used--;
             if (Log.level <= LogSeverities.LOG_NORMAL)
                 Log.log(LogTypes.LOG_PAGING, LogSeverities.LOG_NORMAL, "Left PageFault for " + Long.toString(lin_addr, 16) + " queue " + pf_queue.used);
-            Flags.lflags.copy(old_lflags);
+            Flags.copy(old_lflags);
             if (set) {
                 CPU.cpudecoder = old_cpudecoder;
                 old_cpudecoder = null;

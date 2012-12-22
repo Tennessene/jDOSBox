@@ -3371,7 +3371,7 @@ public class Inst2 extends Helper {
                 SETFLAGBIT(ZF,false);
                 rw.word(result);
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 
@@ -3410,7 +3410,7 @@ public class Inst2 extends Helper {
                 SETFLAGBIT(ZF,false);
                 rw.word(result);
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 
@@ -3448,7 +3448,7 @@ public class Inst2 extends Helper {
                 SETFLAGBIT(ZF,false);
                 rw.word(result);
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 
@@ -3487,7 +3487,7 @@ public class Inst2 extends Helper {
                 SETFLAGBIT(ZF,false);
                 rw.word(result);
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 

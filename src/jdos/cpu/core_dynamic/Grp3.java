@@ -131,7 +131,7 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            Flags.lflags.type=Flags.t_NEGb;
+            Flags.type=Flags.t_NEGb;
             Flags.lf_var1b(earb.get8());
             Flags.lf_resb(0-Flags.lf_var1b());
             earb.set8(Flags.lf_resb());
@@ -161,7 +161,7 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            Flags.lflags.type=Flags.t_NEGb;
+            Flags.type=Flags.t_NEGb;
             int eaa = get_eaa.call();
             Flags.lf_var1b(Memory.mem_readb(eaa));
             Flags.lf_resb(0-Flags.lf_var1b());
@@ -532,7 +532,7 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            Flags.lflags.type=Flags.t_NEGw;
+            Flags.type=Flags.t_NEGw;
             Flags.lf_var1w(earw.word());
             Flags.lf_resw(0-Flags.lf_var1w());
             earw.word(Flags.lf_resw());
@@ -562,7 +562,7 @@ public class Grp3 extends Helper {
         }
 
         public int call() {
-            Flags.lflags.type=Flags.t_NEGw;
+            Flags.type=Flags.t_NEGw;
             int eaa = get_eaa.call();
             Flags.lf_var1w(Memory.mem_readw(eaa));
             Flags.lf_resw(0-Flags.lf_var1w());

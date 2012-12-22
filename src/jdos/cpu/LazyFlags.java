@@ -1,7 +1,12 @@
 package jdos.cpu;
 
-public class LazyFlags {
+public final class LazyFlags {
     public LazyFlags() {
+        var1 = Flags.var1;
+        var2 = Flags.var2;
+        res = Flags.res;
+        oldcf = Flags.oldcf;
+        type = Flags.type;
     }
 
     public LazyFlags(LazyFlags in) {

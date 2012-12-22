@@ -1719,7 +1719,7 @@ static abstract public class JumpCond32_d extends Op {
                 SETFLAGBIT(ZF,false);
                 rd.dword=result;
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 
@@ -1757,7 +1757,7 @@ static abstract public class JumpCond32_d extends Op {
                 SETFLAGBIT(ZF,false);
                 rd.dword=result;
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 
@@ -1794,7 +1794,7 @@ static abstract public class JumpCond32_d extends Op {
                 SETFLAGBIT(ZF,false);
                 rd.dword=result;
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 
@@ -1832,7 +1832,7 @@ static abstract public class JumpCond32_d extends Op {
                 SETFLAGBIT(ZF,false);
                 rd.dword=result;
             }
-            Flags.lflags.type=Flags.t_UNKNOWN;
+            Flags.type=Flags.t_UNKNOWN;
             return Constants.BR_Normal;
         }
 

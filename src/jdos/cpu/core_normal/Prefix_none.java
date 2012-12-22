@@ -824,7 +824,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_eax.word());
                 lf_resw(lf_var1w()+1);
                 reg_eax.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -835,7 +835,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_ecx.word());
                 lf_resw(lf_var1w()+1);
                 reg_ecx.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -846,7 +846,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_edx.word());
                 lf_resw(lf_var1w()+1);
                 reg_edx.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -857,7 +857,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_ebx.word());
                 lf_resw(lf_var1w()+1);
                 reg_ebx.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -868,7 +868,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_esp.word());
                 lf_resw(lf_var1w()+1);
                 reg_esp.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -879,7 +879,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_ebp.word());
                 lf_resw(lf_var1w()+1);
                 reg_ebp.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -890,7 +890,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_esi.word());
                 lf_resw(lf_var1w()+1);
                 reg_esi.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -901,7 +901,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_edi.word());
                 lf_resw(lf_var1w()+1);
                 reg_edi.word(lf_resw());
-                lflags.type=t_INCw;
+                type=t_INCw;
                 return HANDLED;
             }
         };
@@ -912,7 +912,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_eax.word());
                 lf_resw(lf_var1w()-1);
                 reg_eax.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -923,7 +923,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_ecx.word());
                 lf_resw(lf_var1w()-1);
                 reg_ecx.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -934,7 +934,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_edx.word());
                 lf_resw(lf_var1w()-1);
                 reg_edx.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -945,7 +945,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_ebx.word());
                 lf_resw(lf_var1w()-1);
                 reg_ebx.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -956,7 +956,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_esp.word());
                 lf_resw(lf_var1w()-1);
                 reg_esp.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -967,7 +967,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_ebp.word());
                 lf_resw(lf_var1w()-1);
                 reg_ebp.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -978,7 +978,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_esi.word());
                 lf_resw(lf_var1w()-1);
                 reg_esi.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -989,7 +989,7 @@ public class Prefix_none extends StringOp {
                 LoadCF();lf_var1w(reg_edi.word());
                 lf_resw(lf_var1w()-1);
                 reg_edi.word(lf_resw());
-                lflags.type=t_DECw;
+                type=t_DECw;
                 return HANDLED;
             }
         };
@@ -2946,7 +2946,7 @@ public class Prefix_none extends StringOp {
                     }
                 case 0x03:											/* NEG Eb */
                     {
-                        Flags.lflags.type=Flags.t_NEGb;
+                        Flags.type=Flags.t_NEGb;
                         if (rm >= 0xc0 ) {
                             Flags.lf_var1b(Modrm.GetEArb[rm].get());Flags.lf_resb(0-Flags.lf_var1b());
                             Modrm.GetEArb[rm].set(Flags.lf_resb());
@@ -3028,7 +3028,7 @@ public class Prefix_none extends StringOp {
                     }
                 case 0x03:											/* NEG Ew */
                     {
-                        Flags.lflags.type=Flags.t_NEGw;
+                        Flags.type=Flags.t_NEGw;
                         if (rm >= 0xc0 ) {
                             Flags.lf_var1w(Modrm.GetEArw[rm].word());Flags.lf_resw(0-Flags.lf_var1w());
                             Modrm.GetEArw[rm].word(Flags.lf_resw());

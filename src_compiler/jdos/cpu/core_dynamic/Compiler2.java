@@ -560,7 +560,7 @@ public class Compiler2 extends Compiler {
                     method.append(nameGet16(o.earw));
                     method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0; while ((val & 0x01)==0) { result++; val>>=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
-                    method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append(";}Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 if (op instanceof Inst2.BsfGwEw_mem) {
@@ -569,7 +569,7 @@ public class Compiler2 extends Compiler {
                     declareVal(method);
                     method.append("val=Memory.mem_readw(eaa);if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((val & 0x01)==0) { result++; val>>=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
-                    method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append(";}Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 break;
@@ -581,7 +581,7 @@ public class Compiler2 extends Compiler {
                     method.append(nameGet16(o.earw));
                     method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 15;while ((val & 0x8000)==0) { result--; val<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
-                    method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append(";}Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 if (op instanceof Inst2.BsrGwEw_mem) {
@@ -590,7 +590,7 @@ public class Compiler2 extends Compiler {
                     declareVal(method);
                     method.append("val=Memory.mem_readw(eaa);if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 15;while ((val & 0x8000)==0) { result--; val<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     nameSet16(o.rw, "result", method);
-                    method.append(";}Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append(";}Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 break;
@@ -4385,7 +4385,7 @@ public class Compiler2 extends Compiler {
                     method.append(nameGet32(o.eard));
                     method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((val & 0x01)==0) { result++; val>>>=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
-                    method.append("=result;}Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append("=result;}Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 if (op instanceof Inst4.BsfGdEd_mem) {
@@ -4395,7 +4395,7 @@ public class Compiler2 extends Compiler {
                     method.append("val=Memory.mem_readd(eaa);");
                     method.append("if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 0;while ((val & 0x01)==0) { result++; val>>>=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
-                    method.append("=result;}Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append("=result;}Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 break;
@@ -4407,7 +4407,7 @@ public class Compiler2 extends Compiler {
                     method.append(nameGet32(o.eard));
                     method.append(";if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 31;while ((val & 0x80000000)==0) { result--; val<<=1; } CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
-                    method.append("=result;} Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append("=result;} Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 if (op instanceof Inst4.BsrGdEd_mem) {
@@ -4416,7 +4416,7 @@ public class Compiler2 extends Compiler {
                     declareVal(method);
                     method.append("val=Memory.mem_readd(eaa);if (val==0) {CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {int result = 31;while ((val & 0x80000000)==0) { result--; val<<=1; }CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);");
                     method.append(nameSet32(o.rd));
-                    method.append("=result;}Flags.lflags.type=Flags.t_UNKNOWN;");
+                    method.append("=result;}Flags.type=Flags.t_UNKNOWN;");
                     return true;
                 }
                 break;

@@ -26,7 +26,6 @@ public class Memory extends Module_base {
 
     //private static final int MEMBASE = 1; // can't use zero
     static int highwaterMark;
-    static Ptr host_memory;
     static public int[] direct;
     
     public static int allocate(int size) {
@@ -942,8 +941,6 @@ public class Memory extends Module_base {
                 videosize+=videoCacheSize*1024;
                 System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM+VGA_draw.TEMPLINE_SIZE+videosize)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
                 direct = new int[(highwaterMark+EXTRA_MEM+videosize+VGA_draw.TEMPLINE_SIZE+3)>>2];
-//                host_memory = new Ptr(direct, 0);
-//                MemBase = new Ptr(host_memory, 0, highwaterMark);
             } catch (java.lang.OutOfMemoryError e) {
                 Log.exit("Can't allocate main memory of "+memsize+" MB");
             }
@@ -987,8 +984,6 @@ public class Memory extends Module_base {
     static Memory test;
     public static Section.SectionFunction MEM_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
-            MemBase = null;
-            host_memory = null;
             direct = null;
             test = null;
         }

@@ -377,7 +377,8 @@ public class DOS_Drive_Cache {
         dirBase		= new CFileInfo();
         save_dir	= null;
         srchNr		= 0;
-        SetBaseDir(basePath);
+        if (basePath != null)
+            SetBaseDir(basePath);
     }
 
     public void SetLabel(String vname,boolean cdrom,boolean allowupdate) {

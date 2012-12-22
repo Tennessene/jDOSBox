@@ -999,9 +999,9 @@ public class Inst2 extends Helper {
         public JumpCond16_w() {
             offset = decode_fetchws();
         }
-        final protected int jump(boolean COND, int off) {
+        final protected int jump(boolean COND) {
             if (COND) {
-                reg_ip(reg_ip()+off+eip_count);
+                reg_ip(reg_ip()+offset+eip_count);
                 return Constants.BR_Link1;
             }
             reg_ip(reg_ip()+eip_count);
@@ -1016,7 +1016,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_o extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_O(), offset);
+            return jump(Flags.TFLG_O());
         }
 
         public int sets() {
@@ -1030,7 +1030,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_no extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NO(), offset);
+            return jump(Flags.TFLG_NO());
         }
 
         public int sets() {
@@ -1044,7 +1044,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_b extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_B(), offset);
+            return jump(Flags.TFLG_B());
         }
 
         public int sets() {
@@ -1058,7 +1058,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_nb extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NB(), offset);
+            return jump(Flags.TFLG_NB());
         }
 
         public int sets() {
@@ -1072,7 +1072,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_z extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_Z(), offset);
+            return jump(Flags.TFLG_Z());
         }
 
         public int sets() {
@@ -1086,7 +1086,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_nz extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NZ(), offset);
+            return jump(Flags.TFLG_NZ());
         }
 
         public int sets() {
@@ -1100,7 +1100,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_be extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_BE(), offset);
+            return jump(Flags.TFLG_BE());
         }
 
         public int sets() {
@@ -1114,7 +1114,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_nbe extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NBE(), offset);
+            return jump(Flags.TFLG_NBE());
         }
 
         public int sets() {
@@ -1128,7 +1128,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_s extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_S(), offset);
+            return jump(Flags.TFLG_S());
         }
 
         public int sets() {
@@ -1142,7 +1142,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_ns extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NS(), offset);
+            return jump(Flags.TFLG_NS());
         }
 
         public int sets() {
@@ -1156,7 +1156,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_p extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_P(), offset);
+            return jump(Flags.TFLG_P());
         }
 
         public int sets() {
@@ -1170,7 +1170,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_np extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NP(), offset);
+            return jump(Flags.TFLG_NP());
         }
 
         public int sets() {
@@ -1184,7 +1184,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_l extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_L(), offset);
+            return jump(Flags.TFLG_L());
         }
 
         public int sets() {
@@ -1198,7 +1198,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_nl extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NL(), offset);
+            return jump(Flags.TFLG_NL());
         }
 
         public int sets() {
@@ -1212,7 +1212,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_le extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_LE(), offset);
+            return jump(Flags.TFLG_LE());
         }
 
         public int sets() {
@@ -1226,7 +1226,7 @@ public class Inst2 extends Helper {
 
     final static public class JumpCond16_w_nle extends JumpCond16_w {
         public int call() {
-            return jump(Flags.TFLG_NLE(), offset);
+            return jump(Flags.TFLG_NLE());
         }
 
         public int sets() {

@@ -254,9 +254,9 @@ static abstract public class JumpCond32_d extends Op {
             offset = decode_fetchds();
         }
     
-        final protected int jump(boolean COND, int off) {
+        final protected int jump(boolean COND) {
             if (COND) {
-                reg_eip+=off+eip_count;
+                reg_eip+=offset+eip_count;
                 return Constants.BR_Link1;
             }
             reg_eip+=eip_count;
@@ -272,7 +272,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_o extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_O(), offset);
+            return jump(Flags.TFLG_O());
         }
 
         public int sets() {
@@ -287,7 +287,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_no extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NO(), offset);
+            return jump(Flags.TFLG_NO());
         }
 
         public int sets() {
@@ -302,7 +302,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_b extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_B(), offset);
+            return jump(Flags.TFLG_B());
         }
 
         public int sets() {
@@ -317,7 +317,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_nb extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NB(), offset);
+            return jump(Flags.TFLG_NB());
         }
 
         public int sets() {
@@ -332,7 +332,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_z extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_Z(), offset);
+            return jump(Flags.TFLG_Z());
         }
 
         public int sets() {
@@ -347,7 +347,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_nz extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NZ(), offset);
+            return jump(Flags.TFLG_NZ());
         }
 
         public int sets() {
@@ -362,7 +362,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_be extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_BE(), offset);
+            return jump(Flags.TFLG_BE());
         }
 
         public int sets() {
@@ -377,7 +377,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_nbe extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NBE(), offset);
+            return jump(Flags.TFLG_NBE());
         }
 
         public int sets() {
@@ -392,7 +392,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_s extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_S(), offset);
+            return jump(Flags.TFLG_S());
         }
 
         public int sets() {
@@ -407,7 +407,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_ns extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NS(), offset);
+            return jump(Flags.TFLG_NS());
         }
 
         public int sets() {
@@ -422,7 +422,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_p extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_P(), offset);
+            return jump(Flags.TFLG_P());
         }
 
         public int sets() {
@@ -437,7 +437,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_np extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NP(), offset);
+            return jump(Flags.TFLG_NP());
         }
 
         public int sets() {
@@ -452,7 +452,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_l extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_L(), offset);
+            return jump(Flags.TFLG_L());
         }
 
         public int sets() {
@@ -467,7 +467,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_nl extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NL(), offset);
+            return jump(Flags.TFLG_NL());
         }
 
         public int sets() {
@@ -482,7 +482,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_le extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_LE(), offset);
+            return jump(Flags.TFLG_LE());
         }
 
         public int sets() {
@@ -497,7 +497,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class JumpCond32_d_nle extends JumpCond32_d {
         public int call() {
-            return jump(Flags.TFLG_NLE(), offset);
+            return jump(Flags.TFLG_NLE());
         }
 
         public int sets() {

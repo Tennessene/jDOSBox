@@ -2705,9 +2705,9 @@ public class Inst1 extends Helper {
             offset = decode_fetchbs();
         }
 
-        final protected int jump(boolean COND, int off) {
+        final protected int jump(boolean COND) {
             if (COND) {
-                reg_ip(reg_ip()+off+eip_count);
+                reg_ip(reg_ip()+offset+eip_count);
                 return Constants.BR_Link1;
             }
             reg_ip(reg_ip()+eip_count);
@@ -2722,7 +2722,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_o extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_O(), offset);
+            return jump(Flags.TFLG_O());
         }
 
         public int sets() {
@@ -2737,7 +2737,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_no extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NO(), offset);
+            return jump(Flags.TFLG_NO());
         }
 
         public int sets() {
@@ -2752,7 +2752,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_b extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_B(), offset);
+            return jump(Flags.TFLG_B());
         }
 
         public int sets() {
@@ -2767,7 +2767,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_nb extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NB(), offset);
+            return jump(Flags.TFLG_NB());
         }
 
         public int sets() {
@@ -2782,7 +2782,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_z extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_Z(), offset);
+            return jump(Flags.TFLG_Z());
         }
 
         public int sets() {
@@ -2797,7 +2797,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_nz extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NZ(), offset);
+            return jump(Flags.TFLG_NZ());
         }
 
         public int sets() {
@@ -2812,7 +2812,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_be extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_BE(), offset);
+            return jump(Flags.TFLG_BE());
         }
 
         public int sets() {
@@ -2827,7 +2827,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_nbe extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NBE(), offset);
+            return jump(Flags.TFLG_NBE());
         }
 
         public int sets() {
@@ -2842,7 +2842,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_s extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_S(), offset);
+            return jump(Flags.TFLG_S());
         }
 
         public int sets() {
@@ -2857,7 +2857,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_ns extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NS(), offset);
+            return jump(Flags.TFLG_NS());
         }
 
         public int sets() {
@@ -2872,7 +2872,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_p extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_P(), offset);
+            return jump(Flags.TFLG_P());
         }
 
         public int sets() {
@@ -2887,7 +2887,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_np extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NP(), offset);
+            return jump(Flags.TFLG_NP());
         }
 
         public int sets() {
@@ -2902,7 +2902,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_l extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_L(), offset);
+            return jump(Flags.TFLG_L());
         }
 
         public int sets() {
@@ -2917,7 +2917,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_nl extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NL(), offset);
+            return jump(Flags.TFLG_NL());
         }
 
         public int sets() {
@@ -2932,7 +2932,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_le extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_LE(), offset);
+            return jump(Flags.TFLG_LE());
         }
 
         public int sets() {
@@ -2947,7 +2947,7 @@ public class Inst1 extends Helper {
 
     final static public class JumpCond16_b_nle extends JumpCond16_b {
         public int call() {
-            return jump(Flags.TFLG_NLE(), offset);
+            return jump(Flags.TFLG_NLE());
         }
 
         public int sets() {
@@ -6575,7 +6575,7 @@ public class Inst1 extends Helper {
     final static public class Loopnz32 extends JumpCond16_b {
         public int call() {
             reg_ecx.dword--;
-            return jump(reg_ecx.dword!=0 && !Flags.get_ZF(), offset);
+            return jump(reg_ecx.dword!=0 && !Flags.get_ZF());
         }
 
         public int sets() {
@@ -6591,7 +6591,7 @@ public class Inst1 extends Helper {
     final static public class Loopnz16 extends JumpCond16_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            return jump(reg_ecx.word()!=0 && !Flags.get_ZF(), offset);
+            return jump(reg_ecx.word()!=0 && !Flags.get_ZF());
         }
 
         public int sets() {
@@ -6607,7 +6607,7 @@ public class Inst1 extends Helper {
     final static public class Loopz32 extends JumpCond16_b {
         public int call() {
             reg_ecx.dword--;
-            return jump(reg_ecx.dword!=0 && Flags.get_ZF(), offset);
+            return jump(reg_ecx.dword!=0 && Flags.get_ZF());
         }
 
         public int sets() {
@@ -6623,7 +6623,7 @@ public class Inst1 extends Helper {
     final static public class Loopz16 extends JumpCond16_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            return jump(reg_ecx.word()!=0 && Flags.get_ZF(), offset);
+            return jump(reg_ecx.word()!=0 && Flags.get_ZF());
         }
 
         public int sets() {
@@ -6639,7 +6639,7 @@ public class Inst1 extends Helper {
     final static public class Loop32 extends JumpCond16_b {
         public int call() {
             reg_ecx.dword--;
-            return jump(reg_ecx.dword!=0, offset);
+            return jump(reg_ecx.dword!=0);
         }
 
         public int sets() {
@@ -6655,7 +6655,7 @@ public class Inst1 extends Helper {
     final static public class Loop16 extends JumpCond16_b {
         public int call() {
             reg_ecx.word(reg_ecx.word()-1);
-            return jump(reg_ecx.word()!=0, offset);
+            return jump(reg_ecx.word()!=0);
         }
 
         public int sets() {
@@ -6674,7 +6674,7 @@ public class Inst1 extends Helper {
             this.mask = mask;
         }
         public int call() {
-            return jump((reg_ecx.dword & mask)==0, offset);
+            return jump((reg_ecx.dword & mask)==0);
         }
 
         public int sets() {

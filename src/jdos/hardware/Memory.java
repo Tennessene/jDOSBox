@@ -39,7 +39,7 @@ public class Memory extends Module_base {
     }
 
     public static /*Bit8u*/short host_readb(/*HostPt*/int address) {
-        return (short)((direct[(address >> 2)] >>> ((address & 0x3) << 3)) & 0xFF);
+        return (short)((direct[(address >>> 2)] >>> ((address & 0x3) << 3)) & 0xFF);
     }
 
     public static /*Bit16u*/int host_readw(/*HostPt*/int address) {

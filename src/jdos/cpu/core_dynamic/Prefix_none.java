@@ -1,7 +1,6 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU;
-import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core;
 import jdos.cpu.StringOp;
 
@@ -433,8 +432,8 @@ public class Prefix_none extends Helper {
         /* SEG ES: */
         ops[0x26] = new Decode() {
             final public int call(Op prev) {
-                opcode_seg = CPU_Regs.es;
-                return RESULT_CONTINUE;
+                prev.next = new Inst1.SegES();
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x226] = ops[0x26];
@@ -522,8 +521,8 @@ public class Prefix_none extends Helper {
         /* SEG CS: */
         ops[0x2e] = new Decode() {
             final public int call(Op prev) {
-                opcode_seg = CPU_Regs.cs;
-                return RESULT_CONTINUE;
+                prev.next = new Inst1.SegCS();
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x22e] = ops[0x2e];
@@ -612,8 +611,8 @@ public class Prefix_none extends Helper {
         /* SEG SS: */
         ops[0x36] = new Decode() {
             final public int call(Op prev) {
-                opcode_seg = CPU_Regs.ss;
-                return RESULT_CONTINUE;
+                prev.next = new Inst1.SegSS();
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x236] = ops[0x36];
@@ -701,8 +700,8 @@ public class Prefix_none extends Helper {
         /* SEG DS: */
         ops[0x3e] = new Decode() {
             final public int call(Op prev) {
-                opcode_seg = CPU_Regs.ds;
-                return RESULT_CONTINUE;
+                prev.next = new Inst1.SegDS();
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x23e] = ops[0x3e];
@@ -1012,8 +1011,8 @@ public class Prefix_none extends Helper {
         /* SEG FS: */
         ops[0x64] = new Decode() {
             final public int call(Op prev) {
-                opcode_seg = CPU_Regs.fs;
-                return RESULT_CONTINUE;
+                prev.next = new Inst1.SegFS();
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x264] = ops[0x64];
@@ -1021,8 +1020,8 @@ public class Prefix_none extends Helper {
         /* SEG GS: */
         ops[0x65] = new Decode() {
             final public int call(Op prev) {
-                opcode_seg = CPU_Regs.gs;
-                return RESULT_CONTINUE;
+                prev.next = new Inst1.SegGS();
+                return RESULT_CONTINUE_SEG;
             }
         };
         ops[0x265] = ops[0x65];

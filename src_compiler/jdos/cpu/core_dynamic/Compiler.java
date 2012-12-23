@@ -352,6 +352,7 @@ public class Compiler extends Helper {
                         method.append("/* Should set flags */");
                     }
                 }
+                boolean reset = seg.wasSet;
                 if (!loopClosed && compile_op(op, alwayUseFastVersion?0:shouldSet, method, (runningEipCount>0)?"CPU_Regs.reg_eip+="+runningEipCount+";":"", seg)) {
                     if (combineEIP) {
                         if (testLocalVariableAccess)
@@ -392,7 +393,7 @@ public class Compiler extends Helper {
                         Log.exit("Instruction "+Integer.toHexString(op.c)+" jumped but there was another instruction after it: "+Integer.toHexString(op.next.c));
                     }
                 }
-                if (seg.wasSet) {
+                if (reset) {
                     seg.reset();
                 }
                 prev = op;
@@ -1060,23 +1061,6 @@ public class Compiler extends Helper {
     }
 
     static private boolean compile_op(Op op, int setFlags, StringBuilder method, String preException, Seg seg) {
-        if (op instanceof Decoder.SegOp) {
-            Decoder.SegOp segOp = (Decoder.SegOp)op;
-            if (op instanceof Decoder.SegEsOp) {
-                seg.setES();
-            } else if (op instanceof Decoder.SegCsOp) {
-                seg.setCS();
-            } else if (op instanceof Decoder.SegSsOp) {
-                seg.setSS();
-            } else if (op instanceof Decoder.SegDsOp) {
-                seg.setDS();
-            } else if (op instanceof Decoder.SegGsOp) {
-                seg.setGS();
-            } else if (op instanceof Decoder.SegFsOp) {
-                seg.setFS();
-            }
-            op = segOp.op;
-        }
         switch (op.c) {
             case 0x00: // ADD Eb,Gb
             case 0x200:
@@ -1456,6 +1440,13 @@ public class Compiler extends Helper {
                     return true;
                 }
                 break;
+            case 0x26: // SEG ES:
+            case 0x226:
+                if (op instanceof Inst1.SegES) {
+                    seg.setES();
+                    return true;
+                }
+                break;
             case 0x27: // DAA
             case 0x227:
                 if (op instanceof Inst1.Daa) {
@@ -1526,6 +1517,13 @@ public class Compiler extends Helper {
                 if (op instanceof Inst1.SubAxIw) {
                     Inst1.SubAxIw o = (Inst1.SubAxIw) op;
                     instructionAI((setFlags & o.sets())==0, 16, o.i, "-", "", "SUBW", method);
+                    return true;
+                }
+                break;
+            case 0x2e: // SEG CS:
+            case 0x22e:
+                if (op instanceof Inst1.SegCS) {
+                    seg.setCS();
                     return true;
                 }
                 break;
@@ -1614,6 +1612,13 @@ public class Compiler extends Helper {
                     return true;
                 }
                 break;
+            case 0x36: // SEG SS:
+                case 0x236:
+                    if (op instanceof Inst1.SegSS) {
+                        seg.setSS();
+                        return true;
+                    }
+                    break;
             case 0x37: // AAA
             case 0x237:
                 if (op instanceof Inst1.Aaa) {
@@ -1716,6 +1721,13 @@ public class Compiler extends Helper {
                     method.append("Instructions.CMPW(");
                     method.append(o.i);
                     method.append(", CPU_Regs.reg_eax.word());");
+                    return true;
+                }
+                break;
+            case 0x3e: // SEG DS:
+            case 0x23e:
+                if (op instanceof Inst1.SegDS) {
+                    seg.setDS();
                     return true;
                 }
                 break;
@@ -2026,6 +2038,20 @@ public class Compiler extends Helper {
                     method.append("val=Memory.mem_readw(eaa);val=CPU.CPU_ARPL(val,");
                     method.append(nameGet16(o.rw));
                     method.append(");Memory.mem_writew(eaa,val);");
+                    return true;
+                }
+                break;
+            case 0x64: // SEG FS:
+            case 0x264:
+                if (op instanceof Inst1.SegFS) {
+                    seg.setFS();
+                    return true;
+                }
+                break;
+            case 0x65: // SEG GS:
+            case 0x265:
+                if (op instanceof Inst1.SegGS) {
+                    seg.setGS();
                     return true;
                 }
                 break;

@@ -4,7 +4,6 @@ import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core;
 import jdos.cpu.Paging;
-import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 import jdos.misc.setup.Config;
 
@@ -91,7 +90,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -109,7 +108,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -210,7 +209,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -230,7 +229,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -315,7 +314,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -333,7 +332,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -434,7 +433,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -454,7 +453,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -528,7 +527,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return false;}
@@ -548,7 +547,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
@@ -636,7 +635,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
@@ -655,7 +654,7 @@ public class Strings extends Core {
         }
         public int call() {
             doString();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}

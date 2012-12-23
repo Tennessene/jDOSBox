@@ -4602,6 +4602,8 @@ public class Compiler2 extends Compiler {
                     method.append(o.msg);
                     method.append(");return Constants.BR_Illegal;");
                     return false;
+                } else if (op instanceof Decoder.HandledSegChange) {
+                    return true;
                 } else if (op instanceof Decoder.HandledDecode) {
                     method.append("return Constants.BR_Jump;");
                     return false; // compile block

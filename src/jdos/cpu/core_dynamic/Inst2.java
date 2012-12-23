@@ -16,7 +16,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             earw.word(CPU.CPU_SLDT());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -45,7 +45,7 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             int eaa=get_eaa.call();
             Memory.mem_writew(eaa, CPU.CPU_SLDT());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -73,7 +73,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             earw.word(CPU.CPU_STR());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -102,7 +102,7 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             int eaa=get_eaa.call();
             Memory.mem_writew(eaa, CPU.CPU_STR());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -131,7 +131,7 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             if (CPU.CPU_LLDT(earw.word())) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -161,7 +161,7 @@ public class Inst2 extends Helper {
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             int eaa=get_eaa.call();
             if (CPU.CPU_LLDT(Memory.mem_readw(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -190,7 +190,7 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             if (CPU.CPU_LTR(earw.word())) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -220,7 +220,7 @@ public class Inst2 extends Helper {
             if (CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             int eaa=get_eaa.call();
             if (CPU.CPU_LTR(Memory.mem_readw(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -248,7 +248,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             CPU.CPU_VERR(earw.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -277,7 +277,7 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             int eaa=get_eaa.call();
             CPU.CPU_VERR(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -305,7 +305,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             CPU.CPU_VERW(earw.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -334,7 +334,7 @@ public class Inst2 extends Helper {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             int eaa=get_eaa.call();
             CPU.CPU_VERW(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -363,7 +363,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             Memory.mem_writew(eaa,CPU.CPU_SGDT_limit());
             Memory.mem_writed(eaa+2,CPU.CPU_SGDT_base());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -391,7 +391,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             Memory.mem_writew(eaa,CPU.CPU_SIDT_limit());
             Memory.mem_writed(eaa+2,CPU.CPU_SIDT_base());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -421,7 +421,7 @@ public class Inst2 extends Helper {
             int v1 = (Memory.mem_readd(eaa + 2) & 0xFFFFFF);
             int v0 = Memory.mem_readw(eaa);
             CPU.CPU_LGDT(v0,v1);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -451,7 +451,7 @@ public class Inst2 extends Helper {
             int v1 = (Memory.mem_readd(eaa + 2) & 0xFFFFFF);
             int v0 = Memory.mem_readw(eaa);
             CPU.CPU_LIDT(v0,v1);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -478,7 +478,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writew(eaa,CPU.CPU_SMSW() & 0xFFFF);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -506,7 +506,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             int limit=Memory.mem_readw(eaa);
             if (CPU.CPU_LMSW(limit)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -527,7 +527,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             Paging.PAGING_ClearTLB();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -595,7 +595,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earw.word(CPU.CPU_SMSW() & 0xFFFF);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -621,7 +621,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if (CPU.CPU_LMSW(earw.word())) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -649,7 +649,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             rw.word(CPU.CPU_LAR(earw.word(),rw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -680,7 +680,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             rw.word(CPU.CPU_LAR(Memory.mem_readw(eaa),rw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -710,7 +710,7 @@ public class Inst2 extends Helper {
         public int call() {
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             rw.word(CPU.CPU_LSL(earw.word(),rw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -741,7 +741,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             rw.word(CPU.CPU_LSL(Memory.mem_readw(eaa),rw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -763,7 +763,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
             CPU.cpu.cr0&=(~CPU.CR0_TASKSWITCH);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -783,7 +783,7 @@ public class Inst2 extends Helper {
     final static public class Invd extends Op {
         public int call() {
             if (CPU.cpu.pmode && CPU.cpu.cpl!=0) return EXCEPTION(CPU.EXCEPTION_GP);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -811,7 +811,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if (CPU.CPU_READ_CRX(which,eard)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -839,7 +839,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if (CPU.CPU_READ_DRX(which,eard)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -868,7 +868,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if (CPU.CPU_WRITE_CRX(which,eard.dword)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -897,7 +897,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if (CPU.CPU_WRITE_DRX(which,eard.dword)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -925,7 +925,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if (CPU.CPU_READ_TRX(which,eard)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -953,7 +953,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             if (CPU.CPU_WRITE_TRX(which,eard.dword)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -976,7 +976,7 @@ public class Inst2 extends Helper {
 			/*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double) (CPU.CPU_CycleAutoAdjust?70000:CPU.CPU_CycleMax));
             reg_edx.dword=(int)(tsc>>>32);
             reg_eax.dword=(int)(tsc&0xffffffffl);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1246,7 +1246,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             earb.set8((short)((Flags.TFLG_O()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1272,7 +1272,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_O()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1298,7 +1298,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NO()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1325,7 +1325,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NO()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1351,7 +1351,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_B()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1378,7 +1378,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_B()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1404,7 +1404,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NB()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1431,7 +1431,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NB()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1457,7 +1457,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_Z()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1484,7 +1484,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_Z()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1510,7 +1510,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NZ()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1537,7 +1537,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NZ()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1563,7 +1563,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_BE()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1590,7 +1590,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_BE()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1616,7 +1616,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NBE()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1643,7 +1643,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NBE()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1669,7 +1669,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_S()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1696,7 +1696,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_S()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1722,7 +1722,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NS()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1749,7 +1749,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NS()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1774,7 +1774,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             earb.set8((short)((Flags.TFLG_P()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1801,7 +1801,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_P()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1827,7 +1827,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NP()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1854,7 +1854,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NP()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1880,7 +1880,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_L()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1907,7 +1907,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_L()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1933,7 +1933,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NL()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1960,7 +1960,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NL()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1986,7 +1986,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_LE()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2013,7 +2013,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_LE()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2039,7 +2039,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earb.set8((short)((Flags.TFLG_NLE()) ? 1 : 0));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2066,7 +2066,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NLE()) ? 1 : 0)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2086,7 +2086,7 @@ public class Inst2 extends Helper {
     final static public class PushFS extends Op {
         public int call() {
             CPU.CPU_Push16(CPU.Segs_FSval);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2106,7 +2106,7 @@ public class Inst2 extends Helper {
     final static public class PopFS extends Op {
         public int call() {
             if (CPU.CPU_PopSegFS(false)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2127,7 +2127,7 @@ public class Inst2 extends Helper {
     final static public class CPUID extends Op {
         public int call() {
             CPU.CPU_CPUID();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2158,7 +2158,7 @@ public class Inst2 extends Helper {
             Flags.FillFlags();
             mask=1 << (rw.word() & 15);
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2191,7 +2191,7 @@ public class Inst2 extends Helper {
             eaa+=(((/*Bit16s*/short)rw.word())>>4)*2;
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2221,7 +2221,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earw.word(Instructions.do_DSHLW(rw.word(), op3, earw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2253,7 +2253,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writew(eaa, Instructions.do_DSHLW(rw.word(), op3, Memory.mem_readw(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2283,7 +2283,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Instructions.valid_DSHLW(CPU_Regs.reg_ecx.low()))
                 earw.word(Instructions.do_DSHLW(rw.word(), CPU_Regs.reg_ecx.low(), earw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2315,7 +2315,7 @@ public class Inst2 extends Helper {
                 int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_DSHLW(rw.word(), CPU_Regs.reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2336,7 +2336,7 @@ public class Inst2 extends Helper {
     final static public class PushGS extends Op {
         public int call() {
             CPU.CPU_Push16(CPU.Segs_GSval);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2356,7 +2356,7 @@ public class Inst2 extends Helper {
     final static public class PopGS extends Op {
         public int call() {
             if (CPU.CPU_PopSegGS(false)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2387,7 +2387,7 @@ public class Inst2 extends Helper {
             int mask=1 << (rw.word() & 15);
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word() | mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2421,7 +2421,7 @@ public class Inst2 extends Helper {
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old | mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2451,7 +2451,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             earw.word(Instructions.do_DSHRW(rw.word(), op3, earw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2483,7 +2483,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writew(eaa, Instructions.do_DSHRW(rw.word(), op3, Memory.mem_readw(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2513,7 +2513,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Instructions.valid_DSHRW(CPU_Regs.reg_ecx.low()))
                 earw.word(Instructions.do_DSHRW(rw.word(), CPU_Regs.reg_ecx.low(), earw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2544,7 +2544,7 @@ public class Inst2 extends Helper {
                 int eaa = get_eaa.call();
                 Memory.mem_writew(eaa, Instructions.do_DSHRW(rw.word(), CPU_Regs.reg_ecx.low(), Memory.mem_readw(eaa)));
             }
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // AF is always 0
@@ -2573,7 +2573,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             rw.word(Instructions.DIMULW(earw.word(),rw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2602,7 +2602,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             rw.word(Instructions.DIMULW(Memory.mem_readw(eaa),rw.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2638,7 +2638,7 @@ public class Inst2 extends Helper {
                 reg_eax.low(earb.get8());
                 SETFLAGBIT(ZF,false);
             }
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2677,7 +2677,7 @@ public class Inst2 extends Helper {
                 reg_eax.low(val);
                 SETFLAGBIT(ZF,false);
             }
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2713,7 +2713,7 @@ public class Inst2 extends Helper {
                 reg_eax.word(earw.word());
                 SETFLAGBIT(ZF,false);
             }
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2752,7 +2752,7 @@ public class Inst2 extends Helper {
                 reg_eax.word(val);
                 SETFLAGBIT(ZF,false);
             }
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2782,7 +2782,7 @@ public class Inst2 extends Helper {
             if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
             Core.base_ss=CPU.Segs_SSphys;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2814,7 +2814,7 @@ public class Inst2 extends Helper {
             int mask=1 << (rw.word() & 15);
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word() & ~mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2848,7 +2848,7 @@ public class Inst2 extends Helper {
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old & ~mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2878,7 +2878,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2909,7 +2909,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2938,7 +2938,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             rw.word(earb.get8());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2967,7 +2967,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             rw.word(Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2995,7 +2995,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             rw.word(earw.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3024,7 +3024,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             rw.word(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3053,7 +3053,7 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3083,7 +3083,7 @@ public class Inst2 extends Helper {
             Flags.FillFlags();
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word() | mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3113,7 +3113,7 @@ public class Inst2 extends Helper {
             Flags.FillFlags();
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word() & ~mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3143,7 +3143,7 @@ public class Inst2 extends Helper {
             Flags.FillFlags();
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word() ^ mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3174,7 +3174,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3206,7 +3206,7 @@ public class Inst2 extends Helper {
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old|mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3238,7 +3238,7 @@ public class Inst2 extends Helper {
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old & ~mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3270,7 +3270,7 @@ public class Inst2 extends Helper {
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old ^ mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3301,7 +3301,7 @@ public class Inst2 extends Helper {
             int mask=1 << (rw.word() & 15);
             SETFLAGBIT(CF,(earw.word() & mask)!=0);
             earw.word(earw.word()^mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3335,7 +3335,7 @@ public class Inst2 extends Helper {
             int old=Memory.mem_readw(eaa);
             SETFLAGBIT(CF,(old & mask)!=0);
             Memory.mem_writew(eaa,old ^ mask);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3372,7 +3372,7 @@ public class Inst2 extends Helper {
                 rw.word(result);
             }
             Flags.type=Flags.t_UNKNOWN;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Other flags are undefined
@@ -3411,7 +3411,7 @@ public class Inst2 extends Helper {
                 rw.word(result);
             }
             Flags.type=Flags.t_UNKNOWN;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Other flags are undefined
@@ -3449,7 +3449,7 @@ public class Inst2 extends Helper {
                 rw.word(result);
             }
             Flags.type=Flags.t_UNKNOWN;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Other flags are undefined
@@ -3488,7 +3488,7 @@ public class Inst2 extends Helper {
                 rw.word(result);
             }
             Flags.type=Flags.t_UNKNOWN;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Other flags are undefined
@@ -3517,7 +3517,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             rw.word((byte)earb.get8());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3546,7 +3546,7 @@ public class Inst2 extends Helper {
         public int call() {
             int eaa=get_eaa.call();
             rw.word((byte)Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3576,7 +3576,7 @@ public class Inst2 extends Helper {
             short result=Instructions.ADDB(rb.get8(), earb.get8());
             rb.set8(earb.get8());
             earb.set8(result);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3609,7 +3609,7 @@ public class Inst2 extends Helper {
             short result = Instructions.ADDB(rb.get8(), val);
             Memory.mem_writeb(eaa,result);
             rb.set8(val);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3640,7 +3640,7 @@ public class Inst2 extends Helper {
             int result=Instructions.ADDW(rw.word(), earw.word());
             rw.word(earw.word());
             earw.word(result);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3673,7 +3673,7 @@ public class Inst2 extends Helper {
             int result = Instructions.ADDW(rw.word(), val);
             Memory.mem_writew(eaa,result);
             rw.word(val);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3699,7 +3699,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             reg.word(Instructions.BSWAPW(reg.word()));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3739,7 +3739,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_O())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.OF;}
         public String description() {return "CMOV_O "+gw.getName16()+", "+ew.getName16();}
@@ -3752,7 +3752,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NO())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.OF;}
         public String description() {return "CMOV_NO "+gw.getName16()+", "+ew.getName16();}
@@ -3765,7 +3765,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_B())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF;}
         public String description() {return "CMOV_B "+gw.getName16()+", "+ew.getName16();}
@@ -3778,7 +3778,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NB())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF;}
         public String description() {return "CMOV_NB "+gw.getName16()+", "+ew.getName16();}
@@ -3791,7 +3791,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_Z())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.ZF;}
         public String description() {return "CMOV_Z "+gw.getName16()+", "+ew.getName16();}
@@ -3804,7 +3804,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NZ())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.ZF;}
         public String description() {return "CMOV_NZ "+gw.getName16()+", "+ew.getName16();}
@@ -3817,7 +3817,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_BE())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
         public String description() {return "CMOV_BE "+gw.getName16()+", "+ew.getName16();}
@@ -3830,7 +3830,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NBE())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
         public String description() {return "CMOV_NBE "+gw.getName16()+", "+ew.getName16();}
@@ -3843,7 +3843,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_S())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF;}
         public String description() {return "CMOV_S "+gw.getName16()+", "+ew.getName16();}
@@ -3856,7 +3856,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NS())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF;}
         public String description() {return "CMOV_NS "+gw.getName16()+", "+ew.getName16();}
@@ -3869,7 +3869,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_P())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.PF;}
         public String description() {return "CMOV_P "+gw.getName16()+", "+ew.getName16();}
@@ -3882,7 +3882,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NP())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF;}
         public String description() {return "CMOV_NP "+gw.getName16()+", "+ew.getName16();}
@@ -3895,7 +3895,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_L())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
         public String description() {return "CMOV_L "+gw.getName16()+", "+ew.getName16();}
@@ -3908,7 +3908,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NL())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
         public String description() {return "CMOV_NL "+gw.getName16()+", "+ew.getName16();}
@@ -3921,7 +3921,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_LE())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
         public String description() {return "CMOV_LE "+gw.getName16()+", "+ew.getName16();}
@@ -3934,7 +3934,7 @@ public class Inst2 extends Helper {
         public int call() {
             if (Flags.TFLG_NLE())
                 gw.word(ew.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
         public String description() {return "CMOV_NLE "+gw.getName16()+", "+ew.getName16();}
@@ -3964,7 +3964,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_O())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.OF;}
         public String description() {return "CMOV_O "+gw.getName16()+", "+get_eaa.description16();}
@@ -3978,7 +3978,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NO())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.OF;}
         public String description() {return "CMOV_NO "+gw.getName16()+", "+get_eaa.description16();}
@@ -3992,7 +3992,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_B())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF;}
         public String description() {return "CMOV_B "+gw.getName16()+", "+get_eaa.description16();}
@@ -4006,7 +4006,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NB())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF;}
         public String description() {return "CMOV_NB "+gw.getName16()+", "+get_eaa.description16();}
@@ -4020,7 +4020,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_Z())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.ZF;}
         public String description() {return "CMOV_Z "+gw.getName16()+", "+get_eaa.description16();}
@@ -4034,7 +4034,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NZ())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.ZF;}
         public String description() {return "CMOV_NZ "+gw.getName16()+", "+get_eaa.description16();}
@@ -4048,7 +4048,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_BE())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
         public String description() {return "CMOV_BE "+gw.getName16()+", "+get_eaa.description16();}
@@ -4062,7 +4062,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NBE())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.CF | CPU_Regs.ZF;}
         public String description() {return "CMOV_NBE "+gw.getName16()+", "+get_eaa.description16();}
@@ -4076,7 +4076,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_S())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF;}
         public String description() {return "CMOV_S "+gw.getName16()+", "+get_eaa.description16();}
@@ -4090,7 +4090,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NS())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF;}
         public String description() {return "CMOV_NS "+gw.getName16()+", "+get_eaa.description16();}
@@ -4104,7 +4104,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_P())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.PF;}
         public String description() {return "CMOV_P "+gw.getName16()+", "+get_eaa.description16();}
@@ -4118,7 +4118,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NP())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF;}
         public String description() {return "CMOV_NP "+gw.getName16()+", "+get_eaa.description16();}
@@ -4132,7 +4132,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_L())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
         public String description() {return "CMOV_L "+gw.getName16()+", "+get_eaa.description16();}
@@ -4146,7 +4146,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NL())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF;}
         public String description() {return "CMOV_NL "+gw.getName16()+", "+get_eaa.description16();}
@@ -4160,7 +4160,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_LE())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
         public String description() {return "CMOV_LE "+gw.getName16()+", "+get_eaa.description16();}
@@ -4174,7 +4174,7 @@ public class Inst2 extends Helper {
             int temp = Memory.mem_readw(get_eaa.call()); // must read before comparison so that it can throw errors
             if (Flags.TFLG_NLE())
                 gw.word(temp);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
         public int gets() {return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;}
         public String description() {return "CMOV_NLE "+gw.getName16()+", "+get_eaa.description16();}

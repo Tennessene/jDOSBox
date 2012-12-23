@@ -3,7 +3,6 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Flags;
 import jdos.cpu.Instructions;
-import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
 
 public class Grp3 extends Helper {
@@ -18,7 +17,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.TESTB(val,earb.get8());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -49,7 +48,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.TESTB(val,Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -77,7 +76,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             earb.set8((byte)~earb.get8());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -105,7 +104,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writeb(eaa,~Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -135,7 +134,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1b(earb.get8());
             Flags.lf_resb(0-Flags.lf_var1b());
             earb.set8(Flags.lf_resb());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -166,7 +165,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1b(Memory.mem_readb(eaa));
             Flags.lf_resb(0-Flags.lf_var1b());
             Memory.mem_writeb(eaa,Flags.lf_resb());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -193,7 +192,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.MULB(earb.get8());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -221,7 +220,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.MULB(Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -248,7 +247,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.IMULB(earb.get8());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -276,7 +275,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.IMULB(Memory.mem_readb(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -303,7 +302,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             if (!Instructions.DIVB(earb.get8())) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -332,7 +331,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (!Instructions.DIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -360,7 +359,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             if (!Instructions.IDIVB(earb.get8())) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -389,7 +388,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (!Instructions.IDIVB(Memory.mem_readb(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -419,7 +418,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.TESTW(val,earw.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -450,7 +449,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.TESTW(val,Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -478,7 +477,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             earw.word(~earw.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -506,7 +505,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writew(eaa,~Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -536,7 +535,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1w(earw.word());
             Flags.lf_resw(0-Flags.lf_var1w());
             earw.word(Flags.lf_resw());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -567,7 +566,7 @@ public class Grp3 extends Helper {
             Flags.lf_var1w(Memory.mem_readw(eaa));
             Flags.lf_resw(0-Flags.lf_var1w());
             Memory.mem_writew(eaa,Flags.lf_resw());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -594,7 +593,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.MULW(earw.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -622,7 +621,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.MULW(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -649,7 +648,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.IMULW(earw.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -677,7 +676,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.IMULW(Memory.mem_readw(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -704,7 +703,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             if (!Instructions.DIVW(earw.word())) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -733,7 +732,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (!Instructions.DIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -761,7 +760,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             if (!Instructions.IDIVW(earw.word())) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -790,7 +789,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (!Instructions.IDIVW(Memory.mem_readw(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -820,7 +819,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.TESTD(val,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -852,7 +851,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.TESTD(val,Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -880,7 +879,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             eard.dword=~eard.dword;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -908,7 +907,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa,~Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -935,7 +934,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             eard.dword = Instructions.Negd(eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -963,7 +962,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa,Instructions.Negd(Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -990,7 +989,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.MULD(eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1018,7 +1017,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.MULD(Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1045,7 +1044,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             Instructions.IMULD(eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1073,7 +1072,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.IMULD(Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1100,7 +1099,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             if (!Instructions.DIVD(eard.dword)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -1129,7 +1128,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (!Instructions.DIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -1157,7 +1156,7 @@ public class Grp3 extends Helper {
 
         public int call() {
             if (!Instructions.IDIVD(eard.dword)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined
@@ -1186,7 +1185,7 @@ public class Grp3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (!Instructions.IDIVD(Memory.mem_readd(eaa))) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Flags are undefined

@@ -33,6 +33,18 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		invalidation_map=null;
 	}
 
+    // This will allow the current running instruction to finish, but when it moves
+    // to the next one it will throw a null pointer exception which will then be
+    // caught.
+    private void invalidateRunningBlock() {
+        Op op = Core_dynamic.currentBlock.code;
+        while (op!=null) {
+            Op next = op.next;
+            op.next = null;
+            op = next;
+        }
+    }
+
 	// clear out blocks that contain code which has been modified
 	void InvalidateRange(/*Bitu*/int start,/*Bitu*/int end) {
 		/*Bits*/int index=1+(end>> Core_dynamic.DYN_HASH_SHIFT);
@@ -46,6 +58,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 			if (map==0) { // no more code, finished
                 if (is_current_block) {
                     DecodeBlock.smc = true;
+                    invalidateRunningBlock();
                 }
                 return;
             }
@@ -55,7 +68,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 				CacheBlockDynRec nextblock=block.hash.next;
 				// test if this block is in the range
 				if (start<=block.page.end && end>=block.page.start) {
-					if (ip_point<=block.page.end && ip_point>=block.page.start)
+					if (block == Core_dynamic.currentBlock)
                         is_current_block=true;
 					block.Clear();		// clear the block, decrements the write_map accordingly
 				}
@@ -63,8 +76,10 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 			}
 			index--;
 		}
-		if (is_current_block)
+		if (is_current_block) {
             DecodeBlock.smc = true;
+            invalidateRunningBlock();
+        }
 	}
 
 	// the following functions will clean all cache blocks that are invalid now due to the write

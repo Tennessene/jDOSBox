@@ -18,7 +18,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             e.dword=Instructions.ADDD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -48,7 +48,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Memory.mem_writed(eaa, Instructions.ADDD(g.dword, Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -78,7 +78,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             e.dword=Instructions.ADDD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -105,7 +105,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg_eax.dword=Instructions.ADDD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -126,7 +126,7 @@ public class Inst3 extends Helper {
     final static public class Push32ES extends Op {
         public int call() {
             CPU.CPU_Push32(CPU.Segs_ESval);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -147,7 +147,7 @@ public class Inst3 extends Helper {
     final static public class Pop32ES extends Op {
         public int call() {
             if (CPU.CPU_PopSegES(true)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -177,7 +177,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             e.dword=Instructions.ORD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -208,7 +208,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Memory.mem_writed(eaa, Instructions.ORD(g.dword, Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -239,7 +239,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             e.dword=Instructions.ORD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -267,7 +267,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg_eax.dword=Instructions.ORD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -289,7 +289,7 @@ public class Inst3 extends Helper {
     final static public class Push32CS extends Op {
         public int call() {
             CPU.CPU_Push32(CPU.Segs_CSval);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -318,7 +318,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             e.dword=Instructions.ADCD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -348,7 +348,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Memory.mem_writed(eaa, Instructions.ADCD(g.dword, Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -378,7 +378,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             e.dword=Instructions.ADCD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -405,7 +405,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg_eax.dword=Instructions.ADCD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -426,7 +426,7 @@ public class Inst3 extends Helper {
     final static public class Push32SS extends Op {
         public int call() {
             CPU.CPU_Push32(CPU.Segs_SSval);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -448,7 +448,7 @@ public class Inst3 extends Helper {
         public int call() {
             if (CPU.CPU_PopSegSS(true)) return RUNEXCEPTION();
             Core.base_ss=CPU.Segs_SSphys;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -478,7 +478,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             e.dword=Instructions.SBBD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -508,7 +508,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Memory.mem_writed(eaa, Instructions.SBBD(g.dword, Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -538,7 +538,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             e.dword=Instructions.SBBD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -565,7 +565,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg_eax.dword=Instructions.SBBD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -586,7 +586,7 @@ public class Inst3 extends Helper {
     final static public class Push32DS extends Op {
         public int call() {
             CPU.CPU_Push32(CPU.Segs_DSval);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -609,7 +609,7 @@ public class Inst3 extends Helper {
             if (CPU.CPU_PopSegDS(true)) return RUNEXCEPTION();
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_val_ds= CPU_Regs.ds;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -639,7 +639,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             e.dword=Instructions.ANDD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -670,7 +670,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Memory.mem_writed(eaa, Instructions.ANDD(g.dword, Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -701,7 +701,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             e.dword=Instructions.ANDD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -729,7 +729,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg_eax.dword=Instructions.ANDD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -759,7 +759,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             e.dword=Instructions.SUBD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -789,7 +789,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Memory.mem_writed(eaa, Instructions.SUBD(g.dword, Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -819,7 +819,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             e.dword=Instructions.SUBD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -846,7 +846,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg_eax.dword=Instructions.SUBD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -875,7 +875,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             e.dword=Instructions.XORD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -906,7 +906,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Memory.mem_writed(eaa, Instructions.XORD(g.dword, Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -937,7 +937,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             e.dword=Instructions.XORD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -965,7 +965,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg_eax.dword=Instructions.XORD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -995,7 +995,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             Instructions.CMPD(g.dword, e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1025,7 +1025,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = e.call();
             Instructions.CMPD(g.dword, Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1055,7 +1055,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = g.call();
             Instructions.CMPD(Memory.mem_readd(eaa), e.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1082,7 +1082,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             Instructions.CMPD(i, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1109,7 +1109,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg.dword = Instructions.INCD(reg.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF is preserved
@@ -1138,7 +1138,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.INCD(Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF is preserved
@@ -1166,7 +1166,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg.dword = Instructions.DECD(reg.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF is preserved
@@ -1195,7 +1195,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.DECD(Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF is preserved
@@ -1223,7 +1223,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             CPU.CPU_Push32(reg.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1250,7 +1250,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg.dword=CPU.CPU_Pop32();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1282,7 +1282,7 @@ public class Inst3 extends Helper {
             esp = CPU.CPU_Push32(esp, reg_edi.dword);
             // Don't store ESP until all the memory writes are done in case of a PF so that this op can be reentrant
             reg_esp.dword=esp;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1309,7 +1309,7 @@ public class Inst3 extends Helper {
             reg_edx.dword=CPU.CPU_Pop32();
             reg_ecx.dword=CPU.CPU_Pop32();
             reg_eax.dword=CPU.CPU_Pop32();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1346,7 +1346,7 @@ public class Inst3 extends Helper {
             if (rmrd < bound_min || rmrd > bound_max) {
                 return EXCEPTION(5);
             }
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1376,7 +1376,7 @@ public class Inst3 extends Helper {
         public int call() {
             if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return Constants.BR_Illegal;
             eard.dword = CPU.CPU_ARPL(eard.dword, rd.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1409,7 +1409,7 @@ public class Inst3 extends Helper {
             value = CPU.CPU_ARPL(value, rd.word());
             // :TODO: if the value didn't change, should we issue a write?
             Memory.mem_writed(eaa, value);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1435,7 +1435,7 @@ public class Inst3 extends Helper {
         }
         public int call() {
             CPU.CPU_Push32(id);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1466,7 +1466,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             rd.dword=Instructions.DIMULD(eard.dword,op3);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1498,7 +1498,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             rd.dword=Instructions.DIMULD(Memory.mem_readd(eaa),op3);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1524,7 +1524,7 @@ public class Inst3 extends Helper {
         }
         public int call() {
             CPU.CPU_Push32(id);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1555,7 +1555,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             rd.dword=Instructions.DIMULD(eard.dword,op3);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1587,7 +1587,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             rd.dword=Instructions.DIMULD(Memory.mem_readd(eaa),op3);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1881,7 +1881,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=Instructions.ADDD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1913,7 +1913,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=Instructions.ORD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -1946,7 +1946,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=Instructions.ADCD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -1978,7 +1978,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=Instructions.SBBD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2009,7 +2009,7 @@ public class Inst3 extends Helper {
         }
         public int call() {
             eard.dword=Instructions.ANDD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -2042,7 +2042,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=Instructions.SUBD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2074,7 +2074,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=Instructions.XORD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -2107,7 +2107,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             Instructions.CMPD(ib,eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2140,7 +2140,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.ADDD(ib,Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2172,7 +2172,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.ORD(ib,Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -2206,7 +2206,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.ADCD(ib,Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2239,7 +2239,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.SBBD(ib,Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2272,7 +2272,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.ANDD(ib,Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -2306,7 +2306,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.SUBD(ib,Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2339,7 +2339,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, Instructions.XORD(ib,Memory.mem_readd(eaa)));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -2373,7 +2373,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.CMPD(ib,Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2402,7 +2402,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             Instructions.TESTD(rd.dword, eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -2433,7 +2433,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Instructions.TESTD(rd.dword, Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -2465,7 +2465,7 @@ public class Inst3 extends Helper {
             int oldrmrd= rd.dword;
             rd.dword=eard.dword;
             eard.dword=oldrmrd;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2498,7 +2498,7 @@ public class Inst3 extends Helper {
             int tmp = Memory.mem_readd(eaa);
             Memory.mem_writed(eaa,oldrmrd);
             rd.dword=tmp;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2527,7 +2527,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=rd.dword;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2557,7 +2557,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, rd.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2586,7 +2586,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             rd.dword=eard.dword;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2616,7 +2616,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             rd.dword=Memory.mem_readd(eaa);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2643,7 +2643,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=CPU.Segs_ESval & 0xFFFF; // this dword assignment is intentional
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2670,7 +2670,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=CPU.Segs_CSval & 0xFFFF; // this dword assignment is intentional
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2697,7 +2697,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=CPU.Segs_SSval & 0xFFFF; // this dword assignment is intentional
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2724,7 +2724,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=CPU.Segs_DSval & 0xFFFF; // this dword assignment is intentional
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2751,7 +2751,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=CPU.Segs_FSval & 0xFFFF; // this dword assignment is intentional
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2778,7 +2778,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=CPU.Segs_GSval & 0xFFFF; // this dword assignment is intentional
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2812,7 +2812,7 @@ public class Inst3 extends Helper {
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2847,7 +2847,7 @@ public class Inst3 extends Helper {
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2874,7 +2874,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             eard.dword=CPU.CPU_Pop32();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2902,7 +2902,7 @@ public class Inst3 extends Helper {
             int val = CPU.CPU_Pop32();
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, val);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2931,7 +2931,7 @@ public class Inst3 extends Helper {
             int old=reg.dword;
             reg.dword=reg_eax.dword;
             reg_eax.dword=old;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2952,7 +2952,7 @@ public class Inst3 extends Helper {
     final static public class Cwde extends Op {
         public int call() {
             reg_eax.dword=(short)reg_eax.word();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -2974,7 +2974,7 @@ public class Inst3 extends Helper {
         public int call() {
             if ((reg_eax.dword & 0x80000000)!=0) reg_edx.dword=0xffffffff;
             else reg_edx.dword=0;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3032,7 +3032,7 @@ public class Inst3 extends Helper {
     final static public class Pushfd extends Op {
         public int call() {
             if (CPU.CPU_PUSHF(true)) return RUNEXCEPTION();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3062,7 +3062,7 @@ public class Inst3 extends Helper {
             }
             if (CPU_PIC_CHECK)
                 if (GETFLAG(IF)!=0 && Pic.PIC_IRQCheck!=0) return DECODE_END(eip_count);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // Pops Flags
@@ -3085,7 +3085,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = (Core.base_ds+value);
             reg_eax.dword=Memory.mem_readd(eaa);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
          public int sets() {
@@ -3107,7 +3107,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = (Core.base_ds+value);
             Memory.mem_writed(eaa, reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3134,7 +3134,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             Instructions.TESTD(id,reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         // CF, AF, OF are always 0
@@ -3164,7 +3164,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             reg.dword=id;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3194,7 +3194,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             Memory.mem_writed(eaa, id);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3275,7 +3275,7 @@ public class Inst3 extends Helper {
             int val = Memory.mem_readd(eaa); // make sure all reads are done before writing something in case of a PF
             if (CPU.CPU_SetSegGeneralES(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
             rd.dword=val;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3311,7 +3311,7 @@ public class Inst3 extends Helper {
             Core.base_ds=CPU.Segs_DSphys;
             Core.base_ss=CPU.Segs_SSphys;
             Core.base_val_ds= CPU_Regs.ds;
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3341,7 +3341,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             CPU.CPU_ENTER(true,bytes,level);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3364,7 +3364,7 @@ public class Inst3 extends Helper {
             reg_esp.dword&=CPU.cpu.stack.notmask;
             reg_esp.dword|=(reg_ebp.dword & CPU.cpu.stack.mask);
             reg_ebp.dword=CPU.CPU_Pop32();
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3587,7 +3587,7 @@ public class Inst3 extends Helper {
         public int call() {
             if (CPU.CPU_IO_Exception(port,4)) return RUNEXCEPTION();
             reg_eax.dword=IO.IO_ReadD(port);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3615,7 +3615,7 @@ public class Inst3 extends Helper {
         public int call() {
             if (CPU.CPU_IO_Exception(port,4)) return RUNEXCEPTION();
             IO.IO_WriteD(port,reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3752,7 +3752,7 @@ public class Inst3 extends Helper {
     final static public class InEaxDx extends Op {
         public int call() {
             reg_eax.dword=IO.IO_ReadD(reg_edx.word());
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3773,7 +3773,7 @@ public class Inst3 extends Helper {
     final static public class OutEaxDx extends Op {
         public int call() {
             IO.IO_WriteD(reg_edx.word(),reg_eax.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -3987,7 +3987,7 @@ public class Inst3 extends Helper {
 
         public int call() {
             CPU.CPU_Push32(eard.dword);
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {
@@ -4015,7 +4015,7 @@ public class Inst3 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             CPU.CPU_Push32(Memory.mem_readd(eaa));
-            return Constants.BR_Normal;
+            CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public int sets() {

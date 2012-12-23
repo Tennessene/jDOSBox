@@ -74,6 +74,8 @@ public class Core_dynamic {
         return null;
     }
 
+    public static CacheBlockDynRec currentBlock;
+
     public static final CPU.CPU_Decoder CPU_Core_Dynamic_Run = new CPU.CPU_Decoder() {
         public /*Bits*/int call() {
             Core.base_ds=CPU.Segs_DSphys;
@@ -130,6 +132,7 @@ public class Core_dynamic {
                         }
                     }
 
+                    currentBlock = block;
                     switch (block.code.call()) {
                     case Constants.BR_Link1:
                     {

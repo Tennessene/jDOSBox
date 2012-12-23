@@ -1,7 +1,6 @@
 package jdos.ints;
 
 import jdos.Dosbox;
-import jdos.dos.Dos;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
 import jdos.hardware.VGA;
@@ -47,7 +46,7 @@ public class Int10_pal {
                     // which entry is used for the requested color.
                     if (reg > 3) break;
                     if (reg != 0) { // 0 is assumed to be at 0
-                        /*Bit8u*/short color_select=Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_PAL);
+                        /*Bit8u*/int color_select=Memory.real_readb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_PAL);
                         reg = (short)(reg*2+8); // Green Red Brown
                         if ((color_select& 0x20)!=0) reg++; // Cyan Magenta White
                     }
@@ -103,11 +102,11 @@ public class Int10_pal {
             IoHandler.IO_Read(Int10.VGAREG_TDY_RESET);
             // First the colors
             for(/*Bit8u*/short i=0;i<0x10;i++) {
-                WriteTandyACTL((short)(i+0x10),Memory.mem_readb(data));
+                WriteTandyACTL((short)(i+0x10),(short)Memory.mem_readb(data));
                 data++;
             }
             // Then the border
-            WriteTandyACTL((short)0x02,Memory.mem_readb(data));
+            WriteTandyACTL((short)0x02,(short)Memory.mem_readb(data));
             break;
         // EGAVGA_ARCH_CASE
         case MachineType.MCH_EGA:
@@ -240,9 +239,9 @@ public class Int10_pal {
             }
         } else {
             for (;count>0;count--) {
-                /*Bit8u*/short red=Memory.mem_readb(data++);
-                /*Bit8u*/short green=Memory.mem_readb(data++);
-                /*Bit8u*/short blue=Memory.mem_readb(data++);
+                /*Bit8u*/int red=Memory.mem_readb(data++);
+                /*Bit8u*/int green=Memory.mem_readb(data++);
+                /*Bit8u*/int blue=Memory.mem_readb(data++);
 
                 /* calculate clamped intensity, taken from VGABIOS */
                 /*Bit32u*/int i=(( 77*red + 151*green + 28*blue ) + 0x80) >> 8;
@@ -308,7 +307,7 @@ public class Int10_pal {
     }
 
     public static void INT10_SetBackgroundBorder(/*Bit8u*/short val) {
-        /*Bit8u*/short color_select=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL);
+        /*Bit8u*/int color_select=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL);
         color_select=(short)((color_select & 0xe0) | (val & 0x1f));
         Memory.real_writeb(Int10.BIOSMEM_SEG, Int10.BIOSMEM_CURRENT_PAL, color_select);
 
@@ -341,8 +340,8 @@ public class Int10_pal {
     }
 
     public static void INT10_SetColorSelect(/*Bit8u*/short val) {
-        /*Bit8u*/short temp=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL);
-        temp=(short)((temp & 0xdf) | ((val & 1)!=0 ? 0x20 : 0x0));
+        /*Bit8u*/int temp=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL);
+        temp=((temp & 0xdf) | ((val & 1)!=0 ? 0x20 : 0x0));
         Memory.real_writeb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAL,temp);
         if (Dosbox.machine == MachineType.MCH_CGA || Dosbox.machine == MachineType.MCH_TANDY)
             IoHandler.IO_Write(0x3d9,temp);

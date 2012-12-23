@@ -453,7 +453,7 @@ public class Bios extends Module_base {
             case 0x83:	/* Tandy sound system start playback */
             case 0x84:	/* Tandy sound system stop playing */
             case 0x85:	/* Tandy sound system reset */
-                TandyDAC_Handler(CPU_Regs.reg_eax.high());
+                TandyDAC_Handler((short)CPU_Regs.reg_eax.high());
                 break;
             case 0xb1:		/* PCI Bios Calls */
                 if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_WARN,"INT1A:PCI bios call "+Integer.toString(CPU_Regs.reg_eax.low(),16));
@@ -647,7 +647,7 @@ public class Bios extends Module_base {
             Memory.mem_writed(BIOS_TIMER,value);
 
             /* decrease floppy motor timer */
-            /*Bit8u*/short val = Memory.mem_readb(BIOS_DISK_MOTOR_TIMEOUT);
+            /*Bit8u*/int val = Memory.mem_readb(BIOS_DISK_MOTOR_TIMEOUT);
             if (val!=0) Memory.mem_writeb(BIOS_DISK_MOTOR_TIMEOUT,(short)(val-1));
             /* and running drive */
             Memory.mem_writeb(BIOS_DRIVE_RUNNING,Memory.mem_readb(BIOS_DRIVE_RUNNING) & 0xF0);
@@ -724,7 +724,7 @@ public class Bios extends Module_base {
             }
 
             /*Bit16u*/int port = Memory.real_readw(0x40,CPU_Regs.reg_edx.word()*2); // DX is always port number
-            /*Bit8u*/short timeout = Memory.mem_readb(BIOS_COM1_TIMEOUT + CPU_Regs.reg_edx.word());
+            /*Bit8u*/short timeout = (short)Memory.mem_readb(BIOS_COM1_TIMEOUT + CPU_Regs.reg_edx.word());
             if (port==0)	{
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"BIOS INT14: port "+CPU_Regs.reg_edx.word()+" does not exist.");
                 return Callback.CBRET_NONE;

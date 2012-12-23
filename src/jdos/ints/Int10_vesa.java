@@ -312,7 +312,7 @@ public class Int10_vesa {
 
     public static /*Bit8u*/short VESA_SetPalette(/*PhysPt*/int data,/*Bitu*/int index,/*Bitu*/int count) {
 //Structure is (vesa 3.0 doc): blue,green,red,alignment
-        /*Bit8u*/short r,g,b;
+        /*Bit8u*/int r,g,b;
         if (index>255) return VESA_FAIL;
         if (index+count>256) return VESA_FAIL;
         IoHandler.IO_Write(0x3c8,index);
@@ -527,8 +527,8 @@ public class Int10_vesa {
             return "Int10_vesa.VESA_SetWindow";
         }
         public /*Bitu*/int call() {
-            if (CPU_Regs.reg_ebx.high()!=0) {CPU_Regs.reg_eax.high(VESA_GetCPUWindow(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx));}
-            else CPU_Regs.reg_eax.high(VESA_SetCPUWindow(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_edx.low()));
+            if (CPU_Regs.reg_ebx.high()!=0) {CPU_Regs.reg_eax.high(VESA_GetCPUWindow((short)CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx));}
+            else CPU_Regs.reg_eax.high(VESA_SetCPUWindow((short)CPU_Regs.reg_ebx.low(),(short)CPU_Regs.reg_edx.low()));
             CPU_Regs.reg_eax.low(0x4f);
             return 0;
         }
@@ -539,7 +539,7 @@ public class Int10_vesa {
             return "Int10_vesa.VESA_PMSetWindow 0x"+Integer.toHexString(CPU_Regs.reg_edx.word());
         }
         public /*Bitu*/int call() {
-            VESA_SetCPUWindow((short)0, CPU_Regs.reg_edx.low());
+            VESA_SetCPUWindow((short)0, (short)CPU_Regs.reg_edx.low());
             return 0;
         }
     };

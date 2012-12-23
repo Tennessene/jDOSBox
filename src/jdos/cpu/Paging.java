@@ -245,12 +245,12 @@ public class Paging extends Module_base {
         return (int) (tlb_addr + address);
     }
 
-    public static /*Bit8u*/short mem_readb_inline(/*PhysPt*/int address) {
+    public static /*Bit8u*/int mem_readb_inline(/*PhysPt*/int address) {
         /*HostPt*/
         int tlb_addr = get_tlb_read(address);
         if (tlb_addr != INVALID_ADDRESS)
             return Memory.host_readb(tlb_addr + address);
-        else return (short) (get_tlb_readhandler(address)).readb(address);
+        else return (get_tlb_readhandler(address)).readb(address);
     }
 
     public static /*Bit16u*/int mem_readw_inline(/*PhysPt*/int address) {
@@ -280,7 +280,7 @@ public class Paging extends Module_base {
         } else return Memory.mem_unalignedreadd(address);
     }
 
-    public static void mem_writeb_inline(/*PhysPt*/int address,/*Bit8u*/short val) {
+    public static void mem_writeb_inline(/*PhysPt*/int address,/*Bit8u*/int val) {
         /*HostPt*/
         int tlb_addr = get_tlb_write(address);
         if (tlb_addr != INVALID_ADDRESS) Memory.host_writeb(tlb_addr + address, val);
@@ -772,7 +772,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int ppage = phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(ppage);
             if ((handler.flags & PFLAG_WRITEABLE) != 0) {
-                Memory.host_writeb((int) (handler.GetHostWritePt(ppage) + (addr & 0xfff)), (short) val);
+                Memory.host_writeb((int) (handler.GetHostWritePt(ppage) + (addr & 0xfff)), val);
             } else {
                 handler.writeb(addr, val);
             }

@@ -86,7 +86,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	public void writeb(/*PhysPt*/int address,/*Bitu*/int val){
 		int addr = (address & 4095);
 		if (Memory.host_readb(hostmem+addr)==(val & 0xFF)) return;
-		Memory.host_writeb(hostmem+addr,(short)val);
+		Memory.host_writeb(hostmem+addr,val);
 		// see if there's code where we are writing to
 		if (write_map.readb(addr)==0) {
 			if (active_blocks!=0) return;		// still some blocks in this page

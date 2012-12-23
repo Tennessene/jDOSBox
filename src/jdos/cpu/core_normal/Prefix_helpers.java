@@ -56,7 +56,7 @@ public class Prefix_helpers extends Instructions {
 
     protected static void JumpCond16_b(boolean COND) {
         if (COND) {
-            byte offset = Fetchbs();
+            int offset = Fetchbs();
             SAVEIP();
             reg_ip(reg_ip()+offset);
         } else {
@@ -67,7 +67,7 @@ public class Prefix_helpers extends Instructions {
 
     protected static void JumpCond16_w(boolean COND) {
         if (COND) {
-            short offset = Fetchws();
+            int offset = Fetchws();
             SAVEIP();
             reg_ip(reg_ip()+offset);
         } else {
@@ -78,7 +78,7 @@ public class Prefix_helpers extends Instructions {
 
     protected static void JumpCond32_b(boolean COND) {
         if (COND) {
-            byte offset = Fetchbs();
+            int offset = Fetchbs();
             SAVEIP();
             reg_eip+=offset;
         } else {
@@ -99,7 +99,7 @@ public class Prefix_helpers extends Instructions {
     }
 
     protected static void SETcc(boolean cc) {
-        /*Bit8u*/short rm=Fetchb();
+        /*Bit8u*/int rm=Fetchb();
         if (rm >= 0xc0 ) {
             Modrm.GetEArb[rm].set((short)((cc) ? 1 : 0));}
         else {Memory.mem_writeb(getEaa(rm),(cc) ? 1 : 0);}
@@ -112,7 +112,7 @@ public class Prefix_helpers extends Instructions {
 //		else {GetEAa;inst(*rmrd,LoadMd(eaa),op3,LoadRd,SaveRd);}			\
 //	}
 
-    static protected short r;
+    static protected int r;
     static protected int m;
 
     static protected final Instructions.loadw rw_l = new Instructions.loadw() {
@@ -126,12 +126,12 @@ public class Prefix_helpers extends Instructions {
         }
     };
     static protected final Instructions.loadb earb_l = new Instructions.loadb() {
-        final public short call() {
+        final public int call() {
             return Modrm.GetEArb[r].get();
         }
     };
     static protected final Instructions.saveb earb_s = new Instructions.saveb() {
-        final public void call(short value) {
+        final public void call(int value) {
             Modrm.GetEArb[r].set(value);
         }
     };
@@ -147,12 +147,12 @@ public class Prefix_helpers extends Instructions {
     };
 
     static protected final Instructions.loadb b_l = new Instructions.loadb() {
-        final public short call() {
+        final public int call() {
             return Memory.mem_readb(m);
         }
     };
     static protected final Instructions.saveb b_s = new Instructions.saveb() {
-        final public void call(short value) {
+        final public void call(int value) {
             Memory.mem_writeb(m, value);
         }
     };
@@ -167,12 +167,12 @@ public class Prefix_helpers extends Instructions {
         }
     };
 
-    static protected void GRP2B(final short rm, int blah) {
+    static protected void GRP2B(final int rm, int blah) {
         /*Bitu*/int which=(rm>>3)&7;
         if (rm >= 0xc0) {
-            /*Bit8u*/short val=(short)(blah & 0x1f);
+            /*Bit8u*/int val=blah & 0x1f;
             r = rm;
-            short earb = Modrm.GetEArb[rm].get();
+            int earb = Modrm.GetEArb[rm].get();
             switch (which)	{
             case 0x00:ROLB(earb,val,earb_l,earb_s);break;
             case 0x01:RORB(earb,val,earb_l,earb_s);break;
@@ -185,7 +185,7 @@ public class Prefix_helpers extends Instructions {
             }
         } else {
             m = getEaa(rm);
-            /*Bit8u*/short val=(short)(blah & 0x1f);
+            /*Bit8u*/int val=blah & 0x1f;
             switch (which) {
             case 0x00:ROLB(m,val,b_l,b_s);break;
             case 0x01:RORB(m,val,b_l,b_s);break;
@@ -199,13 +199,13 @@ public class Prefix_helpers extends Instructions {
         }
     }
 
-    static protected void GRP2B_fetchb(final short rm) {
+    static protected void GRP2B_fetchb(final int rm) {
         /*Bitu*/int which=(rm>>3)&7;
         if (rm >= 0xc0) {
-            short blah = Fetchb();
-            /*Bit8u*/short val=(short)(blah & 0x1f);
+            int blah = Fetchb();
+            /*Bit8u*/int val=blah & 0x1f;
             r = rm;
-            short earb = Modrm.GetEArb[rm].get();
+            int earb = Modrm.GetEArb[rm].get();
             switch (which)	{
             case 0x00:ROLB(earb,val,earb_l,earb_s);break;
             case 0x01:RORB(earb,val,earb_l,earb_s);break;
@@ -218,8 +218,8 @@ public class Prefix_helpers extends Instructions {
             }
         } else {
             m = getEaa(rm);
-            short blah = Fetchb();
-            /*Bit8u*/short val=(short)(blah & 0x1f);
+            int blah = Fetchb();
+            /*Bit8u*/int val=blah & 0x1f;
             switch (which) {
             case 0x00:ROLB(m,val,b_l,b_s);break;
             case 0x01:RORB(m,val,b_l,b_s);break;
@@ -233,7 +233,7 @@ public class Prefix_helpers extends Instructions {
         }
     }
 
-    static protected void GRP2W(final short rm, int blah) {
+    static protected void GRP2W(final int rm, int blah) {
         /*Bitu*/int which=(rm>>3)&7;
         if (rm >= 0xc0) {
             /*Bit8u*/int val=blah & 0x1f;
@@ -266,7 +266,7 @@ public class Prefix_helpers extends Instructions {
         }
     }
 
-    static protected void GRP2W_fetchb(final short rm) {
+    static protected void GRP2W_fetchb(final int rm) {
         /*Bitu*/int which=(rm>>3)&7;
         if (rm >= 0xc0) {
             int blah = Fetchb();
@@ -301,7 +301,7 @@ public class Prefix_helpers extends Instructions {
         }
     }
 
-    static protected void GRP2D(final short rm, int blah) {
+    static protected void GRP2D(final int rm, int blah) {
         /*Bitu*/int which=(rm>>3)&7;
         if (rm >= 0xc0) {
             /*Bit8u*/int val=blah & 0x1f;

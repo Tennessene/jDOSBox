@@ -30,11 +30,11 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_CONTINUE_SEG = 7;
 
     // fetch the next byte of the instruction stream
-    static /*Bit8u*/byte decode_fetchbs() {
+    static /*Bit8u*/int decode_fetchbs() {
         return (byte)decode_fetchb();
     }
 
-    static /*Bit8u*/short decode_fetchb() {
+    static /*Bit8u*/int decode_fetchb() {
         if (decode.page.index>=4096) {
             decode_advancepage();
         }
@@ -77,7 +77,7 @@ public class Helper extends CPU_Regs {
             decode.page.wmap.p[decode.page.index]-=0x01;
         }
     }
-    static short decode_fetchws() {
+    static int decode_fetchws() {
         return (short)decode_fetchw();
     }
     // fetch the next word of the instruction stream

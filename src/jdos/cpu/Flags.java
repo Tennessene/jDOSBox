@@ -25,58 +25,53 @@ public class Flags {
         oldcf = in.oldcf;
     }
 
-    public static short lf_var1b() {
-        return (short)(var1 & 0xFF);
+    public static int lf_var1b() {
+        return var1;
     }
 
     public static void lf_var1b(int b) {
-        var1=var1 & ~0xFF;
-        var1=var1 | b & 0xFF;
+        var1=b & 0xFF;
     }
 
-    public static short lf_var2b() {
-        return (short)(var2 & 0xFF);
+    public static int lf_var2b() {
+        return var2;
     }
 
     public static void lf_var2b(int b) {
-        var2=var2 & ~0xFF;
-        var2=var2 | b & 0xFF;
+        var2=b & 0xFF;
     }
 
-    public static short lf_resb() {
-        return (short)(res & 0xFF);
+    public static int lf_resb() {
+        return res;
     }
 
     public static void lf_resb(int b) {
-        res = res & ~0xFF;
-        res = res | b & 0xFF;
+        res = b & 0xFF;
     }
 
     public static int lf_var1w() {
-        return (int)(var1 & 0xFFFF);
+        return var1;
     }
 
     public static void lf_var1w(int s) {
-        var1=var1 & ~0xFFFF;
-        var1=var1 | s & 0xFFFF;
+        var1=s & 0xFFFF;
     }
 
     public static int lf_var2w() {
-        return (int)(var2 & 0xFFFF);
+        return var2;
     }
 
-    public static void lf_var2w(int s) {
-        var2=var2 & ~0xFFFF;
-        var2=var2 | s & 0xFFFF;
-    }
+//    public static void lf_var2w(int s) {
+//        var2=var2 & ~0xFFFF;
+//        var2=var2 | s & 0xFFFF;
+//    }
 
     public static int lf_resw() {
-        return (int)(res & 0xFFFF);
+        return res;
     }
 
     public static void lf_resw(int s) {
-        res = res & ~0xFFFF;
-        res = res | s & 0xFFFF;
+        res = s & 0xFFFF;
     }
 
     static int lf_var1d() {
@@ -135,7 +130,7 @@ public class Flags {
     }
 
     static abstract public class ParityFlags implements GetFlags {
-        public boolean PF() {return (parity_lookup[lf_resb()]) != 0;}
+        public boolean PF() {return (parity_lookup[lf_resb() & 0xFF]) != 0;}
     }
 
     final static public ParityFlags t_INCb = new ParityFlags() {

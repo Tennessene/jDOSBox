@@ -13,7 +13,7 @@ public class Prefix_66 extends Prefix_0f {
         /* ADD Ed,Gd */
         ops[0x201] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg r = Modrm.GetEArd[rm];
                     r.dword=ADDD(Modrm.Getrd[rm].dword, r.dword);
@@ -29,7 +29,7 @@ public class Prefix_66 extends Prefix_0f {
          /* ADD Gd,Ed */
         ops[0x203] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrd[rm];
                 if (rm >= 0xc0 ) {
                     r.dword=ADDD(Modrm.GetEArd[rm].dword, r.dword);
@@ -67,7 +67,7 @@ public class Prefix_66 extends Prefix_0f {
          /* OR Ed,Gd */
          ops[0x209] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg r = Modrm.GetEArd[rm];
                     r.dword=ORD(Modrm.Getrd[rm].dword, r.dword);
@@ -83,7 +83,7 @@ public class Prefix_66 extends Prefix_0f {
          /* OR Gd,Ed */
         ops[0x20b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrd[rm];
                 if (rm >= 0xc0 ) {
                     r.dword=ORD(Modrm.GetEArd[rm].dword, r.dword);
@@ -113,7 +113,7 @@ public class Prefix_66 extends Prefix_0f {
         /* ADC Ed,Gd */
         ops[0x211] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg r = Modrm.GetEArd[rm];
                     r.dword=ADCD(Modrm.Getrd[rm].dword, r.dword);
@@ -130,7 +130,7 @@ public class Prefix_66 extends Prefix_0f {
         /* ADC Gd,Ed */
         ops[0x213] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrd[rm];
                 if (rm >= 0xc0 ) {
                     r.dword=ADCD(Modrm.GetEArd[rm].dword, r.dword);
@@ -169,7 +169,7 @@ public class Prefix_66 extends Prefix_0f {
         /* SBB Ed,Gd */
         ops[0x219] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg r = Modrm.GetEArd[rm];
                     r.dword=SBBD(Modrm.Getrd[rm].dword, r.dword);
@@ -185,7 +185,7 @@ public class Prefix_66 extends Prefix_0f {
         /* SBB Gd,Ed */
         ops[0x21b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrd[rm];
                 if (rm >= 0xc0 ) {
                     r.dword=SBBD(Modrm.GetEArd[rm].dword,r.dword);
@@ -223,7 +223,7 @@ public class Prefix_66 extends Prefix_0f {
         /* AND Ed,Gd */
         ops[0x221] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg r = Modrm.GetEArd[rm];
                     r.dword=ANDD(Modrm.Getrd[rm].dword, r.dword);
@@ -239,7 +239,7 @@ public class Prefix_66 extends Prefix_0f {
         /* AND Gd,Ed */
         ops[0x223] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrd[rm];
                 if (rm >= 0xc0 ) {
                     r.dword=ANDD(Modrm.GetEArd[rm].dword, r.dword);
@@ -261,7 +261,7 @@ public class Prefix_66 extends Prefix_0f {
         /* SUB Ed,Gd */
         ops[0x229] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg r = Modrm.GetEArd[rm];
                     r.dword=SUBD(Modrm.Getrd[rm].dword, r.dword);
@@ -277,7 +277,7 @@ public class Prefix_66 extends Prefix_0f {
         /* SUB Gd,Ed */
         ops[0x22b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrd[rm];
                 if (rm >= 0xc0 ) {
                     r.dword=SUBD(Modrm.GetEArd[rm].dword,r.dword);
@@ -299,7 +299,7 @@ public class Prefix_66 extends Prefix_0f {
         /* XOR Ed,Gd */
         ops[0x231] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg r = Modrm.GetEArd[rm];
                     r.dword=XORD(Modrm.Getrd[rm].dword, r.dword);
@@ -315,7 +315,7 @@ public class Prefix_66 extends Prefix_0f {
         /* XOR Gd,Ed */
         ops[0x233] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrd[rm];
                 if (rm >= 0xc0 ) {
                     r.dword=XORD(Modrm.GetEArd[rm].dword, r.dword);
@@ -337,7 +337,7 @@ public class Prefix_66 extends Prefix_0f {
         /* CMP Ed,Gd */
         ops[0x239] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     CMPD(Modrm.Getrd[rm].dword, Modrm.GetEArd[rm].dword);
                 }
@@ -352,7 +352,7 @@ public class Prefix_66 extends Prefix_0f {
         /* CMP Gd,Ed */
         ops[0x23b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     CMPD(Modrm.GetEArd[rm].dword, Modrm.Getrd[rm].dword);
                 } else {
@@ -663,7 +663,7 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x262] = new OP() {
             final public int call() {
                 /*Bit32s*/int bound_min, bound_max;
-                /*Bit8u*/short rm=Fetchb();/*PhysPt*/int eaa=getEaa(rm);
+                /*Bit8u*/int rm=Fetchb();/*PhysPt*/int eaa=getEaa(rm);
                 bound_min=Memory.mem_readd(eaa);
                 bound_max=Memory.mem_readd(eaa + 4);
                 int rmrd = Modrm.Getrd[rm].dword;
@@ -678,7 +678,7 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x263] = new OP() {
             final public int call() {
                 if (((CPU.cpu.pmode) && (CPU_Regs.flags & CPU_Regs.VM)!=0) || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArd[rm].dword = CPU.CPU_ARPL(Modrm.GetEArd[rm].dword,Modrm.Getrw[rm].word());
                 } else {
@@ -702,7 +702,7 @@ public class Prefix_66 extends Prefix_0f {
         /* IMUL Gd,Ed,Id */
         ops[0x269] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     int op3 = Fetchds();
                     Modrm.Getrd[rm].dword=DIMULD(Modrm.GetEArd[rm].dword,op3);
@@ -727,7 +727,7 @@ public class Prefix_66 extends Prefix_0f {
         /* IMUL Gd,Ed,Ib */
         ops[0x26b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     int op3 = Fetchbs();
                     Modrm.Getrd[rm].dword=DIMULD(Modrm.GetEArd[rm].dword,op3);
@@ -890,7 +890,7 @@ public class Prefix_66 extends Prefix_0f {
         /* Grpl Ed,Id */
         ops[0x281] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/final int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 if (rm >= 0xc0) {
                     Reg r = Modrm.GetEArd[rm];
                     /*Bit32u*/int id= Fetchd();
@@ -932,7 +932,7 @@ public class Prefix_66 extends Prefix_0f {
         /* Grpl Ed,Ix */
         ops[0x283] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 /*Bitu*/int which=(rm>>3)&7;
                 if (rm >= 0xc0) {
                     /*Bit32u*/int id=Fetchbs();
@@ -969,7 +969,7 @@ public class Prefix_66 extends Prefix_0f {
         /* TEST Ed,Gd */
         ops[0x285] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     TESTD(Modrm.Getrd[rm].dword, Modrm.GetEArd[rm].dword);
                 }
@@ -984,7 +984,7 @@ public class Prefix_66 extends Prefix_0f {
         /* XCHG Ed,Gd */
         ops[0x287] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 Reg rd = Modrm.Getrd[rm];
                 /*Bit32u*/int oldrmrd= rd.dword;
                 if (rm >= 0xc0 ) {
@@ -1004,7 +1004,7 @@ public class Prefix_66 extends Prefix_0f {
         /* MOV Ed,Gd */
         ops[0x289] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArd[rm].dword=Modrm.Getrd[rm].dword;
                 } else {
@@ -1017,7 +1017,7 @@ public class Prefix_66 extends Prefix_0f {
         /* MOV Gd,Ed */
         ops[0x28b] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrd[rm].dword=Modrm.GetEArd[rm].dword;
                 } else {
@@ -1031,7 +1031,7 @@ public class Prefix_66 extends Prefix_0f {
         /* Mov Ew,Sw */
         ops[0x28c] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/int rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:					/* MOV Ew,ES */
                     val=CPU.Segs_ESval;break;
@@ -1060,7 +1060,7 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x28d] = new OP() {
             final public int call() {
                 //Little hack to always use segprefixed version
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 base_ds=base_ss=0;
                 if (TEST_PREFIX_ADDR()!=0) {
                     Modrm.Getrd[rm].dword=getEaa32(rm);
@@ -1075,7 +1075,7 @@ public class Prefix_66 extends Prefix_0f {
         ops[0x28f] = new OP() {
             final public int call() {
                 /*Bit32u*/int val=CPU.CPU_Pop32();
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArd[rm].dword=val;}
                 else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writed(eaa,val);}
@@ -1339,7 +1339,7 @@ public class Prefix_66 extends Prefix_0f {
         /* GRP2 Ed,Ib */
         ops[0x2c1] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 /*Bitu*/int which=(rm>>3)&7;
                 if (rm >= 0xc0) {
                     int blah = Fetchb();
@@ -1405,7 +1405,7 @@ public class Prefix_66 extends Prefix_0f {
         /* LES */
         ops[0x2c4] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 int val = Memory.mem_readd(eaa); // make sure all reads are done before writing something in case of a PF
@@ -1418,7 +1418,7 @@ public class Prefix_66 extends Prefix_0f {
         /* LDS */
         ops[0x2c5] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 int val = Memory.mem_readd(eaa); // make sure all reads are done before writing something in case of a PF
@@ -1431,7 +1431,7 @@ public class Prefix_66 extends Prefix_0f {
         /* MOV Ed,Id */
         ops[0x2c7] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0) {
                     Modrm.GetEArd[rm].dword= Fetchd();}
                 else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writed(eaa, Fetchd());}
@@ -1496,7 +1496,7 @@ public class Prefix_66 extends Prefix_0f {
         /* GRP2 Ed,1 */
         ops[0x2d1] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2D(rm, 1);
                 return HANDLED;
             }
@@ -1505,7 +1505,7 @@ public class Prefix_66 extends Prefix_0f {
         /* GRP2 Ed,CL */
         ops[0x2d3] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2D(rm, reg_ecx.low());
                 return HANDLED;
             }
@@ -1647,7 +1647,7 @@ public class Prefix_66 extends Prefix_0f {
         /* GRP3 Ed(,Id) */
         ops[0x2f7] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/final int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:											/* TEST Ed,Id */
                 case 0x01:											/* TEST Ed,Id Undocumented*/
@@ -1727,7 +1727,7 @@ public class Prefix_66 extends Prefix_0f {
         /* GRP 5 Ed */
         ops[0x2ff] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:											/* INC Ed */
                     if (rm >= 0xc0 ) {

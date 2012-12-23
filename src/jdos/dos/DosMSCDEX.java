@@ -506,7 +506,7 @@ public class DosMSCDEX {
                 error.value = MSCDEX_ERROR_BAD_FORMAT;
                 return false;
             }
-            /*Bit8u*/short type = Memory.mem_readb(data);
+            /*Bit8u*/int type = Memory.mem_readb(data);
             error.value = (type == 1) ? 1 : (type == 0xFF) ? 0xFF : 0;
             return true;
         }
@@ -534,7 +534,7 @@ public class DosMSCDEX {
             if (success) {
                 /*Bitu*/int len;
                 for (len=0;len<37;len++) {
-                    /*Bit8u*/short c=Memory.mem_readb(ptoc+702+len);
+                    /*Bit8u*/int c=Memory.mem_readb(ptoc+702+len);
                     if (c==0 || c==0x20) break;
                 }
                 Memory.MEM_BlockCopy(data,ptoc+702,len);
@@ -551,7 +551,7 @@ public class DosMSCDEX {
             if (success) {
                 /*Bitu*/int len;
                 for (len=0;len<37;len++) {
-                    /*Bit8u*/short c=Memory.mem_readb(ptoc+739+len);
+                    /*Bit8u*/int c=Memory.mem_readb(ptoc+739+len);
                     if (c==0 || c==0x20) break;
                 }
                 Memory.MEM_BlockCopy(data,ptoc+739,len);
@@ -568,7 +568,7 @@ public class DosMSCDEX {
             if (success) {
                 /*Bitu*/int len;
                 for (len=0;len<37;len++) {
-                    /*Bit8u*/short c=Memory.mem_readb(ptoc+776+len);
+                    /*Bit8u*/int c=Memory.mem_readb(ptoc+776+len);
                     if (c==0 || c==0x20) break;
                 }
                 Memory.MEM_BlockCopy(data,ptoc+776,len);
@@ -856,7 +856,7 @@ public class DosMSCDEX {
             case 0x01 :{/* Get current position */
                         Dos_cdrom.TMSF pos=new Dos_cdrom.TMSF();
                         mscdex.GetCurrentPos(drive_unit,pos);
-                        /*Bit8u*/short addr_mode = Memory.mem_readb(buffer+1);
+                        /*Bit8u*/int addr_mode = Memory.mem_readb(buffer+1);
                         if (addr_mode==0) {			// HSG
                             /*Bit32u*/long frames=pos.min*60*Dos_cdrom.CD_FPS+ pos.sec*Dos_cdrom.CD_FPS+pos.fr;
                             if (frames<150) if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Get position: invalid position "+pos.min+":"+pos.sec+":"+pos.fr);
@@ -910,8 +910,8 @@ public class DosMSCDEX {
                         break;
             case 0x0B :{/* Audio Track Info */
                         /*Bit8u*/ShortRef attr=new ShortRef(); Dos_cdrom.TMSF start=new Dos_cdrom.TMSF();
-                        /*Bit8u*/short track = Memory.mem_readb(buffer+1);
-                        mscdex.GetTrackInfo(drive_unit,track,attr,start);
+                        /*Bit8u*/int track = Memory.mem_readb(buffer+1);
+                        mscdex.GetTrackInfo(drive_unit,(short)track,attr,start);
                         Memory.mem_writeb(buffer+2,start.fr);
                         Memory.mem_writeb(buffer+3,start.sec);
                         Memory.mem_writeb(buffer+4,start.min);
@@ -1014,8 +1014,8 @@ public class DosMSCDEX {
                 Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: invalid call to interrupt handler");
                 return Callback.CBRET_NONE;
             }
-            /*Bit8u*/short	subUnit		= Memory.mem_readb(curReqheaderPtr+1);
-            /*Bit8u*/short	funcNr		= Memory.mem_readb(curReqheaderPtr+2);
+            /*Bit8u*/short	subUnit		= (short)Memory.mem_readb(curReqheaderPtr+1);
+            /*Bit8u*/short	funcNr		= (short)Memory.mem_readb(curReqheaderPtr+2);
             /*Bit16u*/int	errcode		= 0;
             /*PhysPt*/int	buffer		= 0;
 

@@ -1245,7 +1245,7 @@ public class Inst2 extends Helper {
             earb = Mod.eb(rm);
         }
         public int call() {
-            earb.set8((short)((Flags.TFLG_O()) ? 1 : 0));
+            earb.set8((Flags.TFLG_O()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1271,7 +1271,7 @@ public class Inst2 extends Helper {
         }
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_O()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_O()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1297,7 +1297,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NO()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NO()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1324,7 +1324,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NO()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_NO()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1350,7 +1350,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_B()) ? 1 : 0));
+            earb.set8((Flags.TFLG_B()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1377,7 +1377,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_B()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_B()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1403,7 +1403,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NB()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NB()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1430,7 +1430,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NB()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_NB()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1456,7 +1456,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_Z()) ? 1 : 0));
+            earb.set8((Flags.TFLG_Z()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1483,7 +1483,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_Z()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_Z()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1509,7 +1509,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NZ()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NZ()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1536,7 +1536,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NZ()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_NZ()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1562,7 +1562,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_BE()) ? 1 : 0));
+            earb.set8((Flags.TFLG_BE()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1589,7 +1589,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_BE()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_BE()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1615,7 +1615,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NBE()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NBE()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1642,7 +1642,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NBE()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_NBE()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1668,7 +1668,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_S()) ? 1 : 0));
+            earb.set8((Flags.TFLG_S()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1695,7 +1695,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_S()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_S()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1721,7 +1721,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NS()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NS()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1748,7 +1748,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NS()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_NS()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1773,7 +1773,7 @@ public class Inst2 extends Helper {
             earb = Mod.eb(rm);
         }
         public int call() {
-            earb.set8((short)((Flags.TFLG_P()) ? 1 : 0));
+            earb.set8((Flags.TFLG_P()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1800,7 +1800,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_P()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_P()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1826,7 +1826,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NP()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NP()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1853,7 +1853,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NP()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_NP()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1879,7 +1879,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_L()) ? 1 : 0));
+            earb.set8((Flags.TFLG_L()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1906,7 +1906,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_L()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_L()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1932,7 +1932,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NL()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NL()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1959,7 +1959,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NL()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_NL()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1985,7 +1985,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_LE()) ? 1 : 0));
+            earb.set8((Flags.TFLG_LE()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2012,7 +2012,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_LE()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, (Flags.TFLG_LE()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2038,7 +2038,7 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            earb.set8((short)((Flags.TFLG_NLE()) ? 1 : 0));
+            earb.set8((Flags.TFLG_NLE()) ? 1 : 0);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2065,7 +2065,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             int eaa=get_eaa.call();
-            Memory.mem_writeb(eaa, ((short)((Flags.TFLG_NLE()) ? 1 : 0)));
+            Memory.mem_writeb(eaa, ((Flags.TFLG_NLE()) ? 1 : 0));
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2667,7 +2667,7 @@ public class Inst2 extends Helper {
         public int call() {
             Flags.FillFlags();
             int eaa=get_eaa.call();
-            short val = Memory.mem_readb(eaa);
+            int val = Memory.mem_readb(eaa);
             Instructions.CMPB(val, reg_eax.low());
             if (reg_eax.low() == val) {
                 Memory.mem_writeb(eaa,rb.get8());
@@ -3573,7 +3573,7 @@ public class Inst2 extends Helper {
 
         public int call() {
             // :DOSBOX: this is different from dosbox
-            short result=Instructions.ADDB(rb.get8(), earb.get8());
+            int result=Instructions.ADDB(rb.get8(), earb.get8());
             rb.set8(earb.get8());
             earb.set8(result);
             CPU_Regs.reg_eip+=eip_count;return next.call();
@@ -3605,8 +3605,8 @@ public class Inst2 extends Helper {
         public int call() {
             // :DOSBOX: this is different from dosbox
             int eaa=get_eaa.call();
-            short val = Memory.mem_readb(eaa);
-            short result = Instructions.ADDB(rb.get8(), val);
+            int val = Memory.mem_readb(eaa);
+            int result = Instructions.ADDB(rb.get8(), val);
             Memory.mem_writeb(eaa,result);
             rb.set8(val);
             CPU_Regs.reg_eip+=eip_count;return next.call();

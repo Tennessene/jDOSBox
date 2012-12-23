@@ -25,12 +25,12 @@ public class Int10_put_pixel {
                     /*Bit16u*/int off=(y>>1)*80+(x>>2);
                     if ((y&1) != 0) off+=8*1024;
 
-                    /*Bit8u*/short old=Memory.real_readb(0xb800,off);
+                    /*Bit8u*/int old=Memory.real_readb(0xb800,off);
                     if ((color & 0x80)!=0) {
                         color&=3;
                         old^=color << (2*(3-(x&3)));
                     } else {
-                        old=(short)((old&cga_masks[x&3])|((color&3) << (2*(3-(x&3)))));
+                        old=((old&cga_masks[x&3])|((color&3) << (2*(3-(x&3)))));
                     }
                     Memory.real_writeb(0xb800,off,old);
                 } else {
@@ -60,12 +60,12 @@ public class Int10_put_pixel {
             {
                     /*Bit16u*/int off=(y>>1)*80+(x>>3);
                     if ((y&1)!=0) off+=8*1024;
-                    /*Bit8u*/short old=Memory.real_readb(0xb800,off);
+                    /*Bit8u*/int old=Memory.real_readb(0xb800,off);
                     if ((color & 0x80)!=0) {
                         color&=1;
                         old^=color << ((7-(x&7)));
                     } else {
-                        old=(short)((old&cga_masks2[x&7])|((color&1) << ((7-(x&7)))));
+                        old=((old&cga_masks2[x&7])|((color&1) << ((7-(x&7)))));
                     }
                     Memory.real_writeb(0xb800,off,old);
             }
@@ -98,7 +98,7 @@ public class Int10_put_pixel {
             }
 
             // update the pixel
-            /*Bit8u*/short old=Memory.real_readb(segment, offset);
+            /*Bit8u*/int old=Memory.real_readb(segment, offset);
             /*Bit8u*/int[] p = new int[2];
             p[1] = (old >> 4) & 0xf;
             p[0] = old & 0xf;
@@ -110,7 +110,7 @@ public class Int10_put_pixel {
             } else {
                 p[ind]=color;
             }
-            old = (short)((p[1] << 4) | p[0]);
+            old = ((p[1] << 4) | p[0]);
             Memory.real_writeb(segment,offset, old);
             break;
         }
@@ -176,7 +176,7 @@ public class Int10_put_pixel {
             {
                 /*Bit16u*/int off=(y>>1)*80+(x>>2);
                 if ((y&1)!=0) off+=8*1024;
-                /*Bit8u*/short val=Memory.real_readb(0xb800,off);
+                /*Bit8u*/int val=Memory.real_readb(0xb800,off);
                 color=(val>>(((3-(x&3)))*2)) & 3 ;
             }
             break;
@@ -184,7 +184,7 @@ public class Int10_put_pixel {
             {
                 /*Bit16u*/int off=(y>>1)*80+(x>>3);
                 if ((y&1)!=0) off+=8*1024;
-                /*Bit8u*/short val=Memory.real_readb(0xb800,off);
+                /*Bit8u*/int val=Memory.real_readb(0xb800,off);
                 color=(val>>(((7-(x&7))))) & 1 ;
             }
             break;

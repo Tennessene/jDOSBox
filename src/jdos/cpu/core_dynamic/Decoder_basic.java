@@ -4,14 +4,8 @@ import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.util.IntRef;
-import jdos.util.ShortRef;
 
 public class Decoder_basic {
-    static public final int REP_NONE=0;
-    static public final int REP_NZ=1;
-    static public final int REP_Z=2;
-
-    private static final ShortRef rdval = new ShortRef(0);
     private static final IntRef phys_page = new IntRef(0);
 
     public static CodePageHandlerDynRec MakeCodePage(/*Bitu*/int lin_addr) {

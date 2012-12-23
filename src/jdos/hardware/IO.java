@@ -169,7 +169,7 @@ public class IO extends Module_base {
             entry.eip=CPU_Regs.reg_eip;
             CPU.CPU_Push16(CPU.Segs_CSval);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
-            /*Bit8u*/short old_al = CPU_Regs.reg_eax.low();
+            /*Bit8u*/int old_al = CPU_Regs.reg_eax.low();
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
             CPU_Regs.reg_eax.low(val);
             CPU_Regs.reg_edx.word(port);

@@ -187,9 +187,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class AddAlIb extends Op {
-        short i;
+        int i;
 
-        public AddAlIb(short i) {
+        public AddAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -418,9 +418,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class OrAlIb extends Op {
-        short i;
+        int i;
 
-        public OrAlIb(short i) {
+        public OrAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -646,9 +646,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class AdcAlIb extends Op {
-        short i;
+        int i;
 
-        public AdcAlIb(short i) {
+        public AdcAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -872,9 +872,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class SbbAlIb extends Op {
-        short i;
+        int i;
 
-        public SbbAlIb(short i) {
+        public SbbAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -1104,9 +1104,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class AndAlIb extends Op {
-        short i;
+        int i;
 
-        public AndAlIb(short i) {
+        public AndAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -1332,9 +1332,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class SubAlIb extends Op {
-        short i;
+        int i;
 
-        public SubAlIb(short i) {
+        public SubAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -1564,9 +1564,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class XorAlIb extends Op {
-        short i;
+        int i;
 
-        public XorAlIb(short i) {
+        public XorAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -1792,9 +1792,9 @@ public class Inst1 extends Helper {
     }
 
     final static public class CmpAlIb extends Op {
-        short i;
+        int i;
 
-        public CmpAlIb(short i) {
+        public CmpAlIb(int i) {
             this.i = i;
         }
         public int call() {
@@ -2962,7 +2962,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_add extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_add(int rm) {
             earb = Mod.eb(rm);
@@ -2991,7 +2991,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_or extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_or(int rm) {
             earb = Mod.eb(rm);
@@ -3021,7 +3021,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_adc extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_adc(int rm) {
             earb = Mod.eb(rm);
@@ -3050,7 +3050,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_sbb extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_sbb(int rm) {
             earb = Mod.eb(rm);
@@ -3079,7 +3079,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_and extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_and(int rm) {
             earb = Mod.eb(rm);
@@ -3109,7 +3109,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_sub extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_sub(int rm) {
             earb = Mod.eb(rm);
@@ -3138,7 +3138,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_xor extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_xor(int rm) {
             earb = Mod.eb(rm);
@@ -3168,7 +3168,7 @@ public class Inst1 extends Helper {
 
     final static public class GrplEbIb_reg_cmp extends Op {
         Reg earb;
-        short ib;
+        int ib;
 
         public GrplEbIb_reg_cmp(int rm) {
             earb = Mod.eb(rm);
@@ -3196,7 +3196,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_add extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_add(int rm) {
@@ -3226,7 +3226,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_or extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_or(int rm) {
@@ -3257,7 +3257,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_adc extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_adc(int rm) {
@@ -3287,7 +3287,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_sbb extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_sbb(int rm) {
@@ -3317,7 +3317,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_and extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_and(int rm) {
@@ -3348,7 +3348,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_sub extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_sub(int rm) {
@@ -3378,7 +3378,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_xor extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_xor(int rm) {
@@ -3409,7 +3409,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class GrplEbIb_mem_cmp extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public GrplEbIb_mem_cmp(int rm) {
@@ -4096,7 +4096,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            short oldrmrb=rb.get8();
+            int oldrmrb=rb.get8();
             rb.set8(earb.get8());
             earb.set8(oldrmrb);
             CPU_Regs.reg_eip+=eip_count;return next.call();
@@ -4126,9 +4126,9 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            short oldrmrb=rb.get8();
+            int oldrmrb=rb.get8();
             int eaa = get_eaa.call();
-            short newrb = Memory.mem_readb(eaa);
+            int newrb = Memory.mem_readb(eaa);
             Memory.mem_writeb(eaa,oldrmrb);
             rb.set8(newrb);
             CPU_Regs.reg_eip+=eip_count;return next.call();
@@ -5518,7 +5518,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class TestAlIb extends Op {
-        short ib;
+        int ib;
         public TestAlIb() {
             ib = decode_fetchb();
         }
@@ -5570,7 +5570,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class MovIb extends Op {
-        short ib;
+        int ib;
         Reg reg;
         public MovIb(Reg reg) {
             ib = decode_fetchb();
@@ -5597,7 +5597,7 @@ public class Inst1 extends Helper {
     }
 
     final static public class MovIb_mem extends Op {
-        short ib;
+        int ib;
         EaaBase get_eaa;
 
         public MovIb_mem(int rm) {

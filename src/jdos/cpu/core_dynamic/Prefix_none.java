@@ -2041,7 +2041,7 @@ public class Prefix_none extends Helper {
                 int rm=decode_fetchb();
                 int which=(rm>>3)&7;
                 if (rm >= 0xc0) {
-                    short val = (short)(decode_fetchb() & 0x1f);
+                    int val = decode_fetchb() & 0x1f;
                     switch (which)	{
                     case 0x00:prev.next = new Grp2.ROLB_reg(rm, val);break;
                     case 0x01:prev.next = new Grp2.RORB_reg(rm, val);break;
@@ -2054,7 +2054,7 @@ public class Prefix_none extends Helper {
                     }
                 } else {
                     EaaBase get_eaa= Mod.getEaa(rm);
-                    short val = (short)(decode_fetchb() & 0x1f);
+                    int val = decode_fetchb() & 0x1f;
                     switch (which) {
                     case 0x00:prev.next = new Grp2.ROLB_mem(get_eaa, val);break;
                     case 0x01:prev.next = new Grp2.RORB_mem(get_eaa, val);break;
@@ -2247,29 +2247,28 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
                 int which=(rm>>3)&7;
-                short val = (short)1;
                 if (rm >= 0xc0) {
                     switch (which)	{
-                    case 0x00:prev.next = new Grp2.ROLB_reg(rm, val);break;
-                    case 0x01:prev.next = new Grp2.RORB_reg(rm, val);break;
-                    case 0x02:prev.next = new Grp2.RCLB_reg(rm, val);break;
-                    case 0x03:prev.next = new Grp2.RCRB_reg(rm, val);break;
+                    case 0x00:prev.next = new Grp2.ROLB_reg(rm, 1);break;
+                    case 0x01:prev.next = new Grp2.RORB_reg(rm, 1);break;
+                    case 0x02:prev.next = new Grp2.RCLB_reg(rm, 1);break;
+                    case 0x03:prev.next = new Grp2.RCRB_reg(rm, 1);break;
                     case 0x04:/* SHL and SAL are the same */
-                    case 0x06:prev.next = new Grp2.SHLB_reg(rm, val);break;
-                    case 0x05:prev.next = new Grp2.SHRB_reg(rm, val);break;
-                    case 0x07:prev.next = new Grp2.SARB_reg(rm, val);break;
+                    case 0x06:prev.next = new Grp2.SHLB_reg(rm, 1);break;
+                    case 0x05:prev.next = new Grp2.SHRB_reg(rm, 1);break;
+                    case 0x07:prev.next = new Grp2.SARB_reg(rm, 1);break;
                     }
                 } else {
                     EaaBase get_eaa= Mod.getEaa(rm);
                     switch (which) {
-                    case 0x00:prev.next = new Grp2.ROLB_mem(get_eaa, val);break;
-                    case 0x01:prev.next = new Grp2.RORB_mem(get_eaa, val);break;
-                    case 0x02:prev.next = new Grp2.RCLB_mem(get_eaa, val);break;
-                    case 0x03:prev.next = new Grp2.RCRB_mem(get_eaa, val);break;
+                    case 0x00:prev.next = new Grp2.ROLB_mem(get_eaa, 1);break;
+                    case 0x01:prev.next = new Grp2.RORB_mem(get_eaa, 1);break;
+                    case 0x02:prev.next = new Grp2.RCLB_mem(get_eaa, 1);break;
+                    case 0x03:prev.next = new Grp2.RCRB_mem(get_eaa, 1);break;
                     case 0x04:/* SHL and SAL are the same */
-                    case 0x06:prev.next = new Grp2.SHLB_mem(get_eaa, val);break;
-                    case 0x05:prev.next = new Grp2.SHRB_mem(get_eaa, val);break;
-                    case 0x07:prev.next = new Grp2.SARB_mem(get_eaa, val);break;
+                    case 0x06:prev.next = new Grp2.SHLB_mem(get_eaa, 1);break;
+                    case 0x05:prev.next = new Grp2.SHRB_mem(get_eaa, 1);break;
+                    case 0x07:prev.next = new Grp2.SARB_mem(get_eaa, 1);break;
                     }
                 }
                 return RESULT_HANDLED;

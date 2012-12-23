@@ -5,9 +5,9 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 import jdos.ints.Bios;
+import jdos.ints.Bios_keyboard;
 import jdos.ints.Int10;
 import jdos.ints.Int10_char;
-import jdos.ints.Bios_keyboard;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
@@ -234,7 +234,7 @@ public class Dos_devices {
                 continue;
             }
             /*ansi.esc and ansi.sci are true */
-            /*Bit8u*/short page = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE);
+            /*Bit8u*/short page = (short)Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE);
             switch(data[count]){
                 case '0':
                 case '1':

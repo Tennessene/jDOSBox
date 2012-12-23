@@ -346,7 +346,7 @@ public class Bios_disk {
             /*Bit8u*/byte[] sectbuf=new byte[512];
             /*Bitu*/int  drivenum;
             /*Bitu*/int  i,t;
-            last_drive = CPU_Regs.reg_edx.low();
+            last_drive = (short)CPU_Regs.reg_edx.low();
             drivenum = GetDosDriveNumber(last_drive);
             boolean any_images = false;
             for(i = 0;i < MAX_DISK_IMAGES;i++) {

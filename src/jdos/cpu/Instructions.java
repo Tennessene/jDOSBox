@@ -5,10 +5,10 @@ import jdos.util.OverflowException;
 
 public class Instructions extends Table_ea {
     static public interface loadb {
-        public short call();
+        public int call();
     }
     static public interface saveb {
-        public void call(short value);
+        public void call(int value);
     }
 
     static public interface loadw {
@@ -18,7 +18,7 @@ public class Instructions extends Table_ea {
         public void call(int value);
     }
 
-    static public short ADDB(short op2, short l) {
+    static public int ADDB(int op2, int l) {
         lf_var1d(l);
         lf_var2d(op2);
         lf_resd((l+op2) & 0xFF);
@@ -26,7 +26,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public short ADCB(short op2, short l) {
+    static public int ADCB(int op2, int l) {
         oldcf=get_CF();
         lf_var1d(l);
         lf_var2d(op2);
@@ -35,7 +35,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public short SBBB(short op2, short l) {
+    static public int SBBB(int op2, int l) {
         oldcf=get_CF();
         lf_var1d(l);
         lf_var2d(op2);
@@ -44,7 +44,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public short SUBB(short op2, short l) {
+    static public int SUBB(int op2, int l) {
         lf_var1d(l);
         lf_var2d(op2);
         lf_resd((l-op2) & 0xFF);
@@ -52,7 +52,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public short ORB(short op2, short l) {
+    static public int ORB(int op2, int l) {
         lf_var1d(l);
         lf_var2d(op2);
         lf_resd((l | op2) & 0xFF);
@@ -60,7 +60,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public short XORB(short op2, short l) {
+    static public int XORB(int op2, int l) {
         lf_var1d(l);
         lf_var2d(op2);
         lf_resd((l ^ op2) & 0xFF);
@@ -68,7 +68,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public short ANDB(short op2, short l) {
+    static public int ANDB(int op2, int l) {
         lf_var1d(l);
         lf_var2d(op2);
         lf_resd((l & op2) & 0xFF);
@@ -76,14 +76,14 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public void CMPB(short op2, short l) {
+    static public void CMPB(int op2, int l) {
         lf_var1d(l);
         lf_var2d(op2);
         lf_resd((l-op2) & 0xFF);
         type=t_CMPb;
     }
 
-    static public void TESTB(short op2, short l) {
+    static public void TESTB(int op2, int l) {
         lf_var1d(l);
         lf_var2d(op2);
         lf_resd((l & op2) & 0xFF);
@@ -239,7 +239,7 @@ public class Instructions extends Table_ea {
         type=t_TESTd;
     }
 
-    static public short INCB(short l) {
+    static public int INCB(int l) {
         LoadCF();lf_var1b(l);
         lf_resb(lf_var1b()+1);
         type=t_INCb;
@@ -261,7 +261,7 @@ public class Instructions extends Table_ea {
         return res;
     }
 
-    static public short DECB(short l) {
+    static public int DECB(int l) {
         LoadCF();
         lf_var1d(l);
         lf_resd((l-1) & 0xFF);
@@ -296,7 +296,7 @@ public class Instructions extends Table_ea {
         }
         return true;
     }
-    static public short do_ROLB(int op2, short l) {
+    static public int do_ROLB(int op2, int l) {
         FillFlagsNoCFOF();
         lf_var1b(l);
         lf_var2b(op2&0x07);
@@ -306,7 +306,7 @@ public class Instructions extends Table_ea {
         CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lf_resb() & 1) ^ (lf_resb() >> 7))!=0);
         return lf_resb();
     }
-    static public void ROLB(int op1, short op2, loadb l, saveb s) {
+    static public void ROLB(int op1, int op2, loadb l, saveb s) {
         if (valid_ROLB(op1, op2)) {
             s.call(do_ROLB(op2, l.call()));
         }
@@ -359,7 +359,7 @@ public class Instructions extends Table_ea {
         }
         return true;
     }
-    static public short do_RORB(int op2, short l) {
+    static public int do_RORB(int op2, int l) {
 
         FillFlagsNoCFOF();
         lf_var1b(l);
@@ -371,7 +371,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public void RORB(int op1, short op2, loadb l, saveb s) {
+    static public void RORB(int op1, int op2, loadb l, saveb s) {
         if (valid_RORB(op1, op2)) {
             s.call(do_RORB(op2, l.call()));
         }
@@ -416,7 +416,7 @@ public class Instructions extends Table_ea {
         return (op2%9)!=0;
     }
 
-    static public short do_RCLB(int op2, short l) {
+    static public int do_RCLB(int op2, int l) {
         /*Bit8u*/int cf=(/*Bit8u*/int)FillFlags()&0x1;
         lf_var1b(l);
         lf_var2b(op2%9);
@@ -428,7 +428,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public void RCLB(short op2, loadb l, saveb s) {
+    static public void RCLB(int op2, loadb l, saveb s) {
         if (valid_RCLB(op2)) {
             s.call(do_RCLB(op2, l.call()));
         }
@@ -470,7 +470,7 @@ public class Instructions extends Table_ea {
     static public boolean valid_RCRB(int op2) {
         return (op2%9)!=0;
     }
-    static public short do_RCRB(int op2, short l) {
+    static public int do_RCRB(int op2, int l) {
         /*Bit8u*/int cf=FillFlags()&0x1;
         lf_var1b(l);
         lf_var2b(op2%9);
@@ -481,7 +481,7 @@ public class Instructions extends Table_ea {
         CPU_Regs.SETFLAGBIT(CPU_Regs.OF,((lf_resb() ^ (lf_resb()<<1)) & 0x80)!=0);
         return lf_resb();
     }
-    static public void RCRB(short op2, loadb l, saveb s) {
+    static public void RCRB(int op2, loadb l, saveb s) {
         if (valid_RCRB(op2))
             s.call(do_RCRB(op2, l.call()));
     }
@@ -523,14 +523,14 @@ public class Instructions extends Table_ea {
         return op2!=0;
     }
 
-    static public short do_SHLB(int op2, short l) {
+    static public int do_SHLB(int op2, int l) {
         lf_var1b(l);lf_var2b(op2);
         lf_resb(lf_var1b() << lf_var2b());
         type=t_SHLb;
         return lf_resb();
     }
 
-    static public void SHLB(short op2, loadb l, saveb s) {
+    static public void SHLB(int op2, loadb l, saveb s) {
         if (valid_SHLB(op2))
             s.call(do_SHLB(op2, l.call()));
     }
@@ -560,14 +560,14 @@ public class Instructions extends Table_ea {
         return op2!=0;
     }
 
-    static public short do_SHRB(int op2, short l) {
+    static public int do_SHRB(int op2, int l) {
         lf_var1b(l);lf_var2b(op2);
         lf_resb(lf_var1b() >> lf_var2b());
         type=t_SHRb;
         return lf_resb();
     }
 
-    static public void SHRB(short op2, loadb l, saveb s) {
+    static public void SHRB(int op2, loadb l, saveb s) {
         if (valid_SHRB(op2))
             s.call(do_SHRB(op2, l.call()));
     }
@@ -597,7 +597,7 @@ public class Instructions extends Table_ea {
         return op2!=0;
     }
 
-    static public short do_SARB(int op2, short l) {
+    static public int do_SARB(int op2, int l) {
         lf_var1b(l);lf_var2b(op2);
         if (lf_var2b()>8) lf_var2b(8);
         if ((lf_var1b() & 0x80)!=0) {
@@ -610,7 +610,7 @@ public class Instructions extends Table_ea {
         return lf_resb();
     }
 
-    static public void SARB(short op2, loadb l, saveb s) {
+    static public void SARB(int op2, loadb l, saveb s) {
         if (valid_SARB(op2))
             s.call(do_SARB(op2, l.call()));        
     }
@@ -778,7 +778,7 @@ public class Instructions extends Table_ea {
         type=t_UNKNOWN;
     }
 
-    static public void MULB(short l) {
+    static public void MULB(int l) {
         CPU_Regs.reg_eax.word(CPU_Regs.reg_eax.low()*l);
         FillFlagsNoCFOF();
         CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,CPU_Regs.reg_eax.low() == 0);
@@ -867,7 +867,7 @@ public class Instructions extends Table_ea {
         return true;
     }
 
-    static public boolean IDIVB(short l) {
+    static public boolean IDIVB(int l) {
         /*Bits*/int val=(/*Bit8s*/byte)(l);
         if (val==0)	{
             CPU.CPU_PrepareException(0, 0);
@@ -893,9 +893,9 @@ public class Instructions extends Table_ea {
         }
         /*Bits*/int num=((CPU_Regs.reg_edx.word()<<16)|CPU_Regs.reg_eax.word());
         /*Bits*/int quo=num/val;
-        /*Bit16s*/short rem=(/*Bit16s*/short)(num % val);
-        /*Bit16s*/short quo16s=(/*Bit16s*/short)quo;
-        if (quo!=(/*Bit32s*/int)quo16s) {
+        /*Bit16s*/int rem=num % val;
+        /*Bit16s*/int quo16s=(/*Bit16s*/short)quo;
+        if (quo!=quo16s) {
             CPU.CPU_PrepareException(0, 0);
             return false;
         }
@@ -922,7 +922,7 @@ public class Instructions extends Table_ea {
         return true;
     }
 
-    static public void IMULB(short l) {
+    static public void IMULB(int l) {
         CPU_Regs.reg_eax.word(((/*Bit8s*/byte)CPU_Regs.reg_eax.low()) * ((/*Bit8s*/byte)(l)));
         FillFlagsNoCFOF();
         if ((CPU_Regs.reg_eax.word() & 0xff80)==0xff80 ||
@@ -935,8 +935,8 @@ public class Instructions extends Table_ea {
 
     static public void IMULW(int l) {
         /*Bits*/int temps=((/*Bit16s*/short)CPU_Regs.reg_eax.word())*((/*Bit16s*/short)(l));
-        CPU_Regs.reg_eax.word((/*Bit16s*/short)(temps));
-        CPU_Regs.reg_edx.word((/*Bit16s*/short)(temps >> 16));
+        CPU_Regs.reg_eax.word(temps);
+        CPU_Regs.reg_edx.word(temps >>> 16);
         FillFlagsNoCFOF();
         if (((temps & 0xffff8000)==0xffff8000 ||
             (temps & 0xffff8000)==0x0000)) {
@@ -1027,7 +1027,7 @@ public class Instructions extends Table_ea {
     }
 
     static public int do_DSHRW(int op2,int op3, int l) {
-        /*Bit8u*/short val=(short)(op3 & 0x1F);
+        /*Bit8u*/int val=op3 & 0x1F;
         lf_var2b(val);
         var1=(op2<<16)|l;
         /*Bit32u*/long tempd=var1 >>> lf_var2b();
@@ -1056,7 +1056,7 @@ public class Instructions extends Table_ea {
         return res;
     }
 
-    static public short Negb(short op1) {
+    static public int Negb(int op1) {
         Flags.type=Flags.t_NEGb;
         Flags.lf_var1b(op1);
         Flags.lf_resb(0-Flags.lf_var1b());

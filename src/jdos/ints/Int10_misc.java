@@ -33,8 +33,8 @@ public class Int10_misc {
         /*RealPt*/int svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
         if (svstable!= 0) {
             /*RealPt*/int dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
-            /*Bit8u*/short entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
-            /*Bit8u*/short idx=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_DCC_INDEX);
+            /*Bit8u*/int entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
+            /*Bit8u*/int idx=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_DCC_INDEX);
             // check if index within range
             if (idx<entries) {
                 /*Bit16u*/int dccentry=Memory.real_readw(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x04+idx*2);
@@ -222,8 +222,8 @@ public class Int10_misc {
     static public void INT10_EGA_RIL_ReadRegisterSet(/*Bit16u*/int cx, /*PhysPt*/int tbl) {
         /* read cx register sets */
         for (/*Bitu*/int i=0; i<cx; i++) {
-            /*Bit8u*/short vl=Memory.mem_readb(tbl+2);
-            INT10_EGA_RIL_ReadRegister(vl, Memory.mem_readw(tbl));
+            /*Bit8u*/int vl=Memory.mem_readb(tbl+2);
+            INT10_EGA_RIL_ReadRegister((short)vl, Memory.mem_readw(tbl));
             Memory.mem_writeb(tbl+3, vl);
             tbl+=4;
         }
@@ -235,11 +235,11 @@ public class Int10_misc {
         /*Bitu*/IntRef regs = new IntRef(0);
         for (/*Bitu*/int i=0; i<cx; i++) {
             EGA_RIL(Memory.mem_readw(tbl),port,regs);
-            /*Bit8u*/short vl=Memory.mem_readb(tbl+3);
+            /*Bit8u*/int vl=Memory.mem_readb(tbl+3);
             if(regs.value == 0) {
                 if(port.value != 0) IoHandler.IO_Write(port.value,vl);
             } else {
-                /*Bit8u*/short idx=Memory.mem_readb(tbl+2);
+                /*Bit8u*/int idx=Memory.mem_readb(tbl+2);
                 if(port.value == 0x3c0) {
                     IoHandler.IO_Read(Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CRTC_ADDRESS) + 6);
                     IoHandler.IO_Write(port.value,idx);

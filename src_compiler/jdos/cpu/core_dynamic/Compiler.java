@@ -17,6 +17,7 @@ import java.util.LinkedList;
 
 public class Compiler extends Helper {
     public static int compiledMethods = 0;
+    public static long compiledOps = 0;
     public static boolean saveClasses = false;
     public static int min_block_size = 1;
     public static boolean alwayUseFastVersion = false; // useful for unit test
@@ -201,6 +202,7 @@ public class Compiler extends Helper {
         method.append("CPU.CPU_Cycles-=");
         method.append(op.cycle);
         method.append(";");
+        int eaaPos = method.length();
         int runningEipCount = 0;
         boolean loop = false;
         String loopCondition = null;
@@ -401,13 +403,17 @@ public class Compiler extends Helper {
             }
         }
         if (count >= min_block_size) {
+            if (eaaStarted) {
+                method.insert(eaaPos, "int eaa;");
+            }
             Op compiled = compileMethod(start, method, true);
             if (compiled != null) {
                 // once this is assigned it is live
                 start.next = compiled;
                 compiledMethods++;
+                compiledOps+=count;
                 if ((compiledMethods % 250)==0) {
-                    System.out.println("Compiled "+compiledMethods+" blocks ("+compilerQueue.size()+" in queue)");
+                    System.out.println("Compiled "+compiledMethods+" blocks ("+compilerQueue.size()+" in queue, ave ops/block: "+((float)compiledOps/compiledMethods));
                 }
                 return compiled;
             }
@@ -811,7 +817,7 @@ public class Compiler extends Helper {
     static boolean val2Started = false;
     static boolean longValStarted = false;
     static boolean shortValStarted = false;
-    static private final boolean testLocalVariableAccess = true;
+    static private final boolean testLocalVariableAccess = false;
     static void declareLongVal(StringBuilder method) {
         if (!longValStarted || testLocalVariableAccess) {
             method.append("long ");
@@ -838,7 +844,7 @@ public class Compiler extends Helper {
     }
     static void memory_start(EaaBase eaa, Seg seg, StringBuilder method) {
         if (!eaaStarted || testLocalVariableAccess) {
-            method.append("int ");
+            //method.append("int ");
             eaaStarted = true;
         }
         method.append("eaa = ");
@@ -908,12 +914,8 @@ public class Compiler extends Helper {
             method.append("Instructions.");
             method.append(instCall);
             method.append("(");
-            if (g.getName() == null && g.getParent()==null && bits==8)
-                method.append("(short)");
             nameGet(g, bits, method);
             method.append(", ");
-            if (e.getName() == null && e.getParent()==null && bits==8)
-                method.append("(short)");
             nameGet(e, bits, method);
             method.append("));");
         }
@@ -943,8 +945,6 @@ public class Compiler extends Helper {
             method.append("Instructions.");
             method.append(instCall);
             method.append("(");
-            if (g.getName() == null && bits==8)
-                method.append("(short)");
             nameGet(g, bits, method);
             method.append(", ");
             if (bits == 8)
@@ -983,8 +983,6 @@ public class Compiler extends Helper {
             else if (bits == 32)
                 memory_readd(method);
             method.append(", ");
-            if (e.getName() == null && bits==8)
-                method.append("(short)");
             nameGet(e, bits, method);
             method.append("));");
         }
@@ -1003,8 +1001,6 @@ public class Compiler extends Helper {
             method.append("Instructions.");
             method.append(instCall);
             method.append("(");
-            if (bits==8)
-                method.append("(short)");
             method.append(i);
             method.append(", ");
             nameGet(CPU_Regs.reg_eax, bits, method);
@@ -1709,7 +1705,7 @@ public class Compiler extends Helper {
             case 0x23c:
                 if (op instanceof Inst1.CmpAlIb) {
                     Inst1.CmpAlIb o = (Inst1.CmpAlIb) op;
-                    method.append("Instructions.CMPB((short)");
+                    method.append("Instructions.CMPB(");
                     method.append(o.i);
                     method.append(", CPU_Regs.reg_eax.low());");
                     return true;
@@ -2330,7 +2326,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Inst1.GrplEbIb_reg_cmp) {
                     Inst1.GrplEbIb_reg_cmp o = (Inst1.GrplEbIb_reg_cmp) op;
-                    method.append("Instructions.CMPB((short)");
+                    method.append("Instructions.CMPB(");
                     method.append(o.ib);
                     method.append(",");
                     method.append(nameGet8(o.earb));
@@ -2375,7 +2371,7 @@ public class Compiler extends Helper {
                 if (op instanceof Inst1.GrplEbIb_mem_cmp) {
                     Inst1.GrplEbIb_mem_cmp o = (Inst1.GrplEbIb_mem_cmp) op;
                     memory_start(o.get_eaa, seg, method);
-                    method.append("Instructions.CMPB((short)");
+                    method.append("Instructions.CMPB(");
                     method.append(o.ib);
                     method.append(",Memory.mem_readb(eaa));");
                     return true;
@@ -2605,22 +2601,22 @@ public class Compiler extends Helper {
             case 0x286:
                 if (op instanceof Inst1.XchgEbGb_reg) {
                     Inst1.XchgEbGb_reg o = (Inst1.XchgEbGb_reg) op;
-                    declareShortVal(method);
-                    method.append("sval = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet8(o.rb));
                     method.append(";");
                     method.append(nameSet8(o.rb, nameGet8(o.earb)));
                     method.append(";");
-                    method.append(nameSet8(o.earb, "sval"));
+                    method.append(nameSet8(o.earb, "val"));
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst1.XchgEbGb_mem) {
                     Inst1.XchgEbGb_mem o = (Inst1.XchgEbGb_mem) op;
                     memory_start(o.get_eaa, seg, method);
-                    declareShortVal(method);
-                    method.append("sval = Memory.mem_readb(eaa);Memory.mem_writeb(eaa,");method.append(nameGet8(o.rb));method.append(");");
-                    method.append(nameSet8(o.rb, "sval"));
+                    declareVal(method);
+                    method.append("val = Memory.mem_readb(eaa);Memory.mem_writeb(eaa,");method.append(nameGet8(o.rb));method.append(");");
+                    method.append(nameSet8(o.rb, "val"));
                     method.append(";");
                     return true;
                 }
@@ -3121,7 +3117,7 @@ public class Compiler extends Helper {
             case 0x2a8:
                 if (op instanceof Inst1.TestAlIb) {
                     Inst1.TestAlIb o = (Inst1.TestAlIb) op;
-                    method.append("Instructions.TESTB((short)");
+                    method.append("Instructions.TESTB(");
                     method.append(o.ib);
                     method.append(",CPU_Regs.reg_eax.low());");
                     return true;
@@ -3233,7 +3229,7 @@ public class Compiler extends Helper {
             case 0x2b0:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3242,7 +3238,7 @@ public class Compiler extends Helper {
             case 0x2b1:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3251,7 +3247,7 @@ public class Compiler extends Helper {
             case 0x2b2:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3260,7 +3256,7 @@ public class Compiler extends Helper {
             case 0x2b3:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3269,7 +3265,7 @@ public class Compiler extends Helper {
             case 0x2b4:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3278,7 +3274,7 @@ public class Compiler extends Helper {
             case 0x2b5:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3287,7 +3283,7 @@ public class Compiler extends Helper {
             case 0x2b6:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3296,7 +3292,7 @@ public class Compiler extends Helper {
             case 0x2b7:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3369,25 +3365,25 @@ public class Compiler extends Helper {
             case 0x2c0:
                 if (op instanceof Grp2.ROLB_reg) {
                     Grp2.ROLB_reg o = (Grp2.ROLB_reg) op;
-                    declareShortVal(method);
-                    method.append("sval = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (Instructions.valid_ROLB(sval, ");
+                    method.append(";if (Instructions.valid_ROLB(val, ");
                     method.append(o.val);
                     method.append("))");
-                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(" + o.val + ", sval)"));
+                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(" + o.val + ", val)"));
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.RORB_reg) {
                     Grp2.RORB_reg o = (Grp2.RORB_reg) op;
-                    declareShortVal(method);
-                    method.append("sval = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (Instructions.valid_RORB(sval, ");
+                    method.append(";if (Instructions.valid_RORB(val, ");
                     method.append(o.val);
                     method.append("))");
-                    method.append(nameSet8(o.earb, "Instructions.do_RORB(" + o.val + ", sval)"));
+                    method.append(nameSet8(o.earb, "Instructions.do_RORB(" + o.val + ", val)"));
                     method.append(";");
                     return true;
                 }
@@ -3682,7 +3678,7 @@ public class Compiler extends Helper {
             case 0x2c6:
                 if (op instanceof Inst1.MovIb) {
                     Inst1.MovIb o = (Inst1.MovIb) op;
-                    method.append(nameSet8(o.reg, "(short)" + o.ib));
+                    method.append(nameSet8(o.reg, String.valueOf(o.ib)));
                     method.append(";");
                     return true;
                 }
@@ -3690,7 +3686,7 @@ public class Compiler extends Helper {
                     Inst1.MovIb_mem o = (Inst1.MovIb_mem) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", (short)");
+                    method.append(", ");
                     method.append(o.ib);
                     method.append(");");
                     return true;
@@ -3815,25 +3811,25 @@ public class Compiler extends Helper {
             case 0x2d0:
                 if (op instanceof Grp2.ROLB_reg) {
                     Grp2.ROLB_reg o = (Grp2.ROLB_reg) op;
-                    declareShortVal(method);
-                    method.append("sval = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (Instructions.valid_ROLB(sval, ");
+                    method.append(";if (Instructions.valid_ROLB(val, ");
                     method.append(o.val);
                     method.append("))");
-                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(" + o.val + ", sval)"));
+                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(" + o.val + ", val)"));
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Grp2.RORB_reg) {
                     Grp2.RORB_reg o = (Grp2.RORB_reg) op;
-                    declareShortVal(method);
-                    method.append("sval = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (Instructions.valid_RORB(sval, ");
+                    method.append(";if (Instructions.valid_RORB(val, ");
                     method.append(o.val);
                     method.append("))");
-                    method.append(nameSet8(o.earb, "Instructions.do_RORB(" + o.val + ", sval)"));
+                    method.append(nameSet8(o.earb, "Instructions.do_RORB(" + o.val + ", val)"));
                     method.append(";");
                     return true;
                 }
@@ -4090,11 +4086,11 @@ public class Compiler extends Helper {
                     Grp2.ROLB_reg_cl o = (Grp2.ROLB_reg_cl) op;
                     declareVal(method);
                     method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;");
-                    declareShortVal(method);
-                    method.append("sval = ");
+                    declareVal(method);
+                    method.append("val = ");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (Instructions.valid_ROLB(sval, val))");
-                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(val, sval)"));
+                    method.append(";if (Instructions.valid_ROLB(val, val))");
+                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(val, val)"));
                     method.append(";");
                     return true;
                 }
@@ -4102,11 +4098,11 @@ public class Compiler extends Helper {
                     Grp2.RORB_reg_cl o = (Grp2.RORB_reg_cl) op;
                     declareVal(method);
                     method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;");
-                    declareShortVal(method);
-                    method.append("sval = ");
+                    declareVal2(method);
+                    method.append("val2 = ");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (Instructions.valid_RORB(sval, val))");
-                    method.append(nameSet8(o.earb, "Instructions.do_RORB(val, sval)"));
+                    method.append(";if (Instructions.valid_RORB(val2, val))");
+                    method.append(nameSet8(o.earb, "Instructions.do_RORB(val, val2)"));
                     method.append(";");
                     return true;
                 }
@@ -4737,7 +4733,7 @@ public class Compiler extends Helper {
             case 0x2f6:
                 if (op instanceof Grp3.Testb_reg) {
                     Grp3.Testb_reg o = (Grp3.Testb_reg) op;
-                    method.append("Instructions.TESTB((short)");
+                    method.append("Instructions.TESTB(");
                     method.append(o.val);
                     method.append(",");
                     method.append(nameGet8(o.earb));
@@ -4746,7 +4742,7 @@ public class Compiler extends Helper {
                 }
                 if (op instanceof Grp3.Testb_mem) {
                     Grp3.Testb_mem o = (Grp3.Testb_mem) op;
-                    method.append("Instructions.TESTB((short)");
+                    method.append("Instructions.TESTB(");
                     method.append(o.val);
                     method.append(",Memory.mem_readb(");
                     toStringValue(o.get_eaa, seg, method);
@@ -5610,7 +5606,7 @@ public class Compiler extends Helper {
             case 0x390:
                 if (op instanceof Inst2.SETcc_reg_o) {
                     Inst2.SETcc_reg_o o = (Inst2.SETcc_reg_o) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_O()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_O()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5618,7 +5614,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_o o = (Inst2.SETcc_mem_o) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_O()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_O()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5626,7 +5622,7 @@ public class Compiler extends Helper {
             case 0x391:
                 if (op instanceof Inst2.SETcc_reg_no) {
                     Inst2.SETcc_reg_no o = (Inst2.SETcc_reg_no) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NO()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NO()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5634,7 +5630,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_no o = (Inst2.SETcc_mem_no) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NO()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NO()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5642,7 +5638,7 @@ public class Compiler extends Helper {
             case 0x392:
                 if (op instanceof Inst2.SETcc_reg_b) {
                     Inst2.SETcc_reg_b o = (Inst2.SETcc_reg_b) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_B()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_B()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5650,7 +5646,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_b o = (Inst2.SETcc_mem_b) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_B()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_B()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5658,7 +5654,7 @@ public class Compiler extends Helper {
             case 0x393:
                 if (op instanceof Inst2.SETcc_reg_nb) {
                     Inst2.SETcc_reg_nb o = (Inst2.SETcc_reg_nb) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NB()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NB()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5666,7 +5662,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_nb o = (Inst2.SETcc_mem_nb) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NB()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NB()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5674,7 +5670,7 @@ public class Compiler extends Helper {
             case 0x394:
                 if (op instanceof Inst2.SETcc_reg_z) {
                     Inst2.SETcc_reg_z o = (Inst2.SETcc_reg_z) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_Z()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_Z()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5682,7 +5678,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_z o = (Inst2.SETcc_mem_z) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_Z()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_Z()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5690,7 +5686,7 @@ public class Compiler extends Helper {
             case 0x395:
                 if (op instanceof Inst2.SETcc_reg_nz) {
                     Inst2.SETcc_reg_nz o = (Inst2.SETcc_reg_nz) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NZ()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NZ()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5698,7 +5694,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_nz o = (Inst2.SETcc_mem_nz) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NZ()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NZ()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5706,7 +5702,7 @@ public class Compiler extends Helper {
             case 0x396:
                 if (op instanceof Inst2.SETcc_reg_be) {
                     Inst2.SETcc_reg_be o = (Inst2.SETcc_reg_be) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_BE()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_BE()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5714,7 +5710,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_be o = (Inst2.SETcc_mem_be) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_BE()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_BE()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5722,7 +5718,7 @@ public class Compiler extends Helper {
             case 0x397:
                 if (op instanceof Inst2.SETcc_reg_nbe) {
                     Inst2.SETcc_reg_nbe o = (Inst2.SETcc_reg_nbe) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NBE()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NBE()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5730,7 +5726,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_nbe o = (Inst2.SETcc_mem_nbe) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NBE()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NBE()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5738,7 +5734,7 @@ public class Compiler extends Helper {
             case 0x398:
                 if (op instanceof Inst2.SETcc_reg_s) {
                     Inst2.SETcc_reg_s o = (Inst2.SETcc_reg_s) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_S()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_S()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5746,7 +5742,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_s o = (Inst2.SETcc_mem_s) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_S()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_S()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -5754,7 +5750,7 @@ public class Compiler extends Helper {
             case 0x399:
                 if (op instanceof Inst2.SETcc_reg_ns) {
                     Inst2.SETcc_reg_ns o = (Inst2.SETcc_reg_ns) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NS()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NS()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -5762,7 +5758,7 @@ public class Compiler extends Helper {
                     Inst2.SETcc_mem_ns o = (Inst2.SETcc_mem_ns) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NS()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NS()) ? 1 : 0);");
                     return true;
                 }
                 break;

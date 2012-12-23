@@ -6,10 +6,10 @@ import jdos.hardware.Memory;
 
 public class Grp2 extends Helper {
     static public class ROLB_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
-        public ROLB_reg(int rm, short val) {
+        public ROLB_reg(int rm, int val) {
             this.val=val;
             earb = Mod.eb(rm);
 
@@ -37,10 +37,10 @@ public class Grp2 extends Helper {
     }
 
     static public class RORB_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
-        public RORB_reg(int rm, short val) {
+        public RORB_reg(int rm, int val) {
             this.val=val;
             earb = Mod.eb(rm);
 
@@ -68,10 +68,10 @@ public class Grp2 extends Helper {
     }
 
     static public class RCLB_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
-        public RCLB_reg(int rm, short val) {
+        public RCLB_reg(int rm, int val) {
             this.val=val;
             earb = Mod.eb(rm);
 
@@ -99,10 +99,10 @@ public class Grp2 extends Helper {
     }
 
     static public class RCRB_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
-        public RCRB_reg(int rm, short val) {
+        public RCRB_reg(int rm, int val) {
             this.val=val;
             earb = Mod.eb(rm);
 
@@ -130,10 +130,10 @@ public class Grp2 extends Helper {
     }
 
     static public class SHLB_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
-        public SHLB_reg(int rm, short val) {
+        public SHLB_reg(int rm, int val) {
             this.val=val;
             earb = Mod.eb(rm);
 
@@ -161,10 +161,10 @@ public class Grp2 extends Helper {
     }
 
     static public class SHRB_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
-        public SHRB_reg(int rm, short val) {
+        public SHRB_reg(int rm, int val) {
             this.val=val;
             earb = Mod.eb(rm);
 
@@ -192,10 +192,10 @@ public class Grp2 extends Helper {
     }
 
     static public class SARB_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
-        public SARB_reg(int rm, short val) {
+        public SARB_reg(int rm, int val) {
             this.val=val;
             earb = Mod.eb(rm);
 
@@ -223,10 +223,10 @@ public class Grp2 extends Helper {
     }
 
     static public class ROLB_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
-        public ROLB_mem(EaaBase get_eaa, short val) {
+        public ROLB_mem(EaaBase get_eaa, int val) {
             this.get_eaa = get_eaa;
             this.val=val;
         }
@@ -255,10 +255,10 @@ public class Grp2 extends Helper {
     }
 
     static public class RORB_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
-        public RORB_mem(EaaBase get_eaa, short val) {
+        public RORB_mem(EaaBase get_eaa, int val) {
             this.get_eaa = get_eaa;
             this.val=val;
 
@@ -288,10 +288,10 @@ public class Grp2 extends Helper {
     }
 
     static public class RCLB_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
-        public RCLB_mem(EaaBase get_eaa, short val) {
+        public RCLB_mem(EaaBase get_eaa, int val) {
             this.get_eaa = get_eaa;
             this.val=val;
 
@@ -321,10 +321,10 @@ public class Grp2 extends Helper {
     }
 
     static public class RCRB_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
-        public RCRB_mem(EaaBase get_eaa, short val) {
+        public RCRB_mem(EaaBase get_eaa, int val) {
             this.get_eaa = get_eaa;
             this.val=val;
 
@@ -354,10 +354,10 @@ public class Grp2 extends Helper {
     }
 
     static public class SHLB_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
-        public SHLB_mem(EaaBase get_eaa, short val) {
+        public SHLB_mem(EaaBase get_eaa, int val) {
             this.get_eaa = get_eaa;
             this.val=val;
 
@@ -387,10 +387,10 @@ public class Grp2 extends Helper {
     }
 
     static public class SHRB_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
-        public SHRB_mem(EaaBase get_eaa, short val) {
+        public SHRB_mem(EaaBase get_eaa, int val) {
             this.get_eaa = get_eaa;
             this.val=val;
         }
@@ -419,10 +419,10 @@ public class Grp2 extends Helper {
     }
 
     static public class SARB_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
-        public SARB_mem(EaaBase get_eaa, short val) {
+        public SARB_mem(EaaBase get_eaa, int val) {
             this.get_eaa = get_eaa;
             this.val=val;
         }

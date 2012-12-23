@@ -10,7 +10,7 @@ public class Compiler2 extends Compiler {
             case 0x39a:
                 if (op instanceof Inst2.SETcc_reg_p) {
                     Inst2.SETcc_reg_p o = (Inst2.SETcc_reg_p) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_P()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_P()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -18,7 +18,7 @@ public class Compiler2 extends Compiler {
                     Inst2.SETcc_mem_p o = (Inst2.SETcc_mem_p) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_P()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_P()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -26,7 +26,7 @@ public class Compiler2 extends Compiler {
             case 0x39b:
                 if (op instanceof Inst2.SETcc_reg_np) {
                     Inst2.SETcc_reg_np o = (Inst2.SETcc_reg_np) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NP()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NP()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -34,7 +34,7 @@ public class Compiler2 extends Compiler {
                     Inst2.SETcc_mem_np o = (Inst2.SETcc_mem_np) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NP()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NP()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -42,7 +42,7 @@ public class Compiler2 extends Compiler {
             case 0x39c:
                 if (op instanceof Inst2.SETcc_reg_l) {
                     Inst2.SETcc_reg_l o = (Inst2.SETcc_reg_l) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_L()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_L()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -50,7 +50,7 @@ public class Compiler2 extends Compiler {
                     Inst2.SETcc_mem_l o = (Inst2.SETcc_mem_l) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_L()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_L()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -58,7 +58,7 @@ public class Compiler2 extends Compiler {
             case 0x39d:
                 if (op instanceof Inst2.SETcc_reg_nl) {
                     Inst2.SETcc_reg_nl o = (Inst2.SETcc_reg_nl) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NL()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NL()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -66,7 +66,7 @@ public class Compiler2 extends Compiler {
                     Inst2.SETcc_mem_nl o = (Inst2.SETcc_mem_nl) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NL()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NL()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -74,7 +74,7 @@ public class Compiler2 extends Compiler {
             case 0x39e:
                 if (op instanceof Inst2.SETcc_reg_le) {
                     Inst2.SETcc_reg_le o = (Inst2.SETcc_reg_le) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_LE()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_LE()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -82,7 +82,7 @@ public class Compiler2 extends Compiler {
                     Inst2.SETcc_mem_le o = (Inst2.SETcc_mem_le) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_LE()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_LE()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -90,7 +90,7 @@ public class Compiler2 extends Compiler {
             case 0x39f:
                 if (op instanceof Inst2.SETcc_reg_nle) {
                     Inst2.SETcc_reg_nle o = (Inst2.SETcc_reg_nle) op;
-                    method.append(nameSet8(o.earb, "(short)((Flags.TFLG_NLE()) ? 1 : 0)"));
+                    method.append(nameSet8(o.earb, "(Flags.TFLG_NLE()) ? 1 : 0"));
                     method.append(";");
                     return true;
                 }
@@ -98,7 +98,7 @@ public class Compiler2 extends Compiler {
                     Inst2.SETcc_mem_nle o = (Inst2.SETcc_mem_nle) op;
                     method.append("Memory.mem_writeb(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", ((short)((Flags.TFLG_NLE()) ? 1 : 0)));");
+                    method.append(", (Flags.TFLG_NLE()) ? 1 : 0);");
                     return true;
                 }
                 break;
@@ -173,21 +173,21 @@ public class Compiler2 extends Compiler {
             case 0x1a5: // SHLD Ew,Gw,CL
                 if (op instanceof Inst2.ShldEwGwCl_reg) {
                     Inst2.ShldEwGwCl_reg o = (Inst2.ShldEwGwCl_reg) op;
-                    declareShortVal(method);
-                    method.append("sval  = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(sval))");
-                    nameSet16(o.earw, "Instructions.do_DSHLW(", nameGet16(o.rw), ", sval, ", nameGet16(o.earw), ")", method);
+                    declareVal(method);
+                    method.append("val  = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(val))");
+                    nameSet16(o.earw, "Instructions.do_DSHLW(", nameGet16(o.rw), ", val, ", nameGet16(o.earw), ")", method);
                     method.append(";");
                     return true;
                 }
                 if (op instanceof Inst2.ShldEwGwCl_mem) {
                     Inst2.ShldEwGwCl_mem o = (Inst2.ShldEwGwCl_mem) op;
-                    declareShortVal(method);
-                    method.append("sval = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(sval)) {");
+                    declareVal(method);
+                    method.append("val = CPU_Regs.reg_ecx.low();if (Instructions.valid_DSHLW(val)) {");
                     memory_start(o.get_eaa, seg, method);
                     memory_writew(method);
                     method.append("Instructions.do_DSHLW(");
                     nameGet16(o.rw, method);
-                    method.append(", sval, ");
+                    method.append(", val, ");
                     memory_readw(method);
                     method.append("));");
                     return true;
@@ -313,10 +313,10 @@ public class Compiler2 extends Compiler {
                     Inst2.CmpxchgEbGb_mem o = (Inst2.CmpxchgEbGb_mem) op;
                     method.append("Flags.FillFlags();");
                     memory_start(o.get_eaa, seg, method);
-                    declareShortVal(method);
-                    method.append("sval = Memory.mem_readb(eaa);if (CPU_Regs.reg_eax.low() == sval) {Memory.mem_writeb(eaa,");
+                    declareVal(method);
+                    method.append("val = Memory.mem_readb(eaa);if (CPU_Regs.reg_eax.low() == val) {Memory.mem_writeb(eaa,");
                     method.append(nameGet8(o.rb));
-                    method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writeb(eaa,sval);CPU_Regs.reg_eax.low(sval);CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
+                    method.append(");CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,true);} else {Memory.mem_writeb(eaa,val);CPU_Regs.reg_eax.low(val);CPU_Regs.SETFLAGBIT(CPU_Regs.ZF,false);}");
                     return true;
                 }
                 break;
@@ -614,24 +614,24 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst2.XaddGbEb_reg) {
                     Inst2.XaddGbEb_reg o = (Inst2.XaddGbEb_reg) op;
                     if ((setFlags & o.sets())==0) {
-                        declareShortVal(method);
-                        method.append("sval = ");
+                        declareVal(method);
+                        method.append("val = ");
                         method.append(nameGet8(o.rb));
                         method.append(";");
                         method.append(nameSet8(o.rb, nameGet8(o.earb)));
                         method.append(";");
-                        method.append(nameSet8(o.earb, "(short)(" + nameGet8(o.earb) + "+sval)"));
+                        method.append(nameSet8(o.earb, nameGet8(o.earb) + "+val"));
                         method.append(";");
                     } else {
-                        declareShortVal(method);
-                        method.append("sval=Instructions.ADDB(");
+                        declareVal(method);
+                        method.append("val=Instructions.ADDB(");
                         method.append(nameGet8(o.rb));
                         method.append(", ");
                         method.append(nameGet8(o.earb));
                         method.append(");");
                         method.append(nameSet8(o.rb, nameGet8(o.earb)));
                         method.append(";");
-                        method.append(nameSet8(o.earb, "sval"));
+                        method.append(nameSet8(o.earb, "val"));
                         method.append(";");
                     }
                     return true;
@@ -640,15 +640,15 @@ public class Compiler2 extends Compiler {
                     Inst2.XaddGbEb_mem o = (Inst2.XaddGbEb_mem) op;
                     memory_start(o.get_eaa, seg, method);
                     if ((setFlags & o.sets())==0) {
-                        declareShortVal(method);
-                        method.append("sval = Memory.mem_readb(eaa);Memory.mem_writeb(eaa,val+");method.append(nameGet8(o.rb));method.append(");");
-                        method.append(nameSet8(o.rb, "sval"));
+                        declareVal(method);
+                        method.append("val = Memory.mem_readb(eaa);Memory.mem_writeb(eaa,val+");method.append(nameGet8(o.rb));method.append(");");
+                        method.append(nameSet8(o.rb, "val"));
                         method.append(";");
                     } else {
-                        declareShortVal(method);
-                        method.append("sval = Memory.mem_readb(eaa);");
-                        method.append("Memory.mem_writeb(eaa,");method.append("Instructions.ADDB(");method.append(nameGet8(o.rb));method.append(", sval)");method.append(");");
-                        method.append(nameSet8(o.rb, "sval"));
+                        declareVal(method);
+                        method.append("val = Memory.mem_readb(eaa);");
+                        method.append("Memory.mem_writeb(eaa,");method.append("Instructions.ADDB(");method.append(nameGet8(o.rb));method.append(", val)");method.append(");");
+                        method.append(nameSet8(o.rb, "val"));
                         method.append(";");
                     }
                     return true;

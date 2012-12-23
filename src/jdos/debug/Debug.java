@@ -1,13 +1,13 @@
 package jdos.debug;
 
-import jdos.misc.setup.Section;
-import jdos.fpu.FPU;
-import jdos.cpu.CPU_Regs;
 import jdos.cpu.CPU;
+import jdos.cpu.CPU_Regs;
+import jdos.fpu.FPU;
+import jdos.misc.setup.Section;
 
-import java.io.FileOutputStream;
-import java.io.DataOutputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 
 public class Debug {
     public static final int INSTRUCTION = 1;
@@ -186,7 +186,7 @@ public class Debug {
     static public void DEBUG_HeavyWriteLogInstruction() {
 
     }
-    static public boolean DEBUG_IntBreakpoint(/*Bit8u*/short intNum) {
+    static public boolean DEBUG_IntBreakpoint(/*Bit8u*/int intNum) {
         return false;
     }
     static public boolean DEBUG_HeavyIsBreakpoint() {

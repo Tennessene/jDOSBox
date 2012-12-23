@@ -151,14 +151,14 @@ public class CPU_Regs extends Flags {
         public Reg getParent() {
             return parent;
         }
-        public void set8(short s) {
+        public void set8(int s) {
             if (parent == null)
                 low(s);
             else
                 parent.high(s);
         }
 
-        public short get8() {
+        public int get8() {
             if (parent == null)
                 return low();
             else
@@ -176,15 +176,15 @@ public class CPU_Regs extends Flags {
         final public void word(int value) {
             dword = (value & 0xFFFF) | (dword & 0xFFFF0000);
         }
-        final public short low() {
-            return (short)(dword & 0xffl);
+        final public int low() {
+            return dword & 0xff;
         }
         final public void low(int value) {
             dword = (value & 0xFF) | (dword & 0xFFFFFF00);
         }
 
-        final public short high() {
-            return (short)((dword >> 8) & 0xffl);
+        final public int high() {
+            return (dword >> 8) & 0xff;
         }
         final public void high(int value) {
             dword = ((value & 0xFF) << 8) | (dword & 0xFFFF00FF);

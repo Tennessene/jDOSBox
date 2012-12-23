@@ -232,7 +232,7 @@ public class Bios_keyboard {
          */
             /*Bitu*/int scancode= CPU_Regs.reg_eax.low();	/* Read the code */
 
-            /*Bit8u*/short flags1,flags2,flags3,leds;
+            /*Bit8u*/int flags1,flags2,flags3,leds;
             flags1=Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS1);
             flags2=Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS2);
             flags3=Memory.mem_readb(Bios.BIOS_KEYBOARD_FLAGS3);
@@ -361,8 +361,8 @@ public class Bios_keyboard {
                     break;
                 }
                 if((flags1 &0x08)!=0) {
-                    /*Bit8u*/short token = Memory.mem_readb(Bios.BIOS_KEYBOARD_TOKEN);
-                    token = (short)(token*10 + scan_to_scanascii[scancode].alt&0xff);
+                    /*Bit8u*/int token = Memory.mem_readb(Bios.BIOS_KEYBOARD_TOKEN);
+                    token = (token*10 + scan_to_scanascii[scancode].alt&0xff);
                     Memory.mem_writeb(Bios.BIOS_KEYBOARD_TOKEN,token);
                 } else if ((flags1 &0x04)!=0) {
                     add_key(scan_to_scanascii[scancode].control);

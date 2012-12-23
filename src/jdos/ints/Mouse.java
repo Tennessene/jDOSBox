@@ -469,7 +469,7 @@ public class Mouse {
         if (mouse.hidden!=0 || mouse.inhibit_draw) return;
 
         if (mouse.background) {
-            Int10_char.WriteChar(mouse.backposx,mouse.backposy,Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE),mouse.backData[0],mouse.backData[1],true);
+            Int10_char.WriteChar(mouse.backposx,mouse.backposy,(short)Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE),mouse.backData[0],mouse.backData[1],true);
             mouse.background = false;
         }
     }
@@ -485,7 +485,7 @@ public class Mouse {
         if (mouse.mode < 2) mouse.backposx >>= 1;
 
         //use current page (CV program)
-        /*Bit8u*/short page = Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE);
+        /*Bit8u*/short page = (short)Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CURRENT_PAGE);
         /*Bit16u*/int result;
 
         result=Int10_char.ReadCharAttr(mouse.backposx,mouse.backposy,page);
@@ -868,7 +868,7 @@ public class Mouse {
     static public void Mouse_NewVideoMode() {
         mouse.inhibit_draw=false;
         /* Get the correct resolution from the current video mode */
-        /*Bit8u*/short mode=Memory.mem_readb(Bios.BIOS_VIDEO_MODE);
+        /*Bit8u*/int mode=Memory.mem_readb(Bios.BIOS_VIDEO_MODE);
         if(mode == mouse.mode) {if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MOUSE, LogSeverities.LOG_NORMAL,"New video is the same as the old"); /*return;*/}
         mouse.gran_x = mouse.gran_y = (short)0xffff;
         switch (mode) {
@@ -909,7 +909,7 @@ public class Mouse {
             mouse.inhibit_draw=true;
             return;
         }
-        mouse.mode = mode;
+        mouse.mode = (short)mode;
         mouse.hidden = 1;
         mouse.max_x = 639;
         mouse.min_x = 0;
@@ -1163,7 +1163,7 @@ public class Mouse {
                 /* Can't really set a rate this is host determined */
                 break;
             case 0x1d:      /* Set display page number */
-                mouse.page=CPU_Regs.reg_ebx.low();
+                mouse.page=(short)CPU_Regs.reg_ebx.low();
                 break;
             case 0x1e:      /* Get display page number */
                 CPU_Regs.reg_ebx.word(mouse.page);

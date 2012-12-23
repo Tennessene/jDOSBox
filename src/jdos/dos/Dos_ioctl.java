@@ -26,7 +26,7 @@ public class Dos_ioctl {
             }
         } else if (CPU_Regs.reg_eax.low()<0x12) { 				/* those use a diskdrive except 0x0b */
             if (CPU_Regs.reg_eax.low()!=0x0b) {
-                drive=CPU_Regs.reg_ebx.low();if (drive==0) drive = Dos_files.DOS_GetDefaultDrive();else drive--;
+                drive=(short)CPU_Regs.reg_ebx.low();if (drive==0) drive = Dos_files.DOS_GetDefaultDrive();else drive--;
                 if((drive >= 2) && !(( drive < Dos_files.DOS_DRIVES ) && Dos_files.Drives[drive]!=null) ) {
                     Dos.DOS_SetError(Dos.DOSERR_INVALID_DRIVE);
                     return false;

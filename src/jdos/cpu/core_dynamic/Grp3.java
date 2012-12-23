@@ -7,7 +7,7 @@ import jdos.hardware.Memory;
 
 public class Grp3 extends Helper {
     static public class Testb_reg extends Op {
-        short val;
+        int val;
         CPU_Regs.Reg earb;
 
         public Testb_reg(int rm) {
@@ -37,7 +37,7 @@ public class Grp3 extends Helper {
     }
 
     static public class Testb_mem extends Op {
-        short val;
+        int val;
         EaaBase get_eaa;
 
         public Testb_mem(int rm) {

@@ -40,7 +40,7 @@ public class Eaa extends Helper {
         public /*PhysPt*/int call() { return Core.base_ds+((reg_ebx.word()+(/*Bit16s*/short)reg_esi.word()+i) & 0xFFFF); }
     }
     final static public class EA_16_41_n extends EaaBase {
-        byte i;
+        int i;
         public EA_16_41_n() {
             i = decode_fetchbs();
         }

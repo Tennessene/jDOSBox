@@ -644,7 +644,7 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 	/* First read mode setup settings from bios area */
 //	Bit8u video_ctl=Memory.real_readb(Int10.BIOSMEM_SEG,BIOSMEM_VIDEO_CTL);
 //	Bit8u vga_switches=Memory.real_readb(Int10.BIOSMEM_SEG,BIOSMEM_SWITCHES);
-	/*Bit8u*/short modeset_ctl=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_MODESET_CTL);
+	/*Bit8u*/int modeset_ctl=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_MODESET_CTL);
 
 	if (Dosbox.IS_VGA_ARCH()) {
 		if (VGA.svga.accepts_mode!=null) {
@@ -1241,7 +1241,7 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 		IoHandler.IO_Write(0x3c0,0x20); //Disable palette access
 	}
 	/* Setup some special stuff for different modes */
-	/*Bit8u*/short feature=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_INITIAL_MODE);
+	/*Bit8u*/int feature=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_INITIAL_MODE);
 	switch (CurMode.type) {
 	case VGA.M_CGA2:
 		feature=(short)((feature&~0x30)|0x20);

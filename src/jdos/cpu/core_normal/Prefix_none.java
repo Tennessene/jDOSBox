@@ -40,9 +40,9 @@ public class Prefix_none extends StringOp {
         /* ADD Eb,Gb */
         ops[0x00] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
-                    short value = 0;
+                    int value = 0;
                     switch ((rm >> 3) & 7) {
                         case 0: value = reg_eax.low(); break;
                         case 1: value = reg_ecx.low(); break;
@@ -76,7 +76,7 @@ public class Prefix_none extends StringOp {
         /* ADD Ew,Gw */
         ops[0x01] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArw[rm].word(ADDW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
@@ -91,7 +91,7 @@ public class Prefix_none extends StringOp {
         /* ADD Gb,Eb */
         ops[0x02] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb[rm].set(ADDB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
@@ -106,7 +106,7 @@ public class Prefix_none extends StringOp {
         /* ADD Gw,Ew */
         ops[0x03] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrw[rm].word(ADDW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
@@ -153,7 +153,7 @@ public class Prefix_none extends StringOp {
         /* OR Eb,Gb */
         ops[0x08] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArb[rm].set(ORB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
@@ -169,7 +169,7 @@ public class Prefix_none extends StringOp {
         /* OR Ew,Gw */
         ops[0x09] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     r = rm;
                     Modrm.GetEArw[rm].word(ORW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
@@ -185,7 +185,7 @@ public class Prefix_none extends StringOp {
         /* OR Gb,Eb */
         ops[0x0a] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb[rm].set(ORB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
@@ -200,7 +200,7 @@ public class Prefix_none extends StringOp {
         /* OR Gw,Ew */
         ops[0x0b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrw[rm];
                 if (rm >= 0xc0 ) {
                     r.word(ORW(Modrm.GetEArw[rm].word(),r.word()));
@@ -249,7 +249,7 @@ public class Prefix_none extends StringOp {
         /* ADC Eb,Gb */
         ops[0x10] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     r = rm;
                     Modrm.GetEArb[rm].set(ADCB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
@@ -266,7 +266,7 @@ public class Prefix_none extends StringOp {
         /* ADC Ew,Gw */
         ops[0x11] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArw[rm].word(ADCW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
@@ -281,7 +281,7 @@ public class Prefix_none extends StringOp {
         /* ADC Gb,Eb */
         ops[0x12] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb[rm].set(ADCB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
@@ -296,7 +296,7 @@ public class Prefix_none extends StringOp {
         /* ADC Gw,Ew */
         ops[0x13] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrw[rm].word(ADCW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
@@ -344,7 +344,7 @@ public class Prefix_none extends StringOp {
         /* SBB Eb,Gb */
         ops[0x18] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArb[rm].set(SBBB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
@@ -360,7 +360,7 @@ public class Prefix_none extends StringOp {
         /* SBB Ew,Gw */
         ops[0x19] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     r = rm;
                     Modrm.GetEArw[rm].word(SBBW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
@@ -376,7 +376,7 @@ public class Prefix_none extends StringOp {
         /* SBB Gb,Eb */
         ops[0x1a] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb[rm].set(SBBB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
@@ -391,7 +391,7 @@ public class Prefix_none extends StringOp {
         /* SBB Gw,Ew */
         ops[0x1b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 r = rm;
                 if (rm >= 0xc0 ) {
                     Modrm.Getrw[rm].word(SBBW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
@@ -439,7 +439,7 @@ public class Prefix_none extends StringOp {
         /* AND Eb,Gb */
         ops[0x20] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArb[rm].set(ANDB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
@@ -455,7 +455,7 @@ public class Prefix_none extends StringOp {
         /* AND Ew,Gw */
         ops[0x21] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArw[rm].word(ANDW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
@@ -470,7 +470,7 @@ public class Prefix_none extends StringOp {
         /* AND Gb,Eb */
         ops[0x22] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb[rm].set(ANDB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
@@ -485,7 +485,7 @@ public class Prefix_none extends StringOp {
         /* AND Gw,Ew */
         ops[0x23] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 r = rm;
                 if (rm >= 0xc0 ) {
                     Modrm.Getrw[rm].word(ANDW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
@@ -535,7 +535,7 @@ public class Prefix_none extends StringOp {
         /* SUB Eb,Gb */
         ops[0x28] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArb[rm].set(SUBB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
@@ -551,7 +551,7 @@ public class Prefix_none extends StringOp {
         /* SUB Ew,Gw */
         ops[0x29] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArw[rm].word(SUBW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
@@ -566,7 +566,7 @@ public class Prefix_none extends StringOp {
         /* SUB Gb,Eb */
         ops[0x2a] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb[rm].set(SUBB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
@@ -581,7 +581,7 @@ public class Prefix_none extends StringOp {
         /* SUB Gw,Ew */
         ops[0x2b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 r = rm;
                 if (rm >= 0xc0 ) {
                     Modrm.Getrw[rm].word(SUBW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
@@ -631,7 +631,7 @@ public class Prefix_none extends StringOp {
         /* XOR Eb,Gb */
         ops[0x30] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArb[rm].set(XORB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get()));
                 }
@@ -647,7 +647,7 @@ public class Prefix_none extends StringOp {
         /* XOR Ew,Gw */
         ops[0x31] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.GetEArw[rm].word(XORW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word()));
                 }
@@ -662,7 +662,7 @@ public class Prefix_none extends StringOp {
         /* XOR Gb,Eb */
         ops[0x32] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb[rm].set(XORB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get()));
                 }
@@ -677,7 +677,7 @@ public class Prefix_none extends StringOp {
         /* XOR Gw,Ew */
         ops[0x33] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrw[rm].word(XORW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word()));
                 }
@@ -726,7 +726,7 @@ public class Prefix_none extends StringOp {
         /* CMP Eb,Gb */
         ops[0x38] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     CMPB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get());
                 }
@@ -742,7 +742,7 @@ public class Prefix_none extends StringOp {
         /* CMP Ew,Gw */
         ops[0x39] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     CMPW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word());
                 }
@@ -757,7 +757,7 @@ public class Prefix_none extends StringOp {
         /* CMP Gb,Eb */
         ops[0x3a] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     CMPB(Modrm.GetEArb[rm].get(),Modrm.Getrb[rm].get());
                 }
@@ -772,7 +772,7 @@ public class Prefix_none extends StringOp {
         /* CMP Gw,Ew */
         ops[0x3b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     CMPW(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word());
                 }
@@ -1153,11 +1153,11 @@ public class Prefix_none extends StringOp {
         /* BOUND */
         ops[0x62] = new OP() {
             final public int call() {
-                /*Bit16s*/short bound_min, bound_max;
-                /*Bit8u*/short rm=Fetchb();/*PhysPt*/int eaa=getEaa(rm);
+                /*Bit16s*/int bound_min, bound_max;
+                /*Bit8u*/int rm=Fetchb();/*PhysPt*/int eaa=getEaa(rm);
                 bound_min=(short)Memory.mem_readw(eaa);
                 bound_max=(short)Memory.mem_readw(eaa+2);
-                if ( (((short)Modrm.Getrw[rm].word()) < bound_min) || (((short)Modrm.Getrw[rm].word()) > bound_max) ) {
+                if ( ((Modrm.Getrw[rm].word()) < bound_min) || ((Modrm.Getrw[rm].word()) > bound_max) ) {
                     return EXCEPTION(5);
                 }
                 return HANDLED;
@@ -1168,7 +1168,7 @@ public class Prefix_none extends StringOp {
         ops[0x63] = new OP() {
             final public int call() {
                  if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     int value = CPU.CPU_ARPL(Modrm.GetEArw[rm].word(),Modrm.Getrw[rm].word());
                     Modrm.GetEArw[rm].word(value);
@@ -1230,7 +1230,7 @@ public class Prefix_none extends StringOp {
         /* IMUL Gw,Ew,Iw */
         ops[0x69] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 r = rm;
                 if (rm >= 0xc0 ) {
                     int op3 = Fetchws();
@@ -1256,7 +1256,7 @@ public class Prefix_none extends StringOp {
         /* IMUL Gw,Ew,Ib */
         ops[0x6b] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 r = rm;
                 if (rm >= 0xc0 ) {
                     int op3 = Fetchbs();
@@ -1440,11 +1440,11 @@ public class Prefix_none extends StringOp {
         /* Grpl Eb,Ib */
         ops[0x80] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/final int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 if (rm>= 0xc0) {
                     Modrm.Getrb_interface r = Modrm.GetEArb[rm];
 
-                    /*Bit8u*/short ib=Fetchb();
+                    /*Bit8u*/int ib=Fetchb();
                     switch (which) {
                     case 0x00:r.set(ADDB(ib,r.get()));break;
                     case 0x01: r.set(ORB(ib,r.get()));break;
@@ -1458,7 +1458,7 @@ public class Prefix_none extends StringOp {
                 } else {
                     int eaa = m = getEaa(rm);
 
-                    /*Bit8u*/short ib=Fetchb();
+                    /*Bit8u*/int ib=Fetchb();
                     switch (which) {
                     case 0x00:Memory.mem_writeb(eaa, ADDB(ib,Memory.mem_readb(eaa)));break;
                     case 0x01: Memory.mem_writeb(eaa, ORB(ib,Memory.mem_readb(eaa)));break;
@@ -1482,7 +1482,7 @@ public class Prefix_none extends StringOp {
         /* Grpl Ew,Iw */
         ops[0x81] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/final int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 if (rm>= 0xc0) {
                     Reg r = Modrm.GetEArw[rm];
 
@@ -1518,7 +1518,7 @@ public class Prefix_none extends StringOp {
         /* Grpl Ew,Ix */
         ops[0x83] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/final int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 if (rm>= 0xc0) {
                     // reading 240 as an unsigned byte will get returned as -16 and when that is cast to unsigned short it becomes 65520
                     Reg r = Modrm.GetEArw[rm];
@@ -1555,7 +1555,7 @@ public class Prefix_none extends StringOp {
         /* TEST Eb,Gb */
         ops[0x84] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     TESTB(Modrm.Getrb[rm].get(),Modrm.GetEArb[rm].get());
                 }
@@ -1571,7 +1571,7 @@ public class Prefix_none extends StringOp {
         /* TEST Ew,Gw */
         ops[0x85] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     TESTW(Modrm.Getrw[rm].word(),Modrm.GetEArw[rm].word());
                 }
@@ -1586,11 +1586,11 @@ public class Prefix_none extends StringOp {
         /* XCHG Eb,Gb */
         ops[0x86] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bit8u*/short oldrmrb=Modrm.Getrb[rm].get();
+                /*Bit8u*/int rm=Fetchb();/*Bit8u*/int oldrmrb=Modrm.Getrb[rm].get();
                 if (rm >= 0xc0 ) {Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());Modrm.GetEArb[rm].set(oldrmrb);}
                 else {
                     /*PhysPt*/int eaa=getEaa(rm);
-                    short val = Memory.mem_readb(eaa);
+                    int val = Memory.mem_readb(eaa);
                     Memory.mem_writeb(eaa,oldrmrb);
                     Modrm.Getrb[rm].set(val);
                 }
@@ -1602,7 +1602,7 @@ public class Prefix_none extends StringOp {
         /* XCHG Ew,Gw */
         ops[0x87] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Reg rw = Modrm.Getrw[rm];
                     Reg ea = Modrm.GetEArw[rm];
@@ -1622,9 +1622,9 @@ public class Prefix_none extends StringOp {
         /* MOV Eb,Gb */
         ops[0x88] = new OP() {
             final public int call() {
-                short rm = Fetchb();
+                int rm = Fetchb();
                 if (rm >= 0xc0) {
-                    short value;
+                    int value;
                     switch ((rm >> 3) & 7) {
                         case 0: value = reg_eax.low(); break;
                         case 1: value = reg_ecx.low(); break;
@@ -1677,7 +1677,7 @@ public class Prefix_none extends StringOp {
         /* MOV Ew,Gw */
         ops[0x89] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word(Modrm.Getrw[rm].word());}
                 else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,Modrm.Getrw[rm].word());}
                 return HANDLED;
@@ -1687,10 +1687,10 @@ public class Prefix_none extends StringOp {
         /* MOV Gb,Eb */
         ops[0x8a] = new OP() {
             final public int call() {
-                short rm = Fetchb();
+                int rm = Fetchb();
 
                 if (rm >= 0xc0) {
-                    short value;
+                    int value;
                     switch (rm & 7) {
                         case 0: value = reg_eax.low(); break;
                         case 1: value = reg_ecx.low(); break;
@@ -1733,7 +1733,7 @@ public class Prefix_none extends StringOp {
         /* MOV Gw,Ew */
         ops[0x8b] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 )Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());
                 else {/*PhysPt*/int eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readw(eaa));}
                 return HANDLED;
@@ -1743,7 +1743,7 @@ public class Prefix_none extends StringOp {
         /* Mov Ew,Sw */
         ops[0x8c] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/int rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:					/* MOV Ew,ES */
                     val=CPU.Segs_ESval;break;
@@ -1772,7 +1772,7 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 //Little hack to always use segprefixed version
                 base_ds=base_ss=0;
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (TEST_PREFIX_ADDR()!=0) {
                     Modrm.Getrw[rm].word((/*Bit16u*/int)(getEaa32(rm)));
                 } else {
@@ -1785,7 +1785,7 @@ public class Prefix_none extends StringOp {
         /* MOV Sw,Ew */
         ops[0x8e] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/int rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
                 if (rm >= 0xc0 ) {val=Modrm.GetEArw[rm].word();}
                 else {/*PhysPt*/int eaa=getEaa(rm);val=Memory.mem_readw(eaa);}
                 switch (which) {
@@ -1809,7 +1809,7 @@ public class Prefix_none extends StringOp {
         ops[0x8f] = new OP() {
             final public int call() {
                 /*Bit16u*/int val=CPU.CPU_Pop16();
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.GetEArw[rm].word(val);}
                 else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,val);}
                 return HANDLED;
@@ -2239,7 +2239,7 @@ public class Prefix_none extends StringOp {
         /* GRP2 Eb,Ib */
         ops[0xc0] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2B_fetchb(rm);
                 return HANDLED;
             }
@@ -2249,7 +2249,7 @@ public class Prefix_none extends StringOp {
         /* GRP2 Ew,Ib */
         ops[0xc1] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2W_fetchb(rm);
                 return HANDLED;
             }
@@ -2276,7 +2276,7 @@ public class Prefix_none extends StringOp {
         /* LES */
         ops[0xc4] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 int val = Memory.mem_readw(eaa); // make sure all reads are done before writing something in case of a PF
@@ -2289,7 +2289,7 @@ public class Prefix_none extends StringOp {
         /* LDS */
         ops[0xc5] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 int val = Memory.mem_readw(eaa); // make sure all reads are done before writing something in case of a PF
@@ -2302,7 +2302,7 @@ public class Prefix_none extends StringOp {
         /* MOV Eb,Ib */
         ops[0xc6] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0) {Modrm.GetEArb[rm].set(Fetchb());}
                 else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writeb(eaa,Fetchb());}
                 return HANDLED;
@@ -2313,7 +2313,7 @@ public class Prefix_none extends StringOp {
         /* MOV EW,Iw */
         ops[0xc7] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0) {Modrm.GetEArw[rm].word(Fetchw());}
                 else {/*PhysPt*/int eaa=getEaa(rm);Memory.mem_writew(eaa,Fetchw());}
                 return HANDLED;
@@ -2378,7 +2378,7 @@ public class Prefix_none extends StringOp {
         /* INT Ib */
         ops[0xcd] = new OP() {
             final public int call() {
-                /*Bit8u*/short num=Fetchb();
+                /*Bit8u*/int num=Fetchb();
                 if (Config.C_DEBUG) {
                     Flags.FillFlags();
                     if (Debug.DEBUG_IntBreakpoint(num)) {
@@ -2427,7 +2427,7 @@ public class Prefix_none extends StringOp {
         /* GRP2 Eb,1 */
         ops[0xd0] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2B(rm,1);
                 return HANDLED;
             }
@@ -2437,7 +2437,7 @@ public class Prefix_none extends StringOp {
         /* GRP2 Ew,1 */
         ops[0xd1] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2W(rm, 1);
                 return HANDLED;
             }
@@ -2446,7 +2446,7 @@ public class Prefix_none extends StringOp {
         /* GRP2 Eb,CL */
         ops[0xd2] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2B(rm, reg_ecx.low());
                 return HANDLED;
             }
@@ -2456,7 +2456,7 @@ public class Prefix_none extends StringOp {
         /* GRP2 Ew,CL */
         ops[0xd3] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 GRP2W(rm, reg_ecx.low());
                 return HANDLED;
             }
@@ -2507,14 +2507,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC0_Normal(rm);
                     } else {
                         FPU.FPU_ESC0_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2529,14 +2529,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC1_Normal(rm);
                     } else {
                         FPU.FPU_ESC1_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2551,14 +2551,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC2_Normal(rm);
                     } else {
                         FPU.FPU_ESC2_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2573,14 +2573,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC3_Normal(rm);
                     } else {
                         FPU.FPU_ESC3_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2595,14 +2595,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC4_Normal(rm);
                     } else {
                         FPU.FPU_ESC4_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2617,14 +2617,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC5_Normal(rm);
                     } else {
                         FPU.FPU_ESC5_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2639,14 +2639,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC6_Normal(rm);
                     } else {
                         FPU.FPU_ESC6_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2661,14 +2661,14 @@ public class Prefix_none extends StringOp {
             final public int call() {
                 if (Config.C_FPU)
                 {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     if (rm >= 0xc0) {
                         FPU.FPU_ESC7_Normal(rm);
                     } else {
                         FPU.FPU_ESC7_EA(rm,getEaa(rm));
                     }
                 } else {
-                    /*Bit8u*/short rm=Fetchb();
+                    /*Bit8u*/int rm=Fetchb();
                     Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"FPU used");
                     if (rm<0xc0) getEaa(rm);
                     return NOT_HANDLED;
@@ -2811,7 +2811,7 @@ public class Prefix_none extends StringOp {
         /* JMP Jb */
         ops[0xeb] = new OP() {
             final public int call() {
-                /*Bit16s*/short addip=Fetchbs();
+                /*Bit16s*/int addip=Fetchbs();
                 SAVEIP();
                 reg_eip=(reg_eip+addip) & 0xFFFF;
                 return CONTINUE;
@@ -2921,7 +2921,7 @@ public class Prefix_none extends StringOp {
         /* GRP3 Eb(,Ib) */
         ops[0xf6] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/final int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:											/* TEST Eb,Ib */
                 case 0x01:											/* TEST Eb,Ib Undocumented*/
@@ -2930,14 +2930,14 @@ public class Prefix_none extends StringOp {
                             TESTB(Fetchb(),Modrm.GetEArb[rm].get());
                         }
                         else {
-                            final short val = Memory.mem_readb(getEaa(rm));
+                            final int val = Memory.mem_readb(getEaa(rm));
                             TESTB(Fetchb(),val);
                         }
                         break;
                     }
                 case 0x02:											/* NOT Eb */
                     {
-                        if (rm >= 0xc0 ) {Modrm.GetEArb[rm].set((short)~Modrm.GetEArb[rm].get());}
+                        if (rm >= 0xc0 ) {Modrm.GetEArb[rm].set(~Modrm.GetEArb[rm].get());}
                         else {
                             /*PhysPt*/int eaa=getEaa(rm);
                             Memory.mem_writeb(eaa, ~Memory.mem_readb(eaa));
@@ -3002,7 +3002,7 @@ public class Prefix_none extends StringOp {
         /* GRP3 Ew(,Iw) */
         ops[0xf7] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/final int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:											/* TEST Ew,Iw */
                 case 0x01:											/* TEST Ew,Iw Undocumented*/
@@ -3144,7 +3144,7 @@ public class Prefix_none extends StringOp {
         /* GRP4 Eb */
         ops[0xfe] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:										/* INC Eb */
@@ -3202,7 +3202,7 @@ public class Prefix_none extends StringOp {
         /* GRP5 Ew */
         ops[0xff] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:										/* INC Ew */
                     if (rm >= 0xc0 ) {

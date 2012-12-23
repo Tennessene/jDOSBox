@@ -215,7 +215,7 @@ public class StringOp extends Prefix_helpers {
             break;
         case R_SCASB:
             {
-                /*Bit8u*/short val2=0;
+                /*Bit8u*/int val2=0;
                 for (;count>0;) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readb(di_base+reg_edi.word());
@@ -254,7 +254,7 @@ public class StringOp extends Prefix_helpers {
             break;
         case R_CMPSB:
             {
-                /*Bit8u*/short val1=0,val2=0;
+                /*Bit8u*/int val1=0,val2=0;
                 for (;count>0;) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readb(si_base+reg_esi.word());
@@ -468,7 +468,7 @@ public class StringOp extends Prefix_helpers {
             break;
         case R_SCASB:
             {
-                /*Bit8u*/short val2=0;
+                /*Bit8u*/int val2=0;
                 for (;count>0;) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readb(di_base+reg_edi.dword);
@@ -507,7 +507,7 @@ public class StringOp extends Prefix_helpers {
             break;
         case R_CMPSB:
             {
-                /*Bit8u*/short val1=0,val2=0;
+                /*Bit8u*/int val1=0,val2=0;
                 for (;count>0;) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readb(si_base+reg_esi.dword);

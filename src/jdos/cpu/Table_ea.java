@@ -91,7 +91,7 @@ public class Table_ea extends Core {
     static final /*Bit32u*/long SIBZero=0;
 
     static private /*PhysPt*/int Sib(/*Bitu*/int mode) {
-        /*Bit8u*/short sib=Fetchb();
+        /*Bit8u*/int sib=Fetchb();
         /*PhysPt*/int base=0;
         switch (sib&7) {
         case 0:	/* EAX Base */

@@ -64,7 +64,7 @@ public class Memory extends Module_base {
         return local[index] >>> off | local[index+1] << (32-off);
     }
 
-    public static void host_writeb(/*HostPt*/int address,/*Bit8u*/ short value) {
+    public static void host_writeb(/*HostPt*/int address,/*Bit8u*/ int value) {
         int off = (address & 0x3) << 3;
         int[] local = direct;
         int mask = ~(0xFF << off);
@@ -234,7 +234,7 @@ public class Memory extends Module_base {
 
     /* The folowing functions are all shortcuts to the above functions using physical addressing */
 
-    public static /*Bit8u*/short real_readb(/*Bit16u*/int seg,/*Bit16u*/int off) {
+    public static /*Bit8u*/int real_readb(/*Bit16u*/int seg,/*Bit16u*/int off) {
         return mem_readb((seg<<4)+off);
     }
 
@@ -488,7 +488,7 @@ public class Memory extends Module_base {
     }
 
     static private void mem_strcpy(/*PhysPt*/int dest,/*PhysPt*/int src) {
-        /*Bit8u*/short r;
+        /*Bit8u*/int r;
         while ( (r = mem_readb(src++))!=0 ) Paging.mem_writeb_inline(dest++,r);
         Paging.mem_writeb_inline(dest,(short)0);
     }
@@ -523,22 +523,22 @@ public class Memory extends Module_base {
 
     static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,int offset, /*Bitu*/int size) {
         for (int i=0;i<size;i++) {
-            short v1 = Paging.mem_readb_inline(pt++);
-            short v2 = Paging.mem_readb_inline(pt++);
+            int v1 = Paging.mem_readb_inline(pt++);
+            int v2 = Paging.mem_readb_inline(pt++);
             data[i+offset]=(short)((v1 & 0xFF) | ((v2 & 0xFF) << 16));
         }
     }
     static public void MEM_BlockRead16u(/*PhysPt*/int pt,int[] data,int offset, /*Bitu*/int size) {
         for (int i=0;i<size;i++) {
-            short v1 = Paging.mem_readb_inline(pt++);
-            short v2 = Paging.mem_readb_inline(pt++);
+            int v1 = Paging.mem_readb_inline(pt++);
+            int v2 = Paging.mem_readb_inline(pt++);
             data[i+offset]=((v1 & 0xFF) | ((v2 & 0xFF) << 16));
         }
     }
     static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,/*Bitu*/int size) {
         for (int i=0;i<size;i++) {
-            short v1 = Paging.mem_readb_inline(pt++);
-            short v2 = Paging.mem_readb_inline(pt++);
+            int v1 = Paging.mem_readb_inline(pt++);
+            int v2 = Paging.mem_readb_inline(pt++);
             data[i]=(short)((v1 & 0xFF) | ((v2 & 0xFF) << 16));
         }
     }
@@ -590,7 +590,7 @@ public class Memory extends Module_base {
     static public String MEM_StrCopy(/*PhysPt*/int pt,/*Bitu*/int size) {
         StringBuffer buf = new StringBuffer();
         for (int i=0;i<size;i++) {
-            short r=Paging.mem_readb_inline(pt++);
+            int r=Paging.mem_readb_inline(pt++);
             if (r==0) break;
             buf.append((char)r);
         }
@@ -853,7 +853,7 @@ public class Memory extends Module_base {
         Paging.mem_writeb_inline(address+3,(short)(val & 0xFF));
     }
 
-    public static /*Bit8u*/short mem_readb(/*PhysPt*/int address) {
+    public static /*Bit8u*/int mem_readb(/*PhysPt*/int address) {
         return Paging.mem_readb_inline(address);
     }
 

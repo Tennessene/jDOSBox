@@ -156,11 +156,11 @@ public class Int10 {
     public static Int10Data int10;
 
     public static /*Bit8u*/short CURSOR_POS_COL(/*Bit8u*/short page) {
-        return Memory.real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2);
+        return (short)Memory.real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2);
     }
 
     public static /*Bit8u*/short CURSOR_POS_ROW(/*Bit8u*/short page) {
-        return Memory.real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2+1);
+        return (short)Memory.real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2+1);
     }
 
     private static /*Bitu*/int call_10;
@@ -205,15 +205,15 @@ public class Int10 {
             Int10_modes.INT10_SetVideoMode(CPU_Regs.reg_eax.low());
             break;
         case 0x01:								/* Set TextMode Cursor Shape */
-            Int10_char.INT10_SetCursorShape(CPU_Regs.reg_ecx.high(),CPU_Regs.reg_ecx.low());
+            Int10_char.INT10_SetCursorShape((short)CPU_Regs.reg_ecx.high(),(short)CPU_Regs.reg_ecx.low());
             break;
         case 0x02:								/* Set Cursor Pos */
-            Int10_char.INT10_SetCursorPos(CPU_Regs.reg_edx.high(),CPU_Regs.reg_edx.low(),CPU_Regs.reg_ebx.high());
+            Int10_char.INT10_SetCursorPos((short)CPU_Regs.reg_edx.high(),(short)CPU_Regs.reg_edx.low(),(short)CPU_Regs.reg_ebx.high());
             break;
         case 0x03:								/* get Cursor Pos and Cursor Shape*/
     //		reg_ah=0;
-            CPU_Regs.reg_edx.low((CURSOR_POS_COL(CPU_Regs.reg_ebx.high()) & 0xFF));
-            CPU_Regs.reg_edx.high((CURSOR_POS_ROW(CPU_Regs.reg_ebx.high()) & 0xFF));
+            CPU_Regs.reg_edx.low((CURSOR_POS_COL((short)CPU_Regs.reg_ebx.high()) & 0xFF));
+            CPU_Regs.reg_edx.high((CURSOR_POS_ROW((short)CPU_Regs.reg_ebx.high()) & 0xFF));
             CPU_Regs.reg_ecx.word(Memory.real_readw(BIOSMEM_SEG,BIOSMEM_CURSOR_TYPE));
             break;
         case 0x04:								/* read light pen pos YEAH RIGHT */
@@ -246,43 +246,43 @@ public class Int10 {
                 IO.IO_WriteB(0x3df,crtcpu);
                 Memory.real_writeb(BIOSMEM_SEG, BIOSMEM_CRTCPU_PAGE,crtcpu);
             }
-            else Int10_char.INT10_SetActivePage(CPU_Regs.reg_eax.low());
+            else Int10_char.INT10_SetActivePage((short)CPU_Regs.reg_eax.low());
             break;
         case 0x06:								/* Scroll Up */
-            Int10_char.INT10_ScrollWindow(CPU_Regs.reg_ecx.high(),CPU_Regs.reg_ecx.low(),CPU_Regs.reg_edx.high(),CPU_Regs.reg_edx.low(),(byte)-CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.high(),(short)0xFF);
+            Int10_char.INT10_ScrollWindow((short)CPU_Regs.reg_ecx.high(),(short)CPU_Regs.reg_ecx.low(),(short)CPU_Regs.reg_edx.high(),(short)CPU_Regs.reg_edx.low(),(byte)-CPU_Regs.reg_eax.low(),(short)CPU_Regs.reg_ebx.high(),(short)0xFF);
             break;
         case 0x07:								/* Scroll Down */
-            Int10_char.INT10_ScrollWindow(CPU_Regs.reg_ecx.high(),CPU_Regs.reg_ecx.low(),CPU_Regs.reg_edx.high(),CPU_Regs.reg_edx.low(),(byte)CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.high(),(short)0xFF);
+            Int10_char.INT10_ScrollWindow((short)CPU_Regs.reg_ecx.high(),(short)CPU_Regs.reg_ecx.low(),(short)CPU_Regs.reg_edx.high(),(short)CPU_Regs.reg_edx.low(),(byte)CPU_Regs.reg_eax.low(),(short)CPU_Regs.reg_ebx.high(),(short)0xFF);
             break;
         case 0x08:								/* Read character & attribute at cursor */
-            CPU_Regs.reg_eax.word(Int10_char.INT10_ReadCharAttr(CPU_Regs.reg_ebx.high()));
+            CPU_Regs.reg_eax.word(Int10_char.INT10_ReadCharAttr((short)CPU_Regs.reg_ebx.high()));
             break;
         case 0x09:								/* Write Character & Attribute at cursor CX times */
             if (Memory.real_readb(BIOSMEM_SEG,BIOSMEM_CURRENT_MODE)==0x11) {
-                Int10_char.INT10_WriteChar(CPU_Regs.reg_eax.low(),(short)((CPU_Regs.reg_ebx.low() & 0x80)|0x3f),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),true);
+                Int10_char.INT10_WriteChar((short)CPU_Regs.reg_eax.low(),(short)((CPU_Regs.reg_ebx.low() & 0x80)|0x3f),(short)CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),true);
             } else {
-                Int10_char.INT10_WriteChar(CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),true);
+                Int10_char.INT10_WriteChar((short)CPU_Regs.reg_eax.low(),(short)CPU_Regs.reg_ebx.low(),(short)CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),true);
             }
             break;
         case 0x0A:								/* Write Character at cursor CX times */
-            Int10_char.INT10_WriteChar(CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),false);
+            Int10_char.INT10_WriteChar((short)CPU_Regs.reg_eax.low(),(short)CPU_Regs.reg_ebx.low(),(short)CPU_Regs.reg_ebx.high(),CPU_Regs.reg_ecx.word(),false);
             break;
         case 0x0B:								/* Set Background/Border Colour & Set Palette*/
             switch (CPU_Regs.reg_ebx.high()) {
             case 0x00:		//Background/Border color
-                Int10_pal.INT10_SetBackgroundBorder(CPU_Regs.reg_ebx.low());
+                Int10_pal.INT10_SetBackgroundBorder((short)CPU_Regs.reg_ebx.low());
                 break;
             case 0x01:		//Set color Select
             default:
-                Int10_pal.INT10_SetColorSelect(CPU_Regs.reg_ebx.low());
+                Int10_pal.INT10_SetColorSelect((short)CPU_Regs.reg_ebx.low());
                 break;
             }
             break;
         case 0x0C:								/* Write Graphics Pixel */
-            Int10_put_pixel.INT10_PutPixel(CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word(),CPU_Regs.reg_ebx.high(),CPU_Regs.reg_eax.low());
+            Int10_put_pixel.INT10_PutPixel(CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word(),(short)CPU_Regs.reg_ebx.high(),(short)CPU_Regs.reg_eax.low());
             break;
         case 0x0D:								/* Read Graphics Pixel */
-            CPU_Regs.reg_eax.low((Int10_put_pixel.INT10_GetPixel(CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word(),CPU_Regs.reg_ebx.high()) & 0xFF));
+            CPU_Regs.reg_eax.low((Int10_put_pixel.INT10_GetPixel(CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word(),(short)CPU_Regs.reg_ebx.high()) & 0xFF));
             break;
         case 0x0E:								/* Teletype OutPut */
             Int10_char.INT10_TeletypeOutput(CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low());
@@ -297,19 +297,19 @@ public class Int10 {
 		    else if (!Dosbox.IS_VGA_ARCH() && (CPU_Regs.reg_eax.low()>0x03)) break;
             switch (CPU_Regs.reg_eax.low()) {
             case 0x00:							/* SET SINGLE PALETTE REGISTER */
-                Int10_pal.INT10_SetSinglePaletteRegister(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high());
+                Int10_pal.INT10_SetSinglePaletteRegister((short)CPU_Regs.reg_ebx.low(),(short)CPU_Regs.reg_ebx.high());
                 break;
             case 0x01:							/* SET BORDER (OVERSCAN) COLOR*/
-                Int10_pal.INT10_SetOverscanBorderColor(CPU_Regs.reg_ebx.high());
+                Int10_pal.INT10_SetOverscanBorderColor((short)CPU_Regs.reg_ebx.high());
                 break;
             case 0x02:							/* SET ALL PALETTE REGISTERS */
                 Int10_pal.INT10_SetAllPaletteRegisters(CPU.Segs_ESphys+CPU_Regs.reg_edx.word());
                 break;
             case 0x03:							/* TOGGLE INTENSITY/BLINKING BIT */
-                Int10_pal.INT10_ToggleBlinkingBit(CPU_Regs.reg_ebx.low());
+                Int10_pal.INT10_ToggleBlinkingBit((short)CPU_Regs.reg_ebx.low());
                 break;
             case 0x07:							/* GET SINGLE PALETTE REGISTER */
-                CPU_Regs.reg_ebx.high(((Int10_pal.INT10_GetSinglePaletteRegister(CPU_Regs.reg_ebx.high(), CPU_Regs.reg_ebx.low()) & 0xFF)));
+                CPU_Regs.reg_ebx.high(((Int10_pal.INT10_GetSinglePaletteRegister((short)CPU_Regs.reg_ebx.high(), (short)CPU_Regs.reg_ebx.low()) & 0xFF)));
                 break;
             case 0x08:							/* READ OVERSCAN (BORDER COLOR) REGISTER */
                 CPU_Regs.reg_ebx.high((Int10_pal.INT10_GetOverscanBorderColor() & 0xFF)) ;
@@ -318,20 +318,20 @@ public class Int10 {
                 Int10_pal.INT10_GetAllPaletteRegisters(CPU.Segs_ESphys+CPU_Regs.reg_edx.word());
                 break;
             case 0x10:							/* SET INDIVIDUAL DAC REGISTER */
-                Int10_pal.INT10_SetSingleDACRegister(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx.high(), CPU_Regs.reg_ecx.high(), CPU_Regs.reg_ecx.low());
+                Int10_pal.INT10_SetSingleDACRegister((short)CPU_Regs.reg_ebx.low(), (short)CPU_Regs.reg_edx.high(), (short)CPU_Regs.reg_ecx.high(), (short)CPU_Regs.reg_ecx.low());
                 break;
             case 0x12:							/* SET BLOCK OF DAC REGISTERS */
                 Int10_pal.INT10_SetDACBlock(CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word(),CPU.Segs_ESphys+CPU_Regs.reg_edx.word());
                 break;
             case 0x13:							/* SELECT VIDEO DAC COLOR PAGE */
-                Int10_pal.INT10_SelectDACPage(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ebx.high());
+                Int10_pal.INT10_SelectDACPage((short)CPU_Regs.reg_ebx.low(),(short)CPU_Regs.reg_ebx.high());
                 break;
             case 0x15:							/* GET INDIVIDUAL DAC REGISTER */
             {
                 ShortRef dh = new ShortRef();
                 ShortRef ch = new ShortRef();
                 ShortRef cl = new ShortRef();
-                Int10_pal.INT10_GetSingleDACRegister(CPU_Regs.reg_ebx.low(), dh, ch, cl);
+                Int10_pal.INT10_GetSingleDACRegister((short)CPU_Regs.reg_ebx.low(), dh, ch, cl);
                 CPU_Regs.reg_edx.high((dh.value & 0xFF));
                 CPU_Regs.reg_ecx.high((ch.value & 0xFF));
                 CPU_Regs.reg_ecx.low((cl.value & 0xFF));
@@ -341,7 +341,7 @@ public class Int10 {
                 Int10_pal.INT10_GetDACBlock(CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word(),CPU.Segs_ESphys+CPU_Regs.reg_edx.word());
                 break;
             case 0x18:							/* undocumented - SET PEL MASK */
-                Int10_pal.INT10_SetPelMask(CPU_Regs.reg_ebx.low());
+                Int10_pal.INT10_SetPelMask((short)CPU_Regs.reg_ebx.low());
                 break;
             case 0x19:							/* undocumented - GET PEL MASK */
                 CPU_Regs.reg_ebx.low((Int10_pal.INT10_GetPelMask() & 0xFF));
@@ -497,8 +497,8 @@ public class Int10 {
                             break;
                         }
                     }
-                    /*Bit8u*/short modeset_ctl = Memory.real_readb(BIOSMEM_SEG,BIOSMEM_MODESET_CTL);
-                    /*Bit8u*/short video_switches = (short)(Memory.real_readb(BIOSMEM_SEG,BIOSMEM_SWITCHES)&0xf0);
+                    /*Bit8u*/int modeset_ctl = Memory.real_readb(BIOSMEM_SEG,BIOSMEM_MODESET_CTL);
+                    /*Bit8u*/int video_switches = Memory.real_readb(BIOSMEM_SEG,BIOSMEM_SWITCHES) & 0xf0;
                     switch(CPU_Regs.reg_eax.low()) {
                     case 0: // 200
                         modeset_ctl &= 0xef;
@@ -603,7 +603,7 @@ public class Int10 {
             }
             break;
         case 0x13:								/* Write String */
-            Int10_char.INT10_WriteString(CPU_Regs.reg_edx.high(),CPU_Regs.reg_edx.low(),CPU_Regs.reg_eax.low(),CPU_Regs.reg_ebx.low(),CPU.Segs_ESphys+CPU_Regs.reg_ebp.word(),CPU_Regs.reg_ecx.word(),CPU_Regs.reg_ebx.high());
+            Int10_char.INT10_WriteString((short)CPU_Regs.reg_edx.high(),(short)CPU_Regs.reg_edx.low(),(short)CPU_Regs.reg_eax.low(),(short)CPU_Regs.reg_ebx.low(),CPU.Segs_ESphys+CPU_Regs.reg_ebp.word(),CPU_Regs.reg_ecx.word(),(short)CPU_Regs.reg_ebx.high());
             break;
         case 0x1A:								/* Display Combination */
             if (!Dosbox.IS_VGA_ARCH()) break;
@@ -613,8 +613,8 @@ public class Int10 {
                 /*RealPt*/int svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
                 if (svstable!=0) {
                     /*RealPt*/int dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
-                    /*Bit8u*/short entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
-                    /*Bit8u*/short idx=Memory.real_readb(BIOSMEM_SEG,BIOSMEM_DCC_INDEX);
+                    /*Bit8u*/int entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
+                    /*Bit8u*/int idx=Memory.real_readb(BIOSMEM_SEG,BIOSMEM_DCC_INDEX);
                     // check if index within range
                     if (idx<entries) {
                         /*Bit16u*/int dccentry=Memory.real_readw(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x04+idx*2);
@@ -630,7 +630,7 @@ public class Int10 {
                 /*RealPt*/int svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
                 if (svstable!=0) {
                     /*RealPt*/int dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
-                    /*Bit8u*/short entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
+                    /*Bit8u*/int entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
                     if (entries!=0) {
                         /*Bitu*/int ct;
                         /*Bit16u*/int swpidx=CPU_Regs.reg_ebx.high()|(CPU_Regs.reg_ebx.low()<<8);
@@ -733,10 +733,10 @@ public class Int10 {
                 break;
             case 0x05:
                 if (CPU_Regs.reg_ebx.high()==0) {				/* Set CPU Window */
-                    CPU_Regs.reg_eax.high(Int10_vesa.VESA_SetCPUWindow(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_edx.low()));
+                    CPU_Regs.reg_eax.high(Int10_vesa.VESA_SetCPUWindow((short)CPU_Regs.reg_ebx.low(),(short)CPU_Regs.reg_edx.low()));
                     CPU_Regs.reg_eax.low(0x4f);
                 } else if (CPU_Regs.reg_ebx.high() == 1) {		/* Get CPU Window */
-                    CPU_Regs.reg_eax.high(Int10_vesa.VESA_GetCPUWindow(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx));
+                    CPU_Regs.reg_eax.high(Int10_vesa.VESA_GetCPUWindow((short)CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx));
                     CPU_Regs.reg_eax.low(0x4f);
                 } else {
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"Unhandled VESA Function "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_ebx.high(),16));
@@ -749,7 +749,7 @@ public class Int10 {
                 IntRef cx = new IntRef(CPU_Regs.reg_ecx.word());
                 IntRef dx = new IntRef(CPU_Regs.reg_edx.word());
                 CPU_Regs.reg_eax.low(0x4f);
-                CPU_Regs.reg_eax.high(Int10_vesa.VESA_ScanLineLength(CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ecx.word(),bx,cx,dx));
+                CPU_Regs.reg_eax.high(Int10_vesa.VESA_ScanLineLength((short)CPU_Regs.reg_ebx.low(),CPU_Regs.reg_ecx.word(),bx,cx,dx));
                 CPU_Regs.reg_ebx.word(bx.value);
                 CPU_Regs.reg_ecx.word(cx.value);
                 CPU_Regs.reg_edx.word(dx.value);
@@ -840,16 +840,16 @@ public class Int10 {
             }
             break;
         case 0xf0:
-            CPU_Regs.reg_ebx.low(Int10_misc.INT10_EGA_RIL_ReadRegister(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx.word()));
+            CPU_Regs.reg_ebx.low(Int10_misc.INT10_EGA_RIL_ReadRegister((short)CPU_Regs.reg_ebx.low(), CPU_Regs.reg_edx.word()));
             break;
         case 0xf1:
-            CPU_Regs.reg_ebx.low(Int10_misc.INT10_EGA_RIL_WriteRegister(CPU_Regs.reg_ebx.low(), CPU_Regs.reg_ebx.high(), CPU_Regs.reg_edx.word()));
+            CPU_Regs.reg_ebx.low(Int10_misc.INT10_EGA_RIL_WriteRegister((short)CPU_Regs.reg_ebx.low(), (short)CPU_Regs.reg_ebx.high(), CPU_Regs.reg_edx.word()));
             break;
         case 0xf2:
-            Int10_misc.INT10_EGA_RIL_ReadRegisterRange(CPU_Regs.reg_ecx.high(), CPU_Regs.reg_ecx.low(), CPU_Regs.reg_edx.word(), CPU.Segs_ESphys+CPU_Regs.reg_ebx.word());
+            Int10_misc.INT10_EGA_RIL_ReadRegisterRange((short)CPU_Regs.reg_ecx.high(), (short)CPU_Regs.reg_ecx.low(), CPU_Regs.reg_edx.word(), CPU.Segs_ESphys+CPU_Regs.reg_ebx.word());
             break;
         case 0xf3:
-            Int10_misc.INT10_EGA_RIL_WriteRegisterRange(CPU_Regs.reg_ecx.high(), CPU_Regs.reg_ecx.low(), CPU_Regs.reg_edx.word(), CPU.Segs_ESphys+CPU_Regs.reg_ebx.word());
+            Int10_misc.INT10_EGA_RIL_WriteRegisterRange((short)CPU_Regs.reg_ecx.high(), (short)CPU_Regs.reg_ecx.low(), CPU_Regs.reg_edx.word(), CPU.Segs_ESphys+CPU_Regs.reg_ebx.word());
             break;
         case 0xf4:
             Int10_misc.INT10_EGA_RIL_ReadRegisterSet(CPU_Regs.reg_ecx.word(), CPU.Segs_ESphys+CPU_Regs.reg_ebx.word());

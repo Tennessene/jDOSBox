@@ -484,7 +484,7 @@ public class Dos extends Module_base {
                     if(port!=0 && Serialports.serialports[0]!=null) {
                         // RTS/DTR on
                         IO.IO_WriteB(port+4,0x3);
-                        Serialports.serialports[0].Putchar(CPU_Regs.reg_edx.low(),true,true, 0xFFFFFFFF);
+                        Serialports.serialports[0].Putchar((short)CPU_Regs.reg_edx.low(),true,true, 0xFFFFFFFF);
                         // RTS off
                         IO.IO_WriteB(port+4,0x1);
                     }
@@ -548,7 +548,7 @@ public class Dos extends Module_base {
                 {
                     //TODO ADD Break checkin in Dos_files.STDIN but can't care that much for it
                     /*PhysPt*/int data=CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
-                    /*Bit8u*/short free=Memory.mem_readb(data);
+                    /*Bit8u*/int free=Memory.mem_readb(data);
                     /*Bit8u*/short read=0;/*Bit8u*/byte[] c=new byte[1];/*Bit16u*/IntRef n=new IntRef(1);
                     if (free==0) break;
                     free--;
@@ -603,7 +603,7 @@ public class Dos extends Module_base {
                     case 0x8:
                     case 0xa:
                         {
-                            /*Bit8u*/short oldah=CPU_Regs.reg_eax.high();
+                            /*Bit8u*/int oldah=CPU_Regs.reg_eax.high();
                             CPU_Regs.reg_eax.high(CPU_Regs.reg_eax.low());
                             DOS_21Handler.call();
                             CPU_Regs.reg_eax.high(oldah);
@@ -622,7 +622,7 @@ public class Dos extends Module_base {
     //Sure let's reset a virtual disk
                 break;
             case 0x0e:		/* Select Default Drive */
-                Dos_files.DOS_SetDefaultDrive(CPU_Regs.reg_edx.low());
+                Dos_files.DOS_SetDefaultDrive((short)CPU_Regs.reg_edx.low());
                 CPU_Regs.reg_eax.low(Dos_files.DOS_DRIVES);
                 break;
             case 0x0f:		/* Open File using FCB */
@@ -692,7 +692,7 @@ public class Dos extends Module_base {
                 IntRef cx = new IntRef(CPU_Regs.reg_ecx.word());
                 IntRef dx = new IntRef(CPU_Regs.reg_edx.word());
                 ShortRef al = new ShortRef(CPU_Regs.reg_eax.low());
-                if (!Dos_files.DOS_GetAllocationInfo(CPU_Regs.reg_edx.low(),cx,al,dx))
+                if (!Dos_files.DOS_GetAllocationInfo((short)CPU_Regs.reg_edx.low(),cx,al,dx))
                     CPU_Regs.reg_eax.low(0xff);
                 else {
                     CPU_Regs.reg_ecx.word(cx.value);
@@ -743,7 +743,7 @@ public class Dos extends Module_base {
                     /*Bit8u*/ShortRef difference=new ShortRef();
                     String string;
                     string=Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),1023); // 1024 toasts the stack
-                    CPU_Regs.reg_eax.low(Dos_files.FCB_Parsename((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word(),CPU_Regs.reg_eax.low() ,string, difference));
+                    CPU_Regs.reg_eax.low(Dos_files.FCB_Parsename((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word(),(short)CPU_Regs.reg_eax.low() ,string, difference));
                     CPU_Regs.reg_esi.word(CPU_Regs.reg_esi.word()+difference.value);
                 }
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:29:FCB Parse Filename, result:al="+CPU_Regs.reg_eax.low());
@@ -765,7 +765,7 @@ public class Dos extends Module_base {
                 {
                     CPU_Regs.reg_eax.word(0); // get time
 			        Callback.CALLBACK_RunRealInt(0x1a);
-			        if (CPU_Regs.reg_eax.low()!=0) DOS_AddDays(CPU_Regs.reg_eax.low());
+			        if (CPU_Regs.reg_eax.low()!=0) DOS_AddDays((short)CPU_Regs.reg_eax.low());
                     int a = (14 - dos.date.month)/12;
                     int y = dos.date.year - a;
                     int m = dos.date.month + 12*a - 2;
@@ -791,7 +791,7 @@ public class Dos extends Module_base {
             case 0x2c:		/* Get System Time */
                 CPU_Regs.reg_eax.word(0); // get time
                 Callback.CALLBACK_RunRealInt(0x1a);
-                if(CPU_Regs.reg_eax.low()!=0) DOS_AddDays(CPU_Regs.reg_eax.low());
+                if(CPU_Regs.reg_eax.low()!=0) DOS_AddDays((short)CPU_Regs.reg_eax.low());
                 CPU_Regs.reg_eax.high(0x2c);
 
                 /*Bitu*/long ticks=((long)CPU_Regs.reg_ecx.word()<<16)|CPU_Regs.reg_edx.word();
@@ -847,7 +847,7 @@ public class Dos extends Module_base {
             case 0x1f: /* Get drive parameter block for default drive */
             case 0x32: /* Get drive parameter block for specific drive */
                 {	/* Officially a dpb should be returned as well. The disk detection part is implemented */
-                    /*Bit8u*/short drive=CPU_Regs.reg_edx.low();
+                    /*Bit8u*/int drive=CPU_Regs.reg_edx.low();
                     if (drive==0 || CPU_Regs.reg_eax.high()==0x1f) drive = Dos_files.DOS_GetDefaultDrive();
                     else drive--;
                     if (Dos_files.Drives[drive]!=null) {
@@ -895,13 +895,13 @@ public class Dos extends Module_base {
                 {
                     /*Bit16u*/IntRef bytes=new IntRef(0);
                     /*Bit8u*/ShortRef sectors=new ShortRef();IntRef clusters=new IntRef(0),free=new IntRef(0);
-                    if (Dos_files.DOS_GetFreeDiskSpace(CPU_Regs.reg_edx.low(),bytes,sectors,clusters,free)) {
+                    if (Dos_files.DOS_GetFreeDiskSpace((short)CPU_Regs.reg_edx.low(),bytes,sectors,clusters,free)) {
                         CPU_Regs.reg_eax.word(sectors.value);
                         CPU_Regs.reg_ebx.word(free.value);
                         CPU_Regs.reg_ecx.word(bytes.value);
                         CPU_Regs.reg_edx.word(clusters.value);
                     } else {
-                        /*Bit8u*/short drive=CPU_Regs.reg_edx.low();
+                        /*Bit8u*/int drive=CPU_Regs.reg_edx.low();
                         if (drive==0) drive=Dos_files.DOS_GetDefaultDrive();
                         else drive--;
                         if (drive<2) {
@@ -1131,7 +1131,7 @@ public class Dos extends Module_base {
             case 0x47:					/* CWD Get current directory */
             {
                 StringRef name1 = new StringRef();
-                if (Dos_files.DOS_GetCurrentDir(CPU_Regs.reg_edx.low(),name1)) {
+                if (Dos_files.DOS_GetCurrentDir((short)CPU_Regs.reg_edx.low(),name1)) {
                     Memory.MEM_BlockWrite(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),name1.value,(/*Bitu*/int)(name1.value.length()+1));
                     CPU_Regs.reg_eax.word(0x0100);
                     Callback.CALLBACK_SCF(false);
@@ -1179,7 +1179,7 @@ public class Dos extends Module_base {
                 {
                     String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_EXEC,LogSeverities.LOG_ERROR,"Execute "+name1+" "+CPU_Regs.reg_eax.low());
-                    if (!Dos_execute.DOS_Execute(name1,CPU.Segs_ESphys+CPU_Regs.reg_ebx.word(),CPU_Regs.reg_eax.low())) {
+                    if (!Dos_execute.DOS_Execute(name1,CPU.Segs_ESphys+CPU_Regs.reg_ebx.word(),(short)CPU_Regs.reg_eax.low())) {
                         CPU_Regs.reg_eax.word(dos.errorcode);
                         Callback.CALLBACK_SCF(true);
                     }

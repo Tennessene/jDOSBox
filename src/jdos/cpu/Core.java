@@ -15,11 +15,11 @@ public abstract class Core extends CPU_Regs {
     static public /*Bitu*/int prefixes;
     static public Table_ea.GetEAHandler[] ea_table;
 
-    static public short Fetchb() {
+    static public int Fetchb() {
         return Memory.mem_readb(cseip++);
     }
 
-    static public byte Fetchbs() {
+    static public int Fetchbs() {
         return (byte)Memory.mem_readb(cseip++);
     }
 
@@ -29,8 +29,8 @@ public abstract class Core extends CPU_Regs {
         return temp;
     }
 
-    static public short Fetchws() {
-        short temp = (short)Memory.mem_readw(cseip);
+    static public int Fetchws() {
+        int temp = (short)Memory.mem_readw(cseip);
         cseip+=2;
         return temp;
     }

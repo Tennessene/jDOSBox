@@ -2,78 +2,78 @@ package jdos.cpu;
 
 public class Modrm {
     static public interface Getrb_interface {
-        public short get();
-        public void set(short value);
+        public int get();
+        public void set(int value);
     }
 
     static final private Getrb_interface al = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_eax.low(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_eax.low();
         }
     };
 
     static final private Getrb_interface cl = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_ecx.low(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_ecx.low();
         }
     };
 
     static final private Getrb_interface dl = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_edx.low(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_edx.low();
         }
     };
 
     static final private Getrb_interface bl = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_ebx.low(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_ebx.low();
         }
     };
 
     static final private Getrb_interface ah = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_eax.high(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_eax.high();
         }
     };
 
     static final private Getrb_interface ch = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_ecx.high(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_ecx.high();
         }
     };
 
     static final private Getrb_interface dh = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_edx.high(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_edx.high();
         }
     };
 
     static final private Getrb_interface bh = new Getrb_interface() {
-        final public void set(short value) {
+        final public void set(int value) {
             CPU_Regs.reg_ebx.high(value);
         }
-        final public short get() {
+        final public int get() {
             return CPU_Regs.reg_ebx.high();
         }
     };

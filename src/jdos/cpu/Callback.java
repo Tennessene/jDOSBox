@@ -111,7 +111,7 @@ public class Callback {
     private int m_type = NONE;
     private class VectorHandler {
         /*RealPt*/int old_vector;
-        /*Bit8u*/ short interrupt;
+        /*Bit8u*/ int interrupt;
         boolean installed = false;
     }
     private VectorHandler vectorhandler = new VectorHandler();
@@ -394,7 +394,7 @@ public class Callback {
                 physAddress+=4;
             }
             Memory.phys_writeb(physAddress+0x01,0xCF);		//An IRET Instruction
-            for (/*Bitu*/int i=0;i<=0x0b;i++) Memory.phys_writeb(physAddress+0x02+i,(short)0x90);
+            for (/*Bitu*/int i=0;i<=0x0b;i++) Memory.phys_writeb(physAddress+0x02+i,0x90);
             Memory.phys_writew(physAddress+0x0e,0xedeb);	//jmp callback
             return (use_cb?0x10:0x0c);
         case CB_INT29:	// fast console output
@@ -589,7 +589,7 @@ public class Callback {
     public void Set_RealVec(/*Bit8u*/int vec){
         if(!vectorhandler.installed) {
             vectorhandler.installed=true;
-            vectorhandler.interrupt=(short)vec;
+            vectorhandler.interrupt=vec;
             vectorhandler.old_vector = Memory.RealSetVec2(vec,Get_RealPointer());
         } else Log.exit ("double usage of vector handler");
     }

@@ -13,7 +13,7 @@ public class Prefix_0f extends Prefix_none {
         ops[0x100] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:	/* SLDT */
                 case 0x01:	/* STR */
@@ -57,7 +57,7 @@ public class Prefix_0f extends Prefix_none {
         /* Group 7 Ew */
         ops[0x101] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
+                /*Bit8u*/int rm=Fetchb();/*Bitu*/int which=(rm>>3)&7;
                 if (rm < 0xc0)	{ //First ones all use EA
                     /*PhysPt*/int eaa=getEaa(rm);/*Bitu*/int limit;
                     switch (which) {
@@ -125,7 +125,7 @@ public class Prefix_0f extends Prefix_none {
         ops[0x102] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0) {
                     Modrm.Getrw[rm].word(CPU.CPU_LAR(Modrm.GetEArw[rm].word(), Modrm.Getrw[rm].word()));
                 } else {
@@ -140,7 +140,7 @@ public class Prefix_0f extends Prefix_none {
         ops[0x103] = new OP() {
             final public int call() {
                 if ((CPU_Regs.flags & CPU_Regs.VM)!=0 || (!CPU.cpu.pmode)) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0) {
                     Modrm.Getrw[rm].word(CPU.CPU_LSL(Modrm.GetEArw[rm].word(), Modrm.Getrw[rm].word()));
                 } else {
@@ -189,7 +189,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOV Rd.CRx */
         ops[0x120] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
@@ -204,7 +204,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOV Rd,DRx */
         ops[0x121] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
@@ -219,7 +219,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOV CRx,Rd */
         ops[0x122] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
@@ -234,7 +234,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOV DRx,Rd */
         ops[0x123] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
@@ -249,7 +249,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOV Rd,TRx */
         ops[0x124] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
@@ -264,7 +264,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOV TRx,Rd */
         ops[0x126] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bitu*/int which=(rm >> 3) & 7;
                 if (rm < 0xc0 ) {
                     rm |= 0xc0;
@@ -928,7 +928,7 @@ public class Prefix_0f extends Prefix_none {
         /* BT Ew,Gw */
         ops[0x1a3] = new OP() {
             final public int call() {
-                Flags.FillFlags();/*Bit8u*/short rm=Fetchb();
+                Flags.FillFlags();/*Bit8u*/int rm=Fetchb();
                 int rw = Modrm.Getrw[rm].word();
                 /* Bit16u*/int mask=1 << (rw & 15);
                 if (rm >= 0xc0 ) {
@@ -945,7 +945,7 @@ public class Prefix_0f extends Prefix_none {
         /* SHLD Ew,Gw,Ib */
         ops[0x1a4] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     r = rm;
                     int op3 = Fetchb();
@@ -963,7 +963,7 @@ public class Prefix_0f extends Prefix_none {
         /* SHLD Ew,Gw,CL */
         ops[0x1a5] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     r = rm;
                     DSHLW(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
@@ -995,7 +995,7 @@ public class Prefix_0f extends Prefix_none {
         /* BTS Ew,Gw */
         ops[0x1ab] = new OP() {
             final public int call() {
-                Flags.FillFlags();/*Bit8u*/short rm=Fetchb();
+                Flags.FillFlags();/*Bit8u*/int rm=Fetchb();
                 /*Bit16u*/int mask=1 << (Modrm.Getrw[rm].word() & 15);
                 if (rm >= 0xc0 ) {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0);
@@ -1013,7 +1013,7 @@ public class Prefix_0f extends Prefix_none {
         /* SHRD Ew,Gw,Ib */
         ops[0x1ac] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     r = rm;
                     int op3 = Fetchb();
@@ -1031,7 +1031,7 @@ public class Prefix_0f extends Prefix_none {
         /* SHRD Ew,Gw,CL */
         ops[0x1ad] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     r = rm;
                     DSHRW(Modrm.Getrw[rm].word(),reg_ecx.low(),earw_l,earw_s);
@@ -1047,7 +1047,7 @@ public class Prefix_0f extends Prefix_none {
         /* IMUL Gw,Ew */
         ops[0x1af] = new OP() {
             final public int call() {
-                /*Bit8u*/final short rm=Fetchb();
+                /*Bit8u*/final int rm=Fetchb();
                 Reg r = Modrm.Getrw[rm];
                 if (rm >= 0xc0 ) {
                     r.word(DIMULW(Modrm.GetEArw[rm].word(),r.word()));
@@ -1066,7 +1066,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 Flags.FillFlags();
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb_interface r = Modrm.GetEArb[rm];
                     Instructions.CMPB(r.get(), reg_eax.low()); // Sets the flags
@@ -1079,7 +1079,7 @@ public class Prefix_0f extends Prefix_none {
                     }
                 } else {
                     /*PhysPt*/int eaa=getEaa(rm);
-                    /*Bit8u*/short val = Memory.mem_readb(eaa);
+                    /*Bit8u*/int val = Memory.mem_readb(eaa);
                     Instructions.CMPB(val, reg_eax.low()); // Sets the flags
                     if (reg_eax.low() == val) {
                         Memory.mem_writeb(eaa,Modrm.Getrb[rm].get());
@@ -1101,7 +1101,7 @@ public class Prefix_0f extends Prefix_none {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
                 Flags.FillFlags();
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Instructions.CMPW(Modrm.GetEArw[rm].word(), reg_eax.word()); // Sets the flags
                     if(reg_eax.word() == Modrm.GetEArw[rm].word()) {
@@ -1131,7 +1131,7 @@ public class Prefix_0f extends Prefix_none {
         /* LSS Ew */
         ops[0x1b2] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
@@ -1143,7 +1143,7 @@ public class Prefix_0f extends Prefix_none {
         /* BTR Ew,Gw */
         ops[0x1b3] = new OP() {
             final public int call() {
-                Flags.FillFlags();/*Bit8u*/short rm=Fetchb();
+                Flags.FillFlags();/*Bit8u*/int rm=Fetchb();
                 /*Bit16u*/int mask=1 << (Modrm.Getrw[rm].word() & 15);
                 if (rm >= 0xc0 ) {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0);
@@ -1161,7 +1161,7 @@ public class Prefix_0f extends Prefix_none {
         /* LFS Ew */
         ops[0x1b4] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
@@ -1173,7 +1173,7 @@ public class Prefix_0f extends Prefix_none {
         /* LGS Ew */
         ops[0x1b5] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 //if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa=getEaa(rm);
                 if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
@@ -1185,7 +1185,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOVZX Gw,Eb */
         ops[0x1b6] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArb[rm].get());}
                 else {/*PhysPt*/int eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readb(eaa));}
                 return HANDLED;
@@ -1195,7 +1195,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOVZX Gw,Ew */
         ops[0x1b7] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());}
                 else {/*PhysPt*/int eaa=getEaa(rm);Modrm.Getrw[rm].word(Memory.mem_readw(eaa));}
                 return HANDLED;
@@ -1208,7 +1208,7 @@ public class Prefix_0f extends Prefix_none {
         /* GRP8 Ew,Ib */
         ops[0x1ba] = new OP() {
             final public int call() {
-                Flags.FillFlags();/*Bit8u*/short rm=Fetchb();
+                Flags.FillFlags();/*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     /*Bit16u*/int mask=1 << (Fetchb() & 15);
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0);
@@ -1254,7 +1254,7 @@ public class Prefix_0f extends Prefix_none {
         /* BTC Ew,Gw */
         ops[0x1bb] = new OP() {
             final public int call() {
-                Flags.FillFlags();/*Bit8u*/short rm=Fetchb();
+                Flags.FillFlags();/*Bit8u*/int rm=Fetchb();
                 /*Bit16u*/int mask=1 << (Modrm.Getrw[rm].word() & 15);
                 if (rm >= 0xc0 ) {
                     SETFLAGBIT(CF,(Modrm.GetEArw[rm].word() & mask)!=0);
@@ -1272,7 +1272,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSF Gw,Ew */
         ops[0x1bc] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bit16u*/int result,value;
                 if (rm >= 0xc0) { value=Modrm.GetEArw[rm].word(); }
                 else			{ /*PhysPt*/int eaa=getEaa(rm); value=Memory.mem_readw(eaa); }
@@ -1292,7 +1292,7 @@ public class Prefix_0f extends Prefix_none {
         /* BSR Gw,Ew */
         ops[0x1bd] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 /*Bit16u*/int result,value;
                 if (rm >= 0xc0) { value=Modrm.GetEArw[rm].word(); }
                 else			{ /*PhysPt*/int eaa=getEaa(rm); value=Memory.mem_readw(eaa); }
@@ -1312,7 +1312,7 @@ public class Prefix_0f extends Prefix_none {
         /* MOVSX Gw,Eb */
         ops[0x1be] = new OP() {
             final public int call() {
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {Modrm.Getrw[rm].word(Modrm.GetEArb[rm].get());}
                 else {/*PhysPt*/int eaa=getEaa(rm);Modrm.Getrw[rm].word((byte)Memory.mem_readb(eaa));}
                 return HANDLED;
@@ -1324,15 +1324,15 @@ public class Prefix_0f extends Prefix_none {
         ops[0x1c0] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
-                    short result = Instructions.ADDB(Modrm.Getrb[rm].get(), Modrm.GetEArb[rm].get());
+                    int result = Instructions.ADDB(Modrm.Getrb[rm].get(), Modrm.GetEArb[rm].get());
                     Modrm.Getrb[rm].set(Modrm.GetEArb[rm].get());
                     Modrm.GetEArb[rm].set(result);
                 } else {
                     /*PhysPt*/int eaa=getEaa(rm);
-                    short val = Memory.mem_readb(eaa);
-                    short result = Instructions.ADDB(Modrm.Getrb[rm].get(), val);
+                    int val = Memory.mem_readb(eaa);
+                    int result = Instructions.ADDB(Modrm.Getrb[rm].get(), val);
                     Memory.mem_writeb(eaa,result);
                     Modrm.Getrb[rm].set(val);
                 }
@@ -1346,7 +1346,7 @@ public class Prefix_0f extends Prefix_none {
         ops[0x1c1] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                /*Bit8u*/short rm=Fetchb();
+                /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     int result = Instructions.ADDW(Modrm.Getrw[rm].word(), Modrm.GetEArw[rm].word());
                     Modrm.Getrw[rm].word(Modrm.GetEArw[rm].word());

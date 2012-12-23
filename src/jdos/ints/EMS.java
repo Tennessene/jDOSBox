@@ -599,12 +599,12 @@ public class EMS extends Module_base {
     private static void LoadMoveRegion(/*PhysPt*/int data, MoveRegion region) {
         region.bytes=Memory.mem_readd(data + 0x0);
 
-        region.src_type=Memory.mem_readb(data+0x4);
+        region.src_type=(short)Memory.mem_readb(data+0x4);
         region.src_handle=Memory.mem_readw(data+0x5);
         region.src_offset=Memory.mem_readw(data+0x7);
         region.src_page_seg=Memory.mem_readw(data+0x9);
 
-        region.dest_type=Memory.mem_readb(data+0xb);
+        region.dest_type=(short)Memory.mem_readb(data+0xb);
         region.dest_handle=Memory.mem_readw(data+0xc);
         region.dest_offset=Memory.mem_readw(data+0xe);
         region.dest_page_seg=Memory.mem_readw(data+0x10);
@@ -1016,7 +1016,7 @@ public class EMS extends Module_base {
                         CPU.CPU_SET_CRX(3, (int)new_cr3);
 
                         /*PhysPt*/int tbaddr=new_gdt_base+(new_tr&0xfff8)+5;
-                        /*Bit8u*/short tb=Memory.mem_readb(tbaddr);
+                        /*Bit8u*/int tb=Memory.mem_readb(tbaddr);
                         Memory.mem_writeb(tbaddr, tb&0xfd);
 
                         /* Load tables and initialize segment registers */
@@ -1090,7 +1090,7 @@ public class EMS extends Module_base {
                 CPU.CPU_SET_CRX(3, 0);
 
                 /*PhysPt*/int tbaddr=vcpi.private_area+0x0000+(0x10&0xfff8)+5;
-                /*Bit8u*/short tb=Memory.mem_readb(tbaddr);
+                /*Bit8u*/int tb=Memory.mem_readb(tbaddr);
                 Memory.mem_writeb(tbaddr, tb&0xfd);
 
                 /* Load descriptor table registers */
@@ -1133,7 +1133,7 @@ public class EMS extends Module_base {
                 /* Get address of faulting instruction */
                 /*Bit16u*/int v86_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask));
                 /*Bit16u*/int v86_ip=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask));
-                /*Bit8u*/short v86_opcode=Memory.mem_readb((v86_cs<<4)+v86_ip);
+                /*Bit8u*/int v86_opcode=Memory.mem_readb((v86_cs<<4)+v86_ip);
         //		LOG_MSG("v86 monitor caught protection violation at %x:%x, opcode=%x",v86_cs,v86_ip,v86_opcode);
                 switch (v86_opcode) {
                     case 0x0f:		// double byte opcode

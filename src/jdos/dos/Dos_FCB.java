@@ -102,7 +102,7 @@ public class Dos_FCB extends MemStruct {
         return extended;
     }
 	public void GetAttr(/*Bit8u*/ShortRef attr) {
-        if(extended) attr.value=Memory.mem_readb(pt - 1);
+        if(extended) attr.value=(short)Memory.mem_readb(pt - 1);
     }
 	public void SetAttr(/*Bit8u*/short attr) {
         if(extended) Memory.mem_writeb(pt - 1,attr);

@@ -436,6 +436,12 @@ public class Dosbox {
         Pint.SetMinMax(1,1000000);
         Pint.Set_help("Setting it lower than 100 will be a percentage.");
 
+        if (Config.C_FPU) {
+            secprop.AddInitFunction(FPU.FPU_Init);
+            Pbool = secprop.Add_bool("softfpu",Property.Changeable.Always,false);
+            Pbool.Set_help("Enable software emulation of the FPU");
+        }
+
         if (allPrivileges) {
             secprop=control.AddSection_prop("compiler", Compiler.Compiler_Init,true);
             Pint = secprop.Add_int("threshold",Property.Changeable.Always,1000);
@@ -444,9 +450,6 @@ public class Dosbox {
             Pint = secprop.Add_int("min_block_size",Property.Changeable.Always,2);
             Pint.Set_help("The minimum number of ops the block must contain in order to be compiled.  In general 2 is a good value.");
         }
-
-        if (Config.C_FPU)
-            secprop.AddInitFunction(FPU.FPU_Init);
 
         secprop.AddInitFunction(DMA.DMA_Init);//done
 

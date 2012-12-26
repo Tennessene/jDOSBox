@@ -1494,112 +1494,112 @@ public class Compiler2 extends Compiler {
             case 0x270: // JO
                 if (op instanceof Inst3.JumpCond32_b_o) {
                     Inst3.JumpCond32_b_o o = (Inst3.JumpCond32_b_o) op;
-                    compile(o, "Flags.TFLG_O()", method);
+                    compile(o, getO(), method);
                     return false;
                 }
                 break;
             case 0x271: // JNO
                 if (op instanceof Inst3.JumpCond32_b_no) {
                     Inst3.JumpCond32_b_no o = (Inst3.JumpCond32_b_no) op;
-                    compile(o, "Flags.TFLG_NO()", method);
+                    compile(o, getNO(), method);
                     return false;
                 }
                 break;
             case 0x272: // JB
                 if (op instanceof Inst3.JumpCond32_b_b) {
                     Inst3.JumpCond32_b_b o = (Inst3.JumpCond32_b_b) op;
-                    compile(o, "Flags.TFLG_B()", method);
+                    compile(o, getB(), method);
                     return false;
                 }
                 break;
             case 0x273: // JNB
                 if (op instanceof Inst3.JumpCond32_b_nb) {
                     Inst3.JumpCond32_b_nb o = (Inst3.JumpCond32_b_nb) op;
-                    compile(o, "Flags.TFLG_NB()", method);
+                    compile(o, getNB(), method);
                     return false;
                 }
                 break;
             case 0x274: // JZ
                 if (op instanceof Inst3.JumpCond32_b_z) {
                     Inst3.JumpCond32_b_z o = (Inst3.JumpCond32_b_z) op;
-                    compile(o, "Flags.TFLG_Z()", method);
+                    compile(o, getZ(), method);
                     return false;
                 }
                 break;
             case 0x275: // JNZ
                 if (op instanceof Inst3.JumpCond32_b_nz) {
                     Inst3.JumpCond32_b_nz o = (Inst3.JumpCond32_b_nz) op;
-                    compile(o, "Flags.TFLG_NZ()", method);
+                    compile(o, getNZ(), method);
                     return false;
                 }
                 break;
             case 0x276: // JBE
                 if (op instanceof Inst3.JumpCond32_b_be) {
                     Inst3.JumpCond32_b_be o = (Inst3.JumpCond32_b_be) op;
-                    compile(o, "Flags.TFLG_BE()", method);
+                    compile(o, getBE(), method);
                     return false;
                 }
                 break;
             case 0x277: // JNBE
                 if (op instanceof Inst3.JumpCond32_b_nbe) {
                     Inst3.JumpCond32_b_nbe o = (Inst3.JumpCond32_b_nbe) op;
-                    compile(o, "Flags.TFLG_NBE()", method);
+                    compile(o, getNBE(), method);
                     return false;
                 }
                 break;
             case 0x278: // JS
                 if (op instanceof Inst3.JumpCond32_b_s) {
                     Inst3.JumpCond32_b_s o = (Inst3.JumpCond32_b_s) op;
-                    compile(o, "Flags.TFLG_S()", method);
+                    compile(o, getS(), method);
                     return false;
                 }
                 break;
             case 0x279: // JNS
                 if (op instanceof Inst3.JumpCond32_b_ns) {
                     Inst3.JumpCond32_b_ns o = (Inst3.JumpCond32_b_ns) op;
-                    compile(o, "Flags.TFLG_NS()", method);
+                    compile(o, getNS(), method);
                     return false;
                 }
                 break;
             case 0x27a: // JP
                 if (op instanceof Inst3.JumpCond32_b_p) {
                     Inst3.JumpCond32_b_p o = (Inst3.JumpCond32_b_p) op;
-                    compile(o, "Flags.TFLG_P()", method);
+                    compile(o, getP(), method);
                     return false;
                 }
                 break;
             case 0x27b: // JNP
                 if (op instanceof Inst3.JumpCond32_b_np) {
                     Inst3.JumpCond32_b_np o = (Inst3.JumpCond32_b_np) op;
-                    compile(o, "Flags.TFLG_NP()", method);
+                    compile(o, getNP(), method);
                     return false;
                 }
                 break;
             case 0x27c: // JL
                 if (op instanceof Inst3.JumpCond32_b_l) {
                     Inst3.JumpCond32_b_l o = (Inst3.JumpCond32_b_l) op;
-                    compile(o, "Flags.TFLG_L()", method);
+                    compile(o, getL(), method);
                     return false;
                 }
                 break;
             case 0x27d: // JNL
                 if (op instanceof Inst3.JumpCond32_b_nl) {
                     Inst3.JumpCond32_b_nl o = (Inst3.JumpCond32_b_nl) op;
-                    compile(o, "Flags.TFLG_NL()", method);
+                    compile(o, getNL(), method);
                     return false;
                 }
                 break;
             case 0x27e: // JLE
                 if (op instanceof Inst3.JumpCond32_b_le) {
                     Inst3.JumpCond32_b_le o = (Inst3.JumpCond32_b_le) op;
-                    compile(o, "Flags.TFLG_LE()", method);
+                    compile(o, getLE(), method);
                     return false;
                 }
                 break;
             case 0x27f: // JNLE
                 if (op instanceof Inst3.JumpCond32_b_nle) {
                     Inst3.JumpCond32_b_nle o = (Inst3.JumpCond32_b_nle) op;
-                    compile(o, "Flags.TFLG_NLE()", method);
+                    compile(o, getNLE(), method);
                     return false;
                 }
                 break;
@@ -3164,13 +3164,13 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst3.Loopnz32) {
                     Inst3.Loopnz32 o = (Inst3.Loopnz32) op;
                     method.append("CPU_Regs.reg_ecx.dword--;");
-                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && !Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && ("+getNZ()+")", method);
                     return false;
                 }
                 if (op instanceof Inst3.Loopnz16) {
                     Inst3.Loopnz16 o = (Inst3.Loopnz16) op;
                     method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
-                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && !Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && ("+getNZ()+")", method);
                     return false;
                 }
                 break;
@@ -3178,13 +3178,13 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst3.Loopz32) {
                     Inst3.Loopz32 o = (Inst3.Loopz32) op;
                     method.append("CPU_Regs.reg_ecx.dword--;");
-                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && ("+getZ()+")", method);
                     return false;
                 }
                 if (op instanceof Inst3.Loopz16) {
                     Inst3.Loopz16 o = (Inst3.Loopz16) op;
                     method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
-                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && ("+getZ()+")", method);
                     return false;
                 }
                 break;
@@ -3760,112 +3760,112 @@ public class Compiler2 extends Compiler {
             case 0x380: // JO
                 if (op instanceof Inst4.JumpCond32_d_o) {
                     Inst4.JumpCond32_d_o o = (Inst4.JumpCond32_d_o) op;
-                    compile(o, "Flags.TFLG_O()", method);
+                    compile(o, getO(), method);
                     return false;
                 }
                 break;
             case 0x381: // JNO
                 if (op instanceof Inst4.JumpCond32_d_no) {
                     Inst4.JumpCond32_d_no o = (Inst4.JumpCond32_d_no) op;
-                    compile(o, "Flags.TFLG_NO()", method);
+                    compile(o, getNO(), method);
                     return false;
                 }
                 break;
             case 0x382: // JB
                 if (op instanceof Inst4.JumpCond32_d_b) {
                     Inst4.JumpCond32_d_b o = (Inst4.JumpCond32_d_b) op;
-                    compile(o, "Flags.TFLG_B()", method);
+                    compile(o, getB(), method);
                     return false;
                 }
                 break;
             case 0x383: // JNB
                 if (op instanceof Inst4.JumpCond32_d_nb) {
                     Inst4.JumpCond32_d_nb o = (Inst4.JumpCond32_d_nb) op;
-                    compile(o, "Flags.TFLG_NB()", method);
+                    compile(o, getNB(), method);
                     return false;
                 }
                 break;
             case 0x384: // JZ
                 if (op instanceof Inst4.JumpCond32_d_z) {
                     Inst4.JumpCond32_d_z o = (Inst4.JumpCond32_d_z) op;
-                    compile(o, "Flags.TFLG_Z()", method);
+                    compile(o, getZ(), method);
                     return false;
                 }
                 break;
             case 0x385: // JNZ
                 if (op instanceof Inst4.JumpCond32_d_nz) {
                     Inst4.JumpCond32_d_nz o = (Inst4.JumpCond32_d_nz) op;
-                    compile(o, "Flags.TFLG_NZ()", method);
+                    compile(o, getNZ(), method);
                     return false;
                 }
                 break;
             case 0x386: // JBE
                 if (op instanceof Inst4.JumpCond32_d_be) {
                     Inst4.JumpCond32_d_be o = (Inst4.JumpCond32_d_be) op;
-                    compile(o, "Flags.TFLG_BE()", method);
+                    compile(o, getBE(), method);
                     return false;
                 }
                 break;
             case 0x387: // JNBE
                 if (op instanceof Inst4.JumpCond32_d_nbe) {
                     Inst4.JumpCond32_d_nbe o = (Inst4.JumpCond32_d_nbe) op;
-                    compile(o, "Flags.TFLG_NBE()", method);
+                    compile(o, getNBE(), method);
                     return false;
                 }
                 break;
             case 0x388: // JS
                 if (op instanceof Inst4.JumpCond32_d_s) {
                     Inst4.JumpCond32_d_s o = (Inst4.JumpCond32_d_s) op;
-                    compile(o, "Flags.TFLG_S()", method);
+                    compile(o, getS(), method);
                     return false;
                 }
                 break;
             case 0x389: // JNS
                 if (op instanceof Inst4.JumpCond32_d_ns) {
                     Inst4.JumpCond32_d_ns o = (Inst4.JumpCond32_d_ns) op;
-                    compile(o, "Flags.TFLG_NS()", method);
+                    compile(o, getNS(), method);
                     return false;
                 }
                 break;
             case 0x38a: // JP
                 if (op instanceof Inst4.JumpCond32_d_p) {
                     Inst4.JumpCond32_d_p o = (Inst4.JumpCond32_d_p) op;
-                    compile(o, "Flags.TFLG_P()", method);
+                    compile(o, getP(), method);
                     return false;
                 }
                 break;
             case 0x38b: // JNP
                 if (op instanceof Inst4.JumpCond32_d_np) {
                     Inst4.JumpCond32_d_np o = (Inst4.JumpCond32_d_np) op;
-                    compile(o, "Flags.TFLG_NP()", method);
+                    compile(o, getNP(), method);
                     return false;
                 }
                 break;
             case 0x38c: // JL
                 if (op instanceof Inst4.JumpCond32_d_l) {
                     Inst4.JumpCond32_d_l o = (Inst4.JumpCond32_d_l) op;
-                    compile(o, "Flags.TFLG_L()", method);
+                    compile(o, getL(), method);
                     return false;
                 }
                 break;
             case 0x38d: // JNL
                 if (op instanceof Inst4.JumpCond32_d_nl) {
                     Inst4.JumpCond32_d_nl o = (Inst4.JumpCond32_d_nl) op;
-                    compile(o, "Flags.TFLG_NL()", method);
+                    compile(o, getNL(), method);
                     return false;
                 }
                 break;
             case 0x38e: // JLE
                 if (op instanceof Inst4.JumpCond32_d_le) {
                     Inst4.JumpCond32_d_le o = (Inst4.JumpCond32_d_le) op;
-                    compile(o, "Flags.TFLG_LE()", method);
+                    compile(o, getLE(), method);
                     return false;
                 }
                 break;
             case 0x38f: // JNLE
                 if (op instanceof Inst4.JumpCond32_d_nle) {
                     Inst4.JumpCond32_d_nle o = (Inst4.JumpCond32_d_nle) op;
-                    compile(o, "Flags.TFLG_NLE()", method);
+                    compile(o, getNLE(), method);
                     return false;
                 }
                 break;

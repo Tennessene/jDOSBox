@@ -647,6 +647,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
     final static public class ShldEdGdIb_mem extends Op {
@@ -679,6 +680,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
     final static public class ShldEdGdCl_reg extends Op {
@@ -710,6 +712,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
     final static public class ShldEdGdCl_mem extends Op {
@@ -743,6 +746,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
     final static public class PushGS extends Op {
@@ -882,6 +886,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ShrdEdGdIb_mem extends Op {
@@ -914,6 +919,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ShrdEdGdCl_reg extends Op {
@@ -945,6 +951,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ShrdEdGdCl_mem extends Op {
@@ -978,6 +985,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ImulGdEd_reg extends Op {
@@ -1047,8 +1055,8 @@ static abstract public class JumpCond32_d extends Op {
         }
 
         public int call() {
-            Flags.FillFlags();
             Instructions.CMPD(eard.dword, reg_eax.dword);
+            Flags.FillFlags();
             if (reg_eax.dword == eard.dword) {
                 eard.dword=rd.dword;
                 SETFLAGBIT(ZF,true);
@@ -1083,10 +1091,10 @@ static abstract public class JumpCond32_d extends Op {
         }
 
         public int call() {
-            Flags.FillFlags();
             int eaa=get_eaa.call();
             int val = Memory.mem_readd(eaa);
             Instructions.CMPD(val, reg_eax.dword);
+            Flags.FillFlags();
             if (reg_eax.dword == val) {
                 Memory.mem_writed(eaa,rd.dword);
                 SETFLAGBIT(ZF,true);
@@ -1993,6 +2001,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_ADDD;}
     }
 
     final static public class XaddGdEd_mem extends Op {
@@ -2026,6 +2035,7 @@ static abstract public class JumpCond32_d extends Op {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_ADDD;}
     }
 
     final static public class Bswapd extends Op {

@@ -39,6 +39,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class AddEbGb_mem extends Op {
@@ -68,6 +69,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class AddGbEb_mem extends Op {
@@ -97,6 +99,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class Addw_reg extends Op {
@@ -126,6 +129,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+e.getName16()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class AddEwGw_mem extends Op {
@@ -155,6 +159,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+e.description16()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class AddGwEw_mem extends Op {
@@ -184,6 +189,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class AddAlIb extends Op {
@@ -210,6 +216,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class AddAxIw extends Op {
@@ -236,6 +243,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class Orb_reg extends Op {
@@ -266,6 +274,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ORB;}
     }
 
     final static public class OrEbGb_mem extends Op {
@@ -296,6 +305,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ORB;}
     }
 
     final static public class OrGbEb_mem extends Op {
@@ -326,6 +336,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_ORB;}
     }
 
     final static public class Orw_reg extends Op {
@@ -355,6 +366,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+e.getName16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_ORW;}
     }
 
     final static public class OrEwGw_mem extends Op {
@@ -385,6 +397,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+e.description16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_ORW;}
     }
 
     final static public class OrGwEw_mem extends Op {
@@ -415,6 +428,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_ORW;}
     }
 
     final static public class OrAlIb extends Op {
@@ -442,6 +456,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ORB;}
     }
 
     final static public class OrAxIw extends Op {
@@ -469,6 +484,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ORW;}
     }
 
     final static public class Adcb_reg extends Op {
@@ -498,6 +514,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ADCB;}
     }
 
     final static public class AdcEbGb_mem extends Op {
@@ -527,6 +544,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ADCB;}
     }
 
     final static public class AdcGbEb_mem extends Op {
@@ -556,6 +574,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_ADCB;}
     }
 
     final static public class Adcw_reg extends Op {
@@ -585,6 +604,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+e.getName16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_ADCW;}
     }
 
     final static public class AdcEwGw_mem extends Op {
@@ -614,6 +634,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+e.description16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_ADCW;}
     }
 
     final static public class AdcGwEw_mem extends Op {
@@ -643,6 +664,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_ADCW;}
     }
 
     final static public class AdcAlIb extends Op {
@@ -669,6 +691,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ADCB;}
     }
 
     final static public class AdcAxIw extends Op {
@@ -695,6 +718,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ADCW;}
     }
     
     final static public class Sbbb_reg extends Op {
@@ -724,6 +748,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SBBB;}
     }
 
     final static public class SbbEbGb_mem extends Op {
@@ -753,6 +778,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SBBB;}
     }
 
     final static public class SbbGbEb_mem extends Op {
@@ -782,6 +808,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_SBBB;}
     }
 
     final static public class Sbbw_reg extends Op {
@@ -811,6 +838,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+e.getName16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_SBBW;}
     }
 
     final static public class SbbEwGw_mem extends Op {
@@ -840,6 +868,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+e.description16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_SBBW;}
     }
 
     final static public class SbbGwEw_mem extends Op {
@@ -869,6 +898,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_SBBW;}
     }
 
     final static public class SbbAlIb extends Op {
@@ -895,6 +925,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_SBBB;}
     }
 
     final static public class SbbAxIw extends Op {
@@ -921,6 +952,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_SBBW;}
     }
 
     final static public class Andb_reg extends Op {
@@ -951,6 +983,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ANDB;}
     }
 
     final static public class AndEbGb_mem extends Op {
@@ -981,6 +1014,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_ANDB;}
     }
 
     final static public class AndGbEb_mem extends Op {
@@ -1011,6 +1045,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_ANDB;}
     }
 
     final static public class Andw_reg extends Op {
@@ -1041,6 +1076,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+e.getName16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_ANDW;}
     }
 
     final static public class AndEwGw_mem extends Op {
@@ -1071,6 +1107,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+e.description16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_ANDW;}
     }
 
     final static public class AndGwEw_mem extends Op {
@@ -1101,6 +1138,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_ANDW;}
     }
 
     final static public class AndAlIb extends Op {
@@ -1128,6 +1166,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ANDB;}
     }
 
     final static public class AndAxIw extends Op {
@@ -1155,6 +1194,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_ANDW;}
     }
 
     final static public class Subb_reg extends Op {
@@ -1184,6 +1224,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SUBB;}
     }
 
     final static public class SubEbGb_mem extends Op {
@@ -1213,6 +1254,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SUBB;}
     }
 
     final static public class SubGbEb_mem extends Op {
@@ -1242,6 +1284,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_SUBB;}
     }
 
     final static public class Subw_reg extends Op {
@@ -1271,6 +1314,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+e.getName16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_SUBW;}
     }
 
     final static public class SubEwGw_mem extends Op {
@@ -1300,6 +1344,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+e.description16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_SUBW;}
     }
 
     final static public class SubGwEw_mem extends Op {
@@ -1329,6 +1374,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_SUBW;}
     }
 
     final static public class SubAlIb extends Op {
@@ -1355,6 +1401,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_SUBB;}
     }
 
     final static public class SubAxIw extends Op {
@@ -1381,6 +1428,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_SUBW;}
     }
 
     final static public class Xorb_reg extends Op {
@@ -1411,6 +1459,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_XORB;}
     }
 
     final static public class XorEbGb_mem extends Op {
@@ -1441,6 +1490,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_XORB;}
     }
 
     final static public class XorGbEb_mem extends Op {
@@ -1471,6 +1521,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_XORB;}
     }
 
     final static public class Xorw_reg extends Op {
@@ -1501,6 +1552,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+e.getName16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_XORW;}
     }
 
     final static public class XorEwGw_mem extends Op {
@@ -1531,6 +1583,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+e.description16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_XORW;}
     }
 
     final static public class XorGwEw_mem extends Op {
@@ -1561,6 +1614,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_XORW;}
     }
 
     final static public class XorAlIb extends Op {
@@ -1588,6 +1642,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_XORB;}
     }
 
     final static public class XorAxIw extends Op {
@@ -1615,6 +1670,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_XORW;}
     }
 
     final static public class Cmpb_reg extends Op {
@@ -1644,6 +1700,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+e.getName8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_CMPB;}
     }
 
     final static public class CmpEbGb_mem extends Op {
@@ -1673,6 +1730,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+e.description8()+", "+g.getName8();}
+        public int getFlagType() {return FLAG_TYPE_CMPB;}
     }
 
     final static public class CmpGbEb_mem extends Op {
@@ -1702,6 +1760,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+e.getName8()+", "+g.description8();}
+        public int getFlagType() {return FLAG_TYPE_CMPB;}
     }
 
     final static public class Cmpw_reg extends Op {
@@ -1731,6 +1790,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+e.getName16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_CMPW;}
     }
 
     final static public class CmpEwGw_mem extends Op {
@@ -1760,6 +1820,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+e.description16()+", "+g.getName16();}
+        public int getFlagType() {return FLAG_TYPE_CMPW;}
     }
 
     final static public class CmpGwEw_mem extends Op {
@@ -1789,6 +1850,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+e.getName16()+", "+g.description16();}
+        public int getFlagType() {return FLAG_TYPE_CMPW;}
     }
 
     final static public class CmpAlIb extends Op {
@@ -1815,6 +1877,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+CPU_Regs.reg_eax.getName8()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_CMPB;}
     }
 
     final static public class CmpAxIw extends Op {
@@ -1841,6 +1904,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+CPU_Regs.reg_eax.getName16()+", "+i;}
+        public int getFlagType() {return FLAG_TYPE_CMPW;}
     }
 
     final static public class PushES extends Op {
@@ -2237,6 +2301,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "INC "+reg.getName16();}
+        public int getFlagType() {return FLAG_TYPE_INCW;}
     }
 
     final static public class Decw extends Op {
@@ -2269,6 +2334,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "DEC "+reg.getName16();}
+        public int getFlagType() {return FLAG_TYPE_DECW;}
     }
 
     final static public class Pushw extends Op {
@@ -2987,6 +3053,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class GrplEbIb_reg_or extends Op {
@@ -3017,6 +3084,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ORB;}
     }
 
     final static public class GrplEbIb_reg_adc extends Op {
@@ -3046,6 +3114,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADCB;}
     }
 
     final static public class GrplEbIb_reg_sbb extends Op {
@@ -3075,6 +3144,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SBBB;}
     }
 
     final static public class GrplEbIb_reg_and extends Op {
@@ -3105,6 +3175,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ANDB;}
     }
 
     final static public class GrplEbIb_reg_sub extends Op {
@@ -3134,6 +3205,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SUBB;}
     }
 
     final static public class GrplEbIb_reg_xor extends Op {
@@ -3164,6 +3236,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_XORB;}
     }
 
     final static public class GrplEbIb_reg_cmp extends Op {
@@ -3193,6 +3266,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+earb.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_CMPB;}
     }
 
     final static public class GrplEbIb_mem_add extends Op {
@@ -3223,6 +3297,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class GrplEbIb_mem_or extends Op {
@@ -3254,6 +3329,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ORB;}
     }
 
     final static public class GrplEbIb_mem_adc extends Op {
@@ -3284,6 +3360,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADCB;}
     }
 
     final static public class GrplEbIb_mem_sbb extends Op {
@@ -3314,6 +3391,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SBBB;}
     }
 
     final static public class GrplEbIb_mem_and extends Op {
@@ -3345,6 +3423,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ANDB;}
     }
 
     final static public class GrplEbIb_mem_sub extends Op {
@@ -3375,6 +3454,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SUBB;}
     }
 
     final static public class GrplEbIb_mem_xor extends Op {
@@ -3406,6 +3486,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_XORB;}
     }
 
     final static public class GrplEbIb_mem_cmp extends Op {
@@ -3436,6 +3517,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+get_eaa.description8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_CMPB;}
     }
 
     final static public class GrplEwIw_reg_add extends Op {
@@ -3468,6 +3550,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class GrplEwIw_reg_or extends Op {
@@ -3501,6 +3584,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ORW;}
     }
 
     final static public class GrplEwIw_reg_adc extends Op {
@@ -3533,6 +3617,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADCW;}
     }
 
     final static public class GrplEwIw_reg_sbb extends Op {
@@ -3565,6 +3650,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SBBW;}
     }
 
     final static public class GrplEwIw_reg_and extends Op {
@@ -3598,6 +3684,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ANDW;}
     }
 
     final static public class GrplEwIw_reg_sub extends Op {
@@ -3630,6 +3717,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SUBW;}
     }
 
     final static public class GrplEwIw_reg_xor extends Op {
@@ -3663,6 +3751,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_XORW;}
     }
 
     final static public class GrplEwIw_reg_cmp extends Op {
@@ -3695,6 +3784,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+earw.getName16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_CMPW;}
     }
 
     final static public class GrplEwIw_mem_add extends Op {
@@ -3728,6 +3818,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADD "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class GrplEwIw_mem_or extends Op {
@@ -3762,6 +3853,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "OR "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ORW;}
     }
 
     final static public class GrplEwIw_mem_adc extends Op {
@@ -3795,6 +3887,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "ADC "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ADCW;}
     }
 
     final static public class GrplEwIw_mem_sbb extends Op {
@@ -3828,6 +3921,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SBB "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SBBW;}
     }
 
     final static public class GrplEwIw_mem_and extends Op {
@@ -3862,6 +3956,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "AND "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_ANDW;}
     }
 
     final static public class GrplEwIw_mem_sub extends Op {
@@ -3895,6 +3990,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SUB "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_SUBW;}
     }
 
     final static public class GrplEwIw_mem_xor extends Op {
@@ -3929,6 +4025,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "XOR "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_XORW;}
     }
 
     final static public class GrplEwIw_mem_cmp extends Op {
@@ -3962,6 +4059,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "CMP "+get_eaa.description16()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_CMPW;}
     }
 
     final static public class TestEbGb_reg extends Op {
@@ -3992,6 +4090,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+earb.getName8()+", "+rb.getName8();}
+        public int getFlagType() {return FLAG_TYPE_TESTB;}
     }
 
     final static public class TestEbGb_mem extends Op {
@@ -4023,6 +4122,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+get_eaa.description8()+", "+rb.getName8();}
+        public int getFlagType() {return FLAG_TYPE_TESTB;}
     }
 
     final static public class TestEwGw_reg extends Op {
@@ -4053,6 +4153,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+earw.getName16()+", "+rw.getName16();}
+        public int getFlagType() {return FLAG_TYPE_TESTW;}
     }
 
     final static public class TestEwGw_mem extends Op {
@@ -4084,6 +4185,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+get_eaa.description16()+", "+rw.getName16();}
+        public int getFlagType() {return FLAG_TYPE_TESTW;}
     }
 
     final static public class XchgEbGb_reg extends Op {
@@ -5541,6 +5643,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+CPU_Regs.reg_eax.getName8()+", "+ib;}
+        public int getFlagType() {return FLAG_TYPE_TESTB;}
     }
 
     final static public class TestAxIw extends Op {
@@ -5567,6 +5670,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+CPU_Regs.reg_eax.getName16()+", "+iw;}
+        public int getFlagType() {return FLAG_TYPE_TESTW;}
     }
 
     final static public class MovIb extends Op {
@@ -7231,6 +7335,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "INC "+reg.getName8();}
+        public int getFlagType() {return FLAG_TYPE_INCB;}
     }
 
     final static public class Incb_mem extends Op {
@@ -7260,6 +7365,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "INC "+get_eaa.description8();}
+        public int getFlagType() {return FLAG_TYPE_INCB;}
     }
 
     final static public class Decb_reg extends Op {
@@ -7288,6 +7394,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "DEC "+reg.getName8();}
+        public int getFlagType() {return FLAG_TYPE_DECB;}
     }
 
     final static public class Decb_mem extends Op {
@@ -7317,6 +7424,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "DEC "+get_eaa.description8();}
+        public int getFlagType() {return FLAG_TYPE_DECB;}
     }
 
     final static public class Callback extends Op {
@@ -7374,6 +7482,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "INC "+reg.getName16();}
+        public int getFlagType() {return FLAG_TYPE_INCW;}
     }
 
     final static public class Incw_mem extends Op {
@@ -7403,6 +7512,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "INC "+get_eaa.description16();}
+        public int getFlagType() {return FLAG_TYPE_INCW;}
     }
 
     final static public class Decw_reg extends Op {
@@ -7431,6 +7541,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "DEC "+reg.getName16();}
+        public int getFlagType() {return FLAG_TYPE_DECW;}
     }
 
     final static public class Decw_mem extends Op {
@@ -7460,6 +7571,7 @@ public class Inst1 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "DEC "+get_eaa.description16();}
+        public int getFlagType() {return FLAG_TYPE_DECW;}
     }
 
     final static public class CallEv_reg extends Op {

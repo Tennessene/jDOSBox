@@ -158,6 +158,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+earb.getName8()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHLB;}
     }
 
     static public class SHRB_reg extends Op {
@@ -189,6 +190,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+earb.getName8()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHRB;}
     }
 
     static public class SARB_reg extends Op {
@@ -219,7 +221,8 @@ public class Grp2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
-        public String description() {return "ROL "+earb.getName8()+", "+val;}
+        public String description() {return "SAR "+earb.getName8()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SARB;}
     }
 
     static public class ROLB_mem extends Op {
@@ -384,6 +387,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+get_eaa.description8()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHLB;}
     }
 
     static public class SHRB_mem extends Op {
@@ -416,6 +420,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+get_eaa.description8()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHRB;}
     }
 
     static public class SARB_mem extends Op {
@@ -448,6 +453,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+get_eaa.description8()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SARB;}
     }
 
     static public class ROLW_reg extends Op {
@@ -603,6 +609,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+earw.getName16()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHLW;}
     }
 
     static public class SHRW_reg extends Op {
@@ -634,6 +641,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+earw.getName16()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHRW;}
     }
 
     static public class SARW_reg extends Op {
@@ -665,6 +673,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+earw.getName16()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SARW;}
     }
 
     static public class ROLW_mem extends Op {
@@ -825,6 +834,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+get_eaa.description16()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHLW;}
     }
 
     static public class SHRW_mem extends Op {
@@ -857,6 +867,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+get_eaa.description16()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHRW;}
     }
 
     static public class SARW_mem extends Op {
@@ -889,6 +900,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+get_eaa.description16()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SARW;}
     }
 
     static public class ROLB_reg_cl extends Op {
@@ -1034,6 +1046,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHLB;}
     }
 
     static public class SHRB_reg_cl extends Op {
@@ -1063,6 +1076,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHRB;}
     }
 
     static public class SARB_reg_cl extends Op {
@@ -1092,6 +1106,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+earb.getName8()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SARB;}
     }
 
     static public class ROLB_mem_cl extends Op {
@@ -1247,6 +1262,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHLB;}
     }
 
     static public class SHRB_mem_cl extends Op {
@@ -1278,6 +1294,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHRB;}
     }
 
     static public class SARB_mem_cl extends Op {
@@ -1309,6 +1326,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+get_eaa.description8()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SARB;}
     }
 
     static public class ROLW_reg_cl extends Op {
@@ -1455,6 +1473,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHLW;}
     }
 
     static public class SHRW_reg_cl extends Op {
@@ -1484,6 +1503,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHRW;}
     }
 
     static public class SARW_reg_cl extends Op {
@@ -1513,6 +1533,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+earw.getName16()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SARW;}
     }
 
     static public class ROLW_mem_cl extends Op {
@@ -1668,6 +1689,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHLW;}
     }
 
     static public class SHRW_mem_cl extends Op {
@@ -1699,6 +1721,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHRW;}
     }
 
     static public class SARW_mem_cl extends Op {
@@ -1730,6 +1753,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+get_eaa.description16()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SARW;}
     }
 
     static public class ROLD_reg extends Op {
@@ -1879,6 +1903,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+eard.getName()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHLD;}
     }
 
     static public class SHRD_reg extends Op {
@@ -1908,6 +1933,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+eard.getName()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHRD;}
     }
 
     static public class SARD_reg extends Op {
@@ -1937,6 +1963,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+eard.getName()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SARD;}
     }
 
     static public class ROLD_mem extends Op {
@@ -2087,6 +2114,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+get_eaa.description32()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHLD;}
     }
 
     static public class SHRD_mem extends Op {
@@ -2117,6 +2145,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+get_eaa.description32()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SHRD;}
     }
 
     static public class SARD_mem extends Op {
@@ -2147,6 +2176,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+get_eaa.description32()+", "+val;}
+        public int getFlagType() {return FLAG_TYPE_SARD;}
     }
 
     static public class ROLD_reg_cl extends Op {
@@ -2293,6 +2323,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHLD;}
     }
 
     static public class SHRD_reg_cl extends Op {
@@ -2322,6 +2353,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHRD;}
     }
 
     static public class SARD_reg_cl extends Op {
@@ -2351,6 +2383,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+eard.getName()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SARD;}
     }
 
     static public class ROLD_mem_cl extends Op {
@@ -2506,6 +2539,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHL "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHLD;}
     }
 
     static public class SHRD_mem_cl extends Op {
@@ -2537,6 +2571,7 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SHR "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SHRD;}
     }
 
     static public class SARD_mem_cl extends Op {
@@ -2568,5 +2603,6 @@ public class Grp2 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "SAR "+get_eaa.description32()+", "+CPU_Regs.reg_ecx.getName8();}
+        public int getFlagType() {return FLAG_TYPE_SARD;}
     }
 }

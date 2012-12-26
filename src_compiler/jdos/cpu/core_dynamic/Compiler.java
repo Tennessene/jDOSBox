@@ -22,6 +22,7 @@ public class Compiler extends Helper {
     public static int min_block_size = 1;
     public static boolean alwayUseFastVersion = false; // useful for unit test
     static public final boolean ENABLED = true;
+    static private boolean inlineFlags = true;
 
     private static Thread[] compilerThread = null;
     private static LinkedList compilerQueue = new LinkedList();
@@ -67,7 +68,9 @@ public class Compiler extends Helper {
                             }
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                    System.out.println("Compiler thread has exited");
                 }
             });
             compilerThread[i].start();
@@ -189,6 +192,7 @@ public class Compiler extends Helper {
             wasSet = true;
         }
     }
+    static private Op opThatSetFlags = null;
     static public Op do_compile(Op op) {
         Op prev = op;
         op = op.next;
@@ -197,12 +201,12 @@ public class Compiler extends Helper {
         Op start = prev;
         Seg seg = new Seg();
 
+        int eaaPos = method.length();
         int loopPos = method.length();
         int eipTotal = 0;
         method.append("CPU.CPU_Cycles-=");
         method.append(op.cycle);
         method.append(";");
-        int eaaPos = method.length();
         int runningEipCount = 0;
         boolean loop = false;
         String loopCondition = null;
@@ -211,6 +215,8 @@ public class Compiler extends Helper {
         val2Started = false;
         longValStarted = false;
         shortValStarted = false;
+        opThatSetFlags = null;
+
         while (op != null) {
             boolean tryPageFault = false;
             if (true) {
@@ -355,6 +361,8 @@ public class Compiler extends Helper {
                     }
                 }
                 boolean reset = seg.wasSet;
+                if (shouldSet>0)
+                    opThatSetFlags = op;
                 if (!loopClosed && compile_op(op, alwayUseFastVersion?0:shouldSet, method, (runningEipCount>0)?"CPU_Regs.reg_eip+="+runningEipCount+";":"", seg)) {
                     if (combineEIP) {
                         if (testLocalVariableAccess)
@@ -725,6 +733,611 @@ public class Compiler extends Helper {
             method.append("CPU_Regs.reg_edi.dword+");method.append(((Eaa.EA_32_87_n)eaa).i);
         }
     }
+    static String getO() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB: return "Flags.lf_resb() == 0x80";
+                case Op.FLAG_TYPE_INCW: return "Flags.lf_resw() == 0x8000";
+                case Op.FLAG_TYPE_INCD: return "Flags.lf_resd() == 0x80000000";
+                case Op.FLAG_TYPE_DECB: return "Flags.lf_resb() == 0x7f";
+                case Op.FLAG_TYPE_DECW: return "Flags.lf_resw() == 0x7fff";
+                case Op.FLAG_TYPE_DECD: return "Flags.lf_resd() == 0x7fffffff";
+                case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ADCB:
+                    return "(((Flags.lf_var1b() ^ Flags.lf_var2b() ^ 0x80) & (Flags.lf_resb() ^ Flags.lf_var2b())) & 0x80) != 0";
+                case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ADCW:
+                    return "(((Flags.lf_var1w() ^ Flags.lf_var2w() ^ 0x8000) & (Flags.lf_resw() ^ Flags.lf_var2w())) & 0x8000) != 0";
+                case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ADCD:
+                    return "(((Flags.lf_var1d() ^ Flags.lf_var2d() ^ 0x80000000) & (Flags.lf_resd() ^ Flags.lf_var2d())) & 0x80000000) != 0";
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_XORD:
+                    return "false";
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                case Op.FLAG_TYPE_SBBB:
+                    return "(((Flags.lf_var1b() ^ Flags.lf_var2b()) & (Flags.lf_var1b() ^ Flags.lf_resb())) & 0x80) != 0";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                case Op.FLAG_TYPE_SBBW:
+                    return "(((Flags.lf_var1w() ^ Flags.lf_var2w()) & (Flags.lf_var1w() ^ Flags.lf_resw())) & 0x8000) != 0";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                case Op.FLAG_TYPE_SBBD:
+                    return "(((Flags.lf_var1d() ^ Flags.lf_var2d()) & (Flags.lf_var1d() ^ Flags.lf_resd())) & 0x80000000) != 0";
+                case Op.FLAG_TYPE_SHLB:
+                    return "((lf_resb() ^ lf_var1b()) & 0x80) != 0";
+                case Op.FLAG_TYPE_SHLW:
+                    return "((lf_resw() ^ lf_var1w()) & 0x8000) != 0";
+                case Op.FLAG_TYPE_SHLD:
+                    return "((lf_resd() ^ lf_var1d()) & 0x80000000) != 0";
+                case Op.FLAG_TYPE_SHRB:
+                    return "((lf_var2b()&0x1f)==1 && lf_var1b() > 0x80)";
+                case Op.FLAG_TYPE_SHRW:
+                    return "((lf_var2b()&0x1f)==1 && lf_var1w() > 0x8000)";
+                case Op.FLAG_TYPE_SHRD:
+                    return "((lf_var2b()&0x1f)==1 && (lf_var1d() & 0xFFFFFFFFl) > 0x80000000l)";
+                case Op.FLAG_TYPE_SARB:
+                case Op.FLAG_TYPE_SARW:
+                case Op.FLAG_TYPE_SARD:
+                    return "false";
+                case Op.FLAG_TYPE_DSHLW:
+                    return "((lf_resw() ^ lf_var1w()) & 0x8000) != 0";
+                case Op.FLAG_TYPE_DSHLD:
+                    return "((lf_resd() ^ lf_var1d()) & 0x80000000) != 0";
+                case Op.FLAG_TYPE_DSHRW:
+                    return "((lf_resw() ^ lf_var1w()) & 0x8000) != 0";
+                case Op.FLAG_TYPE_DSHRD:
+                    return "((lf_resd() ^ lf_var1d()) & 0x80000000) != 0";
+                case Op.FLAG_TYPE_NEGB:
+                    return "lf_var1b() == 0x80";
+                case Op.FLAG_TYPE_NEGW:
+                    return "lf_var1w() == 0x8000";
+                case Op.FLAG_TYPE_NEGD:
+                    return "lf_var1d() == 0x80000000";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.OF) != 0";
+            }
+        }
+        return "Flags.TFLG_O()";
+    }
+    static String getNO() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB: return "Flags.lf_resb() != 0x80";
+                case Op.FLAG_TYPE_INCW: return "Flags.lf_resw() != 0x8000";
+                case Op.FLAG_TYPE_INCD: return "Flags.lf_resd() != 0x80000000";
+                case Op.FLAG_TYPE_DECB: return "Flags.lf_resb() != 0x7f";
+                case Op.FLAG_TYPE_DECW: return "Flags.lf_resw() != 0x7fff";
+                case Op.FLAG_TYPE_DECD: return "Flags.lf_resd() != 0x7fffffff";
+                case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ADCB:
+                    return "(((Flags.lf_var1b() ^ Flags.lf_var2b() ^ 0x80) & (Flags.lf_resb() ^ Flags.lf_var2b())) & 0x80) == 0";
+                case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ADCW:
+                    return "(((Flags.lf_var1w() ^ Flags.lf_var2w() ^ 0x8000) & (Flags.lf_resw() ^ Flags.lf_var2w())) & 0x8000) == 0";
+                case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ADCD:
+                    return "(((Flags.lf_var1d() ^ Flags.lf_var2d() ^ 0x80000000) & (Flags.lf_resd() ^ Flags.lf_var2d())) & 0x80000000) == 0";
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_XORD:
+                    return "true";
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                case Op.FLAG_TYPE_SBBB:
+                    return "(((Flags.lf_var1b() ^ Flags.lf_var2b()) & (Flags.lf_var1b() ^ Flags.lf_resb())) & 0x80) == 0";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                case Op.FLAG_TYPE_SBBW:
+                    return "(((Flags.lf_var1w() ^ Flags.lf_var2w()) & (Flags.lf_var1w() ^ Flags.lf_resw())) & 0x8000) == 0";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                case Op.FLAG_TYPE_SBBD:
+                    return "(((Flags.lf_var1d() ^ Flags.lf_var2d()) & (Flags.lf_var1d() ^ Flags.lf_resd())) & 0x80000000) == 0";
+                case Op.FLAG_TYPE_SHLB:
+                   return "((lf_resb() ^ lf_var1b()) & 0x80) == 0";
+                case Op.FLAG_TYPE_SHLW:
+                   return "((lf_resw() ^ lf_var1w()) & 0x8000) == 0";
+                case Op.FLAG_TYPE_SHLD:
+                   return "((lf_resd() ^ lf_var1d()) & 0x80000000) == 0";
+                case Op.FLAG_TYPE_SHRB:
+                   return "((lf_var2b()&0x1f)!=1 || lf_var1b() <= 0x80)";
+                case Op.FLAG_TYPE_SHRW:
+                   return "((lf_var2b()&0x1f)!=1 || lf_var1w() <= 0x8000)";
+                case Op.FLAG_TYPE_SHRD:
+                   return "((lf_var2b()&0x1f)!=1 || (lf_var1d() & 0xFFFFFFFFl) <= 0x80000000l)";
+                case Op.FLAG_TYPE_SARB:
+                case Op.FLAG_TYPE_SARW:
+                case Op.FLAG_TYPE_SARD:
+                   return "true";
+                case Op.FLAG_TYPE_DSHLW:
+                   return "((lf_resw() ^ lf_var1w()) & 0x8000) == 0";
+                case Op.FLAG_TYPE_DSHLD:
+                   return "((lf_resd() ^ lf_var1d()) & 0x80000000) == 0";
+                case Op.FLAG_TYPE_DSHRW:
+                   return "((lf_resw() ^ lf_var1w()) & 0x8000) == 0";
+                case Op.FLAG_TYPE_DSHRD:
+                   return "((lf_resd() ^ lf_var1d()) & 0x80000000) == 0";
+                case Op.FLAG_TYPE_NEGB:
+                   return "lf_var1b() != 0x80";
+                case Op.FLAG_TYPE_NEGW:
+                   return "lf_var1w() != 0x8000";
+                case Op.FLAG_TYPE_NEGD:
+                   return "lf_var1d() != 0x80000000";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.OF) == 0";
+            }
+        }
+        return "Flags.TFLG_NO()";
+    }
+    static String getB() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB:
+                case Op.FLAG_TYPE_INCW:
+                case Op.FLAG_TYPE_INCD:
+                case Op.FLAG_TYPE_DECB:
+                case Op.FLAG_TYPE_DECW:
+                case Op.FLAG_TYPE_DECD:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.CF)!=0";
+                case Op.FLAG_TYPE_ADDB: return "Flags.lf_resb()<Flags.lf_var1b()";
+                case Op.FLAG_TYPE_ADDW: return "Flags.lf_resw()<Flags.lf_var1w()";
+                case Op.FLAG_TYPE_ADDD: return "(Flags.lf_resd() & 0xFFFFFFFFl)<(Flags.lf_var1d() & 0xFFFFFFFFl)";
+                case Op.FLAG_TYPE_ADCB: return "(Flags.lf_resb()<Flags.lf_var1b() || (Flags.oldcf && (lf_resb() == lf_var1b())))";
+                case Op.FLAG_TYPE_ADCW: return "(Flags.lf_resw()<Flags.lf_var1w() || (Flags.oldcf && (lf_resw() == lf_var1w())))";
+                case Op.FLAG_TYPE_ADCD: return "((Flags.lf_resd() & 0xFFFFFFFFl)<(Flags.lf_var1d() & 0xFFFFFFFFl) || (Flags.oldcf && (lf_resd() == lf_var1d())))";
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_XORD:
+                    return "false";
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "Flags.lf_var1b()<Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "Flags.lf_var1w()<Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "(Flags.lf_var1d() & 0xFFFFFFFFl)<(Flags.lf_var2d() & 0xFFFFFFFFl)";
+                case Op.FLAG_TYPE_SBBB:
+                    return "(Flags.lf_var1b() < Flags.lf_resb()) || (Flags.oldcf && (Flags.lf_var2b()==0xff))";
+                case Op.FLAG_TYPE_SBBW:
+                    return "(Flags.lf_var1w() < Flags.lf_resw()) || (Flags.oldcf && (Flags.lf_var2w()==0xffff))";
+                case Op.FLAG_TYPE_SBBD:
+                    return "((Flags.lf_var1d() & 0xFFFFFFFFl) < (Flags.lf_resd() & 0xFFFFFFFFl)) || (Flags.oldcf && (Flags.lf_var2d()==0xffffffffl))";
+                case Op.FLAG_TYPE_SHLB:
+                    return "(Flags.lf_var2b()<=8 && ((Flags.lf_var1b() >> (8-Flags.lf_var2b())) & 1)!=0)";
+                case Op.FLAG_TYPE_SHLW:
+                    return "(Flags.lf_var2b()<=16 && ((Flags.lf_var1w()) >> (16-Flags.lf_var2b()) & 1)!=0)";
+                case Op.FLAG_TYPE_SHLD:
+                    return "((Flags.lf_var1d() >>> (32 - Flags.lf_var2b())) & 1) != 0";
+                case Op.FLAG_TYPE_SHRB:
+                    return "((Flags.lf_var1b() >> (Flags.lf_var2b() - 1)) & 1) !=0";
+                case Op.FLAG_TYPE_SHRW:
+                    return "((Flags.lf_var1w() >> (Flags.lf_var2b() - 1)) & 1) !=0";
+                case Op.FLAG_TYPE_SHRD:
+                    return "((Flags.lf_var1d() >>> (Flags.lf_var2b() - 1)) & 1) != 0";
+                case Op.FLAG_TYPE_SARB:
+                    return "(((Flags.lf_var1b()) >> (Flags.lf_var2b() - 1)) & 1) != 0";
+                case Op.FLAG_TYPE_SARW:
+                    return "(((Flags.lf_var1w()) >> (Flags.lf_var2b() - 1)) & 1) != 0";
+                case Op.FLAG_TYPE_SARD:
+                    return "(((Flags.lf_var1d()) >> (Flags.lf_var2b() - 1)) & 1) != 0";
+                case Op.FLAG_TYPE_DSHLW:
+                    return "((Flags.lf_var1d() >>> (32 - Flags.lf_var2b())) & 1) != 0";
+                case Op.FLAG_TYPE_DSHLD:
+                    return "((Flags.lf_var1d() >>> (32 - Flags.lf_var2b())) & 1) != 0";
+                case Op.FLAG_TYPE_DSHRW:
+                    return "((Flags.lf_var1d() >>> (Flags.lf_var2b() - 1)) & 1) != 0";
+                case Op.FLAG_TYPE_DSHRD:
+                    return "((Flags.lf_var1d() >>> (Flags.lf_var2b() - 1)) & 1) != 0";
+                case Op.FLAG_TYPE_NEGB:
+                    return "Flags.lf_var1b() != 0";
+                case Op.FLAG_TYPE_NEGW:
+                    return "Flags.lf_var1w() != 0";
+                case Op.FLAG_TYPE_NEGD:
+                    return "Flags.lf_var1d() != 0";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.CF)!=0";
+            }
+        }
+        return "Flags.TFLG_B()";
+    }
+    static String getNB() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB:
+                case Op.FLAG_TYPE_INCW:
+                case Op.FLAG_TYPE_INCD:
+                case Op.FLAG_TYPE_DECB:
+                case Op.FLAG_TYPE_DECW:
+                case Op.FLAG_TYPE_DECD:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.CF)==0";
+                case Op.FLAG_TYPE_ADDB: return "Flags.lf_resb()>=Flags.lf_var1b()";
+                case Op.FLAG_TYPE_ADDW: return "Flags.lf_resw()>=Flags.lf_var1w()";
+                case Op.FLAG_TYPE_ADDD: return "(Flags.lf_resd() & 0xFFFFFFFFl)>=(Flags.lf_var1d() & 0xFFFFFFFFl)";
+                case Op.FLAG_TYPE_ADCB: return "(Flags.lf_resb()>=Flags.lf_var1b() && (!Flags.oldcf || (lf_resb() != lf_var1b())))";
+                case Op.FLAG_TYPE_ADCW: return "(Flags.lf_resw()>=Flags.lf_var1w() && (!Flags.oldcf || (lf_resw() != lf_var1w())))";
+                case Op.FLAG_TYPE_ADCD: return "((Flags.lf_resd() & 0xFFFFFFFFl)>=(Flags.lf_var1d() & 0xFFFFFFFFl) && (!Flags.oldcf || (lf_resd() != lf_var1d())))";
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_XORD:
+                    return "true";
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "Flags.lf_var1b()>=Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "Flags.lf_var1w()>=Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "((Flags.lf_var1d() & 0xFFFFFFFFl)>=(Flags.lf_var2d() & 0xFFFFFFFFl))";
+                case Op.FLAG_TYPE_SBBB:
+                    return "((Flags.lf_var1b() >= Flags.lf_resb()) && (!Flags.oldcf || (Flags.lf_var2b()!=0xff)))";
+                case Op.FLAG_TYPE_SBBW:
+                    return "((Flags.lf_var1w() >= Flags.lf_resw()) && (!Flags.oldcf || (Flags.lf_var2w()!=0xffff)))";
+                case Op.FLAG_TYPE_SBBD:
+                    return "(((Flags.lf_var1d() & 0xFFFFFFFFl) >= (Flags.lf_resd() & 0xFFFFFFFFl)) && (!Flags.oldcf || (Flags.lf_var2d()!=0xffffffff)))";
+                case Op.FLAG_TYPE_SHLB:
+                    return "(Flags.lf_var2b()>8 || ((Flags.lf_var1b() >> (8-Flags.lf_var2b())) & 1)==0)";
+                case Op.FLAG_TYPE_SHLW:
+                    return "(Flags.lf_var2b()>16 || ((Flags.lf_var1w()) >> (16-Flags.lf_var2b()) & 1)==0)";
+                case Op.FLAG_TYPE_SHLD:
+                    return "((Flags.lf_var1d() >>> (32 - Flags.lf_var2b())) & 1) == 0";
+                case Op.FLAG_TYPE_SHRB:
+                    return "((Flags.lf_var1b() >> (Flags.lf_var2b() - 1)) & 1) ==0";
+                case Op.FLAG_TYPE_SHRW:
+                    return "((Flags.lf_var1w() >> (Flags.lf_var2b() - 1)) & 1) ==0";
+                case Op.FLAG_TYPE_SHRD:
+                    return "((Flags.lf_var1d() >>> (Flags.lf_var2b() - 1)) & 1) == 0";
+                case Op.FLAG_TYPE_SARB:
+                    return "(((Flags.lf_var1b()) >> (Flags.lf_var2b() - 1)) & 1) == 0";
+                case Op.FLAG_TYPE_SARW:
+                    return "(((Flags.lf_var1w()) >> (Flags.lf_var2b() - 1)) & 1) == 0";
+                case Op.FLAG_TYPE_SARD:
+                    return "(((Flags.lf_var1d()) >> (Flags.lf_var2b() - 1)) & 1) == 0";
+                case Op.FLAG_TYPE_DSHLW:
+                    return "((Flags.lf_var1d() >>> (32 - Flags.lf_var2b())) & 1) == 0";
+                case Op.FLAG_TYPE_DSHLD:
+                    return "((Flags.lf_var1d() >>> (32 - Flags.lf_var2b())) & 1) == 0";
+                case Op.FLAG_TYPE_DSHRW:
+                    return "((Flags.lf_var1d() >>> (Flags.lf_var2b() - 1)) & 1) == 0";
+                case Op.FLAG_TYPE_DSHRD:
+                    return "((Flags.lf_var1d() >>> (Flags.lf_var2b() - 1)) & 1) == 0";
+                case Op.FLAG_TYPE_NEGB:
+                    return "Flags.lf_var1b() == 0";
+                case Op.FLAG_TYPE_NEGW:
+                    return "Flags.lf_var1w() == 0";
+                case Op.FLAG_TYPE_NEGD:
+                    return "Flags.lf_var1d() == 0";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.CF)==0";
+            }
+        }
+        return "Flags.TFLG_NB()";
+    }
+    static String getZ() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB:
+                case Op.FLAG_TYPE_DECB:
+                case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                case Op.FLAG_TYPE_SBBB:
+                case Op.FLAG_TYPE_SHLB:
+                case Op.FLAG_TYPE_SHRB:
+                case Op.FLAG_TYPE_SARB:
+                case Op.FLAG_TYPE_NEGB:
+                    return "(Flags.lf_resb()==0)";
+                case Op.FLAG_TYPE_INCW:
+                case Op.FLAG_TYPE_DECW:
+                case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                case Op.FLAG_TYPE_SBBW:
+                case Op.FLAG_TYPE_SHLW:
+                case Op.FLAG_TYPE_SHRW:
+                case Op.FLAG_TYPE_SARW:
+                case Op.FLAG_TYPE_DSHLW:
+                case Op.FLAG_TYPE_DSHRW:
+                case Op.FLAG_TYPE_NEGW:
+                    return "(Flags.lf_resw()==0)";
+                case Op.FLAG_TYPE_INCD:
+                case Op.FLAG_TYPE_DECD:
+                case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORD:
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                case Op.FLAG_TYPE_SBBD:
+                case Op.FLAG_TYPE_SHLD:
+                case Op.FLAG_TYPE_SHRD:
+                case Op.FLAG_TYPE_SARD:
+                case Op.FLAG_TYPE_DSHLD:
+                case Op.FLAG_TYPE_DSHRD:
+                case Op.FLAG_TYPE_NEGD:
+                    return "(Flags.lf_resd()==0)";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.ZF) != 0";
+            }
+        }
+        return "Flags.TFLG_Z()";
+    }
+    static String getNZ() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB:
+                case Op.FLAG_TYPE_DECB:
+                case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                case Op.FLAG_TYPE_SBBB:
+                case Op.FLAG_TYPE_SHLB:
+                case Op.FLAG_TYPE_SHRB:
+                case Op.FLAG_TYPE_SARB:
+                case Op.FLAG_TYPE_NEGB:
+                    return "(Flags.lf_resb()!=0)";
+                case Op.FLAG_TYPE_INCW:
+                case Op.FLAG_TYPE_DECW:
+                case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                case Op.FLAG_TYPE_SBBW:
+                case Op.FLAG_TYPE_SHLW:
+                case Op.FLAG_TYPE_SHRW:
+                case Op.FLAG_TYPE_SARW:
+                case Op.FLAG_TYPE_DSHLW:
+                case Op.FLAG_TYPE_DSHRW:
+                case Op.FLAG_TYPE_NEGW:
+                    return "(Flags.lf_resw()!=0)";
+                case Op.FLAG_TYPE_INCD:
+                case Op.FLAG_TYPE_DECD:
+                case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORD:
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                case Op.FLAG_TYPE_SBBD:
+                case Op.FLAG_TYPE_SHLD:
+                case Op.FLAG_TYPE_SHRD:
+                case Op.FLAG_TYPE_SARD:
+                case Op.FLAG_TYPE_DSHLD:
+                case Op.FLAG_TYPE_DSHRD:
+                case Op.FLAG_TYPE_NEGD:
+                    return "(Flags.lf_resd()!=0)";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.ZF) == 0";
+            }
+        }
+        return "Flags.TFLG_NZ()";
+    }
+    static String getBE() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            return "(("+getB()+") || ("+getZ()+"))";
+        }
+        return "Flags.TFLG_BE()";
+    }
+    static String getNBE() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            return "(("+getNB()+") && ("+getNZ()+"))";
+        }
+        return "Flags.TFLG_NBE()";
+    }
+    static String getS() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB:
+                case Op.FLAG_TYPE_DECB:
+                case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                case Op.FLAG_TYPE_SBBB:
+                case Op.FLAG_TYPE_SHLB:
+                case Op.FLAG_TYPE_SHRB:
+                case Op.FLAG_TYPE_SARB:
+                case Op.FLAG_TYPE_NEGB:
+                    return "(Flags.lf_resb()&0x80)!=0";
+                case Op.FLAG_TYPE_INCW:
+                case Op.FLAG_TYPE_DECW:
+                case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                case Op.FLAG_TYPE_SBBW:
+                case Op.FLAG_TYPE_SHLW:
+                case Op.FLAG_TYPE_SHRW:
+                case Op.FLAG_TYPE_SARW:
+                case Op.FLAG_TYPE_DSHLW:
+                case Op.FLAG_TYPE_DSHRW:
+                case Op.FLAG_TYPE_NEGW:
+                    return "(Flags.lf_resw()&0x8000)!=0";
+                case Op.FLAG_TYPE_INCD:
+                case Op.FLAG_TYPE_DECD:
+                case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORD:
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                case Op.FLAG_TYPE_SBBD:
+                case Op.FLAG_TYPE_SHLD:
+                case Op.FLAG_TYPE_SHRD:
+                case Op.FLAG_TYPE_SARD:
+                case Op.FLAG_TYPE_DSHLD:
+                case Op.FLAG_TYPE_DSHRD:
+                case Op.FLAG_TYPE_NEGD:
+                    return "(Flags.lf_resd()&0x80000000)!=0";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.SF) != 0";
+            }
+        }
+        return "Flags.TFLG_S()";
+    }
+    static String getNS() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_INCB:
+                case Op.FLAG_TYPE_DECB:
+                case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ORB:
+                case Op.FLAG_TYPE_ANDB:
+                case Op.FLAG_TYPE_TESTB:
+                case Op.FLAG_TYPE_XORB:
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                case Op.FLAG_TYPE_SBBB:
+                case Op.FLAG_TYPE_SHLB:
+                case Op.FLAG_TYPE_SHRB:
+                case Op.FLAG_TYPE_SARB:
+                case Op.FLAG_TYPE_NEGB:
+                    return "(Flags.lf_resb()&0x80)==0";
+                case Op.FLAG_TYPE_INCW:
+                case Op.FLAG_TYPE_DECW:
+                case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ORW:
+                case Op.FLAG_TYPE_ANDW:
+                case Op.FLAG_TYPE_TESTW:
+                case Op.FLAG_TYPE_XORW:
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                case Op.FLAG_TYPE_SBBW:
+                case Op.FLAG_TYPE_SHLW:
+                case Op.FLAG_TYPE_SHRW:
+                case Op.FLAG_TYPE_SARW:
+                case Op.FLAG_TYPE_DSHLW:
+                case Op.FLAG_TYPE_DSHRW:
+                case Op.FLAG_TYPE_NEGW:
+                    return "(Flags.lf_resw()&0x8000)==0";
+                case Op.FLAG_TYPE_INCD:
+                case Op.FLAG_TYPE_DECD:
+                case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ORD:
+                case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_TESTD:
+                case Op.FLAG_TYPE_XORD:
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                case Op.FLAG_TYPE_SBBD:
+                case Op.FLAG_TYPE_SHLD:
+                case Op.FLAG_TYPE_SHRD:
+                case Op.FLAG_TYPE_SARD:
+                case Op.FLAG_TYPE_DSHLD:
+                case Op.FLAG_TYPE_DSHRD:
+                case Op.FLAG_TYPE_NEGD:
+                    return "(Flags.lf_resd()&0x80000000)==0";
+                default:
+                    return "CPU_Regs.GETFLAG(CPU_Regs.SF) == 0";
+            }
+        }
+        return "Flags.TFLG_NS()";
+    }
+    static String getP() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            if (opThatSetFlags.getFlagType()>0)
+                return "Flags.parity_lookup[Flags.lf_resb() & 0xFF] != 0";
+            else
+                return "CPU_Regs.GETFLAG(CPU_Regs.PF) != 0";
+        }
+        return "Flags.TFLG_P()";
+    }
+    static String getNP() {
+        if (inlineFlags && opThatSetFlags!=null) {
+            if (opThatSetFlags.getFlagType()>0)
+                return "Flags.parity_lookup[Flags.lf_resb() & 0xFF] == 0";
+            else
+                return "CPU_Regs.GETFLAG(CPU_Regs.PF) == 0";
+        }
+        return "Flags.TFLG_NP()";
+    }
+    static String getL() {
+        if (inlineFlags && opThatSetFlags!=null)
+            return "("+getS()+") != ("+getO()+")";
+        return "Flags.TFLG_L()";
+    }
+    static String getNL() {
+        if (inlineFlags && opThatSetFlags!=null)
+            return "("+getS()+") == ("+getO()+")";
+        return "Flags.TFLG_NL()";
+    }
+    static String getLE() {
+        if (inlineFlags && opThatSetFlags!=null)
+            return "(("+getZ()+") || ("+getL()+"))";
+        return "Flags.TFLG_LE()";
+    }
+    static String getNLE() {
+        if (inlineFlags && opThatSetFlags!=null)
+            return "(("+getNZ()+") && ("+getNL()+"))";
+        return "Flags.TFLG_NLE()";
+    }
+
     static void compile(Inst1.JumpCond16_b op, String cond, StringBuilder method) {
         method.append("if (");method.append(cond);method.append(") {");
         method.append("CPU_Regs.reg_ip(CPU_Regs.reg_ip()+");method.append(op.offset+op.eip_count);method.append(");");
@@ -2178,112 +2791,112 @@ public class Compiler extends Helper {
             case 0x70: // JO
                 if (op instanceof Inst1.JumpCond16_b_o) {
                     Inst1.JumpCond16_b_o o = (Inst1.JumpCond16_b_o) op;
-                    compile(o, "Flags.TFLG_O()", method);
+                    compile(o, getO(), method);
                     return false;
                 }
                 break;
             case 0x71: // JNO
                 if (op instanceof Inst1.JumpCond16_b_no) {
                     Inst1.JumpCond16_b_no o = (Inst1.JumpCond16_b_no) op;
-                    compile(o, "Flags.TFLG_NO()", method);
+                    compile(o, getNO(), method);
                     return false;
                 }
                 break;
             case 0x72: // JB
                 if (op instanceof Inst1.JumpCond16_b_b) {
                     Inst1.JumpCond16_b_b o = (Inst1.JumpCond16_b_b) op;
-                    compile(o, "Flags.TFLG_B()", method);
+                    compile(o, getB(), method);
                     return false;
                 }
                 break;
             case 0x73: // JNB
                 if (op instanceof Inst1.JumpCond16_b_nb) {
                     Inst1.JumpCond16_b_nb o = (Inst1.JumpCond16_b_nb) op;
-                    compile(o, "Flags.TFLG_NB()", method);
+                    compile(o, getNB(), method);
                     return false;
                 }
                 break;
             case 0x74: // JZ
                 if (op instanceof Inst1.JumpCond16_b_z) {
                     Inst1.JumpCond16_b_z o = (Inst1.JumpCond16_b_z) op;
-                    compile(o, "Flags.TFLG_Z()", method);
+                    compile(o, getZ(), method);
                     return false;
                 }
                 break;
             case 0x75: // JNZ
                 if (op instanceof Inst1.JumpCond16_b_nz) {
                     Inst1.JumpCond16_b_nz o = (Inst1.JumpCond16_b_nz) op;
-                    compile(o, "Flags.TFLG_NZ()", method);
+                    compile(o, getNZ(), method);
                     return false;
                 }
                 break;
             case 0x76: // JBE
                 if (op instanceof Inst1.JumpCond16_b_be) {
                     Inst1.JumpCond16_b_be o = (Inst1.JumpCond16_b_be) op;
-                    compile(o, "Flags.TFLG_BE()", method);
+                    compile(o, getBE(), method);
                     return false;
                 }
                 break;
             case 0x77: // JNBE
                 if (op instanceof Inst1.JumpCond16_b_nbe) {
                     Inst1.JumpCond16_b_nbe o = (Inst1.JumpCond16_b_nbe) op;
-                    compile(o, "Flags.TFLG_NBE()", method);
+                    compile(o, getNBE(), method);
                     return false;
                 }
                 break;
             case 0x78: // JS
                 if (op instanceof Inst1.JumpCond16_b_s) {
                     Inst1.JumpCond16_b_s o = (Inst1.JumpCond16_b_s) op;
-                    compile(o, "Flags.TFLG_S()", method);
+                    compile(o, getS(), method);
                     return false;
                 }
                 break;
             case 0x79: // JNS
                 if (op instanceof Inst1.JumpCond16_b_ns) {
                     Inst1.JumpCond16_b_ns o = (Inst1.JumpCond16_b_ns) op;
-                    compile(o, "Flags.TFLG_NS()", method);
+                    compile(o, getNS(), method);
                     return false;
                 }
                 break;
             case 0x7a: // JP
                 if (op instanceof Inst1.JumpCond16_b_p) {
                     Inst1.JumpCond16_b_p o = (Inst1.JumpCond16_b_p) op;
-                    compile(o, "Flags.TFLG_P()", method);
+                    compile(o, getP(), method);
                     return false;
                 }
                 break;
             case 0x7b: // JNP
                 if (op instanceof Inst1.JumpCond16_b_np) {
                     Inst1.JumpCond16_b_np o = (Inst1.JumpCond16_b_np) op;
-                    compile(o, "Flags.TFLG_NP()", method);
+                    compile(o, getNP(), method);
                     return false;
                 }
                 break;
             case 0x7c: // JL
                 if (op instanceof Inst1.JumpCond16_b_l) {
                     Inst1.JumpCond16_b_l o = (Inst1.JumpCond16_b_l) op;
-                    compile(o, "Flags.TFLG_L()", method);
+                    compile(o, getL(), method);
                     return false;
                 }
                 break;
             case 0x7d: // JNL
                 if (op instanceof Inst1.JumpCond16_b_nl) {
                     Inst1.JumpCond16_b_nl o = (Inst1.JumpCond16_b_nl) op;
-                    compile(o, "Flags.TFLG_NL()", method);
+                    compile(o, getNL(), method);
                     return false;
                 }
                 break;
             case 0x7e: // JLE
                 if (op instanceof Inst1.JumpCond16_b_le) {
                     Inst1.JumpCond16_b_le o = (Inst1.JumpCond16_b_le) op;
-                    compile(o, "Flags.TFLG_LE()", method);
+                    compile(o, getLE(), method);
                     return false;
                 }
                 break;
             case 0x7f: // JNLE
                 if (op instanceof Inst1.JumpCond16_b_nle) {
                     Inst1.JumpCond16_b_nle o = (Inst1.JumpCond16_b_nle) op;
-                    compile(o, "Flags.TFLG_NLE()", method);
+                    compile(o, getNLE(), method);
                     return false;
                 }
                 break;
@@ -4522,13 +5135,13 @@ public class Compiler extends Helper {
                 if (op instanceof Inst1.Loopnz32) {
                     Inst1.Loopnz32 o = (Inst1.Loopnz32) op;
                     method.append("CPU_Regs.reg_ecx.dword--;");
-                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && !Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && ("+getNZ()+")", method);
                     return false;
                 }
                 if (op instanceof Inst1.Loopnz16) {
                     Inst1.Loopnz16 o = (Inst1.Loopnz16) op;
                     method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
-                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && !Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && ("+getNZ()+")", method);
                     return false;
                 }
                 break;
@@ -4536,13 +5149,13 @@ public class Compiler extends Helper {
                 if (op instanceof Inst1.Loopz32) {
                     Inst1.Loopz32 o = (Inst1.Loopz32) op;
                     method.append("CPU_Regs.reg_ecx.dword--;");
-                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.dword!=0 && ("+getZ()+")", method);
                     return false;
                 }
                 if (op instanceof Inst1.Loopz16) {
                     Inst1.Loopz16 o = (Inst1.Loopz16) op;
                     method.append("CPU_Regs.reg_ecx.word(CPU_Regs.reg_ecx.word()-1);");
-                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && Flags.get_ZF()", method);
+                    compile(o, "CPU_Regs.reg_ecx.word()!=0 && ("+getZ()+")", method);
                     return false;
                 }
                 break;
@@ -5493,112 +6106,112 @@ public class Compiler extends Helper {
             case 0x180: // JO
                 if (op instanceof Inst2.JumpCond16_w_o) {
                     Inst2.JumpCond16_w_o o = (Inst2.JumpCond16_w_o) op;
-                    compile(o, "Flags.TFLG_O()", method);
+                    compile(o, getO(), method);
                     return false;
                 }
                 break;
             case 0x181: // JNO
                 if (op instanceof Inst2.JumpCond16_w_no) {
                     Inst2.JumpCond16_w_no o = (Inst2.JumpCond16_w_no) op;
-                    compile(o, "Flags.TFLG_NO()", method);
+                    compile(o, getNO(), method);
                     return false;
                 }
                 break;
             case 0x182: // JB
                 if (op instanceof Inst2.JumpCond16_w_b) {
                     Inst2.JumpCond16_w_b o = (Inst2.JumpCond16_w_b) op;
-                    compile(o, "Flags.TFLG_B()", method);
+                    compile(o, getB(), method);
                     return false;
                 }
                 break;
             case 0x183: // JNB
                 if (op instanceof Inst2.JumpCond16_w_nb) {
                     Inst2.JumpCond16_w_nb o = (Inst2.JumpCond16_w_nb) op;
-                    compile(o, "Flags.TFLG_NB()", method);
+                    compile(o, getNB(), method);
                     return false;
                 }
                 break;
             case 0x184: // JZ
                 if (op instanceof Inst2.JumpCond16_w_z) {
                     Inst2.JumpCond16_w_z o = (Inst2.JumpCond16_w_z) op;
-                    compile(o, "Flags.TFLG_Z()", method);
+                    compile(o, getZ(), method);
                     return false;
                 }
                 break;
             case 0x185: // JNZ
                 if (op instanceof Inst2.JumpCond16_w_nz) {
                     Inst2.JumpCond16_w_nz o = (Inst2.JumpCond16_w_nz) op;
-                    compile(o, "Flags.TFLG_NZ()", method);
+                    compile(o, getNZ(), method);
                     return false;
                 }
                 break;
             case 0x186: // JBE
                 if (op instanceof Inst2.JumpCond16_w_be) {
                     Inst2.JumpCond16_w_be o = (Inst2.JumpCond16_w_be) op;
-                    compile(o, "Flags.TFLG_BE()", method);
+                    compile(o, getBE(), method);
                     return false;
                 }
                 break;
             case 0x187: // JNBE
                 if (op instanceof Inst2.JumpCond16_w_nbe) {
                     Inst2.JumpCond16_w_nbe o = (Inst2.JumpCond16_w_nbe) op;
-                    compile(o, "Flags.TFLG_NBE()", method);
+                    compile(o, getNBE(), method);
                     return false;
                 }
                 break;
             case 0x188: // JS
                 if (op instanceof Inst2.JumpCond16_w_s) {
                     Inst2.JumpCond16_w_s o = (Inst2.JumpCond16_w_s) op;
-                    compile(o, "Flags.TFLG_S()", method);
+                    compile(o, getS(), method);
                     return false;
                 }
                 break;
             case 0x189: // JNS
                 if (op instanceof Inst2.JumpCond16_w_ns) {
                     Inst2.JumpCond16_w_ns o = (Inst2.JumpCond16_w_ns) op;
-                    compile(o, "Flags.TFLG_NS()", method);
+                    compile(o, getNS(), method);
                     return false;
                 }
                 break;
             case 0x18a: // JP
                 if (op instanceof Inst2.JumpCond16_w_p) {
                     Inst2.JumpCond16_w_p o = (Inst2.JumpCond16_w_p) op;
-                    compile(o, "Flags.TFLG_P()", method);
+                    compile(o, getP(), method);
                     return false;
                 }
                 break;
             case 0x18b: // JNP
                 if (op instanceof Inst2.JumpCond16_w_np) {
                     Inst2.JumpCond16_w_np o = (Inst2.JumpCond16_w_np) op;
-                    compile(o, "Flags.TFLG_NP()", method);
+                    compile(o, getNP(), method);
                     return false;
                 }
                 break;
             case 0x18c: // JL
                 if (op instanceof Inst2.JumpCond16_w_l) {
                     Inst2.JumpCond16_w_l o = (Inst2.JumpCond16_w_l) op;
-                    compile(o, "Flags.TFLG_L()", method);
+                    compile(o, getL(), method);
                     return false;
                 }
                 break;
             case 0x18d: // JNL
                 if (op instanceof Inst2.JumpCond16_w_nl) {
                     Inst2.JumpCond16_w_nl o = (Inst2.JumpCond16_w_nl) op;
-                    compile(o, "Flags.TFLG_NL()", method);
+                    compile(o, getNL(), method);
                     return false;
                 }
                 break;
             case 0x18e: // JLE
                 if (op instanceof Inst2.JumpCond16_w_le) {
                     Inst2.JumpCond16_w_le o = (Inst2.JumpCond16_w_le) op;
-                    compile(o, "Flags.TFLG_LE()", method);
+                    compile(o, getLE(), method);
                     return false;
                 }
                 break;
             case 0x18f: // JNLE
                 if (op instanceof Inst2.JumpCond16_w_nle) {
                     Inst2.JumpCond16_w_nle o = (Inst2.JumpCond16_w_nle) op;
-                    compile(o, "Flags.TFLG_NLE()", method);
+                    compile(o, getNLE(), method);
                     return false;
                 }
                 break;

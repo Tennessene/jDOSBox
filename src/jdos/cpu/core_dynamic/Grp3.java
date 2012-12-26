@@ -34,6 +34,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+earb.getName8()+", 0x"+Integer.toHexString(val);}
+        public int getFlagType() {return FLAG_TYPE_TESTB;}
     }
 
     static public class Testb_mem extends Op {
@@ -65,6 +66,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+get_eaa.description8()+", 0x"+Integer.toHexString(val);}
+        public int getFlagType() {return FLAG_TYPE_TESTB;}
     }
 
     static public class NotEb_reg extends Op {
@@ -150,6 +152,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "NEG "+earb.getName8();}
+        public int getFlagType() {return FLAG_TYPE_NEGB;}
     }
 
     static public class NegEb_mem extends Op {
@@ -181,6 +184,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "NEG "+get_eaa.description8();}
+        public int getFlagType() {return FLAG_TYPE_NEGB;}
     }
 
     static public class MulAlEb_reg extends Op {
@@ -435,6 +439,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+earw.getName16()+", 0x"+Integer.toHexString(val);}
+        public int getFlagType() {return FLAG_TYPE_TESTW;}
     }
 
     static public class Testw_mem extends Op {
@@ -466,6 +471,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+get_eaa.description32()+", 0x"+Integer.toHexString(val);}
+        public int getFlagType() {return FLAG_TYPE_TESTW;}
     }
 
     static public class NotEw_reg extends Op {
@@ -551,6 +557,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "NEG "+earw.getName16();}
+        public int getFlagType() {return FLAG_TYPE_NEGW;}
     }
 
     static public class NegEw_mem extends Op {
@@ -582,6 +589,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "NEG "+get_eaa.description16();}
+        public int getFlagType() {return FLAG_TYPE_NEGW;}
     }
 
     static public class MulAxEw_reg extends Op {
@@ -836,7 +844,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+eard.getName()+", 0x"+Integer.toHexString(val);}
-
+        public int getFlagType() {return FLAG_TYPE_TESTD;}
     }
 
     static public class Testd_mem extends Op {
@@ -868,6 +876,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "TEST "+get_eaa.description32()+", 0x"+Integer.toHexString(val);}
+        public int getFlagType() {return FLAG_TYPE_TESTD;}
     }
 
     static public class NotEd_reg extends Op {
@@ -950,6 +959,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "NEG "+eard.getName();}
+        public int getFlagType() {return FLAG_TYPE_NEGD;}
     }
 
     static public class NegEd_mem extends Op {
@@ -978,6 +988,7 @@ public class Grp3 extends Helper {
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
         public String description() {return "NEG "+get_eaa.description32();}
+        public int getFlagType() {return FLAG_TYPE_NEGD;}
     }
 
     static public class MulAxEd_reg extends Op {

@@ -2237,6 +2237,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
     final static public class ShldEwGwIb_mem extends Op {
@@ -2269,6 +2270,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
     final static public class ShldEwGwCl_reg extends Op {
@@ -2299,6 +2301,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
     final static public class ShldEwGwCl_mem extends Op {
@@ -2331,6 +2334,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
     final static public class PushGS extends Op {
@@ -2467,6 +2471,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ShrdEwGwIb_mem extends Op {
@@ -2499,6 +2504,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ShrdEwGwCl_reg extends Op {
@@ -2529,6 +2535,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ShrdEwGwCl_mem extends Op {
@@ -2560,6 +2567,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ImulGwEw_reg extends Op {
@@ -2629,8 +2637,8 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            Flags.FillFlags();
             Instructions.CMPB(earb.get8(), reg_eax.low());
+            Flags.FillFlags();
             if (reg_eax.low() == earb.get8()) {
                 earb.set8(rb.get8());
                 SETFLAGBIT(ZF,true);
@@ -2665,10 +2673,10 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            Flags.FillFlags();
             int eaa=get_eaa.call();
             int val = Memory.mem_readb(eaa);
             Instructions.CMPB(val, reg_eax.low());
+            Flags.FillFlags();
             if (reg_eax.low() == val) {
                 Memory.mem_writeb(eaa,rb.get8());
                 SETFLAGBIT(ZF,true);
@@ -2704,8 +2712,8 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            Flags.FillFlags();
             Instructions.CMPW(earw.word(), reg_eax.word());
+            Flags.FillFlags();
             if (reg_eax.word() == earw.word()) {
                 earw.word(rw.word());
                 SETFLAGBIT(ZF,true);
@@ -2740,10 +2748,10 @@ public class Inst2 extends Helper {
         }
 
         public int call() {
-            Flags.FillFlags();
             int eaa=get_eaa.call();
             int val = Memory.mem_readw(eaa);
             Instructions.CMPW(val, reg_eax.word());
+            Flags.FillFlags();
             if (reg_eax.word() == val) {
                 Memory.mem_writew(eaa,rw.word());
                 SETFLAGBIT(ZF,true);
@@ -3591,6 +3599,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class XaddGbEb_mem extends Op {
@@ -3624,6 +3633,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class XaddGwEw_reg extends Op {
@@ -3655,6 +3665,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return false;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class XaddGwEw_mem extends Op {
@@ -3688,6 +3699,7 @@ public class Inst2 extends Helper {
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}
         public boolean setsEip() {return false;}
+        public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class Bswapw extends Op {

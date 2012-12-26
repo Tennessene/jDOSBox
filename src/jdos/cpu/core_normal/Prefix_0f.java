@@ -1065,11 +1065,11 @@ public class Prefix_0f extends Prefix_none {
         ops[0x1b0] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                Flags.FillFlags();
                 /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Modrm.Getrb_interface r = Modrm.GetEArb[rm];
                     Instructions.CMPB(r.get(), reg_eax.low()); // Sets the flags
+                    Flags.FillFlags();
                     if (reg_eax.low() == r.get()) {
                         r.set(Modrm.Getrb[rm].get());
                         SETFLAGBIT(ZF,true);
@@ -1081,6 +1081,7 @@ public class Prefix_0f extends Prefix_none {
                     /*PhysPt*/int eaa=getEaa(rm);
                     /*Bit8u*/int val = Memory.mem_readb(eaa);
                     Instructions.CMPB(val, reg_eax.low()); // Sets the flags
+                    Flags.FillFlags();
                     if (reg_eax.low() == val) {
                         Memory.mem_writeb(eaa,Modrm.Getrb[rm].get());
                         SETFLAGBIT(ZF,true);
@@ -1100,10 +1101,10 @@ public class Prefix_0f extends Prefix_none {
         ops[0x1b1] = new OP() {
             final public int call() {
                 if (CPU.CPU_ArchitectureType<CPU.CPU_ARCHTYPE_486OLD) return ILLEGAL_OPCODE;
-                Flags.FillFlags();
                 /*Bit8u*/int rm=Fetchb();
                 if (rm >= 0xc0 ) {
                     Instructions.CMPW(Modrm.GetEArw[rm].word(), reg_eax.word()); // Sets the flags
+                    Flags.FillFlags();
                     if(reg_eax.word() == Modrm.GetEArw[rm].word()) {
                         Modrm.GetEArw[rm].word(Modrm.Getrw[rm].word());
                         SETFLAGBIT(ZF,true);
@@ -1115,6 +1116,7 @@ public class Prefix_0f extends Prefix_none {
                     /*PhysPt*/int eaa=getEaa(rm);
                     /*Bit16u*/int val = Memory.mem_readw(eaa);
                     Instructions.CMPW(val, reg_eax.word()); // Sets the flags
+                    Flags.FillFlags();
                     if(reg_eax.word() == val) {
                         Memory.mem_writew(eaa,Modrm.Getrw[rm].word());
                         SETFLAGBIT(ZF,true);

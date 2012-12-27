@@ -777,35 +777,35 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_SBBD:
                     return "(((Flags.lf_var1d() ^ Flags.lf_var2d()) & (Flags.lf_var1d() ^ Flags.lf_resd())) & 0x80000000) != 0";
                 case Op.FLAG_TYPE_SHLB:
-                    return "((lf_resb() ^ lf_var1b()) & 0x80) != 0";
+                    return "((Flags.lf_resb() ^ Flags.lf_var1b()) & 0x80) != 0";
                 case Op.FLAG_TYPE_SHLW:
-                    return "((lf_resw() ^ lf_var1w()) & 0x8000) != 0";
+                    return "((Flags.lf_resw() ^ Flags.lf_var1w()) & 0x8000) != 0";
                 case Op.FLAG_TYPE_SHLD:
-                    return "((lf_resd() ^ lf_var1d()) & 0x80000000) != 0";
+                    return "((Flags.lf_resd() ^ Flags.lf_var1d()) & 0x80000000) != 0";
                 case Op.FLAG_TYPE_SHRB:
-                    return "((lf_var2b()&0x1f)==1 && lf_var1b() > 0x80)";
+                    return "((Flags.lf_var2b()&0x1f)==1 && Flags.lf_var1b() > 0x80)";
                 case Op.FLAG_TYPE_SHRW:
-                    return "((lf_var2b()&0x1f)==1 && lf_var1w() > 0x8000)";
+                    return "((Flags.lf_var2b()&0x1f)==1 && Flags.lf_var1w() > 0x8000)";
                 case Op.FLAG_TYPE_SHRD:
-                    return "((lf_var2b()&0x1f)==1 && (lf_var1d() & 0xFFFFFFFFl) > 0x80000000l)";
+                    return "((Flags.lf_var2b()&0x1f)==1 && (Flags.lf_var1d() & 0xFFFFFFFFl) > 0x80000000l)";
                 case Op.FLAG_TYPE_SARB:
                 case Op.FLAG_TYPE_SARW:
                 case Op.FLAG_TYPE_SARD:
                     return "false";
                 case Op.FLAG_TYPE_DSHLW:
-                    return "((lf_resw() ^ lf_var1w()) & 0x8000) != 0";
+                    return "((Flags.lf_resw() ^ Flags.lf_var1w()) & 0x8000) != 0";
                 case Op.FLAG_TYPE_DSHLD:
-                    return "((lf_resd() ^ lf_var1d()) & 0x80000000) != 0";
+                    return "((Flags.lf_resd() ^ Flags.lf_var1d()) & 0x80000000) != 0";
                 case Op.FLAG_TYPE_DSHRW:
-                    return "((lf_resw() ^ lf_var1w()) & 0x8000) != 0";
+                    return "((Flags.lf_resw() ^ Flags.lf_var1w()) & 0x8000) != 0";
                 case Op.FLAG_TYPE_DSHRD:
-                    return "((lf_resd() ^ lf_var1d()) & 0x80000000) != 0";
+                    return "((Flags.lf_resd() ^ Flags.lf_var1d()) & 0x80000000) != 0";
                 case Op.FLAG_TYPE_NEGB:
-                    return "lf_var1b() == 0x80";
+                    return "Flags.lf_var1b() == 0x80";
                 case Op.FLAG_TYPE_NEGW:
-                    return "lf_var1w() == 0x8000";
+                    return "Flags.lf_var1w() == 0x8000";
                 case Op.FLAG_TYPE_NEGD:
-                    return "lf_var1d() == 0x80000000";
+                    return "Flags.lf_var1d() == 0x80000000";
                 default:
                     return "CPU_Regs.GETFLAG(CPU_Regs.OF) != 0";
             }
@@ -856,35 +856,35 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_SBBD:
                     return "(((Flags.lf_var1d() ^ Flags.lf_var2d()) & (Flags.lf_var1d() ^ Flags.lf_resd())) & 0x80000000) == 0";
                 case Op.FLAG_TYPE_SHLB:
-                   return "((lf_resb() ^ lf_var1b()) & 0x80) == 0";
+                   return "((Flags.lf_resb() ^ Flags.lf_var1b()) & 0x80) == 0";
                 case Op.FLAG_TYPE_SHLW:
-                   return "((lf_resw() ^ lf_var1w()) & 0x8000) == 0";
+                   return "((Flags.lf_resw() ^ Flags.lf_var1w()) & 0x8000) == 0";
                 case Op.FLAG_TYPE_SHLD:
-                   return "((lf_resd() ^ lf_var1d()) & 0x80000000) == 0";
+                   return "((Flags.lf_resd() ^ Flags.lf_var1d()) & 0x80000000) == 0";
                 case Op.FLAG_TYPE_SHRB:
-                   return "((lf_var2b()&0x1f)!=1 || lf_var1b() <= 0x80)";
+                   return "((Flags.lf_var2b()&0x1f)!=1 || Flags.lf_var1b() <= 0x80)";
                 case Op.FLAG_TYPE_SHRW:
-                   return "((lf_var2b()&0x1f)!=1 || lf_var1w() <= 0x8000)";
+                   return "((Flags.lf_var2b()&0x1f)!=1 || Flags.lf_var1w() <= 0x8000)";
                 case Op.FLAG_TYPE_SHRD:
-                   return "((lf_var2b()&0x1f)!=1 || (lf_var1d() & 0xFFFFFFFFl) <= 0x80000000l)";
+                   return "((Flags.lf_var2b()&0x1f)!=1 || (Flags.lf_var1d() & 0xFFFFFFFFl) <= 0x80000000l)";
                 case Op.FLAG_TYPE_SARB:
                 case Op.FLAG_TYPE_SARW:
                 case Op.FLAG_TYPE_SARD:
                    return "true";
                 case Op.FLAG_TYPE_DSHLW:
-                   return "((lf_resw() ^ lf_var1w()) & 0x8000) == 0";
+                   return "((Flags.lf_resw() ^ Flags.lf_var1w()) & 0x8000) == 0";
                 case Op.FLAG_TYPE_DSHLD:
-                   return "((lf_resd() ^ lf_var1d()) & 0x80000000) == 0";
+                   return "((Flags.lf_resd() ^ Flags.lf_var1d()) & 0x80000000) == 0";
                 case Op.FLAG_TYPE_DSHRW:
-                   return "((lf_resw() ^ lf_var1w()) & 0x8000) == 0";
+                   return "((Flags.lf_resw() ^ Flags.lf_var1w()) & 0x8000) == 0";
                 case Op.FLAG_TYPE_DSHRD:
-                   return "((lf_resd() ^ lf_var1d()) & 0x80000000) == 0";
+                   return "((Flags.lf_resd() ^ Flags.lf_var1d()) & 0x80000000) == 0";
                 case Op.FLAG_TYPE_NEGB:
-                   return "lf_var1b() != 0x80";
+                   return "Flags.lf_var1b() != 0x80";
                 case Op.FLAG_TYPE_NEGW:
-                   return "lf_var1w() != 0x8000";
+                   return "Flags.lf_var1w() != 0x8000";
                 case Op.FLAG_TYPE_NEGD:
-                   return "lf_var1d() != 0x80000000";
+                   return "Flags.lf_var1d() != 0x80000000";
                 default:
                     return "CPU_Regs.GETFLAG(CPU_Regs.OF) == 0";
             }
@@ -904,9 +904,9 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_ADDB: return "Flags.lf_resb()<Flags.lf_var1b()";
                 case Op.FLAG_TYPE_ADDW: return "Flags.lf_resw()<Flags.lf_var1w()";
                 case Op.FLAG_TYPE_ADDD: return "(Flags.lf_resd() & 0xFFFFFFFFl)<(Flags.lf_var1d() & 0xFFFFFFFFl)";
-                case Op.FLAG_TYPE_ADCB: return "(Flags.lf_resb()<Flags.lf_var1b() || (Flags.oldcf && (lf_resb() == lf_var1b())))";
-                case Op.FLAG_TYPE_ADCW: return "(Flags.lf_resw()<Flags.lf_var1w() || (Flags.oldcf && (lf_resw() == lf_var1w())))";
-                case Op.FLAG_TYPE_ADCD: return "((Flags.lf_resd() & 0xFFFFFFFFl)<(Flags.lf_var1d() & 0xFFFFFFFFl) || (Flags.oldcf && (lf_resd() == lf_var1d())))";
+                case Op.FLAG_TYPE_ADCB: return "(Flags.lf_resb()<Flags.lf_var1b() || (Flags.oldcf && (Flags.lf_resb() == Flags.lf_var1b())))";
+                case Op.FLAG_TYPE_ADCW: return "(Flags.lf_resw()<Flags.lf_var1w() || (Flags.oldcf && (Flags.lf_resw() == Flags.lf_var1w())))";
+                case Op.FLAG_TYPE_ADCD: return "((Flags.lf_resd() & 0xFFFFFFFFl)<(Flags.lf_var1d() & 0xFFFFFFFFl) || (Flags.oldcf && (Flags.lf_resd() == Flags.lf_var1d())))";
                 case Op.FLAG_TYPE_ORB:
                 case Op.FLAG_TYPE_ORW:
                 case Op.FLAG_TYPE_ORD:
@@ -986,9 +986,9 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_ADDB: return "Flags.lf_resb()>=Flags.lf_var1b()";
                 case Op.FLAG_TYPE_ADDW: return "Flags.lf_resw()>=Flags.lf_var1w()";
                 case Op.FLAG_TYPE_ADDD: return "(Flags.lf_resd() & 0xFFFFFFFFl)>=(Flags.lf_var1d() & 0xFFFFFFFFl)";
-                case Op.FLAG_TYPE_ADCB: return "(Flags.lf_resb()>=Flags.lf_var1b() && (!Flags.oldcf || (lf_resb() != lf_var1b())))";
-                case Op.FLAG_TYPE_ADCW: return "(Flags.lf_resw()>=Flags.lf_var1w() && (!Flags.oldcf || (lf_resw() != lf_var1w())))";
-                case Op.FLAG_TYPE_ADCD: return "((Flags.lf_resd() & 0xFFFFFFFFl)>=(Flags.lf_var1d() & 0xFFFFFFFFl) && (!Flags.oldcf || (lf_resd() != lf_var1d())))";
+                case Op.FLAG_TYPE_ADCB: return "(Flags.lf_resb()>=Flags.lf_var1b() && (!Flags.oldcf || (Flags.lf_resb() != Flags.lf_var1b())))";
+                case Op.FLAG_TYPE_ADCW: return "(Flags.lf_resw()>=Flags.lf_var1w() && (!Flags.oldcf || (Flags.lf_resw() != Flags.lf_var1w())))";
+                case Op.FLAG_TYPE_ADCD: return "((Flags.lf_resd() & 0xFFFFFFFFl)>=(Flags.lf_var1d() & 0xFFFFFFFFl) && (!Flags.oldcf || (Flags.lf_resd() != Flags.lf_var1d())))";
                 case Op.FLAG_TYPE_ORB:
                 case Op.FLAG_TYPE_ORW:
                 case Op.FLAG_TYPE_ORD:

@@ -1061,6 +1061,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCB:
                 case Op.FLAG_TYPE_DECB:
                 case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ADCB:
                 case Op.FLAG_TYPE_ORB:
                 case Op.FLAG_TYPE_ANDB:
                 case Op.FLAG_TYPE_TESTB:
@@ -1076,6 +1077,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCW:
                 case Op.FLAG_TYPE_DECW:
                 case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ADCW:
                 case Op.FLAG_TYPE_ORW:
                 case Op.FLAG_TYPE_ANDW:
                 case Op.FLAG_TYPE_TESTW:
@@ -1093,6 +1095,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCD:
                 case Op.FLAG_TYPE_DECD:
                 case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ADCD:
                 case Op.FLAG_TYPE_ORD:
                 case Op.FLAG_TYPE_ANDD:
                 case Op.FLAG_TYPE_TESTD:
@@ -1119,6 +1122,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCB:
                 case Op.FLAG_TYPE_DECB:
                 case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ADCB:
                 case Op.FLAG_TYPE_ORB:
                 case Op.FLAG_TYPE_ANDB:
                 case Op.FLAG_TYPE_TESTB:
@@ -1134,6 +1138,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCW:
                 case Op.FLAG_TYPE_DECW:
                 case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ADCW:
                 case Op.FLAG_TYPE_ORW:
                 case Op.FLAG_TYPE_ANDW:
                 case Op.FLAG_TYPE_TESTW:
@@ -1151,6 +1156,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCD:
                 case Op.FLAG_TYPE_DECD:
                 case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ADCD:
                 case Op.FLAG_TYPE_ORD:
                 case Op.FLAG_TYPE_ANDD:
                 case Op.FLAG_TYPE_TESTD:
@@ -1171,14 +1177,37 @@ public class Compiler extends Helper {
         }
         return "Flags.TFLG_NZ()";
     }
+
     static String getBE() {
         if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "Flags.lf_var1b()<=Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "Flags.lf_var1w()<=Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "(Flags.lf_var1d() & 0xFFFFFFFFl)<=(Flags.lf_var2d() & 0xFFFFFFFFl)";
+            }
             return "(("+getB()+") || ("+getZ()+"))";
         }
         return "Flags.TFLG_BE()";
     }
     static String getNBE() {
         if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "Flags.lf_var1b()>Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "Flags.lf_var1w()>Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "(Flags.lf_var1d() & 0xFFFFFFFFl)>(Flags.lf_var2d() & 0xFFFFFFFFl)";
+            }
             return "(("+getNB()+") && ("+getNZ()+"))";
         }
         return "Flags.TFLG_NBE()";
@@ -1189,6 +1218,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCB:
                 case Op.FLAG_TYPE_DECB:
                 case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ADCB:
                 case Op.FLAG_TYPE_ORB:
                 case Op.FLAG_TYPE_ANDB:
                 case Op.FLAG_TYPE_TESTB:
@@ -1204,6 +1234,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCW:
                 case Op.FLAG_TYPE_DECW:
                 case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ADCW:
                 case Op.FLAG_TYPE_ORW:
                 case Op.FLAG_TYPE_ANDW:
                 case Op.FLAG_TYPE_TESTW:
@@ -1221,6 +1252,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCD:
                 case Op.FLAG_TYPE_DECD:
                 case Op.FLAG_TYPE_ADDD:
+                case Op.FLAG_TYPE_ADCD:
                 case Op.FLAG_TYPE_ORD:
                 case Op.FLAG_TYPE_ANDD:
                 case Op.FLAG_TYPE_TESTD:
@@ -1247,6 +1279,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCB:
                 case Op.FLAG_TYPE_DECB:
                 case Op.FLAG_TYPE_ADDB:
+                case Op.FLAG_TYPE_ADCB:
                 case Op.FLAG_TYPE_ORB:
                 case Op.FLAG_TYPE_ANDB:
                 case Op.FLAG_TYPE_TESTB:
@@ -1262,6 +1295,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_INCW:
                 case Op.FLAG_TYPE_DECW:
                 case Op.FLAG_TYPE_ADDW:
+                case Op.FLAG_TYPE_ADCW:
                 case Op.FLAG_TYPE_ORW:
                 case Op.FLAG_TYPE_ANDW:
                 case Op.FLAG_TYPE_TESTW:
@@ -1281,6 +1315,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_ADDD:
                 case Op.FLAG_TYPE_ORD:
                 case Op.FLAG_TYPE_ANDD:
+                case Op.FLAG_TYPE_ADCD:
                 case Op.FLAG_TYPE_TESTD:
                 case Op.FLAG_TYPE_XORD:
                 case Op.FLAG_TYPE_SUBD:
@@ -1318,23 +1353,71 @@ public class Compiler extends Helper {
         return "Flags.TFLG_NP()";
     }
     static String getL() {
-        if (inlineFlags && opThatSetFlags!=null)
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "(byte)Flags.lf_var1b()<(byte)Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "(short)Flags.lf_var1w()<(short)Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "Flags.lf_var1d()<Flags.lf_var2d()";
+            }
             return "("+getS()+") != ("+getO()+")";
+        }
         return "Flags.TFLG_L()";
     }
     static String getNL() {
-        if (inlineFlags && opThatSetFlags!=null)
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "(byte)Flags.lf_var1b()>=(byte)Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "(short)Flags.lf_var1w()>=(short)Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "Flags.lf_var1d()>=Flags.lf_var2d()";
+            }
             return "("+getS()+") == ("+getO()+")";
+        }
         return "Flags.TFLG_NL()";
     }
     static String getLE() {
-        if (inlineFlags && opThatSetFlags!=null)
+        if (inlineFlags && opThatSetFlags!=null){
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "(byte)Flags.lf_var1b()<=(byte)Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "(short)Flags.lf_var1w()<=(short)Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "Flags.lf_var1d()<=Flags.lf_var2d()";
+            }
             return "(("+getZ()+") || ("+getL()+"))";
+        }
         return "Flags.TFLG_LE()";
     }
     static String getNLE() {
-        if (inlineFlags && opThatSetFlags!=null)
+        if (inlineFlags && opThatSetFlags!=null) {
+            switch (opThatSetFlags.getFlagType()) {
+                case Op.FLAG_TYPE_SUBB:
+                case Op.FLAG_TYPE_CMPB:
+                    return "(byte)Flags.lf_var1b()>(byte)Flags.lf_var2b()";
+                case Op.FLAG_TYPE_SUBW:
+                case Op.FLAG_TYPE_CMPW:
+                    return "(short)Flags.lf_var1w()>(short)Flags.lf_var2w()";
+                case Op.FLAG_TYPE_SUBD:
+                case Op.FLAG_TYPE_CMPD:
+                    return "Flags.lf_var1d()>Flags.lf_var2d()";
+            }
             return "(("+getNZ()+") && ("+getNL()+"))";
+        }
         return "Flags.TFLG_NLE()";
     }
 

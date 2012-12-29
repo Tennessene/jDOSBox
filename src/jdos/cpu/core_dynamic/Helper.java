@@ -72,6 +72,7 @@ public class Helper extends CPU_Regs {
     static void decode_putback(int count) {
         for (int i=0;i<count;i++) {
             decode.page.index--;
+            decode.code--;
             // :TODO: handle page change
             if (decode.page.index<0) {
                 Log.exit("Dynamic Core:  Self modifying code across page boundries not implemented yet");

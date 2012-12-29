@@ -53,7 +53,7 @@ abstract public class Op {
 
     public boolean returnsIllegal() {return false;}
     public int setsSeg() {return 0;}
-    public String description() {return "";}
+    public String description() {return this.toString();}
 
 //    public boolean throwsException() {return true;}
 //    public boolean accessesMemory() {return true;}

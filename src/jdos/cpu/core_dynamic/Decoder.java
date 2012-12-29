@@ -91,7 +91,10 @@ public class Decoder extends Inst1 {
         Prefix_66_0f.init(ops);
     }
 
-    public static final boolean removeRedundantSegs = true;
+    public static final boolean removeRedundantSegs = false;
+    public static final boolean decompileBranches = false;
+
+    private static int branchCount = 0;
 
     public static CacheBlockDynRec CreateCacheBlock(CodePageHandlerDynRec codepage,/*PhysPt*/int start,/*Bitu*/int max_opcodes) {
         // initialize a load of variables
@@ -106,9 +109,14 @@ public class Decoder extends Inst1 {
         decode.block.page.start=decode.page.index;
         decode.setTLB(start);
         codepage.AddCacheBlock(decode.block);
-
+        int branched = 0;
         decode.cycles = 0;
         int result = 0;
+        Branch branch = null;
+        int branchTo = 0;
+        Op branchFrom = null;
+        Op originalBranchJump = null;
+        int branchStart = 0;
 
         if (CPU.cpu.code.big) {
             opcode_index=0x200;
@@ -132,6 +140,8 @@ public class Decoder extends Inst1 {
 
         try {
             while (max_opcodes-->0 && result==0) {
+                boolean branchSet = false;
+
                 decode.cycles++;
                 decode.op_start=decode.code;
                 decode.modifiedAlot = false;
@@ -151,9 +161,52 @@ public class Decoder extends Inst1 {
                     max_opcodes++;
                     continue;
                 }
+                if (decompileBranches) {
+                    if (branch == null) {
+                        int offset = 0;
+                        if ((opcode>=0x70 && opcode<0x80)) {
+                            JumpCond16_b jump = (JumpCond16_b)op.next;
+                            offset = jump.offset;
+                        } else if (opcode>=0x180 && opcode<0x190) {
+                            Inst2.JumpCond16_w jump = (Inst2.JumpCond16_w)op.next;
+                            offset = jump.offset;
+                        } else if ((opcode>=0x270 && opcode<0x280)) {
+                            Inst3.JumpCond32_b jump = (Inst3.JumpCond32_b)op.next;
+                            offset = jump.offset;
+                        } else if (opcode>=0x380 && opcode<0x390) {
+                            Inst4.JumpCond32_d jump = (Inst4.JumpCond32_d)op.next;
+                            offset = jump.offset;
+                        }
+
+                        if (offset>0) {
+                            result = RESULT_HANDLED;
+                            branch = getBranch(opcode, offset);
+                            branchTo = decode.code+offset;
+                            originalBranchJump = op.next;
+                            originalBranchJump.c = opcode;
+                            originalBranchJump.eip_count = count;
+                            op.next = branch;
+                            branchFrom = op;
+                            branchSet = true;
+                            branchStart = decode.code;
+                        }
+                    }
+                }
                 op = op.next;
                 op.c = opcode;
                 ++cycles;
+                if (decompileBranches) {
+                    if (branch != null && !branchSet) {
+                        if (branch.op2 == null)
+                            branch.op2 = op;
+                        if (branchTo == decode.code-count) {
+                            branch.op1 = op;
+                            branchTo = 0;
+                            branch = null;
+                            branched++;
+                        }
+                    }
+                }
                 if (result == RESULT_CONTINUE_SEG) {
                     // This will remove redundant segment prefixes and remove the op that returns the base back to DS
                     //
@@ -206,7 +259,6 @@ public class Decoder extends Inst1 {
                     previousSegParent = null;
                 begin_op = op;
                 op.eip_count = count;
-                count = 0;
                 if (result == RESULT_ANOTHER) {
                     result = RESULT_HANDLED;
                     max_opcodes++;
@@ -220,6 +272,7 @@ public class Decoder extends Inst1 {
                     prefixes=0;
                     EA16 = true;
                 }
+
                 if (seg_changed && result==0) {
                     if (removeRedundantSegs) {
                         if ((op.setsSeg() & Op.FROM_MEMORY)==0) {
@@ -228,17 +281,33 @@ public class Decoder extends Inst1 {
                     }
                     seg_changed = false;
                     op.next = new HandledSegChange();
+                    if (branchFrom == op) {
+                        branchFrom = op.next;
+                    }
                     op = op.next;
                     op.c = -1;
                     op.cycle = cycles;
                     begin_op = op;
                 }
+                count = 0;
             }
         } catch (PageFaultException e) {
             if (decode.code -decode.op_start + count == 0) {
                 result = RESULT_HANDLED; // begining of op code started on next page
             } else {
                 result = RESULT_ILLEGAL_INSTRUCTION; // op code spanned two pages, run with normal core in case of page fault
+            }
+        }
+        if (decompileBranches) {
+            if (branch!=null && (branch.op1 == null || branch.op2 == null)) {
+                decode_putback(decode.code-branchStart);
+                branchFrom.next = originalBranchJump;
+                result = RESULT_JUMP;
+                branched--;
+            }
+            if (branched>0) {
+                branchCount++;
+                System.out.println("Branched "+branchCount);
             }
         }
         Cache.cache_closeblock();
@@ -269,6 +338,96 @@ public class Decoder extends Inst1 {
         return decode.block;
     }
 
+    private static String indent = "";
+    private static void print(Op op) {
+        if (op == null)
+            return;
+        System.out.print(indent);
+        System.out.println(Integer.toHexString(op.c)+" "+op.description());
+        if (op instanceof Branch) {
+            Branch b = (Branch)op;
+            indent+="  ";
+            op = b.op2;
+            while (op != b.op1) {
+                System.out.print(indent);
+                System.out.println(Integer.toHexString(op.c)+" "+op.description());
+                op = op.next;
+            }
+            indent = indent.substring(0, indent.length()-2);
+            print(b.op1);
+        } else {
+            print(op.next);
+        }
+    }
+    private static Branch getBranch(int op, int offset) {
+        switch (op) {
+            case 0x380:
+            case 0x270:
+            case 0x180:
+            case 0x70: return new BranchO(offset);
+            case 0x381:
+            case 0x271:
+            case 0x181:
+            case 0x71: return new BranchNO(offset);
+            case 0x382:
+            case 0x272:
+            case 0x182:
+            case 0x72: return new BranchB(offset);
+            case 0x383:
+            case 0x273:
+            case 0x183:
+            case 0x73: return new BranchNB(offset);
+            case 0x384:
+            case 0x274:
+            case 0x184:
+            case 0x74: return new BranchZ(offset);
+            case 0x385:
+            case 0x275:
+            case 0x185:
+            case 0x75: return new BranchNZ(offset);
+            case 0x386:
+            case 0x276:
+            case 0x186:
+            case 0x76: return new BranchBE(offset);
+            case 0x387:
+            case 0x277:
+            case 0x187:
+            case 0x77: return new BranchNBE(offset);
+            case 0x388:
+            case 0x278:
+            case 0x188:
+            case 0x78: return new BranchS(offset);
+            case 0x389:
+            case 0x279:
+            case 0x189:
+            case 0x79: return new BranchNS(offset);
+            case 0x38a:
+            case 0x27a:
+            case 0x18a:
+            case 0x7a: return new BranchP(offset);
+            case 0x38b:
+            case 0x27b:
+            case 0x18b:
+            case 0x7b: return new BranchNP(offset);
+            case 0x38c:
+            case 0x27c:
+            case 0x18c:
+            case 0x7c: return new BranchL(offset);
+            case 0x18d:
+            case 0x38d:
+            case 0x27d:
+            case 0x7d: return new BranchNL(offset);
+            case 0x38e:
+            case 0x27e:
+            case 0x18e:
+            case 0x7e: return new BranchLE(offset);
+            case 0x38f:
+            case 0x27f:
+            case 0x18f:
+            case 0x7f: return new BranchNLE(offset);
+        }
+        return null;
+    }
     static public class ModifiedDecodeOp extends Op {
         public int call() {
             return ModifiedDecode.call();

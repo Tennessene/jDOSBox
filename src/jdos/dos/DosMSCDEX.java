@@ -848,7 +848,7 @@ public class DosMSCDEX {
 
     private static /*Bit16u*/int MSCDEX_IOCTL_Input(/*PhysPt*/int buffer,/*Bit8u*/short drive_unit) {
         /*Bitu*/int ioctl_fct = Memory.mem_readb(buffer);
-        if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: IOCTL INPUT Subfunction "+Integer.toString(ioctl_fct,16));
+        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL, "MSCDEX: IOCTL INPUT Subfunction "+Integer.toString(ioctl_fct,16));
         switch (ioctl_fct) {
             case 0x00 : /* Get Device Header address */
                         Memory.mem_writed(buffer+1,Memory.RealMake(mscdex.rootDriverHeaderSeg,0));
@@ -1019,7 +1019,7 @@ public class DosMSCDEX {
             /*Bit16u*/int	errcode		= 0;
             /*PhysPt*/int	buffer		= 0;
 
-            if (Log.level<=LogSeverities.LOG_ERROR)Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR, "MSCDEX: Driver Function "+Integer.toString(funcNr,16));
+            if (Log.level<=LogSeverities.LOG_NORMAL)Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL, "MSCDEX: Driver Function "+Integer.toString(funcNr,16));
 
             if ((funcNr==0x03) || (funcNr==0x0c) || (funcNr==0x80) || (funcNr==0x82)) {
                 buffer = Memory.PhysMake(Memory.mem_readw(curReqheaderPtr+0x10),Memory.mem_readw(curReqheaderPtr+0x0E));
@@ -1074,7 +1074,7 @@ public class DosMSCDEX {
 
             // Set Statusword
             Memory.mem_writew(curReqheaderPtr+3,mscdex.GetStatusWord(subUnit,errcode));
-            if (Log.level<=LogSeverities.LOG_ERROR)Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: Status : "+Integer.toString(Memory.mem_readw(curReqheaderPtr+3),16));
+            if (Log.level<=LogSeverities.LOG_NORMAL)Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: Status : "+Integer.toString(Memory.mem_readw(curReqheaderPtr+3),16));
             return Callback.CBRET_NONE;
         }
     };
@@ -1101,7 +1101,7 @@ public class DosMSCDEX {
             if (CPU_Regs.reg_eax.high()!=0x15) return false;		// not handled here, continue chain
 
             /*PhysPt*/int data = Memory.PhysMake((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word());
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"MSCDEX: INT 2F "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" BX= "+Integer.toString(CPU_Regs.reg_ebx.word(), 16)+" CX="+Integer.toString(CPU_Regs.reg_ecx.word(),16));
+            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: INT 2F "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" BX= "+Integer.toString(CPU_Regs.reg_ebx.word(), 16)+" CX="+Integer.toString(CPU_Regs.reg_ecx.word(),16));
             switch (CPU_Regs.reg_eax.word()) {
 
                 case 0x1500:	/* Install check */

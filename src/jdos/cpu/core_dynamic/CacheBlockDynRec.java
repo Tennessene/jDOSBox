@@ -1,5 +1,6 @@
 package jdos.cpu.core_dynamic;
 
+import jdos.Dosbox;
 import jdos.misc.Log;
 
 import java.util.Vector;
@@ -13,7 +14,7 @@ public class CacheBlockDynRec {
     }
 	public void Clear() {
         /*Bitu*/int ind;
-        if (code instanceof DecodeBlock) {
+        if (code instanceof DecodeBlock && Dosbox.allPrivileges) {
             DecodeBlock op = (DecodeBlock)code;
             Compiler.removeFromQueue(op);
         }

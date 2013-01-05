@@ -132,8 +132,8 @@ public class LittleEndianFile {
     }
 
     public final short readUnsignedByte() {
-        short result = Memory.mem_readb(address + pos);
+        int result = Memory.mem_readb(address + pos);
         pos+=1;
-        return result;
+        return (short)result;
     }
 }

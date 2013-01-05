@@ -92,7 +92,7 @@ public class Interrupts {
                 return interrupt_handlers[index].call();
             else {
                 if (index == 14) {
-                    System.out.println("Page Fault at "+Integer.toHexString(Paging.paging.cr2));
+                    System.out.println("Page Fault at "+Integer.toHexString(Paging.cr2));
                     Win.exit();
                 }
             }

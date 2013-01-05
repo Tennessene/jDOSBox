@@ -272,8 +272,8 @@ public class JavaBitmap {
         }
 
         for (int i=0;i<frameCount;i++) {
-            Paging.paging.tlb.readhandler[frame] = handler;
-            Paging.paging.tlb.writehandler[frame++] = handler;
+            Paging.readhandler[frame] = handler;
+            Paging.writehandler[frame++] = handler;
         }
         if (WinAPI.LOG) {
             System.out.println("JavaBitmap.map address=0x"+Long.toString(address & 0xFFFFFFFFl, 16)+" size="+size+" frames="+frameStart+"-"+frame+" handler="+handler+" this="+this);
@@ -287,8 +287,8 @@ public class JavaBitmap {
         int frame = address >>> 12;
 
         for (int i=0;i<frameCount;i++) {
-            Paging.paging.tlb.readhandler[frame] = null;
-            Paging.paging.tlb.writehandler[frame++] = null;
+            Paging.readhandler[frame] = null;
+            Paging.writehandler[frame++] = null;
         }
         WinSystem.getCurrentProcess().addressSpace.free(address);
         if (WinAPI.LOG) {

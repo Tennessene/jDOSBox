@@ -531,7 +531,7 @@ public class StaticWindow extends WinAPI {
                     WinRect rect = new WinRect(rc);
                     WinDC.ExtTextOutA( hdc, rect.left, rect.top, ETO_CLIPPED | ETO_OPAQUE, rc, StringUtil.allocateTempA(window.text), window.text.length(), NULL );
                 } else {
-                    WinDC.DrawTextA(hdc, StringUtil.allocateTempA(window.text), -1, rc, format);
+                    WinText.DrawTextA(hdc, StringUtil.allocateTempA(window.text), -1, rc, format);
                 }
             }
             if (hFont!=0)

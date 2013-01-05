@@ -69,7 +69,7 @@ public class FPU {
         }
 
         L l = new L();
-        double d;
+        public double d;
     }
 
     private static class FPU_P_Reg {
@@ -704,7 +704,7 @@ public class FPU {
         FPU_FCOM(op1,8);
     }
 
-    private static FPU_rec fpu=new FPU_rec();
+    public static FPU_rec fpu=new FPU_rec();
 
     static private void FPU_FLDCW(/*PhysPt*/int addr){
         /*Bit16u*/int temp = Memory.mem_readw(addr);

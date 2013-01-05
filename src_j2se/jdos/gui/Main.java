@@ -10,6 +10,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.*;
 
 public class Main extends MainBase {
+    static public void GFX_SetCursor(Cursor cursor) {
+
+    }
     static public void GFX_Events() {
             while (events.size()>0) {
                 Object event = events.elementAt(0);

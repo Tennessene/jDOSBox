@@ -3,7 +3,6 @@ package jdos.win.builtin;
 import jdos.cpu.CPU_Regs;
 import jdos.fpu.FPU;
 import jdos.hardware.Memory;
-import jdos.util.MicroDouble;
 import jdos.win.loader.BuiltinModule;
 import jdos.win.loader.Loader;
 import jdos.win.system.WinSystem;
@@ -32,19 +31,19 @@ public class Crtdll extends BuiltinModule {
         // use fpu stack
         // pop y
         // pop x
-        long y = FPU.fpu.regs[FPU.fpu.top].d;
+        double y = FPU.fpu.regs[FPU.fpu.top].d;
         FPU.FPU_FPOP();
-        long x = FPU.fpu.regs[FPU.fpu.top].d;
-        FPU.fpu.regs[FPU.fpu.top].d = MicroDouble.pow(x, y);
+        double x = FPU.fpu.regs[FPU.fpu.top].d;
+        FPU.fpu.regs[FPU.fpu.top].d = Math.pow(x, y);
         if (LOG)
-            log(MicroDouble.toString(x)+"^"+MicroDouble.toString(y)+"="+MicroDouble.toString(FPU.fpu.regs[FPU.fpu.top].d));
+            log(x+"^"+y+"="+FPU.fpu.regs[FPU.fpu.top].d);
     }
 
     public static void _ftol() {
         // :TODO: is this right?
-        long result = MicroDouble.longValue(FPU.fpu.regs[FPU.fpu.top].d);
+        long result = (long)FPU.fpu.regs[FPU.fpu.top].d;
         if (LOG)
-            log(MicroDouble.toString(FPU.fpu.regs[FPU.fpu.top].d)+" -> "+result);
+            log(FPU.fpu.regs[FPU.fpu.top].d+" -> "+result);
         FPU.FPU_FPOP();
         CPU_Regs.reg_eax.dword = (int)result;
         CPU_Regs.reg_edx.dword = (int)(result >>> 32);

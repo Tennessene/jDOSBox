@@ -67,7 +67,7 @@ public class Dosbox {
                     ret=CPU.cpudecoder.call();
                     if (ret<0) return 1;
                     if (ret>0) {
-                        if (ret >= Callback.CB_MAX) return 0;
+                        //if (ret >= Callback.CB_MAX) return 0;
                         try {
                             Callback.inHandler++;
 //                            if (ret != 15 && ret !=7 && ret != 19 && ret != 16)

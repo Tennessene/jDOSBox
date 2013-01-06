@@ -10,6 +10,7 @@ import jdos.win.utils.Error;
 public class WinAPI extends Error {
     final static public boolean LOG = false;
     final static public boolean LOG_GDI = LOG;
+    final static public boolean LOG_MM = false;
     final static public boolean MSGLOG = false;
     static public int NULL = 0;
 

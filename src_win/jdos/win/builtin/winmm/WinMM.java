@@ -19,33 +19,33 @@ import jdos.win.utils.Ptr;
 public class WinMM extends BuiltinModule {
     public WinMM(Loader loader, int handle) {
         super(loader, "WinMM.dll", handle);
-        add(WinJoystick.class, "joyGetNumDevs", new String[0]);
+        add(WinJoystick.class, "joyGetNumDevs", LOG_MM?new String[0]:null);
         add(mciSendCommandA);
-        add(Mci.class, "mciSendStringA", new String[] {"(STRING)lpszCommand", "(HEX)lpszReturnString", "cchReturn", "hwndCallback", "result", "01(STRING)lpszReturnString"});
+        add(Mci.class, "mciSendStringA", LOG_MM?new String[] {"(STRING)lpszCommand", "(HEX)lpszReturnString", "cchReturn", "hwndCallback", "result", "01(STRING)lpszReturnString"}:null);
         add(mixerGetNumDevs);
-        add(Mmio.class, "mmioAdvance", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
-        add(Mmio.class, "mmioAscend", new String[] {"hmmio", "(HEX)lpck", "(HEX)wFlags"});
-        add(Mmio.class, "mmioClose", new String[] {"hmmio", "(HEX)wFlags"});
-        add(Mmio.class, "mmioDescend", new String[] {"hmmio", "(HEX)lpck", "(HEX)lpckParent", "(HEX)wFlags"});
-        add(Mmio.class, "mmioGetInfo", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
-        add(Mmio.class, "mmioOpenA", new String[] {"(STRING)szFilename", "(HEX)lpmmioinfo", "(HEX)dwOpenFlags"});
-        add(Mmio.class, "mmioRead", new String[] {"hmmio", "(HEX)pch", "cch"});
-        add(Mmio.class, "mmioSeek", new String[] {"hmmio", "lOffset", "iOrigin"});
-        add(Mmio.class, "mmioSetInfo", new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"});
-        add(PlaySound.class, "PlaySoundA", new String[] {"(STRING)pszSound", "hmod", "(HEX)fdwSound", "(BOOL)result"}, 2);
-        add(MMTime.class, "timeBeginPeriod", new String[] {"uPeriod"});
-        add(MMTime.class, "timeGetDevCaps", new String[] {"lpCaps", "wSize"});
-        add(MMTime.class, "timeGetTime", new String[0]);
-        add(MMTime.class, "timeEndPeriod", new String[] {"uPeriod"});
-        add(MMTime.class, "timeKillEvent", new String[] {"uTimerID"});
-        add(MMTime.class, "timeSetEvent", new String[] {"uDelay", "uResolution", "(HEX)lpTimeProc", "dwUser", "(HEX)fuEvent"});
-        add(Waveform.class, "waveOutClose", new String[] {"(HEX)hwo"});
-        add(Waveform.class, "waveOutGetDevCapsA", new String[] {"uDeviceID", "(HEX)pwoc", "cbwoc"});
-        add(Waveform.class, "waveOutOpen", new String[] {"(HEX)lphWaveOut", "uDeviceID", "(HEX)pwfx", "(HEX)dwCallback", "dwCallbackInstance", "(HEX)fdwOpen"});
-        add(Waveform.class, "waveOutPrepareHeader", new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"});
-        add(Waveform.class, "waveOutReset", new String[] {"(HEX)hwo"});
-        add(Waveform.class, "waveOutUnprepareHeader", new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"});
-        add(Waveform.class, "waveOutWrite", new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"});
+        add(Mmio.class, "mmioAdvance", LOG_MM?new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"}:null);
+        add(Mmio.class, "mmioAscend", LOG_MM?new String[] {"hmmio", "(HEX)lpck", "(HEX)wFlags"}:null);
+        add(Mmio.class, "mmioClose", LOG_MM?new String[] {"hmmio", "(HEX)wFlags"}:null);
+        add(Mmio.class, "mmioDescend", LOG_MM?new String[] {"hmmio", "(HEX)lpck", "(HEX)lpckParent", "(HEX)wFlags"}:null);
+        add(Mmio.class, "mmioGetInfo", LOG_MM?new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"}:null);
+        add(Mmio.class, "mmioOpenA", LOG_MM?new String[] {"(STRING)szFilename", "(HEX)lpmmioinfo", "(HEX)dwOpenFlags"}:null);
+        add(Mmio.class, "mmioRead", LOG_MM?new String[] {"hmmio", "(HEX)pch", "cch"}:null);
+        add(Mmio.class, "mmioSeek", LOG_MM?new String[] {"hmmio", "lOffset", "iOrigin"}:null);
+        add(Mmio.class, "mmioSetInfo", LOG_MM?new String[] {"hmmio", "(HEX)lpmmioinfo", "(HEX)wFlags"}:null);
+        add(PlaySound.class, "PlaySoundA", LOG_MM?new String[] {"(STRING)pszSound", "hmod", "(HEX)fdwSound", "(BOOL)result"}:null, 2);
+        add(MMTime.class, "timeBeginPeriod", LOG_MM?new String[] {"uPeriod"}:null);
+        add(MMTime.class, "timeGetDevCaps", LOG_MM?new String[] {"lpCaps", "wSize"}:null);
+        add(MMTime.class, "timeGetTime", LOG_MM?new String[0]:null);
+        add(MMTime.class, "timeEndPeriod", LOG_MM?new String[] {"uPeriod"}:null);
+        add(MMTime.class, "timeKillEvent", LOG_MM?new String[] {"uTimerID"}:null);
+        add(MMTime.class, "timeSetEvent", LOG_MM?new String[] {"uDelay", "uResolution", "(HEX)lpTimeProc", "dwUser", "(HEX)fuEvent"}:null);
+        add(Waveform.class, "waveOutClose", LOG_MM?new String[] {"(HEX)hwo"}:null);
+        add(Waveform.class, "waveOutGetDevCapsA", LOG_MM?new String[] {"uDeviceID", "(HEX)pwoc", "cbwoc"}:null);
+        add(Waveform.class, "waveOutOpen", LOG_MM?new String[] {"(HEX)lphWaveOut", "uDeviceID", "(HEX)pwfx", "(HEX)dwCallback", "dwCallbackInstance", "(HEX)fdwOpen"}:null);
+        add(Waveform.class, "waveOutPrepareHeader", LOG_MM?new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"}:null);
+        add(Waveform.class, "waveOutReset", LOG_MM?new String[] {"(HEX)hwo"}:null);
+        add(Waveform.class, "waveOutUnprepareHeader", LOG_MM?new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"}:null);
+        add(Waveform.class, "waveOutWrite", LOG_MM?new String[] {"(HEX)hwo", "(HEX)pwh", "cbwh"}:null);
     }
 
     public static int unknown() {

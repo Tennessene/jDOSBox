@@ -620,7 +620,7 @@ abstract public class InstructionsTestCase extends TestCase {
         Compiler.alwayUseFastVersion = true;
         Compiler.processorCount = 0;
         Compiler.thowException = true;
-        DecodeBlock.compilerEnabled = true;
+        //Compiler.ENABLED = true;
 
         Core_dynamic.instruction_count = 1;
         Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);

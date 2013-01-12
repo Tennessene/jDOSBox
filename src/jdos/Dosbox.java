@@ -1,9 +1,6 @@
 package jdos;
 
-import jdos.cpu.CPU;
-import jdos.cpu.Callback;
-import jdos.cpu.PageFaultException;
-import jdos.cpu.Paging;
+import jdos.cpu.*;
 import jdos.cpu.core_dynamic.Compiler;
 import jdos.debug.Debug;
 import jdos.debug.Debug_gui;
@@ -209,6 +206,8 @@ public class Dosbox {
                     CPU.CPU_Exception(CPU.cpu.exception.which, CPU.cpu.exception.error);
                     Paging.pageFault = false;
                 }
+                ret = 0;
+            } catch (CPUException e) {
                 ret = 0;
             }
         } while (ret==0);

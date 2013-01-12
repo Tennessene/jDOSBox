@@ -51,17 +51,20 @@ public class CPU extends Module_base {
     }
 
     public static final int EXCEPTION_UD=6;
+    public static final int EXCEPTION_NM=7;
     public static final int EXCEPTION_TS=10;
     public static final int EXCEPTION_NP=11;
     public static final int EXCEPTION_SS=12;
     public static final int EXCEPTION_GP=13;
     public static final int EXCEPTION_PF=14;
+    public static final int EXCEPTION_MF=16;
 
     public static final int CR0_PROTECTION=0x00000001;
     public static final int CR0_MONITORPROCESSOR=0x00000002;
     public static final int CR0_FPUEMULATION=0x00000004;
     public static final int CR0_TASKSWITCH=0x00000008;
     public static final int CR0_FPUPRESENT=0x00000010;
+    public static final int CR0_NUMERICERROR=0x00000020;
     public static final int CR0_WRITEPROTECT=0x00010000;
     public static final int CR0_PAGING=0x80000000;
 

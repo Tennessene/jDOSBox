@@ -1157,7 +1157,7 @@ public class Prefix_none extends StringOp {
                 /*Bit8u*/int rm=Fetchb();/*PhysPt*/int eaa=getEaa(rm);
                 bound_min=(short)Memory.mem_readw(eaa);
                 bound_max=(short)Memory.mem_readw(eaa+2);
-                if ( ((Modrm.Getrw[rm].word()) < bound_min) || ((Modrm.Getrw[rm].word()) > bound_max) ) {
+                if ( (((short)Modrm.Getrw[rm].word()) < bound_min) || (((short)Modrm.Getrw[rm].word()) > bound_max) ) {
                     return EXCEPTION(5);
                 }
                 return HANDLED;

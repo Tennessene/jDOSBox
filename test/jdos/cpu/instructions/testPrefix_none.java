@@ -1607,7 +1607,7 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0xA000);
         Memory.host_writew(CPU.Segs_DSphys, 0x9000);
-        Memory.host_writew(CPU.Segs_DSphys+2, 0);
+        Memory.host_writew(CPU.Segs_DSphys+2, 0xB000);
         decoder.call();
         assertTrue(CPU.lastint == 0);
 

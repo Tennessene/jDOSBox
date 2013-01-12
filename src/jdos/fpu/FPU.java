@@ -62,7 +62,7 @@ public class FPU {
             ll(lower & 0xFFFFFFFFl | ((upper & 0xFFFFFFFFl) << 32));
         }
         long ll() {
-            return Double.doubleToLongBits(d);
+            return Double.doubleToRawLongBits(d);
         }
         void ll(long l) {
             d = Double.longBitsToDouble(l);
@@ -226,22 +226,24 @@ public class FPU {
         /*Bit16s*/short begin;
         FPU_Reg eind=new FPU_Reg();
     }
-    static private /*Real64*/double FPU_FLD80(/*PhysPt*/int addr) {
-        Test test = new Test();
-        test.eind.ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
-        test.begin = (short)Memory.mem_readw(addr+8);
-
-        /*Bit64s*/long exp64 = (((test.begin&0x7fff) - BIAS80));
+    static private /*Real64*/double FPU_FLD80(long eind, int begin) {
+        /*Bit64s*/long exp64 = (((begin&0x7fff) - BIAS80));
         /*Bit64s*/long blah = ((exp64 >0)?exp64:-exp64)&0x3ff;
         /*Bit64s*/long exp64final = ((exp64 >0)?blah:-blah) +BIAS64;
 
         // 0x3FFF is for rounding
-        /*Bit64s*/long mant64 = ((test.eind.ll()+0x3FF) >>> 11) & 0xfffffffffffffl;
-        /*Bit64s*/long sign = (test.begin&0x8000)!=0?1:0;
+        int round = 0;
+        if (fpu.round==ROUND_Nearest)
+            round = 0x3FF;
+        else if (fpu.round == ROUND_Up) {
+            round = 0x7FF;
+        }
+        /*Bit64s*/long mant64 = ((eind+round) >>> 11) & 0xfffffffffffffl;
+        /*Bit64s*/long sign = (begin&0x8000)!=0?1:0;
         FPU_Reg result=new FPU_Reg();
         result.ll((sign <<63)|(exp64final << 52)| mant64);
 
-        if(test.eind.ll() == 0x8000000000000000l && (test.begin & 0x7fff) == 0x7fff) {
+        if(eind == 0x8000000000000000l && (begin & 0x7fff) == 0x7fff) {
 		    //Detect INF and -INF (score 3.11 when drawing a slur.)
 		    result.d = sign!=0?Double.NEGATIVE_INFINITY:Double.POSITIVE_INFINITY;
 	    }
@@ -251,7 +253,6 @@ public class FPU {
     }
 
     static private void FPU_ST80(/*PhysPt*/int addr,/*Bitu*/int reg) {
-        Test test = new Test();
         /*Bit64s*/long sign80 = (fpu.regs[reg].ll() & (0x8000000000000000l))!=0?1:0;
         /*Bit64s*/long exp80 =  fpu.regs[reg].ll() & (0x7ff0000000000000l);
         /*Bit64s*/long exp80final = (exp80>>52);
@@ -263,46 +264,42 @@ public class FPU {
             //Ca-cyber doesn't like this when result is zero.
             exp80final += (BIAS80 - BIAS64);
         }
-        test.begin = (short)(((short)(sign80)<<15)| (short)(exp80final));
-        test.eind.ll(mant80final);
-        Memory.mem_writed(addr,test.eind.l.lower());
-        Memory.mem_writed(addr+4,test.eind.l.upper());
-        Memory.mem_writew(addr+8,test.begin);
+        Memory.mem_writed(addr,(int)mant80final);
+        Memory.mem_writed(addr+4,(int)(mant80final>>>32));
+        Memory.mem_writew(addr+8,(int)((sign80 << 15) | (exp80final)));
     }
 
 
-    static private void FPU_FLD_F32(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=Float.intBitsToFloat(Memory.mem_readd(addr));
+    static private void FPU_FLD_F32(/*PhysPt*/int value,/*Bitu*/int store_to) {
+        fpu.regs[store_to].d=Float.intBitsToFloat(value);
     }
 
-    static private void FPU_FLD_F64(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
+    static private void FPU_FLD_F64(long value,/*Bitu*/int store_to) {
+        fpu.regs[store_to].ll(value);
     }
 
-    static private void FPU_FLD_F80(/*PhysPt*/int addr) {
-        fpu.regs[fpu.top].d=FPU_FLD80(addr);
+    static private void FPU_FLD_F80(long low, int high) {
+        fpu.regs[fpu.top].d=FPU_FLD80(low, high);
     }
 
-    static private void FPU_FLD_I16(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=(short)Memory.mem_readw(addr);
+    static private void FPU_FLD_I16(short value,/*Bitu*/int store_to) {
+        fpu.regs[store_to].d=value;
     }
 
-    static private void FPU_FLD_I32(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        fpu.regs[store_to].d=Memory.mem_readd(addr);
+    static private void FPU_FLD_I32(/*PhysPt*/int value,/*Bitu*/int store_to) {
+        fpu.regs[store_to].d=value;
     }
 
-    static private void FPU_FLD_I64(/*PhysPt*/int addr,/*Bitu*/int store_to) {
-        FPU_Reg blah=new FPU_Reg();
-        blah.ll(Memory.mem_readd(addr), Memory.mem_readd(addr + 4));
-        fpu.regs[store_to].d=blah.ll();
+    static private void FPU_FLD_I64(long value,/*Bitu*/int store_to) {
+        fpu.regs[store_to].d=value;
     }
 
-    static private void FPU_FBLD(/*PhysPt*/int addr,/*Bitu*/int store_to) {
+    static private void FPU_FBLD(byte[] data,/*Bitu*/int store_to) {
         /*Bit64u*/long val = 0;
         /*Bitu*/int in = 0;
         /*Bit64u*/long base = 1;
         for(/*Bitu*/int i = 0;i < 9;i++){
-            in = Memory.mem_readb(addr + i);
+            in = data[i] & 0xFF;
             val += ( (in&0xf) * base); //in&0xf shouldn't be higher then 9
             base *= 10;
             val += ((( in>>4)&0xf) * base);
@@ -312,7 +309,7 @@ public class FPU {
         //last number, only now convert to float in order to get
         //the best signification
         /*Real64*/double temp = (double)(val);
-        in = Memory.mem_readb(addr + 9);
+        in = data[9] & 0xFF;
         temp += ( (in&0xf) * base );
         if((in&0x80)!=0) temp *= -1.0;
         fpu.regs[store_to].d=temp;
@@ -320,16 +317,16 @@ public class FPU {
 
 
     static private void FPU_FLD_F32_EA(/*PhysPt*/int addr) {
-        FPU_FLD_F32(addr,8);
+        FPU_FLD_F32(Memory.mem_readd(addr),8);
     }
     static private void FPU_FLD_F64_EA(/*PhysPt*/int addr) {
-        FPU_FLD_F64(addr,8);
+        FPU_FLD_F64(Memory.mem_readq(addr),8);
     }
     static private void FPU_FLD_I32_EA(/*PhysPt*/int addr) {
-        FPU_FLD_I32(addr,8);
+        FPU_FLD_I32(Memory.mem_readd(addr),8);
     }
     static private void FPU_FLD_I16_EA(/*PhysPt*/int addr) {
-        FPU_FLD_I16(addr,8);
+        FPU_FLD_I16((short)Memory.mem_readw(addr),8);
     }
 
     static private void FPU_FST_F32(/*PhysPt*/int addr) {
@@ -471,7 +468,7 @@ public class FPU {
 
     static private void FPU_FCOM(/*Bitu*/int st, /*Bitu*/int other){
         if(((fpu.tags[st] != TAG_Valid) && (fpu.tags[st] != TAG_Zero)) ||
-            ((fpu.tags[other] != TAG_Valid) && (fpu.tags[other] != TAG_Zero))){
+            ((fpu.tags[other] != TAG_Valid) && (fpu.tags[other] != TAG_Zero)) || Double.isNaN(fpu.regs[st].d) || Double.isNaN(fpu.regs[other].d)){
             FPU_SET_C3(1);FPU_SET_C2(1);FPU_SET_C0(1);return;
         }
         if(fpu.regs[st].d == fpu.regs[other].d){
@@ -533,12 +530,17 @@ public class FPU {
         {
             FPU_SET_C1(0);
         }
+
         if(fpu.tags[fpu.top] == TAG_Empty)
         {
             FPU_SET_C3(1);FPU_SET_C2(0);FPU_SET_C0(1);
             return;
         }
-        if(fpu.regs[fpu.top].d == 0.0)		//zero or normalized number.
+        if(Double.isNaN(fpu.regs[fpu.top].d)) {
+            FPU_SET_C3(0);FPU_SET_C2(0);FPU_SET_C0(1);
+        } else if(Double.isInfinite(fpu.regs[fpu.top].d)) {
+            FPU_SET_C3(0);FPU_SET_C2(1);FPU_SET_C0(1);
+        } else if(fpu.regs[fpu.top].d == 0.0)		//zero or normalized number.
         {
             FPU_SET_C3(1);FPU_SET_C2(0);FPU_SET_C0(0);
         }
@@ -554,12 +556,12 @@ public class FPU {
     }
 
     static private void FPU_FYL2X(){
-        fpu.regs[STV(1)].d*=Math.log(fpu.regs[fpu.top].d)/Math.log((double)(2.0));
+        fpu.regs[STV(1)].d*=Math.log(fpu.regs[fpu.top].d)/Math.log(2.0);
         FPU_FPOP();
     }
 
     static private void FPU_FYL2XP1(){
-        fpu.regs[STV(1)].d*=Math.log(fpu.regs[fpu.top].d+1.0)/Math.log((double)(2.0));
+        fpu.regs[STV(1)].d*=Math.log(fpu.regs[fpu.top].d+1.0)/Math.log(2.0);
         FPU_FPOP();
     }
 
@@ -614,7 +616,7 @@ public class FPU {
         FPU_FLDENV(addr);
         /*Bitu*/int start = (CPU.cpu.code.big?28:14);
         for(/*Bitu*/int i = 0;i < 8;i++){
-            fpu.regs[STV(i)].d = FPU_FLD80(addr+start);
+            fpu.regs[STV(i)].d = FPU_FLD80(Memory.mem_readq(addr+start), Memory.mem_readw(addr+start+8));
             start += 10;
         }
     }
@@ -814,8 +816,9 @@ public class FPU {
         /*Bitu*/int sub=(rm & 7);
         switch(group){
         case 0x00: /* FLD float*/
+            int value = Memory.mem_readd(addr); // might generate PF, so do before we adjust the stack
             FPU_PREP_PUSH();
-            FPU_FLD_F32(addr,fpu.top);
+            FPU_FLD_F32(value,fpu.top);
             break;
         case 0x01: /* UNKNOWN */
             if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN,"ESC EA 1:Unhandled group "+group+" subfunction "+sub);
@@ -1036,9 +1039,12 @@ public class FPU {
         /*Bitu*/int sub=(rm & 7);
         switch(group){
         case 0x00:	/* FILD */
+        {
+            int value = Memory.mem_readd(addr); // might generate PF, so do before we adjust the stack
             FPU_PREP_PUSH();
-            FPU_FLD_I32(addr,fpu.top);
+            FPU_FLD_I32(value,fpu.top);
             break;
+        }
         case 0x01:	/* FISTTP */
             if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3 EA:Unhandled group "+group+" subfunction "+sub);
             break;
@@ -1050,9 +1056,13 @@ public class FPU {
             FPU_FPOP();
             break;
         case 0x05:	/* FLD 80 Bits Real */
+        {
+            long low = Memory.mem_readq(addr); // might generate PF, so do before we adjust the stack
+            int high = Memory.mem_readw(addr+8);
             FPU_PREP_PUSH();
-            FPU_FLD_F80(addr);
+            FPU_FLD_F80(low, high);
             break;
+        }
         case 0x07:	/* FSTP 80 Bits Real */
             FPU_FST_F80(addr);
             FPU_FPOP();
@@ -1156,9 +1166,12 @@ public class FPU {
         /*Bitu*/int sub=(rm & 7);
         switch(group){
         case 0x00:  /* FLD double real*/
+        {
+            long value = Memory.mem_readq(addr); // might generate PF, so do before we adjust the stack
             FPU_PREP_PUSH();
-            FPU_FLD_F64(addr,fpu.top);
+            FPU_FLD_F64(value,fpu.top);
             break;
+        }
         case 0x01:  /* FISTTP longint*/
             if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 5 EA:Unhandled group "+group+" subfunction "+sub);
             break;
@@ -1285,8 +1298,11 @@ public class FPU {
         /*Bitu*/int sub=(rm & 7);
         switch(group){
         case 0x00:  /* FILD Bit16s */
+        {
+            short value = (short)Memory.mem_readw(addr); // might generate PF, so do before we adjust the stack
             FPU_PREP_PUSH();
-            FPU_FLD_I16(addr,fpu.top);
+            FPU_FLD_I16(value,fpu.top);
+        }
             break;
         case 0x01:
             if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7 EA:Unhandled group "+group+" subfunction "+sub);
@@ -1299,13 +1315,20 @@ public class FPU {
             FPU_FPOP();
             break;
         case 0x04:   /* FBLD packed BCD */
+        {
+            byte[] value = new byte[10];
+            Memory.mem_memcpy(value, 0, addr, 10); // might generate PF, so do before we adjust the stack
             FPU_PREP_PUSH();
-            FPU_FBLD(addr,fpu.top);
+            FPU_FBLD(value,fpu.top);
             break;
+        }
         case 0x05:  /* FILD Bit64s */
+        {
+            long value = Memory.mem_readq(addr); // might generate PF, so do before we adjust the stack
             FPU_PREP_PUSH();
-            FPU_FLD_I64(addr,fpu.top);
+            FPU_FLD_I64(value,fpu.top);
             break;
+        }
         case 0x06:	/* FBSTP packed BCD */
             FPU_FBST(addr);
             FPU_FPOP();
@@ -1325,7 +1348,6 @@ public class FPU {
             SoftFPU.FPU_ESC7_Normal(rm);
             return;
         }
-
         /*Bitu*/int group=(rm >> 3) & 7;
         /*Bitu*/int sub=(rm & 7);
         switch (group){
@@ -1358,7 +1380,7 @@ public class FPU {
         }
     }
 
-    private static boolean softFPU = false;
+    public static boolean softFPU = false;
 
     public static Section.SectionFunction FPU_Init = new Section.SectionFunction() {
         public void call(Section configuration) {

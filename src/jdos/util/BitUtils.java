@@ -25,7 +25,7 @@ package jdos.util;
  * Helper class providing bit-shift functions which are used internally by
  * the <code>Float</code> and <code>Double</code> classes.
  */
-final class BitUtils {
+final public class BitUtils {
 
   private BitUtils() {
   }
@@ -50,7 +50,7 @@ final class BitUtils {
    * Right-shift x by count bits, and if any of the shifted-off bits are 1,
    * set the least significant bit of the return value to 1.
    */
-  static int stickyRightShift(int x, int count) {
+  static public int stickyRightShift(int x, int count) {
     if (count >= 32) {
       return ((x == 0) ? 0 : 1);
     } else if ((x << (32 - count)) == 0) {
@@ -64,7 +64,7 @@ final class BitUtils {
    * Right-shift x by count bits, and if any of the shifted-off bits are 1,
    * set the least significant bit of the return value to 1.
    */
-  static long stickyRightShift(long x, int count) {
+  static public long stickyRightShift(long x, int count) {
     if (count >= 64) {
       return ((x == 0) ? 0 : 1);
     } else if ((x << (64 - count)) == 0) {
@@ -73,6 +73,29 @@ final class BitUtils {
       return (x >>> count) | 1;
     }
   }
+
+   static public void shift64ExtraRightJamming(long a0, long a1, int count, LongRef z0Ptr, LongRef z1Ptr)
+   {
+        long z0, z1;
+        int negCount = (-count) & 63;
+
+        if (count == 0) {
+            z1 = a1;
+            z0 = a0;
+        } else if (count < 64) {
+            z1 = (a0<<negCount) | ((a1 != 0)?1:0);
+            z0 = a0>>count;
+        } else {
+            if (count == 64) {
+                z1 = a0 | ((a1 != 0)?1:0);
+            } else {
+                z1 = ((a0 | a1) != 0)?1:0;
+            }
+            z0 = 0;
+        }
+        z1Ptr.value = z1;
+        z0Ptr.value = z0;
+    }
 
   /**
    * Right-shift x by count bits, and round the result using half-even rounding.

@@ -864,6 +864,9 @@ public class Memory extends Module_base {
     public static /*Bit32u*/int mem_readd(/*PhysPt*/int address) {
         return Paging.mem_readd_inline(address);
     }
+    public static /*Bit32u*/long mem_readq(/*PhysPt*/int address) {
+        return (Paging.mem_readd_inline(address) & 0xFFFFFFFFl) | ((Paging.mem_readd_inline(address+4) & 0xFFFFFFFFl) << 32);
+    }
 
     static public void mem_writeb(/*PhysPt*/int address,/*Bit8u*/int val) {
         Paging.mem_writeb_inline(address,(short)val);
@@ -875,6 +878,11 @@ public class Memory extends Module_base {
 
     static public void mem_writed(/*PhysPt*/int address,/*Bit32u*/int val) {
         Paging.mem_writed_inline(address,val);
+    }
+
+    static public void mem_writeq(/*PhysPt*/int address,long val) {
+        Paging.mem_writed_inline(address,(int)val);
+        Paging.mem_writed_inline(address+4,(int)(val>>>32));
     }
 
     static private IoHandler.IO_WriteHandler write_p92 = new IoHandler.IO_WriteHandler() {

@@ -1,12 +1,22 @@
 package jdos.util;
 
-import jdos.cpu.core_normal.Prefix_helpers;
-
 public class LongHelper {
     public static boolean isLessThanUnsigned(long n1, long n2) {
       return (n1 < n2) ^ ((n1 < 0) != (n2 < 0));
     }
+    public static boolean isLessThanOrEqualUnsigned(long n1, long n2) {
+          return n1==n2 || ((n1 < n2) ^ ((n1 < 0) != (n2 < 0)));
+    }
 
+    public static long unsignedDiv(long l1, long l2) {
+        long unsignedRes = 0L;
+        if (l1 >= 0L) {
+            if (l2 >= 0L)
+                unsignedRes = l1 / l2;
+        } else if (l2 >= 0L && (l1 -= (unsignedRes = ((l1 >>> 1) / l2) << 1) * l2) < 0L || l1 >= l2)
+            unsignedRes++;
+        return unsignedRes;
+    }
     /*
      *  Licensed to the Apache Software Foundation (ASF) under one or more
      *  contributor license agreements.  See the NOTICE file distributed with

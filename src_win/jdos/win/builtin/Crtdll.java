@@ -31,19 +31,19 @@ public class Crtdll extends BuiltinModule {
         // use fpu stack
         // pop y
         // pop x
-        double y = FPU.fpu.regs[FPU.fpu.top].d;
+        double y = FPU.regs[FPU.top];
         FPU.FPU_FPOP();
-        double x = FPU.fpu.regs[FPU.fpu.top].d;
-        FPU.fpu.regs[FPU.fpu.top].d = Math.pow(x, y);
+        double x = FPU.regs[FPU.top];
+        FPU.regs[FPU.top] = Math.pow(x, y);
         if (LOG)
-            log(x+"^"+y+"="+FPU.fpu.regs[FPU.fpu.top].d);
+            log(x+"^"+y+"="+ FPU.regs[FPU.top]);
     }
 
     public static void _ftol() {
         // :TODO: is this right?
-        long result = (long)FPU.fpu.regs[FPU.fpu.top].d;
+        long result = (long) FPU.regs[FPU.top];
         if (LOG)
-            log(FPU.fpu.regs[FPU.fpu.top].d+" -> "+result);
+            log(FPU.regs[FPU.top]+" -> "+result);
         FPU.FPU_FPOP();
         CPU_Regs.reg_eax.dword = (int)result;
         CPU_Regs.reg_edx.dword = (int)(result >>> 32);

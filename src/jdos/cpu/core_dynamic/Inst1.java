@@ -6476,7 +6476,7 @@ public class Inst1 extends Helper {
 
         public FPU0_ea(int rm) {
             this.rm = rm;
-                get_eaa= Mod.getEaa(rm);
+            get_eaa= Mod.getEaa(rm);
         }
 
         public int call() {

@@ -3,6 +3,7 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.CPU;
 import jdos.cpu.Core;
 import jdos.cpu.StringOp;
+import jdos.fpu.FPU;
 
 public class Prefix_none extends Helper {
     static public void init(Decode[] ops) {
@@ -2422,9 +2423,35 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU0_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU0_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FADD_ST0_STj(rm); break;
+                            case 1: prev.next = new InstFPU.FMUL_ST0_STj(rm); break;
+                            case 2: prev.next = new InstFPU.FCOM_STi(rm, false); break;
+                            case 3: prev.next = new InstFPU.FCOM_STi(rm, true); break;
+                            case 4: prev.next = new InstFPU.FSUB_ST0_STj(rm); break;
+                            case 5: prev.next = new InstFPU.FSUBR_ST0_STj(rm); break;
+                            case 6: prev.next = new InstFPU.FDIV_ST0_STj(rm); break;
+                            case 7: prev.next = new InstFPU.FDIVR_ST0_STj(rm); break;
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU0_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU0_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FADD_SINGLE_REAL(rm); break;
+                            case 1: prev.next = new InstFPU.FMUL_SINGLE_REAL(rm); break;
+                            case 2: prev.next = new InstFPU.FCOM_SINGLE_REAL(rm, false); break;
+                            case 3: prev.next = new InstFPU.FCOM_SINGLE_REAL(rm, true); break;
+                            case 4: prev.next = new InstFPU.FSUB_SINGLE_REAL(rm); break;
+                            case 5: prev.next = new InstFPU.FSUBR_SINGLE_REAL(rm); break;
+                            case 6: prev.next = new InstFPU.FDIV_SINGLE_REAL(rm); break;
+                            case 7: prev.next = new InstFPU.FDIVR_SINGLE_REAL(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }
@@ -2436,9 +2463,87 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU1_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU1_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FLD_STi(rm); break;
+                            case 1: prev.next = new InstFPU.FXCH_STi(rm); break;
+                            case 2: prev.next = new InstFPU.FNOP(); break;
+                            case 3: prev.next = new InstFPU.FST_STi(rm, true); break;
+                            case 4:
+                            {
+                                switch (rm & 7) {
+                                    case 0: prev.next = new InstFPU.FCHS(); break;
+                                    case 1: prev.next = new InstFPU.FABS(); break;
+                                    case 2: prev.next = new Inst1.FPU1_normal(rm); break;
+                                    case 3: prev.next = new Inst1.FPU1_normal(rm); break;
+                                    case 4: prev.next = new InstFPU.FTST(); break;
+                                    case 5: prev.next = new InstFPU.FXAM(); break;
+                                    case 6: prev.next = new Inst1.FPU1_normal(rm); break;
+                                    case 7: prev.next = new Inst1.FPU1_normal(rm); break;
+                                }
+                                break;
+                            }
+                            case 5:
+                            {
+                                switch (rm & 7) {
+                                    case 0: prev.next = new InstFPU.FLD1(); break;
+                                    case 1: prev.next = new InstFPU.FLDL2T(); break;
+                                    case 2: prev.next = new InstFPU.FLDL2E(); break;
+                                    case 3: prev.next = new InstFPU.FLDPI(); break;
+                                    case 4: prev.next = new InstFPU.FLDLG2(); break;
+                                    case 5: prev.next = new InstFPU.FLDLN2(); break;
+                                    case 6: prev.next = new InstFPU.FLDZ(); break;
+                                    case 7: prev.next = new Inst1.FPU1_normal(rm); break;
+                                }
+                                break;
+                            }
+                            case 6:
+                            {
+                                switch (rm & 7) {
+                                    case 0: prev.next = new InstFPU.F2XM1(); break;
+                                    case 1: prev.next = new InstFPU.FYL2X(); break;
+                                    case 2: prev.next = new InstFPU.FPTAN(); break;
+                                    case 3: prev.next = new InstFPU.FPATAN(); break;
+                                    case 4: prev.next = new InstFPU.FXTRACT(); break;
+                                    case 5: prev.next = new InstFPU.FPREM(true); break;
+                                    case 6: prev.next = new InstFPU.FDECSTP(); break;
+                                    case 7: prev.next = new InstFPU.FINCSTP(); break;
+                                }
+                                break;
+                            }
+                            case 7:
+                            {
+                                switch (rm & 7) {
+                                    case 0: prev.next = new InstFPU.FPREM(false); break;
+                                    case 1: prev.next = new InstFPU.FYL2XP1(); break;
+                                    case 2: prev.next = new InstFPU.FSQRT(); break;
+                                    case 3: prev.next = new InstFPU.FSINCOS(); break;
+                                    case 4: prev.next = new InstFPU.FRNDINT(); break;
+                                    case 5: prev.next = new InstFPU.FSCALE(); break;
+                                    case 6: prev.next = new InstFPU.FSIN(); break;
+                                    case 7: prev.next = new InstFPU.FCOS(); break;
+                                }
+                                break;
+                            }
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU1_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU1_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FLD_SINGLE_REAL(rm); break;
+                            case 1: prev.next = new Inst1.FPU2_ea(rm); break;
+                            case 2: prev.next = new InstFPU.FST_SINGLE_REAL(rm, false); break;
+                            case 3: prev.next = new InstFPU.FST_SINGLE_REAL(rm, true); break;
+                            case 4: prev.next = new InstFPU.FLDENV(rm); break;
+                            case 5: prev.next = new InstFPU.FLDCW(rm); break;
+                            case 6: prev.next = new InstFPU.FNSTENV(rm); break;
+                            case 7: prev.next = new InstFPU.FNSTCW(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }
@@ -2450,9 +2555,41 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU2_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU2_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FCMOV_ST0_STj_CF(rm); break;
+                            case 1: prev.next = new InstFPU.FCMOV_ST0_STj_ZF(rm); break;
+                            case 2: prev.next = new InstFPU.FCMOV_ST0_STj_CF_OR_ZF(rm); break;
+                            case 3: prev.next = new InstFPU.FCMOV_ST0_STj_PF(rm); break;
+                            case 5:
+                            {
+                                if ((rm & 7)==5) {
+                                    prev.next = new InstFPU.FUCOMPP();
+                                } else {
+                                    prev.next = new Inst1.FPU2_normal(rm);
+                                }
+                            }
+                            default:
+                                prev.next = new Inst1.FPU2_normal(rm);
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU2_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU2_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FIADD_DWORD_INTEGER(rm); break;
+                            case 1: prev.next = new InstFPU.FIMUL_DWORD_INTEGER(rm); break;
+                            case 2: prev.next = new InstFPU.FICOM_DWORD_INTEGER(rm, false); break;
+                            case 3: prev.next = new InstFPU.FICOM_DWORD_INTEGER(rm, true); break;
+                            case 4: prev.next = new InstFPU.FISUB_DWORD_INTEGER(rm); break;
+                            case 5: prev.next = new InstFPU.FISUBR_DWORD_INTEGER(rm); break;
+                            case 6: prev.next = new InstFPU.FIDIV_DWORD_INTEGER(rm); break;
+                            case 7: prev.next = new InstFPU.FIDIVR_DWORD_INTEGER(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }
@@ -2464,9 +2601,45 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU3_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU3_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FCMOV_ST0_STj_NCF(rm); break;
+                            case 1: prev.next = new InstFPU.FCMOV_ST0_STj_NZF(rm); break;
+                            case 2: prev.next = new InstFPU.FCMOV_ST0_STj_NCF_AND_NZF(rm); break;
+                            case 3: prev.next = new InstFPU.FCMOV_ST0_STj_NPF(rm); break;
+                            case 4:
+                            {
+                                switch (rm & 7) {
+                                    case 2:prev.next = new InstFPU.FNCLEX();
+                                    case 3:prev.next = new InstFPU.FNINIT();
+                                    default:prev.next = new Inst1.FPU3_normal(rm);
+
+                                }
+                                break;
+                            }
+                            case 5: prev.next = new InstFPU.FUCOMI_ST0_STj(rm, false); break;
+                            case 6: prev.next = new InstFPU.FCOMI_ST0_STj(rm, false); break;
+                            default:
+                                prev.next = new Inst1.FPU3_normal(rm);
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU3_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU3_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FILD_DWORD_INTEGER(rm); break;
+                            case 1: prev.next = new InstFPU.FISTTP32(rm); break;
+                            case 2: prev.next = new InstFPU.FIST_DWORD_INTEGER(rm, false); break;
+                            case 3: prev.next = new InstFPU.FIST_DWORD_INTEGER(rm, true); break;
+                            case 4: prev.next = new Inst1.FPU3_ea(rm); break;
+                            case 5: prev.next = new InstFPU.FLD_EXTENDED_REAL(rm); break;
+                            case 6: prev.next = new Inst1.FPU3_ea(rm); break;
+                            case 7: prev.next = new InstFPU.FSTP_EXTENDED_REAL(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }
@@ -2478,9 +2651,35 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU4_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU4_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FADD_STi_ST0(rm, false); break;
+                            case 1: prev.next = new InstFPU.FMUL_STi_ST0(rm, false); break;
+                            case 2: prev.next = new InstFPU.FCOM_STi(rm, false); break;
+                            case 3: prev.next = new InstFPU.FCOM_STi(rm, true); break;
+                            case 4: prev.next = new InstFPU.FSUBR_STi_ST0(rm, false); break;
+                            case 5: prev.next = new InstFPU.FSUB_STi_ST0(rm, false); break;
+                            case 6: prev.next = new InstFPU.FDIVR_STi_ST0(rm, false); break;
+                            case 7: prev.next = new InstFPU.FDIV_STi_ST0(rm, false); break;
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU4_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU4_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FADD_DOUBLE_REAL(rm); break;
+                            case 1: prev.next = new InstFPU.FMUL_DOUBLE_REAL(rm); break;
+                            case 2: prev.next = new InstFPU.FCOM_DOUBLE_REAL(rm, false); break;
+                            case 3: prev.next = new InstFPU.FCOM_DOUBLE_REAL(rm, true); break;
+                            case 4: prev.next = new InstFPU.FSUB_DOUBLE_REAL(rm); break;
+                            case 5: prev.next = new InstFPU.FSUBR_DOUBLE_REAL(rm); break;
+                            case 6: prev.next = new InstFPU.FDIV_DOUBLE_REAL(rm); break;
+                            case 7: prev.next = new InstFPU.FDIVR_DOUBLE_REAL(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }
@@ -2492,9 +2691,34 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU5_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU5_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FFREE_STi(rm); break;
+                            case 1: prev.next = new InstFPU.FXCH_STi(rm); break;
+                            case 2: prev.next = new InstFPU.FST_STi(rm, false); break;
+                            case 3: prev.next = new InstFPU.FST_STi(rm, true); break;
+                            case 4: prev.next = new InstFPU.FUCOM_STi(rm, false); break;
+                            case 5: prev.next = new InstFPU.FUCOM_STi(rm, true); break;
+                            default: prev.next = new Inst1.FPU5_normal(rm);
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU5_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU5_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FLD_DOUBLE_REAL(rm); break;
+                            case 1: prev.next = new InstFPU.FISTTP64(rm); break;
+                            case 2: prev.next = new InstFPU.FST_DOUBLE_REAL(rm, false); break;
+                            case 3: prev.next = new InstFPU.FST_DOUBLE_REAL(rm, true); break;
+                            case 4: prev.next = new InstFPU.FRSTOR(rm); break;
+                            case 5: prev.next = new Inst1.FPU5_ea(rm); break;
+                            case 6: prev.next = new InstFPU.FNSAVE(rm); break;
+                            case 7: prev.next = new InstFPU.FNSTSW(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }
@@ -2506,9 +2730,42 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU6_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU6_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FADD_STi_ST0(rm, true); break;
+                            case 1: prev.next = new InstFPU.FMUL_STi_ST0(rm, true); break;
+                            case 2: prev.next = new InstFPU.FCOM_STi(rm, true); break;
+                            case 3:
+                            {
+                                if ((rm & 7) == 1)
+                                    prev.next = new InstFPU.FCOMPP();
+                                else
+                                    prev.next = new Inst1.FPU6_normal(rm);
+                            }
+                            break;
+                            case 4: prev.next = new InstFPU.FSUBR_STi_ST0(rm, true); break;
+                            case 5: prev.next = new InstFPU.FSUB_STi_ST0(rm, true); break;
+                            case 6: prev.next = new InstFPU.FDIVR_STi_ST0(rm, true); break;
+                            case 7: prev.next = new InstFPU.FDIV_STi_ST0(rm, true); break;
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU6_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU6_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FIADD_WORD_INTEGER(rm); break;
+                            case 1: prev.next = new InstFPU.FIMUL_WORD_INTEGER(rm); break;
+                            case 2: prev.next = new InstFPU.FICOM_WORD_INTEGER(rm, false); break;
+                            case 3: prev.next = new InstFPU.FICOM_WORD_INTEGER(rm, true); break;
+                            case 4: prev.next = new InstFPU.FISUB_WORD_INTEGER(rm); break;
+                            case 5: prev.next = new InstFPU.FISUBR_WORD_INTEGER(rm); break;
+                            case 6: prev.next = new InstFPU.FIDIV_WORD_INTEGER(rm); break;
+                            case 7: prev.next = new InstFPU.FIDIVR_WORD_INTEGER(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }
@@ -2520,9 +2777,42 @@ public class Prefix_none extends Helper {
             final public int call(Op prev) {
                 int rm = decode_fetchb();
                 if (rm >= 0xc0) {
-                    prev.next = new Inst1.FPU7_normal(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU7_normal(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FFREEP_STi(rm); break;
+                            case 1: prev.next = new InstFPU.FXCH_STi(rm); break;
+                            case 2:
+                            case 3: prev.next = new InstFPU.FST_STi(rm, true); break;
+                            case 4:
+                            {
+                                if ((rm & 7)==0)
+                                    prev.next = new InstFPU.FNSTSW_AX();
+                                else
+                                    prev.next = new Inst1.FPU7_normal(rm);
+                            }
+                            break;
+                            case 5: prev.next = new InstFPU.FUCOMI_ST0_STj(rm, true); break;
+                            case 6: prev.next = new InstFPU.FCOMI_ST0_STj(rm, true); break;
+                            case 7: prev.next = new Inst1.FPU7_normal(rm); break;
+                        }
+                    }
                 } else {
-                    prev.next = new Inst1.FPU7_ea(rm);
+                    if (FPU.softFPU || !FPU.shouldInline) {
+                        prev.next = new Inst1.FPU7_ea(rm);
+                    } else {
+                        switch ((rm >> 3) & 7) {
+                            case 0: prev.next = new InstFPU.FILD_WORD_INTEGER(rm); break;
+                            case 1: prev.next = new InstFPU.FISTTP16(rm); break;
+                            case 2: prev.next = new InstFPU.FIST_WORD_INTEGER(rm, false); break;
+                            case 3: prev.next = new InstFPU.FIST_WORD_INTEGER(rm, true); break;
+                            case 4: prev.next = new InstFPU.FBLD_PACKED_BCD(rm); break;
+                            case 5: prev.next = new InstFPU.FILD_QWORD_INTEGER(rm); break;
+                            case 6: prev.next = new InstFPU.FBSTP_PACKED_BCD(rm); break;
+                            case 7: prev.next = new InstFPU.FISTP_QWORD_INTEGER(rm); break;
+                        }
+                    }
                 }
                 return RESULT_HANDLED;
             }

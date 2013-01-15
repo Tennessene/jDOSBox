@@ -2702,6 +2702,7 @@ public class Compiler extends Helper {
                     declareShortVal(method);
                     method.append("sval = (short)");
                     method.append(nameGet16(o.reg));
+                    method.append(";");
                     memory_start(o.get_eaa, seg, method);
                     method.append(";{short bound_min, bound_max;");
                     method.append("bound_min=(short)Memory.mem_readw(eaa); bound_max=(short)Memory.mem_readw(eaa+2);if ( (sval < bound_min) || (sval > bound_max) ) {").append(preException).append("return EXCEPTION(5);}}");
@@ -2715,7 +2716,7 @@ public class Compiler extends Helper {
                     declareVal(method);
                     method.append("val=");
                     method.append(nameGet16(o.earw));
-                    method.append(");val=CPU.CPU_ARPL(val,");
+                    method.append(";val=CPU.CPU_ARPL(val,");
                     method.append(nameGet16(o.rw));
                     method.append(");");                    
                     nameSet16(o.earw, "val", method);
@@ -4782,11 +4783,11 @@ public class Compiler extends Helper {
                     Grp2.ROLB_reg_cl o = (Grp2.ROLB_reg_cl) op;
                     declareVal(method);
                     method.append("val = CPU_Regs.reg_ecx.low() & 0x1f;");
-                    declareVal(method);
-                    method.append("val = ");
+                    declareVal2(method);
+                    method.append("val2 = ");
                     method.append(nameGet8(o.earb));
-                    method.append(";if (Instructions.valid_ROLB(val, val))");
-                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(val, val)"));
+                    method.append(";if (Instructions.valid_ROLB(val2, val))");
+                    method.append(nameSet8(o.earb, "Instructions.do_ROLB(val, val2)"));
                     method.append(";");
                     return true;
                 }
@@ -5052,12 +5053,10 @@ public class Compiler extends Helper {
             case 0xd7: // XLAT
             case 0x2d7:
                 if (op instanceof Inst1.Xlat32) {
-                    Inst1.Xlat32 o = (Inst1.Xlat32) op;
                     method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.ds);method.append("+CPU_Regs.reg_ebx.dword+CPU_Regs.reg_eax.low()));");
                     return true;
                 }
                 if (op instanceof Inst1.Xlat16) {
-                    Inst1.Xlat16 o = (Inst1.Xlat16) op;
                     method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.ds);method.append("+((CPU_Regs.reg_ebx.word()+CPU_Regs.reg_eax.low()) & 0xFFFF)));");
                     return true;
                 }
@@ -5071,11 +5070,115 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
+                if (op instanceof InstFPU.FADD_ST0_STj) {
+                    InstFPU.FADD_ST0_STj o = (InstFPU.FADD_ST0_STj) op;
+                    method.append("FPU.FADD_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FMUL_ST0_STj) {
+                    InstFPU.FMUL_ST0_STj o = (InstFPU.FMUL_ST0_STj) op;
+                    method.append("FPU.FMUL_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOM_STi) {
+                    InstFPU.FCOM_STi o = (InstFPU.FCOM_STi) op;
+                    method.append("FPU.FCOM_STi(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUB_ST0_STj) {
+                    InstFPU.FSUB_ST0_STj o = (InstFPU.FSUB_ST0_STj) op;
+                    method.append("FPU.FSUB_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUBR_ST0_STj) {
+                    InstFPU.FSUBR_ST0_STj o = (InstFPU.FSUBR_ST0_STj) op;
+                    method.append("FPU.FSUBR_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIV_ST0_STj) {
+                    InstFPU.FDIV_ST0_STj o = (InstFPU.FDIV_ST0_STj) op;
+                    method.append("FPU.FDIV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIVR_ST0_STj) {
+                    InstFPU.FDIVR_ST0_STj o = (InstFPU.FDIVR_ST0_STj) op;
+                    method.append("FPU.FDIVR_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
                 if (op instanceof Inst1.FPU0_ea) {
                     Inst1.FPU0_ea o = (Inst1.FPU0_ea) op;
                     method.append("FPU.FPU_ESC0_EA(");
                     method.append(o.rm);
                     method.append(",");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FADD_SINGLE_REAL) {
+                    InstFPU.FADD_SINGLE_REAL o = (InstFPU.FADD_SINGLE_REAL) op;
+                    method.append("FPU.FADD_SINGLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FMUL_SINGLE_REAL) {
+                    InstFPU.FMUL_SINGLE_REAL o = (InstFPU.FMUL_SINGLE_REAL) op;
+                    method.append("FPU.FMUL_SINGLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOM_SINGLE_REAL) {
+                    if (op instanceof InstFPU.FCOM_SINGLE_REAL) {
+                        InstFPU.FCOM_SINGLE_REAL o = (InstFPU.FCOM_SINGLE_REAL) op;
+                        method.append("FPU.FCOM_SINGLE_REAL(");
+                        toStringValue(o.get_eaa, seg, method);
+                        method.append(",");
+                        method.append(o.pop);
+                        method.append(");");
+                        return true;
+                    }
+                }
+                if (op instanceof InstFPU.FSUB_SINGLE_REAL) {
+                    InstFPU.FSUB_SINGLE_REAL o = (InstFPU.FSUB_SINGLE_REAL) op;
+                    method.append("FPU.FSUB_SINGLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUBR_SINGLE_REAL) {
+                    InstFPU.FSUBR_SINGLE_REAL o = (InstFPU.FSUBR_SINGLE_REAL) op;
+                    method.append("FPU.FSUBR_SINGLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIV_SINGLE_REAL) {
+                    InstFPU.FDIV_SINGLE_REAL o = (InstFPU.FDIV_SINGLE_REAL) op;
+                    method.append("FPU.FDIV_SINGLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIVR_SINGLE_REAL) {
+                    InstFPU.FDIVR_SINGLE_REAL o = (InstFPU.FDIVR_SINGLE_REAL) op;
+                    method.append("FPU.FDIVR_SINGLE_REAL(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
@@ -5090,11 +5193,189 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
+                if (op instanceof InstFPU.FLD_STi) {
+                    InstFPU.FLD_STi o = (InstFPU.FLD_STi) op;
+                    method.append("FPU.FLD_STi(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FXCH_STi) {
+                    InstFPU.FXCH_STi o = (InstFPU.FXCH_STi) op;
+                    method.append("FPU.FXCH_STi(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FNOP) {
+                    method.append("FPU.FNOP();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FST_STi) {
+                    InstFPU.FST_STi o = (InstFPU.FST_STi) op;
+                    method.append("FPU.FST_STi(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCHS) {
+                    method.append("FPU.FCHS();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FABS) {
+                    method.append("FPU.FABS();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FTST) {
+                    method.append("FPU.FTST();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FXAM) {
+                    method.append("FPU.FXAM();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLD1) {
+                    method.append("FPU.FLD1();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDL2T) {
+                    method.append("FPU.FLDL2T();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDL2E) {
+                    method.append("FPU.FLDL2E();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDPI) {
+                    method.append("FPU.FLDPI();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDLG2) {
+                    method.append("FPU.FLDLG2();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDLN2) {
+                    method.append("FPU.FLDLN2();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDZ) {
+                    method.append("FPU.FLDZ();");
+                    return true;
+                }
+                if (op instanceof InstFPU.F2XM1) {
+                    method.append("FPU.F2XM1();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FYL2X) {
+                    method.append("FPU.FYL2X();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FPTAN) {
+                    method.append("FPU.FPTAN();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FPATAN) {
+                    method.append("FPU.FPATAN();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FXTRACT) {
+                    method.append("FPU.FXTRACT();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FPREM) {
+                    InstFPU.FPREM o = (InstFPU.FPREM)op;
+                    method.append("FPU.FPREM(");
+                    method.append(o.bRoundNearest);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDECSTP) {
+                    method.append("FPU.FDECSTP();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FINCSTP) {
+                    method.append("FPU.FINCSTP();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FYL2XP1) {
+                    method.append("FPU.FYL2XP1();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSQRT) {
+                    method.append("FPU.FSQRT();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSINCOS) {
+                    method.append("FPU.FSINCOS();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FRNDINT) {
+                    method.append("FPU.FRNDINT();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSCALE) {
+                    method.append("FPU.FSCALE();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSIN) {
+                    method.append("FPU.FSIN();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOS) {
+                    method.append("FPU.FCOS();");
+                    return true;
+                }
                 if (op instanceof Inst1.FPU1_ea) {
                     Inst1.FPU1_ea o = (Inst1.FPU1_ea) op;
                     method.append("FPU.FPU_ESC1_EA(");
                     method.append(o.rm);
                     method.append(",");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLD_SINGLE_REAL) {
+                    InstFPU.FLD_SINGLE_REAL o = (InstFPU.FLD_SINGLE_REAL) op;
+                    method.append("FPU.FLD_SINGLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FST_SINGLE_REAL) {
+                    InstFPU.FST_SINGLE_REAL o = (InstFPU.FST_SINGLE_REAL) op;
+                    method.append("FPU.FST_SINGLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDENV) {
+                    InstFPU.FLDENV o = (InstFPU.FLDENV) op;
+                    method.append("FPU.FLDENV(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLDCW) {
+                    InstFPU.FLDCW o = (InstFPU.FLDCW) op;
+                    method.append("FPU.FLDCW(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FNSTENV) {
+                    InstFPU.FNSTENV o = (InstFPU.FNSTENV) op;
+                    method.append("FPU.FNSTENV(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FNSTCW) {
+                    InstFPU.FNSTCW o = (InstFPU.FNSTCW) op;
+                    method.append("FPU.FNSTCW(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
@@ -5109,11 +5390,97 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_CF) {
+                    InstFPU.FCMOV_ST0_STj_CF o = (InstFPU.FCMOV_ST0_STj_CF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", Flags.get_CF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_ZF) {
+                    InstFPU.FCMOV_ST0_STj_ZF o = (InstFPU.FCMOV_ST0_STj_ZF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", Flags.get_ZF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_CF_OR_ZF) {
+                    InstFPU.FCMOV_ST0_STj_CF_OR_ZF o = (InstFPU.FCMOV_ST0_STj_CF_OR_ZF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", Flags.get_CF() || Flags.get_ZF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_PF) {
+                    InstFPU.FCMOV_ST0_STj_PF o = (InstFPU.FCMOV_ST0_STj_PF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", Flags.get_PF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FUCOMPP) {
+                    method.append("FPU.FUCOMPP();");
+                }
                 if (op instanceof Inst1.FPU2_ea) {
                     Inst1.FPU2_ea o = (Inst1.FPU2_ea) op;
                     method.append("FPU.FPU_ESC2_EA(");
                     method.append(o.rm);
                     method.append(",");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIADD_DWORD_INTEGER) {
+                    InstFPU.FIADD_DWORD_INTEGER o = (InstFPU.FIADD_DWORD_INTEGER) op;
+                    method.append("FPU.FIADD_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIMUL_DWORD_INTEGER) {
+                    InstFPU.FIMUL_DWORD_INTEGER o = (InstFPU.FIMUL_DWORD_INTEGER) op;
+                    method.append("FPU.FIMUL_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FICOM_DWORD_INTEGER) {
+                    InstFPU.FICOM_DWORD_INTEGER o = (InstFPU.FICOM_DWORD_INTEGER) op;
+                    method.append("FPU.FICOM_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FISUB_DWORD_INTEGER) {
+                    InstFPU.FISUB_DWORD_INTEGER o = (InstFPU.FISUB_DWORD_INTEGER) op;
+                    method.append("FPU.FISUB_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FISUBR_DWORD_INTEGER) {
+                    InstFPU.FISUBR_DWORD_INTEGER o = (InstFPU.FISUBR_DWORD_INTEGER) op;
+                    method.append("FPU.FISUBR_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIDIV_DWORD_INTEGER) {
+                    InstFPU.FIDIV_DWORD_INTEGER o = (InstFPU.FIDIV_DWORD_INTEGER) op;
+                    method.append("FPU.FIDIV_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIDIVR_DWORD_INTEGER) {
+                    InstFPU.FIDIVR_DWORD_INTEGER o = (InstFPU.FIDIVR_DWORD_INTEGER) op;
+                    method.append("FPU.FIDIVR_DWORD_INTEGER(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
@@ -5128,11 +5495,104 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_NCF) {
+                    InstFPU.FCMOV_ST0_STj_NCF o = (InstFPU.FCMOV_ST0_STj_NCF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", !Flags.get_CF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_NZF) {
+                    InstFPU.FCMOV_ST0_STj_NZF o = (InstFPU.FCMOV_ST0_STj_NZF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", !Flags.get_ZF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_NCF_AND_NZF) {
+                    InstFPU.FCMOV_ST0_STj_NCF_AND_NZF o = (InstFPU.FCMOV_ST0_STj_NCF_AND_NZF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", !Flags.get_CF() && !Flags.get_ZF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCMOV_ST0_STj_NPF) {
+                    InstFPU.FCMOV_ST0_STj_NPF o = (InstFPU.FCMOV_ST0_STj_NPF) op;
+                    method.append("FPU.FCMOV_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(", !Flags.get_PF()");
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FUCOMPP) {
+                    method.append("FPU.FNCLEX();");
+                }
+                if (op instanceof InstFPU.FNINIT) {
+                    method.append("FPU.FNINIT();");
+                }
+                if (op instanceof InstFPU.FUCOMI_ST0_STj) {
+                    InstFPU.FUCOMI_ST0_STj o = (InstFPU.FUCOMI_ST0_STj) op;
+                    method.append("FPU.FUCOMI_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOMI_ST0_STj) {
+                    InstFPU.FCOMI_ST0_STj o = (InstFPU.FCOMI_ST0_STj) op;
+                    method.append("FPU.FCOMI_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
                 if (op instanceof Inst1.FPU3_ea) {
                     Inst1.FPU3_ea o = (Inst1.FPU3_ea) op;
                     method.append("FPU.FPU_ESC3_EA(");
                     method.append(o.rm);
                     method.append(",");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FILD_DWORD_INTEGER) {
+                    InstFPU.FILD_DWORD_INTEGER o = (InstFPU.FILD_DWORD_INTEGER) op;
+                    method.append("FPU.FILD_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FISTTP32) {
+                    InstFPU.FISTTP32 o = (InstFPU.FISTTP32) op;
+                    method.append("FPU.FISTTP32(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIST_DWORD_INTEGER) {
+                    InstFPU.FIST_DWORD_INTEGER o = (InstFPU.FIST_DWORD_INTEGER) op;
+                    method.append("FPU.FIST_DWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLD_EXTENDED_REAL) {
+                    InstFPU.FLD_EXTENDED_REAL o = (InstFPU.FLD_EXTENDED_REAL) op;
+                    method.append("FPU.FLD_EXTENDED_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSTP_EXTENDED_REAL) {
+                    InstFPU.FSTP_EXTENDED_REAL o = (InstFPU.FSTP_EXTENDED_REAL) op;
+                    method.append("FPU.FSTP_EXTENDED_REAL(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
@@ -5147,11 +5607,125 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
+                if (op instanceof InstFPU.FADD_STi_ST0) {
+                    InstFPU.FADD_STi_ST0 o = (InstFPU.FADD_STi_ST0) op;
+                    method.append("FPU.FADD_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FMUL_STi_ST0) {
+                    InstFPU.FMUL_STi_ST0 o = (InstFPU.FMUL_STi_ST0) op;
+                    method.append("FPU.FMUL_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOM_STi) {
+                    InstFPU.FCOM_STi o = (InstFPU.FCOM_STi) op;
+                    method.append("FPU.FCOM_STi(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUBR_STi_ST0) {
+                    InstFPU.FSUBR_STi_ST0 o = (InstFPU.FSUBR_STi_ST0) op;
+                    method.append("FPU.FSUBR_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUB_STi_ST0) {
+                    InstFPU.FSUB_STi_ST0 o = (InstFPU.FSUB_STi_ST0) op;
+                    method.append("FPU.FSUB_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIVR_STi_ST0) {
+                    InstFPU.FDIVR_STi_ST0 o = (InstFPU.FDIVR_STi_ST0) op;
+                    method.append("FPU.FDIVR_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIV_STi_ST0) {
+                    InstFPU.FDIV_STi_ST0 o = (InstFPU.FDIV_STi_ST0) op;
+                    method.append("FPU.FDIV_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
                 if (op instanceof Inst1.FPU4_ea) {
                     Inst1.FPU4_ea o = (Inst1.FPU4_ea) op;
                     method.append("FPU.FPU_ESC4_EA(");
                     method.append(o.rm);
                     method.append(",");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FADD_DOUBLE_REAL) {
+                    InstFPU.FADD_DOUBLE_REAL o = (InstFPU.FADD_DOUBLE_REAL) op;
+                    method.append("FPU.FADD_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FMUL_DOUBLE_REAL) {
+                    InstFPU.FMUL_DOUBLE_REAL o = (InstFPU.FMUL_DOUBLE_REAL) op;
+                    method.append("FPU.FMUL_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOM_DOUBLE_REAL) {
+                    InstFPU.FCOM_DOUBLE_REAL o = (InstFPU.FCOM_DOUBLE_REAL) op;
+                    method.append("FPU.FCOM_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUB_DOUBLE_REAL) {
+                    InstFPU.FSUB_DOUBLE_REAL o = (InstFPU.FSUB_DOUBLE_REAL) op;
+                    method.append("FPU.FSUB_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUBR_DOUBLE_REAL) {
+                    InstFPU.FSUBR_DOUBLE_REAL o = (InstFPU.FSUBR_DOUBLE_REAL) op;
+                    method.append("FPU.FSUBR_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIV_DOUBLE_REAL) {
+                    InstFPU.FDIV_DOUBLE_REAL o = (InstFPU.FDIV_DOUBLE_REAL) op;
+                    method.append("FPU.FDIV_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIVR_DOUBLE_REAL) {
+                    InstFPU.FDIVR_DOUBLE_REAL o = (InstFPU.FDIVR_DOUBLE_REAL) op;
+                    method.append("FPU.FDIVR_DOUBLE_REAL(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
@@ -5166,11 +5740,87 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
+                if (op instanceof InstFPU.FFREE_STi) {
+                    InstFPU.FFREE_STi o = (InstFPU.FFREE_STi) op;
+                    method.append("FPU.FFREE_STi(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FXCH_STi) {
+                    InstFPU.FXCH_STi o = (InstFPU.FXCH_STi) op;
+                    method.append("FPU.FXCH_STi(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FST_STi) {
+                    InstFPU.FST_STi o = (InstFPU.FST_STi) op;
+                    method.append("FPU.FST_STi(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FUCOM_STi) {
+                    InstFPU.FUCOM_STi o = (InstFPU.FUCOM_STi) op;
+                    method.append("FPU.FUCOM_STi(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
                 if (op instanceof Inst1.FPU5_ea) {
                     Inst1.FPU5_ea o = (Inst1.FPU5_ea) op;
                     method.append("FPU.FPU_ESC5_EA(");
                     method.append(o.rm);
                     method.append(",");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FLD_DOUBLE_REAL) {
+                    InstFPU.FLD_DOUBLE_REAL o = (InstFPU.FLD_DOUBLE_REAL) op;
+                    method.append("FPU.FLD_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FISTTP64) {
+                    InstFPU.FISTTP64 o = (InstFPU.FISTTP64) op;
+                    method.append("FPU.FISTTP64(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FST_DOUBLE_REAL) {
+                    InstFPU.FST_DOUBLE_REAL o = (InstFPU.FST_DOUBLE_REAL) op;
+                    method.append("FPU.FST_DOUBLE_REAL(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FRSTOR) {
+                    InstFPU.FRSTOR o = (InstFPU.FRSTOR) op;
+                    method.append("FPU.FRSTOR(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FNSAVE) {
+                    InstFPU.FNSAVE o = (InstFPU.FNSAVE) op;
+                    method.append("FPU.FNSAVE(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FNSTSW) {
+                    InstFPU.FNSTSW o = (InstFPU.FNSTSW) op;
+                    method.append("FPU.FNSTSW(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
@@ -5185,11 +5835,129 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
+                if (op instanceof InstFPU.FADD_STi_ST0) {
+                    InstFPU.FADD_STi_ST0 o = (InstFPU.FADD_STi_ST0) op;
+                    method.append("FPU.FADD_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FMUL_STi_ST0) {
+                    InstFPU.FMUL_STi_ST0 o = (InstFPU.FMUL_STi_ST0) op;
+                    method.append("FPU.FMUL_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOM_STi) {
+                    InstFPU.FCOM_STi o = (InstFPU.FCOM_STi) op;
+                    method.append("FPU.FCOM_STi(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOMPP) {
+                    method.append("FPU.FCOMPP();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUBR_STi_ST0) {
+                    InstFPU.FSUBR_STi_ST0 o = (InstFPU.FSUBR_STi_ST0) op;
+                    method.append("FPU.FSUBR_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FSUB_STi_ST0) {
+                    InstFPU.FSUB_STi_ST0 o = (InstFPU.FSUB_STi_ST0) op;
+                    method.append("FPU.FSUB_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIVR_STi_ST0) {
+                    InstFPU.FDIVR_STi_ST0 o = (InstFPU.FDIVR_STi_ST0) op;
+                    method.append("FPU.FDIVR_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FDIV_STi_ST0) {
+                    InstFPU.FDIV_STi_ST0 o = (InstFPU.FDIV_STi_ST0) op;
+                    method.append("FPU.FDIV_STi_ST0(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
                 if (op instanceof Inst1.FPU6_ea) {
                     Inst1.FPU6_ea o = (Inst1.FPU6_ea) op;
                     method.append("FPU.FPU_ESC6_EA(");
                     method.append(o.rm);
                     method.append(",");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIADD_WORD_INTEGER) {
+                    InstFPU.FIADD_WORD_INTEGER o = (InstFPU.FIADD_WORD_INTEGER) op;
+                    method.append("FPU.FIADD_WORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIMUL_WORD_INTEGER) {
+                    InstFPU.FIMUL_WORD_INTEGER o = (InstFPU.FIMUL_WORD_INTEGER) op;
+                    method.append("FPU.FIMUL_WORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FICOM_WORD_INTEGER) {
+                    InstFPU.FICOM_WORD_INTEGER o = (InstFPU.FICOM_WORD_INTEGER) op;
+                    method.append("FPU.FICOM_WORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FISUB_WORD_INTEGER) {
+                    InstFPU.FISUB_WORD_INTEGER o = (InstFPU.FISUB_WORD_INTEGER) op;
+                    method.append("FPU.FISUB_WORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FISUBR_WORD_INTEGER) {
+                    InstFPU.FISUBR_WORD_INTEGER o = (InstFPU.FISUBR_WORD_INTEGER) op;
+                    method.append("FPU.FISUBR_WORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIDIV_WORD_INTEGER) {
+                    InstFPU.FIDIV_WORD_INTEGER o = (InstFPU.FIDIV_WORD_INTEGER) op;
+                    method.append("FPU.FIDIV_WORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIDIVR_WORD_INTEGER) {
+                    InstFPU.FIDIVR_WORD_INTEGER o = (InstFPU.FIDIVR_WORD_INTEGER) op;
+                    method.append("FPU.FIDIVR_WORD_INTEGER(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
@@ -5204,16 +5972,95 @@ public class Compiler extends Helper {
                     method.append(");");
                     return true;
                 }
-                if (op instanceof Inst1.FPU7_ea) {
-                    Inst1.FPU7_ea o = (Inst1.FPU7_ea) op;
-                    method.append("FPU.FPU_ESC7_EA(");
+                if (op instanceof InstFPU.FFREEP_STi) {
+                    InstFPU.FFREEP_STi o = (InstFPU.FFREEP_STi) op;
+                    method.append("FPU.FFREEP_STi(");
+                    method.append(o.rm);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FST_STi) {
+                    InstFPU.FST_STi o = (InstFPU.FST_STi) op;
+                    method.append("FPU.FST_STi(");
                     method.append(o.rm);
                     method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FNSTSW_AX) {
+                    method.append("FPU.FNSTSW_AX();");
+                    return true;
+                }
+                if (op instanceof InstFPU.FUCOMI_ST0_STj) {
+                    InstFPU.FUCOMI_ST0_STj o = (InstFPU.FUCOMI_ST0_STj) op;
+                    method.append("FPU.FUCOMI_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FCOMI_ST0_STj) {
+                    InstFPU.FCOMI_ST0_STj o = (InstFPU.FCOMI_ST0_STj) op;
+                    method.append("FPU.FCOMI_ST0_STj(");
+                    method.append(o.rm);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FILD_WORD_INTEGER) {
+                    InstFPU.FILD_WORD_INTEGER o = (InstFPU.FILD_WORD_INTEGER) op;
+                    method.append("FPU.FILD_WORD_INTEGER(");
                     toStringValue(o.get_eaa, seg, method);
                     method.append(");");
                     return true;
                 }
-                break;
+                if (op instanceof InstFPU.FISTTP16) {
+                    InstFPU.FISTTP16 o = (InstFPU.FISTTP16) op;
+                    method.append("FPU.FISTTP16(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FIST_WORD_INTEGER) {
+                    InstFPU.FIST_WORD_INTEGER o = (InstFPU.FIST_WORD_INTEGER) op;
+                    method.append("FPU.FIST_WORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(",");
+                    method.append(o.pop);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FBLD_PACKED_BCD) {
+                    InstFPU.FBLD_PACKED_BCD o = (InstFPU.FBLD_PACKED_BCD) op;
+                    method.append("FPU.FBLD_PACKED_BCD(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FILD_QWORD_INTEGER) {
+                    InstFPU.FILD_QWORD_INTEGER o = (InstFPU.FILD_QWORD_INTEGER) op;
+                    method.append("FPU.FILD_QWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FBSTP_PACKED_BCD) {
+                    InstFPU.FBSTP_PACKED_BCD o = (InstFPU.FBSTP_PACKED_BCD) op;
+                    method.append("FPU.FBSTP_PACKED_BCD(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
+                if (op instanceof InstFPU.FISTP_QWORD_INTEGER) {
+                    InstFPU.FISTP_QWORD_INTEGER o = (InstFPU.FISTP_QWORD_INTEGER) op;
+                    method.append("FPU.FISTP_QWORD_INTEGER(");
+                    toStringValue(o.get_eaa, seg, method);
+                    method.append(");");
+                    return true;
+                }
             case 0xe0: // LOOPNZ
                 if (op instanceof Inst1.Loopnz32) {
                     Inst1.Loopnz32 o = (Inst1.Loopnz32) op;

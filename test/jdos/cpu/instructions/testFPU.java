@@ -51,18 +51,6 @@ public class testFPU extends InstructionsTestCase {
             result |= 0xC0;
         return (byte)result;
     }
-    private boolean isC0() {
-        return (FPU.fpu.sw & 0x0100) != 0;
-    }
-    private boolean isC1() {
-        return (FPU.fpu.sw & 0x0200) != 0;
-    }
-    private boolean isC2() {
-        return (FPU.fpu.sw & 0x0400) != 0;
-    }
-    private boolean isC3() {
-        return (FPU.fpu.sw & 0x4000) != 0;
-    }
 
     private int getStackPos() {
         newInstruction(0xdf);
@@ -987,6 +975,14 @@ public class testFPU extends InstructionsTestCase {
 
         init();
         fldf32(8.0f);
+        fldf32(2.5f);
+        newInstruction(0xd9);
+        pushIb(rm(false, 6, 1));
+        decoder.call();
+        assertTrue(getTopFloat() == 10.575425f);
+
+        init();
+        fldf32(8.0f);
         fldf32(2.0f);
         newInstruction(0xd9);
         pushIb(rm(false, 6, 1));
@@ -1044,36 +1040,75 @@ public class testFPU extends InstructionsTestCase {
         doFYL2X();
     }
 
+    public void doFSQRT() {
+        init();
+        fldf32(0.0f);
+        newInstruction(0xd9);
+        pushIb(rm(false, 7, 2));
+        decoder.call();
+        assertTrue(getTopFloat() == 0.0f);
+
+        init();
+        fldf32(1.0f);
+        newInstruction(0xd9);
+        pushIb(rm(false, 7, 2));
+        decoder.call();
+        assertTrue(getTopFloat() == 1.0f);
+
+        init();
+        fldf32(2.0f);
+        newInstruction(0xd9);
+        pushIb(rm(false, 7, 2));
+        decoder.call();
+        assertTrue(getTopFloat() == 1.4142135f);
+
+        init();
+        fldf32(4.0f);
+        newInstruction(0xd9);
+        pushIb(rm(false, 7, 2));
+        decoder.call();
+        assertTrue(getTopFloat() == 2.0f);
+    }
+
+    public void testFSQRT() {
+        FPU.softFPU = false;
+        doFSQRT();
+    }
+
+    public void testFSQRTSoft() {
+        FPU.softFPU = true;
+        doFSQRT();
+    }
     private float128 createFloat128(float f) {
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
         floatx80 x80 = new floatx80();
-        SoftFloat.float32_to_floatx80(Float.floatToRawIntBits(f), status, x80);
+        SoftFloat80.float32_to_floatx80(Float.floatToRawIntBits(f), status, x80);
         float128 x128 = new float128();
         SoftFloat128.floatx80_to_float128(x80, status, x128);
         return x128;
     }
 
     private float128 createFloat128(double f) {
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
         floatx80 x80 = new floatx80();
-        SoftFloat.float64_to_floatx80(Double.doubleToRawLongBits(f), status, x80);
+        SoftFloat80.float64_to_floatx80(Double.doubleToRawLongBits(f), status, x80);
         float128 x128 = new float128();
         SoftFloat128.floatx80_to_float128(x80, status, x128);
         return x128;
     }
 
     private float floatFrom128(float128 f) {
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
         floatx80 tmp = new floatx80();
         SoftFloat128.float128_to_floatx80(f, status, tmp);
-        return Float.intBitsToFloat(SoftFloat.floatx80_to_float32(tmp, status));
+        return Float.intBitsToFloat(SoftFloat80.floatx80_to_float32(tmp, status));
     }
 
     private double doubleFrom128(float128 f) {
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
         floatx80 tmp = new floatx80();
         SoftFloat128.float128_to_floatx80(f, status, tmp);
-        return Double.longBitsToDouble(SoftFloat.floatx80_to_float64(tmp, status));
+        return Double.longBitsToDouble(SoftFloat80.floatx80_to_float64(tmp, status));
     }
 
     private void do128To256(long a0, long a1, long b0, long b1) {
@@ -1106,7 +1141,7 @@ public class testFPU extends InstructionsTestCase {
 
     private void doMul128(double a, double b) {
         float128 x128 = new float128();
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
         SoftFloat128.float128_mul(createFloat128(a), createFloat128(b), status, x128);
         double result = doubleFrom128(x128);
         assertTrue(result == a *b);
@@ -1114,7 +1149,7 @@ public class testFPU extends InstructionsTestCase {
 
     private void doFloat128_add(double a, double b) {
         float128 x128 = new float128();
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
         SoftFloat128.float128_add(createFloat128(a), createFloat128(b), status, x128);
         double result = doubleFrom128(x128);
         assertTrue(result == a + b);
@@ -1122,14 +1157,25 @@ public class testFPU extends InstructionsTestCase {
 
     private void doFloat128_div(double a, double b) {
         float128 x128 = new float128();
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
         SoftFloat128.float128_div(createFloat128(a), createFloat128(b), status, x128);
         double result = doubleFrom128(x128);
         assertTrue(result == a / b);
     }
 
+    private void doMul64To128(long a, long b) {
+        LongRef l1 = new LongRef(0), l2 = new LongRef(0);
+        SoftFloat80.mul64To128(a, b, l1, l2);
+        BigInteger bi1 = new BigInteger(String.format("%016x", a), 16);
+        BigInteger bi2 = new BigInteger(String.format("%016x", b), 16);
+        String result = bi1.multiply(bi2).toString(16);
+        assertTrue(Long.parseLong(result.substring(result.length()-Math.min(16, result.length())), 16) == l2.value);
+        if (result.length()>16)
+            assertTrue(Long.parseLong(result.substring(0, result.length()-16), 16) == l1.value);
+    }
+
     public void testSoftFloat128() {
-        SoftFloat.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
+        SoftFloat80.float_status_t status = BochsFPU.FPU_pre_exception_handling(0);
 
         // Test that 80 to 128 back to 80 works
         assertTrue(floatFrom128(createFloat128(200.0f)) == 200.0f);
@@ -1166,5 +1212,10 @@ public class testFPU extends InstructionsTestCase {
         doFloat128_div(-12.0, 4.0);
         doFloat128_div(-12.0, -4.0);
         doFloat128_div(123456.0, 1234567.0);
+
+        doMul64To128(0, 0);
+        doMul64To128(1, 1);
+        doMul64To128(11, 11);
+        doMul64To128(1234567890123456l, 23456789012345l);
     }
 }

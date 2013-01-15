@@ -2,7 +2,6 @@ package jdos.debug;
 
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
-import jdos.fpu.FPU;
 import jdos.misc.setup.Section;
 
 import java.io.BufferedOutputStream;
@@ -96,7 +95,7 @@ public class Debug {
             Debug.log(Debug.DS, CPU.Segs_DSphys);
             Debug.log(Debug.FS, CPU.Segs_FSphys);
             Debug.log(Debug.GS, CPU.Segs_GSphys);
-            FPU.log();
+            //FPU.log();
         }
     }
     static public void stop(int type, int c) {
@@ -119,7 +118,7 @@ public class Debug {
             Debug.log(Debug.DS, CPU.Segs_DSphys);
             Debug.log(Debug.FS, CPU.Segs_FSphys);
             Debug.log(Debug.GS, CPU.Segs_GSphys);
-            FPU.log();
+            //FPU.log();
             Debug.log(Debug.DONE, c);
         }
     }

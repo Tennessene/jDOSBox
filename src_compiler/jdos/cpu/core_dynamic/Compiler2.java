@@ -856,26 +856,26 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst3.AdcEdGd_mem) {
                     Inst3.AdcEdGd_mem o = (Inst3.AdcEdGd_mem) op;
-                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "+", "+(Flags.get_CF()?1:0)", "ADCD", seg, method);
+                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "+", "+(("+getB()+")?1:0)", "ADCD", seg, method);
                     return true;
                 }
                 break;
             case 0x213: // ADC Gd,Ed
                 if (op instanceof Inst3.Adcd_reg) {
                     Inst3.Adcd_reg o = (Inst3.Adcd_reg) op;
-                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "+", "+(Flags.get_CF()?1:0)", "ADCD", method);
+                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "+", "+(("+getB()+")?1:0)", "ADCD", method);
                     return true;
                 }
                 if (op instanceof Inst3.AdcGdEd_mem) {
                     Inst3.AdcGdEd_mem o = (Inst3.AdcGdEd_mem) op;
-                    instructionGE((setFlags & o.sets()) == 0, 32, o.e, o.g, "+", "+(Flags.get_CF()?1:0)", "ADCD", seg, method);
+                    instructionGE((setFlags & o.sets()) == 0, 32, o.e, o.g, "+", "+(("+getB()+")?1:0)", "ADCD", seg, method);
                     return true;
                 }
                 break;
             case 0x215: // ADC EAX,Id
                 if (op instanceof Inst3.AdcEaxId) {
                     Inst3.AdcEaxId o = (Inst3.AdcEaxId) op;
-                    instructionAI((setFlags & o.sets())==0, 32, o.i, "+", "+(Flags.get_CF()?1:0)", "ADCD", method);
+                    instructionAI((setFlags & o.sets())==0, 32, o.i, "+", "+(("+getB()+")?1:0)", "ADCD", method);
                     return true;
                 }
                 break;
@@ -896,31 +896,31 @@ public class Compiler2 extends Compiler {
             case 0x219: // SBB Ed,Gd
                 if (op instanceof Inst3.Sbbd_reg) {
                     Inst3.Sbbd_reg o = (Inst3.Sbbd_reg) op;
-                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(Flags.get_CF()?1:0)", "SBBD", method);
+                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(("+getB()+")?1:0)", "SBBD", method);
                     return true;
                 }
                 if (op instanceof Inst3.SbbEdGd_mem) {
                     Inst3.SbbEdGd_mem o = (Inst3.SbbEdGd_mem) op;
-                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(Flags.get_CF()?1:0)", "SBBD", seg, method);
+                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(("+getB()+")?1:0)", "SBBD", seg, method);
                     return true;
                 }
                 break;
             case 0x21b: // SBB Gd,Ed
                 if (op instanceof Inst3.Sbbd_reg) {
                     Inst3.Sbbd_reg o = (Inst3.Sbbd_reg) op;
-                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(Flags.get_CF()?1:0)", "SBBD", method);
+                    instructionEG((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(("+getB()+")?1:0)", "SBBD", method);
                     return true;
                 }
                 if (op instanceof Inst3.SbbGdEd_mem) {
                     Inst3.SbbGdEd_mem o = (Inst3.SbbGdEd_mem) op;
-                    instructionGE((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(Flags.get_CF()?1:0)", "SBBD", seg, method);
+                    instructionGE((setFlags & o.sets()) == 0, 32, o.e, o.g, "-", "-(("+getB()+")?1:0)", "SBBD", seg, method);
                     return true;
                 }
                 break;
             case 0x21d: // SBB EAX,Id
                 if (op instanceof Inst3.SbbEaxId) {
                     Inst3.SbbEaxId o = (Inst3.SbbEaxId) op;
-                    instructionAI((setFlags & o.sets()) == 0, 32, o.i, "-", "-(Flags.get_CF()?1:0)", "SBBD", method);
+                    instructionAI((setFlags & o.sets()) == 0, 32, o.i, "-", "-(("+getB()+")?1:0)", "SBBD", method);
                     return true;
                 }
                 break;
@@ -1616,12 +1616,12 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst3.GrplEdId_reg_adc) {
                     Inst3.GrplEdId_reg_adc o = (Inst3.GrplEdId_reg_adc) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "+", "+(Flags.get_CF()?1:0)", "ADCD", method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "+", "+(("+getB()+")?1:0)", "ADCD", method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_reg_sbb) {
                     Inst3.GrplEdId_reg_sbb o = (Inst3.GrplEdId_reg_sbb) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "-", "-(Flags.get_CF()?1:0)", "SBBD", method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "-", "-(("+getB()+")?1:0)", "SBBD", method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_reg_and) {
@@ -1660,12 +1660,12 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst3.GrplEdId_mem_adc) {
                     Inst3.GrplEdId_mem_adc o = (Inst3.GrplEdId_mem_adc) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "+", "+(Flags.get_CF()?1:0)", "ADCD", seg, method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "+", "+(("+getB()+")?1:0)", "ADCD", seg, method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_mem_sbb) {
                     Inst3.GrplEdId_mem_sbb o = (Inst3.GrplEdId_mem_sbb) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "-", "-(Flags.get_CF()?1:0)", "SBBD", seg, method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "-", "-(("+getB()+")?1:0)", "SBBD", seg, method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_mem_and) {
@@ -1705,12 +1705,12 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst3.GrplEdId_reg_adc) {
                     Inst3.GrplEdId_reg_adc o = (Inst3.GrplEdId_reg_adc) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "+", "+(Flags.get_CF()?1:0)", "ADCD", method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "+", "+(("+getB()+")?1:0)", "ADCD", method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_reg_sbb) {
                     Inst3.GrplEdId_reg_sbb o = (Inst3.GrplEdId_reg_sbb) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "-", "-(Flags.get_CF()?1:0)", "SBBD", method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.eard, new Reg(o.ib), "-", "-(("+getB()+")?1:0)", "SBBD", method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_reg_and) {
@@ -1749,12 +1749,12 @@ public class Compiler2 extends Compiler {
                 }
                 if (op instanceof Inst3.GrplEdId_mem_adc) {
                     Inst3.GrplEdId_mem_adc o = (Inst3.GrplEdId_mem_adc) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "+", "+(Flags.get_CF()?1:0)", "ADCD", seg, method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "+", "+(("+getB()+")?1:0)", "ADCD", seg, method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_mem_sbb) {
                     Inst3.GrplEdId_mem_sbb o = (Inst3.GrplEdId_mem_sbb) op;
-                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "-", "-(Flags.get_CF()?1:0)", "SBBD", seg, method);
+                    instructionEG((setFlags & o.sets())==0, 32, o.get_eaa, new Reg(o.ib), "-", "-(("+getB()+")?1:0)", "SBBD", seg, method);
                     return true;
                 }
                 if (op instanceof Inst3.GrplEdId_mem_and) {

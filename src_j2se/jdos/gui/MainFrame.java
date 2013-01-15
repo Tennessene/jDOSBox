@@ -245,6 +245,7 @@ public class MainFrame implements GUI {
         mainThread = new Thread(new Runnable() {
             public void run() {
                 Main.main(new MainFrame(), args);
+                System.exit(0);
             }
         });
         mainThread.start();

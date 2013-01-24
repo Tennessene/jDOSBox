@@ -296,12 +296,15 @@ public class XMS extends Module_base {
             }
                 break;
             case XMS_ALLOCATE_ANY_MEMORY:								/* 89 */
-                CPU_Regs.reg_edx.dword&=0xffff;
-                // fall through
-            case XMS_ALLOCATE_EXTENDED_MEMORY:							/* 09 */
                 {
                 /*Bit16u*/IntRef handle = new IntRef(0);
                 SET_RESULT(XMS_AllocateMemory(CPU_Regs.reg_edx.dword,handle));
+                CPU_Regs.reg_edx.word(handle.value);
+                } break;
+            case XMS_ALLOCATE_EXTENDED_MEMORY:							/* 09 */
+                {
+                /*Bit16u*/IntRef handle = new IntRef(0);
+                SET_RESULT(XMS_AllocateMemory(CPU_Regs.reg_edx.word(),handle));
                 CPU_Regs.reg_edx.word(handle.value);
                 } break;
             case XMS_FREE_EXTENDED_MEMORY:								/* 0a */

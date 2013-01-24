@@ -233,7 +233,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                     }
                 }
             } catch (Exception e) {
-                System.out.println("download parameter should be the url of a .zip or .7z file");
+                System.out.println("download parameter should be the url of a .zip");
                 e.printStackTrace();
             }
         }

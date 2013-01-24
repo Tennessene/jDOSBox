@@ -21,7 +21,10 @@ public class ModifiedDecode {
 //                    Debug.start(Debug.TYPE_CPU, c);
 //                    try {
             int result = jdos.cpu.core_normal.Prefix_none.ops[c].call();
-            if (result != Prefix_helpers.HANDLED) {
+            if (result == Prefix_helpers.HANDLED) {
+                CPU_Regs.reg_eip = Core.cseip - CPU.Segs_CSphys;
+                return Constants.BR_Link1;
+            } else {
                 if (result == Prefix_helpers.CONTINUE) {
                     break;
                 } else if (result == Prefix_helpers.RETURN) {
@@ -42,13 +45,6 @@ public class ModifiedDecode {
                     break;
                 }
             }
-//                    } finally {
-//                        Debug.stop(Debug.TYPE_CPU, c);
-//                    }
-
-            // inlined
-            // SAVEIP();
-            CPU_Regs.reg_eip = Core.cseip - CPU.Segs_CSphys;
             break;
         }
         return Constants.BR_Jump;

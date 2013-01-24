@@ -29,16 +29,7 @@ public class Decoder_basic {
         }
         // find a free CodePage
         if (Cache.cache.free_pages==null) {
-            if (Cache.cache.used_pages!= Decoder.decode.page.code) Cache.cache.used_pages.ClearRelease();
-            else {
-                // try another page to avoid clearing our source-crosspage
-                if ((Cache.cache.used_pages.next!=null) && (Cache.cache.used_pages.next!= Decoder.decode.page.code))
-                    Cache.cache.used_pages.next.ClearRelease();
-                else {
-                    Log.log_msg("DYNREC:Invalid cache links");
-                    Cache.cache.used_pages.ClearRelease();
-                }
-            }
+            Cache.cache.free_pages = new CodePageHandlerDynRec();
         }
         CodePageHandlerDynRec cpagehandler=Cache.cache.free_pages;
         Cache.cache.free_pages=Cache.cache.free_pages.next;

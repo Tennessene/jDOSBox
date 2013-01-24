@@ -1465,7 +1465,7 @@ public class Compiler2 extends Compiler {
                     method.append(")){").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -1482,7 +1482,7 @@ public class Compiler2 extends Compiler {
                     method.append(")){").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -2051,7 +2051,7 @@ public class Compiler2 extends Compiler {
             case 0x2a1: // MOV EAX,Od
                 if (op instanceof Inst3.MovEaxOd) {
                     Inst3.MovEaxOd o = (Inst3.MovEaxOd) op;
-                    method.append("CPU_Regs.reg_eax.dword=Memory.mem_readd(");method.append(seg.ds);method.append("+");
+                    method.append("CPU_Regs.reg_eax.dword=Memory.mem_readd(");method.append(seg.getDs());method.append("+");
                     method.append(o.value);
                     method.append(");");
                     return true;
@@ -2060,7 +2060,7 @@ public class Compiler2 extends Compiler {
             case 0x2a3: // MOV Od,EAX
                 if (op instanceof Inst3.MovOdEax) {
                     Inst3.MovOdEax o = (Inst3.MovOdEax) op;
-                    method.append(" Memory.mem_writed(");method.append(seg.ds);method.append("+");
+                    method.append(" Memory.mem_writed(");method.append(seg.getDs());method.append("+");
                     method.append(o.value);
                     method.append(", CPU_Regs.reg_eax.dword);");
                     return true;
@@ -2068,7 +2068,7 @@ public class Compiler2 extends Compiler {
                 break;
             case 0x2a5: // MOVSD
                 method.append("Core.base_ds=");
-                method.append(seg.ds);
+                method.append(seg.getDs());
                 method.append(";");
                 if (op instanceof Strings.Movsd16) {
                     method.append("Strings.Movsd16.doString();");
@@ -2093,7 +2093,7 @@ public class Compiler2 extends Compiler {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -2117,7 +2117,7 @@ public class Compiler2 extends Compiler {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -2132,7 +2132,7 @@ public class Compiler2 extends Compiler {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -2147,7 +2147,7 @@ public class Compiler2 extends Compiler {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -4609,9 +4609,9 @@ public class Compiler2 extends Compiler {
                     return false; // compile block
                 } else if (op instanceof Decoder.ModifiedDecodeOp) {
                     method.append("Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";Core.base_ss=");
-                    method.append(seg.ss);
+                    method.append(seg.getSs());
                     method.append(";Core.base_val_ds=");
                     method.append(seg.val);
                     method.append(";return ModifiedDecode.call();");

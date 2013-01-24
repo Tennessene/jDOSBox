@@ -22,7 +22,8 @@ public class Compiler extends Helper {
     public static int min_block_size = 1;
     public static boolean alwayUseFastVersion = false; // useful for unit test
     static public final boolean ENABLED = true;
-    static private boolean inlineFlags = true;
+    static final private boolean inlineFlags = true;
+    static final private boolean cacheSegments = true;
 
     private static Thread[] compilerThread = null;
     private static LinkedList compilerQueue = new LinkedList();
@@ -110,8 +111,7 @@ public class Compiler extends Helper {
 
     static public void removeFromQueue(DecodeBlock block) {
         synchronized (compilerQueue) {
-            if (compilerQueue.remove(block))
-                System.out.println("Removed dead code from being compiled");
+            compilerQueue.remove(block);
         }
     }
     static private int searchFlag(Op searchOp, int flag, int result) {
@@ -134,20 +134,41 @@ public class Compiler extends Helper {
     static final boolean combineMemoryAccessEIP = false; // less than 1% improvement
 
     static public class Seg {
-        public String ds;
-        public String ss;
+        private StringBuilder method;
+
+        private String ds;
+        private boolean defaultDS;
+        private int startDS;
+
+        private String ss;
+        private boolean defaultSS;
+        private int startSS;
+
         public String val;
         public boolean wasSet;
 
-        public Seg() {
+        public Seg(StringBuilder method) {
             reset();
+            this.method = method;
+            this.startDS = method.length();
+            this.startSS = method.length();
         }
 
         public void reset() {
-            ds = "CPU.Segs_DSphys";
-            ss = "CPU.Segs_SSphys";
+            if (cacheSegments)
+                ds = "ds";
+            else
+                ds = "CPU.Segs_DSphys";
+
+            if (cacheSegments)
+                ss = "ss";
+            else
+                ss = "CPU.Segs_SSphys";
+
             val = "CPU_Regs.ds";
             wasSet = false;
+            defaultDS = true;
+            defaultSS = true;
         }
 
         public void setES() {
@@ -155,6 +176,8 @@ public class Compiler extends Helper {
             ss = "CPU.Segs_ESphys";
             val = "CPU_Regs.es";
             wasSet = true;
+            defaultDS = false;
+            defaultSS = false;
         }
 
         public void setCS() {
@@ -162,13 +185,20 @@ public class Compiler extends Helper {
             ss = "CPU.Segs_CSphys";
             val = "CPU_Regs.cs";
             wasSet = true;
+            defaultDS = false;
+            defaultSS = false;
         }
 
         public void setDS() {
-            ds = "CPU.Segs_DSphys";
+            if (cacheSegments)
+                ds = "ds";
+            else
+                ds = "CPU.Segs_DSphys";
             ss = "CPU.Segs_DSphys";
             val = "CPU_Regs.ds";
             wasSet = true;
+            defaultDS = true;
+            defaultSS = false;
         }
 
         public void setFS() {
@@ -176,6 +206,8 @@ public class Compiler extends Helper {
             ss = "CPU.Segs_FSphys";
             val = "CPU_Regs.fs";
             wasSet = true;
+            defaultDS = false;
+            defaultSS = false;
         }
 
         public void setGS() {
@@ -183,13 +215,36 @@ public class Compiler extends Helper {
             ss = "CPU.Segs_GSphys";
             val = "CPU_Regs.gs";
             wasSet = true;
+            defaultDS = false;
+            defaultSS = false;
         }
 
         public void setSS() {
             ds = "CPU.Segs_SSphys";
-            ss = "CPU.Segs_SSphys";
+            if (cacheSegments)
+                ss = "ss";
+            else
+                ss = "CPU.Segs_SSphys";
             val = "CPU_Regs.ss";
             wasSet = true;
+            defaultDS = false;
+            defaultSS = true;
+        }
+
+        public String getDs() {
+            if (cacheSegments && defaultDS && startDS>=0) {
+                method.insert(startDS, "int ds = CPU.Segs_DSphys;");
+                startDS = -1;
+            }
+            return ds;
+        }
+
+        public String getSs() {
+            if (cacheSegments && defaultSS && startSS>=0) {
+                method.insert(startSS, "int ss = CPU.Segs_SSphys;");
+                startSS = -1;
+            }
+            return ss;
         }
     }
     static private Op opThatSetFlags = null;
@@ -199,7 +254,7 @@ public class Compiler extends Helper {
         StringBuilder method = new StringBuilder();
         int count = 0;
         Op start = prev;
-        Seg seg = new Seg();
+        Seg seg = new Seg(method);
 
         int eaaPos = method.length();
         int loopPos = method.length();
@@ -387,6 +442,20 @@ public class Compiler extends Helper {
                             method.append("}");
                         method.append("\n");
                     }
+                    if ((op.setsSeg() & 0xF)==Op.DS) {
+                        if (seg.startDS>=0) {
+                            method.append("int ");
+                            seg.startDS = -1;
+                        }
+                        method.append("ds = CPU.Segs_DSphys;");
+                    }
+                    if ((op.setsSeg() & 0xF)==Op.SS) {
+                        if (seg.startSS>=0) {
+                            method.append("int ");
+                            seg.startSS = -1;
+                        }
+                        method.append("ss = CPU.Segs_SSphys;");
+                    }
                 } else {
                     if (testLocalVariableAccess)
                         method.append("}");
@@ -562,9 +631,9 @@ public class Compiler extends Helper {
     static void checkForZero(boolean ds, Seg seg, boolean zero, StringBuilder method) {
         if (!zero) {
             if (ds)
-                method.append(seg.ds);
+                method.append(seg.getDs());
             else
-                method.append(seg.ss);
+                method.append(seg.getSs());
             method.append("+");
         }
     }
@@ -2811,7 +2880,7 @@ public class Compiler extends Helper {
                     method.append(")) {").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -2828,7 +2897,7 @@ public class Compiler extends Helper {
                     method.append(")) {").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -2846,7 +2915,7 @@ public class Compiler extends Helper {
                     method.append(")) {").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -2863,7 +2932,7 @@ public class Compiler extends Helper {
                     method.append(")) {").append(preException).append("return RUNEXCEPTION();}Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3702,7 +3771,7 @@ public class Compiler extends Helper {
             case 0x2a0:
                 if (op instanceof Inst1.MovALOb) {
                     Inst1.MovALOb o = (Inst1.MovALOb) op;
-                    method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.ds);method.append("+");
+                    method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.getDs());method.append("+");
                     method.append(o.value);
                     method.append("));");
                     return true;
@@ -3711,7 +3780,7 @@ public class Compiler extends Helper {
             case 0xa1: // MOV AX,Ow
                 if (op instanceof Inst1.MovAXOw) {
                     Inst1.MovAXOw o = (Inst1.MovAXOw) op;
-                    method.append("CPU_Regs.reg_eax.word(Memory.mem_readw(");method.append(seg.ds);method.append("+");
+                    method.append("CPU_Regs.reg_eax.word(Memory.mem_readw(");method.append(seg.getDs());method.append("+");
                     method.append(o.value);
                     method.append("));");
                     return true;
@@ -3721,7 +3790,7 @@ public class Compiler extends Helper {
             case 0x2a2:
                 if (op instanceof Inst1.MovObAL) {
                     Inst1.MovObAL o = (Inst1.MovObAL) op;
-                    method.append("Memory.mem_writeb(");method.append(seg.ds);method.append("+");
+                    method.append("Memory.mem_writeb(");method.append(seg.getDs());method.append("+");
                     method.append(o.value);
                     method.append(", CPU_Regs.reg_eax.low());");
                     return true;
@@ -3730,7 +3799,7 @@ public class Compiler extends Helper {
             case 0xa3: // MOV Ow,AX
                 if (op instanceof Inst1.MovOwAX) {
                     Inst1.MovOwAX o = (Inst1.MovOwAX) op;
-                    method.append("Memory.mem_writew(");method.append(seg.ds);method.append("+");
+                    method.append("Memory.mem_writew(");method.append(seg.getDs());method.append("+");
                     method.append(o.value);
                     method.append(", CPU_Regs.reg_eax.word());");
                     return true;
@@ -3739,7 +3808,7 @@ public class Compiler extends Helper {
             case 0xa4: // MOVSB
             case 0x2a4:
                 method.append("Core.base_ds=");
-                method.append(seg.ds);
+                method.append(seg.getDs());
                 method.append(";");
                 if (op instanceof Strings.Movsb16) {
                     method.append("Strings.Movsb16.doString();");
@@ -3760,7 +3829,7 @@ public class Compiler extends Helper {
                 break;
             case 0xa5: // MOVSW
                 method.append("Core.base_ds=");
-                method.append(seg.ds);
+                method.append(seg.getDs());
                 method.append(";");
                 if (op instanceof Strings.Movsw16) {
                     method.append("Strings.Movsw16.doString();");
@@ -3786,7 +3855,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3801,7 +3870,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3836,7 +3905,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3851,7 +3920,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3867,7 +3936,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3882,7 +3951,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3898,7 +3967,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -3913,7 +3982,7 @@ public class Compiler extends Helper {
                     method.append("Core.rep_zero = ");
                     method.append(o.rep_zero);
                     method.append(";Core.base_ds=");
-                    method.append(seg.ds);
+                    method.append(seg.getDs());
                     method.append(";StringOp.DoString(");
                     method.append(o.prefixes);
                     method.append(", ");
@@ -5053,11 +5122,11 @@ public class Compiler extends Helper {
             case 0xd7: // XLAT
             case 0x2d7:
                 if (op instanceof Inst1.Xlat32) {
-                    method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.ds);method.append("+CPU_Regs.reg_ebx.dword+CPU_Regs.reg_eax.low()));");
+                    method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.getDs());method.append("+CPU_Regs.reg_ebx.dword+CPU_Regs.reg_eax.low()));");
                     return true;
                 }
                 if (op instanceof Inst1.Xlat16) {
-                    method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.ds);method.append("+((CPU_Regs.reg_ebx.word()+CPU_Regs.reg_eax.low()) & 0xFFFF)));");
+                    method.append("CPU_Regs.reg_eax.low(Memory.mem_readb(");method.append(seg.getDs());method.append("+((CPU_Regs.reg_ebx.word()+CPU_Regs.reg_eax.low()) & 0xFFFF)));");
                     return true;
                 }
                 break;

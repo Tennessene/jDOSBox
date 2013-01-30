@@ -3999,15 +3999,11 @@ public class VoodooCommon extends PCI.PCI_Device {
             case fbiInit2:
             case fbiInit4:
                 Poly.poly_wait(poly, regnames[regnum]);
-                System.out.print(regnames[regnum]+" 0x"+Integer.toHexString(data));
                 if (type <= TYPE_VOODOO_2 && (chips & 1)!=0 && INITEN_ENABLE_HW_INIT(pci.init_enable))
                 {
                     reg[regnum] = data;
                     recompute_video_memory();
                     fbi.video_changed = true;
-                    System.out.println();
-                } else {
-                    System.out.println(" FAILED");
                 }
                 break;
     
@@ -5984,7 +5980,7 @@ public class VoodooCommon extends PCI.PCI_Device {
             }
 
             /* get pointers to the target buffer and depth buffer */
-            destPos = scry * v.fbi.rowpixels*2;
+            destPos = destbasePos+scry * v.fbi.rowpixels*2;
             depthPos = (v.fbi.auxoffs != ~0) ? (v.fbi.auxoffs + scry * v.fbi.rowpixels * 2) : -1;
 
             /* compute the starting parameters */
@@ -7545,7 +7541,7 @@ public class VoodooCommon extends PCI.PCI_Device {
         /* perform alpha blending */
         if (ALPHAMODE_ALPHABLEND(ALPHAMODE))
         {
-            int dpix = destbase[destPos+XX];
+            int dpix = destbase[destPos+XX*2];
             int dr = (dpix >> 8) & 0xf8;
             int dg = (dpix >> 3) & 0xfc;
             int db = (dpix << 3) & 0xf8;

@@ -547,6 +547,7 @@ public class Poly {
     	/* fill in the polygon information */
     	polygon.poly = poly;
     	polygon.dest = dest;
+        polygon.destOffset = destOffset;
     	polygon.callback = callback;
     	polygon.extra = poly.extra[poly.extra_next - 1];
     	polygon.numparams = paramcount;
@@ -702,88 +703,86 @@ public class Poly {
 
     static int poly_render_triangle_custom(poly_manager poly, byte[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int startscanline, int numscanlines, poly_extent[] extents)
     {
-//    	INT32 curscan, scaninc;
-//    	polygon_info *polygon;
-//    	INT32 v1yclip, v3yclip;
-//    	INT32 pixels = 0;
-//    	UINT32 startunit;
-//
-//    	/* clip coordinates */
-//    	v1yclip = MAX(startscanline, cliprect.min_y);
-//    	v3yclip = MIN(startscanline + numscanlines, cliprect.max_y + 1);
-//    	if (v3yclip - v1yclip <= 0)
-//    		return 0;
-//
-//    	/* allocate a new polygon */
-//    	polygon = allocate_polygon(poly, v1yclip, v3yclip);
-//
-//    	/* fill in the polygon information */
-//    	polygon.poly = poly;
-//    	polygon.dest = dest;
-//    	polygon.callback = callback;
-//    	polygon.extra = poly.extra[poly.extra_next - 1];
-//    	polygon.numparams = 0;
-//    	polygon.numverts = 3;
-//
-//    	/* compute the X extents for each scanline */
-//    	startunit = poly.unit_next;
-//    	for (curscan = v1yclip; curscan < v3yclip; curscan += scaninc)
-//    	{
-//    		UINT32 bucketnum = ((UINT32)curscan / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS;
-//    		UINT32 unit_index = poly.unit_next++;
-//    		tri_work_unit *unit = &poly.unit[unit_index].tri;
-//    		int extnum;
-//
-//    		/* determine how much to advance to hit the next bucket */
-//    		scaninc = SCANLINES_PER_BUCKET - (UINT32)curscan % SCANLINES_PER_BUCKET;
-//
-//    		/* fill in the work unit basics */
-//    		unit.shared.polygon = polygon;
-//    		unit.shared.count_next = MIN(v3yclip - curscan, scaninc);
-//    		unit.shared.scanline = curscan;
-//    		unit.shared.previtem = poly.unit_bucket[bucketnum];
-//    		poly.unit_bucket[bucketnum] = unit_index;
-//
-//    		/* iterate over extents */
-//    		for (extnum = 0; extnum < unit.shared.count_next; extnum++)
-//    		{
-//    			const poly_extent *extent = &extents[(curscan + extnum) - startscanline];
-//    			INT32 istartx = extent.startx, istopx = extent.stopx;
-//
-//    			/* force start < stop */
-//    			if (istartx > istopx)
-//    			{
-//    				INT32 temp = istartx;
-//    				istartx = istopx;
-//    				istopx = temp;
-//    			}
-//
-//    			/* apply left/right clipping */
-//    			if (istartx < cliprect.min_x)
-//    				istartx = cliprect.min_x;
-//    			if (istopx > cliprect.max_x)
-//    				istopx = cliprect.max_x + 1;
-//
-//    			/* set the extent and update the total pixel count */
-//    			unit.extent[extnum].startx = istartx;
-//    			unit.extent[extnum].stopx = istopx;
-//    			if (istartx < istopx)
-//    				pixels += istopx - istartx;
-//    		}
-//    	}
-//    #if KEEP_STATISTICS
-//    	poly.unit_max = MAX(poly.unit_max, poly.unit_next);
-//    #endif
-//
-//    	/* enqueue the work items */
-//    	if (poly.queue != NULL)
-//    		osd_work_item_queue_multiple(poly.queue, poly_item_callback, poly.unit_next - startunit, poly.unit[startunit], poly.unit_size, WORK_ITEM_FLAG_AUTO_RELEASE);
-//
-//    	/* return the total number of pixels in the object */
-//    	poly.triangles++;
-//    	poly.pixels += pixels;
-//    	return pixels;
-        return 0;
+    	int curscan, scaninc;
+    	polygon_info polygon;
+    	int v1yclip, v3yclip;
+        int pixels = 0;
+        int startunit;
+
+    	/* clip coordinates */
+    	v1yclip = Math.max(startscanline, cliprect.min_y);
+    	v3yclip = Math.min(startscanline + numscanlines, cliprect.max_y + 1);
+    	if (v3yclip - v1yclip <= 0)
+    		return 0;
+
+    	/* allocate a new polygon */
+    	polygon = allocate_polygon(poly, v1yclip, v3yclip);
+
+    	/* fill in the polygon information */
+    	polygon.poly = poly;
+    	polygon.dest = dest;
+        polygon.destOffset = destOffset;
+    	polygon.callback = callback;
+    	polygon.extra = poly.extra[poly.extra_next - 1];
+    	polygon.numparams = 0;
+    	polygon.numverts = 3;
+
+    	/* compute the X extents for each scanline */
+    	startunit = poly.unit_next;
+    	for (curscan = v1yclip; curscan < v3yclip; curscan += scaninc)
+    	{
+    		int bucketnum = (curscan / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS;
+            int unit_index = poly.unit_next++;
+    		tri_work_unit unit = (tri_work_unit)poly.unit[unit_index];
+    		int extnum;
+
+    		/* determine how much to advance to hit the next bucket */
+    		scaninc = SCANLINES_PER_BUCKET - curscan % SCANLINES_PER_BUCKET;
+
+    		/* fill in the work unit basics */
+    		unit.polygon = polygon;
+    		unit.count_next = Math.min(v3yclip - curscan, scaninc);
+    		unit.scanline = curscan;
+    		unit.previtem = poly.unit_bucket[bucketnum];
+    		poly.unit_bucket[bucketnum] = unit_index;
+
+    		/* iterate over extents */
+    		for (extnum = 0; extnum < unit.count_next; extnum++)
+    		{
+    			poly_extent extent = extents[(curscan + extnum) - startscanline];
+    			int istartx = extent.startx, istopx = extent.stopx;
+
+    			/* force start < stop */
+    			if (istartx > istopx)
+    			{
+    				int temp = istartx;
+    				istartx = istopx;
+    				istopx = temp;
+    			}
+
+    			/* apply left/right clipping */
+    			if (istartx < cliprect.min_x)
+    				istartx = cliprect.min_x;
+    			if (istopx > cliprect.max_x)
+    				istopx = cliprect.max_x + 1;
+
+    			/* set the extent and update the total pixel count */
+    			unit.extent[extnum].startx = istartx;
+    			unit.extent[extnum].stopx = istopx;
+    			if (istartx < istopx)
+    				pixels += istopx - istartx;
+    		}
+    	}
+    	poly.unit_max = Math.max(poly.unit_max, poly.unit_next);
+
+    	/* enqueue the work items */
+    	if (poly.queue != null)
+    		addWork(poly.queue, poly.unit, startunit, poly.unit_next - 1);
+
+    	/* return the total number of pixels in the object */
+    	poly.triangles++;
+    	poly.pixels += pixels;
+    	return pixels;
     }
     
     /*-------------------------------------------------

@@ -1631,7 +1631,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     
     static private boolean FBIINIT2_DISABLE_DITHER_SUB(int val)    { return (((val) >> 0) & 1)!=0;}
     static private boolean FBIINIT2_DRAM_BANKING(int val)          { return (((val) >> 1) & 1)!=0;}
-    static private boolean FBIINIT2_ENABLE_TRIPLE_BUF(int val)     { return (((val) >> 4) & 1)!=0;}
+    static private int FBIINIT2_ENABLE_TRIPLE_BUF(int val)     { return (((val) >> 4) & 1);}
     static private boolean FBIINIT2_ENABLE_FAST_RAS_READ(int val)  { return (((val) >> 5) & 1)!=0;}
     static private boolean FBIINIT2_ENABLE_GEN_DRAM_OE(int val)    { return (((val) >> 6) & 1)!=0;}
     static private boolean FBIINIT2_ENABLE_FAST_READWRITE(int val) { return (((val) >> 7) & 1)!=0;}
@@ -2348,7 +2348,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     	int buf;
     
     	/* memory config is determined differently between V1 and V2 */
-    	memory_config = FBIINIT2_ENABLE_TRIPLE_BUF(reg[fbiInit2])?1:0;
+    	memory_config = FBIINIT2_ENABLE_TRIPLE_BUF(reg[fbiInit2]);
     	if (type == TYPE_VOODOO_2 && memory_config==0)
     		memory_config = FBIINIT5_BUFFER_ALLOCATION(reg[fbiInit5]);
     
@@ -2385,7 +2385,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     
     		case 1: /* 3 color buffers, 0 aux buffers */
     			fbi.rgboffs[2] = 2 * buffer_pages * 0x1000;
-    			fbi.auxoffs = ~0;
+    			fbi.auxoffs = -1;
     			break;
     
     		case 2: /* 3 color buffers, 1 aux buffers */
@@ -2402,7 +2402,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     			fbi.rgboffs[buf] = fbi.mask;
     
     	/* clamp the aux buffer to video memory */
-    	if (fbi.auxoffs != ~0 && fbi.auxoffs > fbi.mask)
+    	if (fbi.auxoffs != -1 && fbi.auxoffs > fbi.mask)
     		fbi.auxoffs = fbi.mask;
     
     /*  mame_printf_debug("rgb[0] = %08X   rgb[1] = %08X   rgb[2] = %08X   aux = %08X\n",
@@ -2868,9 +2868,6 @@ public class VoodooCommon extends PCI.PCI_Device {
     }
     static private int mem_readd(byte[] p, int off) {
         return (p[off] & 0xFF) | ((p[off+1] & 0xFF) << 8) | ((p[off+2] & 0xFF) << 16) | ((p[off+3] & 0xFF) << 24);
-    }
-    static private long mem_readq(byte[] p, int off) {
-        return (mem_readd(p, off) & 0xFFFFFFFFl) | ((mem_readd(p, off+4) & 0xFFFFFFFFl) << 32);
     }
     static private void mem_writed(byte[] p, int off, int val) {
         p[off]=(byte)(val);
@@ -3898,7 +3895,7 @@ public class VoodooCommon extends PCI.PCI_Device {
                         {
                             htotal = ((reg[hSync] >>> 16) & 0x7ff) + 1 + (reg[hSync] & 0x1ff) + 1;
                             vtotal = ((reg[vSync] >>> 16) & 0x1fff) + (reg[vSync] & 0x1fff);
-                            hvis = (reg[videoDimensions] & 0x7ff ) + 1;
+                            hvis = (reg[videoDimensions] & 0x7ff );
                             vvis = (reg[videoDimensions] >>> 16) & 0x7ff;
                             hbp = (reg[backPorch] & 0x1ff) + 2;
                             vbp = (reg[backPorch] >>> 16) & 0x1ff;
@@ -5172,7 +5169,7 @@ public class VoodooCommon extends PCI.PCI_Device {
                 break;
 
             case 2:         /* aux buffer */
-                if (fbi.auxoffs == ~0)
+                if (fbi.auxoffs == -1)
                     return 0xffffffff;
                 bufferPos = fbi.auxoffs;
                 bufmax = (fbi.mask + 1 - fbi.auxoffs) / 2;
@@ -5864,12 +5861,12 @@ public class VoodooCommon extends PCI.PCI_Device {
             }
            
             /* fill this dest buffer row */
-            if (FBZMODE_AUX_BUFFER_MASK(v.reg[fbzMode]) && v.fbi.auxoffs != ~0)
+            if (FBZMODE_AUX_BUFFER_MASK(v.reg[fbzMode]) && v.fbi.auxoffs != -1)
             {
                 int color = v.reg[zaColor];
                 int destPos = v.fbi.auxoffs + (scry * v.fbi.rowpixels*2);
            
-                for (x = startx; x < stopx && (x & 3) != 0; x++)
+                for (x = startx; x < stopx; x++)
                     mem_writew(v.fbi.ram,  destPos+x*2, color);
             }
         }
@@ -5981,7 +5978,7 @@ public class VoodooCommon extends PCI.PCI_Device {
 
             /* get pointers to the target buffer and depth buffer */
             destPos = destbasePos+scry * v.fbi.rowpixels*2;
-            depthPos = (v.fbi.auxoffs != ~0) ? (v.fbi.auxoffs + scry * v.fbi.rowpixels * 2) : -1;
+            depthPos = (v.fbi.auxoffs != -1) ? (v.fbi.auxoffs + scry * v.fbi.rowpixels * 2) : -1;
 
             /* compute the starting parameters */
             dx = startx - (extra.ax >> 4);
@@ -6434,10 +6431,10 @@ public class VoodooCommon extends PCI.PCI_Device {
 
             // draw all lines at once
             for (int y=0;y<vdraw.v.fbi.height;y++) {
-                int inOffset = vdraw.v.fbi.rgboffs[vdraw.v.fbi.frontbuf] + y*vdraw.v.fbi.rowpixels;
+                int inOffset = vdraw.v.fbi.rgboffs[vdraw.v.fbi.frontbuf] + y*vdraw.v.fbi.rowpixels*2;
                 int outOffset = Render.render.src.outPitch * y / 4;
                 for (int x=0;x<vdraw.v.fbi.width/2;x++) {
-                    Render.render.src.outWrite[x+outOffset] = mem_readd(vdraw.v.fbi.ram, inOffset+x*2);
+                    Render.render.src.outWrite[x+outOffset] = mem_readd(vdraw.v.fbi.ram, inOffset+x*4);
                 }
             }
             Render.RENDER_EndUpdate(false);
@@ -6479,7 +6476,7 @@ public class VoodooCommon extends PCI.PCI_Device {
                 vdraw.override_on=true;
 
                 vdraw.height=vdraw.v.fbi.height;
-                Log.log_msg("Voodoo output "+vdraw.v.fbi.width+"x"+vdraw.v.fbi.height);
+                Log.log_msg("Voodoo output "+(vdraw.v.fbi.width+1)+"x"+vdraw.v.fbi.height);
 
                 Render.RENDER_SetSize(vdraw.v.fbi.width, vdraw.v.fbi.height, 16, vdraw.vfreq, 4.0/3.0, false, false);
                 Voodoo_VerticalTimer.call(0);
@@ -6509,7 +6506,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     	fbi.ram = memory;
     	fbi.mask = fbmem - 1;
     	fbi.rgboffs[0] = fbi.rgboffs[1] = fbi.rgboffs[2] = 0;
-    	fbi.auxoffs = ~0;
+    	fbi.auxoffs = -1;
     
     	/* default to 0x0 */
     	fbi.frontbuf = 0;
@@ -7290,7 +7287,7 @@ public class VoodooCommon extends PCI.PCI_Device {
         public boolean call(IntRef iterargb, IntRef result);
     }
 
-    private void PIXEL_PIPELINE(stats_block STATS, int XX, int YY, int FBZCOLORPATH, int FBZMODE, int ALPHAMODE, int FOGMODE, IntRef ITERZ, LongRef ITERW, byte[] DITHERs, int DITHERPOS, byte[] DITHER4s, int DITHER4POS, byte[] DITHER_LOOKUPs, int DITHER_LOOKUPPOS, byte[] destbase, int destPos, byte[] depthbase, int depthPos, PIXEL_PIPELINE_CALLBACK callback) {
+    private void PIXEL_PIPELINE(stats_block STATS, int XX, int YY, int FBZCOLORPATH, int FBZMODE, int ALPHAMODE, int FOGMODE, IntRef ITERZ, LongRef ITERW, byte[] DITHERs, int DITHERPOS, byte[] DITHER4s, int DITHER4POS, byte[] DITHER_LOOKUPs, int DITHER_LOOKUPPOS, byte[] destbase, final int destPos, byte[] depthbase, final int depthPos, PIXEL_PIPELINE_CALLBACK callback) {
     	int depthval, wfloat;
 
     	STATS.pixels_in++;
@@ -7698,7 +7695,7 @@ public class VoodooCommon extends PCI.PCI_Device {
         }
 
         /* write to aux buffer */
-        if (depthbase!=null && FBZMODE_AUX_BUFFER_MASK(FBZMODE))
+        if (depthPos!=-1 && FBZMODE_AUX_BUFFER_MASK(FBZMODE))
         {
             if (!FBZMODE_ENABLE_ALPHA_PLANES(FBZMODE))
                 mem_writew(depthbase, depthPos+XX*2, depthval);

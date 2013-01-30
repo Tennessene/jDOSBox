@@ -2,6 +2,7 @@ package jdos.hardware;
 
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
+import jdos.cpu.Paging;
 import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
@@ -12,6 +13,11 @@ import jdos.util.IntRef;
 public class PCI extends Module_base {
     static final private int PCI_MAX_PCIDEVICES = 10;
     static final private int PCI_MAX_PCIFUNCTIONS = 8;
+
+    static public class PCIPageHandler extends Paging.PageHandler {
+        public int start_page;
+        public int stop_page;
+    }
 
     static public boolean PCI_IsInitialized() {
         if (pci_interface!=null) return pci_interface.IsInitialized();
@@ -26,8 +32,9 @@ public class PCI extends Module_base {
     }
 
     static public abstract class PCI_Device {
-        private /*Bits*/int pci_id, pci_subfunction;
+        protected /*Bits*/int pci_id, pci_subfunction;
         private /*Bit16u*/int vendor_id, device_id;
+        PCIPageHandler handler;
 
         // subdevices declarations, they will respond to pci functions 1 to 7
         // (main device is attached to function 0)
@@ -42,6 +49,13 @@ public class PCI extends Module_base {
             num_subdevices=0;
         }
 
+        public void addHandler(PCIPageHandler handler) {
+            this.handler = handler;
+            if (handler!=null) {
+                this.handler = handler;
+                Memory.MEM_AddPCIPageHandler(this.handler);
+            }
+        }
         public /*Bits*/int PCIId() {
             return pci_id;
         }
@@ -194,6 +208,7 @@ public class PCI extends Module_base {
 
     // read single 8bit value from register file (special register treatment included)
     static /*Bit8u*/int read_pci_register(PCI_Device dev,/*Bit8u*/int regnum) {
+        byte[] config = pci_cfg_data[dev.PCIId()][dev.PCISubfunction()];
         switch (regnum) {
             case 0x00:
                 return (dev.VendorID()&0xff);
@@ -204,19 +219,28 @@ public class PCI extends Module_base {
             case 0x03:
                 return ((dev.DeviceID()>>8)&0xff);
             case 0x0e:
-                return (pci_cfg_data[dev.PCIId()][dev.PCISubfunction()][regnum]&0x7f) | ((dev.NumSubdevices()>0)?0x80:0x00);
+                return (config[regnum]&0x7f) | ((dev.NumSubdevices()>0)?0x80:0x00);
             default:
                 break;
+        }
+
+        if (regnum>=0x10 && regnum<=0x13 && config[0x10]==-1 && config[0x11]==-1 && config[0x12]==-1 && config[0x13]==-1 && dev.handler!=null) {
+            switch (regnum) {
+                case 0x10: return 0;
+                case 0x11: return 0;
+                case 0x12: return 0;
+                case 0x13: return 0xFF;
+            }
         }
 
         // call device routine for special actions and possibility to discard/remap register
         /*Bits*/int parsed_regnum=dev.ParseReadRegister(regnum);
         if ((parsed_regnum>=0) && (parsed_regnum<256))
-            return pci_cfg_data[dev.PCIId()][dev.PCISubfunction()][parsed_regnum];
+            return config[parsed_regnum];
 
         /*Bit8u*/IntRef newval = new IntRef(0), mask = new IntRef(0);
         if (dev.OverrideReadRegister(regnum, newval, mask)) {
-            /*Bit8u*/int oldval=pci_cfg_data[dev.PCIId()][dev.PCISubfunction()][regnum] & (~mask.value);
+            /*Bit8u*/int oldval=config[regnum] & (~mask.value);
             return oldval | (newval.value & mask.value);
         }
 
@@ -239,7 +263,9 @@ public class PCI extends Module_base {
                 if (fctnum>masterdev.NumSubdevices()) return 0xffffffff;
 
                 PCI_Device dev=masterdev.GetSubdevice(fctnum);
-
+                if (regnum>3) {
+                    int ii=0;
+                }
                 if (dev!=null) {
                     switch (iolen) {
                         case 1:

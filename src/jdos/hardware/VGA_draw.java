@@ -1550,7 +1550,7 @@ public class VGA_draw {
         if (!VGA.vga.draw.vga_override) Render.RENDER_EndUpdate(true);
     }
 
-    void VGA_SetOverride(boolean vga_override) {
+    static public void VGA_SetOverride(boolean vga_override) {
         if (VGA.vga.draw.vga_override!=vga_override) {
             if (vga_override) {
                 VGA_KillDrawing();

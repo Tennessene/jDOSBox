@@ -11,6 +11,7 @@ import jdos.gui.Mapper;
 import jdos.gui.Midi;
 import jdos.gui.Render;
 import jdos.hardware.*;
+import jdos.hardware.mame.Voodoo2;
 import jdos.hardware.qemu.Floppy;
 import jdos.hardware.qemu.IDE;
 import jdos.hardware.serialport.Serialports;
@@ -453,7 +454,8 @@ public class Dosbox {
         secprop.AddInitFunction(DMA.DMA_Init);//done
 
         if (Config.PCI_FUNCTIONALITY_ENABLED) {
-            secprop=control.AddSection_prop("pci",PCI.PCI_Init,false); //PCI bus
+            secprop=control.AddSection_prop("pci",PCI.PCI_Init,true); //PCI bus
+            control.AddSection_prop("voodoo2", Voodoo2.Voodoo2_Init,true); //PCI bus
         }
 
         secprop=control.AddSection_prop("keyboard",Keyboard.KEYBOARD_Init);

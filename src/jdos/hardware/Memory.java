@@ -324,6 +324,7 @@ public class Memory extends Module_base {
             /*Bitu*/int		pages;
             Paging.PageHandler handler;
         }
+        public Vector<PCI.PCIPageHandler> pci = new Vector<PCI.PCIPageHandler>();
         public Vector<ROM> roms = new Vector<ROM>();
         public static class A20 {
             boolean enabled;
@@ -435,6 +436,10 @@ public class Memory extends Module_base {
         memory.roms.add(rom);
     }
 
+    static public void MEM_AddPCIPageHandler(PCI.PCIPageHandler handler) {
+        memory.pci.add(handler);
+    }
+
     static public void MEM_SetLFB(/*Bitu*/int page, /*Bitu*/int pages, Paging.PageHandler handler, Paging.PageHandler mmiohandler) {
         memory.lfb.handler=handler;
         memory.lfb.mmiohandler=mmiohandler;
@@ -460,6 +465,11 @@ public class Memory extends Module_base {
             if (phys_page>=rom.start_page && phys_page<rom.end_page) {
                 return rom.handler;
             }
+        }
+        for (int i=0;i<memory.pci.size();i++) {
+            PCI.PCIPageHandler handler = memory.pci.elementAt(i);
+            if (phys_page>=handler.start_page && phys_page<handler.stop_page)
+                return handler;
         }
         return illegal_page_handler;
     }

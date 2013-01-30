@@ -323,9 +323,9 @@ public class VoodooCommon extends PCI.PCI_Device {
     	/* triangle setup info */
     	boolean             cheating_allowed;       /* allow cheating? */
     	int                 sign;                   /* triangle sign */
-        int                 ax, ay;                 /* vertex A x,y (12.4) */
-        int                 bx, by;                 /* vertex B x,y (12.4) */
-        int                 cx, cy;                 /* vertex C x,y (12.4) */
+        short               ax, ay;                 /* vertex A x,y (12.4) */
+        short               bx, by;                 /* vertex B x,y (12.4) */
+        short               cx, cy;                 /* vertex C x,y (12.4) */
         int                 startr, startg, startb, starta; /* starting R,G,B,A (12.12) */
         int                 startz;                 /* starting Z (20.12) */
     	long                startw;                 /* starting W (16.32) */
@@ -3536,37 +3536,37 @@ public class VoodooCommon extends PCI.PCI_Device {
             case fvertexAx:
                 data = float_to_int32(data, 4);
             case vertexAx:
-                if ((chips & 1)!=0) fbi.ax = data & 0xFFFF;
+                if ((chips & 1)!=0) fbi.ax = (short)data;
                 break;
     
             case fvertexAy:
                 data = float_to_int32(data, 4);
             case vertexAy:
-                if ((chips & 1)!=0) fbi.ay = data & 0xFFFF;
+                if ((chips & 1)!=0) fbi.ay = (short)data;
                 break;
     
             case fvertexBx:
                 data = float_to_int32(data, 4);
             case vertexBx:
-                if ((chips & 1)!=0) fbi.bx = data & 0xFFFF;
+                if ((chips & 1)!=0) fbi.bx = (short)data;
                 break;
     
             case fvertexBy:
                 data = float_to_int32(data, 4);
             case vertexBy:
-                if ((chips & 1)!=0) fbi.by = data & 0xFFFF;
+                if ((chips & 1)!=0) fbi.by = (short)data;
                 break;
     
             case fvertexCx:
                 data = float_to_int32(data, 4);
             case vertexCx:
-                if ((chips & 1)!=0) fbi.cx = data & 0xFFFF;
+                if ((chips & 1)!=0) fbi.cx = (short)data;
                 break;
     
             case fvertexCy:
                 data = float_to_int32(data, 4);
             case vertexCy:
-                if ((chips & 1)!=0) fbi.cy = data & 0xFFFF;;
+                if ((chips & 1)!=0) fbi.cy = (short)data;
                 break;
     
             /* RGB data is 12.12 formatted fixed point */
@@ -5536,12 +5536,12 @@ public class VoodooCommon extends PCI.PCI_Device {
     	float divisor, tdiv;
     
     	/* grab the X/Ys at least */
-    	fbi.ax = (int)(fbi.svert[0].x * 16.0);
-    	fbi.ay = (int)(fbi.svert[0].y * 16.0);
-    	fbi.bx = (int)(fbi.svert[1].x * 16.0);
-    	fbi.by = (int)(fbi.svert[1].y * 16.0);
-    	fbi.cx = (int)(fbi.svert[2].x * 16.0);
-    	fbi.cy = (int)(fbi.svert[2].y * 16.0);
+    	fbi.ax = (short)(fbi.svert[0].x * 16.0);
+    	fbi.ay = (short)(fbi.svert[0].y * 16.0);
+    	fbi.bx = (short)(fbi.svert[1].x * 16.0);
+    	fbi.by = (short)(fbi.svert[1].y * 16.0);
+    	fbi.cx = (short)(fbi.svert[2].x * 16.0);
+    	fbi.cy = (short)(fbi.svert[2].y * 16.0);
     
     	/* compute the divisor */
     	divisor = 1.0f / ((fbi.svert[0].x - fbi.svert[1].x) * (fbi.svert[0].y - fbi.svert[2].y) -
@@ -6462,6 +6462,7 @@ public class VoodooCommon extends PCI.PCI_Device {
             if ((!vdraw.clock_enabled || !vdraw.output_on)&& vdraw.override_on) {
                 // switching off
                 Pic.PIC_RemoveEvents(Voodoo_VerticalTimer);
+                Pic.PIC_RemoveEvents(Voodoo_VerticalBlankTimer);
                 VGA_draw.VGA_SetOverride(false);
                 vdraw.override_on=false;
             }
@@ -6478,7 +6479,7 @@ public class VoodooCommon extends PCI.PCI_Device {
                 vdraw.height=vdraw.v.fbi.height;
                 Log.log_msg("Voodoo output "+(vdraw.v.fbi.width+1)+"x"+vdraw.v.fbi.height);
 
-                Render.RENDER_SetSize(vdraw.v.fbi.width, vdraw.v.fbi.height, 16, vdraw.vfreq, 4.0/3.0, false, false);
+                Render.RENDER_SetSize(vdraw.v.fbi.width+1, vdraw.v.fbi.height, 16, vdraw.vfreq, 4.0/3.0, false, false);
                 Voodoo_VerticalTimer.call(0);
             }
         }

@@ -7538,7 +7538,7 @@ public class VoodooCommon extends PCI.PCI_Device {
         /* perform alpha blending */
         if (ALPHAMODE_ALPHABLEND(ALPHAMODE))
         {
-            int dpix = destbase[destPos+XX*2];
+            int dpix = mem_readw(destbase,destPos+XX*2);
             int dr = (dpix >> 8) & 0xf8;
             int dg = (dpix >> 3) & 0xfc;
             int db = (dpix << 3) & 0xf8;

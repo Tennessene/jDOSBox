@@ -670,8 +670,8 @@ public class VoodooCommon extends PCI.PCI_Device {
         /* n ranges from 1.0000 to 2.0000 */
         for (int val = 0; val <= (1 << RECIPLOG_LOOKUP_BITS); val++)
         {
-            int value = (1 << RECIPLOG_LOOKUP_BITS) + val;
-            voodoo_reciplog[val*2 + 0] = (1 << (RECIPLOG_LOOKUP_PREC + RECIPLOG_LOOKUP_BITS)) / value;
+            long value = (1l << RECIPLOG_LOOKUP_BITS) + val;
+            voodoo_reciplog[val*2 + 0] = (int)((1l << (RECIPLOG_LOOKUP_PREC + RECIPLOG_LOOKUP_BITS)) / value);
             voodoo_reciplog[val*2 + 1] =  (int)(LOGB2((double)value / (double)(1 << RECIPLOG_LOOKUP_BITS)) * (double)(1 << RECIPLOG_LOOKUP_PREC));
         }
 
@@ -1793,7 +1793,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     	/* if we've spilled out of 32 bits, push it down under 32 */
     	if ((value & 0xffff00000000l)!=0)
     	{
-    		temp = (int)(value >> 16);
+    		temp = (int)(value >>> 16);
     		exp -= 16;
     	}
     	else
@@ -1814,15 +1814,15 @@ public class VoodooCommon extends PCI.PCI_Device {
     	/* compute a pointer to the table entries we want */
     	/* math is a bit funny here because we shift one less than we need to in order */
     	/* to account for the fact that there are two UINT32's per table entry */
-    	tablePos = (temp >> (31 - RECIPLOG_LOOKUP_BITS - 1)) & ((2 << RECIPLOG_LOOKUP_BITS) - 2);
+    	tablePos = (temp >>> (31 - RECIPLOG_LOOKUP_BITS - 1)) & ((2 << RECIPLOG_LOOKUP_BITS) - 2);
 
     	/* compute the interpolation value */
-    	interp = (temp >> (31 - RECIPLOG_LOOKUP_BITS - 8)) & 0xff;
+    	interp = (temp >>> (31 - RECIPLOG_LOOKUP_BITS - 8)) & 0xff;
 
     	/* do a linear interpolatation between the two nearest table values */
     	/* for both the log and the reciprocal */
-    	rlog = (voodoo_reciplog[tablePos+1] * (0x100 - interp) + voodoo_reciplog[tablePos+3] * interp) >> 8;
-    	recip = (voodoo_reciplog[tablePos] * (0x100 - interp) + voodoo_reciplog[tablePos+2] * interp) >> 8;
+    	rlog = (voodoo_reciplog[tablePos+1] * (0x100 - interp) + voodoo_reciplog[tablePos+3] * interp) >>> 8;
+    	recip = (voodoo_reciplog[tablePos] * (0x100 - interp) + voodoo_reciplog[tablePos+2] * interp) >>> 8;
 
     	/* the log result is the fractional part of the log; round it to the output precision */
     	rlog = (rlog + (1 << (RECIPLOG_LOOKUP_PREC - LOG_OUTPUT_PREC - 1))) >> (RECIPLOG_LOOKUP_PREC - LOG_OUTPUT_PREC);
@@ -1836,12 +1836,12 @@ public class VoodooCommon extends PCI.PCI_Device {
 
     	/* shift by the exponent */
     	if (exp < 0)
-    		recip >>= -exp;
+    		recip >>>= -exp;
     	else
     		recip <<= exp;
 
     	/* on the way out, apply the original sign to the reciprocal */
-    	return neg ? -recip : recip;
+    	return (neg && recip>0) ? -recip : recip;
     }
 
     static private int float_to_int32(int data, int fixedbits)
@@ -1975,7 +1975,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     	hash = (hash << 1) | (hash >> 31);
     	hash ^= info.eff_tex_mode_1;
 
-    	return hash % RASTER_HASH_SIZE;
+    	return (int)((hash & 0xFFFFFFFFl) % RASTER_HASH_SIZE);
     }
 
     /*************************************
@@ -6418,14 +6418,12 @@ public class VoodooCommon extends PCI.PCI_Device {
 
     static final private Pic.PIC_EventHandler Voodoo_VerticalTimer = new Pic.PIC_EventHandler() {
         public void call(int val) {
+            if (vdraw.screen_update_pending)
+                return;
             vdraw.v.vblank_off_callback();
 
             vdraw.frame_start = Pic.PIC_FullIndex();
             Pic.PIC_AddEvent( Voodoo_VerticalBlankTimer, vdraw.vfreq*95/100);
-
-            if (vdraw.v.fbi.vblank_swap_pending) {
-                vdraw.v.swap_buffers();
-            }
 
             if (!Render.RENDER_StartUpdate()) return; // frameskip
 
@@ -6467,15 +6465,16 @@ public class VoodooCommon extends PCI.PCI_Device {
                 vdraw.override_on=false;
             }
 
-            if ((vdraw.clock_enabled && vdraw.output_on)&& !vdraw.override_on) {
+            if ((vdraw.clock_enabled && vdraw.output_on)) {
                 // switching on
                 Pic.PIC_RemoveEvents(Voodoo_VerticalTimer); // shouldn't be needed
 
                 // TODO proper implementation of refresh rates and timings
                 vdraw.vfreq = 1000.0f/60.0f;
-                VGA_draw.VGA_SetOverride(true);
-                vdraw.override_on=true;
-
+                if (!vdraw.override_on) {
+                    VGA_draw.VGA_SetOverride(true);
+                    vdraw.override_on=true;
+                }
                 vdraw.height=vdraw.v.fbi.height;
                 Log.log_msg("Voodoo output "+(vdraw.v.fbi.width+1)+"x"+vdraw.v.fbi.height);
 

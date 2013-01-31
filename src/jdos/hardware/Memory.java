@@ -4,6 +4,7 @@ import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Paging;
+import jdos.hardware.pci.PCI_PageHandler;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 import jdos.misc.setup.Module_base;
@@ -324,7 +325,7 @@ public class Memory extends Module_base {
             /*Bitu*/int		pages;
             Paging.PageHandler handler;
         }
-        public Vector<PCI.PCIPageHandler> pci = new Vector<PCI.PCIPageHandler>();
+        public Vector<PCI_PageHandler> pci = new Vector<PCI_PageHandler>();
         public Vector<ROM> roms = new Vector<ROM>();
         public static class A20 {
             boolean enabled;
@@ -436,7 +437,7 @@ public class Memory extends Module_base {
         memory.roms.add(rom);
     }
 
-    static public void MEM_AddPCIPageHandler(PCI.PCIPageHandler handler) {
+    static public void MEM_AddPCIPageHandler(PCI_PageHandler handler) {
         memory.pci.add(handler);
     }
 
@@ -467,7 +468,7 @@ public class Memory extends Module_base {
             }
         }
         for (int i=0;i<memory.pci.size();i++) {
-            PCI.PCIPageHandler handler = memory.pci.elementAt(i);
+            PCI_PageHandler handler = memory.pci.elementAt(i);
             if (phys_page>=handler.start_page && phys_page<handler.stop_page)
                 return handler;
         }

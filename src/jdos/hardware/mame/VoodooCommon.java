@@ -2,17 +2,20 @@ package jdos.hardware.mame;
 
 import jdos.cpu.Paging;
 import jdos.gui.Render;
-import jdos.hardware.PCI;
 import jdos.hardware.Pic;
 import jdos.hardware.VGA;
 import jdos.hardware.VGA_draw;
+import jdos.hardware.pci.PCI;
+import jdos.hardware.pci.PCI_Device;
+import jdos.hardware.pci.PCI_Memory_BAR;
+import jdos.hardware.pci.PCI_PageHandler;
 import jdos.misc.Log;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 
 import java.util.Arrays;
 
-public class VoodooCommon extends PCI.PCI_Device {
+public class VoodooCommon extends PCI_Device {
     static private final int VOODOO_MEM = 0x60000000;
 
     static private final long ATTOSECONDS_PER_SECOND = 1000000000;// java only gets nano seconds
@@ -180,7 +183,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     }
 
     static interface voodoo_stall_func {
-        public void call(PCI.PCI_Device device, int state);
+        public void call(PCI_Device device, int state);
     }
 
     static final class pci_state
@@ -276,7 +279,7 @@ public class VoodooCommon extends PCI.PCI_Device {
     }
 
     static interface voodoo_vblank_func {
-        public void call(PCI.PCI_Device device, int state);
+        public void call(PCI_Device device, int state);
     }
 
     static final class fbi_state
@@ -7711,8 +7714,8 @@ public class VoodooCommon extends PCI.PCI_Device {
 
     public VoodooCommon(int deviceId, int fbRAM, int tmuRAM0, int tmuRAM1, int type) {
         super(0x121A, deviceId);
-        this.addHandler(new VoodooPageHandler(VOODOO_MEM >> 12, (VOODOO_MEM >> 12) + ((fbRAM+tmuRAM0+tmuRAM1+4) << 8))); // 4 is for REGS
-        PCI.pci_interface.RegisterPCIDevice(this, 0);
+        setBAR(new PCI_Memory_BAR(new VoodooPageHandler(VOODOO_MEM >> 12, (VOODOO_MEM >> 12) + ((fbRAM+tmuRAM0+tmuRAM1+4) << 8))), 0); // 4 is for REGS
+        PCI.pci_interface.RegisterPCIDevice(this, -1);
         for (int i=0;i<tmu.length;i++) {
             tmu[i] = new tmu_state();
         }
@@ -7770,7 +7773,7 @@ public class VoodooCommon extends PCI.PCI_Device {
      *
      *************************************/
 
-    private class VoodooPageHandler extends PCI.PCIPageHandler {
+    private class VoodooPageHandler extends PCI_PageHandler {
         public VoodooPageHandler(int start_page, int stop_page) {
             this.start_page = start_page;
             this.stop_page = stop_page;

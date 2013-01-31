@@ -8,6 +8,7 @@ import jdos.dos.Dos;
 import jdos.dos.Dos_programs;
 import jdos.dos.Dos_tables;
 import jdos.hardware.*;
+import jdos.hardware.pci.PCI;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 import jdos.misc.setup.Module_base;

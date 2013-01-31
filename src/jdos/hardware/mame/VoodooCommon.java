@@ -6447,8 +6447,10 @@ public class VoodooCommon extends PCI.PCI_Device {
     }
 
     static void Voodoo_PCI_Enable(boolean enable) {
-    	vdraw.clock_enabled=enable;
-    	Voodoo_UpdateScreenStart();
+        if (enable != vdraw.clock_enabled) {
+    	    vdraw.clock_enabled=enable;
+    	    Voodoo_UpdateScreenStart();
+        }
     }
 
     static final private Pic.PIC_EventHandler Voodoo_UpdateScreen = new Pic.PIC_EventHandler() {
@@ -7734,7 +7736,7 @@ public class VoodooCommon extends PCI.PCI_Device {
             voodoo_set_init_enable(value);
         } else if (regnum == 0xc0) {
             Voodoo_PCI_Enable(true);
-        } else if (regnum == 0x40) {
+        } else if (regnum == 0xe0) {
             Voodoo_PCI_Enable(false);
         }
         return value;

@@ -26,7 +26,7 @@ public class Compiler extends Helper {
     static final private boolean cacheSegments = true;
 
     private static Thread[] compilerThread = null;
-    private static LinkedList compilerQueue = new LinkedList();
+    private static final LinkedList compilerQueue = new LinkedList();
 
     // :TODO: update CMPXCHG to update flags like in normal core
 

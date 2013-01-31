@@ -173,7 +173,7 @@ public class Poly {
     }
 
     static interface poly_draw_scanline_func {
-        public void call(byte[] dest, int destOffset, int scanline, poly_extent extent, Object extradata, int threadid);
+        public void call(short[] dest, int destOffset, int scanline, poly_extent extent, VoodooCommon.poly_extra_data extradata, int threadid);
     }
 
     /* polygon_info describes a single polygon, which includes the poly_params */
@@ -191,9 +191,9 @@ public class Poly {
             }
         }
     	poly_manager        poly;                   /* pointer back to the poly manager */
-    	byte[]              dest;                   /* pointer to the destination we are rendering to */
+    	short[]             dest;                   /* pointer to the destination we are rendering to */
         int                 destOffset;
-    	Object              extra;                  /* extra data pointer */
+        VoodooCommon.poly_extra_data              extra;                  /* extra data pointer */
     	int                 numparams;              /* number of parameters for this polygon  */
     	int                 numverts;               /* number of vertices in this polygon */
     	poly_draw_scanline_func     callback;               /* callback to handle a scanline's worth of work */
@@ -225,7 +225,7 @@ public class Poly {
         int                 polygon_count;          /* number of polygon items available */
 
     	/* extra data */
-    	Object[]            extra;                  /* array of extra data pointers */
+        VoodooCommon.poly_extra_data[]            extra;                  /* array of extra data pointers */
         int                 extra_next;             /* index of next extra data to allocate */
         int                 extra_count;            /* number of extra data items available */
 
@@ -351,7 +351,7 @@ public class Poly {
         manager
     -------------------------------------------------*/
     
-    static poly_manager poly_alloc(int max_polys, int flags, Object[] extra)
+    static poly_manager poly_alloc(int max_polys, int flags, VoodooCommon.poly_extra_data[] extra)
     {
     	poly_manager poly = new poly_manager();
     
@@ -497,7 +497,7 @@ public class Poly {
         triangle given 3 vertexes
     -------------------------------------------------*/
 
-    static int poly_render_triangle(poly_manager poly, byte[] dest, int destOffset, VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int paramcount, poly_vertex v1, poly_vertex v2, poly_vertex v3)
+    static int poly_render_triangle(poly_manager poly, short[] dest, int destOffset, VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int paramcount, poly_vertex v1, poly_vertex v2, poly_vertex v3)
     {
     	float dxdy_v1v2, dxdy_v1v3, dxdy_v2v3;
     	poly_vertex tv;
@@ -684,7 +684,7 @@ public class Poly {
         triangles in a fan
     -------------------------------------------------*/
 
-    static int poly_render_triangle_fan(poly_manager poly, byte[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int paramcount, int numverts, poly_vertex[] v)
+    static int poly_render_triangle_fan(poly_manager poly, short[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int paramcount, int numverts, poly_vertex[] v)
     {
     	int pixels = 0;
     	int vertnum;
@@ -701,7 +701,7 @@ public class Poly {
         render of an object, given specific extents
     -------------------------------------------------*/
 
-    static int poly_render_triangle_custom(poly_manager poly, byte[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int startscanline, int numscanlines, poly_extent[] extents)
+    static int poly_render_triangle_custom(poly_manager poly, short[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int startscanline, int numscanlines, poly_extent[] extents)
     {
     	int curscan, scaninc;
     	polygon_info polygon;

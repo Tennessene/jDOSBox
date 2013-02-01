@@ -4448,8 +4448,8 @@ public class VoodooCommon extends PCI_Device {
                 scry = (fbi.yorigin - y) & 0x3ff;
 
             /* advance pointers to the proper row */
-            destPos += (scry * fbi.rowpixels)*2;
-            depthPos += (scry * fbi.rowpixels)*2;
+            destPos += (scry * fbi.rowpixels);
+            depthPos += (scry * fbi.rowpixels);
 
             /* compute dithering */
             // COMPUTE_DITHER_POINTERS(reg[fbzMode].u, y);

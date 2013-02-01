@@ -50,26 +50,6 @@ public class Poly {
     }
 
 
-    /* poly_extent describes start/end points for a scanline, along with per-scanline parameters */
-    static final class poly_extent
-    {
-        static public poly_extent[] create(int count) {
-            poly_extent[] result = new poly_extent[count];
-            for (int i=0;i<result.length;i++)
-                result[i] = new poly_extent();
-            return result;
-        }
-
-        public poly_extent() {
-            for (int i=0;i<param.length;i++) {
-                param[i] = new poly_param_extent();
-            }
-        }
-    	int       startx;                     /* starting X coordinate (inclusive) */
-    	int       stopx;                      /* ending X coordinate (exclusive) */
-    	poly_param_extent[] param = new poly_param_extent[MAX_VERTEX_PARAMS]; /* starting and dx values for each parameter */
-    }
-
     /* tri_extent describes start/end points for a scanline */
     static final class tri_extent
     {
@@ -172,10 +152,6 @@ public class Poly {
     	poly_extent[] extent = new poly_extent[SCANLINES_PER_BUCKET]; /* array of scanline extents */
     }
 
-    static interface poly_draw_scanline_func {
-        public void call(short[] dest, int destOffset, int scanline, poly_extent extent, VoodooCommon.poly_extra_data extradata, int threadid);
-    }
-
     /* polygon_info describes a single polygon, which includes the poly_params */
     static final class polygon_info
     {
@@ -193,7 +169,7 @@ public class Poly {
     	poly_manager        poly;                   /* pointer back to the poly manager */
     	short[]             dest;                   /* pointer to the destination we are rendering to */
         int                 destOffset;
-        VoodooCommon.poly_extra_data              extra;                  /* extra data pointer */
+        poly_extra_data extra;                  /* extra data pointer */
     	int                 numparams;              /* number of parameters for this polygon  */
     	int                 numverts;               /* number of vertices in this polygon */
     	poly_draw_scanline_func     callback;               /* callback to handle a scanline's worth of work */
@@ -225,7 +201,7 @@ public class Poly {
         int                 polygon_count;          /* number of polygon items available */
 
     	/* extra data */
-        VoodooCommon.poly_extra_data[]            extra;                  /* array of extra data pointers */
+        poly_extra_data[]            extra;                  /* array of extra data pointers */
         int                 extra_next;             /* index of next extra data to allocate */
         int                 extra_count;            /* number of extra data items available */
 
@@ -351,7 +327,7 @@ public class Poly {
         manager
     -------------------------------------------------*/
     
-    static poly_manager poly_alloc(int max_polys, int flags, VoodooCommon.poly_extra_data[] extra)
+    static poly_manager poly_alloc(int max_polys, int flags, poly_extra_data[] extra)
     {
     	poly_manager poly = new poly_manager();
     

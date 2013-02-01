@@ -32,7 +32,7 @@ public class VoodooCommon extends PCI_Device {
     static public int getRegG(int i) {return (i >> 8) & 0xFF;}
     static public int getRegR(int i) {return (i >> 16) & 0xFF;}
     static public int getRegA(int i) {return (i >> 24) & 0xFF;}
-    static public int setRegRGBA(int r, int g, int b, int a) {return b | (g << 8) | (r << 16) | (a << 24);}
+    static public int setRegRGBA(int r, int g, int b, int a) {return (b & 0xFF) | ((g & 0xFF) << 8) | ((r & 0xFF) << 16) | ((a & 0xFF) << 24);}
     static public int setRegA(int i, int a) {return (i & 0x00FFFFFF) | (a<<24);}
 
     /* enumeration describing reasons we might be stalled */
@@ -92,58 +92,28 @@ public class VoodooCommon extends PCI_Device {
     static final int RECIP_OUTPUT_PREC      = 15;
     static final int LOG_OUTPUT_PREC        = 8;
 
-    static final class voodoo_stats
+    static final public class voodoo_stats
     {
-    	int               lastkey;                /* last key state */
-        boolean           display;                /* display stats? */
-        int               swaps;                  /* total swaps */
-        int               stalls;                 /* total stalls */
-        int               total_triangles;        /* total triangles */
-        int               total_pixels_in;        /* total pixels in */
-        int               total_pixels_out;       /* total pixels out */
-        int               total_chroma_fail;      /* total chroma fail */
-        int               total_zfunc_fail;       /* total z func fail */
-        int               total_afunc_fail;       /* total a func fail */
-        int               total_clipped;          /* total clipped */
-        int               total_stippled;         /* total stippled */
-        int               lfb_writes;             /* LFB writes */
-        int               lfb_reads;              /* LFB reads */
-        int               reg_writes;             /* register writes */
-        int               reg_reads;              /* register reads */
-        int               tex_writes;             /* texture writes */
-        int[]             texture_mode = new int[16];       /* 16 different texture modes */
-        int               render_override;        /* render override */
-    	String            buffer;                 /* string */
-    }
-
-
-    /* note that this structure is an even 64 bytes long */
-    static final class stats_block
-    {
-        static public stats_block[] create(int count) {
-            stats_block[] result = new stats_block[count];
-            for (int i=0;i<result.length;i++)
-                result[i] = new stats_block();
-            return result;
-        }
-        int               pixels_in;              /* pixels in statistic */
-        int               pixels_out;             /* pixels out statistic */
-        int               chroma_fail;            /* chroma test fail statistic */
-        int               zfunc_fail;             /* z function test fail statistic */
-        int               afunc_fail;             /* alpha function test fail statistic */
-        int               clip_fail;              /* clipping fail statistic */
-        int               stipple_count;          /* stipple statistic */
-        //int               filler[64/4 - 7];       /* pad this structure to 64 bytes */
-
-        public void clear() {
-            pixels_in = 0;
-            pixels_out = 0;
-            chroma_fail = 0;
-            zfunc_fail = 0;
-            afunc_fail = 0;
-            clip_fail = 0;
-            stipple_count = 0;
-        }
+        public int               lastkey;                /* last key state */
+        public boolean           display;                /* display stats? */
+        public int               swaps;                  /* total swaps */
+        public int               stalls;                 /* total stalls */
+        public int               total_triangles;        /* total triangles */
+        public int               total_pixels_in;        /* total pixels in */
+        public int               total_pixels_out;       /* total pixels out */
+        public int               total_chroma_fail;      /* total chroma fail */
+        public int               total_zfunc_fail;       /* total z func fail */
+        public int               total_afunc_fail;       /* total a func fail */
+        public int               total_clipped;          /* total clipped */
+        public int               total_stippled;         /* total stippled */
+        public int               lfb_writes;             /* LFB writes */
+        public int               lfb_reads;              /* LFB reads */
+        public int               reg_writes;             /* register writes */
+        public int               reg_reads;              /* register reads */
+        public int               tex_writes;             /* texture writes */
+        public int[]             texture_mode = new int[16];       /* 16 different texture modes */
+        public int               render_override;        /* render override */
+        public String            buffer;                 /* string */
     }
 
 
@@ -211,51 +181,6 @@ public class VoodooCommon extends PCI_Device {
     }
 
 
-    static final class tmu_state
-    {
-        public tmu_state() {
-            for (int i=0;i<ncc.length;i++) {
-                ncc[i] = new ncc_table();
-            }
-        }
-    	byte[]              ram;                    /* pointer to our RAM */
-    	int                 mask;                   /* mask to apply to pointers */
-    	int                 reg;                    /* pointer to our register base */
-    	boolean             regdirty;               /* true if the LOD/mode/base registers have changed */
-
-    	int                 texaddr_mask;           /* mask for texture address */
-        int                 texaddr_shift;          /* shift for texture address */
-
-    	long                starts, startt;         /* starting S,T (14.18) */
-        long                startw;                 /* starting W (2.30) */
-        long                dsdx, dtdx;             /* delta S,T per X */
-        long                dwdx;                   /* delta W per X */
-        long                dsdy, dtdy;             /* delta S,T per Y */
-        long                dwdy;                   /* delta W per Y */
-
-    	int                 lodmin, lodmax;         /* min, max LOD values */
-        int                 lodbias;                /* LOD bias */
-        int                 lodmask;                /* mask of available LODs */
-        int[]               lodoffset = new int[9]; /* offset of texture base for each LOD */
-        int                 detailmax;              /* detail clamp */
-        int                 detailbias;             /* detail bias */
-        int                 detailscale;            /* detail scale */
-
-        int                 wmask;                  /* mask for the current texture width */
-        int                 hmask;                  /* mask for the current texture height */
-
-        int                 bilinear_mask;          /* mask for bilinear resolution (0xf0 for V1, 0xff for V2) */
-
-    	ncc_table[]         ncc = new ncc_table[2]; /* two NCC tables */
-
-    	int[]               lookup;                 /* currently selected lookup */
-    	int[][]             texel = new int[16][];    /* texel lookups for each format */
-
-    	int[]               palette = new int[256]; /* palette lookup table */
-    	int[]               palettea = new int[256];/* palette+alpha lookup table */
-    }
-
-
     static final class tmu_shared_state
     {
     	int[]               rgb332 = new int[256];            /* RGB 3-3-2 lookup table */
@@ -282,7 +207,7 @@ public class VoodooCommon extends PCI_Device {
         public void call(PCI_Device device, int state);
     }
 
-    static final class fbi_state
+    static public final class fbi_state
     {
         public fbi_state() {
             for (int i=0;i<svert.length;i++) {
@@ -292,68 +217,68 @@ public class VoodooCommon extends PCI_Device {
                 cmdfifo[i] = new cmdfifo_info();
             }
         }
-    	short[]             ram;                    /* pointer to frame buffer RAM */
-    	int                 mask;                   /* mask to apply to pointers */
-        int[]               rgboffs = new int[3];   /* word offset to 3 RGB buffers */
-        int                 auxoffs;                /* word offset to 1 aux buffer */
+        public short[]             ram;                    /* pointer to frame buffer RAM */
+        public int                 mask;                   /* mask to apply to pointers */
+        public int[]               rgboffs = new int[3];   /* word offset to 3 RGB buffers */
+        public int                 auxoffs;                /* word offset to 1 aux buffer */
 
-        int                 frontbuf;               /* front buffer index */
-        int                 backbuf;                /* back buffer index */
-        int                 swaps_pending;          /* number of pending swaps */
-    	boolean             video_changed;          /* did the frontbuffer video change? */
+        public int                 frontbuf;               /* front buffer index */
+        public int                 backbuf;                /* back buffer index */
+        public int                 swaps_pending;          /* number of pending swaps */
+        public boolean             video_changed;          /* did the frontbuffer video change? */
 
-        int                 yorigin;                /* Y origin subtract value */
-        int                 lfb_base;               /* base of LFB in memory */
-        int                 lfb_stride;             /* stride of LFB accesses in bits */
+        public int                 yorigin;                /* Y origin subtract value */
+        public int                 lfb_base;               /* base of LFB in memory */
+        public int                 lfb_stride;             /* stride of LFB accesses in bits */
 
-        int                 width;                  /* width of current frame buffer */
-        int                 height;                 /* height of current frame buffer */
-        int                 xoffs;                  /* horizontal offset (back porch) */
-        int                 yoffs;                  /* vertical offset (back porch) */
-        int                 vsyncscan;              /* vertical sync scanline */
-        int                 rowpixels;              /* pixels per row */
-        int                 tile_width;             /* width of video tiles */
-        int                 tile_height;            /* height of video tiles */
-        int                 x_tiles;                /* number of tiles in the X direction */
+        public int                 width;                  /* width of current frame buffer */
+        public int                 height;                 /* height of current frame buffer */
+        public int                 xoffs;                  /* horizontal offset (back porch) */
+        public int                 yoffs;                  /* vertical offset (back porch) */
+        public int                 vsyncscan;              /* vertical sync scanline */
+        public int                 rowpixels;              /* pixels per row */
+        public int                 tile_width;             /* width of video tiles */
+        public int                 tile_height;            /* height of video tiles */
+        public int                 x_tiles;                /* number of tiles in the X direction */
 
-        boolean             vblank;                 /* VBLANK state */
-        int                 vblank_count;           /* number of VBLANKs since last swap */
-    	boolean             vblank_swap_pending;    /* a swap is pending, waiting for a vblank */
-        int                 vblank_swap;            /* swap when we hit this count */
-        boolean             vblank_dont_swap;       /* don't actually swap when we hit this point */
-    	voodoo_vblank_func  vblank_client;          /* client callback */
+        public boolean             vblank;                 /* VBLANK state */
+        public int                 vblank_count;           /* number of VBLANKs since last swap */
+        public boolean             vblank_swap_pending;    /* a swap is pending, waiting for a vblank */
+        public int                 vblank_swap;            /* swap when we hit this count */
+        public boolean             vblank_dont_swap;       /* don't actually swap when we hit this point */
+        public voodoo_vblank_func  vblank_client;          /* client callback */
 
     	/* triangle setup info */
-    	boolean             cheating_allowed;       /* allow cheating? */
-    	int                 sign;                   /* triangle sign */
-        short               ax, ay;                 /* vertex A x,y (12.4) */
-        short               bx, by;                 /* vertex B x,y (12.4) */
-        short               cx, cy;                 /* vertex C x,y (12.4) */
-        int                 startr, startg, startb, starta; /* starting R,G,B,A (12.12) */
-        int                 startz;                 /* starting Z (20.12) */
-    	long                startw;                 /* starting W (16.32) */
-        int                 drdx, dgdx, dbdx, dadx; /* delta R,G,B,A per X */
-        int                 dzdx;                   /* delta Z per X */
-    	long                dwdx;                   /* delta W per X */
-    	int                 drdy, dgdy, dbdy, dady; /* delta R,G,B,A per Y */
-    	int                 dzdy;                   /* delta Z per Y */
-    	long                dwdy;                   /* delta W per Y */
+        public boolean             cheating_allowed;       /* allow cheating? */
+        public int                 sign;                   /* triangle sign */
+        public short               ax, ay;                 /* vertex A x,y (12.4) */
+        public short               bx, by;                 /* vertex B x,y (12.4) */
+        public short               cx, cy;                 /* vertex C x,y (12.4) */
+        public int                 startr, startg, startb, starta; /* starting R,G,B,A (12.12) */
+        public int                 startz;                 /* starting Z (20.12) */
+        public long                startw;                 /* starting W (16.32) */
+        public int                 drdx, dgdx, dbdx, dadx; /* delta R,G,B,A per X */
+        public int                 dzdx;                   /* delta Z per X */
+        public long                dwdx;                   /* delta W per X */
+        public int                 drdy, dgdy, dbdy, dady; /* delta R,G,B,A per Y */
+        public int                 dzdy;                   /* delta Z per Y */
+        public long                dwdy;                   /* delta W per Y */
 
-    	stats_block         lfb_stats = new stats_block();              /* LFB-access statistics */
+        public stats_block         lfb_stats = new stats_block();              /* LFB-access statistics */
 
-    	int                 sverts;                 /* number of vertices ready */
-    	setup_vertex[]      svert = new setup_vertex[3];               /* 3 setup vertices */
+        public int                 sverts;                 /* number of vertices ready */
+        public setup_vertex[]      svert = new setup_vertex[3];               /* 3 setup vertices */
 
-    	fifo_state          fifo = new fifo_state(null);                   /* framebuffer memory fifo */
-    	cmdfifo_info[]      cmdfifo = new cmdfifo_info[2];             /* command FIFOs */
+        public fifo_state          fifo = new fifo_state(null);                   /* framebuffer memory fifo */
+        public cmdfifo_info[]      cmdfifo = new cmdfifo_info[2];             /* command FIFOs */
 
-    	int[]               fogblend = new int[64];           /* 64-entry fog table */
-        int[]               fogdelta = new int[64];           /* 64-entry fog table */
-        int                 fogdelta_mask;          /* mask for for delta (0xff for V1, 0xfc for V2) */
+        public int[]               fogblend = new int[64];           /* 64-entry fog table */
+        public int[]               fogdelta = new int[64];           /* 64-entry fog table */
+        public int                 fogdelta_mask;          /* mask for for delta (0xff for V1, 0xfc for V2) */
 
-    	int[]               pen = new int[65536];             /* mapping from pixels to pens */
-    	int[]               clut = new int[512];              /* clut gamma data */
-    	boolean             clut_dirty;             /* do we need to recompute? */
+        public int[]               pen = new int[65536];             /* mapping from pixels to pens */
+        public int[]               clut = new int[512];              /* clut gamma data */
+        public boolean             clut_dirty;             /* do we need to recompute? */
     }
 
 
@@ -363,76 +288,7 @@ public class VoodooCommon extends PCI_Device {
     	int                 read_result;            /* pending read result */
     }
 
-    static final class raster_info
-    {
-        public void copy(raster_info info) {
-            this.next = info.next;
-            this.callback = info.callback;
-            this.is_generic = info.is_generic;
-            this.display = info.display;
-            this.hits = info.hits;
-            this.polys = info.polys;
-            this.eff_color_path = info.eff_color_path;
-            this.eff_alpha_mode = info.eff_alpha_mode;
-            this.eff_fog_mode = info.eff_fog_mode;
-            this.eff_fbz_mode = info.eff_fbz_mode;
-            this.eff_tex_mode_0 = info.eff_tex_mode_0;
-            this.eff_tex_mode_1 = info.eff_tex_mode_1;
-        }
-    	raster_info         next;                   /* pointer to next entry with the same hash */
-    	Poly.poly_draw_scanline_func callback;           /* callback pointer */
-    	boolean             is_generic;             /* TRUE if this is one of the generic rasterizers */
-    	int                 display;                /* display index */
-        int                 hits;                   /* how many hits (pixels) we've used this for */
-        int                 polys;                  /* how many polys we've used this for */
-        int                 eff_color_path;         /* effective fbzColorPath value */
-        int                 eff_alpha_mode;         /* effective alphaMode value */
-        int                 eff_fog_mode;           /* effective fogMode value */
-        int                 eff_fbz_mode;           /* effective fbzMode value */
-        int                 eff_tex_mode_0;         /* effective textureMode value for TMU #0 */
-        int                 eff_tex_mode_1;         /* effective textureMode value for TMU #1 */
-    }
-
-    static final class poly_extra_data
-    {
-        public static poly_extra_data[] create(int count) {
-            poly_extra_data[] result = new poly_extra_data[count];
-            for (int i=0;i<result.length;i++)
-                result[i] = new poly_extra_data();
-            return result;
-        }
-    	VoodooCommon        state;                  /* pointer back to the voodoo state */
-    	raster_info         info;                   /* pointer to rasterizer information */
-
-    	int                 ax, ay;                 /* vertex A x,y (12.4) */
-        int               startr, startg, startb, starta; /* starting R,G,B,A (12.12) */
-        int               startz;                 /* starting Z (20.12) */
-    	long               startw;                 /* starting W (16.32) */
-        int               drdx, dgdx, dbdx, dadx; /* delta R,G,B,A per X */
-        int               dzdx;                   /* delta Z per X */
-    	long               dwdx;                   /* delta W per X */
-        int               drdy, dgdy, dbdy, dady; /* delta R,G,B,A per Y */
-        int               dzdy;                   /* delta Z per Y */
-    	long               dwdy;                   /* delta W per Y */
-
-    	long               starts0, startt0;       /* starting S,T (14.18) */
-    	long               startw0;                /* starting W (2.30) */
-    	long               ds0dx, dt0dx;           /* delta S,T per X */
-    	long               dw0dx;                  /* delta W per X */
-    	long               ds0dy, dt0dy;           /* delta S,T per Y */
-    	long               dw0dy;                  /* delta W per Y */
-        int               lodbase0;               /* used during rasterization */
-
-    	long               starts1, startt1;       /* starting S,T (14.18) */
-    	long               startw1;                /* starting W (2.30) */
-    	long               ds1dx, dt1dx;           /* delta S,T per X */
-    	long               dw1dx;                  /* delta W per X */
-    	long               ds1dy, dt1dy;           /* delta S,T per Y */
-    	long               dw1dy;                  /* delta W per Y */
-        int               lodbase1;               /* used during rasterization */
-
-    	int[]              dither;             /* dither matrix, for fastfill */
-    };
+    ;
 
     static final class banshee_info
     {
@@ -465,36 +321,36 @@ public class VoodooCommon extends PCI_Device {
 
     //screen_device *screen;              /* the screen we are acting on */
     //device_t *cpu;                  /* the CPU we interact with */
-    int                 type;                   /* type of system */
-    int                 chipmask;               /* mask for which chips are available */
-    int                 freq;                   /* operating frequency */
-    long                attoseconds_per_cycle;  /* attoseconds per cycle */
-    int                 extra_cycles;           /* extra cycles not yet accounted for */
-    int                 trigger;                /* trigger used for stalling */
+    public int                 type;                   /* type of system */
+    public int                 chipmask;               /* mask for which chips are available */
+    public int                 freq;                   /* operating frequency */
+    public long                attoseconds_per_cycle;  /* attoseconds per cycle */
+    public int                 extra_cycles;           /* extra cycles not yet accounted for */
+    public int                 trigger;                /* trigger used for stalling */
 
-    int[]               reg = new int[0x400];             /* raw registers */
-    byte[]              regaccess;              /* register access array */
-    String[]            regnames;               /* register names array */
-    boolean             alt_regmap;             /* enable alternate register map? */
+    public int[]               reg = new int[0x400];             /* raw registers */
+    public byte[]              regaccess;              /* register access array */
+    public String[]            regnames;               /* register names array */
+    public boolean             alt_regmap;             /* enable alternate register map? */
 
-    pci_state           pci = new pci_state();  /* PCI state */
-    dac_state           dac = new dac_state();                    /* DAC state */
+    public pci_state           pci = new pci_state();  /* PCI state */
+    public dac_state           dac = new dac_state();                    /* DAC state */
 
-    fbi_state           fbi = new fbi_state();  /* FBI states */
-    tmu_state[]         tmu = new tmu_state[MAX_TMU];           /* TMU states */
-    tmu_shared_state    tmushare = new tmu_shared_state();               /* TMU shared state */
-    banshee_info        banshee = new banshee_info();                /* Banshee state */
+    public fbi_state           fbi = new fbi_state();  /* FBI states */
+    public tmu_state[]         tmu = new tmu_state[MAX_TMU];           /* TMU states */
+    public tmu_shared_state    tmushare = new tmu_shared_state();               /* TMU shared state */
+    public banshee_info        banshee = new banshee_info();                /* Banshee state */
 
-    Poly.poly_manager   poly = new Poly.poly_manager();                   /* polygon manager */
-    stats_block[]       thread_stats;           /* per-thread statistics */
+    public Poly.poly_manager   poly = new Poly.poly_manager();                   /* polygon manager */
+    public stats_block[]       thread_stats;           /* per-thread statistics */
 
-    voodoo_stats        stats = new voodoo_stats();                  /* internal statistics */
+    public voodoo_stats        stats = new voodoo_stats();                  /* internal statistics */
 
-    int                 last_status_pc;         /* PC of last status description (for logging) */
-    int                 last_status_value;      /* value of last status read (for logging) */
+    public int                 last_status_pc;         /* PC of last status description (for logging) */
+    public int                 last_status_value;      /* value of last status read (for logging) */
 
-    int                 next_rasterizer;        /* next rasterizer index */
-    raster_info[]       rasterizer = new raster_info[MAX_RASTERIZERS]; /* array of rasterizers */
+    public int                 next_rasterizer;        /* next rasterizer index */
+    public raster_info[]       rasterizer = new raster_info[MAX_RASTERIZERS]; /* array of rasterizers */
     raster_info[]       raster_hash = new raster_info[RASTER_HASH_SIZE]; /* hash table of rasterizers */
 
     static final class rectangle {
@@ -515,9 +371,9 @@ public class VoodooCommon extends PCI_Device {
     static final rectangle global_cliprect = new rectangle(-4096, 4095, -4096, 4095);
 
     /* fast dither lookup */
-    static final private byte[] dither4_lookup = new byte[256*16*2];
-    static final private byte[] dither2_lookup = new byte[256*16*2];
-    static final private int[] voodoo_reciplog = new int[(2 << RECIPLOG_LOOKUP_BITS) + 2];
+    static final public byte[] dither4_lookup = new byte[256*16*2];
+    static final public byte[] dither2_lookup = new byte[256*16*2];
+    static final public int[] voodoo_reciplog = new int[(2 << RECIPLOG_LOOKUP_BITS) + 2];
 
     static double LOGB2(double v) {
         return Math.log(v) / Math.log(2);
@@ -641,7 +497,7 @@ public class VoodooCommon extends PCI_Device {
      *
      *************************************/
 
-    static private final byte[] dither_matrix_4x4 = new byte[]
+    static public final byte[] dither_matrix_4x4 = new byte[]
     {
     		0,  8,  2, 10,
     	    12,  4, 14,  6,
@@ -649,7 +505,7 @@ public class VoodooCommon extends PCI_Device {
     	    15,  7, 13,  5
     };
 
-    static private final byte[] dither_matrix_2x2 = new byte[]
+    static public final byte[] dither_matrix_2x2 = new byte[]
     {
     		2, 10,  2, 10,
     	    14,  6, 14,  6,
@@ -863,74 +719,74 @@ public class VoodooCommon extends PCI_Device {
      *************************************/
     
     /* 0x000 */
-    static final int io_status                       = (0x000/4);   /*  */
-    static final int io_pciInit0                     = (0x004/4);   /*  */
-    static final int io_sipMonitor                   = (0x008/4);   /*  */
-    static final int io_lfbMemoryConfig              = (0x00c/4);   /*  */
-    static final int io_miscInit0                    = (0x010/4);   /*  */
-    static final int io_miscInit1                    = (0x014/4);   /*  */
-    static final int io_dramInit0                    = (0x018/4);   /*  */
-    static final int io_dramInit1                    = (0x01c/4);   /*  */
-    static final int io_agpInit                      = (0x020/4);   /*  */
-    static final int io_tmuGbeInit                   = (0x024/4);   /*  */
-    static final int io_vgaInit0                     = (0x028/4);   /*  */
-    static final int io_vgaInit1                     = (0x02c/4);   /*  */
-    static final int io_dramCommand                  = (0x030/4);   /*  */
-    static final int io_dramData                     = (0x034/4);   /*  */
+    static final public int io_status                       = (0x000/4);   /*  */
+    static final public int io_pciInit0                     = (0x004/4);   /*  */
+    static final public int io_sipMonitor                   = (0x008/4);   /*  */
+    static final public int io_lfbMemoryConfig              = (0x00c/4);   /*  */
+    static final public int io_miscInit0                    = (0x010/4);   /*  */
+    static final public int io_miscInit1                    = (0x014/4);   /*  */
+    static final public int io_dramInit0                    = (0x018/4);   /*  */
+    static final public int io_dramInit1                    = (0x01c/4);   /*  */
+    static final public int io_agpInit                      = (0x020/4);   /*  */
+    static final public int io_tmuGbeInit                   = (0x024/4);   /*  */
+    static final public int io_vgaInit0                     = (0x028/4);   /*  */
+    static final public int io_vgaInit1                     = (0x02c/4);   /*  */
+    static final public int io_dramCommand                  = (0x030/4);   /*  */
+    static final public int io_dramData                     = (0x034/4);   /*  */
     
     /* 0x040 */
-    static final int io_pllCtrl0                     = (0x040/4);   /*  */
-    static final int io_pllCtrl1                     = (0x044/4);   /*  */
-    static final int io_pllCtrl2                     = (0x048/4);   /*  */
-    static final int io_dacMode                      = (0x04c/4);   /*  */
-    static final int io_dacAddr                      = (0x050/4);   /*  */
-    static final int io_dacData                      = (0x054/4);   /*  */
-    static final int io_rgbMaxDelta                  = (0x058/4);   /*  */
-    static final int io_vidProcCfg                   = (0x05c/4);   /*  */
-    static final int io_hwCurPatAddr                 = (0x060/4);   /*  */
-    static final int io_hwCurLoc                     = (0x064/4);   /*  */
-    static final int io_hwCurC0                      = (0x068/4);   /*  */
-    static final int io_hwCurC1                      = (0x06c/4);   /*  */
-    static final int io_vidInFormat                  = (0x070/4);   /*  */
-    static final int io_vidInStatus                  = (0x074/4);   /*  */
-    static final int io_vidSerialParallelPort        = (0x078/4);   /*  */
-    static final int io_vidInXDecimDeltas            = (0x07c/4);   /*  */
+    static final public int io_pllCtrl0                     = (0x040/4);   /*  */
+    static final public int io_pllCtrl1                     = (0x044/4);   /*  */
+    static final public int io_pllCtrl2                     = (0x048/4);   /*  */
+    static final public int io_dacMode                      = (0x04c/4);   /*  */
+    static final public int io_dacAddr                      = (0x050/4);   /*  */
+    static final public int io_dacData                      = (0x054/4);   /*  */
+    static final public int io_rgbMaxDelta                  = (0x058/4);   /*  */
+    static final public int io_vidProcCfg                   = (0x05c/4);   /*  */
+    static final public int io_hwCurPatAddr                 = (0x060/4);   /*  */
+    static final public int io_hwCurLoc                     = (0x064/4);   /*  */
+    static final public int io_hwCurC0                      = (0x068/4);   /*  */
+    static final public int io_hwCurC1                      = (0x06c/4);   /*  */
+    static final public int io_vidInFormat                  = (0x070/4);   /*  */
+    static final public int io_vidInStatus                  = (0x074/4);   /*  */
+    static final public int io_vidSerialParallelPort        = (0x078/4);   /*  */
+    static final public int io_vidInXDecimDeltas            = (0x07c/4);   /*  */
     
     /* 0x080 */
-    static final int io_vidInDecimInitErrs           = (0x080/4);   /*  */
-    static final int io_vidInYDecimDeltas            = (0x084/4);   /*  */
-    static final int io_vidPixelBufThold             = (0x088/4);   /*  */
-    static final int io_vidChromaMin                 = (0x08c/4);   /*  */
-    static final int io_vidChromaMax                 = (0x090/4);   /*  */
-    static final int io_vidCurrentLine               = (0x094/4);   /*  */
-    static final int io_vidScreenSize                = (0x098/4);   /*  */
-    static final int io_vidOverlayStartCoords        = (0x09c/4);   /*  */
-    static final int io_vidOverlayEndScreenCoord     = (0x0a0/4);   /*  */
-    static final int io_vidOverlayDudx               = (0x0a4/4);   /*  */
-    static final int io_vidOverlayDudxOffsetSrcWidth = (0x0a8/4);   /*  */
-    static final int io_vidOverlayDvdy               = (0x0ac/4);   /*  */
-    static final int io_vgab0                        = (0x0b0/4);   /*  */
-    static final int io_vgab4                        = (0x0b4/4);   /*  */
-    static final int io_vgab8                        = (0x0b8/4);   /*  */
-    static final int io_vgabc                        = (0x0bc/4);   /*  */
+    static final public int io_vidInDecimInitErrs           = (0x080/4);   /*  */
+    static final public int io_vidInYDecimDeltas            = (0x084/4);   /*  */
+    static final public int io_vidPixelBufThold             = (0x088/4);   /*  */
+    static final public int io_vidChromaMin                 = (0x08c/4);   /*  */
+    static final public int io_vidChromaMax                 = (0x090/4);   /*  */
+    static final public int io_vidCurrentLine               = (0x094/4);   /*  */
+    static final public int io_vidScreenSize                = (0x098/4);   /*  */
+    static final public int io_vidOverlayStartCoords        = (0x09c/4);   /*  */
+    static final public int io_vidOverlayEndScreenCoord     = (0x0a0/4);   /*  */
+    static final public int io_vidOverlayDudx               = (0x0a4/4);   /*  */
+    static final public int io_vidOverlayDudxOffsetSrcWidth = (0x0a8/4);   /*  */
+    static final public int io_vidOverlayDvdy               = (0x0ac/4);   /*  */
+    static final public int io_vgab0                        = (0x0b0/4);   /*  */
+    static final public int io_vgab4                        = (0x0b4/4);   /*  */
+    static final public int io_vgab8                        = (0x0b8/4);   /*  */
+    static final public int io_vgabc                        = (0x0bc/4);   /*  */
     
     /* 0x0c0 */
-    static final int io_vgac0                        = (0x0c0/4);   /*  */
-    static final int io_vgac4                        = (0x0c4/4);   /*  */
-    static final int io_vgac8                        = (0x0c8/4);   /*  */
-    static final int io_vgacc                        = (0x0cc/4);   /*  */
-    static final int io_vgad0                        = (0x0d0/4);   /*  */
-    static final int io_vgad4                        = (0x0d4/4);   /*  */
-    static final int io_vgad8                        = (0x0d8/4);   /*  */
-    static final int io_vgadc                        = (0x0dc/4);   /*  */
-    static final int io_vidOverlayDvdyOffset         = (0x0e0/4);   /*  */
-    static final int io_vidDesktopStartAddr          = (0x0e4/4);   /*  */
-    static final int io_vidDesktopOverlayStride      = (0x0e8/4);   /*  */
-    static final int io_vidInAddr0                   = (0x0ec/4);   /*  */
-    static final int io_vidInAddr1                   = (0x0f0/4);   /*  */
-    static final int io_vidInAddr2                   = (0x0f4/4);   /*  */
-    static final int io_vidInStride                  = (0x0f8/4);   /*  */
-    static final int io_vidCurrOverlayStartAddr      = (0x0fc/4);   /*  */
+    static final public int io_vgac0                        = (0x0c0/4);   /*  */
+    static final public int io_vgac4                        = (0x0c4/4);   /*  */
+    static final public int io_vgac8                        = (0x0c8/4);   /*  */
+    static final public int io_vgacc                        = (0x0cc/4);   /*  */
+    static final public int io_vgad0                        = (0x0d0/4);   /*  */
+    static final public int io_vgad4                        = (0x0d4/4);   /*  */
+    static final public int io_vgad8                        = (0x0d8/4);   /*  */
+    static final public int io_vgadc                        = (0x0dc/4);   /*  */
+    static final public int io_vidOverlayDvdyOffset         = (0x0e0/4);   /*  */
+    static final public int io_vidDesktopStartAddr          = (0x0e4/4);   /*  */
+    static final public int io_vidDesktopOverlayStride      = (0x0e8/4);   /*  */
+    static final public int io_vidInAddr0                   = (0x0ec/4);   /*  */
+    static final public int io_vidInAddr1                   = (0x0f0/4);   /*  */
+    static final public int io_vidInAddr2                   = (0x0f4/4);   /*  */
+    static final public int io_vidInStride                  = (0x0f8/4);   /*  */
+    static final public int io_vidCurrOverlayStartAddr      = (0x0fc/4);   /*  */
     
     /*************************************
      *
@@ -946,227 +802,227 @@ public class VoodooCommon extends PCI_Device {
     */
     
     /* 0x000 */
-    static final int status          = (0x000/4);   /* R  P  */
-    static final int intrCtrl        = (0x004/4);   /* RW P   -- Voodoo2/Banshee only */
-    static final int vertexAx        = (0x008/4);   /*  W PF */
-    static final int vertexAy        = (0x00c/4);   /*  W PF */
-    static final int vertexBx        = (0x010/4);   /*  W PF */
-    static final int vertexBy        = (0x014/4);   /*  W PF */
-    static final int vertexCx        = (0x018/4);   /*  W PF */
-    static final int vertexCy        = (0x01c/4);   /*  W PF */
-    static final int startR          = (0x020/4);   /*  W PF */
-    static final int startG          = (0x024/4);   /*  W PF */
-    static final int startB          = (0x028/4);   /*  W PF */
-    static final int startZ          = (0x02c/4);   /*  W PF */
-    static final int startA          = (0x030/4);   /*  W PF */
-    static final int startS          = (0x034/4);   /*  W PF */
-    static final int startT          = (0x038/4);   /*  W PF */
-    static final int startW          = (0x03c/4);   /*  W PF */
+    static final public int status          = (0x000/4);   /* R  P  */
+    static final public int intrCtrl        = (0x004/4);   /* RW P   -- Voodoo2/Banshee only */
+    static final public int vertexAx        = (0x008/4);   /*  W PF */
+    static final public int vertexAy        = (0x00c/4);   /*  W PF */
+    static final public int vertexBx        = (0x010/4);   /*  W PF */
+    static final public int vertexBy        = (0x014/4);   /*  W PF */
+    static final public int vertexCx        = (0x018/4);   /*  W PF */
+    static final public int vertexCy        = (0x01c/4);   /*  W PF */
+    static final public int startR          = (0x020/4);   /*  W PF */
+    static final public int startG          = (0x024/4);   /*  W PF */
+    static final public int startB          = (0x028/4);   /*  W PF */
+    static final public int startZ          = (0x02c/4);   /*  W PF */
+    static final public int startA          = (0x030/4);   /*  W PF */
+    static final public int startS          = (0x034/4);   /*  W PF */
+    static final public int startT          = (0x038/4);   /*  W PF */
+    static final public int startW          = (0x03c/4);   /*  W PF */
     
     /* 0x040 */
-    static final int dRdX            = (0x040/4);   /*  W PF */
-    static final int dGdX            = (0x044/4);   /*  W PF */
-    static final int dBdX            = (0x048/4);   /*  W PF */
-    static final int dZdX            = (0x04c/4);   /*  W PF */
-    static final int dAdX            = (0x050/4);   /*  W PF */
-    static final int dSdX            = (0x054/4);   /*  W PF */
-    static final int dTdX            = (0x058/4);   /*  W PF */
-    static final int dWdX            = (0x05c/4);   /*  W PF */
-    static final int dRdY            = (0x060/4);   /*  W PF */
-    static final int dGdY            = (0x064/4);   /*  W PF */
-    static final int dBdY            = (0x068/4);   /*  W PF */
-    static final int dZdY            = (0x06c/4);   /*  W PF */
-    static final int dAdY            = (0x070/4);   /*  W PF */
-    static final int dSdY            = (0x074/4);   /*  W PF */
-    static final int dTdY            = (0x078/4);   /*  W PF */
-    static final int dWdY            = (0x07c/4);   /*  W PF */
+    static final public int dRdX            = (0x040/4);   /*  W PF */
+    static final public int dGdX            = (0x044/4);   /*  W PF */
+    static final public int dBdX            = (0x048/4);   /*  W PF */
+    static final public int dZdX            = (0x04c/4);   /*  W PF */
+    static final public int dAdX            = (0x050/4);   /*  W PF */
+    static final public int dSdX            = (0x054/4);   /*  W PF */
+    static final public int dTdX            = (0x058/4);   /*  W PF */
+    static final public int dWdX            = (0x05c/4);   /*  W PF */
+    static final public int dRdY            = (0x060/4);   /*  W PF */
+    static final public int dGdY            = (0x064/4);   /*  W PF */
+    static final public int dBdY            = (0x068/4);   /*  W PF */
+    static final public int dZdY            = (0x06c/4);   /*  W PF */
+    static final public int dAdY            = (0x070/4);   /*  W PF */
+    static final public int dSdY            = (0x074/4);   /*  W PF */
+    static final public int dTdY            = (0x078/4);   /*  W PF */
+    static final public int dWdY            = (0x07c/4);   /*  W PF */
     
     /* 0x080 */
-    static final int triangleCMD     = (0x080/4);   /*  W PF */
-    static final int fvertexAx       = (0x088/4);   /*  W PF */
-    static final int fvertexAy       = (0x08c/4);   /*  W PF */
-    static final int fvertexBx       = (0x090/4);   /*  W PF */
-    static final int fvertexBy       = (0x094/4);   /*  W PF */
-    static final int fvertexCx       = (0x098/4);   /*  W PF */
-    static final int fvertexCy       = (0x09c/4);   /*  W PF */
-    static final int fstartR         = (0x0a0/4);   /*  W PF */
-    static final int fstartG         = (0x0a4/4);   /*  W PF */
-    static final int fstartB         = (0x0a8/4);   /*  W PF */
-    static final int fstartZ         = (0x0ac/4);   /*  W PF */
-    static final int fstartA         = (0x0b0/4);   /*  W PF */
-    static final int fstartS         = (0x0b4/4);   /*  W PF */
-    static final int fstartT         = (0x0b8/4);   /*  W PF */
-    static final int fstartW         = (0x0bc/4);   /*  W PF */
+    static final public int triangleCMD     = (0x080/4);   /*  W PF */
+    static final public int fvertexAx       = (0x088/4);   /*  W PF */
+    static final public int fvertexAy       = (0x08c/4);   /*  W PF */
+    static final public int fvertexBx       = (0x090/4);   /*  W PF */
+    static final public int fvertexBy       = (0x094/4);   /*  W PF */
+    static final public int fvertexCx       = (0x098/4);   /*  W PF */
+    static final public int fvertexCy       = (0x09c/4);   /*  W PF */
+    static final public int fstartR         = (0x0a0/4);   /*  W PF */
+    static final public int fstartG         = (0x0a4/4);   /*  W PF */
+    static final public int fstartB         = (0x0a8/4);   /*  W PF */
+    static final public int fstartZ         = (0x0ac/4);   /*  W PF */
+    static final public int fstartA         = (0x0b0/4);   /*  W PF */
+    static final public int fstartS         = (0x0b4/4);   /*  W PF */
+    static final public int fstartT         = (0x0b8/4);   /*  W PF */
+    static final public int fstartW         = (0x0bc/4);   /*  W PF */
     
     /* 0x0c0 */
-    static final int fdRdX           = (0x0c0/4);   /*  W PF */
-    static final int fdGdX           = (0x0c4/4);   /*  W PF */
-    static final int fdBdX           = (0x0c8/4);   /*  W PF */
-    static final int fdZdX           = (0x0cc/4);   /*  W PF */
-    static final int fdAdX           = (0x0d0/4);   /*  W PF */
-    static final int fdSdX           = (0x0d4/4);   /*  W PF */
-    static final int fdTdX           = (0x0d8/4);   /*  W PF */
-    static final int fdWdX           = (0x0dc/4);   /*  W PF */
-    static final int fdRdY           = (0x0e0/4);   /*  W PF */
-    static final int fdGdY           = (0x0e4/4);   /*  W PF */
-    static final int fdBdY           = (0x0e8/4);   /*  W PF */
-    static final int fdZdY           = (0x0ec/4);   /*  W PF */
-    static final int fdAdY           = (0x0f0/4);   /*  W PF */
-    static final int fdSdY           = (0x0f4/4);   /*  W PF */
-    static final int fdTdY           = (0x0f8/4);   /*  W PF */
-    static final int fdWdY           = (0x0fc/4);   /*  W PF */
+    static final public int fdRdX           = (0x0c0/4);   /*  W PF */
+    static final public int fdGdX           = (0x0c4/4);   /*  W PF */
+    static final public int fdBdX           = (0x0c8/4);   /*  W PF */
+    static final public int fdZdX           = (0x0cc/4);   /*  W PF */
+    static final public int fdAdX           = (0x0d0/4);   /*  W PF */
+    static final public int fdSdX           = (0x0d4/4);   /*  W PF */
+    static final public int fdTdX           = (0x0d8/4);   /*  W PF */
+    static final public int fdWdX           = (0x0dc/4);   /*  W PF */
+    static final public int fdRdY           = (0x0e0/4);   /*  W PF */
+    static final public int fdGdY           = (0x0e4/4);   /*  W PF */
+    static final public int fdBdY           = (0x0e8/4);   /*  W PF */
+    static final public int fdZdY           = (0x0ec/4);   /*  W PF */
+    static final public int fdAdY           = (0x0f0/4);   /*  W PF */
+    static final public int fdSdY           = (0x0f4/4);   /*  W PF */
+    static final public int fdTdY           = (0x0f8/4);   /*  W PF */
+    static final public int fdWdY           = (0x0fc/4);   /*  W PF */
     
     /* 0x100 */
-    static final int ftriangleCMD    = (0x100/4);   /*  W PF */
-    static final int fbzColorPath    = (0x104/4);   /* RW PF */
-    static final int fogMode         = (0x108/4);   /* RW PF */
-    static final int alphaMode       = (0x10c/4);   /* RW PF */
-    static final int fbzMode         = (0x110/4);   /* RW  F */
-    static final int lfbMode         = (0x114/4);   /* RW  F */
-    static final int clipLeftRight   = (0x118/4);   /* RW  F */
-    static final int clipLowYHighY   = (0x11c/4);   /* RW  F */
-    static final int nopCMD          = (0x120/4);   /*  W  F */
-    static final int fastfillCMD     = (0x124/4);   /*  W  F */
-    static final int swapbufferCMD   = (0x128/4);   /*  W  F */
-    static final int fogColor        = (0x12c/4);   /*  W  F */
-    static final int zaColor         = (0x130/4);   /*  W  F */
-    static final int chromaKey       = (0x134/4);   /*  W  F */
-    static final int chromaRange     = (0x138/4);   /*  W  F  -- Voodoo2/Banshee only */
-    static final int userIntrCMD     = (0x13c/4);   /*  W  F  -- Voodoo2/Banshee only */
+    static final public int ftriangleCMD    = (0x100/4);   /*  W PF */
+    static final public int fbzColorPath    = (0x104/4);   /* RW PF */
+    static final public int fogMode         = (0x108/4);   /* RW PF */
+    static final public int alphaMode       = (0x10c/4);   /* RW PF */
+    static final public int fbzMode         = (0x110/4);   /* RW  F */
+    static final public int lfbMode         = (0x114/4);   /* RW  F */
+    static final public int clipLeftRight   = (0x118/4);   /* RW  F */
+    static final public int clipLowYHighY   = (0x11c/4);   /* RW  F */
+    static final public int nopCMD          = (0x120/4);   /*  W  F */
+    static final public int fastfillCMD     = (0x124/4);   /*  W  F */
+    static final public int swapbufferCMD   = (0x128/4);   /*  W  F */
+    static final public int fogColor        = (0x12c/4);   /*  W  F */
+    static final public int zaColor         = (0x130/4);   /*  W  F */
+    static final public int chromaKey       = (0x134/4);   /*  W  F */
+    static final public int chromaRange     = (0x138/4);   /*  W  F  -- Voodoo2/Banshee only */
+    static final public int userIntrCMD     = (0x13c/4);   /*  W  F  -- Voodoo2/Banshee only */
     
     /* 0x140 */
-    static final int stipple         = (0x140/4);   /* RW  F */
-    static final int color0          = (0x144/4);   /* RW  F */
-    static final int color1          = (0x148/4);   /* RW  F */
-    static final int fbiPixelsIn     = (0x14c/4);   /* R     */
-    static final int fbiChromaFail   = (0x150/4);   /* R     */
-    static final int fbiZfuncFail    = (0x154/4);   /* R     */
-    static final int fbiAfuncFail    = (0x158/4);   /* R     */
-    static final int fbiPixelsOut    = (0x15c/4);   /* R     */
-    static final int fogTable        = (0x160/4);   /*  W  F */
+    static final public int stipple         = (0x140/4);   /* RW  F */
+    static final public int color0          = (0x144/4);   /* RW  F */
+    static final public int color1          = (0x148/4);   /* RW  F */
+    static final public int fbiPixelsIn     = (0x14c/4);   /* R     */
+    static final public int fbiChromaFail   = (0x150/4);   /* R     */
+    static final public int fbiZfuncFail    = (0x154/4);   /* R     */
+    static final public int fbiAfuncFail    = (0x158/4);   /* R     */
+    static final public int fbiPixelsOut    = (0x15c/4);   /* R     */
+    static final public int fogTable        = (0x160/4);   /*  W  F */
     
     /* 0x1c0 */
-    static final int cmdFifoBaseAddr = (0x1e0/4);   /* RW     -- Voodoo2 only */
-    static final int cmdFifoBump     = (0x1e4/4);   /* RW     -- Voodoo2 only */
-    static final int cmdFifoRdPtr    = (0x1e8/4);   /* RW     -- Voodoo2 only */
-    static final int cmdFifoAMin     = (0x1ec/4);   /* RW     -- Voodoo2 only */
-    static final int colBufferAddr   = (0x1ec/4);   /* RW     -- Banshee only */
-    static final int cmdFifoAMax     = (0x1f0/4);   /* RW     -- Voodoo2 only */
-    static final int colBufferStride = (0x1f0/4);   /* RW     -- Banshee only */
-    static final int cmdFifoDepth    = (0x1f4/4);   /* RW     -- Voodoo2 only */
-    static final int auxBufferAddr   = (0x1f4/4);   /* RW     -- Banshee only */
-    static final int cmdFifoHoles    = (0x1f8/4);   /* RW     -- Voodoo2 only */
-    static final int auxBufferStride = (0x1f8/4);   /* RW     -- Banshee only */
+    static final public int cmdFifoBaseAddr = (0x1e0/4);   /* RW     -- Voodoo2 only */
+    static final public int cmdFifoBump     = (0x1e4/4);   /* RW     -- Voodoo2 only */
+    static final public int cmdFifoRdPtr    = (0x1e8/4);   /* RW     -- Voodoo2 only */
+    static final public int cmdFifoAMin     = (0x1ec/4);   /* RW     -- Voodoo2 only */
+    static final public int colBufferAddr   = (0x1ec/4);   /* RW     -- Banshee only */
+    static final public int cmdFifoAMax     = (0x1f0/4);   /* RW     -- Voodoo2 only */
+    static final public int colBufferStride = (0x1f0/4);   /* RW     -- Banshee only */
+    static final public int cmdFifoDepth    = (0x1f4/4);   /* RW     -- Voodoo2 only */
+    static final public int auxBufferAddr   = (0x1f4/4);   /* RW     -- Banshee only */
+    static final public int cmdFifoHoles    = (0x1f8/4);   /* RW     -- Voodoo2 only */
+    static final public int auxBufferStride = (0x1f8/4);   /* RW     -- Banshee only */
     
     /* 0x200 */
-    static final int fbiInit4        = (0x200/4);   /* RW     -- Voodoo/Voodoo2 only */
-    static final int clipLeftRight1  = (0x200/4);   /* RW     -- Banshee only */
-    static final int vRetrace        = (0x204/4);   /* R      -- Voodoo/Voodoo2 only */
-    static final int clipTopBottom1  = (0x204/4);   /* RW     -- Banshee only */
-    static final int backPorch       = (0x208/4);   /* RW     -- Voodoo/Voodoo2 only */
-    static final int videoDimensions = (0x20c/4);   /* RW     -- Voodoo/Voodoo2 only */
-    static final int fbiInit0        = (0x210/4);   /* RW     -- Voodoo/Voodoo2 only */
-    static final int fbiInit1        = (0x214/4);   /* RW     -- Voodoo/Voodoo2 only */
-    static final int fbiInit2        = (0x218/4);   /* RW     -- Voodoo/Voodoo2 only */
-    static final int fbiInit3        = (0x21c/4);   /* RW     -- Voodoo/Voodoo2 only */
-    static final int hSync           = (0x220/4);   /*  W     -- Voodoo/Voodoo2 only */
-    static final int vSync           = (0x224/4);   /*  W     -- Voodoo/Voodoo2 only */
-    static final int clutData        = (0x228/4);   /*  W  F  -- Voodoo/Voodoo2 only */
-    static final int dacData         = (0x22c/4);   /*  W     -- Voodoo/Voodoo2 only */
-    static final int maxRgbDelta     = (0x230/4);   /*  W     -- Voodoo/Voodoo2 only */
-    static final int hBorder         = (0x234/4);   /*  W     -- Voodoo2 only */
-    static final int vBorder         = (0x238/4);   /*  W     -- Voodoo2 only */
-    static final int borderColor     = (0x23c/4);   /*  W     -- Voodoo2 only */
+    static final public int fbiInit4        = (0x200/4);   /* RW     -- Voodoo/Voodoo2 only */
+    static final public int clipLeftRight1  = (0x200/4);   /* RW     -- Banshee only */
+    static final public int vRetrace        = (0x204/4);   /* R      -- Voodoo/Voodoo2 only */
+    static final public int clipTopBottom1  = (0x204/4);   /* RW     -- Banshee only */
+    static final public int backPorch       = (0x208/4);   /* RW     -- Voodoo/Voodoo2 only */
+    static final public int videoDimensions = (0x20c/4);   /* RW     -- Voodoo/Voodoo2 only */
+    static final public int fbiInit0        = (0x210/4);   /* RW     -- Voodoo/Voodoo2 only */
+    static final public int fbiInit1        = (0x214/4);   /* RW     -- Voodoo/Voodoo2 only */
+    static final public int fbiInit2        = (0x218/4);   /* RW     -- Voodoo/Voodoo2 only */
+    static final public int fbiInit3        = (0x21c/4);   /* RW     -- Voodoo/Voodoo2 only */
+    static final public int hSync           = (0x220/4);   /*  W     -- Voodoo/Voodoo2 only */
+    static final public int vSync           = (0x224/4);   /*  W     -- Voodoo/Voodoo2 only */
+    static final public int clutData        = (0x228/4);   /*  W  F  -- Voodoo/Voodoo2 only */
+    static final public int dacData         = (0x22c/4);   /*  W     -- Voodoo/Voodoo2 only */
+    static final public int maxRgbDelta     = (0x230/4);   /*  W     -- Voodoo/Voodoo2 only */
+    static final public int hBorder         = (0x234/4);   /*  W     -- Voodoo2 only */
+    static final public int vBorder         = (0x238/4);   /*  W     -- Voodoo2 only */
+    static final public int borderColor     = (0x23c/4);   /*  W     -- Voodoo2 only */
     
     /* 0x240 */
-    static final int hvRetrace       = (0x240/4);   /* R      -- Voodoo2 only */
-    static final int fbiInit5        = (0x244/4);   /* RW     -- Voodoo2 only */
-    static final int fbiInit6        = (0x248/4);   /* RW     -- Voodoo2 only */
-    static final int fbiInit7        = (0x24c/4);   /* RW     -- Voodoo2 only */
-    static final int swapPending     = (0x24c/4);   /*  W     -- Banshee only */
-    static final int leftOverlayBuf  = (0x250/4);   /*  W     -- Banshee only */
-    static final int rightOverlayBuf = (0x254/4);   /*  W     -- Banshee only */
-    static final int fbiSwapHistory  = (0x258/4);   /* R      -- Voodoo2/Banshee only */
-    static final int fbiTrianglesOut = (0x25c/4);   /* R      -- Voodoo2/Banshee only */
-    static final int sSetupMode      = (0x260/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sVx             = (0x264/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sVy             = (0x268/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sARGB           = (0x26c/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sRed            = (0x270/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sGreen          = (0x274/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sBlue           = (0x278/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sAlpha          = (0x27c/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int hvRetrace       = (0x240/4);   /* R      -- Voodoo2 only */
+    static final public int fbiInit5        = (0x244/4);   /* RW     -- Voodoo2 only */
+    static final public int fbiInit6        = (0x248/4);   /* RW     -- Voodoo2 only */
+    static final public int fbiInit7        = (0x24c/4);   /* RW     -- Voodoo2 only */
+    static final public int swapPending     = (0x24c/4);   /*  W     -- Banshee only */
+    static final public int leftOverlayBuf  = (0x250/4);   /*  W     -- Banshee only */
+    static final public int rightOverlayBuf = (0x254/4);   /*  W     -- Banshee only */
+    static final public int fbiSwapHistory  = (0x258/4);   /* R      -- Voodoo2/Banshee only */
+    static final public int fbiTrianglesOut = (0x25c/4);   /* R      -- Voodoo2/Banshee only */
+    static final public int sSetupMode      = (0x260/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sVx             = (0x264/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sVy             = (0x268/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sARGB           = (0x26c/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sRed            = (0x270/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sGreen          = (0x274/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sBlue           = (0x278/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sAlpha          = (0x27c/4);   /*  W PF  -- Voodoo2/Banshee only */
     
     /* 0x280 */
-    static final int sVz             = (0x280/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sWb             = (0x284/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sWtmu0          = (0x288/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sS_W0           = (0x28c/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sT_W0           = (0x290/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sWtmu1          = (0x294/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sS_Wtmu1        = (0x298/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sT_Wtmu1        = (0x29c/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sDrawTriCMD     = (0x2a0/4);   /*  W PF  -- Voodoo2/Banshee only */
-    static final int sBeginTriCMD    = (0x2a4/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sVz             = (0x280/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sWb             = (0x284/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sWtmu0          = (0x288/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sS_W0           = (0x28c/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sT_W0           = (0x290/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sWtmu1          = (0x294/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sS_Wtmu1        = (0x298/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sT_Wtmu1        = (0x29c/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sDrawTriCMD     = (0x2a0/4);   /*  W PF  -- Voodoo2/Banshee only */
+    static final public int sBeginTriCMD    = (0x2a4/4);   /*  W PF  -- Voodoo2/Banshee only */
     
     /* 0x2c0 */
-    static final int bltSrcBaseAddr  = (0x2c0/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltDstBaseAddr  = (0x2c4/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltXYStrides    = (0x2c8/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltSrcChromaRange = (0x2cc/4); /* RW PF  -- Voodoo2 only */
-    static final int bltDstChromaRange = (0x2d0/4); /* RW PF  -- Voodoo2 only */
-    static final int bltClipX        = (0x2d4/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltClipY        = (0x2d8/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltSrcXY        = (0x2e0/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltDstXY        = (0x2e4/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltSize         = (0x2e8/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltRop          = (0x2ec/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltColor        = (0x2f0/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltCommand      = (0x2f8/4);   /* RW PF  -- Voodoo2 only */
-    static final int bltData         = (0x2fc/4);   /*  W PF  -- Voodoo2 only */
+    static final public int bltSrcBaseAddr  = (0x2c0/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltDstBaseAddr  = (0x2c4/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltXYStrides    = (0x2c8/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltSrcChromaRange = (0x2cc/4); /* RW PF  -- Voodoo2 only */
+    static final public int bltDstChromaRange = (0x2d0/4); /* RW PF  -- Voodoo2 only */
+    static final public int bltClipX        = (0x2d4/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltClipY        = (0x2d8/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltSrcXY        = (0x2e0/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltDstXY        = (0x2e4/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltSize         = (0x2e8/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltRop          = (0x2ec/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltColor        = (0x2f0/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltCommand      = (0x2f8/4);   /* RW PF  -- Voodoo2 only */
+    static final public int bltData         = (0x2fc/4);   /*  W PF  -- Voodoo2 only */
     
     /* 0x300 */
-    static final int textureMode     = (0x300/4);   /*  W PF */
-    static final int tLOD            = (0x304/4);   /*  W PF */
-    static final int tDetail         = (0x308/4);   /*  W PF */
-    static final int texBaseAddr     = (0x30c/4);   /*  W PF */
-    static final int texBaseAddr_1   = (0x310/4);   /*  W PF */
-    static final int texBaseAddr_2   = (0x314/4);   /*  W PF */
-    static final int texBaseAddr_3_8 = (0x318/4);   /*  W PF */
-    static final int trexInit0       = (0x31c/4);   /*  W  F  -- Voodoo/Voodoo2 only */
-    static final int trexInit1       = (0x320/4);   /*  W  F */
-    static final int nccTable        = (0x324/4);   /*  W  F */
+    static final public int textureMode     = (0x300/4);   /*  W PF */
+    static final public int tLOD            = (0x304/4);   /*  W PF */
+    static final public int tDetail         = (0x308/4);   /*  W PF */
+    static final public int texBaseAddr     = (0x30c/4);   /*  W PF */
+    static final public int texBaseAddr_1   = (0x310/4);   /*  W PF */
+    static final public int texBaseAddr_2   = (0x314/4);   /*  W PF */
+    static final public int texBaseAddr_3_8 = (0x318/4);   /*  W PF */
+    static final public int trexInit0       = (0x31c/4);   /*  W  F  -- Voodoo/Voodoo2 only */
+    static final public int trexInit1       = (0x320/4);   /*  W  F */
+    static final public int nccTable        = (0x324/4);   /*  W  F */
     
     
     
     // 2D registers
-    static final int banshee2D_clip0Min          = (0x008/4);
-    static final int banshee2D_clip0Max          = (0x00c/4);
-    static final int banshee2D_dstBaseAddr       = (0x010/4);
-    static final int banshee2D_dstFormat         = (0x014/4);
-    static final int banshee2D_srcColorkeyMin    = (0x018/4);
-    static final int banshee2D_srcColorkeyMax    = (0x01c/4);
-    static final int banshee2D_dstColorkeyMin    = (0x020/4);
-    static final int banshee2D_dstColorkeyMax    = (0x024/4);
-    static final int banshee2D_bresError0        = (0x028/4);
-    static final int banshee2D_bresError1        = (0x02c/4);
-    static final int banshee2D_rop               = (0x030/4);
-    static final int banshee2D_srcBaseAddr       = (0x034/4);
-    static final int banshee2D_commandExtra      = (0x038/4);
-    static final int banshee2D_lineStipple       = (0x03c/4);
-    static final int banshee2D_lineStyle         = (0x040/4);
-    static final int banshee2D_pattern0Alias     = (0x044/4);
-    static final int banshee2D_pattern1Alias     = (0x048/4);
-    static final int banshee2D_clip1Min          = (0x04c/4);
-    static final int banshee2D_clip1Max          = (0x050/4);
-    static final int banshee2D_srcFormat         = (0x054/4);
-    static final int banshee2D_srcSize           = (0x058/4);
-    static final int banshee2D_srcXY             = (0x05c/4);
-    static final int banshee2D_colorBack         = (0x060/4);
-    static final int banshee2D_colorFore         = (0x064/4);
-    static final int banshee2D_dstSize           = (0x068/4);
-    static final int banshee2D_dstXY             = (0x06c/4);
-    static final int banshee2D_command           = (0x070/4);
+    static final public int banshee2D_clip0Min          = (0x008/4);
+    static final public int banshee2D_clip0Max          = (0x00c/4);
+    static final public int banshee2D_dstBaseAddr       = (0x010/4);
+    static final public int banshee2D_dstFormat         = (0x014/4);
+    static final public int banshee2D_srcColorkeyMin    = (0x018/4);
+    static final public int banshee2D_srcColorkeyMax    = (0x01c/4);
+    static final public int banshee2D_dstColorkeyMin    = (0x020/4);
+    static final public int banshee2D_dstColorkeyMax    = (0x024/4);
+    static final public int banshee2D_bresError0        = (0x028/4);
+    static final public int banshee2D_bresError1        = (0x02c/4);
+    static final public int banshee2D_rop               = (0x030/4);
+    static final public int banshee2D_srcBaseAddr       = (0x034/4);
+    static final public int banshee2D_commandExtra      = (0x038/4);
+    static final public int banshee2D_lineStipple       = (0x03c/4);
+    static final public int banshee2D_lineStyle         = (0x040/4);
+    static final public int banshee2D_pattern0Alias     = (0x044/4);
+    static final public int banshee2D_pattern1Alias     = (0x048/4);
+    static final public int banshee2D_clip1Min          = (0x04c/4);
+    static final public int banshee2D_clip1Max          = (0x050/4);
+    static final public int banshee2D_srcFormat         = (0x054/4);
+    static final public int banshee2D_srcSize           = (0x058/4);
+    static final public int banshee2D_srcXY             = (0x05c/4);
+    static final public int banshee2D_colorBack         = (0x060/4);
+    static final public int banshee2D_colorFore         = (0x064/4);
+    static final public int banshee2D_dstSize           = (0x068/4);
+    static final public int banshee2D_dstXY             = (0x06c/4);
+    static final public int banshee2D_command           = (0x070/4);
         
     /*************************************
      *
@@ -2870,7 +2726,7 @@ public class VoodooCommon extends PCI_Device {
      *  Command FIFO execution
      *
      *************************************/
-    static private int mem_readw(byte[] p, int off) {
+    static public int mem_readw(byte[] p, int off) {
         return (p[off] & 0xFF) | ((p[off+1] & 0xFF) << 8);
     }
     static private int mem_readd(byte[] p, int off) {
@@ -5235,7 +5091,7 @@ public class VoodooCommon extends PCI_Device {
     	int ex = (reg[clipLeftRight] >>> 0) & 0x3ff;
     	int sy = (reg[clipLowYHighY] >>> 16) & 0x3ff;
     	int ey = (reg[clipLowYHighY] >>> 0) & 0x3ff;
-    	Poly.poly_extent[] extents = Poly.poly_extent.create(64);
+    	poly_extent[] extents = poly_extent.create(64);
     	int[] dithermatrix = new int[16];
     	int drawbufPos = 0;
     	int pixels = 0;
@@ -5836,6 +5692,7 @@ public class VoodooCommon extends PCI_Device {
     	curinfo.hits = 0;
     	curinfo.next = null;
 
+        RasterizerCompiler.compile(curinfo, texcount, reg[fbzColorPath], reg[alphaMode], reg[fogMode], reg[fbzMode], reg[tmu[0].reg+textureMode], reg[tmu[1].reg+textureMode]);
     	return add_rasterizer(curinfo);
     }
 
@@ -5847,8 +5704,8 @@ public class VoodooCommon extends PCI_Device {
        raster_fastfill - per-scanline
        implementation of the 'fastfill' command
    -------------------------------------------------*/
-    static final Poly.poly_draw_scanline_func raster_fastfill = new Poly.poly_draw_scanline_func() {
-        public void call(short[] dest, int destOffset, int y, Poly.poly_extent extent, poly_extra_data extra, int threadid)
+    static final poly_draw_scanline_func raster_fastfill = new poly_draw_scanline_func() {
+        public void call(short[] dest, int destOffset, int y, poly_extent extent, poly_extra_data extra, int threadid)
         {
             VoodooCommon v = extra.state;
             stats_block stats = v.thread_stats[threadid];
@@ -5890,7 +5747,7 @@ public class VoodooCommon extends PCI_Device {
      *
      *************************************/
     
-    static final class RASTERIZER implements Poly.poly_draw_scanline_func {
+    static final class RASTERIZER implements poly_draw_scanline_func {
         final public String name;
         final int TMUS;
         
@@ -5899,7 +5756,7 @@ public class VoodooCommon extends PCI_Device {
             this.TMUS = TMUS;
         }
         
-        public void call(short[] destbase, int destbasePos, int y, Poly.poly_extent extent, final poly_extra_data extra, int threadid) {
+        public void call(short[] destbase, int destbasePos, int y, poly_extent extent, final poly_extra_data extra, int threadid) {
             final VoodooCommon v = extra.state;
             final stats_block stats = v.thread_stats[threadid];
             // DECLARE_DITHER_POINTERS;
@@ -6107,7 +5964,7 @@ public class VoodooCommon extends PCI_Device {
                         switch (FBZCP_CC_RGBSELECT(FBZCOLORPATH))
                         {
                             case 0:     /* iterated RGB */
-                                c_other = setRegRGBA(r, g, b, a);
+                                c_other = iterargb.value;
                                 break;
                             case 1:     /* texture RGB */
                                 c_other = texel.value;
@@ -6132,7 +5989,7 @@ public class VoodooCommon extends PCI_Device {
                                 break;
 
                             case 1:     /* texture alpha */
-                                c_other = setRegA(c_other, a);
+                                c_other = setRegA(c_other, getRegA(texel.value));
                                 break;
 
                             case 2:     /* color1 alpha */
@@ -6725,6 +6582,10 @@ public class VoodooCommon extends PCI_Device {
     	attoseconds_per_cycle = ATTOSECONDS_PER_SECOND / freq;
     	trigger = 51324 + pci_id;
 
+//        add_rasterizer(new Logo.Rast1());
+//        add_rasterizer(new Logo.Rast2());
+//        add_rasterizer(new Logo.Rast3());
+//        add_rasterizer(new Logo.Rast4());
     	/* build the rasterizer table */
     	//for (info = predef_raster_table; info.callback; info++)
     	//	add_rasterizer(v, info);
@@ -6797,7 +6658,7 @@ public class VoodooCommon extends PCI_Device {
      *  Chroma keying macro
      *
      *************************************/
-    boolean APPLY_CHROMAKEY(stats_block STATS, int FBZMODE, int COLOR) {
+    public boolean APPLY_CHROMAKEY(stats_block STATS, int FBZMODE, int COLOR) {
         if (FBZMODE_ENABLE_CHROMAKEY(FBZMODE))
         {
             /* non-range version */
@@ -6866,7 +6727,7 @@ public class VoodooCommon extends PCI_Device {
      *  Alpha masking macro
      *
      *************************************/
-    private boolean APPLY_ALPHAMASK(stats_block STATS, int FBZMODE, int AA) {
+    public boolean APPLY_ALPHAMASK(stats_block STATS, int FBZMODE, int AA) {
         if (FBZMODE_ENABLE_ALPHA_MASK(FBZMODE))
         {
             if (((AA) & 1) == 0)
@@ -6883,7 +6744,7 @@ public class VoodooCommon extends PCI_Device {
      *  Alpha testing macro
      *
      *************************************/
-    private boolean APPLY_ALPHATEST(stats_block STATS, int ALPHAMODE, int AA) {
+    public boolean APPLY_ALPHATEST(stats_block STATS, int ALPHAMODE, int AA) {
         if (ALPHAMODE_ALPHATEST(ALPHAMODE))
         {
             int alpharef = getRegA(reg[alphaMode]);
@@ -6947,7 +6808,7 @@ public class VoodooCommon extends PCI_Device {
         code provided by Michael Herf
     -------------------------------------------------*/
 
-    static private int rgba_bilinear_filter(int rgb00, int rgb01, int rgb10, int rgb11, int u, int v)
+    static public int rgba_bilinear_filter(int rgb00, int rgb01, int rgb10, int rgb11, int u, int v)
     {
         int ag0, ag1, rb0, rb1;
 

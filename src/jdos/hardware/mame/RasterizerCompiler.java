@@ -680,37 +680,43 @@ public class RasterizerCompiler {
 
         }
 
-        method.append(  "int ir, ig, ib, ia;\n"+
-                        "int cr = iterr >> 12;\n"+
-                        "int cg = iterg >> 12;\n"+
-                        "int cb = iterb >> 12;\n"+
-                        "int ca = itera >> 12;\n");
+        boolean uses_iterargb =  VoodooCommon.FBZCP_CC_RGBSELECT(colorPath)==0 ||
+                        VoodooCommon.FBZCP_CC_ASELECT(colorPath)==0 ||
+                        VoodooCommon.FBZCP_CCA_LOCALSELECT(colorPath)==0 ||
+                        VoodooCommon.FBZCP_CC_LOCALSELECT_OVERRIDE(colorPath) || (!VoodooCommon.FBZCP_CC_LOCALSELECT_OVERRIDE(colorPath) && !VoodooCommon.FBZCP_CC_LOCALSELECT(colorPath)) ||
+                        (VoodooCommon.FOGMODE_ENABLE_FOG(fogMode) && !VoodooCommon.FOGMODE_FOG_CONSTANT(fogMode) && VoodooCommon.FOGMODE_FOG_ZALPHA(fogMode)==1);
+        if (uses_iterargb) {
+            method.append(  "int ir, ig, ib, ia;\n"+
+                            "int cr = iterr >> 12;\n"+
+                            "int cg = iterg >> 12;\n"+
+                            "int cb = iterb >> 12;\n"+
+                            "int ca = itera >> 12;\n");
 
-        if (!VoodooCommon.FBZCP_RGBZW_CLAMP(colorPath)) {
-            method.append(  "cr &= 0xfff;\n"+
-                            "ir = cr & 0xFF;\n"+
-                            "if (cr == 0xfff) ir = 0;\n"+
-                            "else if (cr == 0x100) ir = 0xff;\n"+
-                            "cg &= 0xfff;\n"+
-                            "ig = cg & 0xFF;\n"+
-                            "if (cg == 0xfff) ig = 0;\n"+
-                            "else if (cg == 0x100) ig = 0xff;\n"+
-                            "cb &= 0xfff;\n"+
-                            "ib = cb & 0xFF;\n"+
-                            "if (cb == 0xfff) ib = 0;\n"+
-                            "else if (cb == 0x100) ib = 0xff;\n"+
-                            "ca &= 0xfff;\n"+
-                            "ia = ca & 0xFF;\n"+
-                            "if (ca == 0xfff) ia = 0;\n"+
-                            "else if (ca == 0x100) ia = 0xff;\n");
-        } else {
-            method.append(  "ir = (cr < 0) ? 0 : (cr > 0xff) ? 0xff : cr;\n"+
-                            "ig = (cg < 0) ? 0 : (cg > 0xff) ? 0xff : cg;\n"+
-                            "ib = (cb < 0) ? 0 : (cb > 0xff) ? 0xff : cb;\n"+
-                            "ia = (ca < 0) ? 0 : (ca > 0xff) ? 0xff : ca;\n");
+            if (!VoodooCommon.FBZCP_RGBZW_CLAMP(colorPath)) {
+                method.append(  "cr &= 0xfff;\n"+
+                                "ir = cr & 0xFF;\n"+
+                                "if (cr == 0xfff) ir = 0;\n"+
+                                "else if (cr == 0x100) ir = 0xff;\n"+
+                                "cg &= 0xfff;\n"+
+                                "ig = cg & 0xFF;\n"+
+                                "if (cg == 0xfff) ig = 0;\n"+
+                                "else if (cg == 0x100) ig = 0xff;\n"+
+                                "cb &= 0xfff;\n"+
+                                "ib = cb & 0xFF;\n"+
+                                "if (cb == 0xfff) ib = 0;\n"+
+                                "else if (cb == 0x100) ib = 0xff;\n"+
+                                "ca &= 0xfff;\n"+
+                                "ia = ca & 0xFF;\n"+
+                                "if (ca == 0xfff) ia = 0;\n"+
+                                "else if (ca == 0x100) ia = 0xff;\n");
+            } else {
+                method.append(  "ir = (cr < 0) ? 0 : (cr > 0xff) ? 0xff : cr;\n"+
+                                "ig = (cg < 0) ? 0 : (cg > 0xff) ? 0xff : cg;\n"+
+                                "ib = (cb < 0) ? 0 : (cb > 0xff) ? 0xff : cb;\n"+
+                                "ia = (ca < 0) ? 0 : (ca > 0xff) ? 0xff : ca;\n");
+            }
+            method.append("iterargb = ib | (ig << 8) | (ir << 16) | (ia << 24);\n");
         }
-        method.append("iterargb = ib | (ig << 8) | (ir << 16) | (ia << 24);\n");
-
         switch (VoodooCommon.FBZCP_CC_RGBSELECT(colorPath))
         {
             case 0:     /* iterated RGB */

@@ -2544,11 +2544,11 @@ public class VoodooCommon extends PCI_Device {
     		Log.exit("Separate RGBA filters!\n");
     }
     
-    
+
+    IntRef tmp_lodbase = new IntRef(0);
     private int prepare_tmu(tmu_state t)
     {
     	long texdx, texdy;
-    	IntRef lodbase = new IntRef(0);
     
     	/* if the texture parameters are dirty, update them */
     	if (t.regdirty)
@@ -2579,8 +2579,8 @@ public class VoodooCommon extends PCI_Device {
     	/* adjust the result: negative to get the log of the original value */
     	/* plus 12 to account for the extra exponent, and divided by 2 to */
     	/* get the log of the square root of texdx */
-    	fast_reciplog(texdx, lodbase);
-    	return (-lodbase.value + (12 << 8)) / 2;
+    	fast_reciplog(texdx, tmp_lodbase);
+    	return (-tmp_lodbase.value + (12 << 8)) / 2;
     }
     
     /*************************************
@@ -4111,10 +4111,10 @@ public class VoodooCommon extends PCI_Device {
     static final private int LFB_DEPTH_PRESENT      = 4;
     static final private int LFB_DEPTH_PRESENT_MSW  = 8;
 
+    final int[] tmp_sr=new int[2], tmp_sg=new int[2], tmp_sb=new int[2], tmp_sa=new int[2], tmp_sw=new int[2];
     private int lfb_w(int offset, int data, int mem_mask, boolean forcefront) {
         int destPos, depthPos;
         int destmax, depthmax;
-        final int[] sr=new int[2], sg=new int[2], sb=new int[2], sa=new int[2], sw=new int[2];
         int x, y, scry, mask;
         int pix, destbuf;
 
@@ -4136,163 +4136,163 @@ public class VoodooCommon extends PCI_Device {
         }
 
         /* extract default depth and alpha values */
-        sw[0] = sw[1] = reg[zaColor] & 0xffff;
-        sa[0] = sa[1] = reg[zaColor] >> 24;
+        tmp_sw[0] = tmp_sw[1] = reg[zaColor] & 0xffff;
+        tmp_sa[0] = tmp_sa[1] = reg[zaColor] >> 24;
 
         /* first extract A,R,G,B from the data */
         switch (LFBMODE_WRITE_FORMAT(reg[lfbMode]) + 16 * LFBMODE_RGBA_LANES(reg[lfbMode]))
         {
             case 16*0 + 0:      /* ARGB, 16-bit RGB 5-6-5 */
             case 16*2 + 0:      /* RGBA, 16-bit RGB 5-6-5 */
-                EXTRACT_565_TO_888(data, sr, sg, sb, 0);
-                EXTRACT_565_TO_888(data >> 16, sr, sg, sb, 1);
+                EXTRACT_565_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
+                EXTRACT_565_TO_888(data >> 16, tmp_sr, tmp_sg, tmp_sb, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
             case 16*1 + 0:      /* ABGR, 16-bit RGB 5-6-5 */
             case 16*3 + 0:      /* BGRA, 16-bit RGB 5-6-5 */
-                EXTRACT_565_TO_888(data, sb, sg, sr, 0);
-                EXTRACT_565_TO_888(data >> 16, sb, sg, sr, 1);
+                EXTRACT_565_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
+                EXTRACT_565_TO_888(data >> 16, tmp_sb, tmp_sg, tmp_sr, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
 
             case 16*0 + 1:      /* ARGB, 16-bit RGB x-5-5-5 */
-                EXTRACT_x555_TO_888(data, sr, sg, sb, 0);
-                EXTRACT_x555_TO_888(data >> 16, sr, sg, sb, 1);
+                EXTRACT_x555_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
+                EXTRACT_x555_TO_888(data >> 16, tmp_sr, tmp_sg, tmp_sb, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
             case 16*1 + 1:      /* ABGR, 16-bit RGB x-5-5-5 */
-                EXTRACT_x555_TO_888(data, sb, sg, sr, 0);
-                EXTRACT_x555_TO_888(data >> 16, sb, sg, sr, 1);
+                EXTRACT_x555_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
+                EXTRACT_x555_TO_888(data >> 16, tmp_sb, tmp_sg, tmp_sr, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
             case 16*2 + 1:      /* RGBA, 16-bit RGB x-5-5-5 */
-                EXTRACT_555x_TO_888(data, sr, sg, sb, 0);
-                EXTRACT_555x_TO_888(data >> 16, sr, sg, sb, 1);
+                EXTRACT_555x_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
+                EXTRACT_555x_TO_888(data >> 16, tmp_sr, tmp_sg, tmp_sb, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
             case 16*3 + 1:      /* BGRA, 16-bit RGB x-5-5-5 */
-                EXTRACT_555x_TO_888(data, sb, sg, sr, 0);
-                EXTRACT_555x_TO_888(data >> 16, sb, sg, sr, 1);
+                EXTRACT_555x_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
+                EXTRACT_555x_TO_888(data >> 16, tmp_sb, tmp_sg, tmp_sr, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
 
             case 16*0 + 2:      /* ARGB, 16-bit ARGB 1-5-5-5 */
-                EXTRACT_1555_TO_8888(data, sa, sr, sg, sb, 0);
-                EXTRACT_1555_TO_8888(data >> 16, sa, sr, sg, sb, 1);
+                EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 0);
+                EXTRACT_1555_TO_8888(data >> 16, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 1);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | ((LFB_RGB_PRESENT | LFB_ALPHA_PRESENT) << 4);
                 offset <<= 1;
                 break;
             case 16*1 + 2:      /* ABGR, 16-bit ARGB 1-5-5-5 */
-                EXTRACT_1555_TO_8888(data, sa, sb, sg, sr, 0);
-                EXTRACT_1555_TO_8888(data >> 16, sa, sb, sg, sr, 1);
+                EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 0);
+                EXTRACT_1555_TO_8888(data >> 16, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 1);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | ((LFB_RGB_PRESENT | LFB_ALPHA_PRESENT) << 4);
                 offset <<= 1;
                 break;
             case 16*2 + 2:      /* RGBA, 16-bit ARGB 1-5-5-5 */
-                EXTRACT_5551_TO_8888(data, sr, sg, sb, sa, 0);
-                EXTRACT_5551_TO_8888(data >> 16, sr, sg, sb, sa, 1);
+                EXTRACT_5551_TO_8888(data, tmp_sr, tmp_sg, tmp_sb, tmp_sa, 0);
+                EXTRACT_5551_TO_8888(data >> 16, tmp_sr, tmp_sg, tmp_sb, tmp_sa, 1);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | ((LFB_RGB_PRESENT | LFB_ALPHA_PRESENT) << 4);
                 offset <<= 1;
                 break;
             case 16*3 + 2:      /* BGRA, 16-bit ARGB 1-5-5-5 */
-                EXTRACT_5551_TO_8888(data, sb, sg, sr, sa, 0);
-                EXTRACT_5551_TO_8888(data >> 16, sb, sg, sr, sa, 1);
+                EXTRACT_5551_TO_8888(data, tmp_sb, tmp_sg, tmp_sr, tmp_sa, 0);
+                EXTRACT_5551_TO_8888(data >> 16, tmp_sb, tmp_sg, tmp_sr, tmp_sa, 1);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | ((LFB_RGB_PRESENT | LFB_ALPHA_PRESENT) << 4);
                 offset <<= 1;
                 break;
 
             case 16*0 + 4:      /* ARGB, 32-bit RGB x-8-8-8 */
-                EXTRACT_x888_TO_888(data, sr, sg, sb, 0);
+                EXTRACT_x888_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT;
                 break;
             case 16*1 + 4:      /* ABGR, 32-bit RGB x-8-8-8 */
-                EXTRACT_x888_TO_888(data, sb, sg, sr, 0);
+                EXTRACT_x888_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT;
                 break;
             case 16*2 + 4:      /* RGBA, 32-bit RGB x-8-8-8 */
-                EXTRACT_888x_TO_888(data, sr, sg, sb, 0);
+                EXTRACT_888x_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT;
                 break;
             case 16*3 + 4:      /* BGRA, 32-bit RGB x-8-8-8 */
-                EXTRACT_888x_TO_888(data, sb, sg, sr, 0);
+                EXTRACT_888x_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT;
                 break;
 
             case 16*0 + 5:      /* ARGB, 32-bit ARGB 8-8-8-8 */
-                EXTRACT_8888_TO_8888(data, sa, sr, sg, sb, 0);
+                EXTRACT_8888_TO_8888(data, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT;
                 break;
             case 16*1 + 5:      /* ABGR, 32-bit ARGB 8-8-8-8 */
-                EXTRACT_8888_TO_8888(data, sa, sb, sg, sr, 0);
+                EXTRACT_8888_TO_8888(data, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT;
                 break;
             case 16*2 + 5:      /* RGBA, 32-bit ARGB 8-8-8-8 */
-                EXTRACT_8888_TO_8888(data, sr, sg, sb, sa, 0);
+                EXTRACT_8888_TO_8888(data, tmp_sr, tmp_sg, tmp_sb, tmp_sa, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT;
                 break;
             case 16*3 + 5:      /* BGRA, 32-bit ARGB 8-8-8-8 */
-                EXTRACT_8888_TO_8888(data, sb, sg, sr, sa, 0);
+                EXTRACT_8888_TO_8888(data, tmp_sb, tmp_sg, tmp_sr, tmp_sa, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT;
                 break;
 
             case 16*0 + 12:     /* ARGB, 32-bit depth+RGB 5-6-5 */
             case 16*2 + 12:     /* RGBA, 32-bit depth+RGB 5-6-5 */
-                sw[0] = data >> 16;
-                EXTRACT_565_TO_888(data, sr, sg, sb, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_565_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
             case 16*1 + 12:     /* ABGR, 32-bit depth+RGB 5-6-5 */
             case 16*3 + 12:     /* BGRA, 32-bit depth+RGB 5-6-5 */
-                sw[0] = data >> 16;
-                EXTRACT_565_TO_888(data, sb, sg, sr, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_565_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
 
             case 16*0 + 13:     /* ARGB, 32-bit depth+RGB x-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_x555_TO_888(data, sr, sg, sb, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_x555_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
             case 16*1 + 13:     /* ABGR, 32-bit depth+RGB x-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_x555_TO_888(data, sb, sg, sr, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_x555_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
             case 16*2 + 13:     /* RGBA, 32-bit depth+RGB x-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_555x_TO_888(data, sr, sg, sb, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_555x_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
             case 16*3 + 13:     /* BGRA, 32-bit depth+RGB x-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_555x_TO_888(data, sb, sg, sr, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_555x_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
 
             case 16*0 + 14:     /* ARGB, 32-bit depth+ARGB 1-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_1555_TO_8888(data, sa, sr, sg, sb, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
             case 16*1 + 14:     /* ABGR, 32-bit depth+ARGB 1-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_1555_TO_8888(data, sa, sb, sg, sr, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
             case 16*2 + 14:     /* RGBA, 32-bit depth+ARGB 1-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_5551_TO_8888(data, sr, sg, sb, sa, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_5551_TO_8888(data, tmp_sr, tmp_sg, tmp_sb, tmp_sa, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
             case 16*3 + 14:     /* BGRA, 32-bit depth+ARGB 1-5-5-5 */
-                sw[0] = data >> 16;
-                EXTRACT_5551_TO_8888(data, sb, sg, sr, sa, 0);
+                tmp_sw[0] = data >> 16;
+                EXTRACT_5551_TO_8888(data, tmp_sb, tmp_sg, tmp_sr, tmp_sa, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
 
@@ -4300,8 +4300,8 @@ public class VoodooCommon extends PCI_Device {
             case 16*1 + 15:     /* ARGB, 16-bit depth */
             case 16*2 + 15:     /* ARGB, 16-bit depth */
             case 16*3 + 15:     /* ARGB, 16-bit depth */
-                sw[0] = data & 0xffff;
-                sw[1] = data >> 16;
+                tmp_sw[0] = data & 0xffff;
+                tmp_sw[1] = data >> 16;
                 mask = LFB_DEPTH_PRESENT | (LFB_DEPTH_PRESENT << 4);
                 offset <<= 1;
                 break;
@@ -4393,17 +4393,17 @@ public class VoodooCommon extends PCI_Device {
                             /* look up the dither value from the appropriate matrix */
                             int dither_offset = dither_lookupPos + ((x & 3) << 1);
                             /* apply dithering to R,G,B */
-                            sr[pix] = dither_lookup[(sr[pix] << 3) + 0 + dither_offset];
-                            sg[pix] = dither_lookup[(sg[pix] << 3) + 1 + dither_offset];
-                            sb[pix] = dither_lookup[(sb[pix] << 3) + 0 + dither_offset];
+                            tmp_sr[pix] = dither_lookup[(tmp_sr[pix] << 3) + 0 + dither_offset];
+                            tmp_sg[pix] = dither_lookup[(tmp_sg[pix] << 3) + 1 + dither_offset];
+                            tmp_sb[pix] = dither_lookup[(tmp_sb[pix] << 3) + 0 + dither_offset];
                         }
                         else
                         {
-                            sr[pix] >>= 3;
-                            sg[pix] >>= 2;
-                            sb[pix] >>= 3;
+                            tmp_sr[pix] >>= 3;
+                            tmp_sg[pix] >>= 2;
+                            tmp_sb[pix] >>= 3;
                         }
-                        fbi.ram[destPos+bufoffs] = (short)((sr[pix] << 11) | (sg[pix] << 5) | sb[pix]);
+                        fbi.ram[destPos+bufoffs] = (short)((tmp_sr[pix] << 11) | (tmp_sg[pix] << 5) | tmp_sb[pix]);
                     }
 
                     /* make sure we have an aux buffer to write to */
@@ -4411,11 +4411,11 @@ public class VoodooCommon extends PCI_Device {
                     {
                         /* write to the alpha buffer */
                         if ((mask & LFB_ALPHA_PRESENT)!=0 && FBZMODE_ENABLE_ALPHA_PLANES(reg[fbzMode]))
-                            fbi.ram[depthPos+bufoffs] = (short)sa[pix];
+                            fbi.ram[depthPos+bufoffs] = (short)tmp_sa[pix];
 
                         /* write to the depth buffer */
                         if ((mask & (LFB_DEPTH_PRESENT | LFB_DEPTH_PRESENT_MSW))!=0 && !FBZMODE_ENABLE_ALPHA_PLANES(reg[fbzMode]))
-                            fbi.ram[depthPos+bufoffs] = (short)sw[pix];
+                            fbi.ram[depthPos+bufoffs] = (short)tmp_sw[pix];
                     }
 
                     /* track pixel writes to the frame buffer regardless of mask */
@@ -4480,8 +4480,8 @@ public class VoodooCommon extends PCI_Device {
                 if ((mask & 0x0f)!=0)
                 {
                     final stats_block stats = fbi.lfb_stats;
-                    LongRef iterw = new LongRef(sw[pix] << (30-16));
-                    IntRef iterz = new IntRef(sw[pix] << 12);
+                    LongRef iterw = new LongRef(tmp_sw[pix] << (30-16));
+                    IntRef iterz = new IntRef(tmp_sw[pix] << 12);
                     int color;
 
                     /* apply clipping */
@@ -4506,14 +4506,14 @@ public class VoodooCommon extends PCI_Device {
                             iterargb.value = reg[zaColor];
 
                             /* use the RGBA we stashed above */
-                            result.value = setRegRGBA(sr[pi], sg[pi], sb[pi], sa[pi]);
+                            result.value = setRegRGBA(tmp_sr[pi], tmp_sg[pi], tmp_sb[pi], tmp_sa[pi]);
 
                             /* apply chroma key, alpha mask, and alpha testing */
                             if (!APPLY_CHROMAKEY(stats, reg[fbzMode], result.value))
                                 return false;
-                            if (!APPLY_ALPHAMASK(stats, reg[fbzMode], sa[pi]))
+                            if (!APPLY_ALPHAMASK(stats, reg[fbzMode], tmp_sa[pi]))
                                 return false;
-                            if (!APPLY_ALPHATEST(stats, reg[alphaMode], sa[pi]))
+                            if (!APPLY_ALPHATEST(stats, reg[alphaMode], tmp_sa[pi]))
                                 return false;
                             return true;
                         }
@@ -5183,13 +5183,13 @@ public class VoodooCommon extends PCI_Device {
     	/* iterate over blocks of extents */
     	for (y = sy; y < ey; y += extents.length)
     	{
-    		poly_extra_data extra = (poly_extra_data)Poly.poly_get_extra_data(poly);
+    		poly_extra_data extra = Poly.allocate_poly_extra_data(poly);
     		int count = Math.min(ey - y, extents.length);
     
     		extra.state = this;
     		extra.dither = dithermatrix;
     
-    		pixels += Poly.poly_render_triangle_custom(poly, fbi.ram, drawbufPos, global_cliprect, raster_fastfill, y, count, extents);
+    		pixels += Poly.poly_render_triangle_custom(poly, fbi.ram, drawbufPos, global_cliprect, raster_fastfill, y, count, extents, extra);
     	}
     
     	/* 2 pixels per clock */
@@ -5529,7 +5529,7 @@ public class VoodooCommon extends PCI_Device {
     
     private int triangle_create_work_item(int drawbufPos, int texcount)
     {
-    	poly_extra_data extra = (poly_extra_data)Poly.poly_get_extra_data(poly);
+    	poly_extra_data extra = Poly.allocate_poly_extra_data(poly);
     	raster_info info = find_rasterizer(texcount);
     	Poly.poly_vertex[] vert = Poly.poly_vertex.create(3);
     
@@ -5601,7 +5601,7 @@ public class VoodooCommon extends PCI_Device {
     
     	/* farm the rasterization out to other threads */
     	info.polys++;
-    	return Poly.poly_render_triangle(poly, fbi.ram, drawbufPos, global_cliprect, info.callback, 0, vert[0], vert[1], vert[2]);
+    	return Poly.poly_render_triangle(poly, fbi.ram, drawbufPos, global_cliprect, info.callback, 0, vert[0], vert[1], vert[2], extra);
     }
 
     /***************************************************************************

@@ -7,7 +7,7 @@ public class Poly {
     /***************************************************************************
         CONSTANTS
     ***************************************************************************/
-    static public final int WORK_MAX_THREADS = 4;
+    static public final int WORK_MAX_THREADS = Math.max(1,Runtime.getRuntime().availableProcessors());
 
     static public final int SCANLINES_PER_BUCKET          =  8;
     static public final int CACHE_LINE_SIZE               =  64;          /* this is a general guess */
@@ -65,28 +65,6 @@ public class Poly {
     	float       dpdx;                       /* dp/dx relative to starting X */
     	float       dpdy;                       /* dp/dy relative to starting Y */
     }
-
-
-    /* poly edge is used internally for quad rendering */
-    static final class poly_edge
-    {
-    	poly_edge           next;                   /* next edge in sequence */
-    	int                 index;                  /* index of this edge */
-    	poly_vertex         v1;                     /* pointer to first vertex */
-    	poly_vertex         v2;                     /* pointer to second vertex */
-    	float               dxdy;                   /* dx/dy along the edge */
-    	float[]             dpdy = new float[MAX_VERTEX_PARAMS];/* per-parameter dp/dy values */
-    }
-
-
-    /* poly section is used internally for quad rendering */
-    static final class poly_section
-    {
-    	poly_edge           ledge;                  /* pointer to left edge */
-    	poly_edge           redge;                  /* pointer to right edge */
-    	float               ybottom;                /* bottom of this section */
-    }
-
 
     /* work_unit_shared is a common set of data shared between tris and quads */
     static class work_unit
@@ -201,7 +179,7 @@ public class Poly {
         int                 polygon_count;          /* number of polygon items available */
 
     	/* extra data */
-        poly_extra_data[]            extra;                  /* array of extra data pointers */
+        poly_extra_data[]    extra;                  /* array of extra data pointers */
         int                 extra_next;             /* index of next extra data to allocate */
         int                 extra_count;            /* number of extra data items available */
 
@@ -317,7 +295,17 @@ public class Poly {
     	poly.polygon_max = Math.max(poly.polygon_max, poly.polygon_next + 1);
     	return poly.polygon[poly.polygon_next++];
     }
-    
+
+    static public poly_extra_data allocate_poly_extra_data(poly_manager poly)
+    {
+        if (poly.extra_next + 1 > poly.extra_count)
+        {
+            poly_wait(poly, "Out of extra data");
+            poly.polygon_waits++;
+        }
+        return poly.extra[poly.extra_next++];
+    }
+
     /***************************************************************************
         INITIALIZATION/TEARDOWN
     ***************************************************************************/
@@ -338,12 +326,12 @@ public class Poly {
     	poly.polygon_count = Math.max(max_polys, 1);
     	poly.polygon_next = 0;
     	poly.polygon = polygon_info.create(poly.polygon_count);
-    
-    	/* allocate extra data */
-    	poly.extra_count = poly.polygon_count;
-    	poly.extra_next = 1;
-    	poly.extra = extra;
-    
+
+        /* allocate extra data */
+        poly.extra_count = poly.polygon_count;
+        poly.extra_next = 1;
+        poly.extra = poly_extra_data.create(poly.extra_count);
+
     	/* allocate triangle work units */
     	poly.unit_count = Math.min(poly.polygon_count * UNITS_PER_POLY, 65535);
     	poly.unit_next = 0;
@@ -408,24 +396,7 @@ public class Poly {
 //    		time = get_profile_ticks();
 
     	/* wait for all pending work items to complete */
-    	if (poly.queue != null) {
-            synchronized (poly.queue) {
-                if (poly.queue.size()>0) {
-                    try {
-                        poly.queue.wait(1000000);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }
-
-    	/* if we don't have a queue, just run the whole list now */
-    	else
-    	{
-    		int unitnum;
-    		for (unitnum = 0; unitnum < poly.unit_next; unitnum++)
-    			poly_item_callback(poly.unit[unitnum], 0);
-    	}
+        PolyThread.waitUntilDone();
 
     	/* log any long waits */
 //    	if (LOG_WAITS)
@@ -436,32 +407,8 @@ public class Poly {
 //    	}
 
     	/* reset the state */
-    	poly.polygon_next = poly.unit_next = 0;
+    	poly.polygon_next = poly.unit_next = poly.extra_next = 0;
         Arrays.fill(poly.unit_bucket, 0xffff);
-
-    	/* we need to preserve the last extra data that was supplied */
-    	if (poly.extra_next > 1)
-            poly.extra[poly.extra_next-1]=poly.extra[0];
-    	poly.extra_next = 1;
-    }
-
-    /*-------------------------------------------------
-        poly_get_extra_data - get a pointer to the
-        extra data for the next polygon
-    -------------------------------------------------*/
-
-    static Object poly_get_extra_data(poly_manager poly)
-    {
-    	/* wait for a work item if we have to */
-    	if (poly.extra_next + 1 > poly.extra_count)
-    	{
-    		poly_wait(poly, "Out of extra data");
-    		poly.extra_waits++;
-    	}
-
-    	/* return a pointer to the extra data for the next item */
-    	poly.extra_max = Math.max(poly.extra_max, poly.extra_next + 1);
-    	return poly.extra[poly.extra_next++];
     }
 
     /***************************************************************************
@@ -473,7 +420,7 @@ public class Poly {
         triangle given 3 vertexes
     -------------------------------------------------*/
 
-    static int poly_render_triangle(poly_manager poly, short[] dest, int destOffset, VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int paramcount, poly_vertex v1, poly_vertex v2, poly_vertex v3)
+    static int poly_render_triangle(poly_manager poly, short[] dest, int destOffset, VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int paramcount, poly_vertex v1, poly_vertex v2, poly_vertex v3, poly_extra_data extra)
     {
     	float dxdy_v1v2, dxdy_v1v3, dxdy_v2v3;
     	poly_vertex tv;
@@ -525,7 +472,7 @@ public class Poly {
     	polygon.dest = dest;
         polygon.destOffset = destOffset;
     	polygon.callback = callback;
-    	polygon.extra = poly.extra[poly.extra_next - 1];
+    	polygon.extra = extra;
     	polygon.numparams = paramcount;
     	polygon.numverts = 3;
 
@@ -542,13 +489,13 @@ public class Poly {
     	startunit = poly.unit_next;
     	for (curscan = v1yclip; curscan < v3yclip; curscan += scaninc)
     	{
-    		int bucketnum = (int)(((curscan & 0xFFFFFFFFl) / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS);
+    		int bucketnum = (curscan / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS;
     		int unit_index = poly.unit_next++;
     		tri_work_unit unit = (tri_work_unit)poly.unit[unit_index];
     		int extnum;
 
     		/* determine how much to advance to hit the next bucket */
-    		scaninc = SCANLINES_PER_BUCKET - (int)((curscan & 0xFFFFFFFFl) % SCANLINES_PER_BUCKET);
+    		scaninc = SCANLINES_PER_BUCKET - (curscan % SCANLINES_PER_BUCKET);
 
     		/* fill in the work unit basics */
     		unit.polygon = polygon;
@@ -641,7 +588,7 @@ public class Poly {
 
     	/* enqueue the work items */
     	if (poly.queue != null) {
-            addWork(poly.queue, poly.unit, startunit, poly.unit_next-1);
+            addWork(poly.queue, poly.unit, startunit, poly.unit_next - 1);
         }
 
     	/* return the total number of pixels in the triangle */
@@ -650,34 +597,84 @@ public class Poly {
     	return pixels;
     }
 
+    static Thread[] threads;
+
+    static private final class PolyThread extends Thread {
+        static final LinkedList<work_unit> queue = new LinkedList<work_unit>();
+        static int active = WORK_MAX_THREADS;
+        static final Object busyNotifier = new Object();
+        public int id;
+        static public int count;
+
+        public PolyThread(int id) {
+            this.id = id;
+        }
+        public void run() {
+            try {
+                while (true) {
+                    work_unit unit;
+                    synchronized (queue) {
+                        if (queue.size()==0) {
+                            if (count == 0) {
+                                synchronized (busyNotifier) {
+                                    busyNotifier.notify();
+                                }
+                            }
+                            queue.wait();
+                        }
+                        if (queue.size()==0)
+                            continue;
+                        unit = queue.removeFirst();
+                    }
+                    poly_item_callback(unit, id);
+                    synchronized (busyNotifier) {
+                        count--;
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        static public void addUnit(work_unit unit) {
+            synchronized (queue) {
+                synchronized (busyNotifier) {
+                    count++;
+                }
+                queue.addLast(unit);
+                queue.notify();
+            }
+        }
+        static public void waitUntilDone() {
+            synchronized (busyNotifier) {
+                if (count>0) {
+                    try {busyNotifier.wait();} catch (Exception e) {}
+                }
+            }
+        }
+    }
+
+    static {
+        threads = new PolyThread[WORK_MAX_THREADS];
+        for (int i=0;i<threads.length;i++) {
+            threads[i] = new PolyThread(i);
+            threads[i].start();
+        }
+    }
+
     static void addWork(LinkedList queue, work_unit[] units, int startIndex, int stopIndex) {
-        for (int i=startIndex;i<=stopIndex;i++)
-            poly_item_callback(units[i], 0);
+        for (int i=startIndex;i<=stopIndex;i++) {
+            PolyThread.addUnit(units[i]);
+        }
     }
-
-    /*-------------------------------------------------
-        poly_render_triangle_fan - render a set of
-        triangles in a fan
-    -------------------------------------------------*/
-
-    static int poly_render_triangle_fan(poly_manager poly, short[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int paramcount, int numverts, poly_vertex[] v)
-    {
-    	int pixels = 0;
-    	int vertnum;
-
-    	/* iterate over vertices */
-    	for (vertnum = 2; vertnum < numverts; vertnum++)
-    		pixels += poly_render_triangle(poly, dest, destOffset, cliprect, callback, paramcount, v[0], v[vertnum - 1], v[vertnum]);
-    	return pixels;
-    }
-
 
     /*-------------------------------------------------
         poly_render_triangle_custom - perform a custom
         render of an object, given specific extents
     -------------------------------------------------*/
 
-    static int poly_render_triangle_custom(poly_manager poly, short[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int startscanline, int numscanlines, poly_extent[] extents)
+    static int poly_render_triangle_custom(poly_manager poly, short[] dest, int destOffset, final VoodooCommon.rectangle cliprect, poly_draw_scanline_func callback, int startscanline, int numscanlines, poly_extent[] extents, poly_extra_data extra)
     {
     	int curscan, scaninc;
     	polygon_info polygon;
@@ -699,7 +696,7 @@ public class Poly {
     	polygon.dest = dest;
         polygon.destOffset = destOffset;
     	polygon.callback = callback;
-    	polygon.extra = poly.extra[poly.extra_next - 1];
+    	polygon.extra = extra;
     	polygon.numparams = 0;
     	polygon.numverts = 3;
 
@@ -765,7 +762,8 @@ public class Poly {
         poly_item_callback - callback for each poly
         item
     -------------------------------------------------*/
-    
+
+    static poly_extent[] tmpextents = poly_extent.create(WORK_MAX_THREADS);
     static void poly_item_callback(work_unit unit, int threadid)
     {
     	while (true)
@@ -802,7 +800,7 @@ public class Poly {
     		{
     			if (polygon.numverts == 3)
     			{
-    				poly_extent tmpextent = new poly_extent();
+    				poly_extent tmpextent = tmpextents[threadid];
     				convert_tri_extent_to_poly_extent(tmpextent, ((tri_work_unit)unit).extent[curscan], polygon, unit.scanline + curscan);
     				polygon.callback.call(polygon.dest, polygon.destOffset, unit.scanline + curscan, tmpextent, polygon.extra, threadid);
     			}
@@ -815,7 +813,7 @@ public class Poly {
             orig_count_next = unit.setCountNext(0);
 
     		/* if we have no more work to do, do nothing */
-    		orig_count_next >>= 16;
+    		orig_count_next >>>= 16;
     		if (orig_count_next == 0)
     			break;
     		unit = polygon.poly.unit[orig_count_next];

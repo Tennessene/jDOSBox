@@ -478,7 +478,7 @@ public class Bios extends Module_base {
                         case 0x02: {	// find device
                             /*Bitu*/int devnr=0;
                             /*Bitu*/int count=0x100;
-                            /*Bit32u*/long devicetag=(((long)CPU_Regs.reg_ecx.word())<<16)|CPU_Regs.reg_edx.dword;
+                            /*Bit32u*/int devicetag=((CPU_Regs.reg_ecx.word())<<16)|CPU_Regs.reg_edx.dword;
                             /*Bits*/int found=-1;
                             for (/*Bitu*/int i=0; i<=count; i++) {
                                 IO.IO_WriteD(0xcf8,0x80000000|(i<<8));	// query unique device/subdevice entries
@@ -506,13 +506,13 @@ public class Bios extends Module_base {
                         case 0x03: {	// find device by class code
                             /*Bitu*/int devnr=0;
                             /*Bitu*/int count=0x100;
-                            /*Bit32u*/long classtag=CPU_Regs.reg_ecx.dword & 0xffffff;
+                            /*Bit32u*/int classtag=CPU_Regs.reg_ecx.dword & 0xffffff;
                             /*Bits*/int found=-1;
                             for (/*Bitu*/int i=0; i<=count; i++) {
                                 IO.IO_WriteD(0xcf8,0x80000000|(i<<8));	// query unique device/subdevice entries
                                 if (IO.IO_ReadD(0xcfc)!=0xffffffff) {
                                     IO.IO_WriteD(0xcf8,0x80000000|(i<<8)|0x08);
-                                    if ((IO.IO_ReadD(0xcfc)>>8)==classtag) {
+                                    if ((IO.IO_ReadD(0xcfc)>>>8)==classtag) {
                                         if (devnr==CPU_Regs.reg_esi.word()) {
                                             found=i;
                                             break;

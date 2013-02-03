@@ -489,13 +489,13 @@ public class Poly {
     	startunit = poly.unit_next;
     	for (curscan = v1yclip; curscan < v3yclip; curscan += scaninc)
     	{
-    		int bucketnum = (curscan / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS;
+    		int bucketnum = (Math.abs(curscan) / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS;
     		int unit_index = poly.unit_next++;
     		tri_work_unit unit = (tri_work_unit)poly.unit[unit_index];
     		int extnum;
 
     		/* determine how much to advance to hit the next bucket */
-    		scaninc = SCANLINES_PER_BUCKET - (curscan % SCANLINES_PER_BUCKET);
+    		scaninc = SCANLINES_PER_BUCKET - (Math.abs(curscan) % SCANLINES_PER_BUCKET);
 
     		/* fill in the work unit basics */
     		unit.polygon = polygon;

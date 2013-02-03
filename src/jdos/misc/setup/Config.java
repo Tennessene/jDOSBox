@@ -11,7 +11,7 @@ import java.util.Vector;
 
 public class Config {
     static public final String MAJOR_VERSION = "0.74";
-    static public final String VERSION = "0.74.27.2";
+    static public final String VERSION = "0.74.27.3";
     static public final boolean C_DYNAMIC = true;
     static public final boolean C_DYNREC = false;
     static public final boolean C_FPU = true;

@@ -10,6 +10,8 @@ import jdos.hardware.pci.PCI_Device;
 import jdos.hardware.pci.PCI_Memory_BAR;
 import jdos.hardware.pci.PCI_PageHandler;
 import jdos.misc.Log;
+import jdos.misc.setup.Section;
+import jdos.misc.setup.Section_prop;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 
@@ -4996,7 +4998,7 @@ public class VoodooCommon extends PCI_Device {
 //                logerror("VOODOO.%d.REG:%s read = %08X\n", index, regnames[regnum], result);
 //        }
         //if (regnum>0)
-        //    System.out.println(count+" read "+regnames[regnum]+" result="+result);
+            //System.out.println(count+" read "+regnames[regnum]+" result="+result);
         count++;
         return result;
     }
@@ -7592,7 +7594,7 @@ public class VoodooCommon extends PCI_Device {
         for (int i=0;i<rasterizer.length;i++) {
             rasterizer[i] = new raster_info();
         }
-        common_start_voodoo(type, fbRAM, tmuRAM0, tmuRAM0, null, null);
+        common_start_voodoo(type, fbRAM, tmuRAM0, tmuRAM1, null, null);
         vdraw.v = this;
     }
 
@@ -7690,4 +7692,27 @@ public class VoodooCommon extends PCI_Device {
             voodoo_w((addr>>2)&0x3FFFFF,val,0xffffffff);
         }
     }
+
+    private static VoodooCommon voodoo;
+
+    public static Section.SectionFunction Voodoo_ShutDown = new Section.SectionFunction() {
+        public void call(Section section) {
+            voodoo=null;
+        }
+    };
+
+    public static Section.SectionFunction Voodoo_Init = new Section.SectionFunction() {
+        public void call(Section sec) {
+            Section_prop section = (Section_prop)sec;
+            String type = section.Get_string("type");
+            String fb = section.Get_string("framebuffer");
+            String tm = section.Get_string("texturememory");
+            if (type.equals("voodoo1")) {
+                voodoo = new VoodooCommon(0x0001, Integer.parseInt(fb), Integer.parseInt(tm), section.Get_bool("singletmu")?0:Integer.parseInt(tm), TYPE_VOODOO_1);
+            } else if (type.equals("voodoo2")) {
+                voodoo = new VoodooCommon(0x0002, Integer.parseInt(fb), Integer.parseInt(tm), Integer.parseInt(tm), TYPE_VOODOO_2);
+            }
+            sec.AddDestroyFunction(Voodoo_ShutDown,false);
+        }
+    };
 }

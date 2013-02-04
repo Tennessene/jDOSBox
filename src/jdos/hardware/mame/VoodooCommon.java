@@ -3722,7 +3722,7 @@ public class VoodooCommon extends PCI_Device {
                     Poly.poly_wait(poly, regnames[regnum]);
                     if (!FBIINIT1_VIDEO_TIMING_RESET(reg[fbiInit1]))
                     {
-                        int index = data >> 24;
+                        int index = data >>> 24;
                         if (index <= 32)
                         {
                             fbi.clut[index] = data;
@@ -7653,8 +7653,8 @@ public class VoodooCommon extends PCI_Device {
         }
 
         public /*Bitu*/int readb(/*PhysPt*/int addr) {
-            Log.exit("No byte handler for read from " + Long.toString(addr, 16));
-            return 0;
+            //Log.exit("No byte handler for read from " + Long.toString(addr, 16));
+            return -1;
         }
 
         public /*Bitu*/int readw(/*PhysPt*/int addr) {
@@ -7679,7 +7679,7 @@ public class VoodooCommon extends PCI_Device {
         }
 
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
-            Log.exit("No byte handler for write to " + Long.toString(addr, 16));
+            //Log.exit("No byte handler for write to " + Long.toString(addr, 16));
         }
 
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {

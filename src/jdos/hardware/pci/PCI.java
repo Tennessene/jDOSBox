@@ -7,6 +7,7 @@ import jdos.hardware.Memory;
 import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
+import jdos.misc.setup.Section_prop;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.IntRef;
@@ -405,10 +406,13 @@ public class PCI extends Module_base {
 
     public static Section.SectionFunction PCI_Init = new Section.SectionFunction() {
         public void call(Section sec) {
-            pci_interface = new PCI(sec);
-            new PCIHostBridge();
-            //new PCIIsaBridge();
-            sec.AddDestroyFunction(PCI_ShutDown,false);
+            Section_prop section = (Section_prop)sec;
+            if (section.Get_bool("enabled")) {
+                pci_interface = new PCI(sec);
+                new PCIHostBridge();
+                //new PCIIsaBridge();
+                sec.AddDestroyFunction(PCI_ShutDown,false);
+            }
         }
     };
 }

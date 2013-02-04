@@ -456,11 +456,14 @@ public class Dosbox {
 
         if (Config.PCI_FUNCTIONALITY_ENABLED) {
             secprop=control.AddSection_prop("pci", PCI.PCI_Init,true); //PCI bus
+            Pbool = secprop.Add_bool("enabled", Property.Changeable.OnlyAtStart, false);
+            Pbool.Set_help("PCI needs to be enabled if you want to use a Voodoo card.\n"+
+                           "Enabling PCI will most likely break Bochs Bios support");
             secprop=control.AddSection_prop("3dfx", VoodooCommon.Voodoo_Init,true); //PCI bus
             String[] types = new String[] { "none", "voodoo1", "voodoo2"};
             Pstring = secprop.Add_string("type",Property.Changeable.OnlyAtStart,"voodoo2");
             Pstring.Set_values(types);
-            Pstring.Set_help(       "Which 3dfx card you would like to emulate.\n" +
+            Pstring.Set_help(       "Which 3dfx card you would like to emulate.  Remember to enabled PCI.\n" +
                                     "  'none'\n"+
                                     "  'voodoo1'       Frame Buffer can be 2 or 4MB\n" +
                                     "                  Texture Memory can be 1, 2 or 4MB\n" +

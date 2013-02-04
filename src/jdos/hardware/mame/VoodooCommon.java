@@ -7703,16 +7703,18 @@ public class VoodooCommon extends PCI_Device {
 
     public static Section.SectionFunction Voodoo_Init = new Section.SectionFunction() {
         public void call(Section sec) {
-            Section_prop section = (Section_prop)sec;
-            String type = section.Get_string("type");
-            String fb = section.Get_string("framebuffer");
-            String tm = section.Get_string("texturememory");
-            if (type.equals("voodoo1")) {
-                voodoo = new VoodooCommon(0x0001, Integer.parseInt(fb), Integer.parseInt(tm), section.Get_bool("singletmu")?0:Integer.parseInt(tm), TYPE_VOODOO_1);
-            } else if (type.equals("voodoo2")) {
-                voodoo = new VoodooCommon(0x0002, Integer.parseInt(fb), Integer.parseInt(tm), Integer.parseInt(tm), TYPE_VOODOO_2);
+            if (PCI.pci_interface != null) {
+                Section_prop section = (Section_prop)sec;
+                String type = section.Get_string("type");
+                String fb = section.Get_string("framebuffer");
+                String tm = section.Get_string("texturememory");
+                if (type.equals("voodoo1")) {
+                    voodoo = new VoodooCommon(0x0001, Integer.parseInt(fb), Integer.parseInt(tm), section.Get_bool("singletmu")?0:Integer.parseInt(tm), TYPE_VOODOO_1);
+                } else if (type.equals("voodoo2")) {
+                    voodoo = new VoodooCommon(0x0002, Integer.parseInt(fb), Integer.parseInt(tm), Integer.parseInt(tm), TYPE_VOODOO_2);
+                }
+                sec.AddDestroyFunction(Voodoo_ShutDown,false);
             }
-            sec.AddDestroyFunction(Voodoo_ShutDown,false);
         }
     };
 }

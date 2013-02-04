@@ -26,7 +26,7 @@ public class CacheBlockDynRec {
                     for (int i=0;i<link[ind].from.size();i++) {
                         CacheBlockDynRec from = (CacheBlockDynRec)link[ind].from.elementAt(i);
                         if (from.link[ind].to != this) {
-                            Log.exit("Bad Dynamic cache");
+                            //Log.exit("Bad Dynamic cache");
                         }
                         from.link[ind].to = null;
                     }

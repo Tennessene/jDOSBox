@@ -407,6 +407,7 @@ public class PCI extends Module_base {
         public void call(Section sec) {
             pci_interface = new PCI(sec);
             new PCIHostBridge();
+            //new PCIIsaBridge();
             sec.AddDestroyFunction(PCI_ShutDown,false);
         }
     };

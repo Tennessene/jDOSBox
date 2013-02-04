@@ -82,7 +82,7 @@ public class RasterizerCompiler {
                             "    }\n");
 
             method.append(  "    if ((").append(iterw).append(" & 0xffff00000000l)!=0) {\n");
-            method.append("        temp = (int)(").append(iterw).append(" >>> 16);\n" +
+            method.append("        temp = (int)(").append(iterw).append(" >> 16);\n" +
                     "        exp -= 16;\n" +
                     "     } else {\n" +
                     "         temp = (int)").append(iterw).append(";\n" +
@@ -272,102 +272,105 @@ public class RasterizerCompiler {
             method.append("ta -= ");getRegA(method, "c_local");method.append(";\n");
         }
 
-        /* blend RGB */
-        switch (VoodooCommon.TEXMODE_TC_MSELECT(texMode))
-        {
-            default:    /* reserved */
-            case 0:     /* zero */
-                method.append("int blendr = 0, blendg = 0, blendb = 0;\n");
-                break;
+        if (VoodooCommon.TEXMODE_TC_MSELECT(texMode)==0 && VoodooCommon.TEXMODE_TCA_MSELECT(texMode)==0 && !VoodooCommon.TEXMODE_TC_REVERSE_BLEND(texMode) && !VoodooCommon.TEXMODE_TCA_REVERSE_BLEND(texMode)) {
+            System.out.println("  removed textured blend");
+        } else {
+            /* blend RGB */
+            switch (VoodooCommon.TEXMODE_TC_MSELECT(texMode))
+            {
+                default:    /* reserved */
+                case 0:     /* zero */
+                    method.append("int blendr = 0, blendg = 0, blendb = 0;\n");
+                    break;
 
-            case 1:     /* c_local */
-                method.append("int blendr = ");getRegR(method, "c_local");method.append(";\n");
-                method.append("int blendg = ");getRegG(method, "c_local");method.append(";\n");
-                method.append("int blendb = ");getRegB(method, "c_local");method.append(";\n");
-                break;
+                case 1:     /* c_local */
+                    method.append("int blendr = ");getRegR(method, "c_local");method.append(";\n");
+                    method.append("int blendg = ");getRegG(method, "c_local");method.append(";\n");
+                    method.append("int blendb = ");getRegB(method, "c_local");method.append(";\n");
+                    break;
 
-            case 2:     /* a_other */
-                method.append("int blendr = ");getRegA(method, "texel");method.append(";\n");
-                method.append("int blendg = blendr;\n");
-                method.append("int blendb = blendr;\n");
-                break;
+                case 2:     /* a_other */
+                    method.append("int blendr = ");getRegA(method, "texel");method.append(";\n");
+                    method.append("int blendg = blendr;\n");
+                    method.append("int blendb = blendr;\n");
+                    break;
 
-            case 3:     /* a_local */
-                method.append("int blendr = ");getRegA(method, "c_local");method.append(";\n");
-                method.append("int blendg = blendr;\n");
-                method.append("int blendb = blendr;\n");
-                break;
+                case 3:     /* a_local */
+                    method.append("int blendr = ");getRegA(method, "c_local");method.append(";\n");
+                    method.append("int blendg = blendr;\n");
+                    method.append("int blendb = blendr;\n");
+                    break;
 
-            case 4:     /* LOD (detail factor) */
-                method.append("int blendr, blendg, blendb;\n");
-                method.append(  "if (tmu.detailbias <= lod) {\n"+
-                                "    blendr = blendg = blendb = 0;\n"+
-                                "} else {\n" +
-                                "    blendr = (((tmu.detailbias - lod) << tmu.detailscale) >> 8);\n" +
-                                "        if (blendr > tmu.detailmax)\n"+
-                                "            blendr = tmu.detailmax;\n"+
-                                "    blendg = blendb = blendr;\n"+
-                                "}\n");
-                break;
+                case 4:     /* LOD (detail factor) */
+                    method.append("int blendr, blendg, blendb;\n");
+                    method.append(  "if (tmu.detailbias <= lod) {\n"+
+                                    "    blendr = blendg = blendb = 0;\n"+
+                                    "} else {\n" +
+                                    "    blendr = (((tmu.detailbias - lod) << tmu.detailscale) >> 8);\n" +
+                                    "        if (blendr > tmu.detailmax)\n"+
+                                    "            blendr = tmu.detailmax;\n"+
+                                    "    blendg = blendb = blendr;\n"+
+                                    "}\n");
+                    break;
 
-            case 5:     /* LOD fraction */
-                method.append(  "int blendr = lod & 0xff;\n"+
-                                "int blendg = blendr, blendb = blendr;\n");
-                break;
+                case 5:     /* LOD fraction */
+                    method.append(  "int blendr = lod & 0xff;\n"+
+                                    "int blendg = blendr, blendb = blendr;\n");
+                    break;
+            }
+
+            /* blend alpha */
+            switch (VoodooCommon.TEXMODE_TCA_MSELECT(texMode))
+            {
+                default:    /* reserved */
+                case 0:     /* zero */
+                    method.append("int blenda = 0;\n");
+                    break;
+
+                case 1:     /* c_local */
+                    method.append("int blenda = ");getRegA(method, "c_local");method.append(";\n");
+                    break;
+
+                case 2:     /* a_other */
+                    method.append("int blenda = ");getRegA(method, "texel");method.append(";\n");
+                    break;
+
+                case 3:     /* a_local */
+                    method.append("int blenda = ");getRegA(method, "c_local");method.append(";\n");
+                    break;
+
+                case 4:     /* LOD (detail factor) */
+                    method.append(  "int blenda;\n"+
+                                    "if (tmu.detailbias <= lod) {\n"+
+                                    "    blenda = 0;\n" +
+                                    "} else {\n"+
+                                    "    blenda = (((tmu.detailbias - lod) << tmu.detailscale) >> 8);\n"+
+                                    "    if (blenda > tmu.detailmax)\n"+
+                                    "        blenda = tmu.detailmax;\n"+
+                                    "}\n");
+                    break;
+                case 5:     /* LOD fraction */
+                    method.append("int blenda = lod & 0xff;\n");
+                    break;
+            }
+
+            /* reverse the RGB blend */
+            if (!VoodooCommon.TEXMODE_TC_REVERSE_BLEND(texMode)) {
+                method.append(  "blendr ^= 0xff;\n"+
+                                "blendg ^= 0xff;\n"+
+                                "blendb ^= 0xff;\n");
+            }
+
+            /* reverse the alpha blend */
+            if (!VoodooCommon.TEXMODE_TCA_REVERSE_BLEND(texMode))
+                method.append("blenda ^= 0xff;");
+
+            /* do the blend */
+            method.append(  "tr = (tr * (blendr + 1)) >> 8;\n"+
+                            "tg = (tg * (blendg + 1)) >> 8;\n"+
+                            "tb = (tb * (blendb + 1)) >> 8;\n"+
+                            "ta = (ta * (blenda + 1)) >> 8;\n");
         }
-
-        /* blend alpha */
-        switch (VoodooCommon.TEXMODE_TCA_MSELECT(texMode))
-        {
-            default:    /* reserved */
-            case 0:     /* zero */
-                method.append("int blenda = 0;\n");
-                break;
-
-            case 1:     /* c_local */
-                method.append("int blenda = ");getRegA(method, "c_local");method.append(";\n");
-                break;
-
-            case 2:     /* a_other */
-                method.append("int blenda = ");getRegA(method, "texel");method.append(";\n");
-                break;
-
-            case 3:     /* a_local */
-                method.append("int blenda = ");getRegA(method, "c_local");method.append(";\n");
-                break;
-
-            case 4:     /* LOD (detail factor) */
-                method.append(  "int blenda;\n"+
-                                "if (tmu.detailbias <= lod) {\n"+
-                                "    blenda = 0;\n" +
-                                "} else {\n"+
-                                "    blenda = (((tmu.detailbias - lod) << tmu.detailscale) >> 8);\n"+
-                                "    if (blenda > tmu.detailmax)\n"+
-                                "        blenda = tmu.detailmax;\n"+
-                                "}\n");
-                break;
-            case 5:     /* LOD fraction */
-                method.append("int blenda = lod & 0xff;\n");
-                break;
-        }
-
-        /* reverse the RGB blend */
-        if (!VoodooCommon.TEXMODE_TC_REVERSE_BLEND(texMode)) {
-            method.append(  "blendr ^= 0xff;\n"+
-                            "blendg ^= 0xff;\n"+
-                            "blendb ^= 0xff;\n");
-        }
-
-        /* reverse the alpha blend */
-        if (!VoodooCommon.TEXMODE_TCA_REVERSE_BLEND(texMode))
-            method.append("blenda ^= 0xff;");
-
-        /* do the blend */
-        method.append(  "tr = (tr * (blendr + 1)) >> 8;\n"+
-                        "tg = (tg * (blendg + 1)) >> 8;\n"+
-                        "tb = (tb * (blendb + 1)) >> 8;\n"+
-                        "ta = (ta * (blenda + 1)) >> 8;\n");
-
         /* add clocal or alocal to RGB */
         switch (VoodooCommon.TEXMODE_TC_ADD_ACLOCAL(texMode))
         {
@@ -846,86 +849,90 @@ public class RasterizerCompiler {
                 method.append("a -= ");getRegA(method,"c_local");method.append(";\n");
             }
         }
-        /* blend RGB */
-        switch (VoodooCommon.FBZCP_CC_MSELECT(colorPath))
-        {
-            default:    /* reserved */
-            case 0:     /* 0 */
-                method.append("int blendr = 0, blendg = 0, blendb = 0;\n");
-                break;
-
-            case 1:     /* c_local */
-                method.append("int blendr = ");getRegR(method,"c_local");method.append(";\n");
-                method.append("int blendg = ");getRegG(method,"c_local");method.append(";\n");
-                method.append("int blendb = ");getRegB(method,"c_local");method.append(";\n");
-                break;
-
-            case 2:     /* a_other */
-                method.append(  "int blendr = ");getRegA(method,"c_other");method.append(";\n"+
-                                "int blendb = blendr, blendg = blendr;\n");
-                break;
-
-            case 3:     /* a_local */
-                method.append(  "int blendr = ");getRegA(method,"c_local");method.append(";\n"+
-                                "int blendb = blendr, blendg = blendr;\n");
-                break;
-
-            case 4:     /* texture alpha */
-                method.append(  "int blendr = ");getRegA(method,"texel");method.append(";\n"+
-                                "int blendb = blendr, blendg = blendr;\n");
-                break;
-
-            case 5:     /* texture RGB (Voodoo 2 only) */
-                method.append("int blendr = ");getRegR(method,"texel");method.append(";\n");
-                method.append("int blendg = ");getRegG(method,"texel");method.append(";\n");
-                method.append("int blendb = ");getRegB(method,"texel");method.append(";\n");
-                break;
-        }
-
-        if (uses_a) {
-            switch (VoodooCommon.FBZCP_CCA_MSELECT(colorPath))
+        if (VoodooCommon.FBZCP_CC_MSELECT(colorPath)==0 && VoodooCommon.FBZCP_CCA_MSELECT(colorPath)==0 && !VoodooCommon.FBZCP_CC_REVERSE_BLEND(colorPath) && (!VoodooCommon.FBZCP_CCA_REVERSE_BLEND(colorPath) || !uses_a)) {
+            System.out.println("  removed color path blend");
+        } else {
+            /* blend RGB */
+            switch (VoodooCommon.FBZCP_CC_MSELECT(colorPath))
             {
                 default:    /* reserved */
                 case 0:     /* 0 */
-                    method.append("int blenda = 0;\n");
+                    method.append("int blendr = 0, blendg = 0, blendb = 0;\n");
                     break;
 
-                case 1:     /* a_local */
-                    method.append("int blenda = ");getRegA(method,"c_local");method.append(";\n");
+                case 1:     /* c_local */
+                    method.append("int blendr = ");getRegR(method,"c_local");method.append(";\n");
+                    method.append("int blendg = ");getRegG(method,"c_local");method.append(";\n");
+                    method.append("int blendb = ");getRegB(method,"c_local");method.append(";\n");
                     break;
 
                 case 2:     /* a_other */
-                    method.append("int blenda = ");getRegA(method,"c_other");method.append(";\n");
+                    method.append(  "int blendr = ");getRegA(method,"c_other");method.append(";\n"+
+                                    "int blendb = blendr, blendg = blendr;\n");
                     break;
 
                 case 3:     /* a_local */
-                    method.append("int blenda = ");getRegA(method,"c_local");method.append(";\n");
+                    method.append(  "int blendr = ");getRegA(method,"c_local");method.append(";\n"+
+                                    "int blendb = blendr, blendg = blendr;\n");
                     break;
 
                 case 4:     /* texture alpha */
-                    method.append("int blenda = ");getRegA(method,"texel");method.append(";\n");
+                    method.append(  "int blendr = ");getRegA(method,"texel");method.append(";\n"+
+                                    "int blendb = blendr, blendg = blendr;\n");
+                    break;
+
+                case 5:     /* texture RGB (Voodoo 2 only) */
+                    method.append("int blendr = ");getRegR(method,"texel");method.append(";\n");
+                    method.append("int blendg = ");getRegG(method,"texel");method.append(";\n");
+                    method.append("int blendb = ");getRegB(method,"texel");method.append(";\n");
                     break;
             }
-        }
-        /* reverse the RGB blend */
-        if (!VoodooCommon.FBZCP_CC_REVERSE_BLEND(colorPath)) {
-            method.append(  "blendr ^= 0xff;\n"+
-                            "blendg ^= 0xff;\n"+
-                            "blendb ^= 0xff;\n");
-        }
 
-        if (uses_a) {
-            if (!VoodooCommon.FBZCP_CCA_REVERSE_BLEND(colorPath)) {
-                method.append("blenda ^= 0xff;\n");
+            if (uses_a) {
+                switch (VoodooCommon.FBZCP_CCA_MSELECT(colorPath))
+                {
+                    default:    /* reserved */
+                    case 0:     /* 0 */
+                        method.append("int blenda = 0;\n");
+                        break;
+
+                    case 1:     /* a_local */
+                        method.append("int blenda = ");getRegA(method,"c_local");method.append(";\n");
+                        break;
+
+                    case 2:     /* a_other */
+                        method.append("int blenda = ");getRegA(method,"c_other");method.append(";\n");
+                        break;
+
+                    case 3:     /* a_local */
+                        method.append("int blenda = ");getRegA(method,"c_local");method.append(";\n");
+                        break;
+
+                    case 4:     /* texture alpha */
+                        method.append("int blenda = ");getRegA(method,"texel");method.append(";\n");
+                        break;
+                }
             }
-        }
+            /* reverse the RGB blend */
+            if (!VoodooCommon.FBZCP_CC_REVERSE_BLEND(colorPath)) {
+                method.append(  "blendr ^= 0xff;\n"+
+                                "blendg ^= 0xff;\n"+
+                                "blendb ^= 0xff;\n");
+            }
 
-        /* do the blend */
-        method.append(  "r = (r * (blendr + 1)) >> 8;\n"+
-                        "g = (g * (blendg + 1)) >> 8;\n"+
-                        "b = (b * (blendb + 1)) >> 8;\n");
-        if (uses_a)
-            method.append("a = (a * (blenda + 1)) >> 8;\n");
+            if (uses_a) {
+                if (!VoodooCommon.FBZCP_CCA_REVERSE_BLEND(colorPath)) {
+                    method.append("blenda ^= 0xff;\n");
+                }
+            }
+
+            /* do the blend */
+            method.append(  "r = (r * (blendr + 1)) >> 8;\n"+
+                            "g = (g * (blendg + 1)) >> 8;\n"+
+                            "b = (b * (blendb + 1)) >> 8;\n");
+            if (uses_a)
+                method.append("a = (a * (blenda + 1)) >> 8;\n");
+        }
 
         /* add clocal or alocal to RGB */
         switch (VoodooCommon.FBZCP_CC_ADD_ACLOCAL(colorPath))

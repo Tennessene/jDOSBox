@@ -1654,7 +1654,7 @@ public class VoodooCommon extends PCI_Device {
     	/* if we've spilled out of 32 bits, push it down under 32 */
     	if ((value & 0xffff00000000l)!=0)
     	{
-    		temp = (int)(value >>> 16);
+    		temp = (int)(value >> 16);
     		exp -= 16;
     	}
     	else

@@ -461,14 +461,14 @@ public class Dosbox {
                            "Enabling PCI will most likely break Bochs Bios support");
             secprop=control.AddSection_prop("3dfx", VoodooCommon.Voodoo_Init,true); //PCI bus
             String[] types = new String[] { "none", "voodoo1", "voodoo2"};
-            Pstring = secprop.Add_string("type",Property.Changeable.OnlyAtStart,"voodoo2");
+            Pstring = secprop.Add_string("type",Property.Changeable.OnlyAtStart,"voodoo1");
             Pstring.Set_values(types);
             Pstring.Set_help(       "Which 3dfx card you would like to emulate.  Remember to enabled PCI.\n" +
                                     "  'none'\n"+
                                     "  'voodoo1'       Frame Buffer can be 2 or 4MB\n" +
                                     "                  Texture Memory can be 1, 2 or 4MB\n" +
                                     "                  Can have 1 or 2 Texture Management Units\n" +
-                                    "                      singletmu is set to true by default\n" +
+                                    "                      singletmu is set to false by default\n" +
                                     "  'voodoo2'       Frame Buffer can be 2 or 4MB\n" +
                                     "                  Texture Memory can be 2, 4, 8 or 16MB\n" +
                                     "                  Number of Texture Managment Units (TMUs) is 2\n"+
@@ -481,8 +481,8 @@ public class Dosbox {
             Pstring = secprop.Add_string("texturememory", Property.Changeable.OnlyAtStart, "4");
             Pstring.Set_values(new String[]{"1", "2", "4", "8", "16"});
             Pstring.Set_help("The amount of memory each TMU has");
-            Pbool = secprop.Add_bool("singletmu", Property.Changeable.OnlyAtStart, true);
-            Pbool.Set_help("Voodoo 1 can have 1 or 2 TMUs.  1 is the default");
+            Pbool = secprop.Add_bool("singletmu", Property.Changeable.OnlyAtStart, false);
+            Pbool.Set_help("Voodoo 1 can have 1 or 2 TMUs.  2 is the default");
         }
 
         secprop=control.AddSection_prop("keyboard",Keyboard.KEYBOARD_Init);

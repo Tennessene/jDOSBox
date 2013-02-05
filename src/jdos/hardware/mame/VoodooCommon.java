@@ -7658,9 +7658,10 @@ public class VoodooCommon extends PCI_Device {
         }
 
         public /*Bitu*/int readw(/*PhysPt*/int addr) {
-            int result = readb(addr + 0);
-            result |= (readb(addr + 1) << 8);
-            return result;
+            int address = addr;
+            if ((address & 2)!=0)
+                return readd(address-2) >>> 16;
+            return readd(addr) & 0xFFFF;
         }
 
         public /*Bitu*/int readd(/*PhysPt*/int addr) {
@@ -7679,12 +7680,15 @@ public class VoodooCommon extends PCI_Device {
         }
 
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
-            //Log.exit("No byte handler for write to " + Long.toString(addr, 16));
+            Log.exit("No byte handler for write to " + Long.toString(addr, 16));
         }
 
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
-            writeb(addr + 0, (val));
-            writeb(addr + 1, (val >> 8));
+            addr = Paging.PAGING_GetPhysicalAddress(addr);
+            if ((addr & 2)==0)
+                voodoo_w((addr>>2)&0x3FFFFF,val,0x0000ffff);
+            else
+                voodoo_w((addr>>2)&0x3FFFFF,val << 16 ,0xffff0000);
         }
 
         public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {

@@ -1212,6 +1212,7 @@ public class FPU {
     static public void FCOMPP() {
         FPU_FCOM(top, STV(1));
         FPU_FPOP();
+        FPU_FPOP();
     }
 
     static public void FILD_WORD_INTEGER(int address) {

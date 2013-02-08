@@ -3,7 +3,10 @@ package jdos.hardware.mame;
 import javassist.*;
 import jdos.Dosbox;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Vector;
@@ -448,10 +451,9 @@ public class RasterizerCompiler extends RasterizerCompilerCommon {
     }
 
     static public void compile(raster_info info, int tmuCount, int colorPath, int alphaMode, int fogMode, int fbzMode, int textureMode0, int textureMode1) {
+        if (!Dosbox.allPrivileges)
+            return;
         StringBuilder method = new StringBuilder();
-        if (count==5) {
-            int ii=0;
-        }
         compile(method, tmuCount, colorPath, alphaMode, fogMode, fbzMode, textureMode0, textureMode1);
         raster_info result = compileMethod(method, info);
         // make it live

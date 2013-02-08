@@ -17,6 +17,47 @@ import jdos.util.LongRef;
 
 import java.util.Arrays;
 
+// I ported this from the mame project, this is their license
+
+/***************************************************************************
+
+    voodoo.c
+
+    3dfx Voodoo Graphics SST-1/2 emulator.
+
+****************************************************************************
+
+    Copyright Aaron Giles
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are
+    met:
+
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in
+          the documentation and/or other materials provided with the
+          distribution.
+        * Neither the name 'MAME' nor the names of its contributors may be
+          used to endorse or promote products derived from this software
+          without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY AARON GILES ''AS IS'' AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL AARON GILES BE LIABLE FOR ANY DIRECT,
+    INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+
+ */
+
 public class VoodooCommon extends PCI_Device {
     static private final int VOODOO_MEM = 0x60000000;
 
@@ -5615,7 +5656,7 @@ public class VoodooCommon extends PCI_Device {
         hash table
     -------------------------------------------------*/
 
-    private raster_info add_rasterizer(raster_info cinfo)
+    public raster_info add_rasterizer(raster_info cinfo)
     {
     	raster_info info = rasterizer[next_rasterizer++];
     	int hash = compute_raster_hash(cinfo);
@@ -5694,7 +5735,7 @@ public class VoodooCommon extends PCI_Device {
     	curinfo.hits = 0;
     	curinfo.next = null;
 
-        RasterizerCompiler.compile(curinfo, texcount, reg[fbzColorPath], reg[alphaMode], reg[fogMode], reg[fbzMode], reg[tmu[0].reg+textureMode], reg[tmu[1].reg+textureMode]);
+        RasterizerCompiler.compile(curinfo, texcount, reg[fbzColorPath], reg[alphaMode], reg[fogMode], reg[fbzMode], reg[tmu[0].reg + textureMode], reg[tmu[1].reg + textureMode]);
     	return add_rasterizer(curinfo);
     }
 
@@ -7697,7 +7738,7 @@ public class VoodooCommon extends PCI_Device {
         }
     }
 
-    private static VoodooCommon voodoo;
+    public static VoodooCommon voodoo;
 
     public static Section.SectionFunction Voodoo_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
@@ -7717,6 +7758,7 @@ public class VoodooCommon extends PCI_Device {
                 } else if (type.equals("voodoo2")) {
                     voodoo = new VoodooCommon(0x0002, Integer.parseInt(fb), Integer.parseInt(tm), Integer.parseInt(tm), TYPE_VOODOO_2);
                 }
+                RasterizerCompiler.load();
                 sec.AddDestroyFunction(Voodoo_ShutDown,false);
             }
         }

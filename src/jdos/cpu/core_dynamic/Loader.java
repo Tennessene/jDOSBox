@@ -1,6 +1,7 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.Dosbox;
+import jdos.hardware.mame.RasterizerCompiler;
 
 import java.io.*;
 import java.util.Arrays;
@@ -133,6 +134,7 @@ public class Loader {
             out.putNextEntry(new ZipEntry("jdos/Cache.index"));
             dos.flush();
             out.write(bos.toByteArray());
+            RasterizerCompiler.save(out);
             out.flush();
             out.close();
             if (source) {

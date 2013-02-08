@@ -7,6 +7,7 @@ import jdos.cpu.core_dynamic.Loader;
 import jdos.dos.Dos_execute;
 import jdos.dos.Dos_programs;
 import jdos.hardware.Keyboard;
+import jdos.hardware.mame.RasterizerCompiler;
 import jdos.misc.Cross;
 import jdos.misc.Log;
 import jdos.misc.setup.*;
@@ -437,6 +438,7 @@ public class MainBase {
             }
             if ((saveName=com_line.FindString("-compile", true))!=null) {
                 Compiler.saveClasses = true;
+                RasterizerCompiler.saveClasses = true;
             }
 
             Config myconf = new Config(com_line);

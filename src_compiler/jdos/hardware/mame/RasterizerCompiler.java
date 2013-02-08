@@ -3,11 +3,47 @@ package jdos.hardware.mame;
 import javassist.*;
 import jdos.Dosbox;
 
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-public class RasterizerCompiler {
+public class RasterizerCompiler extends RasterizerCompilerCommon {
+    static private class SaveInfo {
+        public SaveInfo(raster_info info, byte[] byteCode) {
+            this.info = info;
+            this.byteCode = byteCode;
+        }
+        raster_info info;
+        byte[] byteCode;
+    }
+    private static Vector<SaveInfo> savedClasses = new Vector<SaveInfo>();
+
+    static public void save(ZipOutputStream out) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(bos);
+        dos.writeInt(1); // version
+        dos.writeInt(savedClasses.size());
+        for (int i=0;i<savedClasses.size();i++) {
+            SaveInfo info = savedClasses.elementAt(i);
+            String name = "Rasterizer" + i;
+            out.putNextEntry(new ZipEntry(name + ".class"));
+            out.write(info.byteCode);
+            dos.writeUTF(name);
+            dos.writeInt(info.info.eff_color_path);
+            dos.writeInt(info.info.eff_alpha_mode);
+            dos.writeInt(info.info.eff_fog_mode);
+            dos.writeInt(info.info.eff_fbz_mode);
+            dos.writeInt(info.info.eff_tex_mode_0);
+            dos.writeInt(info.info.eff_tex_mode_1);
+        }
+        out.putNextEntry(new ZipEntry("jdos/Rasterizer.index"));
+        dos.flush();
+        out.write(bos.toByteArray());
+    }
+
     static private void getRegR(StringBuilder method, String value) {
         method.append("(").append(value).append(" >> 16) & 0xFF");
     }
@@ -1263,7 +1299,7 @@ public class RasterizerCompiler {
     static private raster_info compileMethod(StringBuilder method, raster_info info) {
        //System.out.println(method.toString());
        try {
-           String className = "RastBlock" + (count++);
+           String className = "Rasterizer" + (count++);
 
            CtClass codeBlock = pool.makeClass(className);
            codeBlock.setSuperclass(pool.getCtClass("jdos.hardware.mame.raster_info"));
@@ -1290,6 +1326,9 @@ public class RasterizerCompiler {
            cl = URLClassLoader.newInstance(cl.getURLs(), cl);
            Class clazz = codeBlock.toClass(cl, null);
            raster_info result = (raster_info) clazz.newInstance();
+           if (saveClasses) {
+               savedClasses.add(new SaveInfo(info, codeBlock.toBytecode()));
+           }
            codeBlock.detach();
            return result;
        } catch (Exception e) {

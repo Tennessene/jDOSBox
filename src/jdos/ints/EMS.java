@@ -1247,7 +1247,7 @@ public class EMS extends Module_base {
 
             /* Adjust SP of v86-stack */
             /*Bit16u*/int v86_ss=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +0x10) & CPU.cpu.stack.mask));
-            /*Bit16u*/int v86_sp=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask))-6;
+            /*Bit16u*/int v86_sp=(Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask))-6) & 0xFFFF;
             Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask),v86_sp);
 
             /* Return to original code after v86-interrupt handler */

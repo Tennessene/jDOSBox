@@ -716,9 +716,6 @@ public class Dosbox {
 		"other choices, or require EMS support to be disabled (=false)\n" +
 		"to work at all.");
 
-        Pbool = secprop.Add_bool("ems",Property.Changeable.WhenIdle,true);
-        Pbool.Set_help("Enable EMS support.");
-
         Pbool = secprop.Add_bool("umb",Property.Changeable.WhenIdle,true);
         Pbool.Set_help("Enable UMB support.");
 

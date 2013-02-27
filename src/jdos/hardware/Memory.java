@@ -521,7 +521,11 @@ public class Memory extends Module_base {
     }
 
     static public void mem_zero(int dest, int len) {
-        while (len-- != 0) Paging.mem_writeb_inline(dest++, (short)0);
+        while (len-- != 0) Paging.mem_writeb_inline(dest++, 0);
+    }
+
+    static public void mem_memset(int dest, int value, int len) {
+        while (len-- != 0) Paging.mem_writeb_inline(dest++, value);
     }
 
     static public void phys_zero(int dest, int len) {

@@ -4,47 +4,21 @@ import jdos.Dosbox;
 import jdos.misc.setup.Config;
 import jdos.util.BooleanRef;
 import jdos.util.FileHelper;
+import jdos.util.HomeDirectory;
 import jdos.util.StringRef;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Cross {
-    static final Pattern p = Pattern.compile( " \\([A-Za-z]:\\)" );
-
     public static boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().indexOf( "win" ) >= 0;
     }
 
     public static boolean isCDRom(String path) {
-        String label = getVolumeLabel(path).toLowerCase();
+        String label = HomeDirectory.getVolumeLabel(path).toLowerCase();
         if (label.indexOf("bd-rom")>=0 || label.indexOf("dvd")>=0)
             return true;
         return false;
-    }
-    
-    public static String getVolumeLabel(String path)
-    {
-        File file = new File(path);
-        while (file.getParentFile()!=null) {
-            file = file.getParentFile();
-        }
-        FileSystemView v = FileSystemView.getFileSystemView();
-        final String full = v.getSystemDisplayName(file);
-        final int length = full.length();
-        // Remove the trailing _(X:)
-        final String chopped;
-
-        final Matcher m = p.matcher( full );
-        if ( m.find() ) {
-            chopped = full.substring( 0, m.start() ).trim();
-        }
-        else {
-            chopped = full.trim();
-        }
-        return chopped;
     }
 
     static public class dir_information {

@@ -4,10 +4,7 @@ import jdos.misc.Cross;
 import jdos.misc.Log;
 import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
-import jdos.util.BooleanRef;
-import jdos.util.IntRef;
-import jdos.util.StringHelper;
-import jdos.util.StringRef;
+import jdos.util.*;
 
 import java.io.File;
 import java.util.Comparator;
@@ -86,7 +83,7 @@ public class DOS_Drive_Cache {
             StringRef result = new StringRef();
             ReadDir(id.value,result);
         }
-        SetLabel(Cross.getVolumeLabel(basePath), Cross.isCDRom(basePath), true);
+        SetLabel(HomeDirectory.getVolumeLabel(basePath), Cross.isCDRom(basePath), true);
     }
 
     void SetDirSort (int sort) {

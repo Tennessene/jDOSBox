@@ -4,10 +4,7 @@ import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
-import jdos.dos.drives.Drive_fat;
-import jdos.dos.drives.Drive_iso;
-import jdos.dos.drives.Drive_local;
-import jdos.dos.drives.Drive_local_cdrom;
+import jdos.dos.drives.*;
 import jdos.gui.Main;
 import jdos.hardware.Cmos;
 import jdos.hardware.IoHandler;
@@ -1268,8 +1265,9 @@ public class Dos_programs {
             if (fstype == null) fstype = "fat";
 
             if(type.equals("cdrom")) type = "iso"; //Tiny hack for people who like to type -t cdrom
+            if(type.equals("zip")) fstype = "zip"; // Tiny hack for zip files
             /*Bit8u*/short mediaid;
-            if (type.equals("floppy") || type.equals("hdd") || type.equals("iso")) {
+            if (type.equals("floppy") || type.equals("hdd") || type.equals("iso") || type.equals("zip")) {
                 /*Bit16u*/int[] sizes = new int[4];
                 boolean imgsizedetect=false;
 
@@ -1306,7 +1304,7 @@ public class Dos_programs {
                     }
                 }
 
-                if (fstype.equals("fat") || fstype.equals("iso")) {
+                if (fstype.equals("fat") || fstype.equals("iso") || fstype.equals("zip")) {
                     // get the drive letter
                     if ((temp_line=cmd.FindCommand(1))==null || (temp_line.length() > 2) || ((temp_line.length()>1) && (temp_line.charAt(1)!=':'))) {
                         WriteOut_NoParsing(Msg.get("PROGRAM_IMGMOUNT_SPECIFY_DRIVE"));
@@ -1388,7 +1386,7 @@ public class Dos_programs {
                     WriteOut(Msg.get("PROGRAM_IMGMOUNT_MULTIPLE_NON_CUEISO_FILES"));
                     return;
                 }
-
+                
                 if (fstype.equals("fat")) {
                     if (imgsizedetect) {
                         FileIO diskfile = null;
@@ -1467,9 +1465,11 @@ public class Dos_programs {
 
                     newdrive=new Drive_fat(temp_line,sizes[0],sizes[1],sizes[2],sizes[3],0);
                     if(!((Drive_fat)newdrive).created_successfully) {
-                        newdrive = null;
+                    	newdrive = null;
                     }
                 } else if (fstype.equals("iso")) {
+                } else if (fstype.equals("zip")) {
+                	newdrive = new Drive_zip(temp_line);
                 } else {
                     FileIO newDisk = null;
                     try {
@@ -1576,6 +1576,15 @@ public class Dos_programs {
                 }
                 WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"), new Object[]{new Character(drive), tmp});
 
+            } else if (fstype.equals("zip")) {
+                if (Dos_files.Drives[drive-'A']!=null) {
+                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
+                    return;
+                }
+                if (newdrive==null) {WriteOut(Msg.get("PROGRAM_IMGMOUNT_CANT_CREATE"));return;}
+                Dos_files.Drives[drive-'A']=newdrive;
+                Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
+                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"),new Object[]{new Character(drive),temp_line});
             } else if (fstype.equals("none")) {
                 //if(Bios_disk.imageDiskList[drive-'0'] != null) delete imageDiskList[drive-'0'];
                 Bios_disk.imageDiskList[drive-'0'] = newImage;

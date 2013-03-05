@@ -7,6 +7,7 @@ import jdos.cpu.Callback;
 import jdos.cpu.Core_normal;
 import jdos.dos.drives.Drive_fat;
 import jdos.dos.drives.Drive_local;
+import jdos.dos.drives.Drive_zip;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
@@ -352,6 +353,11 @@ public class Dos_execute {
             if (winRun(path)) {
                 return true;
             }
+        } else if (Dos_files.Files[Dos.RealHandle(fhandle.value)] instanceof Drive_zip.Zip_File) {
+        	String path = "" + (char)('A' + ((Drive_zip.Zip_File)Dos_files.Files[Dos.RealHandle(fhandle.value)]).GetDrive());
+        	if (winRun(path)) {
+        		return true;
+        	}
         } else if (Dos_files.Files[Dos.RealHandle(fhandle.value)] instanceof Drive_fat.fatFile) {
             Drive_fat.fatFile file = (Drive_fat.fatFile)Dos_files.Files[Dos.RealHandle(fhandle.value)];
             if (winRun(file.myDrive, file, "C:\\"+file.myDrive.curdir+file.name)) {

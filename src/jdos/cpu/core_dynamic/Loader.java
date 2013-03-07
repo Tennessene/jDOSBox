@@ -126,7 +126,7 @@ public class Loader {
                     fos.write(item.source.getBytes());
                     fos.close();
                     src_dos.writeUTF("jdos.cpu.core_dynamic." + item.name);
-                    //dos.writeInt(item.start);
+                    src_dos.writeInt(item.start);
                     src_dos.writeInt(item.opCode.length);
                     src_dos.write(item.opCode);
                 }

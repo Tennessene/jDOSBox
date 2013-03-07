@@ -2,37 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="e13f6156-4694-4a34-95a0-87b25b809e8c" name="Default" comment="Build fix for using the compiler stub">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/copyright" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/dibdrv" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/drawable-hdpi" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/drawable-ldpi" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/drawable-mdpi" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gen" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gen/jdos/gui" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/gui" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/hardware" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/drawable-hdpi/ic_launcher.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/drawable-ldpi/ic_launcher.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/drawable-mdpi/ic_launcher.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gen/jdos" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gen/jdos/jdos" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/layout" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/libs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_j2se/jdos/misc" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/util" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/values" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.name" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/AndroidManifest.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/hardware/AudioLayer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/wineJ2SEdrv" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/BITMAP.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/BITMAPCOREHEADER.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/BITMAPCOREINFO.java" />
@@ -41,7 +12,6 @@
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Bidi.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Bmp.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Brush.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gen/jdos/gui/BuildConfig.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/CHARSETINFO.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/DC.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/DESIGNVECTOR.java" />
@@ -49,66 +19,45 @@
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/DIBSECTION.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/DOCINFO.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Driver.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/wineJ2SEdrv/DriverEntry.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/ENUMLOGFONTEX.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/ENUMLOGFONTEXDV.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Enhmetafile.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/FONTSIGNATURE.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Font.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Freetype.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/GCP_RESULTS.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/GLYPHMETRICS.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/GdiDriver.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/GdiPrivate.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/util/HomeDirectory.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Icm.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/gui/KeyboardKey.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/JavaFont.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/LOGFONT.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/LOGPALETTE.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/LOGPEN.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/gui/Main.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gen/jdos/gui/Manifest.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Metafile.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/gui/Midi.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/NEWTEXTMETRICEX.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/OUTLINETEXTMETRIC.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/OpenGL.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/PALETTEENTRY.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/PANOSE.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/PIXELFORMATDESCRIPTOR.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Painting.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Palette.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Path.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Pen.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Printdrv.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gen/jdos/gui/R.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/RGBQUAD.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/RGBTRIPLE.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/RGNDATAHEADER.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Region.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/WINEREGION.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/XFORM.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ant.properties" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/ant.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/dibdrv/dibdrv_bitblt.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/dibdrv/dibdrv_dc.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/dibdrv/dibdrv_graphics.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/dibdrv/dibdrv_objects.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/dibdrv/dibdrv_primatives.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/jDosbox.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local.properties" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/layout/main.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/proguard-project.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/project.properties" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/values/strings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="DELETED" beforePath="K:\jdos\trunk3\src_win\jdos\win\builtin\gdi32\PaintingGDI.java" afterPath="" />
       <change type="DELETED" beforePath="K:\jdos\trunk3\src_win\jdos\win\builtin\gdi32\WinBitmap.java" afterPath="" />
       <change type="DELETED" beforePath="K:\jdos\trunk3\src_win\jdos\win\builtin\gdi32\WinBrush.java" afterPath="" />
@@ -121,8 +70,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/BitBlt.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/BitBlt.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/ButtonWindow.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/ButtonWindow.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Clipping.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Clipping.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src/jdos/misc/Cross.java" afterPath="$PROJECT_DIR$/../src/jdos/misc/Cross.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src/jdos/dos/DOS_Drive_Cache.java" afterPath="$PROJECT_DIR$/../src/jdos/dos/DOS_Drive_Cache.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/DRAWITEMSTRUCT.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/DRAWITEMSTRUCT.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/DefDlg.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/DefDlg.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/DefWnd.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/DefWnd.java" />
@@ -132,10 +79,13 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Gdi32.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Gdi32.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/GdiObj.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/GdiObj.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/GuiThreadInfo.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/GuiThreadInfo.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_j2se/jdos/util/HomeDirectory.java" afterPath="$PROJECT_DIR$/../src_j2se/jdos/util/HomeDirectory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/kernel32/KResource.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/kernel32/KResource.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/kernel32/Kernel32.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/kernel32/Kernel32.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/LOGBRUSH.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/LOGBRUSH.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src/jdos/cpu/core_dynamic/Loader.java" afterPath="$PROJECT_DIR$/../src/jdos/cpu/core_dynamic/Loader.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_android/jdos/gui/Main.java" afterPath="$PROJECT_DIR$/../src_android/jdos/gui/Main.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Mapping.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/gdi32/Mapping.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java" afterPath="$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/NCCALCSIZE_PARAMS.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/NCCALCSIZE_PARAMS.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/PAINTSTRUCT.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/PAINTSTRUCT.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/Painting.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/Painting.java" />
@@ -158,20 +108,21 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/WinText.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/WinText.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/kernel32/WinThread.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/kernel32/WinThread.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/WinWindow.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/builtin/user32/WinWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MOVED" beforePath="K:\jdos\trunk3\src_win\jdos\win\system\WinRect.java" afterPath="$PROJECT_DIR$/../src_win/jdos/win/system/RECT.java" />
     </list>
     <ignored path="jDosbox.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="$PROJECT_DIR$/src/jdos/jdos/MyActivity.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355788275014" ignored="false" />
-    <file path="/Main.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362339190929" ignored="false" />
-    <file path="/fragment.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362359242375" ignored="false" />
+    <file path="/Main.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362630441186" ignored="false" />
+    <file path="/fragment.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362627945870" ignored="false" />
     <file path="/KeyboardKey.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355847760386" ignored="false" />
-    <file path="/Dummy.txt" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362359206570" ignored="false" />
+    <file path="/Dummy.txt" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362363103153" ignored="false" />
     <file path="/KeyEvent.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355789786211" ignored="false" />
     <file path="/*.regexp" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355960014040" ignored="false" />
     <file path="/Midi.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355847979937" ignored="false" />
     <file path="/AndroidManifest.xml" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355939829582" ignored="false" />
-    <file path="/MyActivity.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362343417901" ignored="false" />
+    <file path="/MyActivity.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362630203620" ignored="false" />
     <file path="/AudioLayer.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355861239388" ignored="false" />
     <file path="/Config.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362342373967" ignored="false" />
     <file path="C:/android-sdk/sources/android-15/android/view/SurfaceHolder.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1355943749889" ignored="false" />
@@ -181,6 +132,8 @@
     <file path="/Cross.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362335615485" ignored="false" />
     <file path="/DOS_Drive_Cache.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362335957866" ignored="false" />
     <file path="/Compiler.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362358410524" ignored="false" />
+    <file path="/Loader.java" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362627761028" ignored="false" />
+    <file path="/a.dummy" changelist="e13f6156-4694-4a34-95a0-87b25b809e8c" time="1362628778723" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -240,21 +193,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Config.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../src/jdos/misc/setup/Config.java">
+      <file leaf-file-name="MyActivity.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="16" selection-start="637" selection-end="637" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+            <state line="33" column="16" selection-start="1046" selection-end="1046" vertical-scroll-proportion="0.7713787">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MyActivity.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java">
+      <file leaf-file-name="Canvas.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://C:/android-sdk/sources/android-15/android/graphics/Canvas.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="29" column="17" selection-start="875" selection-end="875" vertical-scroll-proportion="0.0">
+            <state line="1166" column="16" selection-start="45376" selection-end="45376" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/Main.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="42" column="43" selection-start="1373" selection-end="1373" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -263,16 +223,43 @@
       <file leaf-file-name="Compiler.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../src_compiler/jdos/cpu/core_dynamic/Compiler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3565" column="21" selection-start="166153" selection-end="166157" vertical-scroll-proportion="-6.72">
+            <state line="3565" column="21" selection-start="166153" selection-end="166157" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Loader.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Loader.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../src/jdos/cpu/core_dynamic/Loader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="20" selection-start="1677" selection-end="1677" vertical-scroll-proportion="0.36875">
+            <state line="54" column="11" selection-start="1573" selection-end="1573" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheBlock107.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock107.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="17" column="31" selection-start="644" selection-end="644" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CacheBlock114.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock114.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="17" column="31" selection-start="691" selection-end="691" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Dos_programs.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../src/jdos/dos/Dos_programs.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="19" column="28" selection-start="476" selection-end="476" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -281,27 +268,7 @@
       <file leaf-file-name="CacheBlock90.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock90.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="31" selection-start="643" selection-end="643" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ObjectImporter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../src_compiler/javassist/tools/rmi/ObjectImporter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#0#10700#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/Main.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="34" selection-start="1365" selection-end="1365" vertical-scroll-proportion="0.0">
+            <state line="12" column="31" selection-start="354" selection-end="354" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -311,24 +278,6 @@
         <entry file="file://$PROJECT_DIR$/../src/jdos/Dosbox.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="60" column="37" selection-start="1740" selection-end="1740" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Core_normal.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../src/jdos/cpu/Core_normal.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="87" column="0" selection-start="2971" selection-end="2971" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Prefix_none.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../src/jdos/cpu/core_normal/Prefix_none.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="109" column="0" selection-start="3917" selection-end="3917" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -344,8 +293,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/../src_android/jdos/hardware/AudioLayer.java" />
-        <option value="$PROJECT_DIR$/../src/jdos/hardware/SBlaster.java" />
         <option value="$PROJECT_DIR$/../src/jdos/hardware/TandySound.java" />
         <option value="$PROJECT_DIR$/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/../src/jdos/misc/Log.java" />
@@ -354,12 +301,14 @@
         <option value="$PROJECT_DIR$/../src/jdos/misc/Cross.java" />
         <option value="$PROJECT_DIR$/../src_android/jdos/util/HomeDirectory.java" />
         <option value="$PROJECT_DIR$/../src/jdos/dos/DOS_Drive_Cache.java" />
-        <option value="$PROJECT_DIR$/../src_android/jdos/gui/Main.java" />
         <option value="$PROJECT_DIR$/../src/jdos/misc/setup/Config.java" />
-        <option value="$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java" />
         <option value="$PROJECT_DIR$/../src_compiler/jdos/cpu/core_dynamic/Compiler.java" />
         <option value="$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock90.java" />
+        <option value="$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock114.java" />
         <option value="$PROJECT_DIR$/../src/jdos/cpu/core_dynamic/Loader.java" />
+        <option value="$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock107.java" />
+        <option value="$PROJECT_DIR$/../src_android/jdos/gui/Main.java" />
+        <option value="$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java" />
       </list>
     </option>
   </component>
@@ -398,7 +347,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -417,266 +365,9 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_j2se" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="util" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_j2se" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_j2se" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="hardware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_j2se" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gui" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_compiler" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_compiler" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cpu" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core_dynamic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_compiler" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="util" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="hardware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src_android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gui" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="res" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jdos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android_project" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jDosbox" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk3" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android_project" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="res" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -697,8 +388,8 @@
     <property name="restartRequiresConfirmation" value="true" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -863,6 +554,14 @@
           <option name="myVcsRoot" value="K:\jdos\trunk3" />
           <option name="myCopyRoot" value="K:\jdos\trunk3" />
         </SvnCopyRootSimple>
+        <SvnCopyRootSimple>
+          <option name="myVcsRoot" value="K:\jdos\trunk3\android_project" />
+          <option name="myCopyRoot" value="K:\jdos\trunk3\android_project" />
+        </SvnCopyRootSimple>
+        <SvnCopyRootSimple>
+          <option name="myVcsRoot" value="K:\jdos\trunk3\android_project\.idea" />
+          <option name="myCopyRoot" value="K:\jdos\trunk3\android_project\.idea" />
+        </SvnCopyRootSimple>
       </list>
     </option>
     <option name="myMoreRealMappingRoots">
@@ -895,8 +594,9 @@
       <window_info id="Statistic" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32951945" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39702517" sideWeight="0.49752474" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39702517" sideWeight="0.49752474" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39702517" sideWeight="0.49814355" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -907,11 +607,10 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24938118" sideWeight="0.60297483" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29061785" sideWeight="0.49752474" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24938118" sideWeight="0.7093822" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29061785" sideWeight="0.49752474" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32951945" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -977,34 +676,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../src/jdos/dos/DOS_Drive_Cache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="30" selection-start="2769" selection-end="2769" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/android-sdk/sources/android-15/android/app/Activity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2010" column="4" selection-start="87690" selection-end="87746" vertical-scroll-proportion="2.24">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src_j2se/jdos/gui/KeyboardKey.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/KeyboardKey.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="30" selection-start="416" selection-end="450" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../src_j2se/jdos/gui/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="131" column="8" selection-start="5820" selection-end="5912" vertical-scroll-proportion="0.0">
@@ -1033,6 +704,41 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../src/jdos/misc/setup/Config.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="16" selection-start="637" selection-end="637" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src_compiler/javassist/tools/rmi/ObjectImporter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock90.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="31" selection-start="354" selection-end="354" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src_compiler/jdos/cpu/core_dynamic/Compiler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3565" column="21" selection-start="166153" selection-end="166157" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/jdos/dos/Dos_programs.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="28" selection-start="476" selection-end="476" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../src/jdos/Dosbox.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="60" column="37" selection-start="1740" selection-end="1740" vertical-scroll-proportion="0.0">
@@ -1040,55 +746,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/Main.java">
+    <entry file="file://$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock114.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="34" selection-start="1365" selection-end="1365" vertical-scroll-proportion="0.0">
+        <state line="17" column="31" selection-start="691" selection-end="691" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java">
+    <entry file="file://$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock107.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="17" selection-start="875" selection-end="875" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src/jdos/misc/setup/Config.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="16" selection-start="637" selection-end="637" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src_compiler/javassist/tools/rmi/ObjectImporter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#0#10700#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../pcp_src/jdos/cpu/core_dynamic/CacheBlock90.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="31" selection-start="643" selection-end="643" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src_compiler/jdos/cpu/core_dynamic/Compiler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3565" column="21" selection-start="166153" selection-end="166157" vertical-scroll-proportion="-6.72">
+        <state line="17" column="31" selection-start="644" selection-end="644" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../src/jdos/cpu/core_dynamic/Loader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="20" selection-start="1677" selection-end="1677" vertical-scroll-proportion="0.36875">
+        <state line="54" column="11" selection-start="1573" selection-end="1573" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/android-sdk/sources/android-15/android/graphics/Canvas.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1166" column="16" selection-start="45376" selection-end="45376" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="42" column="43" selection-start="1373" selection-end="1373" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src_android/jdos/gui/MyActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="16" selection-start="1046" selection-end="1046" vertical-scroll-proportion="0.7713787">
           <folding />
         </state>
       </provider>

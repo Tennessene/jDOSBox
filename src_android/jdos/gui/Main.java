@@ -33,14 +33,16 @@ public class Main extends MainBase {
     }
 
     static public void GFX_EndUpdate() {
+        Render.render.frameskip.max = 10;
         if (bpp != 32) {
             if (bpp == 8) {
                 int j=0;
                 for (int i=0;i<pixels.length;i++) {
-                    formattedPixels[j++] = cmap[pixels[i] & 0xFF];
-                    formattedPixels[j++] = cmap[(pixels[i] >> 8) & 0xFF];
-                    formattedPixels[j++] = cmap[(pixels[i] >> 16) & 0xFF];
-                    formattedPixels[j++] = cmap[(pixels[i] >>> 24) & 0xFF];
+                    int p = pixels[i];
+                    formattedPixels[j++] = cmap[p & 0xFF];
+                    formattedPixels[j++] = cmap[(p >> 8) & 0xFF];
+                    formattedPixels[j++] = cmap[(p >> 16) & 0xFF];
+                    formattedPixels[j++] = cmap[(p >>> 24) & 0xFF];
                 }
             }
         }

@@ -15,6 +15,7 @@ public class MyActivity extends Activity {
 
     public class Monitor extends SurfaceView {
         SurfaceHolder holder;
+        Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
         public Monitor(Context context) {
             super(context);
@@ -32,7 +33,7 @@ public class MyActivity extends Activity {
                     scaleHeight = scaleWidth;
                 if (scaleWidth<1)
                     canvas.scale(scaleWidth, scaleHeight);
-                canvas.drawBitmap(Main.formattedPixels, 0, Main.pitch, 0, 0, Main.width, Main.height, false, new Paint(Paint.FILTER_BITMAP_FLAG));
+                canvas.drawBitmap(Main.formattedPixels, 0, Main.pitch, 0, 0, Main.width, Main.height, false, paint);
             }
         }
 
@@ -81,7 +82,7 @@ public class MyActivity extends Activity {
             };
             mainThread = new Thread() {
                 public void run() {
-                    MainBase.main(gui, new String[]{"-applet", "-c",  "imgmount c jar_tmp://doom19s.img", "-c", "c:", "-c", "cd civ"});
+                    MainBase.main(gui, new String[]{"-applet", "-c",  "imgmount c jar_tmp://doom19s.img", "-c", "c:", "-c", "cd pcpbench", "-c", "pcpbench"});
                 }
             };
             mainThread.start();

@@ -225,7 +225,7 @@ public class Flags {
         public boolean CF() {return ((lf_resd() & 0xFFFFFFFFl) < (lf_var1d() & 0xFFFFFFFFl)) || (oldcf && (lf_resd() == lf_var1d()));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
-        public boolean SF() {return	(lf_resd()&0x80000000l)!= 0;}
+        public boolean SF() {return	(lf_resd()&0x80000000)!= 0;}
         public boolean OF() {return (((lf_var1d() ^ lf_var2d() ^ 0x80000000) & (lf_resd() ^ lf_var2d())) & 0x80000000) != 0;}
     };
 

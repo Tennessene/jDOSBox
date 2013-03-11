@@ -955,7 +955,7 @@ public class Instructions extends Table_ea {
             (CPU_Regs.reg_eax.dword & 0x80000000)!=0 ) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
         } else if ( (CPU_Regs.reg_edx.dword==0x00000000) &&
-                    (CPU_Regs.reg_eax.dword > 0) ) {
+                    (CPU_Regs.reg_eax.dword >= 0) ) {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,false);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
         } else {
             CPU_Regs.SETFLAGBIT(CPU_Regs.CF,true);CPU_Regs.SETFLAGBIT(CPU_Regs.OF,true);

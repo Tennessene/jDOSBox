@@ -10,8 +10,7 @@ public class Prefix_helpers extends Instructions {
     static public interface OP {
         public int call();
     }
-    static protected final long[] AddrMaskTable={0x0000ffffl,0xffffffffl};
-    static protected final long[] AddrMaskTable1={0x0000ffff,0xffffffff};
+    static protected final int[] AddrMaskTable1={0x0000ffff,0xffffffff};
 
     protected static final int OPCODE_NONE=0x000;
     protected static final int OPCODE_0F=0x100;

@@ -7,6 +7,7 @@ import jdos.ints.Int10_vesa;
 
 public class VBE {
     static public boolean initialized = false;
+    static public int pageCount = 0;
 
     private static final int VBE_DISPI_INDEX_ID = 0x0;
     private static final int VBE_DISPI_INDEX_XRES = 0x1;
@@ -293,5 +294,6 @@ public class VBE {
         new IoHandler.IO_ReadHandleObject().Install(0x1ce, vbe_read_index, IoHandler.IO_MA);
         new IoHandler.IO_ReadHandleObject().Install(0xff80, vbe_read_index, IoHandler.IO_MA);
         initialized = true;
+        pageCount = VGA.vga.vmemsize >>> 12;
     }
 }

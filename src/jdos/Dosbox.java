@@ -11,10 +11,11 @@ import jdos.gui.Mapper;
 import jdos.gui.Midi;
 import jdos.gui.Render;
 import jdos.hardware.*;
+import jdos.hardware.DMA;
+import jdos.hardware.VGA;
 import jdos.hardware.mame.VoodooCommon;
 import jdos.hardware.pci.PCI;
-import jdos.hardware.qemu.Floppy;
-import jdos.hardware.qemu.IDE;
+import jdos.hardware.qemu.*;
 import jdos.hardware.serialport.Serialports;
 import jdos.ints.*;
 import jdos.misc.Log;
@@ -277,8 +278,10 @@ public class Dosbox {
         //	else if (mtype.equals("vga_pvga1a")   { svgaCard = SVGA_ParadisePVGA1A; }
             else if (mtype.equals("svga_paradise")) { svgaCard = SVGACards.SVGA_ParadisePVGA1A; }
             else if (mtype.equals("vgaonly"))      { svgaCard = SVGACards.SVGA_None; }
+            else if (mtype.equals("vgastd"))      { svgaCard = SVGACards.SVGA_QEMU; }
             else Log.exit("DOSBOX:Unknown machine type "+mtype);
-            VGA.VGA_Init();
+            if (svgaCard != SVGACards.SVGA_QEMU)
+                VGA.VGA_Init();
         }
     };
     
@@ -309,7 +312,7 @@ public class Dosbox {
         String[] machines = {
             "hercules", "cga", "tandy", "pcjr", "ega",
             "vgaonly", "svga_s3", "svga_et3000", "svga_et4000",
-             "svga_paradise", "vesa_nolfb", "vesa_oldvbe" };
+             "svga_paradise", "vesa_nolfb", "vesa_oldvbe", "vgastd" };
         secprop=control.AddSection_prop("dosbox",DOSBOX_RealInit);
         Pstring = secprop.Add_path("language",Property.Changeable.Always,"");
         Pstring.Set_help("Select another language file.");
@@ -360,6 +363,7 @@ public class Dosbox {
         secprop.AddInitFunction(Timer.TIMER_Init);//done
         secprop.AddInitFunction(Cmos.CMOS_Init);//done
         secprop.AddInitFunction(VGA.VGA_Init);
+        secprop.AddInitFunction(jdos.hardware.qemu.VGA.QEMU_VGA_Init);
 
         secprop=control.AddSection_prop("render", Render.RENDER_Init,true);
         Pint = secprop.Add_int("frameskip",Property.Changeable.Always,-1);

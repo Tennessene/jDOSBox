@@ -389,8 +389,10 @@ public class Int10_modes {
             case VGA.M_LIN15:
             case VGA.M_LIN16:
             case VGA.M_LIN32:
-                Memory.host_zeroset(VGA.vga.mem.linear, VGA.vga.vmemsize);
-                Memory.host_zeroset(VGA.vga.fastmem, Memory.videoCacheSize);
+                if (VGA.vga!=null) {
+                    Memory.host_zeroset(VGA.vga.mem.linear, VGA.vga.vmemsize);
+                    Memory.host_zeroset(VGA.vga.fastmem, Memory.videoCacheSize);
+                }
             }
         }
         /* Setup the BIOS */
@@ -647,7 +649,7 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 	/*Bit8u*/int modeset_ctl=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_MODESET_CTL);
 
 	if (Dosbox.IS_VGA_ARCH()) {
-		if (VGA.svga.accepts_mode!=null) {
+		if (VGA.svga!=null && VGA.svga.accepts_mode!=null) {
 			if (!VGA.svga.accepts_mode.call(mode)) return false;
 		}
 
@@ -765,7 +767,8 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 		IoHandler.IO_Write(0x3c4,ct);
 		IoHandler.IO_Write(0x3c5,seq_data[ct]);
 	}
-	VGA.vga.config.compatible_chain4 = true; // this may be changed by SVGA chipset emulation
+    if (VGA.vga != null)
+	    VGA.vga.config.compatible_chain4 = true; // this may be changed by SVGA chipset emulation
 
 	/* Program CRTC */
 	/* First disable write protection */
@@ -1151,7 +1154,8 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 			IoHandler.IO_Write(0x3c0,ct);
 			IoHandler.IO_Write(0x3c0,att_data[ct]);
 		}
-		VGA.vga.config.pel_panning = 0;
+        if (VGA.vga != null)
+		    VGA.vga.config.pel_panning = 0;
 		IoHandler.IO_Write(0x3c0,0x20); IoHandler.IO_Write(0x3c0,0x00); //Disable palette access
 		IoHandler.IO_Write(0x3c6,0xff); //Reset Pelmask
 		/* Setup the DAC */
@@ -1350,7 +1354,7 @@ public static boolean INT10_SetVideoMode(/*Bit16u*/int mode) {
 
 		IoHandler.IO_Write(crtc_base,0x38);IoHandler.IO_Write(crtc_base+1,0x48);	//Register lock 1
 		IoHandler.IO_Write(crtc_base,0x39);IoHandler.IO_Write(crtc_base+1,0xa5);	//Register lock 2
-	} else if (VGA.svga.set_video_mode!=null) {
+	} else if (VGA.svga!=null && VGA.svga.set_video_mode!=null) {
 		VGA.VGA_ModeExtraData modeData = new VGA.VGA_ModeExtraData();
 		modeData.ver_overflow = ver_overflow;
 		modeData.hor_overflow = hor_overflow;

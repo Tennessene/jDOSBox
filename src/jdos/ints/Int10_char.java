@@ -226,17 +226,17 @@ public class Int10_char {
                 start=(start+next) & 0xFF;
                 switch (Int10_modes.CurMode.type) {
                 case VGA.M_TEXT:
-                    TEXT_CopyRow(cul,clr,(short)start,(short)(start+nlines),base);break;
+                    TEXT_CopyRow(cul,clr,(short)start,(short)((start+nlines) & 0xFF),base);break;
                 case VGA.M_CGA2:
-                    CGA2_CopyRow(cul,clr,(short)start,(short)(start+nlines),base);break;
+                    CGA2_CopyRow(cul,clr,(short)start,(short)((start+nlines) & 0xFF),base);break;
                 case VGA.M_CGA4:
-                    CGA4_CopyRow(cul,clr,(short)start,(short)(start+nlines),base);break;
+                    CGA4_CopyRow(cul,clr,(short)start,(short)((start+nlines) & 0xFF),base);break;
                 case VGA.M_TANDY16:
-                    TANDY16_CopyRow(cul,clr,(short)start,(short)(start+nlines),base);break;
+                    TANDY16_CopyRow(cul,clr,(short)start,(short)((start+nlines) & 0xFF),base);break;
                 case VGA.M_EGA:
-                    EGA16_CopyRow(cul,clr,(short)start,(short)(start+nlines),base);break;
+                    EGA16_CopyRow(cul,clr,(short)start,(short)((start+nlines) & 0xFF),base);break;
                 case VGA.M_VGA:
-                    VGA_CopyRow(cul,clr,(short)start,(short)(start+nlines),base);break;
+                    VGA_CopyRow(cul,clr,(short)start,(short)((start+nlines) & 0xFF),base);break;
                 case VGA.M_LIN4:
                     if ((Dosbox.machine== MachineType.MCH_VGA) && (Dosbox.svgaCard== SVGACards.SVGA_TsengET4K) &&
                             (Int10_modes.CurMode.swidth<=800)) {

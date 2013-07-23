@@ -578,7 +578,7 @@ public class Int10_vesa {
         //TODO Maybe add normal vga modes too, but only seems to complicate things
         while (Int10_modes.ModeList_VGA[i].mode!=0xffff) {
             boolean canuse_mode=false;
-            if (VGA.svga.accepts_mode==null) canuse_mode=true;
+            if (VGA.svga==null || VGA.svga.accepts_mode==null) canuse_mode=true;
             else {
                 if (VGA.svga.accepts_mode.call(Int10_modes.ModeList_VGA[i].mode)) canuse_mode=true;
             }

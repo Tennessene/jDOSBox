@@ -2858,6 +2858,7 @@ public class CPU extends Module_base {
             }
             break;
         case 0x80000000:
+            CPU_Regs.reg_eax.dword = 0;
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_ERROR,"Unhandled CPUID Function "+Integer.toString(CPU_Regs.reg_eax.dword,16));

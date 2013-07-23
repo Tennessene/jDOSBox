@@ -302,9 +302,15 @@ public class Main extends MainBase {
         }
 
     static public void GFX_SetPalette(/*Bitu*/int start,/*Bitu*/int count, Render.RenderPal_t.RGB[] entries, int entriesOffset, int bpp) {
-            for (int i=start;i<start+count;i++) {
-                cmap[i] = GFX_GetRGB(entries[i].red, entries[i].green, entries[i].blue);
-            }
-            updateBuffers(bpp);
+        for (int i=start;i<start+count;i++) {
+            cmap[i] = GFX_GetRGB(entries[i].red, entries[i].green, entries[i].blue);
         }
+        updateBuffers(bpp);
+    }
+
+    static public void GFX_SetPalette(int[] entries, int count) {
+        System.arraycopy(entries, 0, cmap, 0, count);
+        if (Render.render.src.bpp == 8)
+            updateBuffers(Render.render.src.bpp);
+    }
 }

@@ -6,4 +6,5 @@ public final class SVGACards {
 	public static final int SVGA_TsengET4K = 2;
 	public static final int SVGA_TsengET3K = 3;
 	public static final int SVGA_ParadisePVGA1A = 4;
+    public static final int SVGA_QEMU = 5;
 }

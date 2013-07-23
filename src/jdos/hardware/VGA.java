@@ -648,6 +648,8 @@ public class VGA {
 
     public static Section.SectionFunction VGA_Init = new Section.SectionFunction() {
         public void call(Section sec) {
+            if (Dosbox.svgaCard >= SVGACards.SVGA_QEMU)
+                return;
             Section_prop section=(Section_prop)sec;
             vga.draw.resizing=false;
             vga.mode=M_ERROR;			//For first init

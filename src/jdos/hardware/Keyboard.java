@@ -785,6 +785,8 @@ public class Keyboard {
             case 0xf8: case 0xf9: case 0xfa: case 0xfb: case 0xfc: case 0xfd: case 0xfe: case 0xff:
                 /* pulse output register */
                 /* TODO: If bit 0 == 0, trigger system reset */
+                if ((val & 1) == 0)
+                    System.out.println("RESET");
                 break;
             default:
                 if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_ERROR,"Port 64 write with val "+val);

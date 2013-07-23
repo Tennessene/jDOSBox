@@ -252,8 +252,7 @@ public class Pic extends Module_base {
             }
             /*Bit8u*/int change = (imr) ^ (val); //Bits that have changed become 1.
             imr  =  val;
-            imrr = ~val;
-
+            imrr = (~val) & 0xFF;
             //Test if changed bits are set in irr and are not being served at the moment
             //Those bits have impact on whether the cpu emulation should be paused or not.
             if (((irr & change) & isrr)!=0) check_for_irq();

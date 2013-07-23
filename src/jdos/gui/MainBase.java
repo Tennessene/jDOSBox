@@ -44,7 +44,7 @@ public class MainBase {
         try {Thread.sleep(ms);} catch (Exception e){}
     }
 
-    static public /*Bitu*/int GFX_GetRGB(/*Bit8u*/short red,/*Bit8u*/short green,/*Bit8u*/short blue) {
+    static public /*Bitu*/int GFX_GetRGB(/*Bit8u*/int red,/*Bit8u*/int green,/*Bit8u*/int blue) {
 		return ((blue << 0) | (green << 8) | (red << 16)) | (255 << 24);	
     }
 

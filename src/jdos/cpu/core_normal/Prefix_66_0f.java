@@ -853,7 +853,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b2] = new OP() {
             final public int call() {
                 int rm=Fetchb();
-                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
                 Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
@@ -885,7 +885,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b4] = new OP() {
             final public int call() {
                 int rm=Fetchb();
-                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralFS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
                 Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);
@@ -897,7 +897,7 @@ public class Prefix_66_0f extends Prefix_66 {
         ops[0x3b5] = new OP() {
             final public int call() {
                 int rm=Fetchb();
-                //if (rm >= 0xc0) return ILLEGAL_OPCODE;
+                if (rm >= 0xc0) return ILLEGAL_OPCODE;
                 /*PhysPt*/int eaa = getEaa(rm);
                 if (CPU.CPU_SetSegGeneralGS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
                 Modrm.Getrd[rm].dword=Memory.mem_readd(eaa);

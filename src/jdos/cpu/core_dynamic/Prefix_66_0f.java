@@ -678,11 +678,11 @@ public class Prefix_66_0f extends Helper {
         ops[0x3b2] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                //if (rm >= 0xc0 ) {
-                //    prev.next = new Inst1.Illegal("");
-                //} else {
+                if (rm >= 0xc0 ) {
+                    prev.next = new Inst1.Illegal("");
+                } else {
                     prev.next = new Inst4.LssEd(rm);
-                //}
+                }
                 return RESULT_HANDLED;
             }
         };
@@ -704,11 +704,11 @@ public class Prefix_66_0f extends Helper {
         ops[0x3b4] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                //if (rm >= 0xc0 ) {
-                //    prev.next = new Inst1.Illegal("");
-                //} else {
+                if (rm >= 0xc0 ) {
+                    prev.next = new Inst1.Illegal("");
+                } else {
                     prev.next = new Inst4.LfsEd(rm);
-                //}
+                }
                 return RESULT_HANDLED;
             }
         };
@@ -717,11 +717,11 @@ public class Prefix_66_0f extends Helper {
         ops[0x3b5] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                //if (rm >= 0xc0 ) {
-                //    prev.next = new Inst1.Illegal("");
-                //} else {
+                if (rm >= 0xc0 ) {
+                    prev.next = new Inst1.Illegal("");
+                } else {
                     prev.next = new Inst4.LgsEd(rm);
-                //}
+                }
                 return RESULT_HANDLED;
             }
         };

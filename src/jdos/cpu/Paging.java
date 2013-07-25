@@ -1167,9 +1167,6 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             kr_links.entries[kr_links.used++]=lin_page;
             break;
         case ACCESS_KRW:
-            if (global == true) {
-                int ii=0;
-            }
             krw_links.global[krw_links.used] = global;
             krw_links.entries[krw_links.used++]=lin_page;
             break;

@@ -879,7 +879,12 @@ public class Dos_programs {
                         CPU_Regs.SegSet16SS(0);
                         CPU_Regs.SegSet16FS(0);
                         CPU_Regs.SegSet16GS(0);
-                        CPU_Regs.reg_edx.dword = 0x00000633; // Pentium II Model 3 Stepping 3
+                        if (CPU.CPU_ArchitectureType==CPU.CPU_ARCHTYPE_PENTIUM)
+                            CPU_Regs.reg_edx.dword = 0x00000513;
+                        else if (CPU.CPU_ArchitectureType==CPU.CPU_ARCHTYPE_PENTIUM_PRO)
+                            CPU_Regs.reg_edx.dword = 0x00000611;
+                        else
+                            CPU_Regs.reg_edx.dword = 0x00000402;
 
                         IoHandler.IO_WriteHandler bios_write  = new IoHandler.IO_WriteHandler() {
                             public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {

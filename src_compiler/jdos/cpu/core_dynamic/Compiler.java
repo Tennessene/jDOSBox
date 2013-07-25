@@ -1003,7 +1003,7 @@ public class Compiler extends Helper {
                 case Op.FLAG_TYPE_SBBW:
                     return "(Flags.lf_var1w() < Flags.lf_resw()) || (Flags.oldcf && (Flags.lf_var2w()==0xffff))";
                 case Op.FLAG_TYPE_SBBD:
-                    return "((Flags.lf_var1d() & 0xFFFFFFFFl) < (Flags.lf_resd() & 0xFFFFFFFFl)) || (Flags.oldcf && (Flags.lf_var2d()==0xffffffffl))";
+                    return "((Flags.lf_var1d() & 0xFFFFFFFFl) < (Flags.lf_resd() & 0xFFFFFFFFl)) || (Flags.oldcf && (Flags.lf_var2d()==0xffffffff))";
                 case Op.FLAG_TYPE_SHLB:
                     return "(Flags.lf_var2b()<=8 && ((Flags.lf_var1b() >> (8-Flags.lf_var2b())) & 1)!=0)";
                 case Op.FLAG_TYPE_SHLW:

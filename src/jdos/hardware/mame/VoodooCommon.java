@@ -2299,9 +2299,6 @@ public class VoodooCommon extends PCI_Device {
     			fbi.auxoffs = 3 * buffer_pages * 0x1000;
     			break;
     	}
-        if (fbi.auxoffs != 0) {
-            int ii=0;
-        }
     	/* clamp the RGB buffers to video memory */
     	for (buf = 0; buf < 3; buf++)
     		if (fbi.rgboffs[buf] != ~0 && fbi.rgboffs[buf] > fbi.mask)

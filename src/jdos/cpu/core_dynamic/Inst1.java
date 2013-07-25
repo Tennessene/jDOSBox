@@ -2765,221 +2765,6 @@ public class Inst1 extends Helper {
         public String description() {return "IMUL "+rw.getName16()+", "+get_eaa.description16()+", "+op3;}
     }
 
-    abstract public static class Branch extends Op {
-        Op op1;
-        Op op2;
-        int offset;
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return true;}
-        public boolean setsEip() {return true;}
-    }
-
-    final public static class BranchO extends Branch {
-        public BranchO(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_O()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNO extends Branch {
-        public BranchNO(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NO()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchB extends Branch {
-        public BranchB(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_B()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNB extends Branch {
-        public BranchNB(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NB()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchZ extends Branch {
-        public BranchZ(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_Z()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNZ extends Branch {
-        public BranchNZ(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NZ()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-    final public static class BranchBE extends Branch {
-        public BranchBE(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_BE()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNBE extends Branch {
-        public BranchNBE(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NBE()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-    final public static class BranchS extends Branch {
-        public BranchS(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_S()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNS extends Branch {
-        public BranchNS(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NS()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchP extends Branch {
-        public BranchP(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_P()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNP extends Branch {
-        public BranchNP(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NP()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchL extends Branch {
-        public BranchL(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_L()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNL extends Branch {
-        public BranchNL(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NL()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-    final public static class BranchLE extends Branch {
-        public BranchLE(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_LE()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
-
-    final public static class BranchNLE extends Branch {
-        public BranchNLE(int offset) {this.offset = offset;}
-        public int call() {
-            if (Flags.TFLG_NLE()) {
-                CPU_Regs.reg_eip+=offset+eip_count;
-                return op1.call();
-            } else {
-                CPU_Regs.reg_eip+=eip_count;
-                return op2.call();
-            }
-        }
-    }
     static abstract public class JumpCond16_b extends Op {
         int offset;
         public JumpCond16_b() {
@@ -5121,6 +4906,8 @@ public class Inst1 extends Helper {
         String msg;
         public Illegal(String msg) {
             this.msg = msg;
+            if (msg == null || msg.length()==0)
+                this.msg = "Illegal Instruction";
         }
 
         public int call() {
@@ -6660,6 +6447,7 @@ public class Inst1 extends Helper {
             return 0;
         }
 
+        public boolean returnsIllegal() {return true;}
         public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
         public boolean usesEip() {return false;}

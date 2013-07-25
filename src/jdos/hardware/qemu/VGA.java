@@ -2453,7 +2453,7 @@ public class VGA extends VGA_header {
             s.last_line_offset = s.line_offset;
             s.last_depth = depth;
             full_update = true;
-            Render.RENDER_SetSize(width, height, depth==0?8:depth, 70, (double)disp_width/height, disp_width>width, false);
+            Render.RENDER_SetSize(width, height, 32, 70, (double)disp_width/height, disp_width>width, false);
             if (!Render.RENDER_StartUpdate())
                 return;
         }

@@ -2127,11 +2127,11 @@ public class Prefix_none extends Helper {
         ops[0xc4] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                //if (rm >= 0xc0) {
-                //    prev.next = new Inst1.Illegal("");
-                //} else {
+                if (rm >= 0xc0) {
+                    prev.next = new Inst1.Illegal("");
+                } else {
                     prev.next = new Inst1.Les(rm);
-                //}
+                }
                 return RESULT_HANDLED;
             }
         };
@@ -2140,11 +2140,11 @@ public class Prefix_none extends Helper {
         ops[0xc5] = new Decode() {
             final public int call(Op prev) {
                 int rm=decode_fetchb();
-                //if (rm >= 0xc0) {
-                //    prev.next = new Inst1.Illegal("");
-                //} else {
+                if (rm >= 0xc0) {
+                    prev.next = new Inst1.Illegal("");
+                } else {
                     prev.next = new Inst1.Lds(rm);
-                //}
+                }
                 return RESULT_HANDLED;
             }
         };

@@ -3017,7 +3017,7 @@ public class VGA extends VGA_header {
         s.vram_ptr = Memory.allocate(ramSize);
         s.vram_size = ramSize;
         cursor_glyph = Memory.allocate(128);
-        Memory.host_memset(cursor_glyph, 0xFF, 128);
+        RAM.memset(cursor_glyph, 0xFF, 128);
         cursor_glyph-=s.vram_ptr; // cursor_glyph is relative to the beginning of vram
         Qemu.rom_add_vga("vgabios.bin", true);
     }

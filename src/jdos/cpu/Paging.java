@@ -2,6 +2,7 @@ package jdos.cpu;
 
 import jdos.Dosbox;
 import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 import jdos.misc.setup.Module_base;
@@ -249,7 +250,7 @@ public class Paging extends Module_base {
         /*HostPt*/
         int tlb_addr = get_tlb_read(address);
         if (tlb_addr != INVALID_ADDRESS)
-            return Memory.host_readb(tlb_addr + address);
+            return RAM.readb(tlb_addr + address);
         else return (get_tlb_readhandler(address)).readb(address);
     }
 
@@ -257,7 +258,7 @@ public class Paging extends Module_base {
         if ((address & 0xfff) < 0xfff) {
             /*HostPt*/
             int tlb_addr = get_tlb_read(address);
-            if (tlb_addr != INVALID_ADDRESS) return Memory.host_readw(tlb_addr + address);
+            if (tlb_addr != INVALID_ADDRESS) return RAM.readw(tlb_addr + address);
             else return (get_tlb_readhandler(address)).readw(address);
         } else return Memory.mem_unalignedreadw(address);
     }
@@ -267,7 +268,7 @@ public class Paging extends Module_base {
         if (rem == 0) {
             int tlb_addr = get_tlb_read(address);
             if (tlb_addr != INVALID_ADDRESS)
-                return Memory.direct[(address + tlb_addr) >>> 2];
+                return RAM.direct[(address + tlb_addr) >>> 2];
             else {
                 return get_tlb_readhandler(address).readd(address);
             }
@@ -275,7 +276,7 @@ public class Paging extends Module_base {
         if ((address & 0xfff) < 0xffd) {
             /*HostPt*/
             int tlb_addr = get_tlb_read(address);
-            if (tlb_addr != INVALID_ADDRESS) return Memory.host_readd(tlb_addr + address);
+            if (tlb_addr != INVALID_ADDRESS) return RAM.readd(tlb_addr + address);
             else return (get_tlb_readhandler(address)).readd(address);
         } else return Memory.mem_unalignedreadd(address);
     }
@@ -283,17 +284,17 @@ public class Paging extends Module_base {
     public static void mem_writeb_inline(/*PhysPt*/int address,/*Bit8u*/int val) {
         /*HostPt*/
         int tlb_addr = get_tlb_write(address);
-        if (tlb_addr != INVALID_ADDRESS) Memory.host_writeb(tlb_addr + address, val);
+        if (tlb_addr != INVALID_ADDRESS) RAM.writeb(tlb_addr + address, val);
         else (get_tlb_writehandler(address)).writeb(address, val);
     }
 
     public static void mem_writew_inline(/*PhysPt*/int address,/*Bit16u*/int val) {
-        if ((address & 0xfff) < 0xfff) {
+//        if ((address & 0xfff) < 0xfff) {
             /*HostPt*/
             int tlb_addr = get_tlb_write(address);
-            if (tlb_addr != INVALID_ADDRESS) Memory.host_writew(tlb_addr + address, val);
+            if (tlb_addr != INVALID_ADDRESS) RAM.writew(tlb_addr + address, val);
             else (get_tlb_writehandler(address)).writew(address, val);
-        } else Memory.mem_unalignedwritew(address, val);
+//        } else Memory.mem_unalignedwritew(address, val);
     }
 
     public static void mem_writed_inline(/*PhysPt*/int address,/*Bit32u*/int val) {
@@ -301,18 +302,18 @@ public class Paging extends Module_base {
         if (rem == 0) {
             int tlb_addr = get_tlb_write(address);
             if (tlb_addr != INVALID_ADDRESS) {
-                Memory.direct[(address+tlb_addr) >>> 2]=val;
+                RAM.direct[(address+tlb_addr) >>> 2]=val;
             } else {
                 get_tlb_writehandler(address).writed(address, val);
             }
             return;
         }
-        if ((address & 0xfff) < 0xffd) {
+//        if ((address & 0xfff) < 0xffd) {
             /*HostPt*/
             int tlb_addr = get_tlb_write(address);
-            if (tlb_addr != INVALID_ADDRESS) Memory.host_writed(tlb_addr + address, val);
+            if (tlb_addr != INVALID_ADDRESS) RAM.writed(tlb_addr + address, val);
             else (get_tlb_writehandler(address)).writed(address, val);
-        } else Memory.mem_unalignedwrited(address, val);
+//        } else Memory.mem_unalignedwrited(address, val);
     }
 
     private static final int LINK_TOTAL = (64 * 1024);
@@ -733,7 +734,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int ppage = phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(ppage);
             if ((handler.flags & PFLAG_READABLE) != 0) {
-                return Memory.host_readb(handler.GetHostReadPt(ppage) + (int) (addr & 0xfff));
+                return RAM.readb(handler.GetHostReadPt(ppage) + (int) (addr & 0xfff));
             } else {
                 return handler.readb(addr);
             }
@@ -746,7 +747,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int ppage = phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(ppage);
             if ((handler.flags & PFLAG_READABLE) != 0) {
-                return Memory.host_readw((int) (handler.GetHostReadPt(ppage) + (addr & 0xfff)));
+                return RAM.readw((int) (handler.GetHostReadPt(ppage) + (addr & 0xfff)));
             } else {
                 return handler.readw(addr);
             }
@@ -759,7 +760,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int ppage = phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(ppage);
             if ((handler.flags & PFLAG_READABLE) != 0) {
-                return Memory.host_readd((int) (handler.GetHostReadPt(ppage) + (addr & 0xfff)));
+                return RAM.readd((int) (handler.GetHostReadPt(ppage) + (addr & 0xfff)));
             } else {
                 return handler.readd(addr);
             }
@@ -772,7 +773,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int ppage = phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(ppage);
             if ((handler.flags & PFLAG_WRITEABLE) != 0) {
-                Memory.host_writeb((int) (handler.GetHostWritePt(ppage) + (addr & 0xfff)), val);
+                RAM.writeb((int) (handler.GetHostWritePt(ppage) + (addr & 0xfff)), val);
             } else {
                 handler.writeb(addr, val);
             }
@@ -785,7 +786,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int ppage = phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(ppage);
             if ((handler.flags & PFLAG_WRITEABLE) != 0) {
-                Memory.host_writew((int) (handler.GetHostWritePt(ppage) + (addr & 0xfff)), val);
+                RAM.writew((int) (handler.GetHostWritePt(ppage) + (addr & 0xfff)), val);
             } else {
                 handler.writew(addr, val);
             }
@@ -798,7 +799,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
             int ppage = phys_page[lin_page] & PHYSPAGE_ADDR;
             PageHandler handler = Memory.MEM_GetPageHandler(ppage);
             if ((handler.flags & PFLAG_WRITEABLE) != 0) {
-                Memory.host_writed((handler.GetHostWritePt(ppage) + (addr & 0xfff)), val);
+                RAM.writed((handler.GetHostWritePt(ppage) + (addr & 0xfff)), val);
             } else {
                 handler.writed(addr, (int) val);
             }

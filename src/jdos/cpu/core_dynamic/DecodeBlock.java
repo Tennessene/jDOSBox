@@ -7,6 +7,7 @@ import jdos.cpu.Core;
 import jdos.cpu.Paging;
 import jdos.cpu.core_share.Constants;
 import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 
 final public class DecodeBlock extends Op {
     public Op op;
@@ -30,7 +31,7 @@ final public class DecodeBlock extends Op {
         byte[] opCode = new byte[len];
         int src = Paging.getDirectIndexRO(start);
         if (src>=0)
-            Memory.host_memcpy(opCode, 0, src, len);
+            RAM.memcpy(opCode, 0, src, len);
         else
             Memory.MEM_BlockRead(start, opCode, len);
         return opCode;

@@ -5,6 +5,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core;
 import jdos.cpu.Paging;
 import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.misc.setup.Config;
 
 public class Strings extends Core {
@@ -57,7 +58,7 @@ public class Strings extends Core {
                         if (Math.abs(src_index-dst_index)<len) {
                             // Overlapping read/write
                             for (int i=0;i<thisCount;i++) {
-                                Memory.host_writew(dst_index, Memory.host_readw(src_index));
+                                RAM.writew(dst_index, RAM.readw(src_index));
                                 dst_index+=add_index;
                                 src_index+=add_index;
                             }
@@ -67,7 +68,7 @@ public class Strings extends Core {
                                 src_index-=len-2;
                                 dst_index-=len-2;
                             }
-                            Memory.host_memcpy(dst_index, src_index, len);
+                            RAM.memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.dword-=len;
@@ -176,7 +177,7 @@ public class Strings extends Core {
                         if (Math.abs(src_index-dst_index)<len) {
                             // Overlapping read/write
                             for (int i=0;i<thisCount;i++) {
-                                Memory.host_writew(dst_index, Memory.host_readw(src_index));
+                                RAM.writew(dst_index, RAM.readw(src_index));
                                 dst_index+=add_index;
                                 src_index+=add_index;
                             }
@@ -186,7 +187,7 @@ public class Strings extends Core {
                                 src_index-=len-2;
                                 dst_index-=len-2;
                             }
-                            Memory.host_memcpy(dst_index, src_index, len);
+                            RAM.memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.word(reg_edi.word()-len);
@@ -281,7 +282,7 @@ public class Strings extends Core {
                         if (Math.abs(src_index-dst_index)<len) {
                             // Overlapping read/write
                             for (int i=0;i<thisCount;i++) {
-                                Memory.host_writed(dst_index, Memory.host_readd(src_index));
+                                RAM.writed(dst_index, RAM.readd(src_index));
                                 dst_index+=add_index;
                                 src_index+=add_index;
                             }
@@ -291,7 +292,7 @@ public class Strings extends Core {
                                 src_index-=len-4;
                                 dst_index-=len-4;
                             }
-                            Memory.host_memcpy(dst_index, src_index, len);
+                            RAM.memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.dword-=len;
@@ -400,7 +401,7 @@ public class Strings extends Core {
                         if (Math.abs(src_index-dst_index)<len) {
                             // Overlapping read/write
                             for (int i=0;i<thisCount;i++) {
-                                Memory.host_writed(dst_index, Memory.host_readd(src_index));
+                                RAM.writed(dst_index, RAM.readd(src_index));
                                 dst_index+=add_index;
                                 src_index+=add_index;
                             }
@@ -410,7 +411,7 @@ public class Strings extends Core {
                                 src_index-=len-4;
                                 dst_index-=len-4;
                             }
-                            Memory.host_memcpy(dst_index, src_index, len);
+                            RAM.memcpy(dst_index, src_index, len);
                         }
                         if (add_index<0) {
                             reg_edi.word(reg_edi.word()-len);
@@ -495,7 +496,7 @@ public class Strings extends Core {
                     if (Math.abs(src_index-dst_index)<len) {
                         // Overlapping read/write
                         for (int i=0;i<len;i++) {
-                            Memory.host_writeb(dst_index, Memory.host_readb(src_index));
+                            RAM.writeb(dst_index, RAM.readb(src_index));
                             dst_index+=add_index;
                             src_index+=add_index;
                         }
@@ -505,7 +506,7 @@ public class Strings extends Core {
                             src_index-=len-1;
                             dst_index-=len-1;
                         }
-                        Memory.host_memcpy(dst_index, src_index, len);
+                        RAM.memcpy(dst_index, src_index, len);
                     }
                     if (add_index<0) {
                         reg_edi.dword-=len;
@@ -603,7 +604,7 @@ public class Strings extends Core {
                     if (Math.abs(src_index-dst_index)<len) {
                         // Overlapping read/write
                         for (int i=0;i<len;i++) {
-                            Memory.host_writeb(dst_index, Memory.host_readb(src_index));
+                            RAM.writeb(dst_index, RAM.readb(src_index));
                             dst_index+=add_index;
                             src_index+=add_index;
                         }
@@ -613,7 +614,7 @@ public class Strings extends Core {
                             src_index-=len-1;
                             dst_index-=len-1;
                         }
-                        Memory.host_memcpy(dst_index, src_index, len);
+                        RAM.memcpy(dst_index, src_index, len);
                     }
                     if (add_index<0) {
                         reg_edi.word(reg_edi.word()-len);

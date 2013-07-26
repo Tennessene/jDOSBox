@@ -2,7 +2,7 @@ package jdos.hardware.qemu;
 
 import jdos.gui.Main;
 import jdos.hardware.IoHandler;
-import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.misc.Log;
 import jdos.util.FileIO;
 import jdos.util.FileIOFactory;
@@ -44,7 +44,7 @@ public class Qemu {
             }
             int address = 0xC0000;
             for(int i=0;i<videoData.length;i++)
-                Memory.host_writeb(address + i, videoData[i]);
+                RAM.writeb(address + i, videoData[i]);
             if (registerBochsPorts) {
                 IoHandler.IO_WriteHandler vga_write  = new IoHandler.IO_WriteHandler() {
                     public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {

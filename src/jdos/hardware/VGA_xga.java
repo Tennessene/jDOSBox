@@ -131,19 +131,19 @@ public class VGA_xga {
         switch(XGA_COLOR_MODE()) {
             case VGA.M_LIN8:
                 if ((memaddr >= VGA.vga.vmemsize)) break;
-                Memory.host_writeb(VGA.vga.mem.linear+memaddr, (short)c);
+                RAM.writeb(VGA.vga.mem.linear+memaddr, (short)c);
                 break;
             case VGA.M_LIN15:
                 if ((memaddr*2 >= VGA.vga.vmemsize)) break;
-                Memory.host_writew(VGA.vga.mem.linear+memaddr*2,c&0x7fff);
+                RAM.writew(VGA.vga.mem.linear+memaddr*2,c&0x7fff);
                 break;
             case VGA.M_LIN16:
                 if ((memaddr*2 >= VGA.vga.vmemsize)) break;
-                Memory.host_writew(VGA.vga.mem.linear+memaddr*2,c&0xffff);
+                RAM.writew(VGA.vga.mem.linear+memaddr*2,c&0xffff);
                 break;
             case VGA.M_LIN32:
                 if ((memaddr*4 >= VGA.vga.vmemsize)) break;
-                Memory.host_writed(VGA.vga.mem.linear+memaddr*4,c);
+                RAM.writed(VGA.vga.mem.linear+memaddr*4,c);
                 break;
             default:
                 break;
@@ -157,14 +157,14 @@ public class VGA_xga {
         switch(XGA_COLOR_MODE()) {
         case VGA.M_LIN8:
             if ((memaddr >= VGA.vga.vmemsize)) break;
-            return Memory.host_readb(VGA.vga.mem.linear+memaddr);
+            return RAM.readb(VGA.vga.mem.linear+memaddr);
         case VGA.M_LIN15:
         case VGA.M_LIN16:
             if ((memaddr*2 >= VGA.vga.vmemsize)) break;
-            return Memory.host_readw(VGA.vga.mem.linear+memaddr*2);
+            return RAM.readw(VGA.vga.mem.linear+memaddr*2);
         case VGA.M_LIN32:
             if ((memaddr*4 >= VGA.vga.vmemsize)) break;
-            return Memory.host_readd(VGA.vga.mem.linear+memaddr*4);
+            return RAM.readd(VGA.vga.mem.linear+memaddr*4);
         default:
             break;
         }

@@ -156,7 +156,7 @@ public class VBE {
                             if ((vbeRegs[VBE_DISPI_INDEX_ENABLE] & VBE_DISPI_NOCLEARMEM) == 0)
                             {
                                 int limit = vbeRegs[VBE_DISPI_INDEX_YRES] * vbeLineOffset;
-                                Memory.host_zeroset(VGA.vga.mem.linear_orgptr, limit);
+                                RAM.zeroset(VGA.vga.mem.linear_orgptr, limit);
                             }
                             int y = vbeRegs[VBE_DISPI_INDEX_YRES];
                             int x = vbeRegs[VBE_DISPI_INDEX_XRES];

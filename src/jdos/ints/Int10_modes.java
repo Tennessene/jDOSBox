@@ -390,8 +390,8 @@ public class Int10_modes {
             case VGA.M_LIN16:
             case VGA.M_LIN32:
                 if (VGA.vga!=null) {
-                    Memory.host_zeroset(VGA.vga.mem.linear, VGA.vga.vmemsize);
-                    Memory.host_zeroset(VGA.vga.fastmem, Memory.videoCacheSize);
+                    RAM.zeroset(VGA.vga.mem.linear, VGA.vga.vmemsize);
+                    RAM.zeroset(VGA.vga.fastmem, Memory.videoCacheSize);
                 }
             }
         }

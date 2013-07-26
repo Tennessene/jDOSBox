@@ -4,7 +4,7 @@ import jdos.Dosbox;
 import jdos.cpu.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.ModifiedDecode;
-import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 
@@ -337,7 +337,7 @@ public class Decoder extends Inst1 {
         decode.active_block.page.end=--decode.page.index;
         if (Config.DYNAMIC_CORE_VERIFY) {
             decode.block.originalByteCode = new byte[decode.block.page.end - decode.block.page.start + 1];
-            Memory.host_memcpy(decode.block.originalByteCode, 0, Paging.getDirectIndexRO(start), decode.block.originalByteCode.length);
+            RAM.memcpy(decode.block.originalByteCode, 0, Paging.getDirectIndexRO(start), decode.block.originalByteCode.length);
         }
         start_op.next.cycle=cycles;
         if (trace) {

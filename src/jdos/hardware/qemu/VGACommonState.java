@@ -2,7 +2,7 @@ package jdos.hardware.qemu;
 
 import jdos.cpu.Paging;
 import jdos.gui.Render;
-import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 
 public class VGACommonState {
     static public final int DISPLAY_ADDRESS = 0x60000000;
@@ -32,7 +32,7 @@ public class VGACommonState {
             offset-=DISPLAY_ADDRESS;
             return (short)((Render.render.src.outWrite32[(offset >>> 2)] >>> ((offset & 0x3) << 3)) & 0xFF);
         }
-        return Memory.host_readb(vram_ptr+offset);
+        return RAM.readb(vram_ptr + offset);
     }
     public int readw(int offset) {
         if (offset>=DISPLAY_ADDRESS) {
@@ -46,7 +46,7 @@ public class VGACommonState {
             }
             return val & 0xFFFF;
         }
-        return Memory.host_readw(vram_ptr+offset);
+        return RAM.readw(vram_ptr + offset);
     }
     public int readd(int offset) {
         if (offset>=DISPLAY_ADDRESS) {
@@ -60,7 +60,7 @@ public class VGACommonState {
             int index = (offset >>> 2);
             return local[index] >>> off | local[index+1] << (32-off);
         }
-        return Memory.host_readd(vram_ptr+offset);
+        return RAM.readd(vram_ptr + offset);
     }
     public void writeb(int offset, int value) {
         if (offset>=DISPLAY_ADDRESS) {
@@ -72,7 +72,7 @@ public class VGACommonState {
             int val = local[index] & mask | (value & 0xFF) << off;
             local[index] = val;
         } else {
-            Memory.host_writeb(vram_ptr+offset, value);
+            RAM.writeb(vram_ptr + offset, value);
         }
     }
     public void writew(int offset, int value) {
@@ -92,7 +92,7 @@ public class VGACommonState {
               local[index] = (local[index] & mask | value << off);
             }
         } else {
-            Memory.host_writew(vram_ptr+offset, value);
+            RAM.writew(vram_ptr + offset, value);
         }
     }
     public void writed(int offset, int value) {
@@ -115,7 +115,7 @@ public class VGACommonState {
               local[index] = (local[index] & mask) | (value >>> (32-off));
             }
         } else {
-            Memory.host_writed(vram_ptr+offset, value);
+            RAM.writed(vram_ptr + offset, value);
         }
     }
     public void memmove(int dst, int src, int len) {

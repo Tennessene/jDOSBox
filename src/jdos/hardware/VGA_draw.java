@@ -27,10 +27,10 @@ public class VGA_draw {
             int base = VGA.vga.tandy.draw_base + ((line & VGA.vga.tandy.line_mask) << VGA.vga.tandy.line_shift);
             int draw = TempLine;
             for (/*Bitu*/int x=VGA.vga.draw.blocks;x>0;x--, vidstart++) {
-                /*Bitu*/int val = Memory.host_readb(base + (vidstart & (8 * 1024 -1)));
-                Memory.host_writed(draw, VGA.CGA_2_Table[val >> 4]);
+                /*Bitu*/int val = RAM.readb(base + (vidstart & (8 * 1024 -1)));
+                RAM.writed(draw, VGA.CGA_2_Table[val >> 4]);
                 draw+=4;
-                Memory.host_writed(draw, VGA.CGA_2_Table[val & 0xf]);
+                RAM.writed(draw, VGA.CGA_2_Table[val & 0xf]);
                 draw+=4;
             }
             return TempLine;
@@ -42,9 +42,9 @@ public class VGA_draw {
             int base = VGA.vga.tandy.draw_base + ((line & VGA.vga.tandy.line_mask) << VGA.vga.tandy.line_shift);
             int draw = TempLine;
             for (/*Bitu*/int x=0;x<VGA.vga.draw.blocks;x++) {
-                /*Bitu*/int val = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
+                /*Bitu*/int val = RAM.readb(base+(vidstart & VGA.vga.tandy.addr_mask));
                 vidstart++;
-                Memory.host_writed(draw, VGA.CGA_4_Table[val]);
+                RAM.writed(draw, VGA.CGA_4_Table[val]);
                 draw+=4;
             }
             return TempLine;
@@ -56,13 +56,13 @@ public class VGA_draw {
             int base = VGA.vga.tandy.draw_base + ((line & VGA.vga.tandy.line_mask) << VGA.vga.tandy.line_shift);
             int draw = TempLine;
             for (/*Bitu*/int x=0;x<VGA.vga.draw.blocks;x++) {
-                /*Bitu*/int val1 = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
+                /*Bitu*/int val1 = RAM.readb(base+(vidstart & VGA.vga.tandy.addr_mask));
                 ++vidstart;
-                /*Bitu*/int val2 = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
+                /*Bitu*/int val2 = RAM.readb(base+(vidstart & VGA.vga.tandy.addr_mask));
                 ++vidstart;
-                Memory.host_writed(draw, VGA.CGA_4_HiRes_Table[(val1>>4)|(val2&0xf0)]);
+                RAM.writed(draw, VGA.CGA_4_HiRes_Table[(val1>>4)|(val2&0xf0)]);
                 draw+=4;
-                Memory.host_writed(draw, VGA.CGA_4_HiRes_Table[(val1&0x0f)|((val2&0x0f)<<4)]);
+                RAM.writed(draw, VGA.CGA_4_HiRes_Table[(val1&0x0f)|((val2&0x0f)<<4)]);
                 draw+=4;
             }
             return TempLine;
@@ -71,7 +71,7 @@ public class VGA_draw {
 
     private static /*Bitu*/int[] temp = new int[643];
 
-    private static int CGA16_READER(int base, int vidstart, int OFF) { return Memory.host_readb(base+((vidstart +(OFF))& (8*1024 -1)));}
+    private static int CGA16_READER(int base, int vidstart, int OFF) { return RAM.readb(base+((vidstart +(OFF))& (8*1024 -1)));}
 
     private static VGA_Line_Handler VGA_Draw_CGA16_Line = new VGA_Line_Handler() {
         public int call(/*Bitu*/int vidstart, /*Bitu*/int line) {
@@ -98,7 +98,7 @@ public class VGA_draw {
                 temp3 = temp[i] + temp[i+1] + temp[i+2] + temp[i+3]; i++;
                 temp4 = temp[i] + temp[i+1] + temp[i+2] + temp[i+3]; i++;
 
-                Memory.host_writed(draw, 0x80808080|(temp1|val1) |
+                RAM.writed(draw, 0x80808080|(temp1|val1) |
                           ((temp2|val1) << 8) |
                           ((temp3|val1) <<16) |
                           ((temp4|val1) <<24));
@@ -108,7 +108,7 @@ public class VGA_draw {
                 temp2 = temp[i] + temp[i+1] + temp[i+2] + temp[i+3]; i++;
                 temp3 = temp[i] + temp[i+1] + temp[i+2] + temp[i+3]; i++;
                 temp4 = temp[i] + temp[i+1] + temp[i+2] + temp[i+3]; i++;
-                Memory.host_writed(draw, 0x80808080|(temp1|val2) |
+                RAM.writed(draw, 0x80808080|(temp1|val2) |
                           ((temp2|val2) << 8) |
                           ((temp3|val2) <<16) |
                           ((temp4|val2) <<24));
@@ -124,9 +124,9 @@ public class VGA_draw {
             int draw=TempLine;
             int end = VGA.vga.draw.blocks*2;
             while(end!=0) {
-                int b = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
-                Memory.host_writeb(draw++, VGA.vga.attr.palette[b >> 4]);
-                Memory.host_writeb(draw++, VGA.vga.attr.palette[b & 0x0f]);
+                int b = RAM.readb(base+(vidstart & VGA.vga.tandy.addr_mask));
+                RAM.writeb(draw++, VGA.vga.attr.palette[b >> 4]);
+                RAM.writeb(draw++, VGA.vga.attr.palette[b & 0x0f]);
                 vidstart++;
                 end--;
             }
@@ -140,13 +140,13 @@ public class VGA_draw {
             int draw=TempLine;
             int end = VGA.vga.draw.blocks;
             while(end!=0) {
-                int b = Memory.host_readb(base+(vidstart & VGA.vga.tandy.addr_mask));
+                int b = RAM.readb(base+(vidstart & VGA.vga.tandy.addr_mask));
                 short data = VGA.vga.attr.palette[b >> 4];
-                Memory.host_writeb(draw++, data);
-                Memory.host_writeb(draw++, data);
+                RAM.writeb(draw++, data);
+                RAM.writeb(draw++, data);
                 data = VGA.vga.attr.palette[b & 0x0f];
-                Memory.host_writeb(draw++, data);
-                Memory.host_writeb(draw++, data);
+                RAM.writeb(draw++, data);
+                RAM.writeb(draw++, data);
                 vidstart++;
                 end--;
             }
@@ -172,14 +172,14 @@ public class VGA_draw {
                 int unwrapped_len = VGA.vga.draw.line_length-wrapped_len;
 
                 // unwrapped chunk: to top of memory block
-                Memory.host_memcpy(TempLine, ret, unwrapped_len);
+                RAM.memcpy(TempLine, ret, unwrapped_len);
                 // wrapped chunk: from base of memory block
-                Memory.host_memcpy(TempLine+unwrapped_len, VGA.vga.draw.linear_base,  wrapped_len);
+                RAM.memcpy(TempLine+unwrapped_len, VGA.vga.draw.linear_base,  wrapped_len);
                 ret = TempLine;
             }
 
             if (VGA.vga.draw.linear_mask-offset < VGA.vga.draw.line_length)
-                Memory.host_memcpy(VGA.vga.draw.linear_base+VGA.vga.draw.linear_mask+1, VGA.vga.draw.linear_base, VGA.vga.draw.line_length);
+                RAM.memcpy(VGA.vga.draw.linear_base+VGA.vga.draw.linear_mask+1, VGA.vga.draw.linear_base, VGA.vga.draw.line_length);
             return VGA.vga.draw.linear_base+offset;
         }
     };
@@ -189,7 +189,7 @@ public class VGA_draw {
             int ret = VGA.vga.draw.linear_base + (vidstart & VGA.vga.draw.linear_mask);
             int temps = TempLine;
             for(/*Bitu*/int i = 0; i < VGA.vga.draw.line_length; i++) {
-                Memory.host_writew(temps, VGA.vga.dac.xlat16[Memory.host_readb(ret+i)]);
+                RAM.writew(temps, VGA.vga.dac.xlat16[RAM.readb(ret+i)]);
                 temps+=2;
             }
             return TempLine;
@@ -224,7 +224,7 @@ public class VGA_draw {
                 // This is used when the mouse cursor partially leaves the screen.
                 // It is arranged as bitmap of 16bits of bitA followed by 16bits of bitB, each
                 // AB bits corresponding to a cursor pixel. The whole map is 8kB in size.
-                Memory.host_memcpy(TempLine, VGA.vga.mem.linear+vidstart, VGA.vga.draw.width);
+                RAM.memcpy(TempLine, VGA.vga.mem.linear+vidstart, VGA.vga.draw.width);
                 // the index of the bit inside the cursor bitmap we start at:
                 /*Bitu*/int sourceStartBit = ((lineat - VGA.vga.s3.hgc.originy) + VGA.vga.s3.hgc.posy)*64 + VGA.vga.s3.hgc.posx;
                 // convert to video memory addr and bit index
@@ -240,18 +240,18 @@ public class VGA_draw {
                 cursorMemEnd+=VGA.vga.mem.linear;
                 for (/*Bitu*/int m = cursorMemStart; m < cursorMemEnd;) {
                     // for each byte of cursor data
-                    /*Bit8u*/int bitsA = Memory.host_readb(m);
-                    /*Bit8u*/int bitsB = Memory.host_readb(m+2);
+                    /*Bit8u*/int bitsA = RAM.readb(m);
+                    /*Bit8u*/int bitsB = RAM.readb(m+2);
                     for (/*Bit8u*/int bit=(0x80 >> cursorStartBit); bit != 0; bit >>= 1) {
                         // for each bit
                         cursorStartBit=0; // only the first byte has some bits cut off
                         if ((bitsA & bit)!=0) {
-                            if ((bitsB & bit)!=0) {Memory.host_writebs(dst_off, (byte)(Memory.host_readbs(dst_off) ^ 0xFF));dst_off++;} // Invert screen data
+                            if ((bitsB & bit)!=0) {RAM.writebs(dst_off, (byte)(RAM.readbs(dst_off) ^ 0xFF));dst_off++;} // Invert screen data
                             //else Transparent
                         } else if ((bitsB & bit)!=0) {
-                            Memory.host_writebs(dst_off,VGA.vga.s3.hgc.forestack.p[0]); // foreground color
+                            RAM.writebs(dst_off,VGA.vga.s3.hgc.forestack.p[0]); // foreground color
                         } else {
-                            Memory.host_writebs(dst_off,VGA.vga.s3.hgc.backstack.p[0]);
+                            RAM.writebs(dst_off,VGA.vga.s3.hgc.backstack.p[0]);
                         }
                         dst_off++;
                     }
@@ -276,7 +276,7 @@ public class VGA_draw {
                 (lineat > (VGA.vga.s3.hgc.originy + (63-VGA.vga.s3.hgc.posy))) ) {
                 return VGA.vga.mem.linear + vidstart;
             } else {
-                Memory.host_memcpy(TempLine, VGA.vga.mem.linear + vidstart, VGA.vga.draw.width*2);
+                RAM.memcpy(TempLine, VGA.vga.mem.linear + vidstart, VGA.vga.draw.width*2);
                 /*Bitu*/int sourceStartBit = ((lineat - VGA.vga.s3.hgc.originy) + VGA.vga.s3.hgc.posy)*64 + VGA.vga.s3.hgc.posx;
                 /*Bitu*/int cursorMemStart = ((sourceStartBit >> 2)& ~1) + (((int)VGA.vga.s3.hgc.startaddr) << 10);
                 /*Bitu*/int cursorStartBit = sourceStartBit & 0x7;
@@ -285,19 +285,19 @@ public class VGA_draw {
                 int xat = TempLine+VGA.vga.s3.hgc.originx*2;
                 for (/*Bitu*/int m = cursorMemStart; m < cursorMemEnd;) {
                     // for each byte of cursor data
-                    /*Bit8u*/int bitsA = Memory.host_readb(VGA.vga.mem.linear+m);
-                    /*Bit8u*/int bitsB = Memory.host_readb(VGA.vga.mem.linear+m+2);
+                    /*Bit8u*/int bitsA = RAM.readb(VGA.vga.mem.linear+m);
+                    /*Bit8u*/int bitsB = RAM.readb(VGA.vga.mem.linear+m+2);
                     for (/*Bit8u*/int bit=(0x80 >> cursorStartBit); bit != 0; bit >>= 1) {
                         // for each bit
                         cursorStartBit=0;
                         if ((bitsA & bit)!=0) {
                             // byte order doesn't matter here as all bits get flipped
-                            if ((bitsB & bit)!=0) Memory.host_writew(xat, ~Memory.host_readw(xat));
+                            if ((bitsB & bit)!=0) RAM.writew(xat, ~RAM.readw(xat));
                             //else Transparent
                         } else if ((bitsB & bit)!=0) {
-                            Memory.host_writew(xat, VGA.vga.s3.hgc.forestack.readw(0));
+                            RAM.writew(xat, VGA.vga.s3.hgc.forestack.readw(0));
                         } else {
-                            Memory.host_writew(xat, VGA.vga.s3.hgc.backstack.readw(0));
+                            RAM.writew(xat, VGA.vga.s3.hgc.backstack.readw(0));
                         }
                         xat+=2;
                     }
@@ -322,7 +322,7 @@ public class VGA_draw {
                 (lineat > (VGA.vga.s3.hgc.originy + (63-VGA.vga.s3.hgc.posy))) ) {
                 return VGA.vga.mem.linear+vidstart;
             } else {
-                Memory.host_memcpy(TempLine, VGA.vga.mem.linear+vidstart, VGA.vga.draw.width*4);
+                RAM.memcpy(TempLine, VGA.vga.mem.linear+vidstart, VGA.vga.draw.width*4);
                 /*Bitu*/int sourceStartBit = ((lineat - VGA.vga.s3.hgc.originy) + VGA.vga.s3.hgc.posy)*64 + VGA.vga.s3.hgc.posx;
                 /*Bitu*/int cursorMemStart = ((sourceStartBit >> 2)& ~1) + (((int)VGA.vga.s3.hgc.startaddr) << 10);
                 /*Bitu*/int cursorStartBit = sourceStartBit & 0x7;
@@ -331,17 +331,17 @@ public class VGA_draw {
                 int xat = TempLine+VGA.vga.s3.hgc.originx*4;
                 for (/*Bitu*/int m = cursorMemStart; m < cursorMemEnd;) {
                     // for each byte of cursor data
-                    /*Bit8u*/int bitsA = Memory.host_readb(VGA.vga.mem.linear+m);
-                    /*Bit8u*/int bitsB = Memory.host_readb(VGA.vga.mem.linear+m+2);
+                    /*Bit8u*/int bitsA = RAM.readb(VGA.vga.mem.linear+m);
+                    /*Bit8u*/int bitsB = RAM.readb(VGA.vga.mem.linear+m+2);
                     for (/*Bit8u*/int bit=(0x80 >> cursorStartBit); bit != 0; bit >>= 1) { // for each bit
                         cursorStartBit=0;
                         if ((bitsA & bit)!=0) {
-                            if ((bitsB & bit)!=0) Memory.host_writed(xat, ~Memory.host_readd(xat));
+                            if ((bitsB & bit)!=0) RAM.writed(xat, ~RAM.readd(xat));
                             //else Transparent
                         } else if ((bitsB & bit)!=0) {
-                            Memory.host_writed(xat, VGA.vga.s3.hgc.forestack.readd(0));
+                            RAM.writed(xat, VGA.vga.s3.hgc.forestack.readd(0));
                         } else {
-                            Memory.host_writed(xat, VGA.vga.s3.hgc.backstack.readd(0));
+                            RAM.writed(xat, VGA.vga.s3.hgc.backstack.readd(0));
                         }
                         xat+=4;
                     }
@@ -363,8 +363,8 @@ public class VGA_draw {
             /*Bitu*/int break_pos = (VGA.vga.draw.linear_mask - vidstart) + 1;
             // need a temporary storage - TempLine/2 is ok for a bit more than 132 columns
             int t = TempLine+TEMPLINE_SIZE/2;
-            Memory.host_memcpy(t, VGA.vga.tandy.draw_base+vidstart, break_pos);
-            Memory.host_memcpy(t+break_pos, VGA.vga.tandy.draw_base, line_end - break_pos);
+            RAM.memcpy(t, VGA.vga.tandy.draw_base+vidstart, break_pos);
+            RAM.memcpy(t+break_pos, VGA.vga.tandy.draw_base, line_end - break_pos);
             return t;
         } else return VGA.vga.tandy.draw_base+vidstart;
     }
@@ -376,16 +376,16 @@ public class VGA_draw {
             int draw=TempLine;
             int vidmem = VGA_Text_Memwrap(vidstart);
             for (/*Bitu*/int cx=0;cx<VGA.vga.draw.blocks;cx++) {
-                /*Bitu*/int chr=Memory.host_readb(vidmem+cx*2);
-                /*Bitu*/int col=Memory.host_readb(vidmem+cx*2+1);
+                /*Bitu*/int chr=RAM.readb(vidmem+cx*2);
+                /*Bitu*/int col=RAM.readb(vidmem+cx*2+1);
                 /*Bitu*/int font=VGA.vga.draw.font_tables[(col >> 3)&1].get(chr*32+line);
                 /*Bit32u*/int mask1=VGA.TXT_Font_Table[font>>4] & FontMask[col >> 7];
                 /*Bit32u*/int mask2=VGA.TXT_Font_Table[font&0xf] & FontMask[col >> 7];
                 /*Bit32u*/int fg=VGA.TXT_FG_Table[col&0xf];
                 /*Bit32u*/int bg=VGA.TXT_BG_Table[col>>4];
-                Memory.host_writed(draw, (fg&mask1) | (bg&~mask1));
+                RAM.writed(draw, (fg&mask1) | (bg&~mask1));
                 draw+=4;
-                Memory.host_writed(draw, (fg&mask2) | (bg&~mask2));
+                RAM.writed(draw, (fg&mask2) | (bg&~mask2));
                 draw+=4;
             }
             if (VGA.vga.draw.cursor.enabled && (VGA.vga.draw.cursor.count&0x8)!=0) {
@@ -393,10 +393,10 @@ public class VGA_draw {
                 if (font_addr>=0 && font_addr<(/*Bits*/int)VGA.vga.draw.blocks) {
                     if (line>=VGA.vga.draw.cursor.sline && line<=VGA.vga.draw.cursor.eline) {
                         draw=TempLine+font_addr*8;
-                        /*Bit32u*/int att=VGA.TXT_FG_Table[Memory.host_readb(VGA.vga.tandy.draw_base+VGA.vga.draw.cursor.address+1)&0xf];
-                        Memory.host_writed(draw,att);
+                        /*Bit32u*/int att=VGA.TXT_FG_Table[RAM.readb(VGA.vga.tandy.draw_base+VGA.vga.draw.cursor.address+1)&0xf];
+                        RAM.writed(draw,att);
                         draw+=4;
-                        Memory.host_writed(draw,att);
+                        RAM.writed(draw,att);
                         draw+=4;
                     }
                 }
@@ -413,13 +413,13 @@ public class VGA_draw {
             int vidmem = VGA_Text_Memwrap(vidstart);
 
             for (/*Bitu*/int cx=0;cx<VGA.vga.draw.blocks;cx++) {
-                /*Bitu*/int chr=Memory.host_readb(vidmem+cx*2);
-                /*Bitu*/int attrib=Memory.host_readb(vidmem+cx*2+1);
+                /*Bitu*/int chr=RAM.readb(vidmem+cx*2);
+                /*Bitu*/int attrib=RAM.readb(vidmem+cx*2+1);
                 if ((attrib&0x77)==0) {
                     // 00h, 80h, 08h, 88h produce black space
-                    Memory.host_writed(draw, 0);
+                    RAM.writed(draw, 0);
                     draw+=4;
-                    Memory.host_writed(draw, 0);
+                    RAM.writed(draw, 0);
                     draw+=4;
                 } else {
                     /*Bit32u*/int bg, fg;
@@ -441,9 +441,9 @@ public class VGA_draw {
                         mask1=VGA.TXT_Font_Table[font>>4] & FontMask[attrib >> 7]; // blinking
                         mask2=VGA.TXT_Font_Table[font&0xf] & FontMask[attrib >> 7];
                     }
-                    Memory.host_writed(draw, (fg&mask1) | (bg&~mask1));
+                    RAM.writed(draw, (fg&mask1) | (bg&~mask1));
                     draw+=4;
-                    Memory.host_writed(draw, (fg&mask2) | (bg&~mask2));
+                    RAM.writed(draw, (fg&mask2) | (bg&~mask2));
                     draw+=4;
                 }
             }
@@ -452,7 +452,7 @@ public class VGA_draw {
                 if (font_addr>=0 && font_addr<(/*Bits*/int)VGA.vga.draw.blocks) {
                     if (line>=VGA.vga.draw.cursor.sline && line<=VGA.vga.draw.cursor.eline) {
                         draw=TempLine+font_addr*8;
-                        /*Bit8u*/int attr = Memory.host_readb(VGA.vga.tandy.draw_base+VGA.vga.draw.cursor.address+1);
+                        /*Bit8u*/int attr = RAM.readb(VGA.vga.tandy.draw_base+VGA.vga.draw.cursor.address+1);
                         /*Bit32u*/int cg;
                         if ((attr&0x8)!=0) {
                             cg = VGA.TXT_FG_Table[0xf];
@@ -461,9 +461,9 @@ public class VGA_draw {
                         } else {
                             cg = VGA.TXT_FG_Table[0x7];
                         }
-                        Memory.host_writed(draw, cg);
+                        RAM.writed(draw, cg);
                         draw+=4;
-                        Memory.host_writed(draw, cg);
+                        RAM.writed(draw, cg);
                         draw+=4;
                     }
                 }
@@ -484,8 +484,8 @@ public class VGA_draw {
             if (VGA.vga.draw.panning!=0) blocks++; // if the text is panned part of an
                                             // additional character becomes visible
             for (/*Bitu*/int cx=0;cx<blocks;cx++) {
-                /*Bitu*/int chr=Memory.host_readb(vidmem+cx*2);
-                /*Bitu*/int attr=Memory.host_readb(vidmem+cx*2+1);
+                /*Bitu*/int chr=RAM.readb(vidmem+cx*2);
+                /*Bitu*/int attr=RAM.readb(vidmem+cx*2+1);
                 /*Bitu*/int font=VGA.vga.draw.font_tables[(attr >> 3)&1].get(chr*32+line);
 
                 /*Bitu*/int background = attr >> 4;
@@ -502,13 +502,13 @@ public class VGA_draw {
                     if ((font & 0x2)!=0 && (VGA.vga.attr.mode_control & 0x04)!=0 && (chr>=0xc0) && (chr<=0xdf))
                         font |= 1;
                     for (/*Bitu*/int n = 0; n < 9; n++) {
-                        Memory.host_writew(draw,VGA.vga.dac.xlat16[((font&0x100)!=0)? foreground:background]);
+                        RAM.writew(draw,VGA.vga.dac.xlat16[((font&0x100)!=0)? foreground:background]);
                         draw+=2;
                         font <<= 1;
                     }
                 } else {
                     for (/*Bitu*/int n = 0; n < 8; n++) {
-                        Memory.host_writew(draw,VGA.vga.dac.xlat16[((font&0x80)!=0)? foreground:background]);
+                        RAM.writew(draw,VGA.vga.dac.xlat16[((font&0x80)!=0)? foreground:background]);
                         draw+=2;
                         font <<= 1;
                     }
@@ -523,9 +523,9 @@ public class VGA_draw {
                     /*Bitu*/int index = attr_addr * (VGA.vga.draw.char9dot? 18:16);
                     draw=TempLine + index*2 + 16 - VGA.vga.draw.panning;
 
-                    /*Bitu*/int foreground = Memory.host_readb(VGA.vga.tandy.draw_base+VGA.vga.draw.cursor.address+1) & 0xf;
+                    /*Bitu*/int foreground = RAM.readb(VGA.vga.tandy.draw_base+VGA.vga.draw.cursor.address+1) & 0xf;
                     for (/*Bitu*/int i = 0; i < 8; i++) {
-                        Memory.host_writew(draw,VGA.vga.dac.xlat16[foreground]);
+                        RAM.writew(draw,VGA.vga.dac.xlat16[foreground]);
                         draw+=2;
                     }
                 }
@@ -613,17 +613,17 @@ public class VGA_draw {
                         break;
                 }
                 if (VGA.vga.draw.bpp==8) {
-                    Memory.host_memset(TempLine, TEMPLINE_SIZE, bg_color_index);
+                    RAM.memset(TempLine, TEMPLINE_SIZE, bg_color_index);
                 } else if (VGA.vga.draw.bpp==16) {
                     int value = VGA.vga.dac.xlat16[bg_color_index];
                     for (int i = 0; i < TEMPLINE_SIZE/2; i++) {
-                        Memory.host_writew(TempLine+i*2, value);
+                        RAM.writew(TempLine+i*2, value);
                     }
                 }
-                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
+                RAM.memcpy(Render.render.src, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
             } else {
                 int data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
-                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
+                RAM.memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
             }
             Render.render.src.outWriteOff+=Render.render.src.outPitch;
             VGA.vga.draw.address_line++;
@@ -645,13 +645,13 @@ public class VGA_draw {
     private static Pic.PIC_EventHandler VGA_DrawEGASingleLine = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             if (VGA.vga.attr.disabled!=0) {
-                Memory.host_zeroset(TempLine, TEMPLINE_SIZE);
-                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
+                RAM.zeroset(TempLine, TEMPLINE_SIZE);
+                RAM.memcpy(Render.render.src, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
             } else {
                 /*Bitu*/int address = VGA.vga.draw.address;
                 if (VGA.vga.mode!=VGA.M_TEXT) address += VGA.vga.draw.panning;
                 int data=VGA_DrawLine.call(address, VGA.vga.draw.address_line);
-                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
+                RAM.memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
             }
             Render.render.src.outWriteOff+=Render.render.src.outPitch;
             VGA.vga.draw.address_line++;
@@ -679,7 +679,7 @@ public class VGA_draw {
                 address_add = VGA.vga.draw.address_add;
             while (val--!=0) {
                 int data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
-                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
+                RAM.memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
                 Render.render.src.outWriteOff+=Render.render.src.outPitch;
                 VGA.vga.draw.address_line++;
                 if (VGA.vga.draw.address_line>=VGA.vga.draw.address_line_total) {

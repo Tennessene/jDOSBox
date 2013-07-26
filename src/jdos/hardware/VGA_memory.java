@@ -98,7 +98,7 @@ public class VGA_memory {
 
     private static class VGA_UnchainedRead_Handler extends Paging.PageHandler {
         public /*Bitu*/int readHandler(/*PhysPt*/int start) {
-            VGA.vga.latch.d=Memory.host_readd(VGA.vga.mem.linear+start*4);
+            VGA.vga.latch.d=RAM.readd(VGA.vga.mem.linear+start*4);
             switch (VGA.vga.config.read_mode) {
             case 0:
                 return (VGA.vga.latch.b(VGA.vga.config.read_map_select));
@@ -137,16 +137,16 @@ public class VGA_memory {
 
     private static class VGA_ChainedEGA_Handler extends Paging.PageHandler {
         public /*Bitu*/int readHandler(/*PhysPt*/int addr) {
-            return Memory.host_readb(VGA.vga.mem.linear+addr);
+            return RAM.readb(VGA.vga.mem.linear+addr);
         }
         public void writeHandler(/*PhysPt*/int s, /*Bit8u*/int val) {
             int start = (int)s;
             ModeOperation(val);
             /* Update video memory and the pixel buffer */
             VGA.VGA_Latch pixels = new VGA.VGA_Latch();
-            Memory.host_writeb(VGA.vga.mem.linear+start, (short)val);
+            RAM.writeb(VGA.vga.mem.linear+start, (short)val);
             start >>= 2;
-            pixels.d=Memory.host_readd(VGA.vga.mem.linear+start*4);
+            pixels.d=RAM.readd(VGA.vga.mem.linear+start*4);
 
             /*Bit32u*/int colors0_3, colors4_7;
             VGA.VGA_Latch temp=new VGA.VGA_Latch();temp.d=(pixels.d>>4) & 0x0f0f0f0f;
@@ -155,14 +155,14 @@ public class VGA_memory {
                 VGA.Expand16Table[1][temp.b(1)] |
                 VGA.Expand16Table[2][temp.b(2)] |
                 VGA.Expand16Table[3][temp.b(3)];
-            Memory.host_writed(VGA.vga.fastmem+start<<3, colors0_3);
+            RAM.writed(VGA.vga.fastmem+start<<3, colors0_3);
             temp.d=pixels.d & 0x0f0f0f0f;
             colors4_7 =
                 VGA.Expand16Table[0][temp.b(0)] |
                 VGA.Expand16Table[1][temp.b(1)] |
                 VGA.Expand16Table[2][temp.b(2)] |
                 VGA.Expand16Table[3][temp.b(3)];
-            Memory.host_writed(VGA.vga.fastmem+(start<<3)+4, colors4_7);
+            RAM.writed(VGA.vga.fastmem+(start<<3)+4, colors4_7);
         }
 
         public VGA_ChainedEGA_Handler()  {
@@ -225,10 +225,10 @@ public class VGA_memory {
             /*Bit32u*/int data=ModeOperation(val);
             /* Update video memory and the pixel buffer */
             VGA.VGA_Latch pixels = new VGA.VGA_Latch();
-            pixels.d=Memory.host_readd(VGA.vga.mem.linear+start*4);
+            pixels.d=RAM.readd(VGA.vga.mem.linear+start*4);
             pixels.d&=VGA.vga.config.full_not_map_mask;
             pixels.d|=(data & VGA.vga.config.full_map_mask);
-            Memory.host_writed(VGA.vga.mem.linear+start*4, pixels.d);
+            RAM.writed(VGA.vga.mem.linear+start*4, pixels.d);
 
             /*Bit32u*/int colors0_3, colors4_7;
             VGA.VGA_Latch temp=new VGA.VGA_Latch();temp.d=(pixels.d>>4) & 0x0f0f0f0f;
@@ -237,14 +237,14 @@ public class VGA_memory {
                 VGA.Expand16Table[1][temp.b(1)] |
                 VGA.Expand16Table[2][temp.b(2)] |
                 VGA.Expand16Table[3][temp.b(3)];
-            Memory.host_writed(VGA.vga.fastmem+(start<<3), colors0_3);
+            RAM.writed(VGA.vga.fastmem+(start<<3), colors0_3);
             temp.d=pixels.d & 0x0f0f0f0f;
             colors4_7 =
                 VGA.Expand16Table[0][temp.b(0)] |
                 VGA.Expand16Table[1][temp.b(1)] |
                 VGA.Expand16Table[2][temp.b(2)] |
                 VGA.Expand16Table[3][temp.b(3)];
-            Memory.host_writed(VGA.vga.fastmem+(start<<3)+4, colors4_7);
+            RAM.writed(VGA.vga.fastmem+(start<<3)+4, colors4_7);
         }
         public VGA_UnchainedEGA_Handler()  {
             flags=Paging.PFLAG_NOCODE;
@@ -286,42 +286,42 @@ public class VGA_memory {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
-            return Memory.host_readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
+            return RAM.readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
         }
         public /*Bitu*/int readw(/*PhysPt*/int addr ) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
             if ((addr & 1)!=0) {
-                int a = Memory.host_readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
-                int b = Memory.host_readb(VGA.vga.mem.linear + (((addr+1) & ~3) << 2) + ((addr+1) & 3));
+                int a = RAM.readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
+                int b = RAM.readb(VGA.vga.mem.linear + (((addr+1) & ~3) << 2) + ((addr+1) & 3));
                 return a | (b << 8);
             }
-            return Memory.host_readw(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
+            return RAM.readw(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr ) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
             if ((addr & 3)!=0) {
-                int a = Memory.host_readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
-                int b = Memory.host_readb(VGA.vga.mem.linear + (((addr+1) & ~3) << 2) + ((addr+1) & 3));
-                int c = Memory.host_readb(VGA.vga.mem.linear + (((addr+2) & ~3) << 2) + ((addr+2) & 3));
-                int d = Memory.host_readb(VGA.vga.mem.linear + (((addr+3) & ~3) << 2) + ((addr+3) & 3));
+                int a = RAM.readb(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
+                int b = RAM.readb(VGA.vga.mem.linear + (((addr+1) & ~3) << 2) + ((addr+1) & 3));
+                int c = RAM.readb(VGA.vga.mem.linear + (((addr+2) & ~3) << 2) + ((addr+2) & 3));
+                int d = RAM.readb(VGA.vga.mem.linear + (((addr+3) & ~3) << 2) + ((addr+3) & 3));
                 return a | (b << 8) | (c << 16) | (d << 24);
             }
-            return Memory.host_readd(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
+            return RAM.readd(VGA.vga.mem.linear + ((addr & ~3) << 2) + (addr & 3));
         }
         public void writeb(/*PhysPt*/int addr, /*Bitu*/int val ) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_write_full;
 
-            Memory.host_writeb(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (short)val);
+            RAM.writeb(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (short)val);
 
             // Cache
-            Memory.host_writeb(VGA.vga.fastmem+addr, (short)val);
+            RAM.writeb(VGA.vga.fastmem+addr, (short)val);
             if (addr < 320) // And replicate the first line
-                Memory.host_writeb(VGA.vga.fastmem+addr+64*1024, (short)val);
+                RAM.writeb(VGA.vga.fastmem+addr+64*1024, (short)val);
         }
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
@@ -330,16 +330,16 @@ public class VGA_memory {
 //            MEM_CHANGED( addr );
     //		MEM_CHANGED( addr + 1);
             if ((addr & 1)!=0) {
-                Memory.host_writebs(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (byte)val);
-                Memory.host_writebs(VGA.vga.mem.linear+(((addr+1) & ~3) << 2) + ((addr+1) & 3), (byte)(val>>8));
+                RAM.writebs(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (byte)val);
+                RAM.writebs(VGA.vga.mem.linear+(((addr+1) & ~3) << 2) + ((addr+1) & 3), (byte)(val>>8));
             } else {
-                Memory.host_writew(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
+                RAM.writew(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
             }
 
             // Cache
-            Memory.host_writew(VGA.vga.fastmem+addr, val);
+            RAM.writew(VGA.vga.fastmem+addr, val);
             if (addr < 320) // And replicate the first line
-                Memory.host_writew(VGA.vga.fastmem+addr+64*1024, val);
+                RAM.writew(VGA.vga.fastmem+addr+64*1024, val);
         }
         public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
@@ -349,18 +349,18 @@ public class VGA_memory {
     //		MEM_CHANGED( addr + 3);
 
             if ((addr & 3)!=0) {
-                Memory.host_writebs(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (byte)val);
-                Memory.host_writebs(VGA.vga.mem.linear+(((addr+1) & ~3) << 2) + ((addr+1) & 3), (byte)(val>>8));
-                Memory.host_writebs(VGA.vga.mem.linear+(((addr+2) & ~3) << 2) + ((addr+2) & 3), (byte)(val>>16));
-                Memory.host_writebs(VGA.vga.mem.linear+(((addr+3) & ~3) << 2) + ((addr+3) & 3), (byte)(val>>24));
+                RAM.writebs(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), (byte)val);
+                RAM.writebs(VGA.vga.mem.linear+(((addr+1) & ~3) << 2) + ((addr+1) & 3), (byte)(val>>8));
+                RAM.writebs(VGA.vga.mem.linear+(((addr+2) & ~3) << 2) + ((addr+2) & 3), (byte)(val>>16));
+                RAM.writebs(VGA.vga.mem.linear+(((addr+3) & ~3) << 2) + ((addr+3) & 3), (byte)(val>>24));
             } else {
-                Memory.host_writed(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
+                RAM.writed(VGA.vga.mem.linear+((addr & ~3) << 2) + (addr & 3), val);
             }
 
             // Cache
-            Memory.host_writed(VGA.vga.fastmem+addr, val);
+            RAM.writed(VGA.vga.fastmem+addr, val);
             if (addr < 320) // And replicate the first line
-                Memory.host_writed(VGA.vga.fastmem+addr+64*1024, val);
+                RAM.writed(VGA.vga.fastmem+addr+64*1024, val);
         }
     }
 
@@ -368,10 +368,10 @@ public class VGA_memory {
         public void writeHandler( /*PhysPt*/int addr, /*Bit8u*/int val ) {
             addr <<= 2;
             /*Bit32u*/int data=ModeOperation(val);
-            int d=Memory.host_readd(VGA.vga.mem.linear+addr);
+            int d=RAM.readd(VGA.vga.mem.linear+addr);
             d&=VGA.vga.config.full_not_map_mask;
             d|=(data & VGA.vga.config.full_map_mask);
-            Memory.host_writed(VGA.vga.mem.linear+addr, d);
+            RAM.writed(VGA.vga.mem.linear+addr, d);
     //		if(VGA.vga.config.compatible_chain4)
     //			((/*Bit32u*/long*)VGA.vga.mem.linear)[CHECKED2(addr+64*1024)]=pixels.d;
         }
@@ -414,9 +414,9 @@ public class VGA_memory {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             switch(VGA.vga.gfx.read_map_select) {
             case 0: // character index
-                return Memory.host_readb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr));
+                return RAM.readb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr));
             case 1: // character attribute
-                return Memory.host_readb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr+1));
+                return RAM.readb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr+1));
             case 2: // font map
                 return VGA.vga.draw.font[addr];
             default: // 3=unused, but still RAM that could save values
@@ -431,9 +431,9 @@ public class VGA_memory {
                 if ((VGA.vga.seq.map_mask & 0x4)!=0)
                     VGA.vga.draw.font[addr]=(/*Bit8u*/byte)val;
                 if ((VGA.vga.seq.map_mask & 0x2)!=0) // character attribute
-                    Memory.host_writeb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr+1), (short)val);
+                    RAM.writeb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr+1), (short)val);
                 if ((VGA.vga.seq.map_mask & 0x1)!=0) // character index
-                    Memory.host_writeb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr), (short)val);
+                    RAM.writeb(VGA.vga.mem.linear+CHECKED3(VGA.vga.svga.bank_read_full+addr), (short)val);
             }
         }
     }
@@ -460,40 +460,40 @@ public class VGA_memory {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
-            return Memory.host_readb(VGA.vga.mem.linear+addr);
+            return RAM.readb(VGA.vga.mem.linear+addr);
         }
         public /*Bitu*/int readw(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
-            return Memory.host_readw(VGA.vga.mem.linear+addr);
+            return RAM.readw(VGA.vga.mem.linear+addr);
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_read_full;
 //            addr = CHECKED(addr);
-            return Memory.host_readd(VGA.vga.mem.linear+addr);
+            return RAM.readd(VGA.vga.mem.linear+addr);
         }
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_write_full;
 //            addr = CHECKED(addr);
 //            MEM_CHANGED( addr );
-            Memory.host_writeb(VGA.vga.mem.linear+addr, (short)val);
+            RAM.writeb(VGA.vga.mem.linear+addr, (short)val);
         }
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_write_full;
 //            addr = CHECKED(addr);
 //            MEM_CHANGED( addr );
-            Memory.host_writew(VGA.vga.mem.linear+addr, val);
+            RAM.writew(VGA.vga.mem.linear+addr, val);
         }
         public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) & vgapages.mask;
             addr += VGA.vga.svga.bank_write_full;
 //            addr = CHECKED(addr);
 //            MEM_CHANGED( addr );
-            Memory.host_writed(VGA.vga.mem.linear+addr, val);
+            RAM.writed(VGA.vga.mem.linear+addr, val);
         }
     }
 
@@ -559,34 +559,34 @@ public class VGA_memory {
         public /*Bitu*/int readb(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) - VGA.vga.lfb.addr;
 //            addr = CHECKED(addr);
-            return Memory.host_readb(VGA.vga.mem.linear+addr);
+            return RAM.readb(VGA.vga.mem.linear+addr);
         }
         public /*Bitu*/int readw(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) - VGA.vga.lfb.addr;
 //            addr = CHECKED(addr);
-            return Memory.host_readw(VGA.vga.mem.linear+addr);
+            return RAM.readw(VGA.vga.mem.linear+addr);
         }
         public /*Bitu*/int readd(/*PhysPt*/int addr) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) - VGA.vga.lfb.addr;
 //            addr = CHECKED(addr);
-            return Memory.host_readd(VGA.vga.mem.linear+addr);
+            return RAM.readd(VGA.vga.mem.linear+addr);
         }
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) - VGA.vga.lfb.addr;
 //            addr = CHECKED(addr);
-            Memory.host_writeb(VGA.vga.mem.linear+addr, (short)val);
+            RAM.writeb(VGA.vga.mem.linear+addr, (short)val);
 //            MEM_CHANGED( addr );
         }
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) - VGA.vga.lfb.addr;
 //            addr = CHECKED(addr);
-            Memory.host_writew(VGA.vga.mem.linear+addr, val);
+            RAM.writew(VGA.vga.mem.linear+addr, val);
 //            MEM_CHANGED( addr );
         }
         public void writed(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr) - VGA.vga.lfb.addr;
 //            addr = CHECKED(addr);
-            Memory.host_writed(VGA.vga.mem.linear+addr, val);
+            RAM.writed(VGA.vga.mem.linear+addr, val);
 //            MEM_CHANGED( addr );
         }
     }

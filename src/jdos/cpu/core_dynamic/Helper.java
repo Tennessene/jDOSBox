@@ -3,6 +3,7 @@ package jdos.cpu.core_dynamic;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.PageFaultException;
 import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.misc.Log;
 
 public class Helper extends CPU_Regs {
@@ -46,7 +47,7 @@ public class Helper extends CPU_Regs {
         decode.page.wmap.p[decode.page.index]+=0x01;
         decode.page.index++;
         decode.code+=1;
-        return Memory.host_readb(decode.tlb + decode.code - 1);
+        return RAM.readb(decode.tlb + decode.code - 1);
     }
 
     static void decode_advancepage() {
@@ -96,7 +97,7 @@ public class Helper extends CPU_Regs {
         decode.page.wmap.p[decode.page.index]+=0x01;
         decode.page.wmap.p[decode.page.index+1]+=0x01;
         decode.code+=2;decode.page.index+=2;
-        return Memory.host_readw(decode.tlb + decode.code - 2);
+        return RAM.readw(decode.tlb + decode.code - 2);
     }
     static int decode_fetchds() {
         return decode_fetchd();
@@ -120,6 +121,6 @@ public class Helper extends CPU_Regs {
         decode.page.wmap.p[decode.page.index+2]+=0x01;
         decode.page.wmap.p[decode.page.index+3]+=0x01;
         decode.code+=4;decode.page.index+=4;
-        return Memory.host_readd(decode.tlb + decode.code - 4);
+        return RAM.readd(decode.tlb + decode.code - 4);
     }
 }

@@ -178,7 +178,7 @@ public class StringOp extends Prefix_helpers {
 //                    dst_start = (dst & 0xFFFFF000l) + 3;
 //                    dst_stop = dst_start + 4096 - 3;
 //                }
-//                Memory.host_writed((int)(di_index+dst_index),Memory.mem_readd(si_base+si_index));
+//                RAM.writed((int)(di_index+dst_index),Memory.mem_readd(si_base+si_index));
 //                di_index=(di_index+add_index) & add_mask;
 //                si_index=(si_index+add_index) & add_mask;
 //            }
@@ -431,7 +431,7 @@ public class StringOp extends Prefix_helpers {
 //                    dst_start = (dst & 0xFFFFF000l) + 3;
 //                    dst_stop = dst_start + 4096 - 3;
 //                }
-//                Memory.host_writed((int)(di_index+dst_index),Memory.mem_readd(si_base+si_index));
+//                RAM.writed((int)(di_index+dst_index),Memory.mem_readd(si_base+si_index));
 //                di_index=(di_index+add_index) & add_mask;
 //                si_index=(si_index+add_index) & add_mask;
 //            }

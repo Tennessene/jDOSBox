@@ -4,7 +4,6 @@ import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Paging;
-import jdos.gui.Render;
 import jdos.hardware.pci.PCI_PageHandler;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
@@ -18,7 +17,6 @@ import jdos.util.IntRef;
 import jdos.util.Ptr;
 import jdos.util.StringHelper;
 
-import java.util.Arrays;
 import java.util.Vector;
 
 public class Memory extends Module_base {
@@ -27,191 +25,12 @@ public class Memory extends Module_base {
     static final int EXTRA_MEM = 8196;
 
     //private static final int MEMBASE = 1; // can't use zero
-    static int highwaterMark;
-    static public int[] direct;
+    static private int highwaterMark;
     
     public static int allocate(int size) {
         int result = highwaterMark;
         highwaterMark+=size;
         return result;
-    }
-
-    public static byte host_readbs(/*HostPt*/int address) {
-        return (byte)(direct[(address >> 2)] >>> ((address & 0x3) << 3));
-    }
-
-    public static /*Bit8u*/short host_readb(/*HostPt*/int address) {
-        return (short)((direct[(address >>> 2)] >>> ((address & 0x3) << 3)) & 0xFF);
-    }
-
-    public static /*Bit16u*/int host_readw(/*HostPt*/int address) {
-        int rem = address & 0x3;
-        int[] local = direct;
-        int index = (address >>> 2);
-        int val = local[index] >>> (rem << 3);
-        if (rem == 3) {
-          val |= local[index + 1] << 8;
-        }
-        return val & 0xFFFF;
-    }
-
-    public static /*Bit32u*/int host_readd(/*HostPt*/int address) {
-        int rem = (address & 0x3);
-        if (rem == 0) {
-          return direct[address >>> 2];
-        }
-        int off = rem << 3;
-        int[] local = direct;
-        int index = (address >>> 2);
-        return local[index] >>> off | local[index+1] << (32-off);
-    }
-
-    public static void host_writeb(/*HostPt*/int address,/*Bit8u*/ int value) {
-        int off = (address & 0x3) << 3;
-        int[] local = direct;
-        int mask = ~(0xFF << off);
-        int index = (address >>> 2);
-        int val = local[index] & mask | (value & 0xFF) << off;
-        local[index] = val;
-    }
-
-    public static void host_writebs(/*HostPt*/int address,byte value) {
-        int off = (address & 0x3) << 3;
-        int[] local = direct;
-        int mask = ~(0xFF << off);
-        int index = (address >>> 2);
-        int val = local[index] & mask | (value & 0xFF) << off;
-        local[index] = val;
-    }
-
-    public static void host_writew(/*HostPt*/int address,/*Bit16u*/int value) {
-        int rem = (address & 0x3);
-        int[] local = direct;
-        int index = (address >>> 2);
-        value&=0xFFFF;
-        if (rem == 3) {
-          local[index] = (local[index] & 0xFFFFFF | value << 24);
-          index++;
-          local[index] = (local[index] & 0xFFFFFF00 | value >>> 8);
-        } else {
-            int off = rem << 3;
-          int mask = ~(0xFFFF << off);
-          local[index] = (local[index] & mask | value << off);
-        }
-    }
-
-    public static void host_writed(/*HostPt*/int address,/*Bit32u*/int val) {
-        int rem = (address & 0x3);
-        if (rem == 0) {
-           direct[address >>> 2] = val;
-        } else {
-          int index = (address >>> 2);
-          int[] local = direct;
-          int off = rem << 3;
-          int mask = -1 << off;
-          local[index] = (local[index] & ~mask) | (val << off);
-          index++;
-          local[index] = (local[index] & mask) | (val >>> (32-off));
-        }
-    }
-
-    static public void host_memcpy(int dest, byte[] src, int srcOffset, /*Bitu*/int size) {
-        for (int i=0;i<size;i++)
-            host_writeb(dest++, src[srcOffset++]);
-    }
-
-    static public void host_memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
-        int begin = src & 3;
-        int end = size & ~3;
-        for (int i=0;i<begin && i<size;i++)
-            dest[i+dest_offset] = host_readbs(src + i);
-        int off = dest_offset+begin;
-        int index = (src+begin)>>2;
-        for (int i=begin;i<end && i+3<size;i+=4) {
-            int v = direct[index++];
-            dest[off++] = (byte)v;
-            dest[off++] = (byte)(v>>8);
-            dest[off++] = (byte)(v>>16);
-            dest[off++] = (byte)(v>>24);
-        }
-        for (int i = end;i<size;i++)
-            dest[i+dest_offset] = host_readbs(src + i);
-    }
-
-    static public void host_memcpy(Render.Render_t.SRC dst, int offset, /*PhysPt*/int src,/*Bitu*/int amount) {
-        if (dst.outWrite8!=null) {
-            for (int i=0;i<amount;i++)
-                dst.outWrite8[i+offset] = host_readbs(src+i);
-        } else if (dst.outWrite16!=null) {
-            offset>>=1;
-            amount>>=1;
-            for (int i=0;i<amount;i++) {
-                dst.outWrite16[i+offset] = (short)host_readw(src);
-                src+=2;
-            }
-        } else if (dst.outWrite32!=null) {
-            offset>>=2;
-            amount>>=2;
-            for (int i=0;i<amount;i++) {
-                dst.outWrite32[i+offset] = host_readd(src);
-                src+=4;
-            }
-        }
-    }
-
-    static public void host_memcpy(int[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
-        System.arraycopy(direct, src>>2, dest, dest_offset>>2, size>>2);
-    }
-
-    static public void host_memcpy(/*PhysPt*/int dst,/*PhysPt*/int src,/*Bitu*/int amount) {
-        int src_align = src & 0x3;
-        int dst_align = dst & 0x3;
-        if (src_align == dst_align) {
-            while ((src & 0x3) > 0 && amount>0) {
-                host_writeb(dst++, host_readb(src++));
-                amount--;
-            }
-            int len = (amount >>> 2);
-            if (len>0)
-                System.arraycopy(direct, src >>> 2, direct, dst >>> 2, len);
-            len = len << 2;
-            if (len == amount)
-                return;
-            dst+=len;
-            src+=len;
-            amount-=len;
-        }
-
-        for (int i = 0; i < amount; i++) {
-            host_writeb(dst++, host_readb(src++));
-        }
-    }
-
-    static public void host_zeroset(int dest, int size) {
-        if ((dest & 0x3) == 0) {
-            int index = (dest >>> 2);
-            int len = (size >>> 2);
-            Arrays.fill(direct, index, index+len, 0);
-            size = (size & 0x3) << 3;
-            dest+=len<<2;
-        }
-        byte b = (byte)0;
-        for (int i = 0; i < size; i++)
-            host_writeb(dest++, b);
-    }
-
-    static public void host_memset(int dest, int size, int value) {
-        if ((dest & 0x3) == 0) {
-            int index = (dest >>> 2);
-            int len = (size >>> 2);
-            value &= 0xFF;
-            Arrays.fill(direct, index, index+len, (value << 24) | (value << 16) | (value << 8) | value);
-            size = (size & 0x3) << 3;
-            dest+=len<<2;
-        }
-        byte b = (byte)value;
-        for (int i = 0; i < size; i++)
-            host_writeb(dest++, b);
     }
 
     /*
@@ -231,28 +50,28 @@ public class Memory extends Module_base {
         int i;
         byte[] b = s.getBytes();
         for (i=0;i<s.length();i++)
-            host_writeb(addr+i,b[i]);
-        host_writeb(addr+i, (byte)0);
+            RAM.writeb(addr + i, b[i]);
+        RAM.writeb(addr + i, (byte) 0);
     }
 
     public static void phys_writeb(/*PhysPt*/int addr,/*Bit8u*/int val) {
-        host_writeb(addr,(short)val);
+        RAM.writeb(addr, (short) val);
     }
     public static void phys_writew(/*PhysPt*/int addr,/*Bit16u*/int val){
-        host_writew(addr,val);
+        RAM.writew(addr, val);
     }
     public static void phys_writed(/*PhysPt*/int addr,/*Bit32u*/int val){
-        host_writed(addr,val);
+        RAM.writed(addr, val);
     }
 
     public static /*Bit8u*/short phys_readb(/*PhysPt*/int addr) {
-        return host_readb(addr);
+        return RAM.readb(addr);
     }
     public static /*Bit16u*/int phys_readw(/*PhysPt*/int addr){
-        return host_readw(addr);
+        return RAM.readw(addr);
     }
     public static /*Bit32u*/int phys_readd(/*PhysPt*/int addr){
-        return host_readd(addr);
+        return RAM.readd(addr);
     }
 
     /* The folowing functions are all shortcuts to the above functions using physical addressing */
@@ -551,11 +370,11 @@ public class Memory extends Module_base {
     }
 
     static public void phys_zero(int dest, int len) {
-        while (len-- != 0) host_writeb(dest++, (short)0);
+        while (len-- != 0) RAM.writeb(dest++, (short) 0);
     }
 
     static public void phys_memcpy(int dest, byte[] buffer, int offset, int len) {
-        while (len-- != 0) host_writeb(dest++, (short)buffer[offset++]);
+        while (len-- != 0) RAM.writeb(dest++, (short) buffer[offset++]);
     }
 
     static public void MEM_BlockRead(/*PhysPt*/int pt,short[] data,int offset, /*Bitu*/int size) {
@@ -639,7 +458,7 @@ public class Memory extends Module_base {
     }
 
     static public /*Bitu*/int MEM_ExtraPages() {
-        return direct.length*4/4096 - memory.pages;
+        return highwaterMark*4/4096 - memory.pages;
     }
 
     static public /*Bitu*/int MEM_FreeLargest() {
@@ -985,7 +804,7 @@ public class Memory extends Module_base {
                 videosize*=1024*1024;
                 videosize+=videoCacheSize*1024;
                 System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM+VGA_draw.TEMPLINE_SIZE+videosize)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
-                direct = new int[(highwaterMark+EXTRA_MEM+videosize+VGA_draw.TEMPLINE_SIZE+3)>>2];
+                RAM.alloc(highwaterMark + EXTRA_MEM + videosize + VGA_draw.TEMPLINE_SIZE + 3);
             } catch (java.lang.OutOfMemoryError e) {
                 Log.exit("Can't allocate main memory of "+memsize+" MB");
             }
@@ -1029,7 +848,7 @@ public class Memory extends Module_base {
     static Memory test;
     public static Section.SectionFunction MEM_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
-            direct = null;
+            RAM.free();
             test = null;
         }
     };

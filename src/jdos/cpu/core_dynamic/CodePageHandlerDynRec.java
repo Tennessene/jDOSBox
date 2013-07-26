@@ -5,6 +5,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core_dynamic;
 import jdos.cpu.Paging;
 import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.util.Ptr;
 
 final public class CodePageHandlerDynRec extends Paging.PageHandler {
@@ -85,8 +86,8 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	// the following functions will clean all cache blocks that are invalid now due to the write
 	public void writeb(/*PhysPt*/int address,/*Bitu*/int val){
 		int addr = (address & 4095);
-		if (Memory.host_readb(hostmem+addr)==(val & 0xFF)) return;
-		Memory.host_writeb(hostmem+addr,val);
+		if (RAM.readb(hostmem + addr)==(val & 0xFF)) return;
+		RAM.writeb(hostmem + addr, val);
 		// see if there's code where we are writing to
 		if (write_map.readb(addr)==0) {
 			if (active_blocks!=0) return;		// still some blocks in this page
@@ -101,8 +102,8 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	}
 	public void writew(/*PhysPt*/int address,/*Bitu*/int val){
 		int addr = (address & 4095);
-		if (Memory.host_readw(hostmem+addr)==(val & 0xFFFF)) return;
-		Memory.host_writew(hostmem+addr,val);
+		if (RAM.readw(hostmem + addr)==(val & 0xFFFF)) return;
+		RAM.writew(hostmem + addr, val);
 		// see if there's code where we are writing to
 		if (write_map.readw(addr)==0) {
 			if (active_blocks!=0) return;		// still some blocks in this page
@@ -117,8 +118,8 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	}
 	public void writed(/*PhysPt*/int address,/*Bitu*/int val){
 		int addr = (address & 4095);
-		if (Memory.host_readd(hostmem + addr)==(val & 0xFFFFFFFF)) return;
-		Memory.host_writed(hostmem+addr,val);
+		if (RAM.readd(hostmem + addr)==(val & 0xFFFFFFFF)) return;
+		RAM.writed(hostmem + addr, val);
 		// see if there's code where we are writing to
 		if (write_map.readd(addr)==0) {
 			if (active_blocks!=0) return;		// still some blocks in this page

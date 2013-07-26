@@ -4,7 +4,7 @@ import jdos.cpu.core_dynamic.*;
 import jdos.cpu.core_share.Constants;
 import jdos.cpu.core_share.Data;
 import jdos.debug.Debug;
-import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 
@@ -126,8 +126,8 @@ public class Core_dynamic {
                     if (Config.DYNAMIC_CORE_VERIFY) {
                         int offset = Paging.getDirectIndexRO(CPU.Segs_CSphys+ CPU_Regs.reg_eip);
                         for (int i=0;i<block.originalByteCode.length;i++) {
-                            if (block.originalByteCode[i]!=Memory.host_readbs(i+offset)) {
-                                Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+Integer.toString(CPU.Segs_CSphys,16) + ":" + Integer.toString(CPU_Regs.reg_eip,16)+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(Memory.host_readb(offset),16)+" memory value @ "+offset+"\n    block="+block);
+                            if (block.originalByteCode[i]!= RAM.readbs(i + offset)) {
+                                Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+Integer.toString(CPU.Segs_CSphys,16) + ":" + Integer.toString(CPU_Regs.reg_eip,16)+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(RAM.readb(offset),16)+" memory value @ "+offset+"\n    block="+block);
                             }
                         }
                     }

@@ -6,10 +6,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.dos.drives.*;
 import jdos.gui.Main;
-import jdos.hardware.Cmos;
-import jdos.hardware.IoHandler;
-import jdos.hardware.Memory;
-import jdos.hardware.VBE;
+import jdos.hardware.*;
 import jdos.hardware.qemu.*;
 import jdos.ints.Bios;
 import jdos.ints.Bios_disk;
@@ -833,7 +830,7 @@ public class Dos_programs {
                             fileIO.close();
                         }
                         int address = 0x100000 - data.length;
-                        for(i=0;i<data.length;i++) Memory.host_writeb(address + i, data[i]);
+                        for(i=0;i<data.length;i++) RAM.writeb(address + i, data[i]);
 
                         byte[] videoData = new byte[0x10000];
                         boolean videoBiosFound = false;
@@ -850,7 +847,7 @@ public class Dos_programs {
                             fileIO.close();
                         }
                         address = 0xC0000;
-                        for(i=0;i<videoData.length;i++) Memory.host_writeb(address + i, videoData[i]);
+                        for(i=0;i<videoData.length;i++) RAM.writeb(address + i, videoData[i]);
                         if (Dosbox.svgaCard < SVGACards.SVGA_QEMU) {
                             IoHandler.IO_WriteHandler vga_write  = new IoHandler.IO_WriteHandler() {
                                 public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {

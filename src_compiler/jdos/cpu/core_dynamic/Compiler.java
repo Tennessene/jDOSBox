@@ -6,6 +6,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Instructions;
 import jdos.cpu.Paging;
 import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 import jdos.misc.Log;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
@@ -82,7 +83,7 @@ public class Compiler extends Helper {
         byte[] opCode = new byte[len];
         int src = Paging.getDirectIndexRO(start);
         if (src>=0)
-            Memory.host_memcpy(opCode, 0, src, len);
+            RAM.memcpy(opCode, 0, src, len);
         else
             Memory.MEM_BlockRead(start, opCode, len);
         return opCode;

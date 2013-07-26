@@ -209,16 +209,16 @@ public class MainFrame implements GUI {
 
         panel = new JPanel() {
             public void paint(Graphics g) {
-                if (Main.buffer != null) {
+                if (Main.buffer2[Main.front] != null) {
                     synchronized (Main.paintMutex) {
                         if (fullscreen) {
-                            g.drawImage(Main.buffer, fullscreen_cx_offset, 0, fullscreen_cx+fullscreen_cx_offset,  fullscreen_cy, 0, 0, Main.buffer_width, Main.buffer_height, null);
+                            g.drawImage(Main.buffer2[Main.front], fullscreen_cx_offset, 0, fullscreen_cx+fullscreen_cx_offset,  fullscreen_cy, 0, 0, Main.buffer_width, Main.buffer_height, null);
                         } else {
                             if (Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
-                                BufferedImage resized = resizeImage(Main.buffer, Main.screen_width, Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                                BufferedImage resized = resizeImage(Main.buffer2[Main.front], Main.screen_width, Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                                 g.drawImage(resized, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.screen_width, Main.screen_height, null);
                             } else {
-                                g.drawImage(Main.buffer, 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);
+                                g.drawImage(Main.buffer2[Main.front], 0, 0, Main.screen_width,  Main.screen_height, 0, 0, Main.buffer_width, Main.buffer_height, null);
                             }
                         }
                     }

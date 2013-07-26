@@ -30,7 +30,7 @@ public class VGACommonState {
     public int readb(int offset) {
         if (offset>=DISPLAY_ADDRESS) {
             offset-=DISPLAY_ADDRESS;
-            return (short)((Render.render.src.outWrite[(offset >>> 2)] >>> ((offset & 0x3) << 3)) & 0xFF);
+            return (short)((Render.render.src.outWrite32[(offset >>> 2)] >>> ((offset & 0x3) << 3)) & 0xFF);
         }
         return Memory.host_readb(vram_ptr+offset);
     }
@@ -38,7 +38,7 @@ public class VGACommonState {
         if (offset>=DISPLAY_ADDRESS) {
             offset-=DISPLAY_ADDRESS;
             int rem = offset & 0x3;
-            int[] local = Render.render.src.outWrite;
+            int[] local = Render.render.src.outWrite32;
             int index = (offset >>> 2);
             int val = local[index] >>> (rem << 3);
             if (rem == 3) {
@@ -53,10 +53,10 @@ public class VGACommonState {
             offset-=DISPLAY_ADDRESS;
             int rem = (offset & 0x3);
             if (rem == 0) {
-              return Render.render.src.outWrite[offset >>> 2];
+              return Render.render.src.outWrite32[offset >>> 2];
             }
             int off = rem << 3;
-            int[] local = Render.render.src.outWrite;
+            int[] local = Render.render.src.outWrite32;
             int index = (offset >>> 2);
             return local[index] >>> off | local[index+1] << (32-off);
         }
@@ -66,7 +66,7 @@ public class VGACommonState {
         if (offset>=DISPLAY_ADDRESS) {
             offset-=DISPLAY_ADDRESS;
             int off = (offset & 0x3) << 3;
-            int[] local = Render.render.src.outWrite;
+            int[] local = Render.render.src.outWrite32;
             int mask = ~(0xFF << off);
             int index = (offset >>> 2);
             int val = local[index] & mask | (value & 0xFF) << off;
@@ -79,7 +79,7 @@ public class VGACommonState {
         if (offset>=DISPLAY_ADDRESS) {
             offset-=DISPLAY_ADDRESS;
             int rem = (offset & 0x3);
-            int[] local = Render.render.src.outWrite;
+            int[] local = Render.render.src.outWrite32;
             int index = (offset >>> 2);
             value&=0xFFFF;
             if (rem == 3) {
@@ -101,13 +101,13 @@ public class VGACommonState {
             int rem = (offset & 0x3);
             if (rem == 0) {
                 try {
-                    Render.render.src.outWrite[offset >>> 2] = value;
+                    Render.render.src.outWrite32[offset >>> 2] = value;
                 } catch (Exception e) {
                     e.printStackTrace();;
                 }
             } else {
               int index = (offset >>> 2);
-              int[] local = Render.render.src.outWrite;
+              int[] local = Render.render.src.outWrite32;
               int off = rem << 3;
               int mask = -1 << off;
               local[index] = (local[index] & ~mask) | (value << off);

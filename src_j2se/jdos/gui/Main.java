@@ -136,7 +136,7 @@ public class Main extends MainBase {
     static private int skipCount = 0;
 
     static public void GFX_EndUpdate() {
-            if (pixelBuffer != null) {
+            if (pitch!=0) {
                 if (startupTime != 0) {
                     System.out.println("Startup time: "+String.valueOf(System.currentTimeMillis()-startupTime)+"ms");
                     startupTime = 0;
@@ -160,61 +160,33 @@ public class Main extends MainBase {
                             }
                         }
                     }
-                    int type = buffer.getRaster().getTransferType();
-                    switch (type) {
-                        case DataBuffer.TYPE_BYTE:
-                        {
-                            int pos = 0;
-                            for (int i=0;i<pixelBuffer.length;i++) {
-                                int p = pixelBuffer[i];
-                                byte_rawImageData[pos++] = (byte)p;
-                                byte_rawImageData[pos++] = (byte)(p >> 8);
-                                byte_rawImageData[pos++] = (byte)(p >> 16);
-                                byte_rawImageData[pos++] = (byte)(p >> 24);
-                            }
-                            break;
-                        }
-                        case DataBuffer.TYPE_SHORT:
-                        case DataBuffer.TYPE_USHORT:
-                        {
-                            int pos = 0;
-                            for (int i=0;i<pixelBuffer.length;i++) {
-                                int p = pixelBuffer[i];
-                                short_rawImageData[pos++] = (short)(p);
-                                short_rawImageData[pos++] = (short)(p >> 16);
-                            }
-                            break;
-                        }
-                        case DataBuffer.TYPE_INT:
-                            System.arraycopy(pixelBuffer, 0, int_rawImageData, 0, pixelBuffer.length);
-                            break;
-                    }
+                }
+                if (front == 0) {
+                    front = 1;
+                    back = 0;
+                } else {
+                    front = 0;
+                    back = 1;
                 }
                 gui.dopaint();
             }
         }
-        static byte[] byte_rawImageData;
-        static short[] short_rawImageData;
-        static int[] int_rawImageData;
-        static int[] pixelBuffer;
+        static byte[][] byte_rawImageData2 = new byte[2][];
+        static short[][] short_rawImageData2 = new short[2][];
+        static int[][] int_rawImageData2 = new int[2][];
         static int pitch;
 
-        static public boolean GFX_StartUpdate(int[][] pixels,/*Bitu*/IntRef pitch) {
-            pixels[0] = pixelBuffer;
-            pitch.value = Main.pitch;
+        static public boolean GFX_StartUpdate(Render.Render_t.SRC src) {
+            src.outPitch = Main.pitch;
+            src.outWrite8 = byte_rawImageData2[Main.back];
+            src.outWrite16 = short_rawImageData2[Main.back];
+            src.outWrite32 = int_rawImageData2[Main.back];
             return true;
         }
 
         static public void drawImage(Image image) {
-            Graphics graphics = buffer.getGraphics();
+            Graphics graphics = buffer2[front].getGraphics();
             graphics.drawImage(image, 0, 0, null);
-            gui.dopaint();
-        }
-
-        static public void drawImage(int address, int bpp, int width, int height) {
-            if (bpp == 8) {
-                Memory.mem_memcpy(byte_rawImageData, 0, address, width * height);
-            }
             gui.dopaint();
         }
 
@@ -244,7 +216,10 @@ public class Main extends MainBase {
                 gray += grayIncr;
             }
         }
-        static BufferedImage buffer;
+        static BufferedImage[] buffer2 = new BufferedImage[2];
+        static int front = 0;
+        static int back = 1;
+
         static public /*Bitu*/void GFX_SetSize(/*Bitu*/int width,/*Bitu*/int height,boolean aspect, boolean dblh, boolean dblw, int bpp) {
             buffer_width = screen_width = width;
             buffer_height = screen_height = height;
@@ -264,38 +239,62 @@ public class Main extends MainBase {
                 case 8:
                 {
                     colorModel = new IndexColorModel(8, 256, cmap, 0, false, -1, DataBuffer.TYPE_BYTE);
-                    buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
-                    DataBufferByte buf = (DataBufferByte) buffer.getRaster().getDataBuffer();
-                    byte_rawImageData = buf.getData();
-                    pixelBuffer = new int[byte_rawImageData.length>>2];
+                    buffer2[0] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
+                    buffer2[1] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
+                    DataBufferByte buf = (DataBufferByte) buffer2[0].getRaster().getDataBuffer();
+                    byte_rawImageData2[0] = buf.getData();
+                    buf = (DataBufferByte) buffer2[1].getRaster().getDataBuffer();
+                    byte_rawImageData2[1] = buf.getData();
                     pitch = buffer_width;
+                    short_rawImageData2[0] = null;
+                    short_rawImageData2[1] = null;
+                    int_rawImageData2[0] = null;
+                    int_rawImageData2[1] = null;
                 }
                     break;
                 case 15:
                 {
-                    buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_555_RGB);
-                    DataBufferUShort buf = (DataBufferUShort) buffer.getRaster().getDataBuffer();
-                    short_rawImageData = buf.getData();
-                    pixelBuffer = new int[short_rawImageData.length>>1];
+                    buffer2[0] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_555_RGB);
+                    buffer2[1] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_555_RGB);
+                    DataBufferUShort buf = (DataBufferUShort) buffer2[0].getRaster().getDataBuffer();
+                    short_rawImageData2[0] = buf.getData();
+                    buf = (DataBufferUShort) buffer2[1].getRaster().getDataBuffer();
+                    short_rawImageData2[1] = buf.getData();
                     pitch = buffer_width*2;
+                    byte_rawImageData2[0] = null;
+                    byte_rawImageData2[1] = null;
+                    int_rawImageData2[0] = null;
+                    int_rawImageData2[1] = null;
                 }
                     break;
                 case 16:
                 {
-                    buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_565_RGB);
-                    DataBufferUShort buf = (DataBufferUShort) buffer.getRaster().getDataBuffer();
-                    short_rawImageData = buf.getData();
-                    pixelBuffer = new int[short_rawImageData.length>>1];
+                    buffer2[0] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_565_RGB);
+                    buffer2[1] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_USHORT_565_RGB);
+                    DataBufferUShort buf = (DataBufferUShort) buffer2[0].getRaster().getDataBuffer();
+                    short_rawImageData2[0] = buf.getData();
+                    buf = (DataBufferUShort) buffer2[1].getRaster().getDataBuffer();
+                    short_rawImageData2[1] = buf.getData();
                     pitch = buffer_width*2;
+                    byte_rawImageData2[0] = null;
+                    byte_rawImageData2[1] = null;
+                    int_rawImageData2[0] = null;
+                    int_rawImageData2[1] = null;
                 }
                     break;
                 case 32:
                 {
-                    buffer = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_INT_RGB);
-                    DataBufferInt buf = (DataBufferInt) buffer.getRaster().getDataBuffer();
-                    int_rawImageData = buf.getData();
-                    pixelBuffer = new int[int_rawImageData.length];
+                    buffer2[0] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_INT_RGB);
+                    buffer2[1] = new BufferedImage(buffer_width, buffer_height, BufferedImage.TYPE_INT_RGB);
+                    DataBufferInt buf = (DataBufferInt) buffer2[0].getRaster().getDataBuffer();
+                    int_rawImageData2[0] = buf.getData();
+                    buf = (DataBufferInt) buffer2[1].getRaster().getDataBuffer();
+                    int_rawImageData2[1] = buf.getData();
                     pitch = buffer_width*4;
+                    byte_rawImageData2[0] = null;
+                    byte_rawImageData2[1] = null;
+                    short_rawImageData2[0] = null;
+                    short_rawImageData2[1] = null;
                 }
                     break;
             }

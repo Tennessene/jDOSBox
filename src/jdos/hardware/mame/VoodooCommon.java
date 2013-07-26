@@ -2,6 +2,7 @@ package jdos.hardware.mame;
 
 import jdos.cpu.Paging;
 import jdos.gui.Render;
+import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.hardware.VGA;
 import jdos.hardware.VGA_draw;
@@ -6338,10 +6339,8 @@ public class VoodooCommon extends PCI_Device {
             // draw all lines at once
             for (int y=0;y<vdraw.v.fbi.height;y++) {
                 int inOffset = vdraw.v.fbi.rgboffs[vdraw.v.fbi.frontbuf] / 2 + y*vdraw.v.fbi.rowpixels;
-                int outOffset = Render.render.src.outPitch * y / 4;
-                for (int x=0;x<vdraw.v.fbi.width/2;x++) {
-                    Render.render.src.outWrite[x+outOffset] = mem_readd(vdraw.v.fbi.ram, inOffset+x*2);
-                }
+                int outOffset = Render.render.src.outPitch * y / 2;
+                System.arraycopy(vdraw.v.fbi.ram, inOffset, Render.render.src.outWrite16, outOffset, vdraw.v.fbi.width);
             }
             Render.RENDER_EndUpdate(false);
         }

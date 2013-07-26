@@ -389,7 +389,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                 g.fillRect(0, 0, fullscreen_cx_offset, fullscreen_cy);
                 g.fillRect(monitor_cx-fullscreen_cx_offset, 0, fullscreen_cx_offset, fullscreen_cy);
             }
-            g.drawImage(Main.buffer, fullscreen_cx_offset, 0, fullscreen_cx+fullscreen_cx_offset,  fullscreen_cy, 0, 0, Main.buffer_width, Main.buffer_height, null);
+            g.drawImage(Main.buffer2[Main.front], fullscreen_cx_offset, 0, fullscreen_cx+fullscreen_cx_offset,  fullscreen_cy, 0, 0, Main.buffer_width, Main.buffer_height, null);
         } else {
             int x = 0;
             int y = 0;
@@ -406,18 +406,18 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                 g.fillRect(0, y+ Main.screen_height, getWidth(), getHeight()-(y+ Main.screen_height));
             }
             if (Render.render!=null && Render.render.aspect && (Main.screen_height % Main.buffer_height)!=0) {
-                BufferedImage resized = MainFrame.resizeImage(Main.buffer, Main.screen_width, Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                BufferedImage resized = MainFrame.resizeImage(Main.buffer2[Main.front], Main.screen_width, Main.screen_height,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 g.drawImage(resized, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.screen_width, Main.screen_height, null);
             } else {
-                g.drawImage(Main.buffer, x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.buffer_width, Main.buffer_height, null);
+                g.drawImage(Main.buffer2[Main.front], x, y, Main.screen_width+x,  Main.screen_height+y, 0, 0, Main.buffer_width, Main.buffer_height, null);
             }
         }
     }
     public void update( Graphics g ) {
-        if (Main.buffer != null) {
+        if (Main.buffer2[Main.front] != null) {
             synchronized (Main.paintMutex) {
                 if (progressMsg != null) {
-                    drawProgress(Main.buffer.getGraphics(), Main.screen_width, Main.screen_height);
+                    drawProgress(Main.buffer2[Main.front].getGraphics(), Main.screen_width, Main.screen_height);
                 }
                 draw(g);
             }

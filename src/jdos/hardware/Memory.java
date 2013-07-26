@@ -4,6 +4,7 @@ import jdos.Dosbox;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Paging;
+import jdos.gui.Render;
 import jdos.hardware.pci.PCI_PageHandler;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
@@ -135,6 +136,27 @@ public class Memory extends Module_base {
         }
         for (int i = end;i<size;i++)
             dest[i+dest_offset] = host_readbs(src + i);
+    }
+
+    static public void host_memcpy(Render.Render_t.SRC dst, int offset, /*PhysPt*/int src,/*Bitu*/int amount) {
+        if (dst.outWrite8!=null) {
+            for (int i=0;i<amount;i++)
+                dst.outWrite8[i+offset] = host_readbs(src+i);
+        } else if (dst.outWrite16!=null) {
+            offset>>=1;
+            amount>>=1;
+            for (int i=0;i<amount;i++) {
+                dst.outWrite16[i+offset] = (short)host_readw(src);
+                src+=2;
+            }
+        } else if (dst.outWrite32!=null) {
+            offset>>=2;
+            amount>>=2;
+            for (int i=0;i<amount;i++) {
+                dst.outWrite32[i+offset] = host_readd(src);
+                src+=4;
+            }
+        }
     }
 
     static public void host_memcpy(int[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {

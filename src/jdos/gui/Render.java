@@ -53,7 +53,9 @@ public class Render {
             public double ratio;
             public float fps;
             public /*Bitu*/int outPitch;
-            public /*Bit8u*/int[] outWrite;
+            public /*Bit8u*/int[] outWrite32;
+            public /*Bit8u*/short[] outWrite16;
+            public /*Bit8u*/byte[] outWrite8;
             public int outWriteOff;
         }
         public SRC src = new SRC();
@@ -143,11 +145,7 @@ public class Render {
             Check_Palette();
         }
 
-        int[][] outWrite = new int[1][];
-        IntRef outPitch = new IntRef(render.src.outPitch);
-        Main.GFX_StartUpdate(outWrite, outPitch);
-        render.src.outPitch = outPitch.value;
-        render.src.outWrite = outWrite[0];
+        Main.GFX_StartUpdate(render.src);
         render.src.outWriteOff = 0;
 
         /* Clearing the cache will first process the line to make sure it's never the same */
@@ -176,10 +174,9 @@ public class Render {
             pitch = render.src.outPitch;
             if (render.frameskip.max!=0)
                 fps /= 1+render.frameskip.max;
-            Hardware.CAPTURE_AddImage( render.src.width, render.src.height, render.src.bpp, pitch,
-                flags, fps, render.src.outWrite, render.pal.rgb );
+            //Hardware.CAPTURE_AddImage( render.src.width, render.src.height, render.src.bpp, pitch, flags, fps, render.src.outWrite, render.pal.rgb );
         }
-        if ( render.src.outWrite != null ) {
+        if ( render.src.outWrite32 != null || render.src.outWrite16 != null || render.src.outWrite8 != null) {
             Main.GFX_EndUpdate();
             render.frameskip.hadSkip[render.frameskip.index] = false;
         } else {
@@ -211,7 +208,9 @@ public class Render {
         render.pal.changed = false;
         render.pal.modified.clear();
         //Finish this frame using a copy only handler
-        render.src.outWrite = null;
+        render.src.outWrite32 = null;
+        render.src.outWrite16 = null;
+        render.src.outWrite8 = null;
         /* Signal the next frame to first reinit the cache */
         render.active=true;
     }

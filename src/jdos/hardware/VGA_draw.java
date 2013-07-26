@@ -620,10 +620,10 @@ public class VGA_draw {
                         Memory.host_writew(TempLine+i*2, value);
                     }
                 }
-                Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
+                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
             } else {
                 int data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
-                Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
+                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
             }
             Render.render.src.outWriteOff+=Render.render.src.outPitch;
             VGA.vga.draw.address_line++;
@@ -646,12 +646,12 @@ public class VGA_draw {
         public void call(/*Bitu*/int val) {
             if (VGA.vga.attr.disabled!=0) {
                 Memory.host_zeroset(TempLine, TEMPLINE_SIZE);
-                Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
+                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, TempLine, Render.render.src.outPitch);
             } else {
                 /*Bitu*/int address = VGA.vga.draw.address;
                 if (VGA.vga.mode!=VGA.M_TEXT) address += VGA.vga.draw.panning;
                 int data=VGA_DrawLine.call(address, VGA.vga.draw.address_line);
-                Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
+                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
             }
             Render.render.src.outWriteOff+=Render.render.src.outPitch;
             VGA.vga.draw.address_line++;
@@ -679,7 +679,7 @@ public class VGA_draw {
                 address_add = VGA.vga.draw.address_add;
             while (val--!=0) {
                 int data=VGA_DrawLine.call( VGA.vga.draw.address, VGA.vga.draw.address_line );
-                Memory.host_memcpy(Render.render.src.outWrite, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
+                Memory.host_memcpy(Render.render.src, Render.render.src.outWriteOff, data, Render.render.src.outPitch);
                 Render.render.src.outWriteOff+=Render.render.src.outPitch;
                 VGA.vga.draw.address_line++;
                 if (VGA.vga.draw.address_line>=VGA.vga.draw.address_line_total) {

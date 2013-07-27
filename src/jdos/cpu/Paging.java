@@ -289,12 +289,12 @@ public class Paging extends Module_base {
     }
 
     public static void mem_writew_inline(/*PhysPt*/int address,/*Bit16u*/int val) {
-//        if ((address & 0xfff) < 0xfff) {
+        if ((address & 0xfff) < 0xfff) {
             /*HostPt*/
             int tlb_addr = get_tlb_write(address);
             if (tlb_addr != INVALID_ADDRESS) RAM.writew(tlb_addr + address, val);
             else (get_tlb_writehandler(address)).writew(address, val);
-//        } else Memory.mem_unalignedwritew(address, val);
+        } else Memory.mem_unalignedwritew(address, val);
     }
 
     public static void mem_writed_inline(/*PhysPt*/int address,/*Bit32u*/int val) {
@@ -308,12 +308,12 @@ public class Paging extends Module_base {
             }
             return;
         }
-//        if ((address & 0xfff) < 0xffd) {
+        if ((address & 0xfff) < 0xffd) {
             /*HostPt*/
             int tlb_addr = get_tlb_write(address);
             if (tlb_addr != INVALID_ADDRESS) RAM.writed(tlb_addr + address, val);
             else (get_tlb_writehandler(address)).writed(address, val);
-//        } else Memory.mem_unalignedwrited(address, val);
+        } else Memory.mem_unalignedwrited(address, val);
     }
 
     private static final int LINK_TOTAL = (64 * 1024);

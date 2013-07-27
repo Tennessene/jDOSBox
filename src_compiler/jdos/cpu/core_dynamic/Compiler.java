@@ -1620,7 +1620,7 @@ public class Compiler extends Helper {
 
     static void memory_start(EaaBase eaa, Seg seg, StringBuilder method, boolean zero) {
         if (!eaaStarted || testLocalVariableAccess) {
-            method.append("int ");
+            //method.append("int ");
             eaaStarted = true;
         }
         method.append("eaa = ");

@@ -1,0 +1,364 @@
+package jdos.hardware;
+
+import jdos.gui.Render;
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+
+final public class RAM {
+    private interface RAMHandler {
+        public void free();
+        public byte readbs(/*HostPt*/int address);
+        public short readb(/*HostPt*/int address);
+        public int readw(/*HostPt*/int address);
+        public int readd(/*HostPt*/int address);
+        public void writeb(/*HostPt*/int address,/*Bit8u*/ int value);
+        public void writebs(/*HostPt*/int address, byte value);
+        public void writew(/*HostPt*/int address,/*Bit16u*/int value);
+        public void writed(/*HostPt*/int address,/*Bit32u*/int val);
+        public void memcpy(int dest, byte[] src, int srcOffset, /*Bitu*/int size);
+        public void memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size);
+        public void memcpy(Render.Render_t.SRC dst, int offset, /*PhysPt*/int src,/*Bitu*/int amount);
+        public void memcpy(/*PhysPt*/int dst,/*PhysPt*/int src,/*Bitu*/int amount);
+        public void zeroset(int dest, int size);
+        public void memset(int dest, int size, int value);
+    }
+
+    private final static class UnSafeHandler implements RAMHandler {
+        private Unsafe unsafe;
+        private long unsafeAddress;
+        private int byteArrayOffset;
+
+        public UnSafeHandler(Unsafe unsafe, int size) {
+            this.unsafe = unsafe;
+            unsafeAddress = unsafe.allocateMemory(size);
+            byteArrayOffset = unsafe.arrayBaseOffset(byte[].class);;
+        }
+
+        public void free() {
+            unsafe.freeMemory(unsafeAddress);
+        }
+
+        public byte readbs(/*HostPt*/int address) {
+            return unsafe.getByte(address + unsafeAddress);
+        }
+
+        public short readb(/*HostPt*/int address) {
+            return (short) (unsafe.getByte(address + unsafeAddress) & 0xFF);
+        }
+
+        public int readw(/*HostPt*/int address) {
+            return unsafe.getShort(address + unsafeAddress) & 0xFFFF;
+        }
+
+        public int readd(/*HostPt*/int address) {
+            return unsafe.getInt(address + unsafeAddress);
+        }
+
+        public void writeb(/*HostPt*/int address,/*Bit8u*/ int value) {
+            unsafe.putByte(address + unsafeAddress, (byte) value);
+        }
+
+        public void writebs(/*HostPt*/int address, byte value) {
+            unsafe.putByte(address + unsafeAddress, value);
+        }
+
+        public void writew(/*HostPt*/int address,/*Bit16u*/int value) {
+            unsafe.putShort(address + unsafeAddress, (short) value);
+        }
+
+        public void writed(/*HostPt*/int address,/*Bit32u*/int val) {
+            unsafe.putInt(address + unsafeAddress, val);
+        }
+
+        public void memcpy(int dest, byte[] src, int srcOffset, /*Bitu*/int size) {
+            for (int i = 0; i < size; i++)
+                writeb(dest++, src[srcOffset++]);
+            //unsafe.copyMemory(src, byteArrayOffset+srcOffset, null, dest+unsafeAddress, size);
+        }
+
+        public void memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
+            for (int i = 0; i < size; i++)
+                dest[i + dest_offset] = readbs(src + i);
+            //unsafe.copyMemory(null, unsafeAddress+src, dest, byteArrayOffset+dest_offset, size);
+        }
+
+        public void memcpy(Render.Render_t.SRC dst, int offset, /*PhysPt*/int src,/*Bitu*/int amount) {
+            if (dst.outWrite8 != null)
+                unsafe.copyMemory(null, src+unsafeAddress, dst.outWrite8, byteArrayOffset+offset, amount);
+        }
+
+        public void memcpy(/*PhysPt*/int dst,/*PhysPt*/int src,/*Bitu*/int amount) {
+            for (int i = 0; i < amount; i++) {
+                writeb(dst++, readb(src++));
+            }
+            //unsafe.copyMemory(null, unsafeAddress+src, null, unsafeAddress+dst, amount);
+        }
+
+        public void zeroset(int dest, int size) {
+            memset(dest, size, 0);
+        }
+
+        public void memset(int dest, int size, int value) {
+            byte b = (byte) value;
+            for (int i = 0; i < size; i++)
+                writeb(dest++, b);
+            //unsafe.setMemory(dest, size, (byte)value);
+        }
+    }
+
+    private final static class IntHandler implements RAMHandler {
+        int[] direct;
+
+        public IntHandler(int size) {
+            direct = new int[size >> 2];
+        }
+
+        public void free() {
+            direct = null;
+        }
+
+        public byte readbs(/*HostPt*/int address) {
+            return (byte) (direct[(address >> 2)] >>> ((address & 0x3) << 3));
+        }
+
+        public short readb(/*HostPt*/int address) {
+            return (short) ((direct[(address >>> 2)] >>> ((address & 0x3) << 3)) & 0xFF);
+        }
+
+        public int readw(/*HostPt*/int address) {
+            int rem = address & 0x3;
+            int[] local = direct;
+            int index = (address >>> 2);
+            int val = local[index] >>> (rem << 3);
+            if (rem == 3) {
+                val |= local[index + 1] << 8;
+            }
+            return val & 0xFFFF;
+        }
+
+        public int readd(/*HostPt*/int address) {
+            int rem = (address & 0x3);
+            if (rem == 0) {
+                return direct[address >>> 2];
+            }
+            int off = rem << 3;
+            int[] local = direct;
+            int index = (address >>> 2);
+            return local[index] >>> off | local[index + 1] << (32 - off);
+        }
+
+        public void writeb(/*HostPt*/int address,/*Bit8u*/ int value) {
+            int off = (address & 0x3) << 3;
+            int[] local = direct;
+            int mask = ~(0xFF << off);
+            int index = (address >>> 2);
+            int val = local[index] & mask | (value & 0xFF) << off;
+            local[index] = val;
+        }
+
+        public void writebs(/*HostPt*/int address, byte value) {
+            int off = (address & 0x3) << 3;
+            int[] local = direct;
+            int mask = ~(0xFF << off);
+            int index = (address >>> 2);
+            int val = local[index] & mask | (value & 0xFF) << off;
+            local[index] = val;
+        }
+
+        public void writew(/*HostPt*/int address,/*Bit16u*/int value) {
+            int rem = (address & 0x3);
+            int[] local = direct;
+            int index = (address >>> 2);
+            value &= 0xFFFF;
+            if (rem == 3) {
+                local[index] = (local[index] & 0xFFFFFF | value << 24);
+                index++;
+                local[index] = (local[index] & 0xFFFFFF00 | value >>> 8);
+            } else {
+                int off = rem << 3;
+                int mask = ~(0xFFFF << off);
+                local[index] = (local[index] & mask | value << off);
+            }
+        }
+
+        public void writed(/*HostPt*/int address,/*Bit32u*/int val) {
+            int rem = (address & 0x3);
+            if (rem == 0) {
+                direct[address >>> 2] = val;
+            } else {
+                int index = (address >>> 2);
+                int[] local = direct;
+                int off = rem << 3;
+                int mask = -1 << off;
+                local[index] = (local[index] & ~mask) | (val << off);
+                index++;
+                local[index] = (local[index] & mask) | (val >>> (32 - off));
+            }
+        }
+
+        public void memcpy(int dest, byte[] src, int srcOffset, /*Bitu*/int size) {
+            for (int i = 0; i < size; i++)
+                writeb(dest++, src[srcOffset++]);
+        }
+
+        public void memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
+            int begin = src & 3;
+            int end = size & ~3;
+            for (int i = 0; i < begin && i < size; i++)
+                dest[i + dest_offset] = readbs(src + i);
+            int off = dest_offset + begin;
+            int index = (src + begin) >> 2;
+            for (int i = begin; i < end && i + 3 < size; i += 4) {
+                int v = direct[index++];
+                dest[off++] = (byte) v;
+                dest[off++] = (byte) (v >> 8);
+                dest[off++] = (byte) (v >> 16);
+                dest[off++] = (byte) (v >> 24);
+            }
+            for (int i = end; i < size; i++)
+                dest[i + dest_offset] = readbs(src + i);
+        }
+
+        public void memcpy(Render.Render_t.SRC dst, int offset, /*PhysPt*/int src,/*Bitu*/int amount) {
+            if (dst.outWrite8 != null) {
+                for (int i = 0; i < amount; i++)
+                    dst.outWrite8[i + offset] = readbs(src + i);
+            } else if (dst.outWrite16 != null) {
+                offset >>= 1;
+                amount >>= 1;
+                for (int i = 0; i < amount; i++) {
+                    dst.outWrite16[i + offset] = (short) readw(src);
+                    src += 2;
+                }
+            } else if (dst.outWrite32 != null) {
+                offset >>= 2;
+                amount >>= 2;
+                for (int i = 0; i < amount; i++) {
+                    dst.outWrite32[i + offset] = readd(src);
+                    src += 4;
+                }
+            }
+        }
+
+        public void memcpy(/*PhysPt*/int dst,/*PhysPt*/int src,/*Bitu*/int amount) {
+            int src_align = src & 0x3;
+            int dst_align = dst & 0x3;
+            if (src_align == dst_align) {
+                while ((src & 0x3) > 0 && amount > 0) {
+                    writeb(dst++, readb(src++));
+                    amount--;
+                }
+                int len = (amount >>> 2);
+                if (len > 0)
+                    System.arraycopy(direct, src >>> 2, direct, dst >>> 2, len);
+                len = len << 2;
+                if (len == amount)
+                    return;
+                dst += len;
+                src += len;
+                amount -= len;
+            }
+
+            for (int i = 0; i < amount; i++) {
+                writeb(dst++, readb(src++));
+            }
+        }
+
+        public void zeroset(int dest, int size) {
+            memset(dest, size, 0);
+        }
+
+        public void memset(int dest, int size, int value) {
+            if ((dest & 0x3) == 0) {
+                int index = (dest >>> 2);
+                int len = (size >>> 2);
+                value &= 0xFF;
+                Arrays.fill(direct, index, index + len, (value << 24) | (value << 16) | (value << 8) | value);
+                size = (size & 0x3) << 3;
+                dest += len << 2;
+            }
+            byte b = (byte) value;
+            for (int i = 0; i < size; i++)
+                writeb(dest++, b);
+        }
+    }
+
+    private static RAMHandler handler;
+
+    static void alloc(int size) {
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Unsafe unsafe = (Unsafe) theUnsafe.get(null);
+            if (unsafe!=null)
+                handler = new UnSafeHandler(unsafe, size);
+        } catch (Exception e) {
+            System.out.println("Unsafe library not available, using fallback for RAM access");
+        }
+        if (handler == null) {
+            handler = new IntHandler(size);
+        }
+    }
+
+    static void free() {
+        handler.free();
+    }
+
+    public static byte readbs(/*HostPt*/int address) {
+        return handler.readbs(address);
+    }
+
+    public static /*Bit8u*/short readb(/*HostPt*/int address) {
+        return handler.readb(address);
+    }
+
+    public static /*Bit16u*/int readw(/*HostPt*/int address) {
+        return handler.readw(address);
+    }
+
+    public static /*Bit32u*/int readd(/*HostPt*/int address) {
+        return handler.readd(address);
+    }
+
+    public static void writeb(/*HostPt*/int address,/*Bit8u*/ int value) {
+        handler.writeb(address, value);
+    }
+
+    public static void writebs(/*HostPt*/int address, byte value) {
+        handler.writebs(address, value);
+    }
+
+    public static void writew(/*HostPt*/int address,/*Bit16u*/int value) {
+        handler.writew(address, value);
+    }
+
+    public static void writed(/*HostPt*/int address,/*Bit32u*/int val) {
+        handler.writed(address, val);
+    }
+
+    static public void memcpy(int dest, byte[] src, int srcOffset, /*Bitu*/int size) {
+        handler.memcpy(dest, src, srcOffset, size);
+    }
+
+    static public void memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
+        handler.memcpy(dest, dest_offset, src, size);
+    }
+
+    static public void memcpy(Render.Render_t.SRC dst, int offset, /*PhysPt*/int src,/*Bitu*/int amount) {
+        handler.memcpy(dst, offset, src, amount);
+    }
+
+    static public void memcpy(/*PhysPt*/int dst,/*PhysPt*/int src,/*Bitu*/int amount) {
+        handler.memcpy(dst, src, amount);
+    }
+
+    static public void zeroset(int dest, int size) {
+        handler.zeroset(dest, size);
+    }
+
+    static public void memset(int dest, int size, int value) {
+        handler.memset(dest, size, value);
+    }
+}

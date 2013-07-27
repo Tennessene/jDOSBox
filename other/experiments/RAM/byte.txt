@@ -1,0 +1,81 @@
+package jdos.hardware;
+
+import jdos.gui.Render;
+
+import java.util.Arrays;
+
+final public class RAM {
+    public static byte[] direct;
+
+    static void alloc(int size) {
+        direct = new byte[size];
+    }
+
+    static void free() {
+        direct = null;
+    }
+
+    public static byte readbs(/*HostPt*/int address) {
+        return direct[address];
+    }
+
+    public static /*Bit8u*/short readb(/*HostPt*/int address) {
+        return (short) (direct[address] & 0xFF);
+    }
+
+    public static /*Bit16u*/int readw(/*HostPt*/int address) {
+        return (direct[address] & 0xFF) | ((direct[address+1] & 0xFF) << 8);
+    }
+
+    public static /*Bit32u*/int readd(/*HostPt*/int address) {
+        return (direct[address] & 0xFF) | ((direct[address+1] & 0xFF) << 8) | ((direct[address+2] & 0xFF) << 16) | ((direct[address+3] & 0xFF) << 24);
+    }
+
+    public static void writeb(/*HostPt*/int address,/*Bit8u*/ int value) {
+        direct[address] = (byte)value;
+    }
+
+    public static void writebs(/*HostPt*/int address, byte value) {
+        direct[address] = value;
+    }
+
+    public static void writew(/*HostPt*/int address,/*Bit16u*/int value) {
+        direct[address]=(byte)(value);
+        direct[address+1]=(byte)((value >> 8));
+    }
+
+    public static void writed(/*HostPt*/int address,/*Bit32u*/int val) {
+        direct[address]=(byte)(val);
+        direct[address+1]=(byte)((val >> 8));
+        direct[address+2]=(byte)((val >> 16));
+        direct[address+3]=(byte)((val >> 24));
+    }
+
+    static public void memcpy(int dest, byte[] src, int srcOffset, /*Bitu*/int size) {
+        System.arraycopy(src, srcOffset, direct, dest, size);
+    }
+
+    static public void memcpy(byte[] dest, int dest_offset, /*PhysPt*/int src,/*Bitu*/int size) {
+        System.arraycopy(direct, src, dest, dest_offset, size);
+    }
+
+    static public void memcpy(Render.Render_t.SRC dst, int offset, /*PhysPt*/int src,/*Bitu*/int amount) {
+        if (dst.outWrite8 != null) {
+            System.arraycopy(direct, src, dst.outWrite8, offset, amount);
+        } else if (dst.outWrite16 != null) {
+        } else if (dst.outWrite32 != null) {
+        }
+    }
+
+    static public void memcpy(/*PhysPt*/int dst,/*PhysPt*/int src,/*Bitu*/int amount) {
+        System.arraycopy(direct, src, direct, dst, amount);
+    }
+
+    static public void zeroset(int dest, int size) {
+        memset(dest, size, 0);
+    }
+
+    static public void memset(int dest, int size, int value) {
+        Arrays.fill(direct, dest, dest+size, (byte)value);
+    }
+}

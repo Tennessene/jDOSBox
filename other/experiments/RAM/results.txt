@@ -1,0 +1,14 @@
+This is a test using the command "doom -timedemo demo1" on a Core i7 920 runinging Java 7 32-bit
+
+version .28 2071
+if          2329 2316 - if statement to choose unsafe or int[] since unsafe may not always be available
+virtual     2161 2167 - use an interface to make RAM calls so that it could be backed by int[] or unsafe
+unsafe      2092 1998 - use of sun.misc.Unsafe
+int         2212 2231 - use of int[]
+public      2135 2132 - use of int[] with Paging.mem_writed_inline bypass
+byte        2298 2298 - use of byte[]
+final if    2181 2169 - same as if test, but made unsafeAvailable final
+unsafe hack 1860      - same as unsafe but removed page boundry checks like: if ((address & 0xfff) < 0xffd). Obviously this is a broken design, but I wanted to test how much that if statement affected performance
+
+
+It's interesting that the unsafe hack showed that 5% of time is spent checking page boundries

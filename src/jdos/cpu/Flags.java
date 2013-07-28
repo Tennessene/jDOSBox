@@ -126,14 +126,9 @@ public class Flags {
         public boolean ZF();
         public boolean SF();
         public boolean OF();
-        public boolean PF();
     }
 
-    static abstract public class ParityFlags implements GetFlags {
-        public boolean PF() {return (parity_lookup[lf_resb() & 0xFF]) != 0;}
-    }
-
-    final static public ParityFlags t_INCb = new ParityFlags() {
+    final static public GetFlags t_INCb = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return (lf_resb() & 0x0f) == 0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -141,7 +136,7 @@ public class Flags {
         public boolean OF() {return (lf_resb() == 0x80);}
     };
 
-    final static public ParityFlags t_INCw = new ParityFlags() {
+    final static public GetFlags t_INCw = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return (lf_resw() & 0x0f) == 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -149,7 +144,7 @@ public class Flags {
         public boolean OF() {return (lf_resw() == 0x8000);}
     };
 
-    final static public ParityFlags t_INCd = new ParityFlags() {
+    final static public GetFlags t_INCd = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return (lf_resd() & 0x0f) == 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -157,7 +152,7 @@ public class Flags {
         public boolean OF() {return (lf_resd() == 0x80000000);}
     };
 
-    final static public ParityFlags t_DECb = new ParityFlags() {
+    final static public GetFlags t_DECb = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return (lf_resb() & 0x0f) == 0x0f;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -165,7 +160,7 @@ public class Flags {
         public boolean OF() {return (lf_resb() == 0x7f);}
     };
 
-    final static public ParityFlags t_DECw = new ParityFlags() {
+    final static public GetFlags t_DECw = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return (lf_resw() & 0x0f) == 0x0f;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -173,7 +168,7 @@ public class Flags {
         public boolean OF() {return (lf_resw() == 0x7fff);}
     };
 
-    final static public ParityFlags t_DECd = new ParityFlags() {
+    final static public GetFlags t_DECd = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return (lf_resd() & 0x0f) == 0x0f;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -181,7 +176,7 @@ public class Flags {
         public boolean OF() {return (lf_resd() == 0x7fffffff);}
     };
 
-    final static public ParityFlags t_ADDb = new ParityFlags() {
+    final static public GetFlags t_ADDb = new GetFlags() {
         public boolean CF() {return (lf_resb()<lf_var1b());}
         public boolean AF() {return (((lf_var1b() ^ lf_var2b()) ^ lf_resb()) & 0x10) !=0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -189,7 +184,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1b() ^ lf_var2b() ^ 0x80) & (lf_resb() ^ lf_var2b())) & 0x80) != 0;}
     };
 
-    final static public ParityFlags t_ADDw = new ParityFlags() {
+    final static public GetFlags t_ADDw = new GetFlags() {
         public boolean CF() {return (lf_resw()<lf_var1w());}
         public boolean AF() {return (((lf_var1w() ^ lf_var2w()) ^ lf_resw()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -197,7 +192,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1w() ^ lf_var2w() ^ 0x8000) & (lf_resw() ^ lf_var2w())) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_ADDd = new ParityFlags() {
+    final static public GetFlags t_ADDd = new GetFlags() {
         public boolean CF() {return ((lf_resd() & 0xFFFFFFFFl)<(lf_var1d() & 0xFFFFFFFFl));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -205,7 +200,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1d() ^ lf_var2d() ^ 0x80000000) & (lf_resd() ^ lf_var2d())) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_ADCb = new ParityFlags() {
+    final static public GetFlags t_ADCb = new GetFlags() {
         public boolean CF() {return (lf_resb() < lf_var1b()) || (oldcf && (lf_resb() == lf_var1b()));}
         public boolean AF() {return (((lf_var1b() ^ lf_var2b()) ^ lf_resb()) & 0x10) !=0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -213,7 +208,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1b() ^ lf_var2b() ^ 0x80) & (lf_resb() ^ lf_var2b())) & 0x80) != 0;}
     };
 
-    final static public ParityFlags t_ADCw = new ParityFlags() {
+    final static public GetFlags t_ADCw = new GetFlags() {
         public boolean CF() {return (lf_resw() < lf_var1w()) || (oldcf && (lf_resw() == lf_var1w()));}
         public boolean AF() {return (((lf_var1w() ^ lf_var2w()) ^ lf_resw()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -221,7 +216,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1w() ^ lf_var2w() ^ 0x8000) & (lf_resw() ^ lf_var2w())) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_ADCd = new ParityFlags() {
+    final static public GetFlags t_ADCd = new GetFlags() {
         public boolean CF() {return ((lf_resd() & 0xFFFFFFFFl) < (lf_var1d() & 0xFFFFFFFFl)) || (oldcf && (lf_resd() == lf_var1d()));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -229,7 +224,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1d() ^ lf_var2d() ^ 0x80000000) & (lf_resd() ^ lf_var2d())) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_ORb = new ParityFlags() {
+    final static public GetFlags t_ORb = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -237,7 +232,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_ORw = new ParityFlags() {
+    final static public GetFlags t_ORw = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -245,7 +240,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_ORd = new ParityFlags() {
+    final static public GetFlags t_ORd = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -253,7 +248,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_ANDb = new ParityFlags() {
+    final static public GetFlags t_ANDb = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -261,7 +256,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_ANDw = new ParityFlags() {
+    final static public GetFlags t_ANDw = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -269,7 +264,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_ANDd = new ParityFlags() {
+    final static public GetFlags t_ANDd = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -277,7 +272,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_TESTb = new ParityFlags() {
+    final static public GetFlags t_TESTb = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -285,7 +280,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_TESTw = new ParityFlags() {
+    final static public GetFlags t_TESTw = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -293,7 +288,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_TESTd = new ParityFlags() {
+    final static public GetFlags t_TESTd = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -301,7 +296,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_XORb = new ParityFlags() {
+    final static public GetFlags t_XORb = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -309,7 +304,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_XORw = new ParityFlags() {
+    final static public GetFlags t_XORw = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -317,7 +312,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_XORd = new ParityFlags() {
+    final static public GetFlags t_XORd = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -325,7 +320,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_SUBb = new ParityFlags() {
+    final static public GetFlags t_SUBb = new GetFlags() {
         public boolean CF() {return (lf_var1b()<lf_var2b());}
         public boolean AF() {return (((lf_var1b() ^ lf_var2b()) ^ lf_resb()) & 0x10) !=0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -333,7 +328,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1b() ^ lf_var2b()) & (lf_var1b() ^ lf_resb())) & 0x80) != 0;}
     };
 
-    final static public ParityFlags t_SUBw = new ParityFlags() {
+    final static public GetFlags t_SUBw = new GetFlags() {
         public boolean CF() {return (lf_var1w()<lf_var2w());}
         public boolean AF() {return (((lf_var1w() ^ lf_var2w()) ^ lf_resw()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -341,7 +336,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1w() ^ lf_var2w()) & (lf_var1w() ^ lf_resw())) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_SUBd = new ParityFlags() {
+    final static public GetFlags t_SUBd = new GetFlags() {
         public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFl)<(lf_var2d() & 0xFFFFFFFFl));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -349,7 +344,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1d() ^ lf_var2d()) & (lf_var1d() ^ lf_resd())) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_CMPb = new ParityFlags() {
+    final static public GetFlags t_CMPb = new GetFlags() {
         public boolean CF() {return (lf_var1b()<lf_var2b());}
         public boolean AF() {return (((lf_var1b() ^ lf_var2b()) ^ lf_resb()) & 0x10) !=0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -357,7 +352,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1b() ^ lf_var2b()) & (lf_var1b() ^ lf_resb())) & 0x80) != 0;}
     };
 
-    final static public ParityFlags t_CMPw = new ParityFlags() {
+    final static public GetFlags t_CMPw = new GetFlags() {
         public boolean CF() {return (lf_var1w()<lf_var2w());}
         public boolean AF() {return (((lf_var1w() ^ lf_var2w()) ^ lf_resw()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -365,7 +360,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1w() ^ lf_var2w()) & (lf_var1w() ^ lf_resw())) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_CMPd = new ParityFlags() {
+    final static public GetFlags t_CMPd = new GetFlags() {
         public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFl)<(lf_var2d() & 0xFFFFFFFFl));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -373,7 +368,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1d() ^ lf_var2d()) & (lf_var1d() ^ lf_resd())) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_SBBb = new ParityFlags() {
+    final static public GetFlags t_SBBb = new GetFlags() {
         public boolean CF() {return (lf_var1b() < lf_resb()) || (oldcf && (lf_var2b()==0xff));}
         public boolean AF() {return (((lf_var1b() ^ lf_var2b()) ^ lf_resb()) & 0x10) !=0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -381,7 +376,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1b() ^ lf_var2b()) & (lf_var1b() ^ lf_resb())) & 0x80) != 0;}
     };
 
-    final static public ParityFlags t_SBBw = new ParityFlags() {
+    final static public GetFlags t_SBBw = new GetFlags() {
         public boolean CF() {return (lf_var1w() < lf_resw()) || (oldcf && (lf_var2w()==0xffff));}
         public boolean AF() {return (((lf_var1w() ^ lf_var2w()) ^ lf_resw()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -389,7 +384,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1w() ^ lf_var2w()) & (lf_var1w() ^ lf_resw())) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_SBBd = new ParityFlags() {
+    final static public GetFlags t_SBBd = new GetFlags() {
         public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFl) < (lf_resd() & 0xFFFFFFFFl)) || (oldcf && (lf_var2d()==0xffffffff));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -397,7 +392,7 @@ public class Flags {
         public boolean OF() {return (((lf_var1d() ^ lf_var2d()) & (lf_var1d() ^ lf_resd())) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_MUL = new ParityFlags() {
+    final static public GetFlags t_MUL = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return false;}
         public boolean ZF() {return false;}
@@ -405,7 +400,7 @@ public class Flags {
         public boolean OF() {return CPU_Regs.GETFLAG(CPU_Regs.OF) != 0;}
     };
 
-    final static public ParityFlags t_SHLb = new ParityFlags() {
+    final static public GetFlags t_SHLb = new GetFlags() {
         public boolean CF() {return lf_var2b()<=8 && ((lf_var1b() >> (8-lf_var2b())) & 1)!=0;}
         public boolean AF() {return (lf_var2b() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -413,7 +408,7 @@ public class Flags {
         public boolean OF() {return ((lf_resb() ^ lf_var1b()) & 0x80) != 0;}
     };
 
-    final static public ParityFlags t_SHLw = new ParityFlags() {
+    final static public GetFlags t_SHLw = new GetFlags() {
         public boolean CF() {return lf_var2b()<=16 && ((lf_var1w()) >> (16-lf_var2b()) & 1)!=0;}
         public boolean AF() {return (lf_var2w() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -421,7 +416,7 @@ public class Flags {
         public boolean OF() {return ((lf_resw() ^ lf_var1w()) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_SHLd = new ParityFlags() {
+    final static public GetFlags t_SHLd = new GetFlags() {
         public boolean CF() {return ((lf_var1d() >>> (32 - lf_var2b())) & 1) != 0;}
         public boolean AF() {return (lf_var2d() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -429,7 +424,7 @@ public class Flags {
         public boolean OF() {return ((lf_resd() ^ lf_var1d()) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_SHRb = new ParityFlags() {
+    final static public GetFlags t_SHRb = new GetFlags() {
         public boolean CF() {return ((lf_var1b() >> (lf_var2b() - 1)) & 1) !=0;}
         public boolean AF() {return (lf_var2b() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -437,7 +432,7 @@ public class Flags {
         public boolean OF() {return (lf_var2b()&0x1f)==1 && lf_var1b() > 0x80;}
     };
 
-    final static public ParityFlags t_SHRw = new ParityFlags() {
+    final static public GetFlags t_SHRw = new GetFlags() {
         public boolean CF() {return ((lf_var1w() >> (lf_var2b() - 1)) & 1) !=0;}
         public boolean AF() {return (lf_var2w() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -445,7 +440,7 @@ public class Flags {
         public boolean OF() {return (lf_var2b()&0x1f)==1 && lf_var1w() > 0x8000;}
     };
 
-    final static public ParityFlags t_SHRd = new ParityFlags() {
+    final static public GetFlags t_SHRd = new GetFlags() {
         public boolean CF() {return ((lf_var1d() >>> (lf_var2b() - 1)) & 1) != 0;}
         public boolean AF() {return (lf_var2d() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -453,7 +448,7 @@ public class Flags {
         public boolean OF() {return (lf_var2b()&0x1f)==1 && (lf_var1d() & 0xFFFFFFFFl) > 0x80000000l;}
     };
 
-    final static public ParityFlags t_SARb = new ParityFlags() {
+    final static public GetFlags t_SARb = new GetFlags() {
         public boolean CF() {return (((lf_var1b()) >> (lf_var2b() - 1)) & 1) != 0;}
         public boolean AF() {return (lf_var2b() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -461,7 +456,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_SARw = new ParityFlags() {
+    final static public GetFlags t_SARw = new GetFlags() {
         public boolean CF() {return (((lf_var1w()) >> (lf_var2b() - 1)) & 1) != 0;}
         public boolean AF() {return (lf_var2w() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -469,7 +464,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_SARd = new ParityFlags() {
+    final static public GetFlags t_SARd = new GetFlags() {
         public boolean CF() {return (((lf_var1d()) >> (lf_var2b() - 1)) & 1) != 0;}
         public boolean AF() {return (lf_var2d() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -477,7 +472,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_DSHLw = new ParityFlags() {
+    final static public GetFlags t_DSHLw = new GetFlags() {
         public boolean CF() {return ((lf_var1d() >>> (32 - lf_var2b())) & 1) != 0;} /* Hmm this is not correct for shift higher than 16 */
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -485,7 +480,7 @@ public class Flags {
         public boolean OF() {return ((lf_resw() ^ lf_var1w()) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_DSHLd = new ParityFlags() {
+    final static public GetFlags t_DSHLd = new GetFlags() {
         public boolean CF() {return ((lf_var1d() >>> (32 - lf_var2b())) & 1) != 0;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -493,7 +488,7 @@ public class Flags {
         public boolean OF() {return ((lf_resd() ^ lf_var1d()) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_DSHRw = new ParityFlags() {
+    final static public GetFlags t_DSHRw = new GetFlags() {
         public boolean CF() {return ((lf_var1d() >>> (lf_var2b() - 1)) & 1) != 0;} /* Hmm this is not correct for shift higher than 16 */
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -501,7 +496,7 @@ public class Flags {
         public boolean OF() {return ((lf_resw() ^ lf_var1w()) & 0x8000) != 0;}
     };
 
-    final static public ParityFlags t_DSHRd = new ParityFlags() {
+    final static public GetFlags t_DSHRd = new GetFlags() {
         public boolean CF() {return ((lf_var1d() >>> (lf_var2b() - 1)) & 1) != 0;}
         public boolean AF() {return false;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -509,7 +504,7 @@ public class Flags {
         public boolean OF() {return ((lf_resd() ^ lf_var1d()) & 0x80000000) != 0;}
     };
 
-    final static public ParityFlags t_DIV = new ParityFlags() {
+    final static public GetFlags t_DIV = new GetFlags() {
         public boolean CF() {return false;}
         public boolean AF() {return false;}
         public boolean ZF() {return false;}
@@ -517,7 +512,7 @@ public class Flags {
         public boolean OF() {return false;}
     };
 
-    final static public ParityFlags t_NEGb = new ParityFlags() {
+    final static public GetFlags t_NEGb = new GetFlags() {
         public boolean CF() {return lf_var1b() != 0;}
         public boolean AF() {return (lf_var1b() & 0x0f) != 0;}
         public boolean ZF() {return (lf_resb()==0);}
@@ -525,7 +520,7 @@ public class Flags {
         public boolean OF() {return (lf_var1b() == 0x80);}
     };
 
-    final static public ParityFlags t_NEGw = new ParityFlags() {
+    final static public GetFlags t_NEGw = new GetFlags() {
         public boolean CF() {return lf_var1w() != 0;}
         public boolean AF() {return (lf_var1w() & 0x0f) != 0;}
         public boolean ZF() {return (lf_resw()==0);}
@@ -533,7 +528,7 @@ public class Flags {
         public boolean OF() {return (lf_var1w() == 0x8000);}
     };
 
-    final static public ParityFlags t_NEGd = new ParityFlags() {
+    final static public GetFlags t_NEGd = new GetFlags() {
         public boolean CF() {return lf_var1d() != 0;}
         public boolean AF() {return (lf_var1d() & 0x0f) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
@@ -591,7 +586,7 @@ public class Flags {
         };
 
     static public boolean get_PF() {
-        return type.PF();
+        return (parity_lookup[lf_resb() & 0xFF]) != 0;
     }
 
     static public boolean TFLG_O() {
@@ -669,7 +664,7 @@ public class Flags {
             SET_FLAG(CPU_Regs.ZF,type.ZF());
             SET_FLAG(CPU_Regs.SF,type.SF());
             SET_FLAG(CPU_Regs.OF,type.OF());
-            SET_FLAG(CPU_Regs.PF,type.PF());
+            SET_FLAG(CPU_Regs.PF,(parity_lookup[lf_resb() & 0xFF]) != 0);
             type=t_UNKNOWN;
         }
         return CPU_Regs.flags;
@@ -680,8 +675,7 @@ public class Flags {
             SET_FLAG(CPU_Regs.AF,type.AF());
             SET_FLAG(CPU_Regs.ZF,type.ZF());
             SET_FLAG(CPU_Regs.SF,type.SF());
-            SET_FLAG(CPU_Regs.OF,type.OF());
-            SET_FLAG(CPU_Regs.PF,type.PF());
+            SET_FLAG(CPU_Regs.PF,(parity_lookup[lf_resb() & 0xFF]) != 0);
             type=t_UNKNOWN;
         }
     }

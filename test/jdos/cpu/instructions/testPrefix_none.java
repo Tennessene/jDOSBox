@@ -5,6 +5,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Flags;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 
 public class testPrefix_none extends InstructionsTestCase{
     // 0x00

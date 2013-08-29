@@ -8,7 +8,6 @@ public class Flags {
         public boolean ZF() {return CPU_Regs.GETFLAG(CPU_Regs.ZF) != 0;}
         public boolean SF() {return CPU_Regs.GETFLAG(CPU_Regs.SF) != 0;}
         public boolean OF() {return CPU_Regs.GETFLAG(CPU_Regs.OF) != 0;}
-        public boolean PF() {return CPU_Regs.GETFLAG(CPU_Regs.PF) != 0;}
     };
 
     public static int var1;
@@ -586,7 +585,10 @@ public class Flags {
         };
 
     static public boolean get_PF() {
-        return (parity_lookup[lf_resb() & 0xFF]) != 0;
+        if (type != t_UNKNOWN) {
+            return (parity_lookup[lf_resb() & 0xFF]) != 0;
+        }
+        return CPU_Regs.GETFLAG(CPU_Regs.PF)!=0;
     }
 
     static public boolean TFLG_O() {

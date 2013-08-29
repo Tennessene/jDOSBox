@@ -3,7 +3,7 @@ package jdos.cpu.instructions;
 import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Flags;
-import jdos.hardware.Memory;
+import jdos.hardware.RAM;
 
 public class testPrefix_66 extends InstructionsTestCase {
     // 0x201

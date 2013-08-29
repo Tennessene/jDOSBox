@@ -6,6 +6,7 @@ import jdos.cpu.core_dynamic.DecodeBlock;
 import jdos.cpu.core_dynamic.Mod;
 import jdos.hardware.Memory;
 import jdos.hardware.Pic;
+import jdos.hardware.RAM;
 import jdos.misc.setup.*;
 import junit.framework.TestCase;
 
@@ -23,7 +24,7 @@ abstract public class InstructionsTestCase extends TestCase {
         CPU_Regs.reg_eip = cseip-0x10000;
         CPU.CPU_Cycles = 1;
         if (op>0x200) {
-            RAM.writebs(cseip++, (byte)0x66);
+            RAM.writebs(cseip++, (byte) 0x66);
         }
         RAM.writebs(cseip++, (byte)op);
         CPU.Segs_ESphys=0;

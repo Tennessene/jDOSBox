@@ -2612,8 +2612,8 @@ public class Prefix_none extends Helper {
                             case 4:
                             {
                                 switch (rm & 7) {
-                                    case 2:prev.next = new InstFPU.FNCLEX();
-                                    case 3:prev.next = new InstFPU.FNINIT();
+                                    case 2:prev.next = new InstFPU.FNCLEX(); break;
+                                    case 3:prev.next = new InstFPU.FNINIT(); break;
                                     default:prev.next = new Inst1.FPU3_normal(rm);
 
                                 }

@@ -231,11 +231,13 @@ public class Keyboard {
             if ((keyb.used+4) < KEYBUFSIZE) {
                 int x,y;
 
-                x = (int)(keyb.ps2mouse.acx * (1 << keyb.ps2mouse.resolution));
+                //x = (int)(keyb.ps2mouse.acx * (1 << keyb.ps2mouse.resolution));
+                x = (int)keyb.ps2mouse.acx;
                 if (x < -256) x = -256;
                 else if (x > 255) x = 255;
 
-                y = -((int)(keyb.ps2mouse.acy * (1 << keyb.ps2mouse.resolution)));
+                // y = -((int)(keyb.ps2mouse.acy * (1 << keyb.ps2mouse.resolution)));
+                y = -(int)keyb.ps2mouse.acy;
                 if (y < -256) y = -256;
                 else if (y > 255) y = 255;
 
@@ -532,7 +534,7 @@ public class Keyboard {
                 keyb.aux_command = ACMD_NONE;
                 KEYBOARD_AddBuffer(AUX|0xfa);	/* ack */
                 keyb.ps2mouse.resolution = val & 3;
-                Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse resolution set to"+(1 << (val&3)));
+                Log.log(LogTypes.LOG_KEYBOARD, LogSeverities.LOG_NORMAL,"PS/2 mouse resolution set to "+(1 << (val&3)));
                 break;
         }
     }

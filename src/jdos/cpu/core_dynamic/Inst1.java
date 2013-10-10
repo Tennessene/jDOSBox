@@ -2443,7 +2443,7 @@ public class Inst1 extends Helper {
         }
 
         public int sets() {
-            return 0;
+            return 0; // :TODO: what about cmp
         }
 
         public int gets() {

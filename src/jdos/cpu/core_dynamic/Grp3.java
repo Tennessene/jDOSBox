@@ -1004,7 +1004,7 @@ public class Grp3 extends Helper {
         }
 
         public int sets() {
-            return CPU_Regs.CF | CPU_Regs.OF;
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
         public int gets() {
@@ -1032,7 +1032,7 @@ public class Grp3 extends Helper {
         }
 
         public int sets() {
-            return CPU_Regs.CF | CPU_Regs.OF;
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
         public int gets() {
@@ -1059,7 +1059,7 @@ public class Grp3 extends Helper {
         }
 
         public int sets() {
-            return CPU_Regs.CF | CPU_Regs.OF;
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
         public int gets() {
@@ -1087,7 +1087,7 @@ public class Grp3 extends Helper {
         }
 
         public int sets() {
-            return CPU_Regs.CF | CPU_Regs.OF;
+            return CPU_Regs.CF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
         public int gets() {

@@ -79,7 +79,7 @@ public class WinSystem {
                 StaticData.screen = new JavaBitmap(bi, dwBPP, dwWidth, dwHeight, JavaBitmap.getDefaultPalette());
             else
                 StaticData.screen.set(bi, dwBPP, dwWidth, dwHeight, JavaBitmap.getDefaultPalette()); // existing dc's will be point to screen, so update it instead of assigning a new one
-            Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, dwBPP);
+            Main.GFX_SetSize(dwWidth, dwHeight, dwWidth, dwHeight, false, dwBPP);
         }
     }
 

@@ -849,7 +849,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
                 return;
             }
             if (hack_check(addr)) {
-                Log.log_msg("Page attributes modified without clear");
+                //Log.log_msg("Page attributes modified without clear");
                 PAGING_ClearTLB();
                 Memory.mem_writew(addr, val);
                 return;

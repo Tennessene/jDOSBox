@@ -5,7 +5,6 @@ import jdos.misc.Log;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
 import jdos.sdl.JavaMapper;
-import jdos.util.IntRef;
 import jdos.util.Ptr;
 
 public class Render {
@@ -72,6 +71,8 @@ public class Render {
         public boolean active;
         public boolean aspect;
         public boolean fullFrame;
+        public int scale = 2;
+        public boolean scaleForced = false;
     }
 
     static public Render_t render;
@@ -196,11 +197,15 @@ public class Render {
         /*Bitu*/int width=render.src.width;
         /*Bitu*/int height=render.src.height;
 
-        if (render.src.dblw)
+        if (render.src.dblh && render.src.dblw || (render.scaleForced && !render.src.dblh && !render.src.dblw)) {
+            width*=render.scale;
+            height*=render.scale;
+        } else if (render.src.dblw) {
             width*=2;
-        if (render.src.dblh)
+        } else if (render.src.dblh) {
             height*=2;
-        Main.GFX_SetSize(width,height,Render.render.aspect,Render.render.src.dblh,Render.render.src.dblw,Render.render.src.bpp);
+        }
+        Main.GFX_SetSize(width,height, render.src.width, render.src.height, Render.render.aspect,Render.render.src.bpp);
 
         /* Reset the palette change detection to it's initial value */
         render.pal.first= 0;
@@ -302,6 +307,17 @@ public class Render {
             if (render.frameskip.max<0) {
                 render.frameskip.max = 0;
                 render.frameskip.auto = true;
+            }
+            String scaler = section.Get_string("scaler").toLowerCase();
+            if (scaler.startsWith("normal2x")) {
+                render.scale = 2;
+            } else if (scaler.startsWith("normal3x")) {
+                render.scale = 3;
+            } else {
+                render.scale = 1;
+            }
+            if (scaler.contains("forced")) {
+                render.scaleForced = true;
             }
             render.frameskip.count=0;
 

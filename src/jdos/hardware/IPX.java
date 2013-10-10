@@ -15,11 +15,12 @@ import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
 import jdos.util.IntRef;
-import jdos.util.LongRef;
 import jdos.util.StringHelper;
 
 import java.io.*;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public class IPX extends Module_base {
     static final int SOCKETTABLESIZE = 150; // DOS IPX driver was limited to 150 open sockets
@@ -808,7 +809,6 @@ public class IPX extends Module_base {
                 receivePacket(receiverThread.recvBuffer, length);
         }
     };
-
 
     static private void DisconnectFromServer(boolean unexpected) {
         if(unexpected) Log.log_msg("IPX: Server disconnected unexpectedly");

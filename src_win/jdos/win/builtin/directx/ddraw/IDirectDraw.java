@@ -438,7 +438,7 @@ public class IDirectDraw extends IUnknown {
             IDirectDrawSurface.setData(StaticData.currentPrimarySurface, IDirectDrawSurface.OFFSET_DESC+0x10, dwWidth*dwBPP/8);
             IDirectDrawSurface.setData(StaticData.currentPrimarySurface, IDirectDrawSurface.OFFSET_DESC+0x54, dwBPP);
         }
-        Main.GFX_SetSize(dwWidth, dwHeight, false, false, false, 32);
+        Main.GFX_SetSize(dwWidth, dwHeight, dwWidth, dwHeight, false, 32);
         WinPos.SetWindowPos(StaticData.ddrawWindow, 0, 0, 0, dwWidth, dwHeight, SWP_NOZORDER | SWP_NOACTIVATE);
         WinWindow.get(StaticData.desktopWindow).rectWindow.set(0, 0, dwWidth, dwHeight);
         WinWindow.get(StaticData.desktopWindow).rectClient.set(0, 0, dwWidth, dwHeight);

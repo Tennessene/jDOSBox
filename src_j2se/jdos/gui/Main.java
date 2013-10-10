@@ -1,8 +1,6 @@
 package jdos.gui;
 
-import jdos.hardware.Memory;
 import jdos.ints.Mouse;
-import jdos.util.IntRef;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -220,17 +218,15 @@ public class Main extends MainBase {
         static int front = 0;
         static int back = 1;
 
-        static public /*Bitu*/void GFX_SetSize(/*Bitu*/int width,/*Bitu*/int height,boolean aspect, boolean dblh, boolean dblw, int bpp) {
-            buffer_width = screen_width = width;
-            buffer_height = screen_height = height;
+        static public /*Bitu*/void GFX_SetSize(int screenWidth, int screenHeight, int width, int height, boolean aspect, int bpp) {
+            buffer_width = width;
+            buffer_height = height;
+            screen_height=screenHeight;
+            screen_width=screenWidth;
             if (Render.render.aspect) {
                 screen_height = screen_width*3/4;
             }
             gui.setSize(screen_width, screen_height);
-            if (Render.render.src.dblh)
-                buffer_height /= 2;
-            if (Render.render.src.dblw)
-                buffer_width /= 2;
             updateBuffers(bpp);
         }
 

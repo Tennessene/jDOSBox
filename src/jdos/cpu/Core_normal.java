@@ -44,6 +44,26 @@ public class Core_normal extends Prefix_66_0f {
         rep_zero = state.rep_zero;
     }
 
+    static public final String[] desc = new String[] {
+            "ADD",      "ADD",      "ADD",      "ADD",      "ADD",      "ADD",      "PUSH ES",  "POP ES",
+            "OR",       "OR",       "OR",       "OR",       "OR",       "OR",       "PUSH CS",  "2 byte",
+            "ADC",      "ADC",      "ADC",      "ADC",      "ADC",      "ADC",      "PUSH SS",  "POP SS",
+            "SBB",      "SBB",      "SBB",      "SBB",      "SBB",      "SBB",      "PUSH DS",  "POP DS",
+            "AND",      "AND",      "ABD",      "ABD",      "ABD",      "ABD",      "SEG ES",   "DAA",
+            "SUB",      "SUB",      "SUB",      "SUB",      "SUB",      "SUB",      "SEG CS",   "DAS",
+            "XOR",      "XOR",      "XOR",      "XOR",      "XOR",      "XOR",      "SEG SS",   "AAA",
+            "CMP",      "CMP",      "CMP",      "CMP",      "CMP",      "CMP",      "SEG DS",   "AAS",
+            "INC",      "INC",      "INC",      "INC",      "INC",      "INC",      "INC",      "INC",
+            "DEC",      "DEC",      "DEC",      "DEC",      "DEC",      "DEC",      "DEC",      "DEC",
+            "PUSH",     "PUSH",     "PUSH",     "PUSH",     "PUSH",     "PUSH",     "PUSH",     "PUSH",
+            "POP",      "POP",      "POP",      "POP",      "POP",      "POP",      "POP",      "POP",
+            "PUSHA",    "POPA",     "BOUND",    "ARPL",     "SEG FS",   "SEG GS",   "SIZE PREF","ADDR PREF",
+            "PUSH",     "IMUL",     "PUSH",     "IMUL",     "INSB",     "INSW",     "OUTSB",    "OUTSW",
+            "JO",       "JNO",      "JB",       "JNB",      "JZ",       "JNZ",      "JBE",      "JNBE",
+            "JS",       "JNS",      "JP",       "JNP",      "JL",       "JNL",      "JLE",      "JNLE",
+        };
+    private static int count;
+
     public static CPU.CPU_Decoder CPU_Core_Normal_Run = new CPU.CPU_Decoder() {
         public /*Bits*/int call() {
             //System.out.println("CPU_Core_Normal_Run");
@@ -85,6 +105,8 @@ public class Core_normal extends Prefix_66_0f {
 //                    if (Config.DEBUG_LOG)
 //                        Debug.start(Debug.TYPE_CPU, c);
 //                    try {
+                      //System.out.println(String.format("%d %06x:%08x %3s %-8s EAX=%08x ECX=%08x EDX=%08x EBX=%08x ESP=%08x EBP=%08x ESI=%08x EDI=%08x FLAGS=%04x" , count, CPU.Segs_CSval, CPU_Regs.reg_eip, Integer.toHexString(c), (desc.length>c?" "+desc[c]:""), CPU_Regs.reg_eax.dword, CPU_Regs.reg_ecx.dword, CPU_Regs.reg_edx.dword, CPU_Regs.reg_ebx.dword, CPU_Regs.reg_esp.dword, CPU_Regs.reg_ebp.dword, CPU_Regs.reg_esi.dword, CPU_Regs.reg_edi.dword, CPU_Regs.flags));
+
                         int result = ops[c].call();
                         if (result != HANDLED) {
                             if (result == CONTINUE) {

@@ -1136,7 +1136,7 @@ public class Prefix_none extends StringOp {
                 esp = CPU.CPU_Push16(esp, reg_esi.word());
                 esp = CPU.CPU_Push16(esp, reg_edi.word());
                 // Don't store ESP until all the memory writes are done in case of a PF so that this op can be reentrant
-                reg_esp.word(esp);
+                CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & CPU.cpu.stack.notmask)|(esp & CPU.cpu.stack.mask);
                 return HANDLED;
             }
         };
@@ -1144,8 +1144,9 @@ public class Prefix_none extends StringOp {
         /* POPA */
         ops[0x61] = new OP() {
             final public int call() {
-                reg_edi.word(CPU.CPU_Pop16());reg_esi.word(CPU.CPU_Pop16());reg_ebp.word(CPU.CPU_Pop16());CPU.CPU_Pop16();//Don't save SP
-                reg_ebx.word(CPU.CPU_Pop16());reg_edx.word(CPU.CPU_Pop16());reg_ecx.word(CPU.CPU_Pop16());reg_eax.word(CPU.CPU_Pop16());
+                reg_edi.word(CPU.CPU_Peek16(0));reg_esi.word(CPU.CPU_Peek16(1));reg_ebp.word(CPU.CPU_Peek16(2));//Don't save SP
+                reg_ebx.word(CPU.CPU_Peek16(4));reg_edx.word(CPU.CPU_Peek16(5));reg_ecx.word(CPU.CPU_Peek16(6));reg_eax.word(CPU.CPU_Peek16(7));
+                CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & CPU.cpu.stack.notmask)|((CPU_Regs.reg_esp.dword+16) & CPU.cpu.stack.mask);
                 return HANDLED;
             }
         };

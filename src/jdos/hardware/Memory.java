@@ -703,10 +703,10 @@ public class Memory extends Module_base {
     }
 
     public static void mem_unalignedwrited(/*PhysPt*/int address,/*Bit32u*/int val) {
-        Paging.mem_writeb_inline(address,(short)(val & 0xFF));val>>=8;
-        Paging.mem_writeb_inline(address+1,(short)(val & 0xFF));val>>=8;
-        Paging.mem_writeb_inline(address+2,(short)(val & 0xFF));val>>=8;
-        Paging.mem_writeb_inline(address+3,(short)(val & 0xFF));
+        Paging.mem_writeb_inline(address++,val);val>>=8;
+        Paging.mem_writeb_inline(address++,val);val>>=8;
+        Paging.mem_writeb_inline(address++,val);val>>=8;
+        Paging.mem_writeb_inline(address,val);
     }
 
     public static /*Bit8u*/int mem_readb(/*PhysPt*/int address) {

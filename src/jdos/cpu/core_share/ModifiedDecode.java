@@ -23,7 +23,7 @@ public class ModifiedDecode {
             int result = jdos.cpu.core_normal.Prefix_none.ops[c].call();
             if (result == Prefix_helpers.HANDLED) {
                 CPU_Regs.reg_eip = Core.cseip - CPU.Segs_CSphys;
-                return Constants.BR_Link1;
+                return Constants.BR_Jump;
             } else {
                 if (result == Prefix_helpers.CONTINUE) {
                     break;

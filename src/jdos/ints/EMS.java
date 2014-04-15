@@ -494,8 +494,8 @@ public class EMS extends Module_base {
         int data;
         switch (CPU_Regs.reg_eax.low()) {
         case 0x00:	/* Save Partial Page Map */
-            list = CPU.Segs_DSphys+CPU_Regs.reg_esi.word();
-            data = CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
+            list = CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word();
+            data = CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word();
             count=Memory.mem_readw(list);list+=2;
             Memory.mem_writew(data,count);data+=2;
             for (;count>0;count--) {
@@ -515,7 +515,7 @@ public class EMS extends Module_base {
             }
             break;
         case 0x01:	/* Restore Partial Page Map */
-            data = (int)CPU.Segs_DSphys+CPU_Regs.reg_esi.word();
+            data = (int)CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word();
             count= Memory.mem_readw(data);data+=2;
             for (;count>0;count--) {
                 /*Bit16u*/int segment=Memory.mem_readw(data);data+=2;
@@ -545,7 +545,7 @@ public class EMS extends Module_base {
         /*Bit16u*/int handle=0;/*PhysPt*/int data;
         switch (CPU_Regs.reg_eax.low()) {
         case 0x00:	/* Get all handle names */
-            CPU_Regs.reg_eax.low(0);data=CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
+            CPU_Regs.reg_eax.low(0);data=CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word();
             for (handle=0;handle<EMM_MAX_HANDLES;handle++) {
                 if (emm_handles[handle].pages!=NULL_HANDLE) {
                     CPU_Regs.reg_eax.low(CPU_Regs.reg_eax.low()+1);
@@ -556,7 +556,7 @@ public class EMS extends Module_base {
             }
             break;
         case 0x01: /* Search for a handle name */
-            name = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),8);
+            name = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word(),8);
             for (handle=0;handle<EMM_MAX_HANDLES;handle++) {
                 if (emm_handles[handle].pages!=NULL_HANDLE) {
                     if (name.equalsIgnoreCase(emm_handles[handle].name)) {
@@ -581,11 +581,11 @@ public class EMS extends Module_base {
         switch (CPU_Regs.reg_eax.low()) {
         case 0x00:	/* Get Handle Name */
             if (handle>=EMM_MAX_HANDLES || emm_handles[handle].pages==NULL_HANDLE) return EMM_INVALID_HANDLE;
-            Memory.MEM_BlockWrite(CPU.Segs_ESphys+CPU_Regs.reg_edi.word(),emm_handles[handle].name,8);
+            Memory.MEM_BlockWrite(CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word(),emm_handles[handle].name,8);
             break;
         case 0x01:	/* Set Handle Name */
             if (handle>=EMM_MAX_HANDLES || emm_handles[handle].pages==NULL_HANDLE) return EMM_INVALID_HANDLE;
-            emm_handles[handle].name=Memory.MEM_BlockRead(CPU.Segs_ESphys+CPU_Regs.reg_edi.word(),8);
+            emm_handles[handle].name=Memory.MEM_BlockRead(CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word(),8);
             break;
         default:
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
@@ -618,7 +618,7 @@ public class EMS extends Module_base {
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,"EMS:Call "+Integer.toString(CPU_Regs.reg_eax.high(), 16)+" Subfunction "+Integer.toString(CPU_Regs.reg_eax.low(), 16)+" not supported");
             return EMM_FUNC_NOSUP;
         }
-        LoadMoveRegion(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),region);
+        LoadMoveRegion(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word(),region);
         /* Parse the region for information */
         /*PhysPt*/int src_mem = 0,dest_mem = 0;
         /*MemHandle*/int src_handle = 0,dest_handle = 0;
@@ -760,14 +760,14 @@ public class EMS extends Module_base {
                 break;
             case 0x4d:		/* Get Pages for all Handles */
                 IntRef bx = new IntRef(CPU_Regs.reg_ebx.word());
-                CPU_Regs.reg_eax.high(EMM_GetPagesForAllHandles(CPU.Segs_ESphys+CPU_Regs.reg_edi.word(),bx));
+                CPU_Regs.reg_eax.high(EMM_GetPagesForAllHandles(CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word(),bx));
                 CPU_Regs.reg_ebx.word(bx.value);
                 break;
             case 0x4e:		/*Save/Restore Page Map */
                 switch (CPU_Regs.reg_eax.low()) {
                 case 0x00:	/* Save Page Map */
                 {
-                    int offset = CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
+                    int offset = CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word();
                     for (int j=0;j<emm_mappings.length;j++)
                         Memory.MEM_BlockWrite(offset+j*EMM_Mapping.size,emm_mappings[j].data,EMM_Mapping.size);
                     CPU_Regs.reg_eax.high(EMM_NO_ERROR);
@@ -775,7 +775,7 @@ public class EMS extends Module_base {
                 }
                 case 0x01:	/* Restore Page Map */
                 {
-                    int offset = CPU.Segs_DSphys+CPU_Regs.reg_esi.word();
+                    int offset = CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word();
                     for (int j=0;j<emm_mappings.length;j++)
                         Memory.MEM_BlockRead(offset+j*EMM_Mapping.size,emm_mappings[j].data,EMM_Mapping.size);
                     CPU_Regs.reg_eax.high(EMM_RestoreMappingTable());
@@ -783,11 +783,11 @@ public class EMS extends Module_base {
                 }
                 case 0x02:	/* Save and Restore Page Map */
                 {
-                    int offset = CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
+                    int offset = CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word();
                     for (int j=0;j<emm_mappings.length;j++)
                         Memory.MEM_BlockWrite(offset+j*EMM_Mapping.size,emm_mappings[j].data,EMM_Mapping.size);
 
-                    offset = CPU.Segs_DSphys+CPU_Regs.reg_esi.word();
+                    offset = CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word();
                     for (int j=0;j<emm_mappings.length;j++)
                         Memory.MEM_BlockRead(offset+j*EMM_Mapping.size,emm_mappings[j].data,EMM_Mapping.size);
 
@@ -811,7 +811,7 @@ public class EMS extends Module_base {
                 CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                 switch (CPU_Regs.reg_eax.low()) {
                     case 0x00: // use physical page numbers
-                        {	/*PhysPt*/int data = CPU.Segs_DSphys+CPU_Regs.reg_esi.word();
+                        {	/*PhysPt*/int data = CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word();
                             for (i=0; i<CPU_Regs.reg_ecx.word(); i++) {
                                 /*Bit16u*/int logPage	= Memory.mem_readw(data); data+=2;
                                 /*Bit16u*/int physPage = Memory.mem_readw(data); data+=2;
@@ -820,7 +820,7 @@ public class EMS extends Module_base {
                             }
                         } break;
                     case 0x01: // use segment address
-                        {	/*PhysPt*/int data = CPU.Segs_DSphys+CPU_Regs.reg_esi.word();
+                        {	/*PhysPt*/int data = CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word();
                             for (i=0; i<CPU_Regs.reg_ecx.word(); i++) {
                                 /*Bit16u*/int logPage	= Memory.mem_readw(data); data+=2;
                                 CPU_Regs.reg_eax.high(EMM_MapSegment(Memory.mem_readw(data),CPU_Regs.reg_edx.word(),logPage)); data+=2;
@@ -849,7 +849,7 @@ public class EMS extends Module_base {
                 break;
             case 0x58: // Get mappable physical array address array
                 if (CPU_Regs.reg_eax.low()==0x00) {
-                    /*PhysPt*/int data = CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
+                    /*PhysPt*/int data = CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word();
                     /*Bit16u*/int step = 0x1000 / EMM_MAX_PHYS;
                     for (i=0; i<EMM_MAX_PHYS; i++) {
                         Memory.mem_writew(data,EMM_PAGEFRAME+step*i);	data+=2;
@@ -889,14 +889,14 @@ public class EMS extends Module_base {
                         /*Bit16u*/int ct;
                         /* Set up page table buffer */
                         for (ct=0; ct<0xff; ct++) {
-                            Memory.real_writeb((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word()+ct*4+0x00,0x67);		// access bits
-                            Memory.real_writew((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word()+ct*4+0x01,ct*0x10);		// mapping
-                            Memory.real_writeb((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x00,0x67);		// access bits
+                            Memory.real_writew((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x01,ct*0x10);		// mapping
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
                         }
                         for (ct=0xff; ct<0x100; ct++) {
-                            Memory.real_writeb((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word()+ct*4+0x00,0x67);		// access bits
-                            Memory.real_writew((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word()+ct*4+0x01,(ct-0xff)*0x10+0x1100);	// mapping
-                            Memory.real_writeb((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x00,0x67);		// access bits
+                            Memory.real_writew((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x01,(ct-0xff)*0x10+0x1100);	// mapping
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
                         }
                         /* adjust paging entries for page frame (if mapped) */
                         for (ct=0; ct<4; ct++) {
@@ -904,10 +904,10 @@ public class EMS extends Module_base {
                             if (handle!=0xffff) {
                                 /*Bit16u*/int memh=(/*Bit16u*/int)Memory.MEM_NextHandleAt(emm_handles[handle].mem,emm_mappings[ct].page()*4);
                                 /*Bit16u*/int entry_addr=CPU_Regs.reg_edi.word()+(EMM_PAGEFRAME>>6)+(ct*0x10);
-                                Memory.real_writew((int)CPU.Segs_ESval,entry_addr+0x00+0x01,(memh+0)*0x10);		// mapping of 1/4 of page
-                                Memory.real_writew((int)CPU.Segs_ESval,entry_addr+0x04+0x01,(memh+1)*0x10);		// mapping of 2/4 of page
-                                Memory.real_writew((int)CPU.Segs_ESval,entry_addr+0x08+0x01,(memh+2)*0x10);		// mapping of 3/4 of page
-                                Memory.real_writew((int)CPU.Segs_ESval,entry_addr+0x0c+0x01,(memh+3)*0x10);		// mapping of 4/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x00+0x01,(memh+0)*0x10);		// mapping of 1/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x04+0x01,(memh+1)*0x10);		// mapping of 2/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x08+0x01,(memh+2)*0x10);		// mapping of 3/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x0c+0x01,(memh+3)*0x10);		// mapping of 4/4 of page
                             }
                         }
                         CPU_Regs.reg_edi.word(CPU_Regs.reg_edi.word()+0x400);		// advance pointer by 0x100*4
@@ -916,14 +916,14 @@ public class EMS extends Module_base {
                         /*Bit32u*/int cbseg_low=(Callback.CALLBACK_GetBase()&0xffff)<<16;
                         /*Bit32u*/int cbseg_high=(Callback.CALLBACK_GetBase()&0x1f0000)>>16;
                         /* Descriptor 1 (code segment, callback segment) */
-                        Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x00,0x0000ffff|cbseg_low);
-                        Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x04,0x00009a00|cbseg_high);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x00,0x0000ffff|cbseg_low);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x04,0x00009a00|cbseg_high);
                         /* Descriptor 2 (data segment, full access) */
-                        Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x08,0x0000ffff);
-                        Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x0c,0x00009200);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x08,0x0000ffff);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x0c,0x00009200);
                         /* Descriptor 3 (full access) */
-                        Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x10,0x0000ffff);
-                        Memory.real_writed((int)CPU.Segs_DSval,CPU_Regs.reg_esi.word()+0x14,0x00009200);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x10,0x0000ffff);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x14,0x00009200);
 
                         CPU_Regs.reg_ebx.dword=vcpi.pm_interface&0xffff;
                         CPU_Regs.reg_eax.high(EMM_NO_ERROR);
@@ -1083,7 +1083,7 @@ public class EMS extends Module_base {
                 CPU_Regs.flags&=(~CPU_Regs.IF);
 
                 /* Flags need to be filled in, VM=true, IOPL=3 */
-                Memory.mem_writed(CPU.Segs_SSphys + (CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask)+0x10, 0x23002);
+                Memory.mem_writed(CPU_Regs.reg_ssPhys.dword + (CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask)+0x10, 0x23002);
 
                 /* Disable Paging */
                 CPU.CPU_SET_CRX(0, CPU.CPU_GET_CRX(0)&0x7ffffff7);
@@ -1121,7 +1121,7 @@ public class EMS extends Module_base {
         }
         public /*Bitu*/int call() {
             /* Calculate which interrupt did occur */
-            /*Bitu*/int int_num=(Memory.mem_readw(CPU.Segs_SSphys+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask))-0x2803);
+            /*Bitu*/int int_num=(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask))-0x2803);
 
             /* See if Exception 0x0d and not Interrupt 0x0d */
             if ((int_num==(0x0d*4)) && ((CPU_Regs.reg_esp.word()&0xffff)!=0x1fda)) {
@@ -1131,8 +1131,8 @@ public class EMS extends Module_base {
                 CPU_Regs.reg_esp.dword+=6;		// skip ip of CALL and error code of EXCEPTION 0x0d
 
                 /* Get address of faulting instruction */
-                /*Bit16u*/int v86_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask));
-                /*Bit16u*/int v86_ip=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask));
+                /*Bit16u*/int v86_cs=Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask));
+                /*Bit16u*/int v86_ip=Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask));
                 /*Bit8u*/int v86_opcode=Memory.mem_readb((v86_cs<<4)+v86_ip);
         //		LOG_MSG("v86 monitor caught protection violation at %x:%x, opcode=%x",v86_cs,v86_ip,v86_opcode);
                 switch (v86_opcode) {
@@ -1155,7 +1155,7 @@ public class EMS extends Module_base {
                                     case 6:	CPU_Regs.reg_esi.dword=crx;	break;
                                     case 7:	CPU_Regs.reg_edi.dword=crx;	break;
                                 }
-                                Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+3);
+                                Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+3);
                                 }
                                 break;
                             case 0x22: {	// mov CRx,reg
@@ -1176,7 +1176,7 @@ public class EMS extends Module_base {
                                 }
                                 if (which==0) crx|=1;	// protection bit always on
                                 CPU.CPU_SET_CRX(which,crx);
-                                Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+3);
+                                Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+3);
                                 }
                                 break;
                             default:
@@ -1185,43 +1185,43 @@ public class EMS extends Module_base {
                         break;
                     case 0xe4:		// IN AL,Ib
                         CPU_Regs.reg_eax.low((/*Bit8u*/short)(IO.IO_ReadB(Memory.mem_readb((v86_cs<<4)+v86_ip+1))&0xff));
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xe5:		// IN AX,Ib
                         CPU_Regs.reg_eax.word((/*Bit16u*/int)(IO.IO_ReadW(Memory.mem_readb((v86_cs<<4)+v86_ip+1))&0xffff));
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xe6:		// OUT Ib,AL
                         IO.IO_WriteB(Memory.mem_readb((v86_cs<<4)+v86_ip+1),CPU_Regs.reg_eax.low());
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xe7:		// OUT Ib,AX
                         IO.IO_WriteW(Memory.mem_readb((v86_cs<<4)+v86_ip+1),CPU_Regs.reg_eax.word());
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xec:		// IN AL,DX
                         CPU_Regs.reg_eax.low((/*Bit8u*/short)(IO.IO_ReadB(CPU_Regs.reg_edx.word())&0xff));
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     case 0xed:		// IN AX,DX
                         CPU_Regs.reg_eax.word((/*Bit16u*/int)(IO.IO_ReadW(CPU_Regs.reg_edx.word())&0xffff));
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     case 0xee:		// OUT DX,AL
                         IO.IO_WriteB(CPU_Regs.reg_edx.word(),CPU_Regs.reg_eax.low());
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     case 0xef:		// OUT DX,AX
                         IO.IO_WriteW(CPU_Regs.reg_edx.word(),CPU_Regs.reg_eax.word());
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     case 0xf0:		// LOCK prefix
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     case 0xf4:		// HLT
                         CPU_Regs.flags|=CPU_Regs.IF;
                         CPU.CPU_HLT(CPU_Regs.reg_eip);
-                        Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
+                        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     default:
                         Log.exit("Unhandled opcode "+Integer.toString(v86_opcode, 16)+" caused a protection fault!");
@@ -1230,25 +1230,25 @@ public class EMS extends Module_base {
             }
 
             /* Get address to interrupt handler */
-            /*Bit16u*/int vint_vector_seg=Memory.mem_readw(CPU.Segs_DSval+int_num+2);
+            /*Bit16u*/int vint_vector_seg=Memory.mem_readw(CPU_Regs.reg_dsVal.dword+int_num+2);
             /*Bit16u*/int vint_vector_ofs=Memory.mem_readw(int_num);
             if (CPU_Regs.reg_esp.word()!=0x1fda) CPU_Regs.reg_esp.dword+=2+3*4;	// Interrupt from within protected mode
             else CPU_Regs.reg_esp.dword+=2;
 
             /* Read entries that were pushed onto the stack by the interrupt */
-            /*Bit16u*/int return_ip=Memory.mem_readw(CPU.Segs_SSphys+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask));
-            /*Bit16u*/int return_cs=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask));
-            /*Bit32u*/int return_eflags=Memory.mem_readd(CPU.Segs_SSphys + ((CPU_Regs.reg_esp.dword + 8) & CPU.cpu.stack.mask));
+            /*Bit16u*/int return_ip=Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask));
+            /*Bit16u*/int return_cs=Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask));
+            /*Bit32u*/int return_eflags=Memory.mem_readd(CPU_Regs.reg_ssPhys.dword + ((CPU_Regs.reg_esp.dword + 8) & CPU.cpu.stack.mask));
 
             /* Modify stack to call v86-interrupt handler */
-            Memory.mem_writed(CPU.Segs_SSphys+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask),vint_vector_ofs);
-            Memory.mem_writed(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask),vint_vector_seg);
-            Memory.mem_writed(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +8) & CPU.cpu.stack.mask),return_eflags&(~(CPU_Regs.IF|CPU_Regs.TF)));
+            Memory.mem_writed(CPU_Regs.reg_ssPhys.dword+(CPU_Regs.reg_esp.dword & CPU.cpu.stack.mask),vint_vector_ofs);
+            Memory.mem_writed(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +4) & CPU.cpu.stack.mask),vint_vector_seg);
+            Memory.mem_writed(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +8) & CPU.cpu.stack.mask),return_eflags&(~(CPU_Regs.IF|CPU_Regs.TF)));
 
             /* Adjust SP of v86-stack */
-            /*Bit16u*/int v86_ss=Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +0x10) & CPU.cpu.stack.mask));
-            /*Bit16u*/int v86_sp=(Memory.mem_readw(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask))-6) & 0xFFFF;
-            Memory.mem_writew(CPU.Segs_SSphys+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask),v86_sp);
+            /*Bit16u*/int v86_ss=Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +0x10) & CPU.cpu.stack.mask));
+            /*Bit16u*/int v86_sp=(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask))-6) & 0xFFFF;
+            Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask),v86_sp);
 
             /* Return to original code after v86-interrupt handler */
             Memory.mem_writew((v86_ss<<4)+v86_sp+0,return_ip);
@@ -1457,13 +1457,13 @@ public class EMS extends Module_base {
                 if (CPU.CPU_LLDT(0x08)) Log.log_msg("VCPI:Could not load LDT");
                 if (CPU.CPU_LTR(0x10)) Log.log_msg("VCPI:Could not load TR");
 
-                CPU.CPU_Push32(CPU.Segs_GSval);
-                CPU.CPU_Push32(CPU.Segs_FSval);
-                CPU.CPU_Push32(CPU.Segs_DSval);
-                CPU.CPU_Push32(CPU.Segs_ESval);
-                CPU.CPU_Push32(CPU.Segs_SSval);
+                CPU.CPU_Push32(CPU_Regs.reg_gsVal.dword);
+                CPU.CPU_Push32(CPU_Regs.reg_fsVal.dword);
+                CPU.CPU_Push32(CPU_Regs.reg_dsVal.dword);
+                CPU.CPU_Push32(CPU_Regs.reg_esVal.dword);
+                CPU.CPU_Push32(CPU_Regs.reg_ssVal.dword);
                 CPU.CPU_Push32(0x23002);
-                CPU.CPU_Push32(CPU.Segs_CSval);
+                CPU.CPU_Push32(CPU_Regs.reg_csVal.dword);
                 CPU.CPU_Push32(CPU_Regs.reg_eip&0xffff);
                 /* Switch to V86-mode */
                 CPU.CPU_SetCPL(0);

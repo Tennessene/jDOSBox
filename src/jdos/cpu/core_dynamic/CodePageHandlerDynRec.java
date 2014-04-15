@@ -51,7 +51,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 		/*Bits*/int index=1+(end>> Core_dynamic.DYN_HASH_SHIFT);
 		boolean is_current_block=false;	// if the current block is modified, it has to be exited as soon as possible
 
-		/*Bit32u*/int ip_point=(CPU.Segs_CSphys + CPU_Regs.reg_eip) & 0xFFF;
+		/*Bit32u*/int ip_point=(CPU_Regs.reg_csPhys.dword + CPU_Regs.reg_eip) & 0xFFF;
 		while (index>=0) {
 			/*Bitu*/int map=0;
 			// see if there is still some code in the range
@@ -134,7 +134,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	}
 
     // add a cache block to this page and note it in the hash map
-	void AddCacheBlock(CacheBlockDynRec block) {
+	public void AddCacheBlock(CacheBlockDynRec block) {
 		/*Bitu*/int index=1+(block.page.start>> Core_dynamic.DYN_HASH_SHIFT);
 		block.hash.next=hash_map[index];	// link to old block at index from the new block
 		block.hash.index=index;

@@ -33,7 +33,7 @@ public class IO extends Module_base {
                 return ret;
             if (iof_queue.used==0) Log.exit("IO-faul Core without IO-faul");
             IOF_Entry entry=iof_queue.entries[iof_queue.used-1];
-            if (entry.cs == CPU.Segs_CSval && entry.eip==CPU_Regs.reg_eip)
+            if (entry.cs == CPU_Regs.reg_csVal.dword && entry.eip==CPU_Regs.reg_eip)
                 return -1;
             return 0;
         }
@@ -165,9 +165,9 @@ public class IO extends Module_base {
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
-            entry.cs=(int)CPU.Segs_CSval;
+            entry.cs=(int)CPU_Regs.reg_csVal.dword;
             entry.eip=CPU_Regs.reg_eip;
-            CPU.CPU_Push16(CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit8u*/int old_al = CPU_Regs.reg_eax.low();
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
@@ -199,9 +199,9 @@ public class IO extends Module_base {
             CPU.CPU_Decoder old_cpudecoder = CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
-            entry.cs=CPU.Segs_CSval;
+            entry.cs=CPU_Regs.reg_csVal.dword;
             entry.eip=CPU_Regs.reg_eip;
-            CPU.CPU_Push16(CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit16u*/int old_ax = CPU_Regs.reg_eax.word();
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
@@ -234,9 +234,9 @@ public class IO extends Module_base {
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
-            entry.cs=CPU.Segs_CSval;
+            entry.cs=CPU_Regs.reg_csVal.dword;
             entry.eip=CPU_Regs.reg_eip;
-            CPU.CPU_Push16(CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit32u*/int old_eax = CPU_Regs.reg_eax.dword;
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
@@ -267,9 +267,9 @@ public class IO extends Module_base {
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
-            entry.cs=CPU.Segs_CSval;
+            entry.cs=CPU_Regs.reg_csVal.dword;
             entry.eip=CPU_Regs.reg_eip;
-            CPU.CPU_Push16(CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
             CPU_Regs.reg_edx.word(port);
@@ -303,9 +303,9 @@ public class IO extends Module_base {
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
-            entry.cs=CPU.Segs_CSval;
+            entry.cs=CPU_Regs.reg_csVal.dword;
             entry.eip=CPU_Regs.reg_eip;
-            CPU.CPU_Push16(CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
             CPU_Regs.reg_edx.word(port);
@@ -338,9 +338,9 @@ public class IO extends Module_base {
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
-            entry.cs=CPU.Segs_CSval;
+            entry.cs=CPU_Regs.reg_csVal.dword;
             entry.eip=CPU_Regs.reg_eip;
-            CPU.CPU_Push16(CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
             /*Bit16u*/int old_dx = CPU_Regs.reg_edx.word();
             CPU_Regs.reg_edx.word(port);

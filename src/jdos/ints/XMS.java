@@ -311,7 +311,7 @@ public class XMS extends Module_base {
                 SET_RESULT(XMS_FreeMemory(CPU_Regs.reg_edx.word()));
                 break;
             case XMS_MOVE_EXTENDED_MEMORY_BLOCK:						/* 0b */
-                SET_RESULT(XMS_MoveMemory(CPU.Segs_DSphys+CPU_Regs.reg_esi.word()),false);
+                SET_RESULT(XMS_MoveMemory(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word()),false);
                 break;
             case XMS_LOCK_EXTENDED_MEMORY_BLOCK: {						/* 0c */
                 /*Bit32u*/IntRef address=new IntRef(0);

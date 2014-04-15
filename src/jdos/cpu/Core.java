@@ -45,38 +45,38 @@ public abstract class Core extends CPU_Regs {
         return temp;
     }
     static public void DO_PREFIX_SEG_ES() {
-        base_ds=CPU.Segs_ESphys;
-        base_ss=CPU.Segs_ESphys;
+        base_ds=CPU_Regs.reg_esPhys.dword;
+        base_ss=CPU_Regs.reg_esPhys.dword;
         base_val_ds=CPU_Regs.es;
     }
 
     static public void DO_PREFIX_SEG_CS() {
-        base_ds=CPU.Segs_CSphys;
-        base_ss=CPU.Segs_CSphys;
+        base_ds=CPU_Regs.reg_csPhys.dword;
+        base_ss=CPU_Regs.reg_csPhys.dword;
         base_val_ds=CPU_Regs.cs;
     }
 
     static public void DO_PREFIX_SEG_SS() {
-        base_ds=CPU.Segs_SSphys;
-        base_ss=CPU.Segs_SSphys;
+        base_ds=CPU_Regs.reg_ssPhys.dword;
+        base_ss=CPU_Regs.reg_ssPhys.dword;
         base_val_ds=CPU_Regs.ss;
     }
 
     static public void DO_PREFIX_SEG_DS() {
-        base_ds=CPU.Segs_DSphys;
-        base_ss=CPU.Segs_DSphys;
+        base_ds=CPU_Regs.reg_dsPhys.dword;
+        base_ss=CPU_Regs.reg_dsPhys.dword;
         base_val_ds=CPU_Regs.ds;
     }
 
     static public void DO_PREFIX_SEG_FS() {
-        base_ds=CPU.Segs_FSphys;
-        base_ss=CPU.Segs_FSphys;
+        base_ds=CPU_Regs.reg_fsPhys.dword;
+        base_ss=CPU_Regs.reg_fsPhys.dword;
         base_val_ds=CPU_Regs.fs;
     }
 
     static public void DO_PREFIX_SEG_GS() {
-        base_ds=CPU.Segs_GSphys;
-        base_ss=CPU.Segs_GSphys;
+        base_ds=CPU_Regs.reg_gsPhys.dword;
+        base_ss=CPU_Regs.reg_gsPhys.dword;
         base_val_ds=CPU_Regs.gs;
     }
 

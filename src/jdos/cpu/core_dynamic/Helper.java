@@ -32,14 +32,13 @@ public class Helper extends CPU_Regs {
     public final static int RESULT_CONTINUE_SEG = 7;
 
     // fetch the next byte of the instruction stream
-    static /*Bit8u*/int decode_fetchbs() {
+    static public int decode_fetchbs() {
         return (byte)decode_fetchb();
     }
 
-    static /*Bit8u*/int decode_fetchb() {
+    static public int decode_fetchb() {
         if (decode.page.index>=4096) {
-            throw new PageFaultException();
-            //decode_advancepage();
+            decode_advancepage();
         }
         if (decode.page.invmap!=null && decode.page.invmap.p[decode.page.index]>=4) {
             decode.modifiedAlot = true;
@@ -70,7 +69,7 @@ public class Helper extends CPU_Regs {
         decode.setTLB(faddr);
     }
 
-    static void decode_putback(int count) {
+    static public void decode_putback(int count) {
         for (int i=0;i<count;i++) {
             decode.page.index--;
             decode.code--;
@@ -81,11 +80,11 @@ public class Helper extends CPU_Regs {
             decode.page.wmap.p[decode.page.index]-=0x01;
         }
     }
-    static int decode_fetchws() {
+    static public int decode_fetchws() {
         return (short)decode_fetchw();
     }
     // fetch the next word of the instruction stream
-    static /*Bit16u*/int decode_fetchw() {
+    static public int decode_fetchw() {
         if (decode.page.index>=4095) {
             /*Bit16u*/int val=decode_fetchb();
             val|=decode_fetchb() << 8;
@@ -99,12 +98,12 @@ public class Helper extends CPU_Regs {
         decode.code+=2;decode.page.index+=2;
         return RAM.readw(decode.tlb + decode.code - 2);
     }
-    static int decode_fetchds() {
+    static public int decode_fetchds() {
         return decode_fetchd();
     }
 
     // fetch the next dword of the instruction stream
-    static /*Bit32u*/int decode_fetchd() {
+    static public int decode_fetchd() {
         if (decode.page.index>=4093) {
             /*Bit32u*/int val=decode_fetchb();
             val|=decode_fetchb() << 8;

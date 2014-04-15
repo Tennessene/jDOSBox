@@ -79,27 +79,27 @@ public class Dos_execute {
 
     static private void SaveRegisters() {
         CPU_Regs.reg_esp.word(CPU_Regs.reg_esp.word()-18);
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+0, CPU_Regs.reg_eax.word());
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 2,CPU_Regs.reg_ecx.word());
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 4,CPU_Regs.reg_edx.word());
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 6,CPU_Regs.reg_ebx.word());
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 8,CPU_Regs.reg_esi.word());
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+10,CPU_Regs.reg_edi.word());
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+12,CPU_Regs.reg_ebp.word());
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+14,(int)CPU.Segs_DSval);
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+16,(int)CPU.Segs_ESval);
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+0, CPU_Regs.reg_eax.word());
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 2,CPU_Regs.reg_ecx.word());
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 4,CPU_Regs.reg_edx.word());
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 6,CPU_Regs.reg_ebx.word());
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 8,CPU_Regs.reg_esi.word());
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+10,CPU_Regs.reg_edi.word());
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+12,CPU_Regs.reg_ebp.word());
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+14,(int)CPU_Regs.reg_dsVal.dword);
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+16,(int)CPU_Regs.reg_esVal.dword);
     }
 
     static private void RestoreRegisters() {
-        CPU_Regs.reg_eax.word(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 0));
-        CPU_Regs.reg_ecx.word(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 2));
-        CPU_Regs.reg_edx.word(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 4));
-        CPU_Regs.reg_ebx.word(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 6));
-        CPU_Regs.reg_esi.word(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+ 8));
-        CPU_Regs.reg_edi.word(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+10));
-        CPU_Regs.reg_ebp.word(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+12));
-        CPU_Regs.SegSet16DS(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+14));
-        CPU_Regs.SegSet16ES(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+16));
+        CPU_Regs.reg_eax.word(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 0));
+        CPU_Regs.reg_ecx.word(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 2));
+        CPU_Regs.reg_edx.word(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 4));
+        CPU_Regs.reg_ebx.word(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 6));
+        CPU_Regs.reg_esi.word(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+ 8));
+        CPU_Regs.reg_edi.word(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+10));
+        CPU_Regs.reg_ebp.word(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+12));
+        CPU_Regs.SegSet16DS(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+14));
+        CPU_Regs.SegSet16ES(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+16));
         CPU_Regs.reg_esp.word(CPU_Regs.reg_esp.word()+18);
     }
 
@@ -146,11 +146,11 @@ public class Dos_execute {
         /* Restore the old CS:IP from int 22h */
         RestoreRegisters();
         /* Set the CS:IP stored in int 0x22 back on the stack */
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+0,Memory.RealOff(old22));
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+2,Memory.RealSeg(old22));
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+0,Memory.RealOff(old22));
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+2,Memory.RealSeg(old22));
         /* set IOPL=3 (Strike Commander), nested task set,
            interrupts enabled, test flags cleared */
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4,0x7202);
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4,0x7202);
         // Free memory owned by process
         if (!tsr) Dos_memory.DOS_FreeProcessMemory(pspseg);
         DOS_UpdatePSPName();
@@ -533,7 +533,7 @@ public class Dos_execute {
         if (flags==LOADNGO) {
             if ((CPU_Regs.reg_esp.word()>0xfffe) || (CPU_Regs.reg_esp.word()<18)) Log.log(LogTypes.LOG_EXEC,LogSeverities.LOG_ERROR,"stack underflow/wrap at EXEC");
             /* Get Caller's program CS:IP of the stack and set termination address to that */
-            Memory.RealSetVec(0x22,Memory.RealMake(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+2),Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word())));
+            Memory.RealSetVec(0x22,Memory.RealMake(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+2),Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word())));
             SaveRegisters();
             Dos_PSP callpsp=new Dos_PSP(Dos.dos.psp());
             /* Save the SS:SP on the PSP of calling program */

@@ -159,12 +159,12 @@ public class Compiler extends Helper {
             if (cacheSegments)
                 ds = "ds";
             else
-                ds = "CPU.Segs_DSphys";
+                ds = "CPU_Regs.reg_dsPhys.dword";
 
             if (cacheSegments)
                 ss = "ss";
             else
-                ss = "CPU.Segs_SSphys";
+                ss = "CPU_Regs.reg_ssPhys.dword";
 
             val = "CPU_Regs.ds";
             wasSet = false;
@@ -173,8 +173,8 @@ public class Compiler extends Helper {
         }
 
         public void setES() {
-            ds = "CPU.Segs_ESphys";
-            ss = "CPU.Segs_ESphys";
+            ds = "CPU_Regs.reg_esPhys.dword";
+            ss = "CPU_Regs.reg_esPhys.dword";
             val = "CPU_Regs.es";
             wasSet = true;
             defaultDS = false;
@@ -182,8 +182,8 @@ public class Compiler extends Helper {
         }
 
         public void setCS() {
-            ds = "CPU.Segs_CSphys";
-            ss = "CPU.Segs_CSphys";
+            ds = "CPU_Regs.reg_csPhys.dword";
+            ss = "CPU_Regs.reg_csPhys.dword";
             val = "CPU_Regs.cs";
             wasSet = true;
             defaultDS = false;
@@ -194,8 +194,8 @@ public class Compiler extends Helper {
             if (cacheSegments)
                 ds = "ds";
             else
-                ds = "CPU.Segs_DSphys";
-            ss = "CPU.Segs_DSphys";
+                ds = "CPU_Regs.reg_dsPhys.dword";
+            ss = "CPU_Regs.reg_dsPhys.dword";
             val = "CPU_Regs.ds";
             wasSet = true;
             defaultDS = true;
@@ -203,8 +203,8 @@ public class Compiler extends Helper {
         }
 
         public void setFS() {
-            ds = "CPU.Segs_FSphys";
-            ss = "CPU.Segs_FSphys";
+            ds = "CPU_Regs.reg_fsPhys.dword";
+            ss = "CPU_Regs.reg_fsPhys.dword";
             val = "CPU_Regs.fs";
             wasSet = true;
             defaultDS = false;
@@ -212,8 +212,8 @@ public class Compiler extends Helper {
         }
 
         public void setGS() {
-            ds = "CPU.Segs_GSphys";
-            ss = "CPU.Segs_GSphys";
+            ds = "CPU_Regs.reg_gsPhys.dword";
+            ss = "CPU_Regs.reg_gsPhys.dword";
             val = "CPU_Regs.gs";
             wasSet = true;
             defaultDS = false;
@@ -221,11 +221,11 @@ public class Compiler extends Helper {
         }
 
         public void setSS() {
-            ds = "CPU.Segs_SSphys";
+            ds = "CPU_Regs.reg_ssPhys.dword";
             if (cacheSegments)
                 ss = "ss";
             else
-                ss = "CPU.Segs_SSphys";
+                ss = "CPU_Regs.reg_ssPhys.dword";
             val = "CPU_Regs.ss";
             wasSet = true;
             defaultDS = false;
@@ -234,7 +234,7 @@ public class Compiler extends Helper {
 
         public String getDs() {
             if (cacheSegments && defaultDS && startDS>=0) {
-                method.insert(startDS, "int ds = CPU.Segs_DSphys;");
+                method.insert(startDS, "int ds = CPU_Regs.reg_dsPhys.dword;");
                 startDS = -1;
             }
             return ds;
@@ -242,7 +242,7 @@ public class Compiler extends Helper {
 
         public String getSs() {
             if (cacheSegments && defaultSS && startSS>=0) {
-                method.insert(startSS, "int ss = CPU.Segs_SSphys;");
+                method.insert(startSS, "int ss = CPU_Regs.reg_ssPhys.dword;");
                 startSS = -1;
             }
             return ss;
@@ -448,14 +448,14 @@ public class Compiler extends Helper {
                             method.append("int ");
                             seg.startDS = -1;
                         }
-                        method.append("ds = CPU.Segs_DSphys;");
+                        method.append("ds = CPU_Regs.reg_dsPhys.dword;");
                     }
                     if ((op.setsSeg() & 0xF)==Op.SS) {
                         if (seg.startSS>=0) {
                             method.append("int ");
                             seg.startSS = -1;
                         }
-                        method.append("ss = CPU.Segs_SSphys;");
+                        method.append("ss = CPU_Regs.reg_ssPhys.dword;");
                     }
                 } else {
                     if (testLocalVariableAccess)
@@ -1892,7 +1892,7 @@ public class Compiler extends Helper {
             case 0x06: // PUSH ES
                 if (op instanceof Inst1.PushES) {
                     Inst1.PushES o = (Inst1.PushES) op;
-                    method.append("CPU.CPU_Push16(CPU.Segs_ESval);");
+                    method.append("CPU.CPU_Push16(CPU_Regs.reg_esVal.dword);");
                     return true;
                 }
                 break;
@@ -1971,7 +1971,7 @@ public class Compiler extends Helper {
             case 0x0e: // PUSH CS
                 if (op instanceof Inst1.PushCS) {
                     Inst1.PushCS o = (Inst1.PushCS) op;
-                    method.append("CPU.CPU_Push16(CPU.Segs_CSval);");
+                    method.append("CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);");
                     return true;
                 }
                 break;
@@ -2046,7 +2046,7 @@ public class Compiler extends Helper {
             case 0x16: // PUSH SS
                 if (op instanceof Inst1.PushSS) {
                     Inst1.PushSS o = (Inst1.PushSS) op;
-                    method.append("CPU.CPU_Push16(CPU.Segs_SSval);");
+                    method.append("CPU.CPU_Push16(CPU_Regs.reg_ssVal.dword);");
                     return true;
                 }
                 break;
@@ -2126,7 +2126,7 @@ public class Compiler extends Helper {
             case 0x1e: // PUSH DS
                 if (op instanceof Inst1.PushDS) {
                     Inst1.PushDS o = (Inst1.PushDS) op;
-                    method.append("CPU.CPU_Push16(CPU.Segs_DSval);");
+                    method.append("CPU.CPU_Push16(CPU_Regs.reg_dsVal.dword);");
                     return true;
                 }
                 break;
@@ -3487,7 +3487,7 @@ public class Compiler extends Helper {
             case 0x8c: // Mov Ew,Sw
                 if (op instanceof Inst1.MovEwEs_reg) {
                     Inst1.MovEwEs_reg o = (Inst1.MovEwEs_reg) op;
-                    nameSet16(o.earw, "CPU.Segs_ESval", method);
+                    nameSet16(o.earw, "CPU_Regs.reg_esVal.dword", method);
                     method.append(";");
                     return true;
                 }
@@ -3495,12 +3495,12 @@ public class Compiler extends Helper {
                     Inst1.MovEwEs_mem o = (Inst1.MovEwEs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_ESval);");
+                    method.append(", CPU_Regs.reg_esVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwCs_reg) {
                     Inst1.MovEwCs_reg o = (Inst1.MovEwCs_reg) op;
-                    nameSet16(o.earw, "CPU.Segs_CSval", method);
+                    nameSet16(o.earw, "CPU_Regs.reg_csVal.dword", method);
                     method.append(";");
                     return true;
                 }
@@ -3508,12 +3508,12 @@ public class Compiler extends Helper {
                     Inst1.MovEwCs_mem o = (Inst1.MovEwCs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_CSval);");
+                    method.append(", CPU_Regs.reg_csVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwSs_reg) {
                     Inst1.MovEwSs_reg o = (Inst1.MovEwSs_reg) op;
-                    nameSet16(o.earw, "CPU.Segs_SSval", method);
+                    nameSet16(o.earw, "CPU_Regs.reg_ssVal.dword", method);
                     method.append(";");
                     return true;
                 }
@@ -3521,12 +3521,12 @@ public class Compiler extends Helper {
                     Inst1.MovEwSs_mem o = (Inst1.MovEwSs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_SSval);");
+                    method.append(", CPU_Regs.reg_ssVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwDs_reg) {
                     Inst1.MovEwDs_reg o = (Inst1.MovEwDs_reg) op;
-                    nameSet16(o.earw, "CPU.Segs_DSval", method);
+                    nameSet16(o.earw, "CPU_Regs.reg_dsVal.dword", method);
                     method.append(";");
                     return true;
                 }
@@ -3534,12 +3534,12 @@ public class Compiler extends Helper {
                     Inst1.MovEwDs_mem o = (Inst1.MovEwDs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_DSval);");
+                    method.append(", CPU_Regs.reg_dsVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwFs_reg) {
                     Inst1.MovEwFs_reg o = (Inst1.MovEwFs_reg) op;
-                    nameSet16(o.earw, "CPU.Segs_FSval", method);
+                    nameSet16(o.earw, "CPU_Regs.reg_fsVal.dword", method);
                     method.append(";");
                     return true;
                 }
@@ -3547,12 +3547,12 @@ public class Compiler extends Helper {
                     Inst1.MovEwFs_mem o = (Inst1.MovEwFs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_FSval);");
+                    method.append(", CPU_Regs.reg_fsVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwGs_reg) {
                     Inst1.MovEwGs_reg o = (Inst1.MovEwGs_reg) op;
-                    nameSet16(o.earw, "CPU.Segs_GSval", method);
+                    nameSet16(o.earw, "CPU_Regs.reg_gsVal.dword", method);
                     method.append(";");
                     return true;
                 }
@@ -3560,7 +3560,7 @@ public class Compiler extends Helper {
                     Inst1.MovEwGs_mem o = (Inst1.MovEwGs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_GSval);");
+                    method.append(", CPU_Regs.reg_gsVal.dword);");
                     return true;
                 }
                 break;

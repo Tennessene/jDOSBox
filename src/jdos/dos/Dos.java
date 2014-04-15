@@ -1,8 +1,6 @@
 package jdos.dos;
 
-import jdos.cpu.CPU;
-import jdos.cpu.CPU_Regs;
-import jdos.cpu.Callback;
+import jdos.cpu.*;
 import jdos.hardware.IO;
 import jdos.hardware.Memory;
 import jdos.hardware.Timer;
@@ -441,12 +439,12 @@ public class Dos extends Module_base {
         public /*Bitu*/int call() {
             if (((CPU_Regs.reg_eax.high() != 0x50) && (CPU_Regs.reg_eax.high() != 0x51) && (CPU_Regs.reg_eax.high() != 0x62) && (CPU_Regs.reg_eax.high() != 0x64)) && (CPU_Regs.reg_eax.high()<0x6c)) {
                 Dos_PSP psp = new Dos_PSP(dos.psp());
-                psp.SetStack(Memory.RealMake((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word()-18));
+                psp.SetStack(Memory.RealMake(CPU_Regs.reg_ssVal.dword,CPU_Regs.reg_esp.word()-18));
             }
 
             switch (CPU_Regs.reg_eax.high() & 0xFF) {
             case 0x00:		/* Terminate Program */
-                Dos_execute.DOS_Terminate(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+2),false,0);
+                Dos_execute.DOS_Terminate(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+2),false,0);
                 break;
             case 0x01:		/* Read character from STDIN, with echo */
                 {
@@ -538,7 +536,7 @@ public class Dos extends Module_base {
             case 0x09:		/* Write string to STDOUT */
                 {
                     /*Bit8u*/byte[] c=new byte[1];/*Bit16u*/IntRef n=new IntRef(1);
-                    /*PhysPt*/int buf=CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int buf=CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word();
                     while ((c[0]=((byte)(Memory.mem_readb(buf++) & 0xFF)))!='$') {
                         Dos_files.DOS_WriteFile(Dos_files.STDOUT,c,n);
                     }
@@ -547,7 +545,7 @@ public class Dos extends Module_base {
             case 0x0a:		/* Buffered Input */
                 {
                     //TODO ADD Break checkin in Dos_files.STDIN but can't care that much for it
-                    /*PhysPt*/int data=CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int data=CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word();
                     /*Bit8u*/int free=Memory.mem_readb(data);
                     /*Bit8u*/short read=0;/*Bit8u*/byte[] c=new byte[1];/*Bit16u*/IntRef n=new IntRef(1);
                     if (free==0) break;
@@ -626,7 +624,7 @@ public class Dos extends Module_base {
                 CPU_Regs.reg_eax.low(Dos_files.DOS_DRIVES);
                 break;
             case 0x0f:		/* Open File using FCB */
-                if(Dos_files.DOS_FCBOpen((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())){
+                if(Dos_files.DOS_FCBOpen((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())){
                     CPU_Regs.reg_eax.low(0);
                 }else{
                     CPU_Regs.reg_eax.low(0xff);
@@ -634,7 +632,7 @@ public class Dos extends Module_base {
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB, LogSeverities.LOG_NORMAL,"DOS:0x0f FCB-fileopen used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x10:		/* Close File using FCB */
-                if(Dos_files.DOS_FCBClose((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())){
+                if(Dos_files.DOS_FCBClose((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())){
                     CPU_Regs.reg_eax.low(0);
                 }else{
                     CPU_Regs.reg_eax.low(0xff);
@@ -642,35 +640,35 @@ public class Dos extends Module_base {
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x10 FCB-fileclose used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x11:		/* Find First Matching File using FCB */
-                if(Dos_files.DOS_FCBFindFirst((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
+                if(Dos_files.DOS_FCBFindFirst((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x11 FCB-FindFirst used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x12:		/* Find Next Matching File using FCB */
-                if(Dos_files.DOS_FCBFindNext((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
+                if(Dos_files.DOS_FCBFindNext((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x12 FCB-FindNext used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x13:		/* Delete File using FCB */
-                if (Dos_files.DOS_FCBDeleteFile((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
+                if (Dos_files.DOS_FCBDeleteFile((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x16 FCB-Delete used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x14:		/* Sequential read from FCB */
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),0));
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRead((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word(),0));
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x14 FCB-Read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x15:		/* Sequential write to FCB */
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),0));
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBWrite((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word(),0));
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x15 FCB-Write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x16:		/* Create or truncate file using FCB */
-                if (Dos_files.DOS_FCBCreate((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
+                if (Dos_files.DOS_FCBCreate((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x16 FCB-Create used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             case 0x17:		/* Rename file using FCB */
-                if (Dos_files.DOS_FCBRenameFile((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
+                if (Dos_files.DOS_FCBRenameFile((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
                 break;
             case 0x1b:		/* Get allocation info for default drive */
@@ -704,28 +702,28 @@ public class Dos extends Module_base {
             case 0x21:		/* Read random record from FCB */
             {
                 IntRef toRead = new IntRef(1);
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toRead,true));
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word(),toRead,true));
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x21 FCB-Random read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             }
             case 0x22:		/* Write random record to FCB */
             {
                 IntRef toWrite = new IntRef(1);
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toWrite,true));
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word(),toWrite,true));
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x22 FCB-Random write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
             }
             case 0x23:		/* Get file size for FCB */
-                if (Dos_files.DOS_FCBGetFileSize((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
+                if (Dos_files.DOS_FCBGetFileSize((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word())) CPU_Regs.reg_eax.low(0x00);
                 else CPU_Regs.reg_eax.low(0xFF);
                 break;
             case 0x24:		/* Set Random Record number for FCB */
-                Dos_files.DOS_FCBSetRandomRecord((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word());
+                Dos_files.DOS_FCBSetRandomRecord((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word());
                 break;
             case 0x27:		/* Random block read from FCB */
             {
                 IntRef toRead = new IntRef(CPU_Regs.reg_ecx.word());
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toRead,false));
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomRead((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word(),toRead,false));
                 CPU_Regs.reg_ecx.word(toRead.value);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x27 FCB-Random(block) read used, result:al="+CPU_Regs.reg_eax.low());
                 break;
@@ -733,7 +731,7 @@ public class Dos extends Module_base {
             case 0x28:		/* Random Block write to FCB */
             {
                 IntRef toWrite = new IntRef(CPU_Regs.reg_ecx.word());
-                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word(),toWrite,false));
+                CPU_Regs.reg_eax.low(Dos_files.DOS_FCBRandomWrite((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word(),toWrite,false));
                 CPU_Regs.reg_ecx.word(toWrite.value);
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:0x28 FCB-Random(block) write used, result:al="+CPU_Regs.reg_eax.low());
                 break;
@@ -742,8 +740,8 @@ public class Dos extends Module_base {
                 {
                     /*Bit8u*/ShortRef difference=new ShortRef();
                     String string;
-                    string=Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),1023); // 1024 toasts the stack
-                    CPU_Regs.reg_eax.low(Dos_files.FCB_Parsename((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word(),(short)CPU_Regs.reg_eax.low() ,string, difference));
+                    string=Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word(),1023); // 1024 toasts the stack
+                    CPU_Regs.reg_eax.low(Dos_files.FCB_Parsename((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word(),(short)CPU_Regs.reg_eax.low() ,string, difference));
                     CPU_Regs.reg_esi.word(CPU_Regs.reg_esi.word()+difference.value);
                 }
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_FCB,LogSeverities.LOG_NORMAL,"DOS:29:FCB Parse Filename, result:al="+CPU_Regs.reg_eax.low());
@@ -929,7 +927,7 @@ public class Dos extends Module_base {
                 break;
             case 0x38:					/* Set Country Code */
                 if (CPU_Regs.reg_eax.low()==0) {		/* Get country specidic information */
-                    /*PhysPt*/int dest = CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int dest = CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word();
                     Memory.MEM_BlockWrite(dest,dos.tables.country,0x18);
                     CPU_Regs.reg_eax.word(0x01); CPU_Regs.reg_ebx.word(0x01);
                     Callback.CALLBACK_SCF(false);
@@ -941,7 +939,7 @@ public class Dos extends Module_base {
                 break;
             case 0x39:		/* MKDIR Create directory */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 if (Dos_files.DOS_MakeDir(name1)) {
                     CPU_Regs.reg_eax.word(0x05);	/* ax destroyed */
                     Callback.CALLBACK_SCF(false);
@@ -953,7 +951,7 @@ public class Dos extends Module_base {
             }
             case 0x3a:		/* RMDIR Remove directory */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 if  (Dos_files.DOS_RemoveDir(name1)) {
                     CPU_Regs.reg_eax.word(0x05);	/* ax destroyed */
                     Callback.CALLBACK_SCF(false);
@@ -966,7 +964,7 @@ public class Dos extends Module_base {
             }
             case 0x3b:		/* CHDIR Set current directory */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 if  (Dos_files.DOS_ChangeDir(name1)) {
                     CPU_Regs.reg_eax.word(0x00);	/* ax destroyed */
                     Callback.CALLBACK_SCF(false);
@@ -978,7 +976,7 @@ public class Dos extends Module_base {
             }
             case 0x3c:		/* CREATE Create of truncate file */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 IntRef ax = new IntRef(CPU_Regs.reg_eax.word());
                 if (Dos_files.DOS_CreateFile(name1,CPU_Regs.reg_ecx.word(),ax)) {
                     CPU_Regs.reg_eax.word(ax.value);
@@ -991,7 +989,7 @@ public class Dos extends Module_base {
             }
             case 0x3d:		/* OPEN Open existing file */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 IntRef ax = new IntRef(CPU_Regs.reg_eax.word());
                 if (Dos_files.DOS_OpenFile(name1,CPU_Regs.reg_eax.low(),ax)) {
                     CPU_Regs.reg_eax.word(ax.value);
@@ -1015,7 +1013,7 @@ public class Dos extends Module_base {
                     /*Bit16u*/IntRef toread=new IntRef(CPU_Regs.reg_ecx.word());
                     dos.echo=true;
                     if (Dos_files.DOS_ReadFile(CPU_Regs.reg_ebx.word(),dos_copybuf,toread)) {
-                        Memory.MEM_BlockWrite(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),dos_copybuf,toread.value);
+                        Memory.MEM_BlockWrite(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),dos_copybuf,toread.value);
                         CPU_Regs.reg_eax.word(toread.value);
                         Callback.CALLBACK_SCF(false);
                     } else {
@@ -1029,7 +1027,7 @@ public class Dos extends Module_base {
             case 0x40:					/* WRITE Write to file or device */
                 {
                     /*Bit16u*/IntRef towrite=new IntRef(CPU_Regs.reg_ecx.word());
-                    Memory.MEM_BlockRead(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),dos_copybuf,towrite.value);
+                    Memory.MEM_BlockRead(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),dos_copybuf,towrite.value);
                     if (Dos_files.DOS_WriteFile(CPU_Regs.reg_ebx.word(),dos_copybuf,towrite)) {
                         CPU_Regs.reg_eax.word(towrite.value);
                         Callback.CALLBACK_SCF(false);
@@ -1042,7 +1040,7 @@ public class Dos extends Module_base {
                 }
             case 0x41:					/* UNLINK Delete file */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 if (Dos_files.DOS_UnlinkFile(name1)) {
                     Callback.CALLBACK_SCF(false);
                 } else {
@@ -1066,7 +1064,7 @@ public class Dos extends Module_base {
                 }
             case 0x43:					/* Get/Set file attributes */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 switch (CPU_Regs.reg_eax.low()) {
                 case 0x00:				/* Get */
                     {
@@ -1132,7 +1130,7 @@ public class Dos extends Module_base {
             {
                 StringRef name1 = new StringRef();
                 if (Dos_files.DOS_GetCurrentDir((short)CPU_Regs.reg_edx.low(),name1)) {
-                    Memory.MEM_BlockWrite(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),name1.value,(/*Bitu*/int)(name1.value.length()+1));
+                    Memory.MEM_BlockWrite(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word(),name1.value,(/*Bitu*/int)(name1.value.length()+1));
                     CPU_Regs.reg_eax.word(0x0100);
                     Callback.CALLBACK_SCF(false);
                 } else {
@@ -1155,7 +1153,7 @@ public class Dos extends Module_base {
                     break;
                 }
             case 0x49:					/* Free memory */
-                if (Dos_memory.DOS_FreeMemory((int)CPU.Segs_ESval)) {
+                if (Dos_memory.DOS_FreeMemory((int)CPU_Regs.reg_esVal.dword)) {
                     Callback.CALLBACK_SCF(false);
                 } else {
                     CPU_Regs.reg_eax.word(dos.errorcode);
@@ -1165,8 +1163,8 @@ public class Dos extends Module_base {
             case 0x4a:					/* Resize memory block */
                 {
                     /*Bit16u*/IntRef size=new IntRef(CPU_Regs.reg_ebx.word());
-                    if (Dos_memory.DOS_ResizeMemory((int)CPU.Segs_ESval,size)) {
-                        CPU_Regs.reg_eax.word((int)CPU.Segs_ESval);
+                    if (Dos_memory.DOS_ResizeMemory((int)CPU_Regs.reg_esVal.dword,size)) {
+                        CPU_Regs.reg_eax.word((int)CPU_Regs.reg_esVal.dword);
                         Callback.CALLBACK_SCF(false);
                     } else {
                         CPU_Regs.reg_eax.word(dos.errorcode);
@@ -1177,9 +1175,9 @@ public class Dos extends Module_base {
                 }
             case 0x4b:					/* EXEC Load and/or execute program */
                 {
-                    String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                    String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_EXEC,LogSeverities.LOG_ERROR,"Execute "+name1+" "+CPU_Regs.reg_eax.low());
-                    if (!Dos_execute.DOS_Execute(name1,CPU.Segs_ESphys+CPU_Regs.reg_ebx.word(),(short)CPU_Regs.reg_eax.low())) {
+                    if (!Dos_execute.DOS_Execute(name1,CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_ebx.word(),(short)CPU_Regs.reg_eax.low())) {
                         CPU_Regs.reg_eax.word(dos.errorcode);
                         Callback.CALLBACK_SCF(true);
                     }
@@ -1195,7 +1193,7 @@ public class Dos extends Module_base {
                 break;
             case 0x4e:					/* FINDFIRST Find first matching file */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                 if (Dos_files.DOS_FindFirst(name1,CPU_Regs.reg_ecx.word())) {
                     Callback.CALLBACK_SCF(false);
                     CPU_Regs.reg_eax.word(0);			/* Undocumented */
@@ -1242,8 +1240,8 @@ public class Dos extends Module_base {
                 break;
             case 0x56:					/* RENAME Rename file */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
-                String name2 = Memory.MEM_StrCopy(CPU.Segs_ESphys+CPU_Regs.reg_edi.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
+                String name2 = Memory.MEM_StrCopy(CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word(),256);
                 if (Dos_files.DOS_Rename(name1,name2)) {
                     Callback.CALLBACK_SCF(false);
                 } else {
@@ -1312,10 +1310,10 @@ public class Dos extends Module_base {
             case 0x5a:					/* Create temporary file */
                 {
                     /*Bit16u*/IntRef handle=new IntRef(0);
-                    StringRef name1 = new StringRef(Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256));
+                    StringRef name1 = new StringRef(Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256));
                     if (Dos_files.DOS_CreateTempFile(name1,handle)) {
                         CPU_Regs.reg_eax.word(handle.value);
-                        Memory.MEM_BlockWrite(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),name1.value,(/*Bitu*/int)(name1.value.length()+1));
+                        Memory.MEM_BlockWrite(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),name1.value,(/*Bitu*/int)(name1.value.length()+1));
                         Callback.CALLBACK_SCF(false);
                     } else {
                         CPU_Regs.reg_eax.word(dos.errorcode);
@@ -1325,7 +1323,7 @@ public class Dos extends Module_base {
                 break;
             case 0x5b:					/* Create new file */
                 {
-                    String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_edx.word(),256);
+                    String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word(),256);
                     /*Bit16u*/IntRef handle=new IntRef(0);
                     if (Dos_files.DOS_OpenFile(name1,0,handle)) {
                         Dos_files.DOS_CloseFile(handle.value);
@@ -1363,10 +1361,10 @@ public class Dos extends Module_base {
                 break;
             case 0x60:					/* Canonicalize filename or path */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word(),256);
                 StringRef name2 = new StringRef();
                 if (Dos_files.DOS_Canonicalize(name1,name2)) {
-                        Memory.MEM_BlockWrite(CPU.Segs_ESphys+CPU_Regs.reg_edi.word(),name2.value,(/*Bitu*/int)name2.value.length()+1);
+                        Memory.MEM_BlockWrite(CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word(),name2.value,(/*Bitu*/int)name2.value.length()+1);
                         Callback.CALLBACK_SCF(false);
                     } else {
                         CPU_Regs.reg_eax.word(dos.errorcode);
@@ -1397,7 +1395,7 @@ public class Dos extends Module_base {
                         break;
                     }
                     /*Bitu*/int len = 0; /* For 0x21 and 0x22 */
-                    /*PhysPt*/int data=CPU.Segs_ESphys+CPU_Regs.reg_edi.word();
+                    /*PhysPt*/int data=CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word();
                     switch (CPU_Regs.reg_eax.low()) {
                     case 0x01:
                         Memory.mem_writeb(data + 0x00,CPU_Regs.reg_eax.low());
@@ -1447,7 +1445,7 @@ public class Dos extends Module_base {
                         break;
                     case 0x21: /* Capitalize String (cx=length) */
                     case 0x22: /* Capatilize ASCIZ string */
-                        data = CPU.Segs_DSphys + CPU_Regs.reg_edx.word();
+                        data = CPU_Regs.reg_dsPhys.dword + CPU_Regs.reg_edx.word();
                         if(CPU_Regs.reg_eax.low() == 0x21) len = CPU_Regs.reg_ecx.word();
                         else len = Memory.mem_strlen(data); /* Is limited to 1024 */
 
@@ -1505,7 +1503,7 @@ public class Dos extends Module_base {
                 }
             case 0x6c:					/* Extended Open/Create */
             {
-                String name1 = Memory.MEM_StrCopy(CPU.Segs_DSphys+CPU_Regs.reg_esi.word(),256);
+                String name1 = Memory.MEM_StrCopy(CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word(),256);
                 IntRef ax = new IntRef(CPU_Regs.reg_eax.word());
                 IntRef cx = new IntRef(CPU_Regs.reg_ecx.word());
                 if (Dos_files.DOS_OpenFileExtended(name1,CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word(),ax,cx)) {

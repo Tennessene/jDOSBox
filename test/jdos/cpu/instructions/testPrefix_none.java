@@ -133,10 +133,10 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPushES() {
         newInstruction(0x06);
         CPU_Regs.reg_esp.dword(0x100);
-        CPU.Segs_ESval = 0x1ABCD;
+        CPU_Regs.reg_esVal.dword = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x07
@@ -144,10 +144,10 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopES() {
         newInstruction(0x07);
         CPU_Regs.reg_esp.dword(0xFE);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
-        assertTrue(CPU.Segs_ESval==0x89EF);
+        assertTrue(CPU_Regs.reg_esVal.dword==0x89EF);
     }
 
     // 0x08
@@ -241,11 +241,11 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPushCS() {
         newInstruction(0x0E);
         CPU_Regs.reg_esp.dword(0x100);
-        CPU.Segs_CSval = 0x1ABCD;
+        CPU_Regs.reg_csVal.dword = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x0F
@@ -390,11 +390,11 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPushSS() {
         newInstruction(0x16);
         CPU_Regs.reg_esp.dword(0x100);
-        CPU.Segs_SSval = 0x1ABCD;
+        CPU_Regs.reg_ssVal.dword = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
-        assertTrue(RAM.readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readd(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x17
@@ -403,10 +403,10 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x17);
         nop();
         CPU_Regs.reg_esp.dword(0xFE);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
-        assertTrue(CPU.Segs_SSval==0x89EF);
+        assertTrue(CPU_Regs.reg_ssVal.dword==0x89EF);
     }
 
     // 0x18
@@ -564,11 +564,11 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPushDS() {
         newInstruction(0x1E);
         CPU_Regs.reg_esp.dword(0x100);
-        CPU.Segs_DSval = 0x1ABCD;
+        CPU_Regs.reg_dsVal.dword = 0x1ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
-        assertTrue(RAM.readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readd(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
     }
 
     // 0x1F
@@ -576,10 +576,10 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopDS() {
         newInstruction(0x1F);
         CPU_Regs.reg_esp.dword(0xFE);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
-        assertTrue(CPU.Segs_DSval==0x89EF);
+        assertTrue(CPU_Regs.reg_dsVal.dword==0x89EF);
     }
 
     // 0x20
@@ -709,7 +709,7 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
-        CPU.Segs_ESphys = MEM_BASE_SS;
+        CPU_Regs.SegSet16ES(CPU_Regs.reg_ssVal.dword);
         decoder.call();
         assertTrue(RAM.readbs(MEM_BASE_DS)==0);
         assertTrue(RAM.readbs(MEM_BASE_SS)==(byte)0xAB);
@@ -910,11 +910,11 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
         CPU_Regs.reg_ebx.word(100);
-        //CPU.Segs_CSphys = MEM_BASE_SS;
+        //CPU_Regs.reg_csPhys.dword = MEM_BASE_SS;
         decoder.call();
         assertTrue(RAM.readbs(MEM_BASE_DS)==0);
-        assertTrue(RAM.readbs(CPU.Segs_CSphys+100)==(byte)0xAB);
-        RAM.writebs(CPU.Segs_CSphys+100, (byte)0);
+        assertTrue(RAM.readbs(CPU_Regs.reg_csPhys.dword+100)==(byte)0xAB);
+        RAM.writebs(CPU_Regs.reg_csPhys.dword+100, (byte)0);
     }
 
     // 0x2f
@@ -1380,9 +1380,9 @@ public class testPrefix_none extends InstructionsTestCase{
         reg.dword(0x1ABCD);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
-        assertTrue(RAM.readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readd(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x50
@@ -1416,9 +1416,9 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_esp.dword(0x100);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0x100);
-        assertTrue(RAM.readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0x100);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0x100);
+        assertTrue(RAM.readd(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0x100);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x55
@@ -1442,12 +1442,12 @@ public class testPrefix_none extends InstructionsTestCase{
     private void popWord(int instruction, CPU_Regs.Reg reg) {
         newInstruction(instruction);
         CPU_Regs.reg_esp.dword(0xFE);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(reg.word()==0x89EF);
         assertTrue(reg.dword==0x89EF);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword-2, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword-2, 0);
     }
 
     // 0x58
@@ -1479,10 +1479,10 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopSp() {
         newInstruction(0x5c);
         CPU_Regs.reg_esp.dword(0xFE);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x102);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0x102);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x102);
-        RAM.writew(CPU.Segs_SSphys+0xFE, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFE, 0);
     }
 
     // 0x5D
@@ -1518,22 +1518,22 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_edi.dword(0x1ABC7);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xF0);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xFE)==0xABC0);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xFC)==0xABC1);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xFA)==0xABC2);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xF8)==0xABC3);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xF6)==0x0100);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xF4)==0xABC5);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xF2)==0xABC6);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+0xF0)==0xABC7);
-        RAM.writew(CPU.Segs_SSphys+0xFE, 0);
-        RAM.writew(CPU.Segs_SSphys+0xFC, 0);
-        RAM.writew(CPU.Segs_SSphys+0xFA, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF8, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF6, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF4, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF2, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF0, 0);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xFE)==0xABC0);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xFC)==0xABC1);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xFA)==0xABC2);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xF8)==0xABC3);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xF6)==0x0100);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xF4)==0xABC5);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xF2)==0xABC6);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+0xF0)==0xABC7);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFE, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFC, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFA, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF8, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF6, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF4, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF2, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF0, 0);
     }
 
     // 0x61
@@ -1541,14 +1541,14 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testPopA() {
         newInstruction(0x61);
         CPU_Regs.reg_esp.dword(0xF0);
-        RAM.writew(CPU.Segs_SSphys+0xFE, 0xABC7);
-        RAM.writew(CPU.Segs_SSphys+0xFC, 0xABC6);
-        RAM.writew(CPU.Segs_SSphys+0xFA, 0xABC5);
-        RAM.writew(CPU.Segs_SSphys+0xF8, 0xABC4);
-        RAM.writew(CPU.Segs_SSphys+0xF6, 0xABC3);
-        RAM.writew(CPU.Segs_SSphys+0xF4, 0xABC2);
-        RAM.writew(CPU.Segs_SSphys+0xF2, 0xABC1);
-        RAM.writew(CPU.Segs_SSphys+0xF0, 0xABC0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFE, 0xABC7);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFC, 0xABC6);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFA, 0xABC5);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF8, 0xABC4);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF6, 0xABC3);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF4, 0xABC2);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF2, 0xABC1);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF0, 0xABC0);
 
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.dword==0xABC7);
@@ -1559,14 +1559,14 @@ public class testPrefix_none extends InstructionsTestCase{
         assertTrue(CPU_Regs.reg_ebp.dword==0xABC2);
         assertTrue(CPU_Regs.reg_esi.dword==0xABC1);
         assertTrue(CPU_Regs.reg_edi.dword==0xABC0);
-        RAM.writew(CPU.Segs_SSphys+0xFE, 0);
-        RAM.writew(CPU.Segs_SSphys+0xFC, 0);
-        RAM.writew(CPU.Segs_SSphys+0xFA, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF8, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF6, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF4, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF2, 0);
-        RAM.writew(CPU.Segs_SSphys+0xF0, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFE, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFC, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xFA, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF8, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF6, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF4, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF2, 0);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+0xF0, 0);
     }
 
     // 0x62
@@ -1575,48 +1575,48 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x62);
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.dword(0);
-        RAM.writew(CPU.Segs_DSphys, 0);
-        RAM.writew(CPU.Segs_DSphys+2, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword+2, 0);
         decoder.call();
         assertTrue(CPU.lastint == 0);
 
         newInstruction(0x62);
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(1);
-        RAM.writew(CPU.Segs_DSphys, 0);
-        RAM.writew(CPU.Segs_DSphys+2, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword+2, 0);
         decoder.call();
         assertTrue(CPU.lastint == 5);
 
         newInstruction(0x62);
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0x7000);
-        RAM.writew(CPU.Segs_DSphys, 0x7000);
-        RAM.writew(CPU.Segs_DSphys+2, 0x7000);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0x7000);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword+2, 0x7000);
         decoder.call();
         assertTrue(CPU.lastint == 0);
 
         newInstruction(0x62);
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0x7001);
-        RAM.writew(CPU.Segs_DSphys, 0x7000);
-        RAM.writew(CPU.Segs_DSphys+2, 0x7000);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0x7000);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword+2, 0x7000);
         decoder.call();
         assertTrue(CPU.lastint == 5);
 
         newInstruction(0x62);
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0xA000);
-        RAM.writew(CPU.Segs_DSphys, 0x9000);
-        RAM.writew(CPU.Segs_DSphys+2, 0xB000);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0x9000);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword+2, 0xB000);
         decoder.call();
         assertTrue(CPU.lastint == 0);
 
         newInstruction(0x62);
         pushIb((byte)0xC0);
         CPU_Regs.reg_eax.word(0x8000);
-        RAM.writew(CPU.Segs_DSphys, 0x9000);
-        RAM.writew(CPU.Segs_DSphys+2, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0x9000);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword+2, 0);
         decoder.call();
         assertTrue(CPU.lastint == 5);
     }
@@ -1661,7 +1661,7 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
-        CPU.Segs_FSphys = MEM_BASE_SS;
+        CPU_Regs.SegSet16FS(MEM_BASE_SS>>4);
         decoder.call();
         assertTrue(RAM.readbs(MEM_BASE_DS)==0);
         assertTrue(RAM.readbs(MEM_BASE_SS)==(byte)0xAB);
@@ -1683,7 +1683,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)0x88);
         pushIb((byte)0);
         CPU_Regs.reg_eax.dword(0xAB);
-        CPU.Segs_GSphys = MEM_BASE_SS;
+        CPU_Regs.SegSet16GS(MEM_BASE_SS>>4);
+
         decoder.call();
         assertTrue(RAM.readbs(MEM_BASE_DS)==0);
         assertTrue(RAM.readbs(MEM_BASE_SS)==(byte)0xAB);
@@ -1717,9 +1718,9 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIw((short)0xEF01); // just make sure it doesn't read more
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue(RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
-        assertTrue(RAM.readd(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==0xABCD);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
+        assertTrue(RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
+        assertTrue(RAM.readd(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==0xABCD);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x69
@@ -1755,12 +1756,12 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x69);
         pushIb((byte)0);
         pushIw((short)-384);
-        RAM.writew(CPU.Segs_DSphys, 20);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 20);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==-7680);
         if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
             assertTrue(!Flags.get_CF());
-        RAM.writew(CPU.Segs_DSphys, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0);
 
     }
 
@@ -1773,8 +1774,8 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIw((short)0xEF01); // just make sure it doesn't read more
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0xFE);
-        assertTrue((short)RAM.readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword)==-71);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0);
+        assertTrue((short)RAM.readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword)==-71);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0);
     }
 
     // 0x6b
@@ -1810,12 +1811,12 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x6b);
         pushIb((byte)0);
         pushIw((byte)-127);
-        RAM.writew(CPU.Segs_DSphys, -20);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, -20);
         decoder.call();
         assertTrue((short)CPU_Regs.reg_eax.word()==2540);
         if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
             assertTrue(!Flags.get_CF());
-        RAM.writew(CPU.Segs_DSphys, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0);
     }
 
     // 0x6c
@@ -1825,13 +1826,13 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_edx.word(17000);
         CPU_Regs.reg_ecx.dword(1);
         CPU_Regs.reg_edi.dword(0);
-        CPU.Segs_ESphys = (int)(CPU.Segs_DSphys+100);
+        CPU_Regs.SegSet16ES(CPU_Regs.reg_dsVal.dword+0x100);
         IoHandler.IO_ReadHandler handler = new IoHandler.IO_ReadHandler() {public int call(int port, int iolen) {return 0xAB;}};
         IoHandler.IO_RegisterReadHandler(17000, handler, IoHandler.IO_MB);
         decoder.call();        
-        assertTrue(RAM.readb(CPU.Segs_ESphys)==0xAB);
+        assertTrue(RAM.readb(CPU_Regs.reg_esPhys.dword)==0xAB);
         IoHandler.IO_FreeReadHandler(17000, IoHandler.IO_MB);
-        RAM.writeb(CPU.Segs_ESphys,(short)0);
+        RAM.writeb(CPU_Regs.reg_esPhys.dword,(short)0);
     }
 
     // 0x6d
@@ -1841,13 +1842,13 @@ public class testPrefix_none extends InstructionsTestCase{
         CPU_Regs.reg_edx.word(17000);
         CPU_Regs.reg_ecx.dword(1);
         CPU_Regs.reg_edi.dword(0);
-        CPU.Segs_ESphys = (int)(CPU.Segs_DSphys+100);
+        CPU_Regs.SegSet16ES(CPU_Regs.reg_dsVal.dword+0x100);
         IoHandler.IO_ReadHandler handler = new IoHandler.IO_ReadHandler() {public int call(int port, int iolen) {return 0xAB;}};
         IoHandler.IO_RegisterReadHandler(17000, handler, IoHandler.IO_MW);
         decoder.call();
-        assertTrue(RAM.readw(CPU.Segs_ESphys)==0xAB);
+        assertTrue(RAM.readw(CPU_Regs.reg_esPhys.dword)==0xAB);
         IoHandler.IO_FreeReadHandler(17000, IoHandler.IO_MW);
-        RAM.writew(CPU.Segs_ESphys,0);
+        RAM.writew(CPU_Regs.reg_esPhys.dword,0);
     }
 
     // 0x6e
@@ -1861,11 +1862,11 @@ public class testPrefix_none extends InstructionsTestCase{
         result = 0;
         IoHandler.IO_WriteHandler handler = new IoHandler.IO_WriteHandler() {public void call(int port, int val, int iolen) {result=val;}};
         IoHandler.IO_RegisterWriteHandler(17000, handler, IoHandler.IO_MB);
-        RAM.writew(CPU.Segs_DSphys, 0xABCD);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0xABCD);
         decoder.call();
         assertTrue(result==0xCD);
         IoHandler.IO_FreeWriteHandler(17000, IoHandler.IO_MB);
-        RAM.writew(CPU.Segs_DSphys, 0);
+        RAM.writew(CPU_Regs.reg_dsPhys.dword, 0);
     }
 
     // 0x6f
@@ -1878,11 +1879,11 @@ public class testPrefix_none extends InstructionsTestCase{
         result = 0;
         IoHandler.IO_WriteHandler handler = new IoHandler.IO_WriteHandler() {public void call(int port, int val, int iolen) {result=val;}};
         IoHandler.IO_RegisterWriteHandler(17000, handler, IoHandler.IO_MW);
-        RAM.writed(CPU.Segs_DSphys, 0xABCDEF01);
+        RAM.writed(CPU_Regs.reg_dsPhys.dword, 0xABCDEF01);
         decoder.call();
         assertTrue(result==0xEF01);
         IoHandler.IO_FreeWriteHandler(17000, IoHandler.IO_MW);
-        RAM.writed(CPU.Segs_DSphys, 0);
+        RAM.writed(CPU_Regs.reg_dsPhys.dword, 0);
     }
 
     private void doJump(int instruction, int flag, boolean cond) {
@@ -2224,7 +2225,7 @@ public class testPrefix_none extends InstructionsTestCase{
     // 0x81
     //Grpl Ew,Iw
     public void testGroup1EwIw() {
-        // AND
+        // ADD
         runRegswi((byte)0x81, (byte)0, 1001, 2, 1003);
         runRegwi((byte)0x81, (byte)0, 1, -2, -1);
         if (!jdos.cpu.core_dynamic.Compiler.alwayUseFastVersion)
@@ -2562,7 +2563,7 @@ public class testPrefix_none extends InstructionsTestCase{
     public void testMovEwSw() {
         newInstruction(0x8c);
         pushIb((byte)0xC0);
-        CPU.Segs_ESval = 0x1234;
+        CPU_Regs.SegSet16ES(0x1234);
         decoder.call();
         assertTrue(CPU_Regs.reg_eax.dword==0x1234);
 
@@ -2573,25 +2574,25 @@ public class testPrefix_none extends InstructionsTestCase{
 
         newInstruction(0x8c);
         pushIb((byte)(0xC0 + (2<<3) + 2));
-        CPU.Segs_SSval = 0x1234;
+        CPU_Regs.reg_ssVal.dword = 0x1234;
         decoder.call();
         assertTrue(CPU_Regs.reg_edx.dword==0x1234);
 
         newInstruction(0x8c);
         pushIb((byte)(0xC0 + (3<<3) + 3));
-        CPU.Segs_DSval = 0x1234;
+        CPU_Regs.reg_dsVal.dword = 0x1234;
         decoder.call();
         assertTrue(CPU_Regs.reg_ebx.dword==0x1234);
 
         newInstruction(0x8c);
         pushIb((byte)(0xC0 + (4<<3) + 4));
-        CPU.Segs_FSval = 0x1234;
+        CPU_Regs.reg_fsVal.dword = 0x1234;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x1234);
 
         newInstruction(0x8c);
         pushIb((byte)(0xC0 + (5<<3) + 5));
-        CPU.Segs_GSval = 0x1234;
+        CPU_Regs.reg_gsVal.dword = 0x1234;
         decoder.call();
         assertTrue(CPU_Regs.reg_ebp.dword==0x1234);
 
@@ -2600,7 +2601,7 @@ public class testPrefix_none extends InstructionsTestCase{
         Memory.mem_writew(MEM_BASE_DS-2, 0xCDCD);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0xCDCD);
-        CPU.Segs_ESval = 0x1234;
+        CPU_Regs.SegSet16ES(0x1234);
         decoder.call();
         assertTrue(Memory.mem_readw(MEM_BASE_DS)==0x1234);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
@@ -2635,31 +2636,31 @@ public class testPrefix_none extends InstructionsTestCase{
         pushIb((byte)0xC1);
         CPU_Regs.reg_ecx.dword(0xFFABCD);
         decoder.call();
-        assertTrue(CPU.Segs_ESval == 0xABCD);
+        assertTrue(CPU_Regs.reg_esVal.dword == 0xABCD);
 
         newInstruction(0x8e);
         pushIb((byte)(0xC2 + (2<<3)));
         CPU_Regs.reg_edx.dword(0xFFABCD);
         decoder.call();
-        assertTrue(CPU.Segs_SSval == 0xABCD);
+        assertTrue(CPU_Regs.reg_ssVal.dword == 0xABCD);
 
         newInstruction(0x8e);
         pushIb((byte)(0xC3 + (3<<3)));
         CPU_Regs.reg_ebx.dword(0xFFABCD);
         decoder.call();
-        assertTrue(CPU.Segs_DSval == 0xABCD);
+        assertTrue(CPU_Regs.reg_dsVal.dword == 0xABCD);
 
         newInstruction(0x8e);
         pushIb((byte)(0xC4 + (4<<3)));
         CPU_Regs.reg_esp.dword(0xFFABCD);
         decoder.call();
-        assertTrue(CPU.Segs_FSval == 0xABCD);
+        assertTrue(CPU_Regs.reg_fsVal.dword == 0xABCD);
 
         newInstruction(0x8e);
         pushIb((byte)(0xC5 + (5<<3)));
         CPU_Regs.reg_ebp.dword(0xFFABCD);
         decoder.call();
-        assertTrue(CPU.Segs_GSval == 0xABCD);
+        assertTrue(CPU_Regs.reg_gsVal.dword == 0xABCD);
 
         newInstruction(0x8e);
         pushIb((byte)0x0);
@@ -2667,7 +2668,7 @@ public class testPrefix_none extends InstructionsTestCase{
         Memory.mem_writew(MEM_BASE_DS, 0xABCD);
         Memory.mem_writew(MEM_BASE_DS+2, 0xCDCD);
         decoder.call();
-        assertTrue(CPU.Segs_ESval == 0xABCD);
+        assertTrue(CPU_Regs.reg_esVal.dword == 0xABCD);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -2679,7 +2680,7 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x8f);
         pushIb((byte)0xC3);
         CPU_Regs.reg_esp.dword(0xFE);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(CPU_Regs.reg_ebx.dword==0x89EF);
@@ -2687,7 +2688,7 @@ public class testPrefix_none extends InstructionsTestCase{
         newInstruction(0x8f);
         pushIb((byte)0x0);
         CPU_Regs.reg_esp.dword(0xFE);
-        RAM.writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.dword, 0x89EF);
+        RAM.writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.dword, 0x89EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword==0x100);
         assertTrue(Memory.mem_readw(MEM_BASE_DS)==0x89EF);

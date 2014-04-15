@@ -185,11 +185,11 @@ public class Memory extends Module_base {
         static /*Bits*/int r_lcount=0;
         public /*Bitu*/int readb(/*PhysPt*/int addr) {
             if (Config.C_DEBUG)
-                Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
+                Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU_Regs.reg_csVal.dword),new Integer(CPU_Regs.reg_eip)}));
             else {
                 if (r_lcount<1000) {
                     r_lcount++;
-                    Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
+                    Log.log_msg(StringHelper.sprintf("Illegal read from %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU_Regs.reg_csVal.dword),new Integer(CPU_Regs.reg_eip)}));
                 }
             }
             return 0;
@@ -197,12 +197,12 @@ public class Memory extends Module_base {
         static /*Bits*/int w_lcount=0;
         public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
             if (Config.C_DEBUG)
-                Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
+                Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU_Regs.reg_csVal.dword),new Integer(CPU_Regs.reg_eip)}));
             else {
 
                 if (w_lcount<1000) {
                     w_lcount++;
-                    Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU.Segs_CSval),new Integer(CPU_Regs.reg_eip)}));
+                    Log.log_msg(StringHelper.sprintf("Illegal write to %x, CS:IP %8x:%8x",new Object[] {new Integer(addr), new Integer(CPU_Regs.reg_csVal.dword),new Integer(CPU_Regs.reg_eip)}));
                 }
             }
         }

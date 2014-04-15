@@ -89,12 +89,12 @@ public class Debug {
             Debug.log(Debug.EBP, CPU_Regs.reg_ebp.dword);
             Debug.log(Debug.ESI, CPU_Regs.reg_esi.dword);
             Debug.log(Debug.FLAGS, CPU_Regs.flags);
-            Debug.log(Debug.ES, CPU.Segs_ESphys);
-            Debug.log(Debug.CS, CPU.Segs_CSphys);
-            Debug.log(Debug.SS, CPU.Segs_SSphys);
-            Debug.log(Debug.DS, CPU.Segs_DSphys);
-            Debug.log(Debug.FS, CPU.Segs_FSphys);
-            Debug.log(Debug.GS, CPU.Segs_GSphys);
+            Debug.log(Debug.ES, CPU_Regs.reg_esPhys.dword);
+            Debug.log(Debug.CS, CPU_Regs.reg_csPhys.dword);
+            Debug.log(Debug.SS, CPU_Regs.reg_ssPhys.dword);
+            Debug.log(Debug.DS, CPU_Regs.reg_dsPhys.dword);
+            Debug.log(Debug.FS, CPU_Regs.reg_fsPhys.dword);
+            Debug.log(Debug.GS, CPU_Regs.reg_gsPhys.dword);
             //FPU.log();
         }
     }
@@ -112,12 +112,12 @@ public class Debug {
             Debug.log(Debug.EBP, CPU_Regs.reg_ebp.dword);
             Debug.log(Debug.ESI, CPU_Regs.reg_esi.dword);
             Debug.log(Debug.FLAGS, CPU_Regs.flags);
-            Debug.log(Debug.ES, CPU.Segs_ESphys);
-            Debug.log(Debug.CS, CPU.Segs_CSphys);
-            Debug.log(Debug.SS, CPU.Segs_SSphys);
-            Debug.log(Debug.DS, CPU.Segs_DSphys);
-            Debug.log(Debug.FS, CPU.Segs_FSphys);
-            Debug.log(Debug.GS, CPU.Segs_GSphys);
+            Debug.log(Debug.ES, CPU_Regs.reg_esPhys.dword);
+            Debug.log(Debug.CS, CPU_Regs.reg_csPhys.dword);
+            Debug.log(Debug.SS, CPU_Regs.reg_ssPhys.dword);
+            Debug.log(Debug.DS, CPU_Regs.reg_dsPhys.dword);
+            Debug.log(Debug.FS, CPU_Regs.reg_fsPhys.dword);
+            Debug.log(Debug.GS, CPU_Regs.reg_gsPhys.dword);
             //FPU.log();
             Debug.log(Debug.DONE, c);
         }

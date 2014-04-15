@@ -34,8 +34,8 @@ public class Decoder extends Inst1 {
     abstract public static class SegOp extends Op {
         public Op op;
         public void reset() {
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds=ds;
         }
 
@@ -52,8 +52,8 @@ public class Decoder extends Inst1 {
 
     final public static class HandledSegChange extends Op {
         public int call() {
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds=ds;
             return next.call();
         }
@@ -85,7 +85,7 @@ public class Decoder extends Inst1 {
                 if ((traceCount % 1000)==0) {
                     int ii=0;
                 }
-                System.out.println(traceCount+" "+Integer.toHexString(CPU.Segs_CSphys) + ":" + Integer.toHexString(CPU_Regs.reg_eip) + " " + Integer.toHexString(op.c) + " " + op.description()+" (eax=0x"+Integer.toHexString(CPU_Regs.reg_eax.dword)+" ecx=0x"+Integer.toHexString(CPU_Regs.reg_ecx.dword)+" edx=0x"+Integer.toHexString(CPU_Regs.reg_edx.dword)+" ebx=0x"+Integer.toHexString(CPU_Regs.reg_ebx.dword)+" esp=0x"+Integer.toHexString(CPU_Regs.reg_esp.dword)+" ebp=0x"+Integer.toHexString(CPU_Regs.reg_ebp.dword)+" esi=0x"+Integer.toHexString(CPU_Regs.reg_esi.dword)+" edi=0x"+Integer.toHexString(CPU_Regs.reg_edi.dword)+")");
+                System.out.println(traceCount+" "+Integer.toHexString(CPU_Regs.reg_csPhys.dword) + ":" + Integer.toHexString(CPU_Regs.reg_eip) + " " + Integer.toHexString(op.c) + " " + op.description()+" (eax=0x"+Integer.toHexString(CPU_Regs.reg_eax.dword)+" ecx=0x"+Integer.toHexString(CPU_Regs.reg_ecx.dword)+" edx=0x"+Integer.toHexString(CPU_Regs.reg_edx.dword)+" ebx=0x"+Integer.toHexString(CPU_Regs.reg_ebx.dword)+" esp=0x"+Integer.toHexString(CPU_Regs.reg_esp.dword)+" ebp=0x"+Integer.toHexString(CPU_Regs.reg_ebp.dword)+" esi=0x"+Integer.toHexString(CPU_Regs.reg_esi.dword)+" edi=0x"+Integer.toHexString(CPU_Regs.reg_edi.dword)+")");
             }
             return op.call();
         }
@@ -201,9 +201,9 @@ public class Decoder extends Inst1 {
                 result = ops[opcode].call(op);
                 if (log) {
                     if (op.next!=null)
-                        System.out.print(Integer.toHexString(CPU.Segs_CSphys)+":"+Integer.toHexString(op_start)+" "+Integer.toHexString(opcode)+" "+op.next.getClass().getName());
+                        System.out.print(Integer.toHexString(CPU_Regs.reg_csPhys.dword)+":"+Integer.toHexString(op_start)+" "+Integer.toHexString(opcode)+" "+op.next.getClass().getName());
                     else
-                        System.out.print(Integer.toHexString(CPU.Segs_CSphys)+":"+Integer.toHexString(op_start)+" "+Integer.toHexString(opcode)+" ");
+                        System.out.print(Integer.toHexString(CPU_Regs.reg_csPhys.dword)+":"+Integer.toHexString(op_start)+" "+Integer.toHexString(opcode)+" ");
                 }
                 if (decode.modifiedAlot) {
                     result = RESULT_ILLEGAL_INSTRUCTION;
@@ -226,17 +226,17 @@ public class Decoder extends Inst1 {
                     //
                     // Core.DO_PREFIX_SEG_ES();
                     // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    // Core.base_ds= CPU_Regs.reg_dsPhys.dword;Core.base_ss=CPU_Regs.reg_ssPhys.dword;Core.base_val_ds=CPU_Regs.ds;
                     // Core.DO_PREFIX_SEG_ES();
                     // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    // Core.base_ds= CPU_Regs.reg_dsPhys.dword;Core.base_ss=CPU_Regs.reg_ssPhys.dword;Core.base_val_ds=CPU_Regs.ds;
                     //
                     // Now it will be 4 ops
                     //
                     // Core.DO_PREFIX_SEG_ES();
                     // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
                     // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    // Core.base_ds= CPU_Regs.reg_dsPhys.dword;Core.base_ss=CPU_Regs.reg_ssPhys.dword;Core.base_val_ds=CPU_Regs.ds;
                     //
                     // or 5 ops if the recompiler is on
                     //
@@ -244,7 +244,7 @@ public class Decoder extends Inst1 {
                     // Memory.mem_writew(Core.base_ds+(CPU_Regs.reg_ebx.word()), 0);
                     // Core.DO_PREFIX_SEG_ES();
                     // Memory.mem_writew(Core.base_ds+((CPU_Regs.reg_ebx.word()+2) & 0xFFFF), 0);
-                    // Core.base_ds= CPU.Segs_DSphys;Core.base_ss=CPU.Segs_SSphys;Core.base_val_ds=CPU_Regs.ds;
+                    // Core.base_ds= CPU_Regs.reg_dsPhys.dword;Core.base_ss=CPU_Regs.reg_ssPhys.dword;Core.base_val_ds=CPU_Regs.ds;
                     //
                     // This only works for instructions with prefixes that are back to back
                     if (removeRedundantSegs) {

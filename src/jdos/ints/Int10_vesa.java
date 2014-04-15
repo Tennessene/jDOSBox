@@ -549,7 +549,7 @@ public class Int10_vesa {
             return "Int10_vesa.VESA_PMSetPalette";
         }
         public /*Bitu*/int call() {
-            VESA_SetPalette(CPU.Segs_ESphys +  CPU_Regs.reg_edi.dword, CPU_Regs.reg_edx.word(), CPU_Regs.reg_ecx.word() );
+            VESA_SetPalette(CPU_Regs.reg_esPhys.dword +  CPU_Regs.reg_edi.dword, CPU_Regs.reg_edx.word(), CPU_Regs.reg_ecx.word() );
             return 0;
         }
     };

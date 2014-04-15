@@ -64,8 +64,8 @@ final public class DecodeBlock extends Op {
                 return compiledOp.call();
             }
         }
-        Core.base_ds= CPU.Segs_DSphys;
-        Core.base_ss=CPU.Segs_SSphys;
+        Core.base_ds= CPU_Regs.reg_dsPhys.dword;
+        Core.base_ss=CPU_Regs.reg_ssPhys.dword;
         Core.base_val_ds= CPU_Regs.ds;
         CPU.CPU_Cycles-=op.cycle;
         try {

@@ -74,10 +74,10 @@ public class testPrefix_66 extends InstructionsTestCase {
     public void testPushES() {
         newInstruction(0x206);
         CPU_Regs.reg_esp.dword(0x100);
-        CPU.Segs_ESval = 0xABCD;
+        CPU_Regs.SegSet16ES(0xABCD);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword == 0xFC);
-        assertTrue(RAM.readd(CPU.Segs_SSphys + CPU_Regs.reg_esp.dword) == 0xABCD);
+        assertTrue(RAM.readd(CPU_Regs.reg_ssPhys.dword + CPU_Regs.reg_esp.dword) == 0xABCD);
     }
 
     // 0x207
@@ -85,10 +85,10 @@ public class testPrefix_66 extends InstructionsTestCase {
     public void testPopES() {
         newInstruction(0x207);
         CPU_Regs.reg_esp.dword(0xFC);
-        RAM.writed(CPU.Segs_SSphys + CPU_Regs.reg_esp.dword, 0x189EF);
+        RAM.writed(CPU_Regs.reg_ssPhys.dword + CPU_Regs.reg_esp.dword, 0x189EF);
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword == 0x100);
-        assertTrue(CPU.Segs_ESval == 0x89EF); // will only pop 16-bit segment
+        assertTrue(CPU_Regs.reg_esVal.dword == 0x89EF); // will only pop 16-bit segment
     }
 
     // 0x209
@@ -138,9 +138,9 @@ public class testPrefix_66 extends InstructionsTestCase {
     public void testPushCS() {
         newInstruction(0x20E);
         CPU_Regs.reg_esp.dword(0x100);
-        CPU.Segs_CSval = 0x1234ABCD;
+        CPU_Regs.reg_csVal.dword = 0x1234ABCD;
         decoder.call();
         assertTrue(CPU_Regs.reg_esp.dword == 0xFC);
-        assertTrue(RAM.readd(CPU.Segs_SSphys + CPU_Regs.reg_esp.dword) == 0x1234ABCD);
+        assertTrue(RAM.readd(CPU_Regs.reg_ssPhys.dword + CPU_Regs.reg_esp.dword) == 0x1234ABCD);
     }
 }

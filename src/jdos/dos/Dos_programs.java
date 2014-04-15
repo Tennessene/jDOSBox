@@ -377,7 +377,7 @@ public class Dos_programs {
             CPU_Regs.reg_eax.word(0x4300);Callback.CALLBACK_RunRealInt(0x2f);
             if (CPU_Regs.reg_eax.low()==0x80) {
                 CPU_Regs.reg_eax.word(0x4310);Callback.CALLBACK_RunRealInt(0x2f);
-                /*Bit16u*/int xms_seg= (int)CPU.Segs_ESval;/*Bit16u*/int xms_off=CPU_Regs.reg_ebx.word();
+                /*Bit16u*/int xms_seg= (int)CPU_Regs.reg_esVal.dword;/*Bit16u*/int xms_off=CPU_Regs.reg_ebx.word();
                 CPU_Regs.reg_eax.high(8);
                 Callback.CALLBACK_RunRealFar(xms_seg,xms_off);
                 if (CPU_Regs.reg_ebx.low()==0) {

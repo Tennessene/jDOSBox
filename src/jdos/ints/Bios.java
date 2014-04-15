@@ -384,7 +384,7 @@ public class Bios extends Module_base {
             Memory.real_writew(0x40,0xd0,CPU_Regs.reg_ecx.word());
             /* store delay and volume */
             Memory.real_writew(0x40,0xd2,(CPU_Regs.reg_edx.word()&0xfff)|((CPU_Regs.reg_eax.low()&7)<<13));
-            Tandy_SetupTransfer(Memory.PhysMake((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word()),CPU_Regs.reg_eax.high()==0x83);
+            Tandy_SetupTransfer(Memory.PhysMake((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_ebx.word()),CPU_Regs.reg_eax.high()==0x83);
             CPU_Regs.reg_eax.high(0x00);
             Callback.CALLBACK_SCF(false);
             break;
@@ -923,7 +923,7 @@ public class Bios extends Module_base {
                         break;
                     }
                     /*Bit32u*/long count=(CPU_Regs.reg_ecx.word()<<16)|CPU_Regs.reg_edx.word();
-                    Memory.mem_writed(BIOS_WAIT_FLAG_POINTER,Memory.RealMake(CPU.Segs_ESval,CPU_Regs.reg_ebx.word()));
+                    Memory.mem_writed(BIOS_WAIT_FLAG_POINTER,Memory.RealMake(CPU_Regs.reg_esVal.dword,CPU_Regs.reg_ebx.word()));
                     Memory.mem_writed(BIOS_WAIT_FLAG_COUNT,(int)count);
                     Memory.mem_writeb(BIOS_WAIT_FLAG_ACTIVE,1);
                     /* Reprogram RTC to start */
@@ -993,7 +993,7 @@ public class Bios extends Module_base {
                     boolean enabled = Memory.MEM_A20_Enabled();
                     Memory.MEM_A20_Enable(true);
                     /*Bitu*/int   bytes	= CPU_Regs.reg_ecx.word() * 2;
-                    /*PhysPt*/int data		= CPU.Segs_ESphys+CPU_Regs.reg_esi.word();
+                    /*PhysPt*/int data		= CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_esi.word();
                     /*PhysPt*/int source	= ((Memory.mem_readd(data + 0x12) & 0x00FFFFFF) + (Memory.mem_readb(data+0x16)<<24));
                     /*PhysPt*/int dest		= ((Memory.mem_readd(data + 0x1A) & 0x00FFFFFF) + (Memory.mem_readb(data+0x1E)<<24));
                     Memory.MEM_BlockCopy(dest,source,bytes);
@@ -1033,11 +1033,11 @@ public class Bios extends Module_base {
                                     E820 e820 = e820table.elementAt(CPU_Regs.reg_ebx.dword);
 
                                     /* write to ES:DI */
-                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x00, e820.base);
-                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x04, 0);
-                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x08, e820.len);
-                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x0C, 0);
-                                    Memory.real_writed(CPU.Segs_ESval, CPU_Regs.reg_edi.word() + 0x10, e820.reserved?2:1);
+                                    Memory.real_writed(CPU_Regs.reg_esVal.dword, CPU_Regs.reg_edi.word() + 0x00, e820.base);
+                                    Memory.real_writed(CPU_Regs.reg_esVal.dword, CPU_Regs.reg_edi.word() + 0x04, 0);
+                                    Memory.real_writed(CPU_Regs.reg_esVal.dword, CPU_Regs.reg_edi.word() + 0x08, e820.len);
+                                    Memory.real_writed(CPU_Regs.reg_esVal.dword, CPU_Regs.reg_edi.word() + 0x0C, 0);
+                                    Memory.real_writed(CPU_Regs.reg_esVal.dword, CPU_Regs.reg_edi.word() + 0x10, e820.reserved?2:1);
                                     CPU_Regs.reg_ecx.dword = 20;
 
                                     /* return EBX pointing to next entry. wrap around, as most BIOSes do.
@@ -1073,7 +1073,7 @@ public class Bios extends Module_base {
                     IoHandler.IO_Write(0x20,0x10);IoHandler.IO_Write(0x21,CPU_Regs.reg_ebx.high());IoHandler.IO_Write(0x21,0);
                     IoHandler.IO_Write(0xA0,0x10);IoHandler.IO_Write(0xA1,CPU_Regs.reg_ebx.low());IoHandler.IO_Write(0xA1,0);
                     Memory.MEM_A20_Enable(true);
-                    /*PhysPt*/int table=CPU.Segs_ESphys+CPU_Regs.reg_esi.word();
+                    /*PhysPt*/int table=CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_esi.word();
                     CPU.CPU_LGDT(Memory.mem_readw(table+0x8),Memory.mem_readd(table + 0x8 + 0x2) & 0xFFFFFF);
                     CPU.CPU_LIDT(Memory.mem_readw(table+0x10),Memory.mem_readd(table + 0x10 + 0x2) & 0xFFFFFF);
                     CPU.CPU_SET_CRX(0,CPU.CPU_GET_CRX(0)|1);
@@ -1142,7 +1142,7 @@ public class Bios extends Module_base {
                     }
                     break;
                 case 0x07:		// set callback
-                    Mouse.Mouse_ChangePS2Callback((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word());
+                    Mouse.Mouse_ChangePS2Callback((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_ebx.word());
                     Callback.CALLBACK_SCF(false);
                     CPU_Regs.reg_eax.high(0);
                     break;

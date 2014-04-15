@@ -57,7 +57,7 @@ public class StringOp extends Prefix_helpers {
         /*Bits*/int	add_index;
 
         si_base=base_ds;
-        di_base=CPU.Segs_ESphys;
+        di_base=CPU_Regs.reg_esPhys.dword;
         count=reg_ecx.word();
         if ((prefixes & PREFIX_REP)==0) {
             count=1;
@@ -310,7 +310,7 @@ public class StringOp extends Prefix_helpers {
         /*Bits*/int	add_index;
 
         si_base=base_ds;
-        di_base=CPU.Segs_ESphys;
+        di_base=CPU_Regs.reg_esPhys.dword;
         count=reg_ecx.dword & 0xFFFFFFFFl;
         if ((prefixes & PREFIX_REP)==0) {
             count=1;

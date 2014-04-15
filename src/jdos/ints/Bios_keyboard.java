@@ -491,7 +491,7 @@ public class Bios_keyboard {
                 break;
             case 0x01: /* CHECK FOR KEYSTROKE */
                 // enable interrupt-flag after IRET of this int16
-                Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4,(Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4) | CPU_Regs.IF));
+                Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4,(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4) | CPU_Regs.IF));
                 for (;;) {
                     if (check_key(temp)) {
                         if (!IsEnhancedKey(temp)) {

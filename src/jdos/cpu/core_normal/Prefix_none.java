@@ -137,7 +137,7 @@ public class Prefix_none extends StringOp {
         /* PUSH ES */
         ops[0x06] = new OP() {
             final public int call() {
-                CPU.CPU_Push16(CPU.Segs_ESval);
+                CPU.CPU_Push16(CPU_Regs.reg_esVal.dword);
                 return HANDLED;
             }
         };
@@ -232,7 +232,7 @@ public class Prefix_none extends StringOp {
         /* PUSH CS */
         ops[0x0e] = new OP() {
             final public int call() {
-                CPU.CPU_Push16(CPU.Segs_CSval);
+                CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
                 return HANDLED;
             }
         };
@@ -327,7 +327,7 @@ public class Prefix_none extends StringOp {
         /* PUSH SS */
         ops[0x16] = new OP() {
             final public int call() {
-                CPU.CPU_Push16(CPU.Segs_SSval);
+                CPU.CPU_Push16(CPU_Regs.reg_ssVal.dword);
                 return HANDLED;
             }
         };
@@ -423,7 +423,7 @@ public class Prefix_none extends StringOp {
         /* PUSH DS */
         ops[0x1e] = new OP() {
             final public int call() {
-                CPU.CPU_Push16(CPU.Segs_DSval);
+                CPU.CPU_Push16(CPU_Regs.reg_dsVal.dword);
                 return HANDLED;
             }
         };
@@ -1747,17 +1747,17 @@ public class Prefix_none extends StringOp {
                 /*Bit8u*/int rm=Fetchb();/*Bit16u*/int val;/*Bitu*/int which=(rm>>3)&7;
                 switch (which) {
                 case 0x00:					/* MOV Ew,ES */
-                    val=CPU.Segs_ESval;break;
+                    val=CPU_Regs.reg_esVal.dword;break;
                 case 0x01:					/* MOV Ew,CS */
-                    val=CPU.Segs_CSval;break;
+                    val=CPU_Regs.reg_csVal.dword;break;
                 case 0x02:					/* MOV Ew,SS */
-                    val=CPU.Segs_SSval;break;
+                    val=CPU_Regs.reg_ssVal.dword;break;
                 case 0x03:					/* MOV Ew,DS */
-                    val=CPU.Segs_DSval;break;
+                    val=CPU_Regs.reg_dsVal.dword;break;
                 case 0x04:					/* MOV Ew,FS */
-                    val=CPU.Segs_FSval;break;
+                    val=CPU_Regs.reg_fsVal.dword;break;
                 case 0x05:					/* MOV Ew,GS */
-                    val=CPU.Segs_GSval;break;
+                    val=CPU_Regs.reg_gsVal.dword;break;
                 default:
                     Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"CPU:8c:Illegal RM Byte");
                     return ILLEGAL_OPCODE;

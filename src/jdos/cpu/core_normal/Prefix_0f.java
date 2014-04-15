@@ -900,7 +900,7 @@ public class Prefix_0f extends Prefix_none {
         /* PUSH FS */
         ops[0x1a0] = new OP() {
             final public int call() {
-                CPU.CPU_Push16(CPU.Segs_FSval);
+                CPU.CPU_Push16(CPU_Regs.reg_fsVal.dword);
                 return HANDLED;
             }
         };
@@ -979,7 +979,7 @@ public class Prefix_0f extends Prefix_none {
         /* PUSH GS */
         ops[0x1a8] = new OP() {
             final public int call() {
-                CPU.CPU_Push16(CPU.Segs_GSval);
+                CPU.CPU_Push16(CPU_Regs.reg_gsVal.dword);
                 return HANDLED;
             }
         };

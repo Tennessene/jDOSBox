@@ -1067,7 +1067,7 @@ public class Mouse {
                 break;
             case 0x09:	/* Define GFX Cursor */
                 {
-                    /*PhysPt*/int src = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int src = CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edx.word();
                     Memory.MEM_BlockRead16u(src          ,userdefScreenMask,0,CURSORY);
                     Memory.MEM_BlockRead16u(src+CURSORY*2,userdefCursorMask,0,CURSORY);
                     mouse.screenMask = userdefScreenMask;
@@ -1091,7 +1091,7 @@ public class Mouse {
                 break;
             case 0x0c:	/* Define interrupt subroutine parameters */
                 mouse.sub_mask=CPU_Regs.reg_ecx.word();
-                mouse.sub_seg=(int)CPU.Segs_ESval;
+                mouse.sub_seg=(int)CPU_Regs.reg_esVal.dword;
                 mouse.sub_ofs=CPU_Regs.reg_edx.word();
                 Main.Mouse_AutoLock(true); //Some games don't seem to reset the mouse before using
                 break;
@@ -1118,7 +1118,7 @@ public class Mouse {
                     /*Bit16u*/int oldMask= mouse.sub_mask;
                     // Set new values
                     mouse.sub_mask= CPU_Regs.reg_ecx.word();
-                    mouse.sub_seg = (int)CPU.Segs_ESval;
+                    mouse.sub_seg = (int)CPU_Regs.reg_esVal.dword;
                     mouse.sub_ofs = CPU_Regs.reg_edx.word();
                     // Return old values
                     CPU_Regs.reg_ecx.word(oldMask);
@@ -1132,7 +1132,7 @@ public class Mouse {
             case 0x16: /* Save driver state */
                 {
                     Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Saving driver state...");
-                    /*PhysPt*/int dest = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int dest = CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edx.word();
                     byte[] data = mouse.save();
                     Memory.MEM_BlockWrite(dest, data, data.length);
                 }
@@ -1140,7 +1140,7 @@ public class Mouse {
             case 0x17: /* load driver state */
                 {
                     Log.log(LogTypes.LOG_MOUSE,LogSeverities.LOG_WARN,"Loading driver state...");
-                    /*PhysPt*/int src = CPU.Segs_ESphys+CPU_Regs.reg_edx.word();
+                    /*PhysPt*/int src = CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edx.word();
                     byte[] data = new byte[_mouse.sizeof()];
                     Memory.MEM_BlockRead(src, data, data.length);
                     mouse.load(data);
@@ -1230,17 +1230,17 @@ public class Mouse {
         }
         public /*Bitu*/int call() {
             // the stack contains offsets to register values
-            /*Bit16u*/int raxpt=Memory.real_readw((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word()+0x0a);
-            /*Bit16u*/int rbxpt=Memory.real_readw((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word()+0x08);
-            /*Bit16u*/int rcxpt=Memory.real_readw((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word()+0x06);
-            /*Bit16u*/int rdxpt=Memory.real_readw((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word()+0x04);
+            /*Bit16u*/int raxpt=Memory.real_readw((int)CPU_Regs.reg_ssVal.dword,CPU_Regs.reg_esp.word()+0x0a);
+            /*Bit16u*/int rbxpt=Memory.real_readw((int)CPU_Regs.reg_ssVal.dword,CPU_Regs.reg_esp.word()+0x08);
+            /*Bit16u*/int rcxpt=Memory.real_readw((int)CPU_Regs.reg_ssVal.dword,CPU_Regs.reg_esp.word()+0x06);
+            /*Bit16u*/int rdxpt=Memory.real_readw((int)CPU_Regs.reg_ssVal.dword,CPU_Regs.reg_esp.word()+0x04);
 
             // read out the actual values, registers ARE overwritten
-            /*Bit16u*/int rax=Memory.real_readw((int)CPU.Segs_DSval,raxpt);
+            /*Bit16u*/int rax=Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,raxpt);
             CPU_Regs.reg_eax.word(rax);
-            CPU_Regs.reg_ebx.word(Memory.real_readw((int)CPU.Segs_DSval,rbxpt));
-            CPU_Regs.reg_ecx.word(Memory.real_readw((int)CPU.Segs_DSval,rcxpt));
-            CPU_Regs.reg_edx.word(Memory.real_readw((int)CPU.Segs_DSval,rdxpt));
+            CPU_Regs.reg_ebx.word(Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,rbxpt));
+            CPU_Regs.reg_ecx.word(Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,rcxpt));
+            CPU_Regs.reg_edx.word(Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,rdxpt));
         //	LOG_MSG("MOUSE BD: %04X %X %X %X %d %d",CPU_Regs.reg_eax.word(),CPU_Regs.reg_ebx.word(),CPU_Regs.reg_ecx.word(),CPU_Regs.reg_edx.word(),POS_X,POS_Y);
 
             // some functions are treated in a special way (additional registers)
@@ -1248,18 +1248,18 @@ public class Mouse {
                 case 0x09:	/* Define GFX Cursor */
                 case 0x16:	/* Save driver state */
                 case 0x17:	/* load driver state */
-                    CPU_Regs.SegSet16ES((int)CPU.Segs_DSval);
+                    CPU_Regs.SegSet16ES((int)CPU_Regs.reg_dsVal.dword);
                     break;
                 case 0x0c:	/* Define interrupt subroutine parameters */
                 case 0x14:	/* Exchange event-handler */
                     if (CPU_Regs.reg_ebx.word()!=0) CPU_Regs.SegSet16ES(CPU_Regs.reg_ebx.word());
-                    else CPU_Regs.SegSet16ES((int)CPU.Segs_DSval);
+                    else CPU_Regs.SegSet16ES((int)CPU_Regs.reg_dsVal.dword);
                     break;
                 case 0x10:	/* Define screen region for updating */
-                    CPU_Regs.reg_ecx.word(Memory.real_readw((int)CPU.Segs_DSval,rdxpt));
-                    CPU_Regs.reg_edx.word(Memory.real_readw((int)CPU.Segs_DSval,rdxpt+2));
-                    CPU_Regs.reg_esi.word(Memory.real_readw((int)CPU.Segs_DSval,rdxpt+4));
-                    CPU_Regs.reg_edi.word(Memory.real_readw((int)CPU.Segs_DSval,rdxpt+6));
+                    CPU_Regs.reg_ecx.word(Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,rdxpt));
+                    CPU_Regs.reg_edx.word(Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,rdxpt+2));
+                    CPU_Regs.reg_esi.word(Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,rdxpt+4));
+                    CPU_Regs.reg_edi.word(Memory.real_readw((int)CPU_Regs.reg_dsVal.dword,rdxpt+6));
                     break;
                 default:
                     break;
@@ -1268,16 +1268,16 @@ public class Mouse {
             INT33_Handler.call();
 
             // save back the registers, too
-            Memory.real_writew((int)CPU.Segs_DSval,raxpt,CPU_Regs.reg_eax.word());
-            Memory.real_writew((int)CPU.Segs_DSval,rbxpt,CPU_Regs.reg_ebx.word());
-            Memory.real_writew((int)CPU.Segs_DSval,rcxpt,CPU_Regs.reg_ecx.word());
-            Memory.real_writew((int)CPU.Segs_DSval,rdxpt,CPU_Regs.reg_edx.word());
+            Memory.real_writew((int)CPU_Regs.reg_dsVal.dword,raxpt,CPU_Regs.reg_eax.word());
+            Memory.real_writew((int)CPU_Regs.reg_dsVal.dword,rbxpt,CPU_Regs.reg_ebx.word());
+            Memory.real_writew((int)CPU_Regs.reg_dsVal.dword,rcxpt,CPU_Regs.reg_ecx.word());
+            Memory.real_writew((int)CPU_Regs.reg_dsVal.dword,rdxpt,CPU_Regs.reg_edx.word());
             switch (rax) {
                 case 0x1f:	/* Disable Mousedriver */
-                    Memory.real_writew((int)CPU.Segs_DSval,rbxpt,(int)CPU.Segs_ESval);
+                    Memory.real_writew((int)CPU_Regs.reg_dsVal.dword,rbxpt,(int)CPU_Regs.reg_esVal.dword);
                     break;
                 case 0x14: /* Exchange event-handler */
-                    Memory.real_writew((int)CPU.Segs_DSval,rcxpt,(int)CPU.Segs_ESval);
+                    Memory.real_writew((int)CPU_Regs.reg_dsVal.dword,rcxpt,(int)CPU_Regs.reg_esVal.dword);
                     break;
                 default:
                     break;

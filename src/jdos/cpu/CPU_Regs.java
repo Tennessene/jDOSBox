@@ -62,41 +62,41 @@ public class CPU_Regs extends Flags {
 //    }
 //
     public static /*RealPt*/int RealMakeSegDS(/*Bit16u*/int off) {
-        return Memory.RealMake(CPU.Segs_DSval,off);
+        return Memory.RealMake(reg_dsVal.dword,off);
     }
 
     public static /*RealPt*/int RealMakeSegSS(/*Bit16u*/int off) {
-        return Memory.RealMake(CPU.Segs_SSval,off);
+        return Memory.RealMake(reg_ssVal.dword,off);
     }
 
     public static void SegSet16ES(/*Bit16u*/int val) {
-        CPU.Segs_ESval=val;
-        CPU.Segs_ESphys=val << 4;
+        reg_esVal.dword=val;
+        reg_esPhys.dword=val << 4;
     }
 
     public static void SegSet16CS(/*Bit16u*/int val) {
-        CPU.Segs_CSval=val;
-        CPU.Segs_CSphys=val << 4;
+        reg_csVal.dword=val;
+        reg_csPhys.dword=val << 4;
     }
 
     public static void SegSet16SS(/*Bit16u*/int val) {
-        CPU.Segs_SSval=val;
-        CPU.Segs_SSphys=val << 4;
+        reg_ssVal.dword=val;
+        reg_ssPhys.dword=val << 4;
     }
 
     public static void SegSet16DS(/*Bit16u*/int val) {
-        CPU.Segs_DSval=val;
-        CPU.Segs_DSphys=val << 4;
+        reg_dsVal.dword=val;
+        reg_dsPhys.dword=val << 4;
     }
 
     public static void SegSet16FS(/*Bit16u*/int val) {
-        CPU.Segs_FSval=val;
-        CPU.Segs_FSphys=val << 4;
+        reg_fsVal.dword=val;
+        reg_fsPhys.dword=val << 4;
     }
 
     public static void SegSet16GS(/*Bit16u*/int val) {
-        CPU.Segs_GSval=val;
-        CPU.Segs_GSphys=val << 4;
+        reg_gsVal.dword=val;
+        reg_gsPhys.dword=val << 4;
     }  
 
     // IP
@@ -192,6 +192,8 @@ public class CPU_Regs extends Flags {
         public int dword;
     }
 
+    final static public Reg reg_zero = new Reg("zero");
+
     final static public Reg reg_eax = new Reg("eax");
     final static public Reg reg_ebx = new Reg("ebx");
     final static public Reg reg_ecx = new Reg("ecx");
@@ -205,6 +207,20 @@ public class CPU_Regs extends Flags {
     final static public Reg reg_bh = new Reg(reg_ebx);
     final static public Reg reg_ch = new Reg(reg_ecx);
     final static public Reg reg_dh = new Reg(reg_edx);
+
+    final static public Reg reg_esPhys = new Reg("esPhys");
+    final static public Reg reg_csPhys = new Reg("csPhys");
+    final static public Reg reg_ssPhys = new Reg("ssPhys");
+    final static public Reg reg_dsPhys = new Reg("dsPhys");
+    final static public Reg reg_fsPhys = new Reg("fsPhys");
+    final static public Reg reg_gsPhys = new Reg("gsPhys");
+
+    final static public Reg reg_esVal = new Reg("es");
+    final static public Reg reg_csVal = new Reg("cs");
+    final static public Reg reg_ssVal = new Reg("ss");
+    final static public Reg reg_dsVal = new Reg("ds");
+    final static public Reg reg_fsVal = new Reg("fs");
+    final static public Reg reg_gsVal = new Reg("gs");
 
     static public int reg_eip;
 

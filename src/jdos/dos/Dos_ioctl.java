@@ -68,7 +68,7 @@ public class Dos_ioctl {
         case 0x02:		/* Read from Device Control Channel */
             if ((Dos_files.Files[handle].GetInformation() & 0xc000)!=0) {
                 /* is character device with IOCTL support */
-                /*PhysPt*/int bufptr= Memory.PhysMake((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word());
+                /*PhysPt*/int bufptr= Memory.PhysMake((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word());
                 /*Bit16u*/IntRef retcode=new IntRef(0);
                 if (((DOS_Device)(Dos_files.Files[handle])).ReadFromControlChannel(bufptr,CPU_Regs.reg_ecx.word(),retcode)) {
                     CPU_Regs.reg_eax.word(retcode.value);
@@ -80,7 +80,7 @@ public class Dos_ioctl {
         case 0x03:		/* Write to Device Control Channel */
             if ((Dos_files.Files[handle].GetInformation() & 0xc000)!=0) {
                 /* is character device with IOCTL support */
-                /*PhysPt*/int bufptr=Memory.PhysMake((int)CPU.Segs_DSval,CPU_Regs.reg_edx.word());
+                /*PhysPt*/int bufptr=Memory.PhysMake((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word());
                 /*Bit16u*/IntRef retcode=new IntRef(0);
                 if (((DOS_Device)(Dos_files.Files[handle])).WriteToControlChannel(bufptr,CPU_Regs.reg_ecx.word(),retcode)) {
                     CPU_Regs.reg_eax.word(retcode.value);
@@ -142,7 +142,7 @@ public class Dos_ioctl {
                     Dos.DOS_SetError(Dos.DOSERR_FUNCTION_NUMBER_INVALID);
                     return false;
                 }
-                /*PhysPt*/int ptr = CPU.Segs_DSphys+CPU_Regs.reg_edx.word();
+                /*PhysPt*/int ptr = CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_edx.word();
                 switch (CPU_Regs.reg_ecx.low()) {
                 case 0x60:		/* Get Device parameters */
                     Memory.mem_writeb(ptr  ,0x03);					// special function

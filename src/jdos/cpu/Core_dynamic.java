@@ -57,7 +57,7 @@ public class Core_dynamic {
     private static CacheBlockDynRec LinkBlocks(CacheBlockDynRec running, /*BlockReturn*/int ret) {
         CacheBlockDynRec block=null;
         // the last instruction was a control flow modifying instruction
-        /*Bitu*/int temp_ip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
+        /*Bitu*/int temp_ip=CPU_Regs.reg_csPhys.dword+CPU_Regs.reg_eip;
         Paging.PageHandler handler = Paging.get_tlb_readhandler(temp_ip);
         if (handler instanceof CodePageHandlerDynRec) {
             CodePageHandlerDynRec temp_handler=(CodePageHandlerDynRec)handler;
@@ -78,12 +78,12 @@ public class Core_dynamic {
 
     public static final CPU.CPU_Decoder CPU_Core_Dynamic_Run = new CPU.CPU_Decoder() {
         public /*Bits*/int call() {
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds=CPU_Regs.ds;
             while (CPU.CPU_Cycles>0) {
                 // Determine the linear address of CS:EIP
-                /*PhysPt*/int ip_point=CPU.Segs_CSphys + CPU_Regs.reg_eip;
+                /*PhysPt*/int ip_point=CPU_Regs.reg_csPhys.dword + CPU_Regs.reg_eip;
 
                 Paging.PageHandler handler=Paging.get_tlb_readhandler(ip_point);
                 CodePageHandlerDynRec chandler=null;
@@ -124,10 +124,10 @@ public class Core_dynamic {
         //run_block:
                 while (true) {
                     if (Config.DYNAMIC_CORE_VERIFY) {
-                        int offset = Paging.getDirectIndexRO(CPU.Segs_CSphys+ CPU_Regs.reg_eip);
+                        int offset = Paging.getDirectIndexRO(CPU_Regs.reg_csPhys.dword+ CPU_Regs.reg_eip);
                         for (int i=0;i<block.originalByteCode.length;i++) {
                             if (block.originalByteCode[i]!= RAM.readbs(i + offset)) {
-                                Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+Integer.toString(CPU.Segs_CSphys,16) + ":" + Integer.toString(CPU_Regs.reg_eip,16)+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(RAM.readb(offset),16)+" memory value @ "+offset+"\n    block="+block);
+                                Log.exit("Dynamic core cache has been modified without its knowledge:\n    cs:ip="+Integer.toString(CPU_Regs.reg_csPhys.dword,16) + ":" + Integer.toString(CPU_Regs.reg_eip,16)+"\n    index="+i+"\n    "+Integer.toString(block.originalByteCode[i] & 0xFF,16)+" cached value\n    "+Integer.toString(RAM.readb(offset),16)+" memory value @ "+offset+"\n    block="+block);
                             }
                         }
                     }
@@ -162,8 +162,8 @@ public class Core_dynamic {
                         // or the maximam number of instructions to translate was reached
                         if (Config.C_HEAVY_DEBUG)
                             if (Debug.DEBUG_HeavyIsBreakpoint()) return Debug.debugCallback;
-                        Core.base_ds= CPU.Segs_DSphys;
-                        Core.base_ss=CPU.Segs_SSphys;
+                        Core.base_ds= CPU_Regs.reg_dsPhys.dword;
+                        Core.base_ss=CPU_Regs.reg_ssPhys.dword;
                         Core.base_val_ds= CPU_Regs.ds;
                         break;
 
@@ -174,8 +174,8 @@ public class Core_dynamic {
 
                     case Constants.BR_Illegal:
                         CPU.CPU_Exception(6,0);
-                        Core.base_ds= CPU.Segs_DSphys;
-                        Core.base_ss=CPU.Segs_SSphys;
+                        Core.base_ds= CPU_Regs.reg_dsPhys.dword;
+                        Core.base_ss=CPU_Regs.reg_ssPhys.dword;
                         Core.base_val_ds= CPU_Regs.ds;
                         break;
                     default:

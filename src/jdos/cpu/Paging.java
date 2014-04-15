@@ -357,7 +357,7 @@ public class Paging extends Module_base {
             PF_Entry entry = pf_queue.entries[pf_queue.used - 1];
             X86PageEntry pentry = new X86PageEntry();
             pentry.load(Memory.phys_readd(entry.page_addr));
-            if (pentry.block.p != 0 && entry.cs == CPU.Segs_CSval && entry.eip == CPU_Regs.reg_eip) {
+            if (pentry.block.p != 0 && entry.cs == CPU_Regs.reg_csVal.dword && entry.eip == CPU_Regs.reg_eip) {
                 CPU.cpu.mpl = entry.mpl;
                 return -1;
             } else if (CPU.iret) {
@@ -554,7 +554,7 @@ void PrintPageInfo(const char* string, PhysPt lin_addr, bool writing, bool prepa
 
             if (pf_queue.used >= PF_QUEUESIZE) Log.exit("PF queue overrun.");
             PF_Entry entry = pf_queue.entries[pf_queue.used++];
-            entry.cs = CPU.Segs_CSval;
+            entry.cs = CPU_Regs.reg_csVal.dword;
             entry.eip = CPU_Regs.reg_eip;
             entry.page_addr = page_addr;
             entry.mpl = CPU.cpu.mpl;

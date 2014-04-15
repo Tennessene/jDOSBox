@@ -91,7 +91,7 @@ public class Callback {
     /* this makes the cpu execute instructions to handle irq's and then come back */
         /*Bitu*/int oldIF=CPU_Regs.GETFLAG(CPU_Regs.IF);
         CPU_Regs.SETFLAGBIT(CPU_Regs.IF,true);
-        /*Bit16u*/int oldcs=CPU.Segs_CSval;
+        /*Bit16u*/int oldcs=CPU_Regs.reg_csVal.dword;
         /*Bit32u*/int oldeip=CPU_Regs.reg_eip;
         CPU_Regs.SegSet16CS(CB_SEG);
         CPU_Regs.reg_eip=CB_SOFFSET+call_idle*CB_SIZE;
@@ -139,10 +139,10 @@ public class Callback {
 
     public static void CALLBACK_RunRealFar(/*Bit16u*/int seg,/*Bit16u*/int off) {
         CPU_Regs.reg_esp.word(CPU_Regs.reg_esp.word()-4);
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word(),Memory.RealOff(CALLBACK_RealPointer(call_stop)));
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+2,Memory.RealSeg(CALLBACK_RealPointer(call_stop)));
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word(),Memory.RealOff(CALLBACK_RealPointer(call_stop)));
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+2,Memory.RealSeg(CALLBACK_RealPointer(call_stop)));
         /*Bit32u*/int oldeip=CPU_Regs.reg_eip;
-        /*Bit16u*/int oldcs=CPU.Segs_CSval;
+        /*Bit16u*/int oldcs=CPU_Regs.reg_csVal.dword;
         CPU_Regs.reg_eip=off;
         CPU_Regs.SegSet16CS(seg);
         Dosbox.DOSBOX_RunMachine();
@@ -152,7 +152,7 @@ public class Callback {
 
     public static void CALLBACK_RunRealInt(/*Bit8u*/int intnum) {
         /*Bit32u*/int oldeip=CPU_Regs.reg_eip;
-        /*Bit16u*/int oldcs=CPU.Segs_CSval;
+        /*Bit16u*/int oldcs=CPU_Regs.reg_csVal.dword;
         CPU_Regs.reg_eip=CB_SOFFSET+(CB_MAX*CB_SIZE)+(intnum*6);
         CPU_Regs.SegSet16CS(CB_SEG);
         Dosbox.DOSBOX_RunMachine();
@@ -161,24 +161,24 @@ public class Callback {
     }
 
     public static void CALLBACK_SZF(boolean val) {
-        /*Bit16u*/int tempf = Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4);
+        /*Bit16u*/int tempf = Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4);
         if (val) tempf |= CPU_Regs.ZF;
         else tempf &= ~CPU_Regs.ZF;
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4,tempf);
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4,tempf);
     }
 
     public static void CALLBACK_SCF(boolean val) {
-        /*Bit16u*/int tempf = Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4);
+        /*Bit16u*/int tempf = Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4);
         if (val) tempf |= CPU_Regs.CF;
         else tempf &= ~CPU_Regs.CF;
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4,tempf);
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4,tempf);
     }
 
     public static void CALLBACK_SIF(boolean val) {
-        /*Bit16u*/int tempf = Memory.mem_readw(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4);
+        /*Bit16u*/int tempf = Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4);
         if (val) tempf |= CPU_Regs.IF;
         else tempf &= ~CPU_Regs.IF;
-        Memory.mem_writew(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+4,tempf);
+        Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4,tempf);
     }
 
     public static void CALLBACK_SetDescription(/*Bitu*/int nr, String descr) {

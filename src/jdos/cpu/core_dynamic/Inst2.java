@@ -2085,7 +2085,7 @@ public class Inst2 extends Helper {
 
     final static public class PushFS extends Op {
         public int call() {
-            CPU.CPU_Push16(CPU.Segs_FSval);
+            CPU.CPU_Push16(CPU_Regs.reg_fsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2339,7 +2339,7 @@ public class Inst2 extends Helper {
 
     final static public class PushGS extends Op {
         public int call() {
-            CPU.CPU_Push16(CPU.Segs_GSval);
+            CPU.CPU_Push16(CPU_Regs.reg_gsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2789,7 +2789,7 @@ public class Inst2 extends Helper {
             int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(Memory.mem_readw(eaa));
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 

@@ -709,7 +709,7 @@ public class Dos_shell extends Program {
             /* Allocate some stack space for tables in physical memory */
             CPU_Regs.reg_esp.word(CPU_Regs.reg_esp.word()-0x200);
             //Add Parameter block
-            Dos_ParamBlock block=new Dos_ParamBlock(CPU.Segs_SSphys+CPU_Regs.reg_esp.word());
+            Dos_ParamBlock block=new Dos_ParamBlock(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word());
             block.Clear();
             //Add a filename
             /*RealPt*/int file_name= CPU_Regs.RealMakeSegSS(CPU_Regs.reg_esp.word()+0x20);
@@ -724,7 +724,7 @@ public class Dos_shell extends Program {
             StringHelper.strcpy(cmdtail, 1, line);
             cmdtail[line.length()+1]=0xd;
             /* Copy command line in stack block too */
-            Memory.MEM_BlockWrite(CPU.Segs_SSphys+CPU_Regs.reg_esp.word()+0x100,cmdtail,128);
+            Memory.MEM_BlockWrite(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+0x100,cmdtail,128);
             /* Parse FCB (first two parameters) and put them into the current DOS_PSP */
             /*Bit8u*/ShortRef add=new ShortRef(0);
             String tailBuffer = StringHelper.toString(cmdtail, 1, cmdtail.length-1);
@@ -746,10 +746,10 @@ public class Dos_shell extends Program {
             /* Start up a dos execute interrupt */
             CPU_Regs.reg_eax.word(0x4b00);
             //Filename pointer
-            CPU_Regs.SegSet16DS((int)CPU.Segs_SSval);
+            CPU_Regs.SegSet16DS((int)CPU_Regs.reg_ssVal.dword);
             CPU_Regs.reg_edx.word(Memory.RealOff(file_name));
             //Paramblock
-            CPU_Regs.SegSet16ES((int)CPU.Segs_SSval);
+            CPU_Regs.SegSet16ES((int)CPU_Regs.reg_ssVal.dword);
             CPU_Regs.reg_ebx.word(CPU_Regs.reg_esp.word());
             CPU_Regs.SETFLAGBIT(CPU_Regs.IF,false);
             Callback.CALLBACK_RunRealInt(0x21);

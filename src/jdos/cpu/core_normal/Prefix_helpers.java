@@ -40,7 +40,7 @@ public class Prefix_helpers extends Instructions {
     }
 
     static protected int GETIP() {
-        return (cseip- CPU.Segs_CSphys);
+        return (cseip- CPU_Regs.reg_csPhys.dword);
     }
 
     static public void SAVEIP() {
@@ -49,7 +49,7 @@ public class Prefix_helpers extends Instructions {
     }
 
     static protected void LOADIP() {
-        cseip=CPU.Segs_CSphys+CPU_Regs.reg_eip;
+        cseip=CPU_Regs.reg_csPhys.dword+CPU_Regs.reg_eip;
         //System.out.println("LOADIP: "+cseip);
     }
 

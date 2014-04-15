@@ -105,7 +105,7 @@ public class Compiler2 extends Compiler {
             case 0x1a0: // PUSH FS
                 if (op instanceof Inst2.PushFS) {
                     Inst2.PushFS o = (Inst2.PushFS) op;
-                    method.append("CPU.CPU_Push16(CPU.Segs_FSval);");
+                    method.append("CPU.CPU_Push16(CPU_Regs.reg_fsVal.dword);");
                     return true;
                 }
                 break;
@@ -196,7 +196,7 @@ public class Compiler2 extends Compiler {
             case 0x1a8: // PUSH GS
                 if (op instanceof Inst2.PushGS) {
                     Inst2.PushGS o = (Inst2.PushGS) op;
-                    method.append("CPU.CPU_Push16(CPU.Segs_GSval);");
+                    method.append("CPU.CPU_Push16(CPU_Regs.reg_gsVal.dword);");
                     return true;
                 }
                 break;
@@ -799,7 +799,7 @@ public class Compiler2 extends Compiler {
             case 0x206: // PUSH ES
                 if (op instanceof Inst3.Push32ES) {
                     Inst3.Push32ES o = (Inst3.Push32ES) op;
-                    method.append("CPU.CPU_Push32(CPU.Segs_ESval);");
+                    method.append("CPU.CPU_Push32(CPU_Regs.reg_esVal.dword);");
                     return true;
                 }
                 break;
@@ -844,7 +844,7 @@ public class Compiler2 extends Compiler {
             case 0x20e: // PUSH CS
                 if (op instanceof Inst3.Push32CS) {
                     Inst3.Push32CS o = (Inst3.Push32CS) op;
-                    method.append("CPU.CPU_Push32(CPU.Segs_CSval);");
+                    method.append("CPU.CPU_Push32(CPU_Regs.reg_csVal.dword);");
                     return true;
                 }
                 break;
@@ -882,7 +882,7 @@ public class Compiler2 extends Compiler {
             case 0x216: // PUSH SS
                 if (op instanceof Inst3.Push32SS) {
                     Inst3.Push32SS o = (Inst3.Push32SS) op;
-                    method.append("CPU.CPU_Push32(CPU.Segs_SSval);");
+                    method.append("CPU.CPU_Push32(CPU_Regs.reg_ssVal.dword);");
                     return true;
                 }
                 break;
@@ -927,7 +927,7 @@ public class Compiler2 extends Compiler {
             case 0x21e: // PUSH DS
                 if (op instanceof Inst3.Push32DS) {
                     Inst3.Push32DS o = (Inst3.Push32DS) op;
-                    method.append("CPU.CPU_Push32(CPU.Segs_DSval);");
+                    method.append("CPU.CPU_Push32(CPU_Regs.reg_dsVal.dword);");
                     return true;
                 }
                 break;
@@ -1865,79 +1865,79 @@ public class Compiler2 extends Compiler {
                 if (op instanceof Inst3.MovEdEs_reg) {
                     Inst3.MovEdEs_reg o = (Inst3.MovEdEs_reg) op;
                     method.append(nameSet32(o.eard));
-                    method.append("=CPU.Segs_ESval & 0xFFFF;");
+                    method.append("=CPU_Regs.reg_esVal.dword & 0xFFFF;");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwEs_mem) {
                     Inst1.MovEwEs_mem o = (Inst1.MovEwEs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_ESval);");
+                    method.append(", CPU_Regs.reg_esVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst3.MovEdCs_reg) {
                     Inst3.MovEdCs_reg o = (Inst3.MovEdCs_reg) op;
                     method.append(nameSet32(o.eard));
-                    method.append("=CPU.Segs_CSval & 0xFFFF;");
+                    method.append("=CPU_Regs.reg_csVal.dword & 0xFFFF;");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwCs_mem) {
                     Inst1.MovEwCs_mem o = (Inst1.MovEwCs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_CSval);");
+                    method.append(", CPU_Regs.reg_csVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst3.MovEdSs_reg) {
                     Inst3.MovEdSs_reg o = (Inst3.MovEdSs_reg) op;
                     method.append(nameSet32(o.eard));
-                    method.append("=CPU.Segs_SSval & 0xFFFF;");
+                    method.append("=CPU_Regs.reg_ssVal.dword & 0xFFFF;");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwSs_mem) {
                     Inst1.MovEwSs_mem o = (Inst1.MovEwSs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_SSval);");
+                    method.append(", CPU_Regs.reg_ssVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst3.MovEdDs_reg) {
                     Inst3.MovEdDs_reg o = (Inst3.MovEdDs_reg) op;
                     method.append(nameSet32(o.eard));
-                    method.append("=CPU.Segs_DSval & 0xFFFF;");
+                    method.append("=CPU_Regs.reg_dsVal.dword & 0xFFFF;");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwDs_mem) {
                     Inst1.MovEwDs_mem o = (Inst1.MovEwDs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_DSval);");
+                    method.append(", CPU_Regs.reg_dsVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst3.MovEdFs_reg) {
                     Inst3.MovEdFs_reg o = (Inst3.MovEdFs_reg) op;
                     method.append(nameSet32(o.eard));
-                    method.append("=CPU.Segs_FSval & 0xFFFF;");
+                    method.append("=CPU_Regs.reg_fsVal.dword & 0xFFFF;");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwFs_mem) {
                     Inst1.MovEwFs_mem o = (Inst1.MovEwFs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_FSval);");
+                    method.append(", CPU_Regs.reg_fsVal.dword);");
                     return true;
                 }
                 if (op instanceof Inst3.MovEdGs_reg) {
                     Inst3.MovEdGs_reg o = (Inst3.MovEdGs_reg) op;
                     method.append(nameSet32(o.eard));
-                    method.append("=CPU.Segs_GSval & 0xFFFF;");
+                    method.append("=CPU_Regs.reg_gsVal.dword & 0xFFFF;");
                     return true;
                 }
                 if (op instanceof Inst1.MovEwGs_mem) {
                     Inst1.MovEwGs_mem o = (Inst1.MovEwGs_mem) op;
                     method.append("Memory.mem_writew(");
                     toStringValue(o.get_eaa, seg, method);
-                    method.append(", CPU.Segs_GSval);");
+                    method.append(", CPU_Regs.reg_gsVal.dword);");
                     return true;
                 }
                 break;
@@ -3872,7 +3872,7 @@ public class Compiler2 extends Compiler {
             case 0x3a0: // PUSH FS
                 if (op instanceof Inst4.PushFS) {
                     Inst4.PushFS o = (Inst4.PushFS) op;
-                    method.append("CPU.CPU_Push32(CPU.Segs_FSval);");
+                    method.append("CPU.CPU_Push32(CPU_Regs.reg_fsVal.dword);");
                     return true;
                 }
                 break;
@@ -3978,7 +3978,7 @@ public class Compiler2 extends Compiler {
             case 0x3a8: // PUSH GS
                 if (op instanceof Inst4.PushGS) {
                     Inst4.PushGS o = (Inst4.PushGS) op;
-                    method.append("CPU.CPU_Push32(CPU.Segs_GSval);");
+                    method.append("CPU.CPU_Push32(CPU_Regs.reg_gsVal.dword);");
                     return true;
                 }
                 break;

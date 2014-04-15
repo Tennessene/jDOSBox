@@ -1909,7 +1909,7 @@ public class Inst1 extends Helper {
 
     final static public class PushES extends Op {
         public int call() {
-            CPU.CPU_Push16(CPU.Segs_ESval);
+            CPU.CPU_Push16(CPU_Regs.reg_esVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1952,7 +1952,7 @@ public class Inst1 extends Helper {
 
     final static public class PushCS extends Op {
         public int call() {
-            CPU.CPU_Push16(CPU.Segs_CSval);
+            CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1973,7 +1973,7 @@ public class Inst1 extends Helper {
 
     final static public class PushSS extends Op {
         public int call() {
-            CPU.CPU_Push16(CPU.Segs_SSval);
+            CPU.CPU_Push16(CPU_Regs.reg_ssVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1995,7 +1995,7 @@ public class Inst1 extends Helper {
     final static public class PopSS extends Op {
         public int call() {
             if (CPU.CPU_PopSegSS(false)) return RUNEXCEPTION();
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2017,7 +2017,7 @@ public class Inst1 extends Helper {
 
     final static public class PushDS extends Op {
         public int call() {
-            CPU.CPU_Push16(CPU.Segs_DSval);
+            CPU.CPU_Push16(CPU_Regs.reg_dsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2039,7 +2039,7 @@ public class Inst1 extends Helper {
     final static public class PopDS extends Op {
         public int call() {
             if (CPU.CPU_PopSegDS(false)) return RUNEXCEPTION();
-            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -4591,7 +4591,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word(CPU.Segs_ESval);
+            earw.word(CPU_Regs.reg_esVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4618,7 +4618,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,CPU.Segs_ESval);
+            Memory.mem_writew(eaa,CPU_Regs.reg_esVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4644,7 +4644,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word(CPU.Segs_CSval);
+            earw.word(CPU_Regs.reg_csVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4671,7 +4671,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,CPU.Segs_CSval);
+            Memory.mem_writew(eaa,CPU_Regs.reg_csVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4697,7 +4697,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word(CPU.Segs_SSval);
+            earw.word(CPU_Regs.reg_ssVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4724,7 +4724,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,CPU.Segs_SSval);
+            Memory.mem_writew(eaa,CPU_Regs.reg_ssVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4750,7 +4750,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word(CPU.Segs_DSval);
+            earw.word(CPU_Regs.reg_dsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4777,7 +4777,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,CPU.Segs_DSval);
+            Memory.mem_writew(eaa,CPU_Regs.reg_dsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4803,7 +4803,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word(CPU.Segs_FSval);
+            earw.word(CPU_Regs.reg_fsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4830,7 +4830,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,CPU.Segs_FSval);
+            Memory.mem_writew(eaa,CPU_Regs.reg_fsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4856,7 +4856,7 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            earw.word(CPU.Segs_GSval);
+            earw.word(CPU_Regs.reg_gsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4883,7 +4883,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             int eaa = get_eaa.call();
-            Memory.mem_writew(eaa,CPU.Segs_GSval);
+            Memory.mem_writew(eaa,CPU_Regs.reg_gsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -4941,13 +4941,13 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            // :TODO: research if the base_ds is alway CPU.Segs_DSphys etc.
+            // :TODO: research if the base_ds is alway CPU_Regs.reg_dsPhys.dword etc.
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
             int eaa = get_eaa.call();
             rw.word(eaa);
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -4977,13 +4977,13 @@ public class Inst1 extends Helper {
         }
 
         public int call() {
-            // :TODO: research if the base_ds is alway CPU.Segs_DSphys etc.
+            // :TODO: research if the base_ds is alway CPU_Regs.reg_dsPhys.dword etc.
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
             int eaa = get_eaa.call();
             rw.word(eaa);
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -5066,7 +5066,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             if (CPU.CPU_SetSegGeneralSS(earw.word())) return RUNEXCEPTION();
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -5095,7 +5095,7 @@ public class Inst1 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa))) return RUNEXCEPTION();
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -5123,7 +5123,7 @@ public class Inst1 extends Helper {
 
         public int call() {
             if (CPU.CPU_SetSegGeneralDS(earw.word())) return RUNEXCEPTION();
-            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -5153,7 +5153,7 @@ public class Inst1 extends Helper {
         public int call() {
             int eaa = get_eaa.call();
             if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa))) return RUNEXCEPTION();
-            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -5886,7 +5886,7 @@ public class Inst1 extends Helper {
             int val = Memory.mem_readw(eaa); // make sure all reads are done before writing something in case of a PF
             if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+2))) return RUNEXCEPTION();
             rw.word(val);
-            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }

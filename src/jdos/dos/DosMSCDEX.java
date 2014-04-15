@@ -999,7 +999,7 @@ public class DosMSCDEX {
             return "MSCDEX_Strategy_Handler";
         }
         public /*Bitu*/int call() {
-            curReqheaderPtr = Memory.PhysMake((int)CPU.Segs_ESval, CPU_Regs.reg_ebx.word());
+            curReqheaderPtr = Memory.PhysMake((int)CPU_Regs.reg_esVal.dword, CPU_Regs.reg_ebx.word());
         //	Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_ERROR,("MSCDEX: Device Strategy Routine called, request header at %x",curReqheaderPtr);
             return Callback.CBRET_NONE;
         }
@@ -1083,7 +1083,7 @@ public class DosMSCDEX {
         public boolean call() {
             if(CPU_Regs.reg_eax.high() == 0x11) {
                 if(CPU_Regs.reg_eax.low() == 0x00) {
-                    /*PhysPt*/int check = Memory.PhysMake((int)CPU.Segs_SSval,CPU_Regs.reg_esp.word());
+                    /*PhysPt*/int check = Memory.PhysMake((int)CPU_Regs.reg_ssVal.dword,CPU_Regs.reg_esp.word());
                     if(Memory.mem_readw(check+6) == 0xDADA) {
                         //MSCDEX sets word on stack to ADAD if it DADA on entry.
                         Memory.mem_writew(check+6,0xADAD);
@@ -1100,7 +1100,7 @@ public class DosMSCDEX {
 
             if (CPU_Regs.reg_eax.high()!=0x15) return false;		// not handled here, continue chain
 
-            /*PhysPt*/int data = Memory.PhysMake((int)CPU.Segs_ESval,CPU_Regs.reg_ebx.word());
+            /*PhysPt*/int data = Memory.PhysMake((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_ebx.word());
             if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_NORMAL,"MSCDEX: INT 2F "+Integer.toString(CPU_Regs.reg_eax.word(), 16)+" BX= "+Integer.toString(CPU_Regs.reg_ebx.word(), 16)+" CX="+Integer.toString(CPU_Regs.reg_ecx.word(),16));
             switch (CPU_Regs.reg_eax.word()) {
 

@@ -632,7 +632,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* PUSH FS */
         ops[0x3a0] = new OP() {
             final public int call() {
-                CPU.CPU_Push32(CPU.Segs_FSval);
+                CPU.CPU_Push32(CPU_Regs.reg_fsVal.dword);
                 return HANDLED;
             }
         };
@@ -705,7 +705,7 @@ public class Prefix_66_0f extends Prefix_66 {
         /* PUSH GS */
         ops[0x3a8] = new OP() {
             final public int call() {
-                CPU.CPU_Push32(CPU.Segs_GSval);
+                CPU.CPU_Push32(CPU_Regs.reg_gsVal.dword);
                 return HANDLED;
             }
         };

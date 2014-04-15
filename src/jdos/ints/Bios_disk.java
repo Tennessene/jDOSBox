@@ -412,7 +412,7 @@ public class Bios_disk {
                     return Callback.CBRET_NONE;
                 }
 
-                segat = (int)CPU.Segs_ESval;
+                segat = (int)CPU_Regs.reg_esVal.dword;
                 bufptr = CPU_Regs.reg_ebx.word();
                 for(i=0;i<CPU_Regs.reg_eax.low();i++) {
                     last_status = imageDiskList[drivenum].Read_Sector((/*Bit32u*/long)CPU_Regs.reg_edx.high(), (/*Bit32u*/long)(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2)), (/*Bit32u*/long)((CPU_Regs.reg_ecx.low() & 63)+i), sectbuf);
@@ -443,7 +443,7 @@ public class Bios_disk {
                 bufptr = CPU_Regs.reg_ebx.word();
                 for(i=0;i<CPU_Regs.reg_eax.low();i++) {
                     for(t=0;t<imageDiskList[drivenum].getSectSize();t++) {
-                        sectbuf[t] = (byte)Memory.real_readb((int)CPU.Segs_ESval,bufptr);
+                        sectbuf[t] = (byte)Memory.real_readb((int)CPU_Regs.reg_esVal.dword,bufptr);
                         bufptr++;
                     }
 

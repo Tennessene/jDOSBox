@@ -1,6 +1,7 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.Dosbox;
+import jdos.cpu.core_switch.SwitchBlock;
 import jdos.misc.Log;
 
 import java.util.Vector;
@@ -11,7 +12,9 @@ public class CacheBlockDynRec {
             link[i] = new _Link();
         link1 = link[0];
         link2 = link[1];
+        this.inst = null;
     }
+
 	public void Clear() {
         /*Bitu*/int ind;
         if (code instanceof DecodeBlock && Dosbox.allPrivileges) {
@@ -68,8 +71,8 @@ public class CacheBlockDynRec {
 		toblock.link[index].from.add(this);				// remember who links me
 	}
 	public class Page {
-		/*Bit16u*/int start,end;		// where in the page is the original code
-		CodePageHandlerDynRec  handler;			// page containing this code
+		public int start,end;		// where in the page is the original code
+		public CodePageHandlerDynRec  handler;			// page containing this code
 	}
     public Page page = new Page();
 
@@ -97,6 +100,7 @@ public class CacheBlockDynRec {
     public _Link link2;
 	CacheBlockDynRec crossblock;
     public Op code;
+    public SwitchBlock[] inst; // micro instructions used by Core_switch
     public byte[] originalByteCode = null; //used for dynamic core cache verification
 }
 

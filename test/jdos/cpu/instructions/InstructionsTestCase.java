@@ -11,9 +11,9 @@ import jdos.misc.setup.*;
 import junit.framework.TestCase;
 
 abstract public class InstructionsTestCase extends TestCase {
-    static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
+    // static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
     //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
-    //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
+    static CPU.CPU_Decoder decoder = Core_switch.CPU_Core_Switch_Run;
     protected int cseip = 0x10000;
     protected final static int MEM_BASE_DS = 0x2000;
     protected final static int MEM_BASE_SS = 0x3000;
@@ -27,19 +27,12 @@ abstract public class InstructionsTestCase extends TestCase {
             RAM.writebs(cseip++, (byte) 0x66);
         }
         RAM.writebs(cseip++, (byte)op);
-        CPU.Segs_ESphys=0;
-        CPU.Segs_CSphys=0x10000;
-        CPU.Segs_SSphys=MEM_BASE_SS;
-        CPU.Segs_DSphys=MEM_BASE_DS;
-        CPU.Segs_FSphys=0;
-        CPU.Segs_GSphys=0;
-
-        CPU.Segs_ESval=0;
-        CPU.Segs_CSval=0;
-        CPU.Segs_SSval=(int)(CPU.Segs_SSphys >> 4);
-        CPU.Segs_DSval=(int)(CPU.Segs_DSphys >> 4);
-        CPU.Segs_FSval=0;
-        CPU.Segs_GSval=0;
+        CPU_Regs.SegSet16ES(0);
+        CPU_Regs.SegSet16CS(0x1000);
+        CPU_Regs.SegSet16SS(MEM_BASE_SS >> 4);
+        CPU_Regs.SegSet16DS(MEM_BASE_DS >> 4);
+        CPU_Regs.SegSet16FS(0);
+        CPU_Regs.SegSet16GS(0);
     }
     protected void nop() {
         pushIb((byte)0x90);
@@ -624,6 +617,7 @@ abstract public class InstructionsTestCase extends TestCase {
         //Compiler.ENABLED = true;
 
         Core_dynamic.instruction_count = 1;
+        Core_switch.instruction_count = 1;
         Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
 
         String[] cores = new String[] { "auto", "dynamic", "normal", "simple"};

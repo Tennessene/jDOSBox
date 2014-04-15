@@ -129,7 +129,7 @@ public class Inst3 extends Helper {
 
     final static public class Push32ES extends Op {
         public int call() {
-            CPU.CPU_Push32(CPU.Segs_ESval);
+            CPU.CPU_Push32(CPU_Regs.reg_esVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -296,7 +296,7 @@ public class Inst3 extends Helper {
 
     final static public class Push32CS extends Op {
         public int call() {
-            CPU.CPU_Push32(CPU.Segs_CSval);
+            CPU.CPU_Push32(CPU_Regs.reg_csVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -437,7 +437,7 @@ public class Inst3 extends Helper {
 
     final static public class Push32SS extends Op {
         public int call() {
-            CPU.CPU_Push32(CPU.Segs_SSval);
+            CPU.CPU_Push32(CPU_Regs.reg_ssVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -459,7 +459,7 @@ public class Inst3 extends Helper {
     final static public class Pop32SS extends Op {
         public int call() {
             if (CPU.CPU_PopSegSS(true)) return RUNEXCEPTION();
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -601,7 +601,7 @@ public class Inst3 extends Helper {
 
     final static public class Push32DS extends Op {
         public int call() {
-            CPU.CPU_Push32(CPU.Segs_DSval);
+            CPU.CPU_Push32(CPU_Regs.reg_dsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -623,7 +623,7 @@ public class Inst3 extends Helper {
     final static public class Pop32DS extends Op {
         public int call() {
             if (CPU.CPU_PopSegDS(true)) return RUNEXCEPTION();
-            Core.base_ds=CPU.Segs_DSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -2696,7 +2696,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword=CPU.Segs_ESval & 0xFFFF; // this dword assignment is intentional
+            eard.dword=CPU_Regs.reg_esVal.dword & 0xFFFF; // this dword assignment is intentional
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2723,7 +2723,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword=CPU.Segs_CSval & 0xFFFF; // this dword assignment is intentional
+            eard.dword=CPU_Regs.reg_csVal.dword & 0xFFFF; // this dword assignment is intentional
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2750,7 +2750,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword=CPU.Segs_SSval & 0xFFFF; // this dword assignment is intentional
+            eard.dword=CPU_Regs.reg_ssVal.dword & 0xFFFF; // this dword assignment is intentional
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2777,7 +2777,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword=CPU.Segs_DSval & 0xFFFF; // this dword assignment is intentional
+            eard.dword=CPU_Regs.reg_dsVal.dword & 0xFFFF; // this dword assignment is intentional
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2804,7 +2804,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword=CPU.Segs_FSval & 0xFFFF; // this dword assignment is intentional
+            eard.dword=CPU_Regs.reg_fsVal.dword & 0xFFFF; // this dword assignment is intentional
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2831,7 +2831,7 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            eard.dword=CPU.Segs_GSval & 0xFFFF; // this dword assignment is intentional
+            eard.dword=CPU_Regs.reg_gsVal.dword & 0xFFFF; // this dword assignment is intentional
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -2863,8 +2863,8 @@ public class Inst3 extends Helper {
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
             rd.dword = get_eaa.call();
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -2894,12 +2894,12 @@ public class Inst3 extends Helper {
         }
 
         public int call() {
-            // :TODO: research if the base_ds is alway CPU.Segs_DSphys etc.
+            // :TODO: research if the base_ds is alway CPU_Regs.reg_dsPhys.dword etc.
             //Little hack to always use segprefixed version
             Core.base_ds=Core.base_ss=0;
             rd.dword = get_eaa.call();
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
@@ -3363,8 +3363,8 @@ public class Inst3 extends Helper {
             int val = Memory.mem_readd(eaa); // make sure all reads are done before writing something in case of a PF
             if (CPU.CPU_SetSegGeneralDS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
             rd.dword=val;
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }

@@ -512,7 +512,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class PushFS extends Op {
         public int call() {
-            CPU.CPU_Push32(CPU.Segs_FSval);
+            CPU.CPU_Push32(CPU_Regs.reg_fsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -751,7 +751,7 @@ static abstract public class JumpCond32_d extends Op {
 
     final static public class PushGS extends Op {
         public int call() {
-            CPU.CPU_Push32(CPU.Segs_GSval);
+            CPU.CPU_Push32(CPU_Regs.reg_gsVal.dword);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
@@ -1133,8 +1133,8 @@ static abstract public class JumpCond32_d extends Op {
             int eaa=get_eaa.call();
             if (CPU.CPU_SetSegGeneralSS(Memory.mem_readw(eaa+4))) return RUNEXCEPTION();
             rd.dword=Memory.mem_readd(eaa);
-            Core.base_ds=CPU.Segs_DSphys;
-            Core.base_ss=CPU.Segs_SSphys;
+            Core.base_ds=CPU_Regs.reg_dsPhys.dword;
+            Core.base_ss=CPU_Regs.reg_ssPhys.dword;
             Core.base_val_ds= CPU_Regs.ds;
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }

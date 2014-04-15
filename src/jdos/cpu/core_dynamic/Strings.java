@@ -11,10 +11,12 @@ import jdos.misc.setup.Config;
 public class Strings extends Core {
     final static public class Movsw32r extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction<<1;
             int count = CPU_Regs.reg_ecx.dword;
-            int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
                     int dst = di_base + reg_edi.dword;
@@ -102,8 +104,11 @@ public class Strings extends Core {
 
     final static public class Movsw32 extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction<<1;
-            Memory.mem_writew(CPU.Segs_ESphys + reg_edi.dword, Memory.mem_readw(base_ds + reg_esi.dword));
+            Memory.mem_writew(CPU_Regs.reg_esPhys.dword + reg_edi.dword, Memory.mem_readw(si_base + reg_esi.dword));
             reg_edi.dword+=add_index;
             reg_esi.dword+=add_index;
         }
@@ -120,10 +125,12 @@ public class Strings extends Core {
 
     final static public class Movsw16r extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction<<1;
             int count = CPU_Regs.reg_ecx.word();
-            int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
                     int dst = di_base + reg_edi.word();
@@ -221,9 +228,11 @@ public class Strings extends Core {
 
     final static public class Movsw16 extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction*2;
-            int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             Memory.mem_writew(di_base + reg_edi.word(), Memory.mem_readw(si_base + reg_esi.word()));
             reg_edi.word(reg_edi.word()+add_index);
             reg_esi.word(reg_esi.word()+add_index);
@@ -244,7 +253,7 @@ public class Strings extends Core {
             int add_index= CPU.cpu.direction<<2;
             int count = CPU_Regs.reg_ecx.dword;
             int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
                     int dst = di_base + reg_edi.dword;
@@ -327,7 +336,7 @@ public class Strings extends Core {
     final static public class Movsd32 extends Op {
         public static void doString() {
             int add_index= CPU.cpu.direction<<2;
-            Memory.mem_writed(CPU.Segs_ESphys + reg_edi.dword, Memory.mem_readd(base_ds + reg_esi.dword));
+            Memory.mem_writed(CPU_Regs.reg_esPhys.dword + reg_edi.dword, Memory.mem_readd(base_ds + reg_esi.dword));
             reg_edi.dword+=add_index;
             reg_esi.dword+=add_index;
         }
@@ -347,7 +356,7 @@ public class Strings extends Core {
             int add_index= CPU.cpu.direction*4;
             int count = CPU_Regs.reg_ecx.word();
             int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
                     int dst = di_base + reg_edi.word();
@@ -447,7 +456,7 @@ public class Strings extends Core {
         public static void doString() {
             int add_index= CPU.cpu.direction<<2;
             int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             Memory.mem_writed(di_base + reg_edi.word(), Memory.mem_readd(si_base + reg_esi.word()));
             reg_edi.word(reg_edi.word()+add_index);
             reg_esi.word(reg_esi.word()+add_index);
@@ -465,10 +474,12 @@ public class Strings extends Core {
 
     final static public class Movsb32r extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction;
             int count = CPU_Regs.reg_ecx.dword;
-            int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
                     int dst = di_base + reg_edi.dword;
@@ -539,9 +550,11 @@ public class Strings extends Core {
 
     final static public class Movsb32 extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction;
-            int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             Memory.mem_writeb(di_base+reg_edi.dword,Memory.mem_readb(si_base+reg_esi.dword));
             reg_edi.dword+=add_index;
             reg_esi.dword+=add_index;
@@ -558,10 +571,12 @@ public class Strings extends Core {
 
     final static public class Movsb16r extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction;
             int count = CPU_Regs.reg_ecx.word();
-            int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
                     int dst = di_base + reg_edi.word();
@@ -646,9 +661,11 @@ public class Strings extends Core {
 
     final static public class Movsb16 extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction;
-            int si_base = base_ds;
-            int di_base = CPU.Segs_ESphys;
+            int di_base = CPU_Regs.reg_esPhys.dword;
             Memory.mem_writeb(di_base+reg_edi.word(),Memory.mem_readb(si_base+reg_esi.word()));
             reg_edi.word(reg_edi.word()+add_index);
             reg_esi.word(reg_esi.word()+add_index);

@@ -5,7 +5,7 @@ import jdos.cpu.core_normal.Prefix_helpers;
 
 public class ModifiedDecode {
     static public int call() {
-        Core.cseip = CPU.Segs_CSphys + CPU_Regs.reg_eip;
+        Core.cseip = CPU_Regs.reg_csPhys.dword + CPU_Regs.reg_eip;
         if (CPU.cpu.code.big) {
             Core.opcode_index = 0x200;
             Core.prefixes = 1;
@@ -22,7 +22,7 @@ public class ModifiedDecode {
 //                    try {
             int result = jdos.cpu.core_normal.Prefix_none.ops[c].call();
             if (result == Prefix_helpers.HANDLED) {
-                CPU_Regs.reg_eip = Core.cseip - CPU.Segs_CSphys;
+                CPU_Regs.reg_eip = Core.cseip - CPU_Regs.reg_csPhys.dword;
                 return Constants.BR_Jump;
             } else {
                 if (result == Prefix_helpers.CONTINUE) {

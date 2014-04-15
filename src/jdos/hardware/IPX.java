@@ -512,14 +512,14 @@ public class IPX extends Module_base {
                             // Currently no support for multiple networks
 
                 for(/*Bitu*/int i = 0; i < 6; i++)
-                    Memory.real_writeb((int)CPU.Segs_ESval,CPU_Regs.reg_edi.word()+i,Memory.real_readb((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word()+i+4));
+                    Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+i,Memory.real_readb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_esi.word()+i+4));
 
                 CPU_Regs.reg_ecx.word(1);		// time ticks expected
                 CPU_Regs.reg_eax.low(0x00);	//success
                 break;
 
             case 0x0003:		// Send packet
-                tmpECB = new ECBClass((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word());
+                tmpECB = new ECBClass((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_esi.word());
                 if(!incomingPacket.connected) {
                     tmpECB.setInUseFlag(USEFLAG_AVAILABLE);
                     tmpECB.setCompletionFlag(COMP_UNDELIVERABLE);
@@ -534,7 +534,7 @@ public class IPX extends Module_base {
 
                 break;
             case 0x0004:  // Listen for packet
-                tmpECB = new ECBClass((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word());
+                tmpECB = new ECBClass((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_esi.word());
                 // LOG_IPX("ECB: SN%7d RECEIVE.", tmpECB.SerialNumber);
                 if(!sockInUse(tmpECB.getSocket())) {  // Socket is not open
                     CPU_Regs.reg_eax.low(0xff);
@@ -554,7 +554,7 @@ public class IPX extends Module_base {
             case 0x0005:	// SCHEDULE IPX EVENT
             case 0x0007:	// SCHEDULE SPECIAL IPX EVENT
             {
-                tmpECB = new ECBClass((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word());
+                tmpECB = new ECBClass((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_esi.word());
                 // LOG_IPX("ECB: SN%7d AES. T=%fms.", tmpECB.SerialNumber,
                 //	(1000.0f/(1193182.0f/65536.0f))*(float)CPU_Regs.reg_eax.word();
                 Pic.PIC_AddEvent(IPX_AES_EventHandler, (1000.0f/(1193182.0f/65536.0f))*(float)CPU_Regs.reg_eax.word(),(int)tmpECB.ECBAddr);
@@ -563,7 +563,7 @@ public class IPX extends Module_base {
             }
             case 0x0006:	// cancel operation
             {
-                /*RealPt*/int ecbaddress = Memory.RealMake((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word());
+                /*RealPt*/int ecbaddress = Memory.RealMake((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_esi.word());
                 tmpECB= ECBList;
                 ECBClass tmp2ECB;
                 while (tmpECB!=null) {
@@ -596,7 +596,7 @@ public class IPX extends Module_base {
                 //Bit8u * addrptr = (Bit8u *)&localIpxAddr;
                 byte[] addrptr = localIpxAddr.toByteArray();
                 for(/*Bit16u*/int i=0;i<10;i++)
-                    Memory.real_writeb((int)CPU.Segs_ESval,CPU_Regs.reg_esi.word()+i,addrptr[i]);
+                    Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_esi.word()+i,addrptr[i]);
                 break;
             }
             case 0x000a:		// Relinquish control

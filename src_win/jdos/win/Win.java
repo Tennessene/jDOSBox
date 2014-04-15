@@ -162,7 +162,7 @@ public class Win extends WinAPI {
 
         CPU.CPU_SET_CRX(0, CPU.cpu.cr0 |= CPU.CR0_PROTECTION);
         CPU.cpu.pmode = true;
-        CPU.Segs_CSval = 0x08; // run in kernel mode
+        CPU_Regs.reg_csVal.dword = 0x08; // run in kernel mode
 
         Main.GFX_SetCursor(WinCursor.loadSystemCursor(32650)); // IDC_APPSTARTING
         WinSystem.start();

@@ -2612,7 +2612,7 @@ public class CPU extends Module_base {
 
             if ((value & 0xfffc)==0) {
                 CPU_Regs.reg_fsVal.dword=value;
-                CPU_Regs.reg_dsPhys.dword=0;	// ??
+                CPU_Regs.reg_fsPhys.dword=0;	// ??
                 return false;
             }
             if (!cpu.gdt.GetDescriptor(value,desc_14)) {
@@ -2642,7 +2642,7 @@ public class CPU extends Module_base {
             }
 
             CPU_Regs.reg_fsVal.dword=value;
-            CPU_Regs.reg_dsPhys.dword=desc_14.GetBase();
+            CPU_Regs.reg_fsPhys.dword=desc_14.GetBase();
             return false;
         }
     }
@@ -3160,7 +3160,7 @@ public class CPU extends Module_base {
                 cpudecoder= Core_dynamic.CPU_Core_Dynamic_Run;
             }
         }
-        Core_dynamic.CPU_Core_Dynamic_Cache_Init(true);
+
         if (Config.C_DYNAMIC)
             Core_dynamic.CPU_Core_Dynamic_Cache_Init(core.equals("dynamic"));
 

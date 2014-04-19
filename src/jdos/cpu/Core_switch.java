@@ -11,6 +11,8 @@ package jdos.cpu;
 // 1) ops 0-255 are done, but there are bugs.  Civlization will start correctly but things go wrong after starting a new game.
 import jdos.cpu.core_dynamic.*;
 import jdos.cpu.core_share.Constants;
+import jdos.cpu.core_share.Data;
+import jdos.cpu.core_share.ModifiedDecode;
 import jdos.cpu.core_switch.Decoder;
 import jdos.cpu.core_switch.SwitchBlock;
 import jdos.fpu.FPU;
@@ -1170,6 +1172,7 @@ public class Core_switch extends CPU_Regs {
                             case FPU6_ea: FPU.FPU_ESC6_EA(b.value,eaSlow(b));reg_eip += b.eipCount;continue;
                             case FPU7_normal: FPU.FPU_ESC7_Normal(b.value);reg_eip += b.eipCount;continue;
                             case FPU7_ea: FPU.FPU_ESC7_EA(b.value,eaSlow(b));reg_eip += b.eipCount;continue;
+                            case MODIFIED: tmp = ModifiedDecode.call();if (tmp==Constants.BR_CallBack) {Flags.FillFlags(); return Data.callback; } block=null;break;
                         }
                         break;
                     }

@@ -2436,6 +2436,12 @@ public class Decoder extends Helper {
                 currentInst++;
                 block.eipCount+=(decode.code - decode.op_start);
 
+                if (decode.modifiedAlot) {
+                    decode_putback(block.eipCount);
+                    block.instruction = Inst.MODIFIED;
+                    done = true;
+                }
+
                 if (CPU.cpu.code.big) {
                     opcode_index=0x200;
                     prefixes=1;

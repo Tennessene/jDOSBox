@@ -3,7 +3,7 @@ package jdos.cpu.core_switch;
 import jdos.cpu.CPU_Regs;
 
 public class SwitchBlock {
-    public int instruction;
+    public Inst instruction;
     public int opCode;
     public int eipCount;
     public CPU_Regs.Reg r1;

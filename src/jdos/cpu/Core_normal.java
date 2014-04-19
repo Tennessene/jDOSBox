@@ -106,14 +106,14 @@ public class Core_normal extends Prefix_66_0f {
 //                    if (Config.DEBUG_LOG)
 //                        Debug.start(Debug.TYPE_CPU, c);
 //                    try {
-                    //Record.op(c);
-                    if (count>0) {
-                        //System.out.println(String.format("%d %06x:%08x %3s %-8s EAX=%08x ECX=%08x EDX=%08x EBX=%08x ESP=%08x EBP=%08x ESI=%08x EDI=%08x FLAGS=%04x", count, CPU_Regs.reg_csVal.dword, CPU_Regs.reg_eip, Integer.toHexString(c), (desc.length > c ? " " + desc[c] : ""), CPU_Regs.reg_eax.dword, CPU_Regs.reg_ecx.dword, CPU_Regs.reg_edx.dword, CPU_Regs.reg_ebx.dword, CPU_Regs.reg_esp.dword, CPU_Regs.reg_ebp.dword, CPU_Regs.reg_esi.dword, CPU_Regs.reg_edi.dword, CPU_Regs.flags));
-                        count++;
-                        if (count % 5000 == 0) {
-                            int ii = 0;
-                        }
-                    }
+//                    Record.op(c);
+//                    if (count>0) {
+//                        System.out.println(String.format("%d %06x:%08x %3s %-8s EAX=%08x ECX=%08x EDX=%08x EBX=%08x ESP=%08x EBP=%08x ESI=%08x EDI=%08x FLAGS=%04x", count, CPU_Regs.reg_csVal.dword, CPU_Regs.reg_eip, Integer.toHexString(c), (desc.length > c ? " " + desc[c] : ""), CPU_Regs.reg_eax.dword, CPU_Regs.reg_ecx.dword, CPU_Regs.reg_edx.dword, CPU_Regs.reg_ebx.dword, CPU_Regs.reg_esp.dword, CPU_Regs.reg_ebp.dword, CPU_Regs.reg_esi.dword, CPU_Regs.reg_edi.dword, CPU_Regs.flags));
+//                        count++;
+//                        if (count % 5000 == 0) {
+//                            int ii = 0;
+//                        }
+//                    }
                         int result = ops[c].call();
                         if (result != HANDLED) {
                             if (result == CONTINUE) {

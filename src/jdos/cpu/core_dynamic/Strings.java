@@ -250,9 +250,11 @@ public class Strings extends Core {
 
     final static public class Movsd32r extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction<<2;
             int count = CPU_Regs.reg_ecx.dword;
-            int si_base = base_ds;
             int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
@@ -335,8 +337,11 @@ public class Strings extends Core {
 
     final static public class Movsd32 extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction<<2;
-            Memory.mem_writed(CPU_Regs.reg_esPhys.dword + reg_edi.dword, Memory.mem_readd(base_ds + reg_esi.dword));
+            Memory.mem_writed(CPU_Regs.reg_esPhys.dword + reg_edi.dword, Memory.mem_readd(si_base + reg_esi.dword));
             reg_edi.dword+=add_index;
             reg_esi.dword+=add_index;
         }
@@ -353,9 +358,11 @@ public class Strings extends Core {
 
     final static public class Movsd16r extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction*4;
             int count = CPU_Regs.reg_ecx.word();
-            int si_base = base_ds;
             int di_base = CPU_Regs.reg_esPhys.dword;
             if (Config.FAST_STRINGS) {
                 while (count>1) {
@@ -454,8 +461,10 @@ public class Strings extends Core {
 
     final static public class Movsd16 extends Op {
         public static void doString() {
+            doString(base_ds);
+        }
+        public static void doString(int si_base) {
             int add_index= CPU.cpu.direction<<2;
-            int si_base = base_ds;
             int di_base = CPU_Regs.reg_esPhys.dword;
             Memory.mem_writed(di_base + reg_edi.word(), Memory.mem_readd(si_base + reg_esi.word()));
             reg_edi.word(reg_edi.word()+add_index);

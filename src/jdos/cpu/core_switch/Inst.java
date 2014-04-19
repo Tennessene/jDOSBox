@@ -1,1273 +1,163 @@
 package jdos.cpu.core_switch;
 
-public class Inst {
-    static public final int ADD_R8 = 0;
-    static public final int ADD_R8_fast = 1;
-    static public final int ADD_E8_16 = 453;
-    static public final int ADD_E8_16_fast = 454;
-    static public final int ADD_E8_32 = 455;
-    static public final int ADD_E8_32_fast = 456;
-    static public final int ADD_E8_32_sib = 457;
-    static public final int ADD_E8_32_sib_fast = 458;
-    static public final int ADD_R8_R8 = 2;
-    static public final int ADD_R8_R8_fast = 3;
-    static public final int ADD_E8_R8_16 = 4;
-    static public final int ADD_E8_R8_16_fast = 5;
-    static public final int ADD_E8_R8_32 = 6;
-    static public final int ADD_E8_R8_32_fast = 7;
-    static public final int ADD_E8_R8_32_sib = 8;
-    static public final int ADD_E8_R8_32_sib_fast = 9;
-    static public final int ADD_R8_E8_16 = 10;
-    static public final int ADD_R8_E8_16_fast = 11;
-    static public final int ADD_R8_E8_32 = 12;
-    static public final int ADD_R8_E8_32_fast = 13;
-    static public final int ADD_R8_E8_32_sib = 14;
-    static public final int ADD_R8_E8_32_sib_fast = 15;
-
-    static public final int ADD_R16 = 16;
-    static public final int ADD_R16_fast = 17;
-    static public final int ADD_E16_16 = 459;
-    static public final int ADD_E16_16_fast = 460;
-    static public final int ADD_E16_32 = 461;
-    static public final int ADD_E16_32_fast = 462;
-    static public final int ADD_E16_32_sib = 463;
-    static public final int ADD_E16_32_sib_fast = 464;
-    static public final int ADD_R16_R16 = 18;
-    static public final int ADD_R16_R16_fast = 19;
-    static public final int ADD_E16_R16_16 = 20;
-    static public final int ADD_E16_R16_16_fast = 21;
-    static public final int ADD_E16_R16_32 = 22;
-    static public final int ADD_E16_R16_32_fast = 23;
-    static public final int ADD_E16_R16_32_sib = 24;
-    static public final int ADD_E16_R16_32_sib_fast = 25;
-    static public final int ADD_R16_E16_16 = 26;
-    static public final int ADD_R16_E16_16_fast = 27;
-    static public final int ADD_R16_E16_32 = 28;
-    static public final int ADD_R16_E16_32_fast = 29;
-    static public final int ADD_R16_E16_32_sib = 30;
-    static public final int ADD_R16_E16_32_sib_fast = 31;
-
-    static public final int ADD_R32 = 32;
-    static public final int ADD_R32_fast = 33;
-    static public final int ADD_E32_16 = 465;
-    static public final int ADD_E32_16_fast = 466;
-    static public final int ADD_E32_32 = 467;
-    static public final int ADD_E32_32_fast = 468;
-    static public final int ADD_E32_32_sib = 469;
-    static public final int ADD_E32_32_sib_fast = 470;
-    static public final int ADD_R32_R32 = 34;
-    static public final int ADD_R32_R32_fast = 35;
-    static public final int ADD_E32_R32_16 = 36;
-    static public final int ADD_E32_R32_16_fast = 37;
-    static public final int ADD_E32_R32_32 = 38;
-    static public final int ADD_E32_R32_32_fast = 39;
-    static public final int ADD_E32_R32_32_sib = 40;
-    static public final int ADD_E32_R32_32_sib_fast = 41;
-    static public final int ADD_R32_E32_16 = 42;
-    static public final int ADD_R32_E32_16_fast = 43;
-    static public final int ADD_R32_E32_32 = 44;
-    static public final int ADD_R32_E32_32_fast = 45;
-    static public final int ADD_R32_E32_32_sib = 46;
-    static public final int ADD_R32_E32_32_sib_fast = 47;
-
-    static public final int OR_R8 = 48;
-    static public final int OR_R8_fast = 49;
-    static public final int OR_E8_16 = 471;
-    static public final int OR_E8_16_fast = 472;
-    static public final int OR_E8_32 = 473;
-    static public final int OR_E8_32_fast = 474;
-    static public final int OR_E8_32_sib = 475;
-    static public final int OR_E8_32_sib_fast = 476;
-    static public final int OR_R8_R8 = 50;
-    static public final int OR_R8_R8_fast = 51;
-    static public final int OR_E8_R8_16 = 52;
-    static public final int OR_E8_R8_16_fast = 53;
-    static public final int OR_E8_R8_32 = 54;
-    static public final int OR_E8_R8_32_fast = 55;
-    static public final int OR_E8_R8_32_sib = 56;
-    static public final int OR_E8_R8_32_sib_fast = 57;
-    static public final int OR_R8_E8_16 = 58;
-    static public final int OR_R8_E8_16_fast = 59;
-    static public final int OR_R8_E8_32 = 60;
-    static public final int OR_R8_E8_32_fast = 61;
-    static public final int OR_R8_E8_32_sib = 62;
-    static public final int OR_R8_E8_32_sib_fast = 63;
-
-    static public final int OR_R16 = 64;
-    static public final int OR_R16_fast = 65;
-    static public final int OR_E16_16 = 477;
-    static public final int OR_E16_16_fast = 478;
-    static public final int OR_E16_32 = 479;
-    static public final int OR_E16_32_fast = 480;
-    static public final int OR_E16_32_sib = 481;
-    static public final int OR_E16_32_sib_fast = 482;
-    static public final int OR_R16_R16 = 66;
-    static public final int OR_R16_R16_fast = 67;
-    static public final int OR_E16_R16_16 = 68;
-    static public final int OR_E16_R16_16_fast = 69;
-    static public final int OR_E16_R16_32 = 70;
-    static public final int OR_E16_R16_32_fast = 71;
-    static public final int OR_E16_R16_32_sib = 72;
-    static public final int OR_E16_R16_32_sib_fast = 73;
-    static public final int OR_R16_E16_16 = 74;
-    static public final int OR_R16_E16_16_fast = 75;
-    static public final int OR_R16_E16_32 = 76;
-    static public final int OR_R16_E16_32_fast = 77;
-    static public final int OR_R16_E16_32_sib = 78;
-    static public final int OR_R16_E16_32_sib_fast = 79;
-
-    static public final int OR_R32 = 80;
-    static public final int OR_R32_fast = 81;
-    static public final int OR_E32_16 = 483;
-    static public final int OR_E32_16_fast = 484;
-    static public final int OR_E32_32 = 485;
-    static public final int OR_E32_32_fast = 486;
-    static public final int OR_E32_32_sib = 487;
-    static public final int OR_E32_32_sib_fast = 488;
-    static public final int OR_R32_R32 = 82;
-    static public final int OR_R32_R32_fast = 83;
-    static public final int OR_E32_R32_16 = 84;
-    static public final int OR_E32_R32_16_fast = 85;
-    static public final int OR_E32_R32_32 = 86;
-    static public final int OR_E32_R32_32_fast = 87;
-    static public final int OR_E32_R32_32_sib = 88;
-    static public final int OR_E32_R32_32_sib_fast = 89;
-    static public final int OR_R32_E32_16 = 90;
-    static public final int OR_R32_E32_16_fast = 91;
-    static public final int OR_R32_E32_32 = 92;
-    static public final int OR_R32_E32_32_fast = 93;
-    static public final int OR_R32_E32_32_sib = 94;
-    static public final int OR_R32_E32_32_sib_fast = 95;
-
-    static public final int ADC_R8 = 96;
-    static public final int ADC_R8_fast = 97;
-    static public final int ADC_E8_16 = 489;
-    static public final int ADC_E8_16_fast = 490;
-    static public final int ADC_E8_32 = 491;
-    static public final int ADC_E8_32_fast = 492;
-    static public final int ADC_E8_32_sib = 493;
-    static public final int ADC_E8_32_sib_fast = 494;
-    static public final int ADC_R8_R8 = 98;
-    static public final int ADC_R8_R8_fast = 99;
-    static public final int ADC_E8_R8_16 = 100;
-    static public final int ADC_E8_R8_16_fast = 101;
-    static public final int ADC_E8_R8_32 = 102;
-    static public final int ADC_E8_R8_32_fast = 103;
-    static public final int ADC_E8_R8_32_sib = 104;
-    static public final int ADC_E8_R8_32_sib_fast = 105;
-    static public final int ADC_R8_E8_16 = 106;
-    static public final int ADC_R8_E8_16_fast = 107;
-    static public final int ADC_R8_E8_32 = 108;
-    static public final int ADC_R8_E8_32_fast = 109;
-    static public final int ADC_R8_E8_32_sib = 110;
-    static public final int ADC_R8_E8_32_sib_fast = 111;
-
-    static public final int ADC_R16 = 112;
-    static public final int ADC_R16_fast = 113;
-    static public final int ADC_E16_16 = 495;
-    static public final int ADC_E16_16_fast = 496;
-    static public final int ADC_E16_32 = 497;
-    static public final int ADC_E16_32_fast = 498;
-    static public final int ADC_E16_32_sib = 499;
-    static public final int ADC_E16_32_sib_fast = 500;
-    static public final int ADC_R16_R16 = 114;
-    static public final int ADC_R16_R16_fast = 115;
-    static public final int ADC_E16_R16_16 = 116;
-    static public final int ADC_E16_R16_16_fast = 117;
-    static public final int ADC_E16_R16_32 = 118;
-    static public final int ADC_E16_R16_32_fast = 119;
-    static public final int ADC_E16_R16_32_sib = 120;
-    static public final int ADC_E16_R16_32_sib_fast = 121;
-    static public final int ADC_R16_E16_16 = 122;
-    static public final int ADC_R16_E16_16_fast = 123;
-    static public final int ADC_R16_E16_32 = 124;
-    static public final int ADC_R16_E16_32_fast = 125;
-    static public final int ADC_R16_E16_32_sib = 126;
-    static public final int ADC_R16_E16_32_sib_fast = 127;
-
-    static public final int ADC_R32 = 128;
-    static public final int ADC_R32_fast = 129;
-    static public final int ADC_E32_16 = 501;
-    static public final int ADC_E32_16_fast = 502;
-    static public final int ADC_E32_32 = 503;
-    static public final int ADC_E32_32_fast = 504;
-    static public final int ADC_E32_32_sib = 505;
-    static public final int ADC_E32_32_sib_fast = 506;
-    static public final int ADC_R32_R32 = 130;
-    static public final int ADC_R32_R32_fast = 131;
-    static public final int ADC_E32_R32_16 = 132;
-    static public final int ADC_E32_R32_16_fast = 133;
-    static public final int ADC_E32_R32_32 = 134;
-    static public final int ADC_E32_R32_32_fast = 135;
-    static public final int ADC_E32_R32_32_sib = 136;
-    static public final int ADC_E32_R32_32_sib_fast = 137;
-    static public final int ADC_R32_E32_16 = 138;
-    static public final int ADC_R32_E32_16_fast = 139;
-    static public final int ADC_R32_E32_32 = 140;
-    static public final int ADC_R32_E32_32_fast = 141;
-    static public final int ADC_R32_E32_32_sib = 142;
-    static public final int ADC_R32_E32_32_sib_fast = 143;
-
-    static public final int SBB_R8 = 144;
-    static public final int SBB_R8_fast = 145;
-    static public final int SBB_E8_16 = 507;
-    static public final int SBB_E8_16_fast = 508;
-    static public final int SBB_E8_32 = 509;
-    static public final int SBB_E8_32_fast = 510;
-    static public final int SBB_E8_32_sib = 511;
-    static public final int SBB_E8_32_sib_fast = 512;
-    static public final int SBB_R8_R8 = 146;
-    static public final int SBB_R8_R8_fast = 147;
-    static public final int SBB_E8_R8_16 = 148;
-    static public final int SBB_E8_R8_16_fast = 149;
-    static public final int SBB_E8_R8_32 = 150;
-    static public final int SBB_E8_R8_32_fast = 151;
-    static public final int SBB_E8_R8_32_sib = 152;
-    static public final int SBB_E8_R8_32_sib_fast = 153;
-    static public final int SBB_R8_E8_16 = 154;
-    static public final int SBB_R8_E8_16_fast = 155;
-    static public final int SBB_R8_E8_32 = 156;
-    static public final int SBB_R8_E8_32_fast = 157;
-    static public final int SBB_R8_E8_32_sib = 158;
-    static public final int SBB_R8_E8_32_sib_fast = 159;
-
-    static public final int SBB_R16 = 160;
-    static public final int SBB_R16_fast = 161;
-    static public final int SBB_E16_16 = 513;
-    static public final int SBB_E16_16_fast = 514;
-    static public final int SBB_E16_32 = 515;
-    static public final int SBB_E16_32_fast = 516;
-    static public final int SBB_E16_32_sib = 517;
-    static public final int SBB_E16_32_sib_fast = 518;
-    static public final int SBB_R16_R16 = 162;
-    static public final int SBB_R16_R16_fast = 163;
-    static public final int SBB_E16_R16_16 = 164;
-    static public final int SBB_E16_R16_16_fast = 165;
-    static public final int SBB_E16_R16_32 = 166;
-    static public final int SBB_E16_R16_32_fast = 167;
-    static public final int SBB_E16_R16_32_sib = 168;
-    static public final int SBB_E16_R16_32_sib_fast = 169;
-    static public final int SBB_R16_E16_16 = 170;
-    static public final int SBB_R16_E16_16_fast = 171;
-    static public final int SBB_R16_E16_32 = 172;
-    static public final int SBB_R16_E16_32_fast = 173;
-    static public final int SBB_R16_E16_32_sib = 174;
-    static public final int SBB_R16_E16_32_sib_fast = 175;
-
-    static public final int SBB_R32 = 176;
-    static public final int SBB_R32_fast = 177;
-    static public final int SBB_E32_16 = 519;
-    static public final int SBB_E32_16_fast = 520;
-    static public final int SBB_E32_32 = 521;
-    static public final int SBB_E32_32_fast = 522;
-    static public final int SBB_E32_32_sib = 523;
-    static public final int SBB_E32_32_sib_fast = 524;
-    static public final int SBB_R32_R32 = 178;
-    static public final int SBB_R32_R32_fast = 179;
-    static public final int SBB_E32_R32_16 = 180;
-    static public final int SBB_E32_R32_16_fast = 181;
-    static public final int SBB_E32_R32_32 = 182;
-    static public final int SBB_E32_R32_32_fast = 183;
-    static public final int SBB_E32_R32_32_sib = 184;
-    static public final int SBB_E32_R32_32_sib_fast = 185;
-    static public final int SBB_R32_E32_16 = 186;
-    static public final int SBB_R32_E32_16_fast = 187;
-    static public final int SBB_R32_E32_32 = 188;
-    static public final int SBB_R32_E32_32_fast = 189;
-    static public final int SBB_R32_E32_32_sib = 190;
-    static public final int SBB_R32_E32_32_sib_fast = 191;
-
-    static public final int AND_R8 = 192;
-    static public final int AND_R8_fast = 193;
-    static public final int AND_E8_16 = 525;
-    static public final int AND_E8_16_fast = 526;
-    static public final int AND_E8_32 = 527;
-    static public final int AND_E8_32_fast = 528;
-    static public final int AND_E8_32_sib = 529;
-    static public final int AND_E8_32_sib_fast = 530;
-    static public final int AND_R8_R8 = 194;
-    static public final int AND_R8_R8_fast = 195;
-    static public final int AND_E8_R8_16 = 196;
-    static public final int AND_E8_R8_16_fast = 197;
-    static public final int AND_E8_R8_32 = 198;
-    static public final int AND_E8_R8_32_fast = 199;
-    static public final int AND_E8_R8_32_sib = 200;
-    static public final int AND_E8_R8_32_sib_fast = 201;
-    static public final int AND_R8_E8_16 = 202;
-    static public final int AND_R8_E8_16_fast = 203;
-    static public final int AND_R8_E8_32 = 204;
-    static public final int AND_R8_E8_32_fast = 205;
-    static public final int AND_R8_E8_32_sib = 206;
-    static public final int AND_R8_E8_32_sib_fast = 207;
-
-    static public final int AND_R16 = 208;
-    static public final int AND_R16_fast = 209;
-    static public final int AND_E16_16 = 531;
-    static public final int AND_E16_16_fast = 532;
-    static public final int AND_E16_32 = 533;
-    static public final int AND_E16_32_fast = 534;
-    static public final int AND_E16_32_sib = 535;
-    static public final int AND_E16_32_sib_fast = 536;
-    static public final int AND_R16_R16 = 210;
-    static public final int AND_R16_R16_fast = 211;
-    static public final int AND_E16_R16_16 = 212;
-    static public final int AND_E16_R16_16_fast = 213;
-    static public final int AND_E16_R16_32 = 214;
-    static public final int AND_E16_R16_32_fast = 215;
-    static public final int AND_E16_R16_32_sib = 216;
-    static public final int AND_E16_R16_32_sib_fast = 217;
-    static public final int AND_R16_E16_16 = 218;
-    static public final int AND_R16_E16_16_fast = 219;
-    static public final int AND_R16_E16_32 = 220;
-    static public final int AND_R16_E16_32_fast = 221;
-    static public final int AND_R16_E16_32_sib = 222;
-    static public final int AND_R16_E16_32_sib_fast = 223;
-
-    static public final int AND_R32 = 224;
-    static public final int AND_R32_fast = 225;
-    static public final int AND_E32_16 = 537;
-    static public final int AND_E32_16_fast = 538;
-    static public final int AND_E32_32 = 539;
-    static public final int AND_E32_32_fast = 540;
-    static public final int AND_E32_32_sib = 541;
-    static public final int AND_E32_32_sib_fast = 542;
-    static public final int AND_R32_R32 = 226;
-    static public final int AND_R32_R32_fast = 227;
-    static public final int AND_E32_R32_16 = 228;
-    static public final int AND_E32_R32_16_fast = 229;
-    static public final int AND_E32_R32_32 = 230;
-    static public final int AND_E32_R32_32_fast = 231;
-    static public final int AND_E32_R32_32_sib = 232;
-    static public final int AND_E32_R32_32_sib_fast = 233;
-    static public final int AND_R32_E32_16 = 234;
-    static public final int AND_R32_E32_16_fast = 235;
-    static public final int AND_R32_E32_32 = 236;
-    static public final int AND_R32_E32_32_fast = 237;
-    static public final int AND_R32_E32_32_sib = 238;
-    static public final int AND_R32_E32_32_sib_fast = 239;
-
-    static public final int SUB_R8 = 240;
-    static public final int SUB_R8_fast = 241;
-    static public final int SUB_E8_16 = 543;
-    static public final int SUB_E8_16_fast = 544;
-    static public final int SUB_E8_32 = 545;
-    static public final int SUB_E8_32_fast = 546;
-    static public final int SUB_E8_32_sib = 547;
-    static public final int SUB_E8_32_sib_fast = 548;
-    static public final int SUB_R8_R8 = 242;
-    static public final int SUB_R8_R8_fast = 243;
-    static public final int SUB_E8_R8_16 = 244;
-    static public final int SUB_E8_R8_16_fast = 245;
-    static public final int SUB_E8_R8_32 = 246;
-    static public final int SUB_E8_R8_32_fast = 247;
-    static public final int SUB_E8_R8_32_sib = 248;
-    static public final int SUB_E8_R8_32_sib_fast = 249;
-    static public final int SUB_R8_E8_16 = 250;
-    static public final int SUB_R8_E8_16_fast = 251;
-    static public final int SUB_R8_E8_32 = 252;
-    static public final int SUB_R8_E8_32_fast = 253;
-    static public final int SUB_R8_E8_32_sib = 254;
-    static public final int SUB_R8_E8_32_sib_fast = 255;
-
-    static public final int SUB_R16 = 256;
-    static public final int SUB_R16_fast = 257;
-    static public final int SUB_E16_16 = 549;
-    static public final int SUB_E16_16_fast = 550;
-    static public final int SUB_E16_32 = 551;
-    static public final int SUB_E16_32_fast = 552;
-    static public final int SUB_E16_32_sib = 553;
-    static public final int SUB_E16_32_sib_fast = 554;
-    static public final int SUB_R16_R16 = 258;
-    static public final int SUB_R16_R16_fast = 259;
-    static public final int SUB_E16_R16_16 = 260;
-    static public final int SUB_E16_R16_16_fast = 261;
-    static public final int SUB_E16_R16_32 = 262;
-    static public final int SUB_E16_R16_32_fast = 263;
-    static public final int SUB_E16_R16_32_sib = 264;
-    static public final int SUB_E16_R16_32_sib_fast = 265;
-    static public final int SUB_R16_E16_16 = 266;
-    static public final int SUB_R16_E16_16_fast = 267;
-    static public final int SUB_R16_E16_32 = 268;
-    static public final int SUB_R16_E16_32_fast = 269;
-    static public final int SUB_R16_E16_32_sib = 270;
-    static public final int SUB_R16_E16_32_sib_fast = 271;
-
-    static public final int SUB_R32 = 272;
-    static public final int SUB_R32_fast = 273;
-    static public final int SUB_E32_16 = 555;
-    static public final int SUB_E32_16_fast = 556;
-    static public final int SUB_E32_32 = 557;
-    static public final int SUB_E32_32_fast = 558;
-    static public final int SUB_E32_32_sib = 559;
-    static public final int SUB_E32_32_sib_fast = 560;
-    static public final int SUB_R32_R32 = 274;
-    static public final int SUB_R32_R32_fast = 275;
-    static public final int SUB_E32_R32_16 = 276;
-    static public final int SUB_E32_R32_16_fast = 277;
-    static public final int SUB_E32_R32_32 = 278;
-    static public final int SUB_E32_R32_32_fast = 279;
-    static public final int SUB_E32_R32_32_sib = 280;
-    static public final int SUB_E32_R32_32_sib_fast = 281;
-    static public final int SUB_R32_E32_16 = 282;
-    static public final int SUB_R32_E32_16_fast = 283;
-    static public final int SUB_R32_E32_32 = 284;
-    static public final int SUB_R32_E32_32_fast = 285;
-    static public final int SUB_R32_E32_32_sib = 286;
-    static public final int SUB_R32_E32_32_sib_fast = 287;
-
-    static public final int XOR_R8 = 288;
-    static public final int XOR_R8_fast = 289;
-    static public final int XOR_E8_16 = 561;
-    static public final int XOR_E8_16_fast = 562;
-    static public final int XOR_E8_32 = 563;
-    static public final int XOR_E8_32_fast = 564;
-    static public final int XOR_E8_32_sib = 565;
-    static public final int XOR_E8_32_sib_fast = 566;
-    static public final int XOR_R8_R8 = 290;
-    static public final int XOR_R8_R8_fast = 291;
-    static public final int XOR_E8_R8_16 = 292;
-    static public final int XOR_E8_R8_16_fast = 293;
-    static public final int XOR_E8_R8_32 = 294;
-    static public final int XOR_E8_R8_32_fast = 295;
-    static public final int XOR_E8_R8_32_sib = 296;
-    static public final int XOR_E8_R8_32_sib_fast = 297;
-    static public final int XOR_R8_E8_16 = 298;
-    static public final int XOR_R8_E8_16_fast = 299;
-    static public final int XOR_R8_E8_32 = 300;
-    static public final int XOR_R8_E8_32_fast = 301;
-    static public final int XOR_R8_E8_32_sib = 302;
-    static public final int XOR_R8_E8_32_sib_fast = 303;
-
-    static public final int XOR_R16 = 304;
-    static public final int XOR_R16_fast = 305;
-    static public final int XOR_E16_16 = 567;
-    static public final int XOR_E16_16_fast = 568;
-    static public final int XOR_E16_32 = 569;
-    static public final int XOR_E16_32_fast = 570;
-    static public final int XOR_E16_32_sib = 571;
-    static public final int XOR_E16_32_sib_fast = 572;
-    static public final int XOR_R16_R16 = 306;
-    static public final int XOR_R16_R16_fast = 307;
-    static public final int XOR_E16_R16_16 = 308;
-    static public final int XOR_E16_R16_16_fast = 309;
-    static public final int XOR_E16_R16_32 = 310;
-    static public final int XOR_E16_R16_32_fast = 311;
-    static public final int XOR_E16_R16_32_sib = 312;
-    static public final int XOR_E16_R16_32_sib_fast = 313;
-    static public final int XOR_R16_E16_16 = 314;
-    static public final int XOR_R16_E16_16_fast = 315;
-    static public final int XOR_R16_E16_32 = 316;
-    static public final int XOR_R16_E16_32_fast = 317;
-    static public final int XOR_R16_E16_32_sib = 318;
-    static public final int XOR_R16_E16_32_sib_fast = 319;
-
-    static public final int XOR_R32 = 320;
-    static public final int XOR_R32_fast = 321;
-    static public final int XOR_E32_16 = 573;
-    static public final int XOR_E32_16_fast = 574;
-    static public final int XOR_E32_32 = 575;
-    static public final int XOR_E32_32_fast = 576;
-    static public final int XOR_E32_32_sib = 577;
-    static public final int XOR_E32_32_sib_fast = 578;
-    static public final int XOR_R32_R32 = 322;
-    static public final int XOR_R32_R32_fast = 323;
-    static public final int XOR_E32_R32_16 = 324;
-    static public final int XOR_E32_R32_16_fast = 325;
-    static public final int XOR_E32_R32_32 = 326;
-    static public final int XOR_E32_R32_32_fast = 327;
-    static public final int XOR_E32_R32_32_sib = 328;
-    static public final int XOR_E32_R32_32_sib_fast = 329;
-    static public final int XOR_R32_E32_16 = 330;
-    static public final int XOR_R32_E32_16_fast = 331;
-    static public final int XOR_R32_E32_32 = 332;
-    static public final int XOR_R32_E32_32_fast = 333;
-    static public final int XOR_R32_E32_32_sib = 334;
-    static public final int XOR_R32_E32_32_sib_fast = 335;
-
-    static public final int CMP_R8 = 336;
-    static public final int CMP_E8_16 = 579;
-    static public final int CMP_E8_32 = 580;
-    static public final int CMP_E8_32_sib = 581;
-    static public final int CMP_R8_R8 = 337;
-    static public final int CMP_E8_R8_16 = 338;
-    static public final int CMP_E8_R8_32 = 339;
-    static public final int CMP_E8_R8_32_sib = 340;
-    static public final int CMP_R8_E8_16 = 341;
-    static public final int CMP_R8_E8_32 = 342;
-    static public final int CMP_R8_E8_32_sib = 343;
-
-    static public final int CMP_R16 = 344;
-    static public final int CMP_E16_16 = 582;
-    static public final int CMP_E16_32 = 583;
-    static public final int CMP_E16_32_sib = 584;
-    static public final int CMP_R16_R16 = 345;
-    static public final int CMP_E16_R16_16 = 346;
-    static public final int CMP_E16_R16_32 = 347;
-    static public final int CMP_E16_R16_32_sib = 348;
-    static public final int CMP_R16_E16_16 = 349;
-    static public final int CMP_R16_E16_32 = 350;
-    static public final int CMP_R16_E16_32_sib = 351;
-
-    static public final int CMP_R32 = 352;
-    static public final int CMP_E32_16 = 585;
-    static public final int CMP_E32_32 = 586;
-    static public final int CMP_E32_32_sib = 587;
-    static public final int CMP_R32_R32 = 353;
-    static public final int CMP_E32_R32_16 = 354;
-    static public final int CMP_E32_R32_32 = 355;
-    static public final int CMP_E32_R32_32_sib = 356;
-    static public final int CMP_R32_E32_16 = 357;
-    static public final int CMP_R32_E32_32 = 358;
-    static public final int CMP_R32_E32_32_sib = 359;
-
-    static public final int PUSH16_ES = 360;
-    static public final int POP16_ES = 361;
-    static public final int PUSH16_CS = 362;
-    //static public final int POP16_ES = 161;
-    static public final int PUSH16_SS = 363;
-    static public final int POP16_SS = 364;
-    static public final int PUSH16_DS = 365;
-    static public final int POP16_DS = 366;
-    static public final int PUSH16_FS = 367;
-    static public final int POP16_FS = 368;
-    static public final int PUSH16_GS = 369;
-    static public final int POP16_GS = 370;
-
-    static public final int PUSH32_ES = 371;
-    static public final int POP32_ES = 372;
-    static public final int PUSH32_CS = 373;
-    //static public final int POP16_ES = 161;
-    static public final int PUSH32_SS = 374;
-    static public final int POP32_SS = 375;
-    static public final int PUSH32_DS = 376;
-    static public final int POP32_DS = 377;
-    static public final int PUSH32_FS = 378;
-    static public final int POP32_FS = 379;
-    static public final int PUSH32_GS = 380;
-    static public final int POP32_GS = 381;
-
-    static public final int NOP = 382;
-    static public final int DAA = 383;
-    static public final int DAS = 384;
-    static public final int AAA = 385;
-    static public final int AAS = 386;
-
-    static public final int INCB = 387;
-    static public final int INCB_fast = 388;
-    static public final int INCW = 389;
-    static public final int INCW_fast = 390;
-    static public final int INCD = 391;
-    static public final int INCD_fast = 392;
-    static public final int DECB = 393;
-    static public final int DECB_fast = 394;
-    static public final int DECW = 395;
-    static public final int DECW_fast = 396;
-    static public final int DECD = 397;
-    static public final int DECD_fast = 398;
-
-    static public final int PUSH16 = 399;
-    static public final int PUSH16_R16 = 400;
-    static public final int PUSH16_E16 = 401;
-    static public final int PUSH16_E32 = 402;
-    static public final int PUSH16_E32_sib = 403;
-    static public final int PUSH32 = 404;
-    static public final int PUSH32_R32 = 405;
-    static public final int PUSH32_E16 = 406;
-    static public final int PUSH32_E32 = 407;
-    static public final int PUSH32_E32_sib = 408;
-
-    static public final int POP16_R16 = 409;
-    static public final int POP16_E16 = 410;
-    static public final int POP16_E32 = 411;
-    static public final int POP16_E32_sib = 412;
-    static public final int POP32_R32 = 413;
-    static public final int POP32_E16 = 414;
-    static public final int POP32_E32 = 415;
-    static public final int POP32_E32_sib = 416;
-
-    static public final int PUSH16A = 417;
-    static public final int PUSH32A = 418;
-    static public final int POP16A = 419;
-    static public final int POP32A = 420;
-
-    static public final int BOUND16 = 421;
-    static public final int BOUND32 = 422;
-    static public final int ARPL_R16_R16 = 423;
-    static public final int ARPL_R16_E16 = 424;
-    static public final int ARPL_R32_R32 = 425;
-    static public final int ARPL_R32_E32 = 426;
-
-    static public final int IMUL_R16_R16 = 427;
-    static public final int IMUL_R16_R16_fast = 428;
-    static public final int IMUL_R16_E16 = 429;
-    static public final int IMUL_R16_E16_fast = 430;
-    static public final int IMUL_R16_E32 = 431;
-    static public final int IMUL_R16_E32_fast = 432;
-    static public final int IMUL_R16_E32_sib = 433;
-    static public final int IMUL_R16_E32_sib_fast = 434;
-
-    static public final int STRING_EXCEPTION = 435;
-    static public final int STRING = 436;
-
-    static public final int JUMP16_JO = 437;
-    static public final int JUMP16_NJO = 438;
-    static public final int JUMP16_B = 439;
-    static public final int JUMP16_NB = 440;
-    static public final int JUMP16_Z = 441;
-    static public final int JUMP16_NZ = 442;
-    static public final int JUMP16_BE = 443;
-    static public final int JUMP16_NBE = 444;
-    static public final int JUMP16_S = 445;
-    static public final int JUMP16_NS = 446;
-    static public final int JUMP16_P = 447;
-    static public final int JUMP16_NP = 448;
-    static public final int JUMP16_L = 449;
-    static public final int JUMP16_NL = 450;
-    static public final int JUMP16_LE = 451;
-    static public final int JUMP16_NLE = 452;
-
-    static public final int TEST_R8 = 588;
-    static public final int TEST_E8_16 = 589;
-    static public final int TEST_E8_32 = 590;
-    static public final int TEST_E8_32_sib = 591;
-    static public final int TEST_R8_R8 = 592;
-    static public final int TEST_R8_E8_16 = 593;
-    static public final int TEST_R8_E8_32 = 594;
-    static public final int TEST_R8_E8_32_sib = 595;
-
-    static public final int TEST_R16 = 596;
-    static public final int TEST_E16_16 = 597;
-    static public final int TEST_E16_32 = 598;
-    static public final int TEST_E16_32_sib = 599;
-    static public final int TEST_R16_R16 = 600;
-    static public final int TEST_R16_E16_16 = 601;
-    static public final int TEST_R16_E16_32 = 602;
-    static public final int TEST_R16_E16_32_sib = 603;
-
-    static public final int TEST_R32 = 604;
-    static public final int TEST_E32_16 = 605;
-    static public final int TEST_E32_32 = 606;
-    static public final int TEST_E32_32_sib = 607;
-    static public final int TEST_R32_R32 = 608;
-    static public final int TEST_R32_E32_16 = 609;
-    static public final int TEST_R32_E32_32 = 610;
-    static public final int TEST_R32_E32_32_sib = 611;
-
-    static public final int XCHG_R8_R8 = 612;
-    static public final int XCHG_R8_E8_16 = 613;
-    static public final int XCHG_R8_E8_32 = 614;
-    static public final int XCHG_R8_E8_32_sib = 615;
-
-    static public final int XCHG_R16_R16 = 616;
-    static public final int XCHG_R16_E16_16 = 617;
-    static public final int XCHG_R16_E16_32 = 618;
-    static public final int XCHG_R16_E16_32_sib = 619;
-
-    static public final int XCHG_R32_R32 = 620;
-    static public final int XCHG_R32_E32_16 = 621;
-    static public final int XCHG_R32_E32_32 = 622;
-    static public final int XCHG_R32_E32_32_sib = 623;
-
-    static public final int MOV_R8 = 624;
-    static public final int MOV_E8_16 = 625;
-    static public final int MOV_E8_32 = 626;
-    static public final int MOV_E8_32_sib = 627;
-    static public final int MOV_R8_R8 = 628;
-    static public final int MOV_E8_R8_16 = 629;
-    static public final int MOV_E8_R8_32 = 630;
-    static public final int MOV_E8_R8_32_sib = 631;
-    static public final int MOV_R8_E8_16 = 632;
-    static public final int MOV_R8_E8_32 = 633;
-    static public final int MOV_R8_E8_32_sib = 634;
-    static public final int MOV_R8_R8_RM5 = 635;
-    static public final int MOV_E8_R8_16_RM5 = 636;
-    static public final int MOV_E8_R8_32_RM5 = 637;
-    static public final int MOV_E8_R8_32_sib_RM5 = 638;
-
-    static public final int MOV_R16 = 639;
-    static public final int MOV_E16_16 = 640;
-    static public final int MOV_E16_32 = 641;
-    static public final int MOV_E16_32_sib = 642;
-    static public final int MOV_R16_R16 = 643;
-    static public final int MOV_E16_R16_16 = 644;
-    static public final int MOV_E16_R16_32 = 645;
-    static public final int MOV_E16_R16_32_sib = 646;
-    static public final int MOV_R16_E16_16 = 647;
-    static public final int MOV_R16_E16_32 = 648;
-    static public final int MOV_R16_E16_32_sib = 649;
-
-    static public final int MOV_R32 = 650;
-    static public final int MOV_E32_16 = 651;
-    static public final int MOV_E32_32 = 652;
-    static public final int MOV_E32_32_sib = 653;
-    static public final int MOV_R32_R32 = 654;
-    static public final int MOV_E32_R32_16 = 655;
-    static public final int MOV_E32_R32_32 = 656;
-    static public final int MOV_E32_R32_32_sib = 657;
-    static public final int MOV_R32_E32_16 = 658;
-    static public final int MOV_R32_E32_32 = 659;
-    static public final int MOV_R32_E32_32_sib = 660;
-
-    static public final int ILLEGAL = 661;
-    static public final int LEA_R16_16 = 662;
-    static public final int LEA_R16_32 = 663;
-    static public final int LEA_R16_32_sib = 664;
-    static public final int LEA_R32_16 = 665;
-    static public final int LEA_R32_32 = 666;
-    static public final int LEA_R32_32_sib = 667;
-
-    static public final int MOV_ES_R16 = 668;
-    static public final int MOV_ES_E16 = 669;
-    static public final int MOV_ES_E32 = 670;
-    static public final int MOV_ES_E32_sib = 671;
-    static public final int MOV_SS_R16 = 672;
-    static public final int MOV_SS_E16 = 673;
-    static public final int MOV_SS_E32 = 674;
-    static public final int MOV_SS_E32_sib = 675;
-    static public final int MOV_DS_R16 = 676;
-    static public final int MOV_DS_E16 = 677;
-    static public final int MOV_DS_E32 = 678;
-    static public final int MOV_DS_E32_sib = 679;
-    static public final int MOV_FS_R16 = 680;
-    static public final int MOV_FS_E16 = 681;
-    static public final int MOV_FS_E32 = 682;
-    static public final int MOV_FS_E32_sib = 683;
-    static public final int MOV_GS_R16 = 684;
-    static public final int MOV_GS_E16 = 685;
-    static public final int MOV_GS_E32 = 686;
-    static public final int MOV_GS_E32_sib = 687;
-
-    static public final int CBW = 688;
-    static public final int CWD = 689;
-    static public final int CALL16_AP = 690;
-    static public final int CALL16_EP = 691;
-    static public final int CALL32_AP = 692;
-    static public final int CALL32_EP = 693;
-
-    static public final int PUSHF = 694;
-    static public final int POPF = 695;
-    static public final int SAHF = 696;
-    static public final int LAHF = 697;
-
-    static public final int MOV_AL_0b = 698;
-    static public final int MOV_0b_AL = 699;
-    static public final int MOV_AX_0w = 700;
-    static public final int MOV_0w_AX = 701;
-
-    static public final int MOVSB16 = 702;
-    static public final int MOVSB16r = 703;
-    static public final int MOVSB32 = 704;
-    static public final int MOVSB32r = 705;
-    static public final int MOVSW16 = 706;
-    static public final int MOVSW16r = 707;
-    static public final int MOVSW32 = 708;
-    static public final int MOVSW32r = 709;
-
-    static public final int ROLB_0_flags = 710;
-    static public final int ROLB_0_flags_16 = 711;
-    static public final int ROLB_0_flags_32 = 712;
-    static public final int ROLB_0_flags_32_sib = 713;
-    static public final int RORB_0_flags = 714;
-    static public final int RORB_0_flags_16 = 715;
-    static public final int RORB_0_flags_32 = 716;
-    static public final int RORB_0_flags_32_sib = 717;
-    static public final int ROLW_0_flags = 718;
-    static public final int ROLW_0_flags_16 = 719;
-    static public final int ROLW_0_flags_32 = 720;
-    static public final int ROLW_0_flags_32_sib = 721;
-    static public final int RORW_0_flags = 722;
-    static public final int RORW_0_flags_16 = 723;
-    static public final int RORW_0_flags_32 = 724;
-    static public final int RORW_0_flags_32_sib = 725;
-
-    static public final int ROLB = 726;
-    static public final int ROLB_fast = 727;
-    static public final int ROLB_16 = 728;
-    static public final int ROLB_16_fast = 729;
-    static public final int ROLB_32 = 730;
-    static public final int ROLB_32_fast = 731;
-    static public final int ROLB_32_sib = 732;
-    static public final int ROLB_32_sib_fast = 733;
-
-    static public final int ROLB_CL = 734;
-    static public final int ROLB_CL_fast = 735;
-    static public final int ROLB_CL_16 = 736;
-    static public final int ROLB_CL_16_fast = 737;
-    static public final int ROLB_CL_32 = 738;
-    static public final int ROLB_CL_32_fast = 739;
-    static public final int ROLB_CL_32_sib = 740;
-    static public final int ROLB_CL_32_sib_fast = 741;
-
-    static public final int RORB = 742;
-    static public final int RORB_fast = 743;
-    static public final int RORB_16 = 744;
-    static public final int RORB_16_fast = 745;
-    static public final int RORB_32 = 746;
-    static public final int RORB_32_fast = 747;
-    static public final int RORB_32_sib = 748;
-    static public final int RORB_32_sib_fast = 749;
-
-    static public final int RORB_CL = 750;
-    static public final int RORB_CL_fast = 751;
-    static public final int RORB_CL_16 = 752;
-    static public final int RORB_CL_16_fast = 753;
-    static public final int RORB_CL_32 = 754;
-    static public final int RORB_CL_32_fast = 755;
-    static public final int RORB_CL_32_sib = 756;
-    static public final int RORB_CL_32_sib_fast = 757;
-
-    static public final int RCLB = 758;
-    static public final int RCLB_fast = 759;
-    static public final int RCLB_16 = 760;
-    static public final int RCLB_16_fast = 761;
-    static public final int RCLB_32 = 762;
-    static public final int RCLB_32_fast = 763;
-    static public final int RCLB_32_sib = 764;
-    static public final int RCLB_32_sib_fast = 765;
-
-    static public final int RCLB_CL = 766;
-    static public final int RCLB_CL_fast = 767;
-    static public final int RCLB_CL_16 = 768;
-    static public final int RCLB_CL_16_fast = 769;
-    static public final int RCLB_CL_32 = 770;
-    static public final int RCLB_CL_32_fast = 771;
-    static public final int RCLB_CL_32_sib = 772;
-    static public final int RCLB_CL_32_sib_fast = 773;
-
-    static public final int RCRB = 774;
-    static public final int RCRB_fast = 775;
-    static public final int RCRB_16 = 776;
-    static public final int RCRB_16_fast = 777;
-    static public final int RCRB_32 = 778;
-    static public final int RCRB_32_fast = 779;
-    static public final int RCRB_32_sib = 780;
-    static public final int RCRB_32_sib_fast = 781;
-
-    static public final int RCRB_CL = 782;
-    static public final int RCRB_CL_fast = 783;
-    static public final int RCRB_CL_16 = 784;
-    static public final int RCRB_CL_16_fast = 785;
-    static public final int RCRB_CL_32 = 786;
-    static public final int RCRB_CL_32_fast = 787;
-    static public final int RCRB_CL_32_sib = 788;
-    static public final int RCRB_CL_32_sib_fast = 789;
-
-    static public final int SHLB = 790;
-    static public final int SHLB_fast = 791;
-    static public final int SHLB_16 = 792;
-    static public final int SHLB_16_fast = 793;
-    static public final int SHLB_32 = 794;
-    static public final int SHLB_32_fast = 795;
-    static public final int SHLB_32_sib = 796;
-    static public final int SHLB_32_sib_fast = 797;
-
-    static public final int SHLB_CL = 798;
-    static public final int SHLB_CL_fast = 799;
-    static public final int SHLB_CL_16 = 800;
-    static public final int SHLB_CL_16_fast = 801;
-    static public final int SHLB_CL_32 = 802;
-    static public final int SHLB_CL_32_fast = 803;
-    static public final int SHLB_CL_32_sib = 804;
-    static public final int SHLB_CL_32_sib_fast = 805;
-
-    static public final int SHRB = 806;
-    static public final int SHRB_fast = 807;
-    static public final int SHRB_16 = 808;
-    static public final int SHRB_16_fast = 809;
-    static public final int SHRB_32 = 810;
-    static public final int SHRB_32_fast = 811;
-    static public final int SHRB_32_sib = 812;
-    static public final int SHRB_32_sib_fast = 813;
-
-    static public final int SHRB_CL = 814;
-    static public final int SHRB_CL_fast = 815;
-    static public final int SHRB_CL_16 = 816;
-    static public final int SHRB_CL_16_fast = 817;
-    static public final int SHRB_CL_32 = 818;
-    static public final int SHRB_CL_32_fast = 819;
-    static public final int SHRB_CL_32_sib = 820;
-    static public final int SHRB_CL_32_sib_fast = 821;
-
-    static public final int SARB = 822;
-    static public final int SARB_fast = 823;
-    static public final int SARB_16 = 824;
-    static public final int SARB_16_fast = 825;
-    static public final int SARB_32 = 826;
-    static public final int SARB_32_fast = 827;
-    static public final int SARB_32_sib = 828;
-    static public final int SARB_32_sib_fast = 829;
-
-    static public final int SARB_CL = 830;
-    static public final int SARB_CL_fast = 831;
-    static public final int SARB_CL_16 = 832;
-    static public final int SARB_CL_16_fast = 833;
-    static public final int SARB_CL_32 = 834;
-    static public final int SARB_CL_32_fast = 835;
-    static public final int SARB_CL_32_sib = 836;
-    static public final int SARB_CL_32_sib_fast = 837;
-
-    static public final int ROLW = 838;
-    static public final int ROLW_fast = 839;
-    static public final int ROLW_16 = 840;
-    static public final int ROLW_16_fast = 841;
-    static public final int ROLW_32 = 842;
-    static public final int ROLW_32_fast = 843;
-    static public final int ROLW_32_sib = 844;
-    static public final int ROLW_32_sib_fast = 845;
-
-    static public final int ROLW_CL = 846;
-    static public final int ROLW_CL_fast = 847;
-    static public final int ROLW_CL_16 = 848;
-    static public final int ROLW_CL_16_fast = 849;
-    static public final int ROLW_CL_32 = 850;
-    static public final int ROLW_CL_32_fast = 851;
-    static public final int ROLW_CL_32_sib = 852;
-    static public final int ROLW_CL_32_sib_fast = 853;
-
-    static public final int RORW = 854;
-    static public final int RORW_fast = 855;
-    static public final int RORW_16 = 856;
-    static public final int RORW_16_fast = 857;
-    static public final int RORW_32 = 858;
-    static public final int RORW_32_fast = 859;
-    static public final int RORW_32_sib = 860;
-    static public final int RORW_32_sib_fast = 861;
-
-    static public final int RORW_CL = 862;
-    static public final int RORW_CL_fast = 863;
-    static public final int RORW_CL_16 = 864;
-    static public final int RORW_CL_16_fast = 865;
-    static public final int RORW_CL_32 = 866;
-    static public final int RORW_CL_32_fast = 867;
-    static public final int RORW_CL_32_sib = 868;
-    static public final int RORW_CL_32_sib_fast = 869;
-
-    static public final int RCLW = 870;
-    static public final int RCLW_fast = 871;
-    static public final int RCLW_16 = 872;
-    static public final int RCLW_16_fast = 873;
-    static public final int RCLW_32 = 874;
-    static public final int RCLW_32_fast = 875;
-    static public final int RCLW_32_sib = 876;
-    static public final int RCLW_32_sib_fast = 877;
-
-    static public final int RCLW_CL = 878;
-    static public final int RCLW_CL_fast = 879;
-    static public final int RCLW_CL_16 = 880;
-    static public final int RCLW_CL_16_fast = 881;
-    static public final int RCLW_CL_32 = 882;
-    static public final int RCLW_CL_32_fast = 883;
-    static public final int RCLW_CL_32_sib = 884;
-    static public final int RCLW_CL_32_sib_fast = 885;
-
-    static public final int RCRW = 886;
-    static public final int RCRW_fast = 887;
-    static public final int RCRW_16 = 888;
-    static public final int RCRW_16_fast = 889;
-    static public final int RCRW_32 = 890;
-    static public final int RCRW_32_fast = 891;
-    static public final int RCRW_32_sib = 892;
-    static public final int RCRW_32_sib_fast = 893;
-
-    static public final int RCRW_CL = 894;
-    static public final int RCRW_CL_fast = 895;
-    static public final int RCRW_CL_16 = 896;
-    static public final int RCRW_CL_16_fast = 897;
-    static public final int RCRW_CL_32 = 898;
-    static public final int RCRW_CL_32_fast = 899;
-    static public final int RCRW_CL_32_sib = 900;
-    static public final int RCRW_CL_32_sib_fast = 901;
-
-    static public final int SHLW = 902;
-    static public final int SHLW_fast = 903;
-    static public final int SHLW_16 = 904;
-    static public final int SHLW_16_fast = 905;
-    static public final int SHLW_32 = 906;
-    static public final int SHLW_32_fast = 907;
-    static public final int SHLW_32_sib = 908;
-    static public final int SHLW_32_sib_fast = 909;
-
-    static public final int SHLW_CL = 910;
-    static public final int SHLW_CL_fast = 911;
-    static public final int SHLW_CL_16 = 912;
-    static public final int SHLW_CL_16_fast = 913;
-    static public final int SHLW_CL_32 = 914;
-    static public final int SHLW_CL_32_fast = 915;
-    static public final int SHLW_CL_32_sib = 916;
-    static public final int SHLW_CL_32_sib_fast = 917;
-
-    static public final int SHRW = 918;
-    static public final int SHRW_fast = 919;
-    static public final int SHRW_16 = 920;
-    static public final int SHRW_16_fast = 921;
-    static public final int SHRW_32 = 922;
-    static public final int SHRW_32_fast = 923;
-    static public final int SHRW_32_sib = 924;
-    static public final int SHRW_32_sib_fast = 925;
-
-    static public final int SHRW_CL = 926;
-    static public final int SHRW_CL_fast = 927;
-    static public final int SHRW_CL_16 = 928;
-    static public final int SHRW_CL_16_fast = 929;
-    static public final int SHRW_CL_32 = 930;
-    static public final int SHRW_CL_32_fast = 931;
-    static public final int SHRW_CL_32_sib = 932;
-    static public final int SHRW_CL_32_sib_fast = 933;
-
-    static public final int SARW = 934;
-    static public final int SARW_fast = 935;
-    static public final int SARW_16 = 936;
-    static public final int SARW_16_fast = 937;
-    static public final int SARW_32 = 938;
-    static public final int SARW_32_fast = 939;
-    static public final int SARW_32_sib = 940;
-    static public final int SARW_32_sib_fast = 941;
-
-    static public final int SARW_CL = 942;
-    static public final int SARW_CL_fast = 943;
-    static public final int SARW_CL_16 = 944;
-    static public final int SARW_CL_16_fast = 945;
-    static public final int SARW_CL_32 = 946;
-    static public final int SARW_CL_32_fast = 947;
-    static public final int SARW_CL_32_sib = 948;
-    static public final int SARW_CL_32_sib_fast = 949;
-
-    static public final int RETN16_Iw = 950;
-    static public final int RETN16 = 951;
-
-    static public final int LES16_16 = 952;
-    static public final int LES16_32 = 953;
-    static public final int LES16_32_sib = 954;
-    static public final int LES32_16 = 955;
-    static public final int LES32_32 = 956;
-    static public final int LES32_32_sib = 957;
-
-    static public final int LDS16_16 = 958;
-    static public final int LDS16_32 = 959;
-    static public final int LDS16_32_sib = 960;
-    static public final int LDS32_16 = 961;
-    static public final int LDS32_32 = 962;
-    static public final int LDS32_32_sib = 963;
-
-    static public final int ENTER16 = 964;
-    static public final int LEAVE16 = 965;
-
-    static public final int RETF16_Iw = 966;
-
-    static public final int INT3=967;
-    static public final int INTIb=968;
-    static public final int INTO=969;
-    static public final int IRET16=970;
-
-    static public final int AAM=971;
-    static public final int AAD=972;
-    static public final int SALC=973;
-    static public final int XLAT16=974;
-    static public final int XLAT32=975;
-
-    static public final int LOOPNZ16_16=976;
-    static public final int LOOPNZ16_32=977;
-    static public final int LOOPZ16_16=978;
-    static public final int LOOPZ16_32=979;
-    static public final int LOOP16_16=980;
-    static public final int LOOP16_32=981;
-    static public final int JCXZ16_16=982;
-    static public final int JCXZ16_32=983;
-
-    static public final int IN_AL_Ib=984;
-    static public final int IN_AX_Ib=985;
-    static public final int OUT_Ib_AL=986;
-    static public final int OUT_Ib_AX=987;
-
-    static public final int CALL16_Jw=988;
-    static public final int JMP16=989;
-    static public final int JMP16_AP=990;
-
-    static public final int IN_AL_DX=991;
-    static public final int IN_AX_DX=992;
-    static public final int OUT_DX_AL=993;
-    static public final int OUT_DX_AX=994;
-
-    static public final int ICEBP=995;
-    static public final int HLT=996;
-    static public final int CMC=997;
-
-    static public final int NOT_R8 = 998;
-    static public final int NOT_E8_16 = 999;
-    static public final int NOT_E8_32 = 1000;
-    static public final int NOT_E8_32_sib = 1001;
-    static public final int NOT_R16 = 1002;
-    static public final int NOT_E16_16 = 1003;
-    static public final int NOT_E16_32 = 1004;
-    static public final int NOT_E16_32_sib = 1005;
-    static public final int NOT_R32 = 1006;
-    static public final int NOT_E32_16 = 1007;
-    static public final int NOT_E32_32 = 1008;
-    static public final int NOT_E32_32_sib = 1009;
-
-    static public final int NEG_R8 = 1010;
-    static public final int NEG_R8_fast = 1011;
-    static public final int NEG_E8_16 = 1012;
-    static public final int NEG_E8_16_fast = 1013;
-    static public final int NEG_E8_32 = 1014;
-    static public final int NEG_E8_32_fast = 1015;
-    static public final int NEG_E8_32_sib = 1016;
-    static public final int NEG_E8_32_sib_fast = 1017;
-    static public final int NEG_R16 = 1018;
-    static public final int NEG_R16_fast = 1019;
-    static public final int NEG_E16_16 = 1020;
-    static public final int NEG_E16_16_fast = 1021;
-    static public final int NEG_E16_32 = 1022;
-    static public final int NEG_E16_32_fast = 1023;
-    static public final int NEG_E16_32_sib = 1024;
-    static public final int NEG_E16_32_sib_fast = 1025;
-    static public final int NEG_R32 = 1026;
-    static public final int NEG_R32_fast = 1027;
-    static public final int NEG_E32_16 = 1028;
-    static public final int NEG_E32_16_fast = 1029;
-    static public final int NEG_E32_32 = 1030;
-    static public final int NEG_E32_32_fast = 1031;
-    static public final int NEG_E32_32_sib = 1032;
-    static public final int NEG_E32_32_sib_fast = 1033;
-
-    static public final int MUL_R8 = 1034;
-    static public final int MUL_R8_fast = 1035;
-    static public final int MUL_E8_16 = 1036;
-    static public final int MUL_E8_16_fast = 1037;
-    static public final int MUL_E8_32 = 1038;
-    static public final int MUL_E8_32_fast = 1039;
-    static public final int MUL_E8_32_sib = 1040;
-    static public final int MUL_E8_32_sib_fast = 1041;
-    static public final int MUL_R16 = 1042;
-    static public final int MUL_R16_fast = 1043;
-    static public final int MUL_E16_16 = 1044;
-    static public final int MUL_E16_16_fast = 1045;
-    static public final int MUL_E16_32 = 1046;
-    static public final int MUL_E16_32_fast = 1047;
-    static public final int MUL_E16_32_sib = 1048;
-    static public final int MUL_E16_32_sib_fast = 1049;
-    static public final int MUL_R32 = 1050;
-    static public final int MUL_R32_fast = 1051;
-    static public final int MUL_E32_16 = 1052;
-    static public final int MUL_E32_16_fast = 1053;
-    static public final int MUL_E32_32 = 1054;
-    static public final int MUL_E32_32_fast = 1055;
-    static public final int MUL_E32_32_sib = 1056;
-    static public final int MUL_E32_32_sib_fast = 1057;
-
-    static public final int IMUL_R8 = 1058;
-    static public final int IMUL_R8_fast = 1059;
-    static public final int IMUL_E8_16 = 1060;
-    static public final int IMUL_E8_16_fast = 1061;
-    static public final int IMUL_E8_32 = 1062;
-    static public final int IMUL_E8_32_fast = 1063;
-    static public final int IMUL_E8_32_sib = 1064;
-    static public final int IMUL_E8_32_sib_fast = 1065;
-    static public final int IMUL_R16 = 1066;
-    static public final int IMUL_R16_fast = 1067;
-    static public final int IMUL_E16_16 = 1068;
-    static public final int IMUL_E16_16_fast = 1069;
-    static public final int IMUL_E16_32 = 1070;
-    static public final int IMUL_E16_32_fast = 1071;
-    static public final int IMUL_E16_32_sib = 1072;
-    static public final int IMUL_E16_32_sib_fast = 1073;
-    static public final int IMUL_R32 = 1074;
-    static public final int IMUL_R32_fast = 1075;
-    static public final int IMUL_E32_16 = 1076;
-    static public final int IMUL_E32_16_fast = 1077;
-    static public final int IMUL_E32_32 = 1078;
-    static public final int IMUL_E32_32_fast = 1079;
-    static public final int IMUL_E32_32_sib = 1080;
-    static public final int IMUL_E32_32_sib_fast = 1081;
-
-    static public final int DIV_R8 = 1082;
-    static public final int DIV_E8_16 = 1083;
-    static public final int DIV_E8_32 = 1084;
-    static public final int DIV_E8_32_sib = 1085;
-    static public final int DIV_R16 = 1086;
-    static public final int DIV_E16_16 = 1087;
-    static public final int DIV_E16_32 = 1088;
-    static public final int DIV_E16_32_sib = 1089;
-    static public final int DIV_R32 = 1090;
-    static public final int DIV_E32_16 = 1091;
-    static public final int DIV_E32_32 = 1092;
-    static public final int DIV_E32_32_sib = 1093;
-
-    static public final int IDIV_R8 = 1094;
-    static public final int IDIV_E8_16 = 1095;
-    static public final int IDIV_E8_32 = 1096;
-    static public final int IDIV_E8_32_sib = 1097;
-    static public final int IDIV_R16 = 1098;
-    static public final int IDIV_E16_16 = 1099;
-    static public final int IDIV_E16_32 = 1100;
-    static public final int IDIV_E16_32_sib = 1101;
-    static public final int IDIV_R32 = 1102;
-    static public final int IDIV_E32_16 = 1103;
-    static public final int IDIV_E32_32 = 1104;
-    static public final int IDIV_E32_32_sib = 1105;
-
-    static public final int CLC=1106;
-    static public final int STC=1107;
-    static public final int CLI=1108;
-    static public final int STI=1109;
-    static public final int CLD=1110;
-    static public final int STD=1111;
-
-    static public final int INC_E8_16 = 1112;
-    static public final int INC_E8_16_fast = 1113;
-    static public final int INC_E8_32 = 1114;
-    static public final int INC_E8_32_fast = 1115;
-    static public final int INC_E8_32_sib = 1116;
-    static public final int INC_E8_32_sib_fast = 1117;
-    static public final int INC_E16_16 = 1118;
-    static public final int INC_E16_16_fast = 1119;
-    static public final int INC_E16_32 = 1120;
-    static public final int INC_E16_32_fast = 1121;
-    static public final int INC_E16_32_sib = 1122;
-    static public final int INC_E16_32_sib_fast = 1123;
-    static public final int INC_E32_16 = 1124;
-    static public final int INC_E32_16_fast = 1125;
-    static public final int INC_E32_32 = 1126;
-    static public final int INC_E32_32_fast = 1127;
-    static public final int INC_E32_32_sib = 1128;
-    static public final int INC_E32_32_sib_fast = 1129;
-
-    static public final int DEC_E8_16 = 1130;
-    static public final int DEC_E8_16_fast = 1131;
-    static public final int DEC_E8_32 = 1132;
-    static public final int DEC_E8_32_fast = 1133;
-    static public final int DEC_E8_32_sib = 1134;
-    static public final int DEC_E8_32_sib_fast = 1135;
-    static public final int DEC_E16_16 = 1136;
-    static public final int DEC_E16_16_fast = 1137;
-    static public final int DEC_E16_32 = 1138;
-    static public final int DEC_E16_32_fast = 1139;
-    static public final int DEC_E16_32_sib = 1140;
-    static public final int DEC_E16_32_sib_fast = 1141;
-    static public final int DEC_E32_16 = 1142;
-    static public final int DEC_E32_16_fast = 1143;
-    static public final int DEC_E32_32 = 1144;
-    static public final int DEC_E32_32_fast = 1145;
-    static public final int DEC_E32_32_sib = 1146;
-    static public final int DEC_E32_32_sib_fast = 1147;
-
-    static public final int CALLBACK=1148;
-
-    static public final int CALL16_R16=1149;
-    static public final int CALL16_E16_16=1150;
-    static public final int CALL16_E16_32=1151;
-    static public final int CALL16_E16_32sib=1152;
-
-    static public final int CALL16_EP_E16=1153;
-    static public final int CALL16_EP_E32=1154;
-    static public final int CALL16_EP_E32sib=1155;
-
-    static public final int JMP16_R16=1156;
-    static public final int JMP16_E16_16=1157;
-    static public final int JMP16_E16_32=1158;
-    static public final int JMP16_E16_32sib=1159;
-
-    static public final int JMP16_EP_E16=1160;
-    static public final int JMP16_EP_E32=1161;
-    static public final int JMP16_EP_E32sib=1162;
+public enum Inst {
+    ADD_R8, ADD_E8, ADD_R8_R8, ADD_E8_R8, ADD_R8_E8,
+    ADD_R16, ADD_E16, ADD_R16_R16, ADD_E16_R16, ADD_R16_E16,
+    ADD_R32, ADD_E32, ADD_R32_R32, ADD_E32_R32, ADD_R32_E32,
+
+    OR_R8, OR_E8, OR_R8_R8, OR_E8_R8, OR_R8_E8,
+    OR_R16, OR_E16, OR_R16_R16, OR_E16_R16, OR_R16_E16,
+    OR_R32, OR_E32, OR_R32_R32, OR_E32_R32, OR_R32_E32,
+
+    ADC_R8, ADC_E8, ADC_R8_R8, ADC_E8_R8, ADC_R8_E8,
+    ADC_R16, ADC_E16, ADC_R16_R16, ADC_E16_R16, ADC_R16_E16,
+    ADC_R32, ADC_E32, ADC_R32_R32, ADC_E32_R32, ADC_R32_E32,
+
+    SBB_R8, SBB_E8, SBB_R8_R8, SBB_E8_R8, SBB_R8_E8,
+    SBB_R16, SBB_E16, SBB_R16_R16, SBB_E16_R16, SBB_R16_E16,
+    SBB_R32, SBB_E32, SBB_R32_R32, SBB_E32_R32, SBB_R32_E32,
+
+    AND_R8, AND_E8, AND_R8_R8, AND_E8_R8, AND_R8_E8,
+    AND_R16, AND_E16, AND_R16_R16, AND_E16_R16, AND_R16_E16,
+    AND_R32, AND_E32, AND_R32_R32, AND_E32_R32, AND_R32_E32,
+
+    SUB_R8, SUB_E8, SUB_R8_R8, SUB_E8_R8, SUB_R8_E8,
+    SUB_R16, SUB_E16, SUB_R16_R16, SUB_E16_R16, SUB_R16_E16,
+    SUB_R32, SUB_E32, SUB_R32_R32, SUB_E32_R32, SUB_R32_E32,
+
+    XOR_R8, XOR_E8, XOR_R8_R8, XOR_E8_R8, XOR_R8_E8,
+    XOR_R16, XOR_E16, XOR_R16_R16, XOR_E16_R16, XOR_R16_E16,
+    XOR_R32, XOR_E32, XOR_R32_R32, XOR_E32_R32, XOR_R32_E32,
+
+    CMP_R8, CMP_E8, CMP_R8_R8, CMP_E8_R8, CMP_R8_E8,
+    CMP_R16, CMP_E16, CMP_R16_R16, CMP_E16_R16, CMP_R16_E16,
+    CMP_R32, CMP_E32, CMP_R32_R32, CMP_E32_R32, CMP_R32_E32,
+
+    PUSH16_ES, POP16_ES, PUSH16_CS, /*POP16CS,*/ PUSH16_SS, POP16_SS,
+    PUSH16_DS, POP16_DS, PUSH16_FS, POP16_FS, PUSH16_GS, POP16_GS,
+
+    PUSH32_ES, POP32_ES, PUSH32_CS, /*POP32CS,*/ PUSH32_SS, POP32_SS,
+    PUSH32_DS, POP32_DS, PUSH32_FS, POP32_FS, PUSH32_GS, POP32_GS,
+    
+    NOP, ILLEGAL, HLT,
+    
+    DAA, DAS, AAA, AAS,
+
+    INC_R8, INC_E8, INC_R16, INC_E16, INC_R32, INC_E32,
+    DEC_R8, DEC_E8, DEC_R16, DEC_E16, DEC_R32, DEC_E32,
+    
+    PUSH16, PUSH16_R16, PUSH16_E16, PUSH32, PUSH32_R32, PUSH32_E32,
+    POP16, POP16_R16, POP16_E16, POP32, POP32_R32, POP32_E32,
+
+    PUSH16A, PUSH32A, POP16A, POP32A,
+
+    BOUND16, BOUND32,
+
+    ARPL_R16_R16, ARPL_R16_E16, ARPL_R32_R32, ARPL_R32_E32,
+
+    IMUL_R16_R16, IMUL_R16_E16, IMUL_R32_R32, IMUL_R32_E32,    
+
+    STRING_EXCEPTION, STRING,
+
+    JUMP16_JO, JUMP16_NJO, JUMP16_B, JUMP16_NB, JUMP16_Z, JUMP16_NZ, JUMP16_BE, JUMP16_NBE,
+    JUMP16_S, JUMP16_NS, JUMP16_P, JUMP16_NP, JUMP16_L, JUMP16_NL, JUMP16_LE, JUMP16_NLE,
+
+    JUMP32_JO, JUMP32_NJO, JUMP32_B, JUMP32_NB, JUMP32_Z, JUMP32_NZ, JUMP32_BE, JUMP32_NBE,
+    JUMP32_S, JUMP32_NS, JUMP32_P, JUMP32_NP, JUMP32_L, JUMP32_NL, JUMP32_LE, JUMP32_NLE,
+    
+    TEST_R8, TEST_E8, TEST_R8_R8, TEST_E8_R8,
+    TEST_R16, TEST_E16, TEST_R16_R16, TEST_E16_R16,
+    TEST_R32, TEST_E32, TEST_R32_R32, TEST_E32_R32,
+
+    XCHG_R8_R8, XCHG_E8_R8, XCHG_R16_R16, XCHG_E16_R16, XCHG_R32_R32, XCHG_E32_R32,
+
+    MOV_R8, MOV_E8, MOV_R8_R8, MOV_E8_R8, MOV_R8_E8, MOV_E8_R8_RM5,
+    MOV_R16, MOV_E16, MOV_R16_R16, MOV_E16_R16, MOV_R16_E16,
+    MOV_R32, MOV_E32, MOV_R32_R32, MOV_E32_R32, MOV_R32_E32,
+
+    LEA_R16, LEA_R32,
+
+    MOV_ES_R16, MOV_ES_E16, MOV_SS_R16, MOV_SS_E16, MOV_DS_R16, MOV_DS_E16, MOV_FS_R16, MOV_FS_E16, MOV_GS_R16, MOV_GS_E16,
+
+    CBW, CWD, CBWE, CDQ,
+        
+    PUSHF, POPF,
+
+    SAHF, LAHF,
+
+    MOV_AL_0b, MOV_0b_AL, MOV_AX_0w, MOV_0w_AX, MOV_EAX_0d, MOV_0d_EAX,
+
+    MOVSB16, MOVSB16r, MOVSB32, MOVSB32r, MOVSW16, MOVSW16r, MOVSW32, MOVSW32r, MOVSD16, MOVSD16r, MOVSD32, MOVSD32r,
+
+    ROLB_0_flags, RORB_0_flags, ROLB_E8_0_flags, RORB_E8_0_flags,
+    ROLB_R8, ROLB_E8, ROLB_R8_CL, ROLB_E8_CL,    
+    RORB_R8, RORB_E8, RORB_R8_CL, RORB_E8_CL,
+    RCLB_R8, RCLB_E8, RCLB_R8_CL, RCLB_E8_CL,
+    RCRB_R8, RCRB_E8, RCRB_R8_CL, RCRB_E8_CL,
+    SHLB_R8, SHLB_E8, SHLB_R8_CL, SHLB_E8_CL,
+    SHRB_R8, SHRB_E8, SHRB_R8_CL, SHRB_E8_CL,
+    SARB_R8, SARB_E8, SARB_R8_CL, SARB_E8_CL,
+
+    ROLW_0_flags, RORW_0_flags, ROLW_E16_0_flags, RORW_E16_0_flags,
+    ROLW_R16, ROLW_E16, ROLW_R16_CL, ROLW_E16_CL,
+    RORW_R16, RORW_E16, RORW_R16_CL, RORW_E16_CL,
+    RCLW_R16, RCLW_E16, RCLW_R16_CL, RCLW_E16_CL,
+    RCRW_R16, RCRW_E16, RCRW_R16_CL, RCRW_E16_CL,
+    SHLW_R16, SHLW_E16, SHLW_R16_CL, SHLW_E16_CL,
+    SHRW_R16, SHRW_E16, SHRW_R16_CL, SHRW_E16_CL,
+    SARW_R16, SARW_E16, SARW_R16_CL, SARW_E16_CL,
+
+    ROLD_R32, ROLD_E32, ROLD_R32_CL, ROLD_E32_CL,
+    RORD_R32, RORD_E32, RORD_R32_CL, RORD_E32_CL,
+    RCLD_R32, RCLD_E32, RCLD_R32_CL, RCLD_E32_CL,
+    RCRD_R32, RCRD_E32, RCRD_R32_CL, RCRD_E32_CL,
+    SHLD_R32, SHLD_E32, SHLD_R32_CL, SHLD_E32_CL,
+    SHRD_R32, SHRD_E32, SHRD_R32_CL, SHRD_E32_CL,
+    SARD_R32, SARD_E32, SARD_R32_CL, SARD_E32_CL,
+
+    LES16, LES32, LDS16, LDS32,
+
+    CALL16_AP, CALL16_EP, CALL16_Jw, CALL16_R16, CALL16_E16, CALL16_EP_E16,
+    CALL32_AP, CALL32_EP, CALL32_Jd, CALL32_R16, CALL32_E16, CALL32_EP_E32,
+    RETN16_Iw, RETN16, RETF_Iw, RETN32_Iw, RETN32, RETF32_Iw,
+    ENTER, LEAVE16, LEAVE32,
+    JMP16, JMP_AP, JMP16_R16, JMP16_E16, JMP16_EP,
+    JMP32, JMP32_R32, JMP32_E32, JMP32_EP,
+
+    INT3, INTIb, INTO, IRET, ICEBP,
+
+    AAM, AAD,
+
+    SALC, CMC, CLC, STC,
+
+    XLAT16, XLAT32,
+
+    LOOPNZ16_CX, LOOPNZ16_ECX, LOOPZ16_CX, LOOPZ16_ECX, LOOP16_CX, LOOP16_ECX, JCXZ16_CX, JCXZ16_ECX,
+    LOOPNZ32_CX, LOOPNZ32_ECX, LOOPZ32_CX, LOOPZ32_ECX, LOOP32_CX, LOOP32_ECX, JCXZ32_CX, JCXZ32_ECX,
+
+    IN_AL_Ib, IN_AX_Ib, IN_EAX_Ib, OUT_Ib_AL, OUT_Ib_AX, OUT_Ib_EAX,
+    IN_AL_DX, IN_AX_DX, IN_EAX_DX, OUT_DX_AL, OUT_DX_AX, OUT_DX_EAX,
+
+    NOT_R8, NOT_E8, NOT_R16, NOT_E16, NOT_R32, NOT_E32,
+
+    NEG_R8, NEG_E8, NEG_R16, NEG_E16, NEG_R32, NEG_E32,
+
+    MUL_R8, MUL_E8, MUL_R16, MUL_E16, MUL_R32, MUL_E32,
+    IMUL_R8, IMUL_E8, IMUL_R16, IMUL_E16, IMUL_R32, IMUL_E32,
+    DIV_R8, DIV_E8, DIV_R16, DIV_E16, DIV_R32, DIV_E32,
+    IDIV_R8, IDIV_E8, IDIV_R16, IDIV_E16, IDIV_R32, IDIV_E32,
+
+    CLI, STI,
+    
+    CLD, STD,
+
+    CALLBACK,
+
+    SLDT_R16, SLDT_E16, STR_R16, STR_E16, LLDT_R16, LLDT_E16, LTR_R16, LTR_E16, VERR_R16, VERR_E16, VERW_R16, VERW_E16,
+
+    SGDT, SIDT, LGDT16, LGDT32, LIDT16, LIDT32, SMSW_E16, LMSW_E16, INVLPG, LGDT_R, LIDT_R, SMSW_R16, LMSW_R16, SMSW_R32,
+
+
+    FPU0_normal, FPU0_ea, FPU1_normal, FPU1_ea, FPU2_normal, FPU2_ea, FPU3_normal, FPU3_ea,
+    FPU4_normal, FPU4_ea, FPU5_normal, FPU5_ea, FPU6_normal, FPU6_ea, FPU7_normal, FPU7_ea
 }

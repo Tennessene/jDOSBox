@@ -66,7 +66,7 @@ public class Section_prop extends Section {
             return (Property)properties.elementAt(index);
         return null;
     }
-    private Property byname(String name) {
+    public Property byname(String name) {
         for (int i=0;i<properties.size();i++) {
             Property p = (Property)properties.elementAt(i);
             if (p.propname.equals(name))

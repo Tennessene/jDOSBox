@@ -225,6 +225,7 @@ public class Core_switch extends CPU_Regs {
                 int tmp2;
                 boolean cf;
                 while (block!=null && CPU.CPU_Cycles>0) {
+                    CPU.CPU_Cycles-=block.inst.length;
                     for (SwitchBlock b : block.inst) {
 //                        Record.op(b.opCode);
 //                        if (count>0) {
@@ -234,7 +235,6 @@ public class Core_switch extends CPU_Regs {
 //                                int ii=0;
 //                            }
 //                        }
-                        CPU.CPU_Cycles-=block.inst.length;
 
                         switch (b.instruction) {
                             case ADD_R8: b.r1.set8(Instructions.ADDB(b.value, b.r1.get8())); reg_eip+=b.eipCount;continue;

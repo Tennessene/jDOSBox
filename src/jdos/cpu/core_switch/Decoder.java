@@ -520,10 +520,11 @@ public class Decoder extends Helper {
                 boolean doAnother = false;
                 decode.cycles++;                
                 decode.modifiedAlot = false;
-                if (inst[currentInst]==null) {
-                    inst[currentInst] = new SwitchBlock();
-                }
                 block = inst[currentInst];
+                if (block==null) {
+                    block = new SwitchBlock();
+                    inst[currentInst] =  block;
+                }
                 opcode=opcode_index+decode_fetchb();
                 block.opCode=opcode;
                 switch (opcode) {

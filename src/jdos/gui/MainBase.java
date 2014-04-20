@@ -507,6 +507,19 @@ public class MainBase {
                     }
                 }
             }
+            if (Dosbox.control.cmdline.FindExist("-m")) {
+                Section_prop dosbox_sec = (Section_prop) Dosbox.control.GetSection("dosbox");
+                if (dosbox_sec != null) {
+                    Property p = dosbox_sec.byname("memsize");
+                    int m = Dosbox.control.cmdline.FindInt("-m");
+                    if (p!=null) {
+                        p.GetValue().set(m);
+                    } else {
+                        dosbox_sec.Add_int("memsize", m);
+                    }
+                }
+            }
+
             Dosbox.control.ParseEnv();
             Dosbox.control.Init();
             Section_prop sdl_sec = (Section_prop)Dosbox.control.GetSection("sdl");

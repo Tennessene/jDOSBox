@@ -795,6 +795,7 @@ public class Memory extends Module_base {
             MEM_SIZE = memsize;
             memory = new MemoryBlock();
             try {
+                RAM.free();
                 Runtime.getRuntime().gc();
                 highwaterMark = memsize*1024*1024;
                 int videosize = section.Get_int("vmemsize");

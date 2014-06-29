@@ -521,7 +521,7 @@ public class VGA_draw {
                 /*Bits*/int attr_addr = (VGA.vga.draw.cursor.address-vidstart) >> 1;
                 if (attr_addr >= 0 && attr_addr < VGA.vga.draw.blocks) {
                     /*Bitu*/int index = attr_addr * (VGA.vga.draw.char9dot? 18:16);
-                    draw=TempLine + index*2 + 16 - VGA.vga.draw.panning;
+                    draw=TempLine + index + (16 - VGA.vga.draw.panning)*2;
 
                     /*Bitu*/int foreground = RAM.readb(VGA.vga.tandy.draw_base+VGA.vga.draw.cursor.address+1) & 0xf;
                     for (/*Bitu*/int i = 0; i < 8; i++) {

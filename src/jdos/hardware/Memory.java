@@ -801,9 +801,14 @@ public class Memory extends Module_base {
                 int videosize = section.Get_int("vmemsize");
                 videoCacheSize = section.Get_int("vmemcachesize");
                 if (videosize==0) videosize=2;
-                if (videoCacheSize==0) videoCacheSize = videosize*2048;
-                videosize*=1024*1024;
-                videosize+=videoCacheSize*1024;
+                if (videosize<512)
+                    videosize*=1024*1024;
+                else
+                    videosize*=1024;
+
+                videoCacheSize*=1024;
+                if (videoCacheSize==0) videoCacheSize = videosize*2;
+                videosize+=videoCacheSize;
                 System.out.println("About to allocate memory "+String.valueOf((highwaterMark+EXTRA_MEM+VGA_draw.TEMPLINE_SIZE+videosize)/1024)+"kb: "+String.valueOf(Runtime.getRuntime().freeMemory()/1024)+"kb free");
                 RAM.alloc(highwaterMark + EXTRA_MEM + videosize + VGA_draw.TEMPLINE_SIZE + 3);
             } catch (java.lang.OutOfMemoryError e) {

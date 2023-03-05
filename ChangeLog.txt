@@ -1,0 +1,135 @@
+0.74.27 Jan 02, 2013
+* Added new hardware: IDE, Floppy and PS/2 Mouse
+* Now boots other OS's and from CD/DVD via one of the following boot commands
+  boot -bochs HD
+  boot -bochs CD
+  boot -bochs FD
+* Windows NT 4.0, React OS 0.3.14 and DSL 4 have been tested and work well
+* Windows XP will boot in Safe Mode
+* Many speed improvements
+* The FPU type can be set in the configuration file: [cpu] softfpu=true/false.  The default
+  is false and will use Java's float types for the x86 FPU
+* Right-Alt + Enter key will toggle full screen mode, works in applets as well
+* Add p6 CPU type in the configuration file.  This will enable some newer Linux distro to boot.
+
+0.74.25b Aug 26, 2011
+* Changed the version on the start up screen from 0.75 to 0.74.25b
+* Fixed a problem with applets that used midi
+
+0.74.25 Aug 25, 2011
+* First version to supported Windows 98
+* Dynamic core can now recompile java byte code with support for saving and loading the compiled blocks
+* Fixed many bugs include:
+  - Floating point rounding errors
+  - VGA bugs, Dragons Bane: Mah Jongg II and Civilization (City Screen) now draw cursor correctly
+  - Improved file path handling for Mac/LInux
+* Major speed improvements
+* Applets will now center their viewing area
+* Video card memory default has been bumped to 2MB (still 1MB for Applets).  Now supports up to 8MB.
+* Added NE2000 network card support (requires PCap)
+
+Previous Changelog
+
+0.74.24 July 2, 2011
+* Fixed some mouse sensitivity issues
+* Reduced flicker
+* Ported Tandy sound
+* Ported IPX
+
+0.74.23 June 5, 2011 
+* Fixed a serious memory error that mostly affected EGA era games
+* Increased performance of the dynamic core a bit
+* Improved audio by reducing stuttering on some games
+
+0.74.22 May 29, 2011 
+* More fixes for Windows 3.11
+
+0.74.21 May 27, 2011 
+* Fix for Windows 3.11 that affected Freecell
+
+0.74.20 May 27, 2011 
+* New dynamic core, most games are 2x faster than build #19
+* Fixed lots of minor bugs, mainly around installers
+
+0.74.19
+* Fixed File Control Block access, this affects older games
+* Middle and right mouse buttons should now work correctly
+* Many small bug fixes, include batch files with blank lines and goto statement
+* Fixed a bug where unsigned applets couldn't load a config file from a jar
+* Enhanced the DOS choice command to support /t
+* Fixed Alt key handling
+
+0.74.18
+* Applet file system images load from a jar are now writable, the writes are stored in RAM
+* Applets can now load config files from a jar
+
+0.74.17
+* Fixed middle and right mouse buttons, they were reversed
+* Added the boot command, PcJr support for this missing. 
+* Win98 can be installed, but fails to fully start
+* Added the config command
+* Windows 3.11 will now install without warnings
+* First pass at the aspect flag.  It will use bicubic.
+* Applet can now pass command line arguments to dosbox
+* Signed applets can specify a config file by passing a param like:
+  <param name="param1" value="-conf ~/.jdosbox/<GAME>/dosbox.conf">
+
+0.74.16
+* Mouse capture now works, use dbl right click to exit
+* Windows 3.11 now works
+* Source will now compile with Java 1.4
+* CD audio now works, include mp3 support for bin/cue
+* About a 10% performance improvement over build 15
+
+0.74.15a
+* Compile jdosbox.jar for java 1.5 instead of 1.6
+
+0.74.15
+* Improved performance
+* Fixed CWDE instruction.  Now Duke3D, Tomb Raider, and MOO2 work
+* Fixed video bug affecting Empire
+* Mouse now works in applets
+* Fixed Smacker videos
+
+0.74.14
+* Fixed SB16 sound, now music sounds right
+* Experimental support for full screen, enable by passing in -fullscreen with the command line
+* Fixed some key mappings, now [ ] ` and ~ will work
+* Added a download parameter to applets so that if they are signed they can download and upzip files.
+* Searching for weird paths won't crash, like Mech Warrior 2 and @:\
+* Fixed dos temp file function.  Now Descent works
+* Fixed video frame buffer support
+
+0.74.13
+* Added MIDI support
+* Increased performance by about 20%
+* Can load fs image from class path.  This will allow larger fs images for applets.
+* Applets might be able to reload in a browser now.
+
+0.74.12
+* Added Sound Blaster 16 support.  The music in games is a bit off.
+* Fixed MOVSX instruction.  Now back and strafe left work in Doom.
+* Fixed XMS_MoveMemory.
+* Added reboot command to help diagnose Applet page reload issues
+* Hacked together the PageFaultHandler.  Not sure if this is good enough.  Djgpp "Hello World" now works, but Noctropolis still can't get pass its page fault.
+* Status: Colonization now works. Duke 3D is a lot closer.  Can now start the game and play, but there are glitches.
+
+0.74.11
+* Shareware Doom 1 now works with Keyboard.  Realtive mouse moves do not work well since mouse capture is not supported in Java.
+* Support for Applet has been added.  Doom has been test in an Applet on Mac and Windows.
+* Support for mounting img files on a remote web server via http has been added.  The img file may be inside a zip.
+  Example: imgmount e http://localhost/doom.zip -size 512,16,2,512
+* Code is now Java 5.0 compatible. Removed String.isEmpty references.
+* 15/16/32 bit VESA modes now work
+* Fixed a font problem, SimCity 2000 installer now works.
+
+.10
+* Initial Release
+* Civilization 1, with mouse and no sound works.
+* Most games do not work
+* Sound does not work
+* Serial ports do not work
+* IPX does not work
+* Joystick does work
+* Keymapper does not work
+* Mouse capture does not work

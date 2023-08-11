@@ -11,6 +11,7 @@
 
     <modules>
         <module>jdosbox</module>
+        <module>jdosbox-pcap</module>
         <module>jdosbox-win</module>
     </modules>
 
@@ -33,6 +34,11 @@
                 <version>3.14.0-GA</version>
             </dependency>
             <dependency>
+                <groupId>jnetpcap</groupId>
+                <artifactId>jnetpcap</artifactId>
+                <version>1.4.r1425-1g</version>
+            </dependency>
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
@@ -40,5 +46,12 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>clojars</id>
+            <url>https://clojars.org/repo/</url>
+        </repository>
+    </repositories>
 
 </project>

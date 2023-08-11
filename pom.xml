@@ -9,6 +9,16 @@
     <version>0.74.31-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <modules>
+        <module>jdosbox</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -20,6 +30,7 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

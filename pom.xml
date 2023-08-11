@@ -13,6 +13,7 @@
         <module>jdosbox</module>
         <module>jdosbox-pcap</module>
         <module>jdosbox-win</module>
+        <module>launcher</module>
     </modules>
 
     <properties>
@@ -26,6 +27,16 @@
             <dependency>
                 <groupId>com.acclash.jdosbox</groupId>
                 <artifactId>jdosbox</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.acclash.jdosbox</groupId>
+                <artifactId>jdosbox-pcap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.acclash.jdosbox</groupId>
+                <artifactId>jdosbox-win</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

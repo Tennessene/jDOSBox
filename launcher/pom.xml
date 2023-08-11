@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.acclash.jdosbox</groupId>
+        <artifactId>jdosbox-root</artifactId>
+        <version>0.74.31-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>launcher</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.acclash.jdosbox</groupId>
+            <artifactId>jdosbox</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>jdos.gui.MainFrame</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>pcap</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.acclash.jdosbox</groupId>
+                    <artifactId>jdosbox-pcap</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>win</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.acclash.jdosbox</groupId>
+                    <artifactId>jdosbox-win</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+</project>

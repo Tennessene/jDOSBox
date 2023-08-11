@@ -24,7 +24,6 @@ public class testHeap extends InstructionsTestCase {
 
         CPU.CPU_SET_CRX(0, CPU.cpu.cr0 | CPU.CR0_PROTECTION);
         CPU.cpu.pmode = true;
-        CPU.Segs_CSval = 0x08;
 
         memory = new KernelMemory();
         WinCallback.start(memory);

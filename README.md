@@ -3,11 +3,13 @@ jDOSBox
 Java x86 emulator based on DOSBox
 --------------------------------------------------
 
-This was continued from revision 808 (the latest revision on SourceForge). The original source is at: https://sourceforge.net/p/jdosbox/code/HEAD/tree/. It was cloned using git-svn and uploaded to this repo. Credit goes to James Bryant for creating jDOSBox. Thanks for inspiring me with this product James!
+This was continued from revision 808 (the last revision on SourceForge). The original source is available at SourceForge's [code page](https://sourceforge.net/p/jdosbox/code/HEAD/tree). It was cloned using git-svn and uploaded to this repo. Credit goes to James Bryant for creating jDOSBox. Thanks for inspiring me with this product James!
 
 Further Information
 -----------
 The original Readme is the ReadMe.txt. jDOSBox requires Java 6 32-bit for right now as it was last updated in 2014. We're hoping to update jDOSBox to support a newer Java version. The network support is also experimental, so don't expect it to always work and we're working on a build of jdosbox_pcap that doesn't require native libraries. According to the original author, James Bryant, it is able to run Windows apps with no OS and even run Windows XP. We have yet to figure out how to do that! Windows 95 works well though.
+
+We found the original website with more information here: [Status | jDosbox](https://web.archive.org/web/20190304011952/http://jdosbox.sourceforge.net/cms/)
 
 Builds
 ------
@@ -30,18 +32,18 @@ Command line options
 ------
 -compile <name>
 
-Note: Not availabe in jdosbox_applet.jar
+Note: Not available in jdosbox_applet.jar
   
  * Example: `java -jar jdosbox.jar -compile doom`
   
 Result: This will produce a file called doom.jar in the current directory with blocks that were
 compiled while you ran the program.
 
-See the [compiler] section in the config file for options to fine tune what gets compiled.
+See the [compiler] section in the config file for options to fine-tune what gets compiled.
 
 -fullscreen
 
- * Starts the app in full screen mode
+ * Starts the app in full-screen mode
 
 -pcap
 -pcapport
@@ -68,9 +70,9 @@ To create an image I would recommend using DOSBox Megabuild at http://home.arcor
 More Info: Make sure you put the image file inside a subdirectory called jdos.  This file may
 have the extension either jar or zip.
 
-### Download, unzip files to client machine
+### Download, and unzip files to the client machine
 
- * Pro: This allows save games to works
+ * Pro: This allows save games to work
  * Con: The applets must be signed (can be self-signed)
 
 ```
@@ -83,8 +85,8 @@ have the extension either jar or zip.
 </APPLET>
 ```
 
-More Info: The `~` folder is the home directory for the user.  On Windows this might be `c:\users\name\`
-jDOSBox will download the zip mentioned in the download1 parameter and unzip in the folder
+More Info: The `~` folder is the home directory for the user.  On Windows, this might be `c:\users\name\`
+jDOSBox will download the zip mentioned in the download1 parameter and unzip it in the folder
 `~/.jdosbox/<zip name>/` then it is up to you to issue the proper mount command.  You can either
 mount an image file you just downloaded via imgmount.  Or you can mount the entire directory.
 
@@ -104,4 +106,4 @@ See the ReadMe.txt in the pcap directory (only applies to certain builds).
 
 Compiling from source
 ------
-To compile the standard build (jdosbox.jar), add the contents of the src, src_j2se, and src_compiler folders. Then, you can add Javassist version 3.15.0-GA (which is what it came with) or newer as far as I know. Finally, build and the run the jar. If you need any help email me at ansorensen1118@gmail.com or add me on Discord with my username: Tennessine#9355.
+To compile jDOSBox, you need JDK 6 32-bit and an internet connection. Then, clone this repo. The rest I have to wait to figure out with Pietrygamat

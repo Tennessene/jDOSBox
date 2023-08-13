@@ -7449,8 +7449,7 @@ public class Compiler extends Helper {
 
             // Make the dynamic class belong to its own class loader so that when we
             // release the decoder block the class and class loader will be unloaded
-            URLClassLoader cl = (URLClassLoader) codeBlock.getClass().getClassLoader();
-            cl = URLClassLoader.newInstance(cl.getURLs(), cl);
+            URLClassLoader cl = URLClassLoader.newInstance(new URL[]{}, codeBlock.getClass().getClassLoader());
             Class clazz = codeBlock.toClass(cl, null);
             Op compiledCode = (Op) clazz.newInstance();
             codeBlock.detach();

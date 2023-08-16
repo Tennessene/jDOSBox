@@ -106,4 +106,8 @@ See the ReadMe.txt in the pcap directory (only applies to certain builds).
 
 Compiling from source
 ------
-To compile jDOSBox, you need JDK 6 32-bit and an internet connection. Then, clone this repo. The rest I have to wait to figure out with Pietrygamat
+The compilation from source is handled by Maven using Java 8 or newer:
+```
+mvn clean install
+```
+The `launcher` submodule contains `fat` jar with all dependencies included. 

@@ -7425,7 +7425,7 @@ public class Compiler extends Helper {
     static private Op compileMethod(Op op, StringBuilder method, boolean jump) {
         //System.out.println(method.toString());
         try {
-            String className = "CacheBlock" + (count++);
+            String className = "jdos.cpu.core_dynamic.CacheBlock" + (count++);
             // :TODO: research using a new pool for each block since the classes don't need to see each other
             CtClass codeBlock = pool.makeClass(className);
             codeBlock.setSuperclass(pool.getCtClass("jdos.cpu.core_dynamic.Op"));
@@ -7444,21 +7444,36 @@ public class Compiler extends Helper {
             if (cycle<1) {
                 cycle=1;
             }
-            CtConstructor c = CtNewConstructor.make("public "+className+"(){this.cycle="+cycle+";}", codeBlock);
+            CtConstructor c = CtNewConstructor.make("public "+codeBlock.getSimpleName()+"(){this.cycle="+cycle+";}", codeBlock);
             codeBlock.addConstructor(c);
 
             // Make the dynamic class belong to its own class loader so that when we
             // release the decoder block the class and class loader will be unloaded
-            URLClassLoader cl = (URLClassLoader) codeBlock.getClass().getClassLoader();
-            cl = URLClassLoader.newInstance(cl.getURLs(), cl);
-            Class clazz = codeBlock.toClass(cl, null);
+            ClassLoader cl = new URLClassLoader(
+                    new URL[]{ Compiler.class.getProtectionDomain().getCodeSource().getLocation()},
+                    codeBlock.getClass().getClassLoader());
+
+            // Create second copy of Compiler class inside custom classloader as "neighbour".
+            // CtClass.toClass(neighbour) does not cause illegal reflective access in JDK17.
+            Class clazz = codeBlock.toClass(cl.loadClass(Compiler.class.getName()));
             Op compiledCode = (Op) clazz.newInstance();
             codeBlock.detach();
             if (saveClasses) {
                 if (op instanceof DecodeBlock) {
                     DecodeBlock block = (DecodeBlock)op;
-                    String header = "package jdos.cpu.core_dynamic;\n\nimport jdos.cpu.core_dynamic.*;\nimport jdos.cpu.*;\nimport jdos.fpu.*;\nimport jdos.hardware.*;\nimport jdos.util.*;\nimport jdos.cpu.core_normal.*;\nimport jdos.cpu.core_share.*;\n\npublic final class "+className+" extends Op {\npublic int call() {";
-                    Loader.add(codeBlock.getName(), codeBlock.toBytecode(), block.codeStart, getOpCode(block.codeStart, block.codeLen), header+method.toString()+"\n}");
+                    String classBody =
+                            "package " + codeBlock.getPackageName()  + ";\n\n" +
+                            "import jdos.cpu.core_dynamic.*;\n" +
+                            "import jdos.cpu.*;\n" +
+                            "import jdos.fpu.*;\n" +
+                            "import jdos.hardware.*;\n" +
+                            "import jdos.util.*;\n" +
+                            "import jdos.cpu.core_normal.*;\n" +
+                            "import jdos.cpu.core_share.*;\n\n" +
+                            "public final class " + codeBlock.getSimpleName() + " extends " + codeBlock.getSuperclass().getName() + " {\n" +
+                            "   public int call() { " + method + "} \n" +
+                            "}";
+                    Loader.add(codeBlock.getName(), codeBlock.toBytecode(), block.codeStart, getOpCode(block.codeStart, block.codeLen), classBody);
                 } else {
                     Log.exit("Tried to save an incomplete code block");
                 }

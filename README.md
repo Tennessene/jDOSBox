@@ -7,7 +7,7 @@ This was continued from revision 808 (the last revision on SourceForge). The ori
 
 Further Information
 -----------
-The original Readme is the ReadMe.txt. jDOSBox requires Java 6 32-bit for right now as it was last updated in 2014. We're hoping to update jDOSBox to support a newer Java version. The network support is also experimental, so don't expect it to always work and we're working on a build of jdosbox_pcap that doesn't require native libraries. According to the original author, James Bryant, it is able to run Windows apps with no OS and even run Windows XP. We have yet to figure out how to do that! Windows 95 works well though.
+The original Readme is the ReadMe.txt. jDOSBox can be used with Java 8 or higher, just make sure `threshold` under the compiler section of the config is set to `0` if you're going to use Java 8 as the compiler only work in later Java versions for now. The network support is also experimental, so don't expect it to always work and we're working on a build of jdosbox_pcap that doesn't require native libraries. According to the original author, James Bryant, it is able to run Windows apps with no OS and even run Windows XP. We have yet to figure out how to do that! Windows 95 works well though.
 
 We found the original website with more information here: [Status | jDosbox](https://web.archive.org/web/20190304011952/http://jdosbox.sourceforge.net/cms/)
 

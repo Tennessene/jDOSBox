@@ -66,11 +66,11 @@ public class Floppy {
             this.max_head = max_head;
             this.rate = rate;
         }
-        int drive;
-        int last_sect;
-        int max_track;
-        int max_head;
-        int rate;
+        final int drive;
+        final int last_sect;
+        final int max_track;
+        final int max_head;
+        final int rate;
     }
 
     static final private FDFormat[] fd_formats = new FDFormat[] {
@@ -135,7 +135,7 @@ public class Floppy {
             }
             if (drive_in == parse.drive ||
                 drive_in == FDRIVE_DRV_NONE) {
-                size = (parse.max_head + 1) * parse.max_track * parse.last_sect;
+                size = (long) (parse.max_head + 1) * parse.max_track * parse.last_sect;
                 if (nb_sectors == size) {
                     match = i;
                     break;
@@ -487,7 +487,7 @@ public class Floppy {
         int num_floppies;
         /* Sun4m quirks? */
         boolean sun4m;
-        FDrive[] drives = new FDrive[MAX_FD];
+        final FDrive[] drives = new FDrive[MAX_FD];
         int reset_sensei;
         boolean check_media_rate;
         /* Timers state */
@@ -926,12 +926,10 @@ public class Floppy {
     }
 
     /* Set an error: unimplemented/unknown command */
-    static private final HandlerCallback fdctrl_unimplemented  = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            if (Log.level<= LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FLOPPY,LogSeverities.LOG_ERROR,"fdc: unimplemented command 0x"+Integer.toHexString(fdctrl.fifo[0] & 0xFF));
-            fdctrl.fifo[0] = (byte)FD_SR0_INVCMD;
-            fdctrl_set_fifo(fdctrl, 1, 0);
-        }
+    static private final HandlerCallback fdctrl_unimplemented  = (fdctrl, direction) -> {
+        if (Log.level<= LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FLOPPY,LogSeverities.LOG_ERROR,"fdc: unimplemented command 0x"+Integer.toHexString(fdctrl.fifo[0] & 0xFF));
+        fdctrl.fifo[0] = (byte)FD_SR0_INVCMD;
+        fdctrl_set_fifo(fdctrl, 1, 0);
     };
     
     /* Seek to next sector
@@ -1114,15 +1112,13 @@ public class Floppy {
     };
     
     /* Prepare a transfer of deleted data */
-    static private final HandlerCallback fdctrl_start_transfer_del  = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            if (Log.level<= LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FLOPPY,LogSeverities.LOG_ERROR,"fdctrl_start_transfer_del() unimplemented");
+    static private final HandlerCallback fdctrl_start_transfer_del  = (fdctrl, direction) -> {
+        if (Log.level<= LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FLOPPY,LogSeverities.LOG_ERROR,"fdctrl_start_transfer_del() unimplemented");
 
-            /* We don't handle deleted data,
-             * so we don't return *ANYTHING*
-             */
-            fdctrl_stop_transfer(fdctrl, FD_SR0_ABNTERM | FD_SR0_SEEK, 0x00, 0x00);
-        }
+        /* We don't handle deleted data,
+         * so we don't return *ANYTHING*
+         */
+        fdctrl_stop_transfer(fdctrl, FD_SR0_ABNTERM | FD_SR0_SEEK, 0x00, 0x00);
     };
 
     /* handlers for DMA transfers */
@@ -1138,7 +1134,7 @@ public class Floppy {
             int len, start_pos, rel_pos;
             int status0 = 0x00, status1 = 0x00, status2 = 0x00;
 
-            fdctrl = (FDCtrl)isa;
+            fdctrl = isa;
             if ((fdctrl.msr & FD_MSR_RQM)!=0) {
                 FLOPPY_DPRINTF("Not in DMA transfer mode !");
                 return;
@@ -1243,7 +1239,7 @@ public class Floppy {
     static private int fdctrl_read_data(FDCtrl fdctrl)
     {
         FDrive cur_drv;
-        int retval = 0;
+        int retval;
         int pos;
 
         cur_drv = get_cur_drv(fdctrl);
@@ -1346,106 +1342,94 @@ public class Floppy {
         }
     }
 
-    static private final HandlerCallback fdctrl_handle_lock = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            fdctrl.lock = (fdctrl.fifo[0] & 0x80)!=0 ? 1 : 0;
-            fdctrl.fifo[0] = (byte)(fdctrl.lock << 4);
-            fdctrl_set_fifo(fdctrl, 1, 0);
-        }
+    static private final HandlerCallback fdctrl_handle_lock = (fdctrl, direction) -> {
+        fdctrl.lock = (fdctrl.fifo[0] & 0x80)!=0 ? 1 : 0;
+        fdctrl.fifo[0] = (byte)(fdctrl.lock << 4);
+        fdctrl_set_fifo(fdctrl, 1, 0);
     };
     
-    static private final HandlerCallback fdctrl_handle_dumpreg = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            FDrive cur_drv = get_cur_drv(fdctrl);
-    
-            /* Drives position */
-            fdctrl.fifo[0] = (byte)drv0(fdctrl).track;
-            fdctrl.fifo[1] = (byte)drv1(fdctrl).track;
-            if (MAX_FD == 4) {
-                fdctrl.fifo[2] = (byte)drv2(fdctrl).track;
-                fdctrl.fifo[3] = (byte)drv3(fdctrl).track;
-            } else {
-                fdctrl.fifo[2] = 0;
-                fdctrl.fifo[3] = 0;
-            }
-            /* timers */
-            fdctrl.fifo[4] = (byte)fdctrl.timer0;
-            fdctrl.fifo[5] = (byte)((fdctrl.timer1 << 1) | ((fdctrl.dor & FD_DOR_DMAEN)!=0 ? 1 : 0));
-            fdctrl.fifo[6] = (byte)cur_drv.last_sect;
-            fdctrl.fifo[7] = (byte)((fdctrl.lock << 7) | (cur_drv.perpendicular << 2));
-            fdctrl.fifo[8] = (byte)fdctrl.config;
-            fdctrl.fifo[9] = (byte)fdctrl.precomp_trk;
-            fdctrl_set_fifo(fdctrl, 10, 0);
+    static private final HandlerCallback fdctrl_handle_dumpreg = (fdctrl, direction) -> {
+        FDrive cur_drv = get_cur_drv(fdctrl);
+
+        /* Drives position */
+        fdctrl.fifo[0] = (byte)drv0(fdctrl).track;
+        fdctrl.fifo[1] = (byte)drv1(fdctrl).track;
+        if (MAX_FD == 4) {
+            fdctrl.fifo[2] = (byte)drv2(fdctrl).track;
+            fdctrl.fifo[3] = (byte)drv3(fdctrl).track;
+        } else {
+            fdctrl.fifo[2] = 0;
+            fdctrl.fifo[3] = 0;
         }
+        /* timers */
+        fdctrl.fifo[4] = (byte)fdctrl.timer0;
+        fdctrl.fifo[5] = (byte)((fdctrl.timer1 << 1) | ((fdctrl.dor & FD_DOR_DMAEN)!=0 ? 1 : 0));
+        fdctrl.fifo[6] = (byte)cur_drv.last_sect;
+        fdctrl.fifo[7] = (byte)((fdctrl.lock << 7) | (cur_drv.perpendicular << 2));
+        fdctrl.fifo[8] = (byte)fdctrl.config;
+        fdctrl.fifo[9] = (byte)fdctrl.precomp_trk;
+        fdctrl_set_fifo(fdctrl, 10, 0);
     };
     
-    static private final HandlerCallback fdctrl_handle_version = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            /* Controller's version */
-            fdctrl.fifo[0] = (byte)fdctrl.version;
-            fdctrl_set_fifo(fdctrl, 1, 0);
-        }
+    static private final HandlerCallback fdctrl_handle_version = (fdctrl, direction) -> {
+        /* Controller's version */
+        fdctrl.fifo[0] = (byte)fdctrl.version;
+        fdctrl_set_fifo(fdctrl, 1, 0);
     };
     
-    static private final HandlerCallback fdctrl_handle_partid = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            fdctrl.fifo[0] = 0x41; /* Stepping 1 */
-            fdctrl_set_fifo(fdctrl, 1, 0);
-        }
+    static private final HandlerCallback fdctrl_handle_partid = (fdctrl, direction) -> {
+        fdctrl.fifo[0] = 0x41; /* Stepping 1 */
+        fdctrl_set_fifo(fdctrl, 1, 0);
     };
     
-    static private final HandlerCallback fdctrl_handle_restore = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            FDrive cur_drv = get_cur_drv(fdctrl);
-    
-            /* Drives position */
-            drv0(fdctrl).track = fdctrl.fifo[3];
-            drv1(fdctrl).track = fdctrl.fifo[4];
-            if (MAX_FD == 4) {
-                drv2(fdctrl).track = fdctrl.fifo[5];
-                drv3(fdctrl).track = fdctrl.fifo[6];
-            }
-            /* timers */
-            fdctrl.timer0 = fdctrl.fifo[7];
-            fdctrl.timer1 = fdctrl.fifo[8];
-            cur_drv.last_sect = fdctrl.fifo[9];
-            fdctrl.lock = fdctrl.fifo[10] >> 7;
-            cur_drv.perpendicular = (fdctrl.fifo[10] >> 2) & 0xF;
-            fdctrl.config = fdctrl.fifo[11];
-            fdctrl.precomp_trk = fdctrl.fifo[12];
-            fdctrl.pwrd = fdctrl.fifo[13];
-            fdctrl_reset_fifo(fdctrl);
+    static private final HandlerCallback fdctrl_handle_restore = (fdctrl, direction) -> {
+        FDrive cur_drv = get_cur_drv(fdctrl);
+
+        /* Drives position */
+        drv0(fdctrl).track = fdctrl.fifo[3];
+        drv1(fdctrl).track = fdctrl.fifo[4];
+        if (MAX_FD == 4) {
+            drv2(fdctrl).track = fdctrl.fifo[5];
+            drv3(fdctrl).track = fdctrl.fifo[6];
         }
+        /* timers */
+        fdctrl.timer0 = fdctrl.fifo[7];
+        fdctrl.timer1 = fdctrl.fifo[8];
+        cur_drv.last_sect = fdctrl.fifo[9];
+        fdctrl.lock = fdctrl.fifo[10] >> 7;
+        cur_drv.perpendicular = (fdctrl.fifo[10] >> 2) & 0xF;
+        fdctrl.config = fdctrl.fifo[11];
+        fdctrl.precomp_trk = fdctrl.fifo[12];
+        fdctrl.pwrd = fdctrl.fifo[13];
+        fdctrl_reset_fifo(fdctrl);
     };
     
-    static private final HandlerCallback fdctrl_handle_save = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            FDrive cur_drv = get_cur_drv(fdctrl);
-    
-            fdctrl.fifo[0] = 0;
-            fdctrl.fifo[1] = 0;
-            /* Drives position */
-            fdctrl.fifo[2] = (byte)drv0(fdctrl).track;
-            fdctrl.fifo[3] = (byte)drv1(fdctrl).track;
-            if (MAX_FD == 4) {
-                fdctrl.fifo[4] = (byte)drv2(fdctrl).track;
-                fdctrl.fifo[5] = (byte)drv3(fdctrl).track;
-            } else {
-                fdctrl.fifo[4] = 0;
-                fdctrl.fifo[5] = 0;
-            }
-            /* timers */
-            fdctrl.fifo[6] = (byte)fdctrl.timer0;
-            fdctrl.fifo[7] = (byte)fdctrl.timer1;
-            fdctrl.fifo[8] = (byte)cur_drv.last_sect;
-            fdctrl.fifo[9] = (byte)((fdctrl.lock << 7) | (cur_drv.perpendicular << 2));
-            fdctrl.fifo[10] = (byte)fdctrl.config;
-            fdctrl.fifo[11] = (byte)fdctrl.precomp_trk;
-            fdctrl.fifo[12] = (byte)fdctrl.pwrd;
-            fdctrl.fifo[13] = 0;
-            fdctrl.fifo[14] = 0;
-            fdctrl_set_fifo(fdctrl, 15, 0);
+    static private final HandlerCallback fdctrl_handle_save = (fdctrl, direction) -> {
+        FDrive cur_drv = get_cur_drv(fdctrl);
+
+        fdctrl.fifo[0] = 0;
+        fdctrl.fifo[1] = 0;
+        /* Drives position */
+        fdctrl.fifo[2] = (byte)drv0(fdctrl).track;
+        fdctrl.fifo[3] = (byte)drv1(fdctrl).track;
+        if (MAX_FD == 4) {
+            fdctrl.fifo[4] = (byte)drv2(fdctrl).track;
+            fdctrl.fifo[5] = (byte)drv3(fdctrl).track;
+        } else {
+            fdctrl.fifo[4] = 0;
+            fdctrl.fifo[5] = 0;
         }
+        /* timers */
+        fdctrl.fifo[6] = (byte)fdctrl.timer0;
+        fdctrl.fifo[7] = (byte)fdctrl.timer1;
+        fdctrl.fifo[8] = (byte)cur_drv.last_sect;
+        fdctrl.fifo[9] = (byte)((fdctrl.lock << 7) | (cur_drv.perpendicular << 2));
+        fdctrl.fifo[10] = (byte)fdctrl.config;
+        fdctrl.fifo[11] = (byte)fdctrl.precomp_trk;
+        fdctrl.fifo[12] = (byte)fdctrl.pwrd;
+        fdctrl.fifo[13] = 0;
+        fdctrl.fifo[14] = 0;
+        fdctrl_set_fifo(fdctrl, 15, 0);
     };
     
     static private final HandlerCallback fdctrl_handle_readid = new HandlerCallback() {
@@ -1487,17 +1471,15 @@ public class Floppy {
         }
     };
     
-    static private final HandlerCallback fdctrl_handle_specify = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            fdctrl.timer0 = (fdctrl.fifo[1] >> 4) & 0xF;
-            fdctrl.timer1 = fdctrl.fifo[2] >> 1;
-            if ((fdctrl.fifo[2] & 1)!=0)
-                fdctrl.dor &= ~FD_DOR_DMAEN;
-            else
-                fdctrl.dor |= FD_DOR_DMAEN;
-            /* No result back */
-            fdctrl_reset_fifo(fdctrl);
-        }
+    static private final HandlerCallback fdctrl_handle_specify = (fdctrl, direction) -> {
+        fdctrl.timer0 = (fdctrl.fifo[1] >> 4) & 0xF;
+        fdctrl.timer1 = fdctrl.fifo[2] >> 1;
+        if ((fdctrl.fifo[2] & 1)!=0)
+            fdctrl.dor &= ~FD_DOR_DMAEN;
+        else
+            fdctrl.dor |= FD_DOR_DMAEN;
+        /* No result back */
+        fdctrl_reset_fifo(fdctrl);
     };
     
     static private final HandlerCallback fdctrl_handle_sense_drive_status = new HandlerCallback() {
@@ -1526,26 +1508,24 @@ public class Floppy {
         }
     };
     
-    static private final HandlerCallback fdctrl_handle_sense_interrupt_status = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            FDrive cur_drv = get_cur_drv(fdctrl);
+    static private final HandlerCallback fdctrl_handle_sense_interrupt_status = (fdctrl, direction) -> {
+        FDrive cur_drv = get_cur_drv(fdctrl);
 
-            if (fdctrl.reset_sensei > 0) {
-                fdctrl.fifo[0] = (byte)(FD_SR0_RDYCHG + FD_RESET_SENSEI_COUNT - fdctrl.reset_sensei);
-                fdctrl.reset_sensei--;
-            } else if ((fdctrl.sra & FD_SRA_INTPEND)==0) {
-                fdctrl.fifo[0] = (byte)FD_SR0_INVCMD;
-                fdctrl_set_fifo(fdctrl, 1, 0);
-                return;
-            } else {
-                fdctrl.fifo[0] = (byte)((fdctrl.status0 & ~(FD_SR0_HEAD | FD_SR0_DS1 | FD_SR0_DS0)) | GET_CUR_DRV(fdctrl));
-            }
-
-            fdctrl.fifo[1] = (byte)cur_drv.track;
-            fdctrl_set_fifo(fdctrl, 2, 0);
-            fdctrl_reset_irq(fdctrl);
-            fdctrl.status0 = FD_SR0_RDYCHG;
+        if (fdctrl.reset_sensei > 0) {
+            fdctrl.fifo[0] = (byte)(FD_SR0_RDYCHG + FD_RESET_SENSEI_COUNT - fdctrl.reset_sensei);
+            fdctrl.reset_sensei--;
+        } else if ((fdctrl.sra & FD_SRA_INTPEND)==0) {
+            fdctrl.fifo[0] = (byte)FD_SR0_INVCMD;
+            fdctrl_set_fifo(fdctrl, 1, 0);
+            return;
+        } else {
+            fdctrl.fifo[0] = (byte)((fdctrl.status0 & ~(FD_SR0_HEAD | FD_SR0_DS1 | FD_SR0_DS0)) | GET_CUR_DRV(fdctrl));
         }
+
+        fdctrl.fifo[1] = (byte)cur_drv.track;
+        fdctrl_set_fifo(fdctrl, 2, 0);
+        fdctrl_reset_irq(fdctrl);
+        fdctrl.status0 = FD_SR0_RDYCHG;
     };
 
     static private final HandlerCallback fdctrl_handle_seek = new HandlerCallback() {
@@ -1564,60 +1544,50 @@ public class Floppy {
         }
     };
 
-    static private final HandlerCallback fdctrl_handle_perpendicular_mode = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            FDrive cur_drv = get_cur_drv(fdctrl);
+    static private final HandlerCallback fdctrl_handle_perpendicular_mode = (fdctrl, direction) -> {
+        FDrive cur_drv = get_cur_drv(fdctrl);
 
-            if ((fdctrl.fifo[1] & 0x80)!=0)
-                cur_drv.perpendicular = fdctrl.fifo[1] & 0x7;
-            /* No result back */
-            fdctrl_reset_fifo(fdctrl);
-        }
+        if ((fdctrl.fifo[1] & 0x80)!=0)
+            cur_drv.perpendicular = fdctrl.fifo[1] & 0x7;
+        /* No result back */
+        fdctrl_reset_fifo(fdctrl);
     };
 
-    static private final HandlerCallback fdctrl_handle_configure = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            fdctrl.config = fdctrl.fifo[2] & 0xFF;
-            fdctrl.precomp_trk =  fdctrl.fifo[3] & 0xFF;
-            /* No result back */
-            fdctrl_reset_fifo(fdctrl);
-        }
+    static private final HandlerCallback fdctrl_handle_configure = (fdctrl, direction) -> {
+        fdctrl.config = fdctrl.fifo[2] & 0xFF;
+        fdctrl.precomp_trk =  fdctrl.fifo[3] & 0xFF;
+        /* No result back */
+        fdctrl_reset_fifo(fdctrl);
     };
 
-    static private final HandlerCallback fdctrl_handle_powerdown_mode = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            fdctrl.pwrd = fdctrl.fifo[1] & 0xFF;
-            fdctrl.fifo[0] = fdctrl.fifo[1];
-            fdctrl_set_fifo(fdctrl, 1, 0);
-        }
+    static private final HandlerCallback fdctrl_handle_powerdown_mode = (fdctrl, direction) -> {
+        fdctrl.pwrd = fdctrl.fifo[1] & 0xFF;
+        fdctrl.fifo[0] = fdctrl.fifo[1];
+        fdctrl_set_fifo(fdctrl, 1, 0);
     };
 
-    static private final HandlerCallback fdctrl_handle_option = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            /* No result back */
-            fdctrl_reset_fifo(fdctrl);
-        }
+    static private final HandlerCallback fdctrl_handle_option = (fdctrl, direction) -> {
+        /* No result back */
+        fdctrl_reset_fifo(fdctrl);
     };
 
-    static private final HandlerCallback fdctrl_handle_drive_specification_command = new HandlerCallback() {
-        public void call(FDCtrl fdctrl, int direction) {
-            FDrive cur_drv = get_cur_drv(fdctrl);
+    static private final HandlerCallback fdctrl_handle_drive_specification_command = (fdctrl, direction) -> {
+        FDrive cur_drv = get_cur_drv(fdctrl);
 
-            if ((fdctrl.fifo[fdctrl.data_pos - 1] & 0x80)!=0) {
-                /* Command parameters done */
-                if ((fdctrl.fifo[fdctrl.data_pos - 1] & 0x40)!=0) {
-                    fdctrl.fifo[0] = fdctrl.fifo[1];
-                    fdctrl.fifo[2] = 0;
-                    fdctrl.fifo[3] = 0;
-                    fdctrl_set_fifo(fdctrl, 4, 0);
-                } else {
-                    fdctrl_reset_fifo(fdctrl);
-                }
-            } else if (fdctrl.data_len > 7) {
-                /* ERROR */
-                fdctrl.fifo[0] = (byte)(0x80 | (cur_drv.head << 2) | GET_CUR_DRV(fdctrl));
-                fdctrl_set_fifo(fdctrl, 1, 0);
+        if ((fdctrl.fifo[fdctrl.data_pos - 1] & 0x80)!=0) {
+            /* Command parameters done */
+            if ((fdctrl.fifo[fdctrl.data_pos - 1] & 0x40)!=0) {
+                fdctrl.fifo[0] = fdctrl.fifo[1];
+                fdctrl.fifo[2] = 0;
+                fdctrl.fifo[3] = 0;
+                fdctrl_set_fifo(fdctrl, 4, 0);
+            } else {
+                fdctrl_reset_fifo(fdctrl);
             }
+        } else if (fdctrl.data_len > 7) {
+            /* ERROR */
+            fdctrl.fifo[0] = (byte)(0x80 | (cur_drv.head << 2) | GET_CUR_DRV(fdctrl));
+            fdctrl_set_fifo(fdctrl, 1, 0);
         }
     };
 
@@ -1658,8 +1628,8 @@ public class Floppy {
         }
     };
 
-    static private interface HandlerCallback {
-        public void call (FDCtrl fdctrl, int direction);
+    private interface HandlerCallback {
+        void call(FDCtrl fdctrl, int direction);
     }
 
     static private final class Handler {
@@ -1678,11 +1648,11 @@ public class Floppy {
             this.handler = handler;
             this.direction = direction;
         }
-        int value;
-        int mask;
-        String name;
-        int parameters;
-        HandlerCallback handler;
+        final int value;
+        final int mask;
+        final String name;
+        final int parameters;
+        final HandlerCallback handler;
         int direction;
     }
 
@@ -1901,7 +1871,7 @@ public class Floppy {
     }
 
     static boolean command_tables_inited = false;
-    static int fdctrl_init_common(FDCtrl fdctrl)
+    static void fdctrl_init_common(FDCtrl fdctrl)
     {
         int i, j;
 
@@ -1929,7 +1899,6 @@ public class Floppy {
             jdos.hardware.DMA.GetDMAChannel(fdctrl.dma_chann).Register_Callback(fdctrl_transfer_handler);
         int result = fdctrl_connect_drives(fdctrl);
         fdctrl_reset(fdctrl, false);
-        return result;
     }
 
     static public boolean isDriveReady(int index) {
@@ -1937,8 +1906,8 @@ public class Floppy {
     }
     static private FDCtrl isa;
 
-    static private IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[6];
-    static private IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[6];
+    static private final IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[6];
+    static private final IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[6];
 
     private static final IoHandler.IO_ReadHandler read_handler = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
@@ -1964,7 +1933,7 @@ public class Floppy {
         }
     }
 
-    public static Section.SectionFunction Flopyy_Init = new Section.SectionFunction() {
+    public static final Section.SectionFunction Flopyy_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             Section_prop section=(Section_prop)sec;
             if (!section.Get_bool("enable"))

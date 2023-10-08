@@ -21,14 +21,14 @@ public class IUnknown extends WinAPI {
     static private final int OFFSET_CLEANUP = 8;
     static public final int OFFSET_DATA_START = 12;
 
-    static private Hashtable vtables = new Hashtable();
-    static private Hashtable names = new Hashtable();
+    static private final Hashtable vtables = new Hashtable();
+    static private final Hashtable names = new Hashtable();
 
     static protected int getVTable(String name) {
         Integer result =  (Integer)vtables.get(name);
         if (result == null)
             return 0;
-        return result.intValue();
+        return result;
     }
 
     static protected int getData(int This, int offset) {
@@ -74,8 +74,8 @@ public class IUnknown extends WinAPI {
 
     static protected int allocateVTable(String name,  int functions) {
         int result = WinSystem.getCurrentProcess().heap.alloc((functions+3)*4, false);
-        vtables.put(name, new Integer(result));
-        names.put(new Integer(result), name);
+        vtables.put(name, result);
+        names.put(result, name);
         return result;
     }
 
@@ -100,7 +100,7 @@ public class IUnknown extends WinAPI {
     }
 
     // HRESULT QueryInterface(this, REFIID riid, void** ppvObject)
-    static private Callback.Handler QueryInterface = new HandlerBase() {
+    static private final Callback.Handler QueryInterface = new HandlerBase() {
         public java.lang.String getName() {
             return "IUnknown.QueryInterface";
         }
@@ -123,7 +123,7 @@ public class IUnknown extends WinAPI {
     }
 
     // ULONG AddRef(this)
-    static private Callback.Handler AddRef = new HandlerBase() {
+    static private final Callback.Handler AddRef = new HandlerBase() {
         public java.lang.String getName() {
             return "IUnknown.AddRef";
         }
@@ -135,7 +135,7 @@ public class IUnknown extends WinAPI {
 
     static public int Release(int This) {
         if (WinAPI.LOG)
-            System.out.println(names.get(new Integer(getVTable(This)))+".Release");
+            System.out.println(names.get(getVTable(This))+".Release");
         int refCount = getRefCount(This);
         refCount--;
         setRefCount(This, refCount);
@@ -153,7 +153,7 @@ public class IUnknown extends WinAPI {
     }
 
     // ULONG Release(this)
-    static private Callback.Handler Release = new HandlerBase() {
+    static private final Callback.Handler Release = new HandlerBase() {
         public java.lang.String getName() {
             return "IUnknown.Release";
         }

@@ -13,10 +13,6 @@ public class KTime extends WinAPI {
             return 1;
         if (x.dwHighDateTime < y.dwHighDateTime)
             return -1;
-        if (x.dwLowDateTime > y.dwLowDateTime)
-            return 1;
-        if (x.dwLowDateTime < y.dwLowDateTime)
-            return -1;
-        return 0;
+        return Integer.compare(x.dwLowDateTime, y.dwLowDateTime);
     }
 }

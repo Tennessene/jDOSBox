@@ -1,7 +1,5 @@
 package jdos.misc.setup;
 
-import jdos.misc.Log;
-
 public class Prop_string extends Property {
     public Prop_string(String _propname, int when, String _value) {
         super(_propname, when);
@@ -26,10 +24,11 @@ public class Prop_string extends Property {
                     if (Integer.parseInt(in.toString())>=0)
                         return true;
                 } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }
         }
-        if (warn) Log.log_msg("\""+in.toString()+"\" is not a valid value for variable: "+propname+".\nIt might now be reset it to default value: "+default_value.toString());
+        if (warn) System.out.println("\""+in.toString()+"\" is not a valid value for variable: "+propname+".\nIt might now be reset it to default value: "+ default_value);
         return false;
     }
 }

@@ -22,8 +22,7 @@ import java.util.Vector;
 
 public class WinCursor extends WinObject {
     static public WinCursor create(int instance, int name) {
-        WinCursor cursor = new WinCursor(nextObjectId(), instance, name);
-        return cursor;
+        return new WinCursor(nextObjectId(), instance, name);
     }
 
     static public WinCursor get(int handle) {
@@ -31,7 +30,7 @@ public class WinCursor extends WinObject {
         if (object == null && (handle>=32512 && handle<=32651)) {
             object = new WinCursor(handle, 0, handle);
         }
-        if (object == null || !(object instanceof WinCursor))
+        if (!(object instanceof WinCursor))
             return null;
         return (WinCursor)object;
     }
@@ -42,7 +41,7 @@ public class WinCursor extends WinObject {
     }
 
     // HCURSOR WINAPI SetCursor(HCURSOR hCursor)
-    static public int SetCursor(int hCursor) {
+    static public void SetCursor(int hCursor) {
         int result = StaticData.hCursor;
         StaticData.hCursor = hCursor;
         if (hCursor == 0)
@@ -51,7 +50,6 @@ public class WinCursor extends WinObject {
             if (StaticData.showCursorCount>=0)
                 Main.GFX_SetCursor(WinCursor.get(hCursor).cursor);
         }
-        return hCursor;
     }
 
     // int WINAPI ShowCursor(BOOL bShow)
@@ -70,7 +68,7 @@ public class WinCursor extends WinObject {
         return StaticData.showCursorCount;
     }
 
-    static private Hashtable cursors = new Hashtable();
+    static private final Hashtable cursors = new Hashtable();
 
     Cursor cursor = null;
 
@@ -119,7 +117,7 @@ public class WinCursor extends WinObject {
     }
 
     static public Image[] loadCursorFromStream(InputStream input, Vector hotspots) {
-        byte[] buffer = null;
+        byte[] buffer;
         try {
             buffer = StreamHelper.readStream(input);
         } catch (Exception e) {

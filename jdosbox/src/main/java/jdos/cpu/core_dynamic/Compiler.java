@@ -26,7 +26,7 @@ public class Compiler extends Helper {
     static final private boolean inlineFlags = true;
     static final private boolean cacheSegments = true;
 
-    private static Thread[] compilerThread = null;
+    private static Thread[] compilerThread;
     private static final LinkedList compilerQueue = new LinkedList();
 
     // :TODO: update CMPXCHG to update flags like in normal core
@@ -38,42 +38,40 @@ public class Compiler extends Helper {
     static {
         compilerThread = new Thread[processorCount];
         for (int i = 0; i < compilerThread.length; i++) {
-            compilerThread[i] = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        while (true) {
-                            DecodeBlock nextBlock = null;
-                            synchronized (compilerQueue) {
-                                if (compilerQueue.isEmpty())
-                                    compilerQueue.wait();
-                                if (!compilerQueue.isEmpty())
-                                    nextBlock = (DecodeBlock) compilerQueue.pop();
-                            }
-                            if (nextBlock == null) {
-                                break;
-                            }
-                            if (nextBlock.active) {
-                                Op result = do_compile(nextBlock);
-                                if (result != null) {
-                                    //nextBlock.op = nextBlock.next;
-                                    // In Doom, bypassing the DecodeBlock call and instead having Core_dynamic call
-                                    // the compiled code directly led to a nice increase in performance (10% at the time
-                                    // of testing).  Keep in mind self modified code detection is not enabled within
-                                    // the compiled code, hopefully by having the code run in the dynamic core 100-1000
-                                    // times before being marked as needing compiling will weed out all the blocks
-                                    // that modify themselves.
-                                    //
-                                    // Do not set nextBlock.parent.code on this thread, because depending on the timing
-                                    // on the machine it is being run on, it may result in weird behavior.
-                                    nextBlock.compiledOp = result;
-                                }
+            compilerThread[i] = new Thread(() -> {
+                try {
+                    while (true) {
+                        DecodeBlock nextBlock = null;
+                        synchronized (compilerQueue) {
+                            if (compilerQueue.isEmpty())
+                                compilerQueue.wait();
+                            if (!compilerQueue.isEmpty())
+                                nextBlock = (DecodeBlock) compilerQueue.pop();
+                        }
+                        if (nextBlock == null) {
+                            break;
+                        }
+                        if (nextBlock.active) {
+                            Op result = do_compile(nextBlock);
+                            if (result != null) {
+                                //nextBlock.op = nextBlock.next;
+                                // In Doom, bypassing the DecodeBlock call and instead having Core_dynamic call
+                                // the compiled code directly led to a nice increase in performance (10% at the time
+                                // of testing).  Keep in mind self modified code detection is not enabled within
+                                // the compiled code, hopefully by having the code run in the dynamic core 100-1000
+                                // times before being marked as needing compiling will weed out all the blocks
+                                // that modify themselves.
+                                //
+                                // Do not set nextBlock.parent.code on this thread, because depending on the timing
+                                // on the machine it is being run on, it may result in weird behavior.
+                                nextBlock.compiledOp = result;
                             }
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-                    System.out.println("Compiler thread has exited");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                System.out.println("Compiler thread has exited");
             });
             compilerThread[i].start();
         }
@@ -91,11 +89,12 @@ public class Compiler extends Helper {
 
     static public void compile(DecodeBlock block) {
         if (block == null) {
-            for (int i = 0; i < compilerThread.length; i++)
-            try {
-                compilerThread[i].join();
-            } catch (Exception e) {
-            }
+            for (Thread thread : compilerThread)
+                try {
+                    thread.join();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             return;
         }
         synchronized (compilerQueue) {
@@ -135,7 +134,7 @@ public class Compiler extends Helper {
     static final boolean combineMemoryAccessEIP = false; // less than 1% improvement
 
     static public class Seg {
-        private StringBuilder method;
+        private final StringBuilder method;
 
         private String ds;
         private boolean defaultDS;
@@ -295,7 +294,7 @@ public class Compiler extends Helper {
                 }
                 if (testLocalVariableAccess)
                     method.append("{");
-                method.append("/*" + Integer.toHexString(op.c) + "*/");
+                method.append("/*").append(Integer.toHexString(op.c)).append("*/");
                 if (op.gets()!=0)
                     method.append("/* Uses Flags */");
                 int shouldSet = 0;
@@ -507,7 +506,7 @@ public class Compiler extends Helper {
 
     static void nameGet8(Reg reg, StringBuilder method) {
         if (reg.getParent()==null && reg.getName()==null)
-            method.append(String.valueOf(reg.dword));
+            method.append(reg.dword);
         else {
             method.append("CPU_Regs.reg_");
             if (reg.getParent()==null) {
@@ -526,7 +525,7 @@ public class Compiler extends Helper {
 
     static void nameGet16(Reg reg, StringBuilder method) {
         if (reg.getName()==null)
-            method.append(String.valueOf(reg.dword));
+            method.append(reg.dword);
         else {
             method.append("CPU_Regs.reg_");
             method.append(reg.getName());
@@ -541,7 +540,7 @@ public class Compiler extends Helper {
 
     static void nameGet32(Reg reg, StringBuilder method) {
         if (reg.getName() == null)
-            method.append(String.valueOf(reg.dword));
+            method.append(reg.dword);
         else {
             method.append("CPU_Regs.reg_");
             method.append(reg.getName());
@@ -7382,8 +7381,8 @@ public class Compiler extends Helper {
         return true;
     }
 
-    static private ClassPool pool = ClassPool.getDefault();
-    static java.security.MessageDigest md;
+    static private final ClassPool pool = ClassPool.getDefault();
+    static final java.security.MessageDigest md;
 
     static {
         pool.importPackage("jdos.cpu.core_dynamic");
@@ -7394,7 +7393,7 @@ public class Compiler extends Helper {
         pool.importPackage("jdos.cpu.core_normal");
         pool.importPackage("jdos.cpu.core_share");
         pool.insertClassPath(new ClassPath() {
-            public InputStream openClassfile(String s) throws NotFoundException {
+            public InputStream openClassfile(String s) {
                 if (s.startsWith("jdos.")) {
                     s = "/" + s.replace('.', '/') + ".class";
                     return Dosbox.class.getResourceAsStream(s.substring(6));
@@ -7416,7 +7415,7 @@ public class Compiler extends Helper {
         try {
             md = java.security.MessageDigest.getInstance("MD5");
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
     }
 
@@ -7432,7 +7431,7 @@ public class Compiler extends Helper {
             if (!jump)
                 method.append("return Constants.BR_Normal;");
             method.append("}");
-            CtMethod m = CtNewMethod.make("public int call() {" + method.toString(), codeBlock);
+            CtMethod m = CtNewMethod.make("public int call() {" + method, codeBlock);
             codeBlock.addMethod(m);
 
             Op o = op;
@@ -7455,7 +7454,7 @@ public class Compiler extends Helper {
 
             // Create second copy of Compiler class inside custom classloader as "neighbour".
             // CtClass.toClass(neighbour) does not cause illegal reflective access in JDK17.
-            Class clazz = codeBlock.toClass(cl.loadClass(Compiler.class.getName()));
+            Class<?> clazz = codeBlock.toClass(cl.loadClass(Compiler.class.getName()));
             Op compiledCode = (Op) clazz.newInstance();
             codeBlock.detach();
             if (saveClasses) {
@@ -7488,11 +7487,9 @@ public class Compiler extends Helper {
         return null;
     }
 
-    final public static Section.SectionFunction Compiler_Init = new Section.SectionFunction() {
-        public void call(Section newconfig) {
-            Section_prop section=(Section_prop)newconfig;
-            DecodeBlock.compileThreshold = section.Get_int("threshold");
-            min_block_size = section.Get_int("min_block_size");
-        }
+    final public static Section.SectionFunction Compiler_Init = newconfig -> {
+        Section_prop section=(Section_prop)newconfig;
+        DecodeBlock.compileThreshold = section.Get_int("threshold");
+        min_block_size = section.Get_int("min_block_size");
     };
 }

@@ -7,18 +7,18 @@ public class DMA {
     static public final int DMA_DIRECTION_TO_DEVICE = 0;
     static public final int DMA_DIRECTION_FROM_DEVICE = 1;
 
-    static public interface DMATranslateFunc {
-        public int call(DMAContext dma, int addr, IntRef paddr, IntRef len, int dir);
+    public interface DMATranslateFunc {
+        int call(DMAContext dma, int addr, IntRef paddr, IntRef len, int dir);
     }
-    static public interface DMAMapFunc {
-        public int call(DMAContext dma, int addr, IntRef len, int dir);
+    public interface DMAMapFunc {
+        int call(DMAContext dma, int addr, IntRef len, int dir);
     }
-    static public interface DMAUnmapFunc {
-        public void call(DMAContext dma, int buffer, int len, int dir, int access_len);
+    public interface DMAUnmapFunc {
+        void call(DMAContext dma, int buffer, int len, int dir, int access_len);
     }
 
-    static public interface DMAIOFunc {
-        public Block.BlockDriverAIOCB call(Block.BlockDriverState bs, long sector_num, QemuCommon.QEMUIOVector iov, int nb_sectors, Block.BlockDriverCompletionFunc cb, Object opaque);
+    public interface DMAIOFunc {
+        Block.BlockDriverAIOCB call(Block.BlockDriverState bs, long sector_num, QemuCommon.QEMUIOVector iov, int nb_sectors, Block.BlockDriverCompletionFunc cb, Object opaque);
     }
 
     public static class DMAContext {
@@ -59,16 +59,16 @@ public class DMA {
         // DMA_run();
     }
 
-    public static int DMA_read_memory (int nchan, byte[] buf, int bufOffset, int pos, int len)
+    public static void DMA_read_memory (int nchan, byte[] buf, int bufOffset, int pos, int len)
     {
         jdos.hardware.DMA.DmaChannel channel = jdos.hardware.DMA.GetDMAChannel(nchan);
-        return channel.Read(len, buf, bufOffset);
+        channel.Read(len, buf, bufOffset);
     }
 
-    public static int DMA_write_memory (int nchan, byte[] buf, int bufOffset, int pos, int len)
+    public static void DMA_write_memory (int nchan, byte[] buf, int bufOffset, int pos, int len)
     {
         jdos.hardware.DMA.DmaChannel channel = jdos.hardware.DMA.GetDMAChannel(nchan);
-        return channel.Write(len, buf, bufOffset);
+        channel.Write(len, buf, bufOffset);
     }
 
     /* request the emulator to transfer a new DMA memory block ASAP */

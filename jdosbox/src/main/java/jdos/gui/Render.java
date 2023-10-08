@@ -29,16 +29,16 @@ public class Render {
             public /*Bit8u*/short blue;
             public /*Bit8u*/short unused;
         }
-        RGB[] rgb = new RGB[256];
+        final RGB[] rgb = new RGB[256];
 
         //union {
         public static class LUT {
-            public /*Bit16u*/short[] b16=new short[256];
-            public /*Bit32u*/int[] b32=new int[256];
+            public final /*Bit16u*/short[] b16=new short[256];
+            public final /*Bit32u*/int[] b32=new int[256];
         }
-        public LUT lut = new LUT();
+        public final LUT lut = new LUT();
         public boolean changed;
-        public /*Bit8u*/Ptr modified = new Ptr(256);
+        public final /*Bit8u*/Ptr modified = new Ptr(256);
         /*Bitu*/int first;
         /*Bitu*/int last;
     }
@@ -57,16 +57,16 @@ public class Render {
             public /*Bit8u*/byte[] outWrite8;
             public int outWriteOff;
         }
-        public SRC src = new SRC();
+        public final SRC src = new SRC();
         public static class Frameskip {
             public /*Bitu*/int count;
             public /*Bitu*/int max;
             public /*Bitu*/int index;
             public boolean auto;
-            public /*Bit8u*/boolean[] hadSkip = new boolean[RENDER_SKIP_CACHE];
+            public final /*Bit8u*/boolean[] hadSkip = new boolean[RENDER_SKIP_CACHE];
         }
-        public Frameskip frameskip = new Frameskip();
-        public RenderPal_t pal=new RenderPal_t();
+        public final Frameskip frameskip = new Frameskip();
+        public final RenderPal_t pal=new RenderPal_t();
         public boolean updating;
         public boolean active;
         public boolean aspect;
@@ -134,12 +134,12 @@ public class Render {
 
     public static boolean RENDER_StartUpdate() {
         if (render.updating)
-            return false;
+            return true;
         if (!render.active)
-            return false;
+            return true;
         if (render.frameskip.count<render.frameskip.max) {
             render.frameskip.count++;
-            return false;
+            return true;
         }
         render.frameskip.count=0;
         if (render.src.bpp == 8) {
@@ -152,7 +152,7 @@ public class Render {
         /* Clearing the cache will first process the line to make sure it's never the same */
         render.fullFrame = true;
         render.updating = true;
-        return true;
+        return false;
     }
 
     static private void RENDER_Halt() {
@@ -169,12 +169,12 @@ public class Render {
             flags = 0;
             if (render.src.dblw != render.src.dblh) {
                 if (render.src.dblw) flags|=Hardware.CAPTURE_FLAG_DBLW;
-                if (render.src.dblh) flags|=Hardware.CAPTURE_FLAG_DBLH;
+                if (render.src.dblh) {
+                }
             }
             float fps = render.src.fps;
-            pitch = render.src.outPitch;
-            if (render.frameskip.max!=0)
-                fps /= 1+render.frameskip.max;
+            if (render.frameskip.max!=0) {
+            }
             //Hardware.CAPTURE_AddImage( render.src.width, render.src.height, render.src.bpp, pitch, flags, fps, render.src.outWrite, render.pal.rgb );
         }
         if ( render.src.outWrite32 != null || render.src.outWrite16 != null || render.src.outWrite8 != null) {
@@ -220,17 +220,15 @@ public class Render {
         render.active=true;
     }
 
-    static private Main.GFX_CallBack_t RENDER_CallBack = new Main.GFX_CallBack_t() {
-        public void call(int function) {
-            if (function == Main.GFX_CallBackFunctions_t.GFX_CallBackStop) {
-                RENDER_Halt( );
-            } else if (function == Main.GFX_CallBackFunctions_t.GFX_CallBackRedraw) {
-            } else if ( function == Main.GFX_CallBackFunctions_t.GFX_CallBackReset) {
-                Main.GFX_EndUpdate();
-                RENDER_Reset();
-            } else {
-                Log.exit("Unhandled GFX_CallBackReset "+function );
-            }
+    static private final Main.GFX_CallBack_t RENDER_CallBack = function -> {
+        if (function == Main.GFX_CallBackFunctions_t.GFX_CallBackStop) {
+            RENDER_Halt( );
+        } else if (function == Main.GFX_CallBackFunctions_t.GFX_CallBackRedraw) {
+        } else if ( function == Main.GFX_CallBackFunctions_t.GFX_CallBackReset) {
+            Main.GFX_EndUpdate();
+            RENDER_Reset();
+        } else {
+            Log.exit("Unhandled GFX_CallBackReset "+function );
         }
     };
 
@@ -255,22 +253,22 @@ public class Render {
         RENDER_Reset( );
     }
 
-    private static Mapper.MAPPER_Handler IncreaseFrameSkip = new Mapper.MAPPER_Handler() {
+    private static final Mapper.MAPPER_Handler IncreaseFrameSkip = new Mapper.MAPPER_Handler() {
         public void call(boolean pressed) {
             if (!pressed)
                 return;
             if (render.frameskip.max<10) render.frameskip.max++;
-            Log.log_msg("Frame Skip at "+render.frameskip.max);
+            System.out.println("Frame Skip at "+render.frameskip.max);
             Main.GFX_SetTitle(-1,render.frameskip.max,false);
         }
     };
 
-    private static Mapper.MAPPER_Handler DecreaseFrameSkip = new Mapper.MAPPER_Handler() {
+    private static final Mapper.MAPPER_Handler DecreaseFrameSkip = new Mapper.MAPPER_Handler() {
         public void call(boolean pressed) {
             if (!pressed)
                 return;
             if (render.frameskip.max>0) render.frameskip.max--;
-            Log.log_msg("Frame Skip at "+render.frameskip.max);
+            System.out.println("Frame Skip at "+render.frameskip.max);
             Main.GFX_SetTitle(-1,render.frameskip.max,false);
         }
     };
@@ -288,7 +286,7 @@ public class Render {
         RENDER_CallBack( GFX_CallBackReset );
     } */
 
-    public static Section.SectionFunction RENDER_ShutDown = new Section.SectionFunction() {
+    public static final Section.SectionFunction RENDER_ShutDown = new Section.SectionFunction() {
         public void call(Section sec) {
             render = null;
             running = false;
@@ -296,7 +294,7 @@ public class Render {
     };
 
     static boolean running = false;
-    public static Section.SectionFunction RENDER_Init = new Section.SectionFunction() {
+    public static final Section.SectionFunction RENDER_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             Section_prop section=(Section_prop)sec;
             render = new Render_t();

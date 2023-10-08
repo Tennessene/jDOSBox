@@ -22,7 +22,7 @@ public class WAVEFORMATEX extends WinAPI {
         nAvgBytesPerSec = Memory.mem_readd(address); address+=4;
         nBlockAlign = Memory.mem_readw(address); address+=2;
         wBitsPerSample = Memory.mem_readw(address); address+=2;
-        cbSize = Memory.mem_readw(address); address+=2;
+        cbSize = Memory.mem_readw(address);
     }
     public void write(int address) {
         writew(address, wFormatTag);address+=2;
@@ -31,13 +31,13 @@ public class WAVEFORMATEX extends WinAPI {
         writed(address, nAvgBytesPerSec);address+=4;
         writew(address, nBlockAlign);address+=2;
         writew(address, wBitsPerSample);address+=2;
-        writew(address, cbSize);address+=2;
+        writew(address, cbSize);
     }
-    public int  wFormatTag;
-    public int  nChannels;
+    public final int  wFormatTag;
+    public final int  nChannels;
     public int nSamplesPerSec;
-    public int nAvgBytesPerSec;
-    public int  nBlockAlign;
-    public int  wBitsPerSample;
-    public int  cbSize;
+    public final int nAvgBytesPerSec;
+    public final int  nBlockAlign;
+    public final int  wBitsPerSample;
+    public final int  cbSize;
 }

@@ -24,19 +24,19 @@ public class DDPixelFormat {
     static public final int DDPF_BUMPDUDV =         0x00080000; // Bump map dUdV data in the pixel format is valid.
 
     public static final int SIZE = 0x20;
-    public int dwSize;                  /* 0: size of structure */
-    public int dwFlags;                 /* 4: pixel format flags */
-    public int dwFourCC;                /* 8: (FOURCC code) */
+    public final int dwSize;                  /* 0: size of structure */
+    public final int dwFlags;                 /* 4: pixel format flags */
+    public final int dwFourCC;                /* 8: (FOURCC code) */
     // union
-    public int dwRGBBitCount;           /* C: how many bits per pixel or dwYUVBitCount or dwZBufferBitDepth or dwAlphaBitDepth or dwLuminanceBitCount or dwBumpBitCount*/
+    public final int dwRGBBitCount;           /* C: how many bits per pixel or dwYUVBitCount or dwZBufferBitDepth or dwAlphaBitDepth or dwLuminanceBitCount or dwBumpBitCount*/
     // union
-    public int dwRBitMask;              /* 10: mask for red bit or or dwYBitMask or dwStencilBitDepth or dwLuminanceBitMask or dwBumpDuBitMask */
+    public final int dwRBitMask;              /* 10: mask for red bit or or dwYBitMask or dwStencilBitDepth or dwLuminanceBitMask or dwBumpDuBitMask */
     // union
-	public int dwGBitMask;              /* 14: mask for green bits or dwUBitMask or dwZBitMask or dwBumpDvBitMask */
+	public final int dwGBitMask;              /* 14: mask for green bits or dwUBitMask or dwZBitMask or dwBumpDvBitMask */
     // union
-    public int dwBBitMask;              /* 18: mask for blue bits or dwVBitMask or dwStencilBitMask or dwBumpLuminanceBitMask*/
+    public final int dwBBitMask;              /* 18: mask for blue bits or dwVBitMask or dwStencilBitMask or dwBumpLuminanceBitMask*/
     // union
-    public int dwRGBAlphaBitMask;	    /* 1C: mask for alpha channel or dwYUVAlphaBitMask or dwLuminanceAlphaBitMask or dwRGBZBitMask or dwYUVZBitMask*/
+    public final int dwRGBAlphaBitMask;	    /* 1C: mask for alpha channel or dwYUVAlphaBitMask or dwLuminanceAlphaBitMask or dwRGBZBitMask or dwYUVZBitMask*/
 
     public DDPixelFormat(int address) {
         dwSize = Memory.mem_readd(address);

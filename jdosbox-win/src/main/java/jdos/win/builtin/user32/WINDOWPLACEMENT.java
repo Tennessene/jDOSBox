@@ -18,10 +18,10 @@ public class WINDOWPLACEMENT extends WinAPI {
         rcNormalPosition.write(address);
     }
 
-    int  length = SIZE;
+    final int  length = SIZE;
     int  flags;
     int  showCmd;
     WinPoint ptMinPosition = new WinPoint();
-    WinPoint ptMaxPosition = new WinPoint();
-    WinRect rcNormalPosition = new WinRect();
+    final WinPoint ptMaxPosition = new WinPoint();
+    final WinRect rcNormalPosition = new WinRect();
 }

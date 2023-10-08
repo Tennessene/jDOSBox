@@ -12,11 +12,11 @@ public class IoHandler {
     public static final int IO_MD = 0x4;
     public static final int IO_MA = (IO_MB | IO_MW | IO_MD );
 
-    public static interface IO_ReadHandler {
-        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen);
+    public interface IO_ReadHandler {
+        /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen);
     }
-    public static interface IO_WriteHandler {
-        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen);
+    public interface IO_WriteHandler {
+        void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen);
     }
 
     /* Classes to manage the IO objects created by the various devices.
@@ -72,56 +72,50 @@ public class IoHandler {
         return (/*Bit8u*/short) (IO.IO_ReadB(port) & 0xFF);
     }
 
-    static public IO_WriteHandler[][] io_writehandlers = new IO_WriteHandler[3][IO_MAX];
-    static public IO_ReadHandler[][] io_readhandlers = new IO_ReadHandler[3][IO_MAX];
+    static public final IO_WriteHandler[][] io_writehandlers = new IO_WriteHandler[3][IO_MAX];
+    static public final IO_ReadHandler[][] io_readhandlers = new IO_ReadHandler[3][IO_MAX];
 
-    static private IO_ReadHandler IO_ReadBlocked = new IO_ReadHandler() {
-        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
-            return ~0;
-        }
+    /*Bitu*//*Bitu*//*Bitu*/
+    static private final IO_ReadHandler IO_ReadBlocked = (port, iolen) -> ~0;
+
+    /*Bitu*//*Bitu*//*Bitu*/
+    static private final IO_WriteHandler IO_WriteBlocked = (port, val, iolen) -> {
     };
 
-    static private IO_WriteHandler IO_WriteBlocked =new IO_WriteHandler() {
-        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+    /*Bitu*//*Bitu*//*Bitu*/
+    static private final IO_ReadHandler IO_ReadDefault = (port, iolen) -> {
+        switch (iolen) {
+        case 1:
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_IO, LogSeverities.LOG_WARN, "Read from port "+Integer.toString(port,16));
+            io_readhandlers[0][port]=IO_ReadBlocked;
+            return 0xff;
+        case 2:
+            return
+                (io_readhandlers[0][port].call(port,1)) |
+                (io_readhandlers[0][port+1].call(port+1,1) << 8);
+        case 4:
+            return
+                (io_readhandlers[1][port].call(port,2)) |
+                (io_readhandlers[1][port+2].call(port+2,2) << 16);
         }
+        return 0;
     };
 
-    static private IO_ReadHandler IO_ReadDefault = new IO_ReadHandler() {
-        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
-            switch (iolen) {
-            case 1:
-                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_IO, LogSeverities.LOG_WARN, "Read from port "+Integer.toString(port,16));
-                io_readhandlers[0][port]=IO_ReadBlocked;
-                return 0xff;
-            case 2:
-                return
-                    (io_readhandlers[0][port].call(port,1)) |
-                    (io_readhandlers[0][port+1].call(port+1,1) << 8);
-            case 4:
-                return
-                    (io_readhandlers[1][port].call(port,2)) |
-                    (io_readhandlers[1][port+2].call(port+2,2) << 16);
-            }
-            return 0;
-        }
-    };
-
-    static private IO_WriteHandler IO_WriteDefault =new IO_WriteHandler() {
-        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
-            switch (iolen) {
-            case 1:
-                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_IO,LogSeverities.LOG_WARN,"Writing "+Integer.toString(val, 16)+" to port "+Integer.toString(port,16));
-                io_writehandlers[0][port]=IO_WriteBlocked;
-                break;
-            case 2:
-                io_writehandlers[0][port].call(port,(val) & 0xff,1);
-                io_writehandlers[0][port+1].call(port+1,(val >> 8) & 0xff,1);
-                break;
-            case 4:
-                io_writehandlers[1][port].call(port,(val) & 0xffff,2);
-                io_writehandlers[1][port+2].call(port+2,(val >> 16) & 0xffff,2);
-                break;
-            }
+    /*Bitu*//*Bitu*//*Bitu*/
+    static private final IO_WriteHandler IO_WriteDefault = (port, val, iolen) -> {
+        switch (iolen) {
+        case 1:
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_IO,LogSeverities.LOG_WARN,"Writing "+Integer.toString(val, 16)+" to port "+Integer.toString(port,16));
+            io_writehandlers[0][port]=IO_WriteBlocked;
+            break;
+        case 2:
+            io_writehandlers[0][port].call(port,(val) & 0xff,1);
+            io_writehandlers[0][port+1].call(port+1,(val >> 8) & 0xff,1);
+            break;
+        case 4:
+            io_writehandlers[1][port].call(port,(val) & 0xffff,2);
+            io_writehandlers[1][port+2].call(port+2,(val >> 16) & 0xffff,2);
+            break;
         }
     };
 

@@ -13,19 +13,19 @@ public class FileHelper {
         return path;
     }
     
-    public static boolean deleteFile(File path) {
+    public static void deleteFile(File path) {
         if( path.exists() ) {
             if (path.isDirectory()) {
                 File[] files = path.listFiles();
-                for(int i=0; i<files.length; i++) {
-                    if(files[i].isDirectory()) {
-                        deleteFile(files[i]);
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteFile(file);
                     } else {
-                        files[i].delete();
+                        file.delete();
                     }
                 }
             }
         }
-        return(path.delete());
+        path.delete();
     }
 }

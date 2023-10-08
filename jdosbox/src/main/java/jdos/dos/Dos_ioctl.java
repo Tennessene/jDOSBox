@@ -1,6 +1,5 @@
 package jdos.dos;
 
-import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.hardware.Memory;
 import jdos.misc.Log;
@@ -68,7 +67,7 @@ public class Dos_ioctl {
         case 0x02:		/* Read from Device Control Channel */
             if ((Dos_files.Files[handle].GetInformation() & 0xc000)!=0) {
                 /* is character device with IOCTL support */
-                /*PhysPt*/int bufptr= Memory.PhysMake((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word());
+                /*PhysPt*/int bufptr= Memory.PhysMake(CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word());
                 /*Bit16u*/IntRef retcode=new IntRef(0);
                 if (((DOS_Device)(Dos_files.Files[handle])).ReadFromControlChannel(bufptr,CPU_Regs.reg_ecx.word(),retcode)) {
                     CPU_Regs.reg_eax.word(retcode.value);
@@ -80,7 +79,7 @@ public class Dos_ioctl {
         case 0x03:		/* Write to Device Control Channel */
             if ((Dos_files.Files[handle].GetInformation() & 0xc000)!=0) {
                 /* is character device with IOCTL support */
-                /*PhysPt*/int bufptr=Memory.PhysMake((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word());
+                /*PhysPt*/int bufptr=Memory.PhysMake(CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_edx.word());
                 /*Bit16u*/IntRef retcode=new IntRef(0);
                 if (((DOS_Device)(Dos_files.Files[handle])).WriteToControlChannel(bufptr,CPU_Regs.reg_ecx.word(),retcode)) {
                     CPU_Regs.reg_eax.word(retcode.value);
@@ -180,7 +179,7 @@ public class Dos_ioctl {
                         byte[] buf2={ 'F','A','T','1','6',' ',' ',' '};
                         if(drive<2) buf2[4] = '2'; //FAT12 for floppies
 
-                        Memory.mem_writew(ptr+0,0);			// 0
+                        Memory.mem_writew(ptr,0);			// 0
                         Memory.mem_writed(ptr+2,0x1234);		//Serial number
                         Memory.MEM_BlockWrite(ptr+6,new String(buffer),11);//volumename
                         if(CPU_Regs.reg_ecx.low() == 0x66) Memory.MEM_BlockWrite(ptr+0x11, new String(buf2),8);//filesystem
@@ -215,7 +214,6 @@ public class Dos_ioctl {
     static public boolean DOS_GetSTDINStatus() {
         /*Bit32u*/int handle=Dos.RealHandle(Dos_files.STDIN);
         if (handle==0xFF) return false;
-        if (Dos_files.Files[handle]!=null && (Dos_files.Files[handle].GetInformation() & 64)!=0) return false;
-        return true;
+        return Dos_files.Files[handle] == null || (Dos_files.Files[handle].GetInformation() & 64) == 0;
     }
 }

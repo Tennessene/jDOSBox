@@ -62,7 +62,7 @@ public class DefWnd extends WinAPI {
 
     /***********************************************************************
      *           DEFWND_DefWinProc
-     *
+     * <p>
      * Default window procedure for messages that are the same in Ansi and Unicode.
      */
     private static int DEFWND_DefWinProc(int hwnd, int msg, int wParam, int lParam ) {
@@ -261,7 +261,6 @@ public class DefWnd extends WinAPI {
                 WinWindow window = WinWindow.get(hwnd);
                 if (window == null)
                     return 0;
-                int hdc = wParam;
                 int hbr = WinClass.GetClassLongA(hwnd, GCLP_HBRBACKGROUND);
                 if (hbr==0) return 0;
                 int rect = getTempBuffer(WinRect.SIZE);
@@ -269,9 +268,9 @@ public class DefWnd extends WinAPI {
                     /* can't use GetClipBox with a parent DC or we fill the whole parent */
                     window.rectClient.write(rect);
                 } else {
-                    WinDC.GetClipBox(hdc, rect);
+                    WinDC.GetClipBox(wParam, rect);
                 }
-                WinDC.FillRect(hdc, rect, hbr);
+                WinDC.FillRect(wParam, rect, hbr);
                 return 1;
             }
 

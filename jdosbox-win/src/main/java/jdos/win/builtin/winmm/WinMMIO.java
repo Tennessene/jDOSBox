@@ -9,7 +9,7 @@ public class WinMMIO extends WinObject {
 
     static public WinMMIO get(int handle) {
         WinObject object = getObject(handle);
-        if (object == null || !(object instanceof WinMMIO))
+        if (!(object instanceof WinMMIO))
             return null;
         return (WinMMIO)object;
     }
@@ -22,7 +22,7 @@ public class WinMMIO extends WinObject {
         super.onFree();
     }
 
-    public MMIOINFO info = new MMIOINFO();
+    public final MMIOINFO info = new MMIOINFO();
     public boolean bTmpIOProc;
     public Mmio.IOProc ioProc;
     public boolean bBufferLoaded;

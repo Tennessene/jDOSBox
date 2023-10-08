@@ -5,7 +5,6 @@ import jdos.misc.Log;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 import jdos.util.StringRef;
-import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.*;
 import jdos.win.builtin.Msacm32.Msacm32;
@@ -34,7 +33,7 @@ import java.util.Vector;
 
 public class Loader {
     long nextFunctionAddress = WinProcess.ADDRESS_CALLBACK_START;
-    long maxFunctionAddress = WinProcess.ADDRESS_CALLBACK_END;
+    final long maxFunctionAddress = WinProcess.ADDRESS_CALLBACK_END;
 
     public int registerFunction(int cb) {
         if (nextFunctionAddress >= maxFunctionAddress) {
@@ -46,14 +45,14 @@ public class Loader {
         return (int) result;
     }
 
-    private Hashtable modulesByName = new Hashtable();
-    private Hashtable modulesByHandle = new Hashtable();
-    private Vector paths;
+    private final Hashtable modulesByName = new Hashtable();
+    private final Hashtable modulesByHandle = new Hashtable();
+    private final Vector paths;
     public NativeModule main = null;
-    private int page_directory;
-    private KernelHeap callbackHeap;
+    private final int page_directory;
+    private final KernelHeap callbackHeap;
     private int nextModuleHandle = 1;
-    private WinProcess process;
+    private final WinProcess process;
 
     public Loader(WinProcess process, KernelMemory memory, int page_directory, Vector paths) {
         this.paths = paths;
@@ -111,7 +110,7 @@ public class Loader {
                     }
                     // :TODO: reloc dll
                     modulesByName.put(name.toLowerCase(), module);
-                    modulesByHandle.put(new Integer(module.getHandle()), module);
+                    modulesByHandle.put(module.getHandle(), module);
                     if (resolveImports(module)) {
                         if (main != module) {
                             module.callDllMain(Module.DLL_PROCESS_ATTACH);
@@ -119,7 +118,7 @@ public class Loader {
                         return module;
                     }
                     modulesByName.remove(name);
-                    modulesByHandle.remove(new Integer(module.getHandle()));
+                    modulesByHandle.remove(module.getHandle());
                 }
             }
         } catch (Exception e) {
@@ -175,7 +174,7 @@ public class Loader {
         }
         if (module != null) {
             modulesByName.put(name.toLowerCase(), module);
-            modulesByHandle.put(new Integer(module.getHandle()), module);
+            modulesByHandle.put(module.getHandle(), module);
         }
         return module;
     }
@@ -185,7 +184,7 @@ public class Loader {
     }
 
     public Module getModuleByHandle(int handle) {
-        return (Module) modulesByHandle.get(new Integer(handle));
+        return (Module) modulesByHandle.get(handle);
     }
 
     private Module internalLoadModule(String name) {
@@ -201,14 +200,13 @@ public class Loader {
         String path = null;
         int pos = name.lastIndexOf("\\");
         if (pos>=0) {
-            path = name.substring(0, pos+1);
             name = name.substring(pos+1);
         }
         // :TODO: currently we only support modules in the path
         return internalLoadModule(name);
     }
 
-    private boolean resolveImports(Module module) throws IOException {
+    private boolean resolveImports(Module module) {
         LongRef address = new LongRef(0);
         LongRef size = new LongRef(0);
         if (module.RtlImageDirectoryEntryToData(HeaderImageOptional.IMAGE_DIRECTORY_ENTRY_IMPORT, address, size)) {
@@ -223,7 +221,7 @@ public class Loader {
         return true;
     }
 
-    private boolean importDll(Module module, HeaderImageImportDescriptor importDescriptor) throws IOException {
+    private boolean importDll(Module module, HeaderImageImportDescriptor importDescriptor) {
         String name = module.getVirtualString(importDescriptor.Name);
         System.out.println("ImportDll: " + name);
         Module import_module = loadModule(name);
@@ -234,16 +232,16 @@ public class Loader {
         LongRef exportAddress = new LongRef(0);
         LongRef exportSize = new LongRef(0);
         if (!import_module.RtlImageDirectoryEntryToData(HeaderImageOptional.IMAGE_DIRECTORY_ENTRY_EXPORT, exportAddress, exportSize)) {
-            Console.out(name + ": could not find exports.\n\n");
+            System.out.println(name + ": could not find exports.\n\n");
             return false;
         }
         long[] import_list = module.getImportList(importDescriptor);
         for (int i = 0; i < import_list.length; i++) {
-            if ((import_list[i] & 0x80000000l) != 0) {
+            if ((import_list[i] & 0x80000000L) != 0) {
                 int ordinal = (int) import_list[i] & 0xFFFF;
                 long thunk = import_module.findOrdinalExport(exportAddress.value, exportSize.value, ordinal);
                 if (thunk == 0) {
-                    Console.out("Could not find ordinal function " + ordinal + " in " + name + "\n");
+                    System.out.println("Could not find ordinal function " + ordinal + " in " + name + "\n");
                     return false;
                 } else {
                     module.writeThunk(importDescriptor, i, thunk);
@@ -254,7 +252,7 @@ public class Loader {
                 module.getImportFunctionName(import_list[i], functionName, hint);
                 long thunk = import_module.findNameExport(exportAddress.value, exportSize.value, functionName.value, hint.value);
                 if (thunk == 0) {
-                    Console.out("Could not find " + functionName.value + " in " + name + "\n");
+                    System.out.println("Could not find " + functionName.value + " in " + name + "\n");
                     return false;
                 } else {
                     module.writeThunk(importDescriptor, i, thunk);

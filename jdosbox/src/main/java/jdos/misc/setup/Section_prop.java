@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.util.Vector;
 
 public class Section_prop extends Section {
-    private Vector properties = new Vector();
+    private final Vector properties = new Vector();
     public Section_prop(String _sectionname) {
         super(_sectionname);
     }

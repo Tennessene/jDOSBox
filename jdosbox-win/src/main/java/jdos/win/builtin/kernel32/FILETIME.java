@@ -5,9 +5,9 @@ import jdos.win.builtin.WinAPI;
 public class FILETIME extends WinAPI {
     public FILETIME(int address) {
         dwLowDateTime = readd(address);address+=4;
-        dwHighDateTime = readd(address);address+=4;
+        dwHighDateTime = readd(address);
     }
 
-    public int dwLowDateTime;
-    public int dwHighDateTime;
+    public final int dwLowDateTime;
+    public final int dwHighDateTime;
 }

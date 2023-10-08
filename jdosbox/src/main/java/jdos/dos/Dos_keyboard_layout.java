@@ -1004,7 +1004,7 @@ public class Dos_keyboard_layout {
 //    }
 //
 //
-    static private keyboard_layout loaded_layout=null;
+    static private final keyboard_layout loaded_layout=null;
 //
 //// CTRL-ALT-F2 switches between foreign and US-layout using this function
 ///* static void switch_keyboard_layout(bool pressed) {

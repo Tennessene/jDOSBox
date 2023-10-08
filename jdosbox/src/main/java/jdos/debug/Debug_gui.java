@@ -4,21 +4,24 @@ import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
 import jdos.types.LogTypes;
 
-import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Debug_gui {
     static class _LogGroup {
         String front;
         boolean enabled;
     }
-    static _LogGroup[] loggrp = new _LogGroup[LogTypes.LOG_MAX];
+    static final _LogGroup[] loggrp = new _LogGroup[LogTypes.LOG_MAX];
     static OutputStream debuglog;
 
-    static Section.SectionFunction LOG_Destroy = new Section.SectionFunction() {
+    static final Section.SectionFunction LOG_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             if (debuglog != null) {
-                try {debuglog.close();} catch (Exception e){}
+                try {debuglog.close();} catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     };
@@ -26,9 +29,9 @@ public class Debug_gui {
         public void call(Section section) {
             Section_prop sect=(Section_prop)section;
             String blah = sect.Get_string("logfile");
-            if(blah != null && blah.length()!=0){
+            if(blah != null && !blah.isEmpty()){
                 try {
-                    debuglog = new FileOutputStream(blah);
+                    debuglog = Files.newOutputStream(Paths.get(blah));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

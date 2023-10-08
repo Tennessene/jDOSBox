@@ -12,15 +12,16 @@ import jdos.util.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
-	private static interface TrackFile {
-		public boolean read(/*Bit8u*/byte[] buffer, int offset, long seek, int count);
-		public long getLength();
-        public void close();
+	private interface TrackFile {
+		boolean read(/*Bit8u*/byte[] buffer, int offset, long seek, int count);
+		long getLength();
+        void close();
 	}
 
 	static private class BinaryFile implements TrackFile {
@@ -49,13 +50,15 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
             }
         }
         public void close() {
-            try {file.close();} catch (Exception e){}
+            try {file.close();} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 		private FileIO file;
 	}
 
     static private class AudioFile implements TrackFile {
-        Decoder decoder;
+        final Decoder decoder;
         Bitstream in;
         Header currFrame;
         int frameCount=-1;
@@ -67,7 +70,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         public AudioFile(String filename, BooleanRef error) {
             decoder = new Decoder();
             try {
-                in = new Bitstream(new FileInputStream(filename));
+                in = new Bitstream(Files.newInputStream(Paths.get(filename)));
                 this. filename = filename;
                 error.value = false;
             } catch (Exception e) {
@@ -77,7 +80,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 
         private void reopen() {
             try {
-                in = new Bitstream(new FileInputStream(filename));
+                in = new Bitstream(Files.newInputStream(Paths.get(filename)));
                 frameCount = -1;
                 currFrame = null;
             } catch (Exception e) {
@@ -150,7 +153,9 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         }
 
         public void close() {
-            try {in.close();} catch (Exception e) {}
+            try {in.close();} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 //    // :TODO: research this class, probably SDL
@@ -237,20 +242,20 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 		CDROM_Interface_Image cd;
 		Mixer.MixerChannel channel;
 		final Object mutex = new Object();
-		/*Bit8u*/byte[] buffer = new byte[8192];
+		/*Bit8u*/final byte[] buffer = new byte[8192];
 		int     bufLen;
 		int     currFrame;
 		int     targetFrame;
 		boolean    isPlaying;
 		boolean    isPaused;
         boolean    ctrlUsed;
-		Dos_cdrom.TCtrl ctrlData = new Dos_cdrom.TCtrl();
+		final Dos_cdrom.TCtrl ctrlData = new Dos_cdrom.TCtrl();
 	}
-    private static imagePlayer player = new imagePlayer();
+    private static final imagePlayer player = new imagePlayer();
     private static int refCount;
-    public static CDROM_Interface_Image[] images = new CDROM_Interface_Image[26];
+    public static final CDROM_Interface_Image[] images = new CDROM_Interface_Image[26];
 
-    private Vector tracks = new Vector();
+    private final Vector tracks = new Vector();
 	private String mcn;
 	private /*Bit8u*/short	subUnit;
 
@@ -277,13 +282,13 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
 
     }
 	public boolean SetDevice(String path, int forceCD) {
-        if (LoadCueSheet(path)) return true;
-        if (LoadIsoFile(path)) return true;
+        if (LoadCueSheet(path)) return false;
+        if (LoadIsoFile(path)) return false;
 
         byte[] b = new String("Could not load image file: " + path + "\n").getBytes();
         IntRef size = new IntRef(b.length);
         Dos_files.DOS_WriteFile(Dos_files.STDOUT, b, size);
-        return false;
+        return true;
     }
 
 	public boolean GetUPC(ShortRef attr, StringRef upc) {
@@ -306,7 +311,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
     }
 
 	public boolean GetAudioTrackInfo(int track, Dos_cdrom.TMSF start, ShortRef attr) {
-        if (track < 1 || track > (int)tracks.size()) return false;
+        if (track < 1 || track > tracks.size()) return false;
 
         int value = ((Track)tracks.elementAt(track - 1)).start + 150;
         start.fr = value%Dos_cdrom.CD_FPS;
@@ -425,49 +430,48 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         return false;
     }
 
-    private static Mixer.MIXER_Handler CDAudioCallBack = new Mixer.MIXER_Handler() {
-        public void call(/*Bitu*/int len) {
-            len *= 4;       // 16 bit, stereo
-            if (len==0) return;
-            if (!player.isPlaying || player.isPaused) {
-                player.channel.AddSilence();
-                return;
-            }
-
-            synchronized (player.mutex) {
-                while (player.bufLen < len) {
-                    boolean success;
-                    if (player.targetFrame > player.currFrame)
-                        success = player.cd.ReadSector(player.buffer, player.bufLen, true, player.currFrame);
-                    else success = false;
-
-                    if (success) {
-                        player.currFrame++;
-                        player.bufLen += Dos_cdrom.RAW_SECTOR_SIZE;
-                    } else {
-                        java.util.Arrays.fill(player.buffer, player.bufLen, player.bufLen, (byte)0);
-                        player.bufLen = len;
-                        player.isPlaying = false;
-                    }
-                }
-            }
-            int tIndex = 0;
-            int pIndex = 0;
-            for (int i=0;i<len/4;i++) {
-                if (player.ctrlUsed) {
-                    Mixer.MixTemp16[tIndex++] = (short)(((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8))*player.ctrlData.vol[0]/255);
-                    Mixer.MixTemp16[tIndex++] = (short)(((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8))*player.ctrlData.vol[0]/255);
-                } else {
-                    Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8));
-                    Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8));
-                }
-                pIndex+=4;
-            }
-            player.channel.AddSamples_s16(len/4,Mixer.MixTemp16);
-            for (int i=0;i<player.bufLen - len;i++)
-                player.buffer[i] = player.buffer[len+i];
-            player.bufLen -= len;
+    /*Bitu*/
+    private static final Mixer.MIXER_Handler CDAudioCallBack = len -> {
+        len *= 4;       // 16 bit, stereo
+        if (len==0) return;
+        if (!player.isPlaying || player.isPaused) {
+            player.channel.AddSilence();
+            return;
         }
+
+        synchronized (player.mutex) {
+            while (player.bufLen < len) {
+                boolean success;
+                if (player.targetFrame > player.currFrame)
+                    success = player.cd.ReadSector(player.buffer, player.bufLen, true, player.currFrame);
+                else success = false;
+
+                if (success) {
+                    player.currFrame++;
+                    player.bufLen += Dos_cdrom.RAW_SECTOR_SIZE;
+                } else {
+                    java.util.Arrays.fill(player.buffer, player.bufLen, player.bufLen, (byte)0);
+                    player.bufLen = len;
+                    player.isPlaying = false;
+                }
+            }
+        }
+        int tIndex = 0;
+        int pIndex = 0;
+        for (int i=0;i<len/4;i++) {
+            if (player.ctrlUsed) {
+                Mixer.MixTemp16[tIndex++] = (short)(((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8))*player.ctrlData.vol[0]/255);
+                Mixer.MixTemp16[tIndex++] = (short)(((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8))*player.ctrlData.vol[0]/255);
+            } else {
+                Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex] & 0xFF) | (player.buffer[pIndex+1] << 8));
+                Mixer.MixTemp16[tIndex++] = (short)((player.buffer[pIndex+2] & 0xFF) | (player.buffer[pIndex+3] << 8));
+            }
+            pIndex+=4;
+        }
+        player.channel.AddSamples_s16(len/4,Mixer.MixTemp16);
+        for (int i=0;i<player.bufLen - len;i++)
+            player.buffer[i] = player.buffer[len+i];
+        player.bufLen -= len;
     };
 
 	private int	GetTrack(int sector) {
@@ -562,82 +566,97 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
                 // get next line
                 String[] parts = StringHelper.splitWithQuotes(line.trim(), ' ');
 
-                if (parts[0].equals("TRACK")) {
-                    if (canAddTrack) success = AddTrack(track, shift, prestart, totalPregap, currPregap);
-                    else success = true;
+                switch (parts[0]) {
+                    case "TRACK":
+                        if (canAddTrack) success = AddTrack(track, shift, prestart, totalPregap, currPregap);
+                        else success = true;
 
-                    track.start = 0;
-                    track.skip = 0;
-                    currPregap = 0;
-                    prestart = 0;
+                        track.start = 0;
+                        track.skip = 0;
+                        currPregap = 0;
+                        prestart = 0;
 
-                    track.number = Integer.parseInt(parts[1]);
-                    if (parts[2].equals("AUDIO")) {
-                        track.sectorSize = Dos_cdrom.RAW_SECTOR_SIZE;
-                        track.attr = 0;
-                        track.mode2 = false;
-                    } else if (parts[2].equals("MODE1/2048")) {
-                        track.sectorSize = Dos_cdrom.COOKED_SECTOR_SIZE;
-                        track.attr = 0x40;
-                        track.mode2 = false;
-                    } else if (parts[2].equals("MODE1/2352")) {
-                        track.sectorSize = Dos_cdrom.RAW_SECTOR_SIZE;
-                        track.attr = 0x40;
-                        track.mode2 = false;
-                    } else if (parts[2].equals("MODE2/2336")) {
-                        track.sectorSize = 2336;
-                        track.attr = 0x40;
-                        track.mode2 = true;
-                    } else if (parts[2].equals("MODE2/2352")) {
-                        track.sectorSize = Dos_cdrom.RAW_SECTOR_SIZE;
-                        track.attr = 0x40;
-                        track.mode2 = true;
-                    } else success = false;
+                        track.number = Integer.parseInt(parts[1]);
+                        switch (parts[2]) {
+                            case "AUDIO":
+                                track.sectorSize = Dos_cdrom.RAW_SECTOR_SIZE;
+                                track.attr = 0;
+                                track.mode2 = false;
+                                break;
+                            case "MODE1/2048":
+                                track.sectorSize = Dos_cdrom.COOKED_SECTOR_SIZE;
+                                track.attr = 0x40;
+                                track.mode2 = false;
+                                break;
+                            case "MODE1/2352":
+                                track.sectorSize = Dos_cdrom.RAW_SECTOR_SIZE;
+                                track.attr = 0x40;
+                                track.mode2 = false;
+                                break;
+                            case "MODE2/2336":
+                                track.sectorSize = 2336;
+                                track.attr = 0x40;
+                                track.mode2 = true;
+                                break;
+                            case "MODE2/2352":
+                                track.sectorSize = Dos_cdrom.RAW_SECTOR_SIZE;
+                                track.attr = 0x40;
+                                track.mode2 = true;
+                                break;
+                            default:
+                                success = false;
+                                break;
+                        }
 
-                    canAddTrack = true;
+                        canAddTrack = true;
+                        break;
+                    case "INDEX":
+                        int index = Integer.parseInt(parts[1]);
+                        int frame = GetCueFrame(parts[2]);
+                        if (frame < 0)
+                            success = false;
+                        if (index == 1) track.start = frame;
+                        else if (index == 0) prestart = frame;
+                        // ignore other indices
+                        break;
+                    case "FILE":
+                        if (canAddTrack) success = AddTrack(track, shift, prestart, totalPregap, currPregap);
+                        else success = true;
+                        canAddTrack = false;
+                        StringRef filename = new StringRef(parts[1]);
+                        GetRealFileName(filename, new File(cuefile).getAbsoluteFile().getParent());
+
+                        track.file = null;
+                        BooleanRef error = new BooleanRef(true);
+                        if (parts[2].equals("BINARY")) {
+                            track.file = new BinaryFile(filename.value, error);
+                        }
+                        //The next if has been surpassed by the else, but leaving it in as not
+                        //to break existing cue sheets that depend on this.(mine with OGG tracks specifying MP3 as type)
+                        else if (/*parts[2].equals("WAVE") || parts[2].equals("AIFF") ||*/ parts[2].equals("MP3")) {
+                            track.file = new AudioFile(filename.value, error);
+                        }
+                        if (error.value) {
+                            if (track.file != null)
+                                track.file.close();
+                            success = false;
+                        }
+                        break;
+                    case "PREGAP":
+                        currPregap = GetCueFrame(parts[1]);
+                        success = currPregap >= 0;
+                        break;
+// failure
+                    case "CATALOG":
+                        mcn = parts[1];
+                        break;
+                    // ignored commands
+                    default:
+                        success = parts[0].equals("CDTEXTFILE") || parts[0].equals("FLAGS") || parts[0].equals("ISRC")
+                                || parts[0].equals("PERFORMER") || parts[0].equals("POSTGAP") || parts[0].equals("REM")
+                                || parts[0].equals("SONGWRITER") || parts[0].equals("TITLE") || parts[0].isEmpty();
+                        break;
                 }
-                else if (parts[0].equals("INDEX")) {
-                    int index = Integer.parseInt(parts[1]);
-                    int frame = GetCueFrame(parts[2]);
-                    if (frame<0)
-                        success = false;
-                    if (index == 1) track.start = frame;
-                    else if (index == 0) prestart = frame;
-                    // ignore other indices
-                }
-                else if (parts[0].equals("FILE")) {
-                    if (canAddTrack) success = AddTrack(track, shift, prestart, totalPregap, currPregap);
-                    else success = true;
-                    canAddTrack = false;
-                    StringRef filename = new StringRef(parts[1]);
-                    GetRealFileName(filename, new File(cuefile).getAbsoluteFile().getParent());
-
-                    track.file = null;
-                    BooleanRef error = new BooleanRef(true);
-                    if (parts[2].equals("BINARY")) {
-                        track.file = new BinaryFile(filename.value, error);
-                    }
-                    //The next if has been surpassed by the else, but leaving it in as not
-                    //to break existing cue sheets that depend on this.(mine with OGG tracks specifying MP3 as type)
-                     else if (/*parts[2].equals("WAVE") || parts[2].equals("AIFF") ||*/ parts[2].equals("MP3")) {
-                        track.file = new AudioFile(filename.value, error);
-                    }
-                    if (error.value) {
-                        if (track.file != null)
-                            track.file.close();
-                        success = false;
-                    }
-                }
-                else if (parts[0].equals("PREGAP")) {
-                    currPregap = GetCueFrame(parts[1]);
-                    success = currPregap>=0;
-                } else if (parts[0].equals("CATALOG")) mcn = parts[1];
-                // ignored commands
-                else if (parts[0].equals("CDTEXTFILE") || parts[0].equals("FLAGS") || parts[0].equals("ISRC")
-                    || parts[0].equals("PERFORMER") || parts[0].equals("POSTGAP") || parts[0].equals("REM")
-                    || parts[0].equals("SONGWRITER") || parts[0].equals("TITLE") || parts[0].equals("")) success = true;
-                // failure
-                else success = false;
 
                 if (!success)
                     return false;
@@ -655,33 +674,29 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         track.start = 0;
         track.length = 0;
         track.file = null;
-        if(!AddTrack(track, shift, 0, totalPregap, 0)) return false;
-
-        return true;
+        return AddTrack(track, shift, 0, totalPregap, 0);
     }
-	private boolean	GetRealFileName(StringRef filename, String pathname) {
-        if (new File(filename.value).exists()) return true;
+	private void GetRealFileName(StringRef filename, String pathname) {
+        if (new File(filename.value).exists()) return;
 
         // check if file with path relative to cue file exists
         String tmpstr = pathname + "/" + filename.value;
         if (new File(tmpstr).exists()) {
             filename.value = tmpstr;
-            return true;
+            return;
         }
         // finally check if file is in a dosbox local drive
         StringRef fullname = new StringRef();
         /*Bit8u*/ShortRef drive = new ShortRef(0);
-        if (!Dos_files.DOS_MakeName(filename.value, fullname, drive)) return false;
+        if (Dos_files.DOS_MakeName(filename.value, fullname, drive)) return;
 
         if (Dos_files.Drives[drive.value]!=null && Dos_files.Drives[drive.value] instanceof Drive_local) {
             Drive_local ldp = (Drive_local)Dos_files.Drives[drive.value];
             ldp.GetSystemFilename(fullname, filename.value);
             if (new File(fullname.value).exists()) {
                 filename.value = fullname.value;
-                return true;
             }
         }
-        return false;
     }
 
 	private int GetCueFrame(String part) {
@@ -709,7 +724,7 @@ public class CDROM_Interface_Image implements Dos_cdrom.CDROM_Interface {
         } else skip = 0;
 
         // first track (track number must be 1)
-        if (tracks.size()==0) {
+        if (tracks.isEmpty()) {
             if (curr.number != 1) return false;
             curr.skip = skip * curr.sectorSize;
             curr.start += currPregap;

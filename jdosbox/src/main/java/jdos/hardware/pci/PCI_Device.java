@@ -12,13 +12,14 @@ import jdos.util.IntRef;
 */
 public abstract class PCI_Device {
     protected /*Bits*/int pci_id, pci_subfunction;
-    private /*Bit16u*/int vendor_id, device_id;
-    protected PCI_BAR[] bars = new PCI_BAR[6];
+    private final /*Bit16u*/int vendor_id;
+    private final int device_id;
+    protected final PCI_BAR[] bars = new PCI_BAR[6];
 
     // subdevices declarations, they will respond to pci functions 1 to 7
     // (main device is attached to function 0)
     private /*Bitu*/int num_subdevices;
-    private PCI_Device[] subdevices = new PCI_Device[PCI.PCI_MAX_PCIFUNCTIONS-1];
+    private final PCI_Device[] subdevices = new PCI_Device[PCI.PCI_MAX_PCIFUNCTIONS-1];
 
     public PCI_Device(/*Bit16u*/int vendor, /*Bit16u*/int device) {
         pci_id=-1;
@@ -55,14 +56,12 @@ public abstract class PCI_Device {
     }
     }
 
-    public boolean AddSubdevice(PCI_Device dev) {
+    public void AddSubdevice(PCI_Device dev) {
         if (num_subdevices< PCI.PCI_MAX_PCIFUNCTIONS-1) {
             if (subdevices[num_subdevices]!=null) Log.exit("PCI subdevice slot already in use!");
             subdevices[num_subdevices]=dev;
             num_subdevices++;
-            return true;
         }
-        return false;
     }
 
     public void RemoveSubdevice(/*Bits*/int subfct) {
@@ -86,8 +85,7 @@ public abstract class PCI_Device {
     }
 
     public /*Bit16u*/int NumSubdevices() {
-        if (num_subdevices> PCI.PCI_MAX_PCIFUNCTIONS-1) return PCI.PCI_MAX_PCIFUNCTIONS-1;
-        return num_subdevices;
+        return Math.min(num_subdevices, PCI.PCI_MAX_PCIFUNCTIONS - 1);
     }
 
     public /*Bits*/int GetNextSubdeviceNumber() {

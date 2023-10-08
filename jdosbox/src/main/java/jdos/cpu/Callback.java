@@ -9,9 +9,9 @@ import jdos.types.LogTypes;
 
 public class Callback {
     static public int inHandler=0;
-    static public interface Handler {
-        public /*Bitu*/int call();
-        public String getName();
+    public interface Handler {
+        /*Bitu*/int call();
+        String getName();
     }
 
     static public final int CB_RETN=0;
@@ -46,7 +46,7 @@ public class Callback {
     static public final int CBRET_STOP=1;
 
     static public Handler[] CallBack_Handlers = new Handler[CB_MAX];
-    static public String[] CallBack_Description = new String[CB_MAX];
+    static public final String[] CallBack_Description = new String[CB_MAX];
     
     public static /*RealPt*/int CALLBACK_RealPointer(/*Bitu*/int callback) {
     	return Memory.RealMake(CB_SEG,(CB_SOFFSET+callback*CB_SIZE));
@@ -78,7 +78,7 @@ public class Callback {
         CallBack_Handlers[in]=illegal_handler;
     }
 
-    private static Handler illegal_handler = new Handler() {
+    private static final Handler illegal_handler = new Handler() {
         public /*Bitu*/int call() {
             Log.exit("Illegal CallBack Called");
             return 1;
@@ -109,16 +109,16 @@ public class Callback {
     private static final int SETUP = 1;
     private static final int SETUPAT = 2;
     private int m_type = NONE;
-    private class VectorHandler {
+    private static class VectorHandler {
         /*RealPt*/int old_vector;
         /*Bit8u*/ int interrupt;
         boolean installed = false;
     }
-    private VectorHandler vectorhandler = new VectorHandler();
+    private final VectorHandler vectorhandler = new VectorHandler();
     public Callback() {
     }
 
-    static private Handler default_handler = new Handler() {
+    static private final Handler default_handler = new Handler() {
         public /*Bitu*/int call() {
             if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_ERROR,"Illegal Unhandled Interrupt Called "+Integer.toString(CPU.lastint,16));
             return CBRET_NONE;
@@ -128,7 +128,7 @@ public class Callback {
         }
     };
 
-    static private Handler stop_handler = new Handler() {
+    static private final Handler stop_handler = new Handler() {
         public /*Bitu*/int call() {
             return CBRET_STOP;
         }
@@ -194,7 +194,7 @@ public class Callback {
         return CALLBACK_SetupExtra(callback, type, lphysAddress, true);
     }
     public static /*Bitu*/int CALLBACK_SetupExtra(/*Bitu*/int callback, /*Bitu*/int type, /*PhysPt*/int lphysAddress, boolean use_cb/*=true*/) {
-        int physAddress = (int)lphysAddress;
+        int physAddress = lphysAddress;
         if (callback>=CB_MAX)
             return 0;
         switch (type) {
@@ -505,12 +505,11 @@ public class Callback {
         return 0;
     }
 
-    public static boolean CALLBACK_Setup(/*Bitu*/int callback,Handler handler,/*Bitu*/int type,String descr) {
-        if (callback>=CB_MAX) return false;
-        CALLBACK_SetupExtra(callback,type,CALLBACK_PhysPointer(callback)+0,(handler!=null));
+    public static void CALLBACK_Setup(/*Bitu*/int callback, Handler handler,/*Bitu*/int type, String descr) {
+        if (callback>=CB_MAX) return;
+        CALLBACK_SetupExtra(callback,type, CALLBACK_PhysPointer(callback),(handler!=null));
         CallBack_Handlers[callback]=handler;
         CALLBACK_SetDescription(callback,descr);
-        return true;
     }
 
     public static /*Bitu*/int CALLBACK_Setup(/*Bitu*/int callback,Handler handler,/*Bitu*/int type,/*PhysPt*/int addr,String descr) {
@@ -525,7 +524,7 @@ public class Callback {
 
     public static void CALLBACK_RemoveSetup(/*Bitu*/int callback) {
         for (/*Bitu*/int i = 0;i < CB_SIZE;i++) {
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(callback)+i),0x00);
+            Memory.phys_writeb(CALLBACK_PhysPointer(callback)+i,0x00);
         }
     }
 
@@ -594,7 +593,7 @@ public class Callback {
         } else Log.exit ("double usage of vector handler");
     }
 
-    public static Section.SectionFunction CALLBACK_Init = new Section.SectionFunction() {
+    public static final Section.SectionFunction CALLBACK_Init = new Section.SectionFunction() {
         public void call(Section section) {
             /*Bitu*/int i;
             for (i=0;i<CB_MAX;i++) {
@@ -605,18 +604,18 @@ public class Callback {
             call_stop=CALLBACK_Allocate();
             CallBack_Handlers[call_stop]=stop_handler;
             CALLBACK_SetDescription(call_stop,"stop");
-            Memory.phys_writeb((int)CALLBACK_PhysPointer(call_stop),0xFE);
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_stop)+1),0x38);
-            Memory.phys_writew((int)(CALLBACK_PhysPointer(call_stop)+2),call_stop);
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_stop),0xFE);
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_stop)+1,0x38);
+            Memory.phys_writew(CALLBACK_PhysPointer(call_stop)+2,call_stop);
 
             /* Setup the idle handler */
             call_idle=CALLBACK_Allocate();
             CallBack_Handlers[call_idle]=stop_handler;
             CALLBACK_SetDescription(call_idle,"idle");
-            for (i=0;i<=11;i++) Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_idle)+i),0x90);
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_idle)+12),0xFE);
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_idle)+13),0x38);
-            Memory.phys_writew((int)(CALLBACK_PhysPointer(call_idle)+14),call_idle);
+            for (i=0;i<=11;i++) Memory.phys_writeb(CALLBACK_PhysPointer(call_idle)+i,0x90);
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_idle)+12,0xFE);
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_idle)+13,0x38);
+            Memory.phys_writew(CALLBACK_PhysPointer(call_idle)+14,call_idle);
 
             /* Default handlers for unhandled interrupts that have to be non-null */
             int call_default=CALLBACK_Allocate();
@@ -653,21 +652,21 @@ public class Callback {
             call_priv_io=CALLBACK_Allocate();
 
             // virtualizable in-out opcodes
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x00),0xec);	// in al, dx
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x01),0xcb);	// retf
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x02),0xed);	// in ax, dx
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x03),0xcb);	// retf
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x04),0x66);	// in eax, dx
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x05),0xed);
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x06),0xcb);	// retf
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io),0xec);	// in al, dx
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x01,0xcb);	// retf
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x02,0xed);	// in ax, dx
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x03,0xcb);	// retf
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x04,0x66);	// in eax, dx
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x05,0xed);
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x06,0xcb);	// retf
 
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x08),0xee);	// out dx, al
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x09),0xcb);	// retf
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x0a),0xef);	// out dx, ax
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x0b),0xcb);	// retf
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x0c),0x66);	// out dx, eax
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x0d),0xef);
-            Memory.phys_writeb((int)(CALLBACK_PhysPointer(call_priv_io)+0x0e),0xcb);	// retf
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x08,0xee);	// out dx, al
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x09,0xcb);	// retf
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x0a,0xef);	// out dx, ax
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x0b,0xcb);	// retf
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x0c,0x66);	// out dx, eax
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x0d,0xef);
+            Memory.phys_writeb(CALLBACK_PhysPointer(call_priv_io)+0x0e,0xcb);	// retf
         }
     };
 }

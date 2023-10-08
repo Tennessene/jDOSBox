@@ -28,7 +28,7 @@ public class MMIOINFO extends WinAPI {
         writed(address, adwInfo[2]); address+=4;
         writed(address, dwReserved1); address+=4;
         writed(address, dwReserved2); address+=4;
-        writed(address, hmmio); address+=4;
+        writed(address, hmmio);
     }
 
     public void read(int address) {
@@ -49,7 +49,7 @@ public class MMIOINFO extends WinAPI {
         adwInfo[2] = readd(address);address+=4;
         dwReserved1 = readd(address);address+=4;
         dwReserved2 = readd(address);address+=4;
-        hmmio = readd(address);address+=4;
+        hmmio = readd(address);
     }
 
     public int allocTemp() {
@@ -70,7 +70,7 @@ public class MMIOINFO extends WinAPI {
     public int pchEndWrite;
     public int lBufOffset;
     public int lDiskOffset;
-    public int[] adwInfo = new int[3];
+    public final int[] adwInfo = new int[3];
     public int dwReserved1;
     public int dwReserved2;
     public int hmmio;

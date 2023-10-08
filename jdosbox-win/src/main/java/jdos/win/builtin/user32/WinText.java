@@ -84,7 +84,7 @@ public class WinText extends WinAPI {
         else
             lh = tm.tmHeight;
 
-        if (text.length() == 0) {
+        if (text.isEmpty()) {
             if ((flags & DT_CALCRECT) != 0) {
                 rect.right = rect.left;
                 if ((flags & DT_SINGLELINE) != 0)
@@ -629,7 +629,7 @@ public class WinText extends WinAPI {
 
         int lastBkSlash = StringUtil.strrchr(str, BACK_SLASH);
         int lastFwdSlash = StringUtil.strrchr(str, FORWARD_SLASH);
-        int lastSlash = lastBkSlash > lastFwdSlash ? lastBkSlash : lastFwdSlash;
+        int lastSlash = Math.max(lastBkSlash, lastFwdSlash);
         if (lastSlash == 0) lastSlash = str;
         len_trailing = len_str.value - (lastSlash - str);
 

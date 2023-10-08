@@ -8,27 +8,23 @@ import jdos.hardware.RAM;
 import jdos.misc.Log;
 import jdos.misc.setup.Config;
 
+import java.util.Arrays;
+
 public class Decoder extends Inst1 {
     public static final Decode[] ops = new Decode[1024];
 
     static {
-        Decode not_handled = new Decode() {
-            public int call(Op prev) {
-                prev.next = new Op() {
-                    public int call() {
-                        CPU.CPU_Exception(6,0);
-                        return Constants.BR_Jump;
-                    }
-                    public boolean throwsException() {return true;}
-                    public boolean accessesMemory() {return false;}
-                    public boolean usesEip() {return false;}
-                    public boolean setsEip() {return false;}
-                };
-                return RESULT_JUMP;
-            }
+        Decode not_handled = prev -> {
+            prev.next = new Op() {
+                public int call() {
+                    CPU.CPU_Exception(6,0);
+                    return Constants.BR_Jump;
+                }
+                public boolean throwsException() {return true;}
+            };
+            return RESULT_JUMP;
         };
-        for (int i=0;i<ops.length;i++)
-            ops[i] = not_handled;
+        Arrays.fill(ops, not_handled);
     }
 
     abstract public static class SegOp extends Op {
@@ -57,28 +53,20 @@ public class Decoder extends Inst1 {
             Core.base_val_ds=ds;
             return next.call();
         }
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
     private static class StartDecode extends Op {
         public int call() {
             return Constants.BR_Normal;
         }
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
-    public static boolean logit = false;
+    public static final boolean logit = false;
     private static class LogOp extends Op {
         public LogOp(Op op) {
             this.op = op;
             this.cycle = op.cycle;
         }
-        Op op;
+        final Op op;
         public int call() {
             if (logit) {
                 traceCount++;
@@ -89,10 +77,6 @@ public class Decoder extends Inst1 {
             }
             return op.call();
         }
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     static public class JumpOp extends Op {
@@ -126,8 +110,6 @@ public class Decoder extends Inst1 {
             return next.call();
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
     }
@@ -136,10 +118,6 @@ public class Decoder extends Inst1 {
         public int call() {
             return Constants.BR_Jump;
         }
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     static {
@@ -185,7 +163,7 @@ public class Decoder extends Inst1 {
         Op begin_op = start_op;
         int op_start = decode.code;
         boolean seg_changed = false;
-        int opcode = 0;
+        int opcode;
         int count = 0;
         int cycles = 0;
         int previousSeg = -1;
@@ -321,17 +299,15 @@ public class Decoder extends Inst1 {
             case RESULT_HANDLED:
                 op.next = new HandledDecode();
                 op.cycle = cycles;
-                op = op.next;
                 break;
             case RESULT_CALLBACK:
             case RESULT_JUMP:
                 break;
             case RESULT_ILLEGAL_INSTRUCTION:
-                decode_putback((int)(decode.code -decode.op_start + count));
+                decode_putback(decode.code -decode.op_start + count);
                 op = begin_op;
                 op.next = new ModifiedDecodeOp();
                 op.cycle = ++cycles;
-                op = op.next;
                 break;
         }
         decode.active_block.page.end=--decode.page.index;

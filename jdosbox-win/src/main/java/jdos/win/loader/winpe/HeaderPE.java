@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class HeaderPE {
-    public HeaderDOS dos = new HeaderDOS();
-    public HeaderImageFile imageFile = new HeaderImageFile();
-    public HeaderImageOptional imageOptional = new HeaderImageOptional();
+    public final HeaderDOS dos = new HeaderDOS();
+    public final HeaderImageFile imageFile = new HeaderImageFile();
+    public final HeaderImageOptional imageOptional = new HeaderImageOptional();
     public HeaderImageSection[] imageSections = null;
 
     static public boolean fastCheckWinPE(WinFile file) {
@@ -20,9 +20,9 @@ public class HeaderPE {
         file.seek(offset, WinAPI.SEEK_SET);
         file.read(buffer);
         if (buffer[0]!=0x50 || buffer[1]!=0x45 || buffer[2]!=0 || buffer[3]!=0) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean load(OutputStream os, WinFile fis) throws IOException {

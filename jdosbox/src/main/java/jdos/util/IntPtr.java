@@ -24,10 +24,10 @@ public class IntPtr extends Ptr {
         return 4;
     }
     public void set(int off, int val) {
-        writed((int)off, val);
+        writed(off, val);
     }
     public int get(int off) {
-        return (int)readd(off);
+        return readd(off);
     }
     public void set(int off, long val) {
         writed(off, val);

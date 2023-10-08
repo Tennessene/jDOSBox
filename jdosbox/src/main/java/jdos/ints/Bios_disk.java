@@ -1,7 +1,6 @@
 package jdos.ints;
 
 import jdos.Dosbox;
-import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.dos.Dos_DTA;
@@ -32,18 +31,18 @@ public class Bios_disk {
             this.cylcount = cylcount;
             this.biosval = biosval;
         }
-        public /*Bit32u*/long ksize;  /* Size in kilobytes */
-        public /*Bit16u*/int secttrack; /* Sectors per track */
-        public /*Bit16u*/int headscyl;  /* Heads per cylinder */
-        public /*Bit16u*/int cylcount;  /* Cylinders per side */
-        public /*Bit16u*/int biosval;   /* Type to return from BIOS */
+        public final /*Bit32u*/long ksize;  /* Size in kilobytes */
+        public final /*Bit16u*/int secttrack; /* Sectors per track */
+        public final /*Bit16u*/int headscyl;  /* Heads per cylinder */
+        public final /*Bit16u*/int cylcount;  /* Cylinders per side */
+        public final /*Bit16u*/int biosval;   /* Type to return from BIOS */
     }
 
     static public class imageDisk  {
-        public boolean hardDrive;
+        public final boolean hardDrive;
         public boolean active;
-        public FileIO diskimg;
-        public String diskname;
+        public final FileIO diskimg;
+        public final String diskname;
         public /*Bit8u*/short floppytype;
 
         public /*Bit32u*/long sector_size;
@@ -114,7 +113,9 @@ public class Bios_disk {
             sectors = 0;
             sector_size = 512;
             diskimg = imgFile;
-            try {diskimg.seek(0);} catch (Exception e) {}
+            try {diskimg.seek(0);} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             diskname = imgName;
 
             active = false;
@@ -126,7 +127,7 @@ public class Bios_disk {
                     if ((DiskGeometryList[i].ksize==imgSizeK) ||
                         (DiskGeometryList[i].ksize+1==imgSizeK)) {
                         if (DiskGeometryList[i].ksize!=imgSizeK)
-                            Log.log_msg("ImageLoader: image file with additional data, might not load!");
+                            System.out.println("ImageLoader: image file with additional data, might not load!");
                         founddisk = true;
                         active = true;
                         floppytype = i;
@@ -175,7 +176,7 @@ public class Bios_disk {
 
     static private final int MAX_DISK_IMAGES = 4;
 
-    static private diskGeo DiskGeometryList[] = {
+    static private final diskGeo[] DiskGeometryList = {
         new diskGeo( 160,  8, 1, 40, 0),
         new diskGeo( 180,  9, 1, 40, 0),
         new diskGeo( 200, 10, 1, 40, 0),
@@ -207,14 +208,15 @@ public class Bios_disk {
     static public void updateDPT() {
         /*Bit32u*/LongRef tmpheads=new LongRef(0), tmpcyl=new LongRef(0), tmpsect=new LongRef(0), tmpsize=new LongRef(0);
         if(imageDiskList[2] != null) {
-            /*PhysPt*/int dp0physaddr= (int)Callback.CALLBACK_PhysPointer(diskparm0);
+            /*PhysPt*/int dp0physaddr= Callback.CALLBACK_PhysPointer(diskparm0);
             imageDiskList[2].Get_Geometry(tmpheads, tmpcyl, tmpsect, tmpsize);
             Memory.phys_writew(dp0physaddr,(/*Bit16u*/int)tmpcyl.value);
             Memory.phys_writeb(dp0physaddr+0x2,(/*Bit8u*/short)tmpheads.value);
             Memory.phys_writew(dp0physaddr+0x3,0);
-            Memory.phys_writew(dp0physaddr+0x5,(/*Bit16u*/int)-1);
+            /*Bit16u*/
+            Memory.phys_writew(dp0physaddr+0x5, -1);
             Memory.phys_writeb(dp0physaddr+0x7,(short)0);
-            Memory.phys_writeb(dp0physaddr+0x8,(short)((0xc0 | (((imageDiskList[2].heads) > 8)?1:0 << 3))));
+            Memory.phys_writeb(dp0physaddr+0x8,(short)((0xc0 | (((imageDiskList[2].heads) > 8)?1: 0))));
             Memory.phys_writeb(dp0physaddr+0x9,(short)0);
             Memory.phys_writeb(dp0physaddr+0xa,(short)0);
             Memory.phys_writeb(dp0physaddr+0xb,(short)0);
@@ -222,7 +224,7 @@ public class Bios_disk {
             Memory.phys_writeb(dp0physaddr+0xe,(/*Bit8u*/short)tmpsect.value);
         }
         if(imageDiskList[3] != null) {
-            /*PhysPt*/int dp1physaddr=(int)Callback.CALLBACK_PhysPointer(diskparm1);
+            /*PhysPt*/int dp1physaddr= Callback.CALLBACK_PhysPointer(diskparm1);
             imageDiskList[3].Get_Geometry(tmpheads, tmpcyl, tmpsect, tmpsize);
             Memory.phys_writew(dp1physaddr,(/*Bit16u*/int)tmpcyl.value);
             Memory.phys_writeb(dp1physaddr+0x2,(/*Bit8u*/short)tmpheads.value);
@@ -263,7 +265,7 @@ public class Bios_disk {
         /* If only one disk is loaded, this loop will load the same disk in dive A and drive B */
         while(diskcount<2) {
             if(diskSwap[swapPos] != null) {
-                Log.log_msg("Loaded disk "+diskcount+" from swaplist position "+swapPos+" - \""+diskSwap[swapPos].diskname+"\"");
+                System.out.println("Loaded disk "+diskcount+" from swaplist position "+swapPos+" - \""+diskSwap[swapPos].diskname+"\"");
                 imageDiskList[diskcount] = diskSwap[swapPos];
                 diskcount++;
             }
@@ -278,13 +280,13 @@ public class Bios_disk {
         return sreq;
     }
 
-    static private Mapper.MAPPER_Handler swapInNextDisk = new Mapper.MAPPER_Handler() {
+    static private final Mapper.MAPPER_Handler swapInNextDisk = new Mapper.MAPPER_Handler() {
         public void call(boolean pressed) {
             if (!pressed)
                 return;
             DriveManager.CycleAllDisks();
             /* Hack/feature: rescan all disks as well */
-            Log.log_msg("Diskcaching reset for normal mounted drives.");
+            System.out.println("Diskcaching reset for normal mounted drives.");
             for(/*Bitu*/int i=0;i<Dos_files.DOS_DRIVES;i++) {
                 if (Dos_files.Drives[i]!=null) Dos_files.Drives[i].EmptyCache();
             }
@@ -337,7 +339,7 @@ public class Bios_disk {
     }
 
 
-    static private Callback.Handler INT13_DiskHandler = new Callback.Handler() {
+    static private final Callback.Handler INT13_DiskHandler = new Callback.Handler() {
         public String getName() {
             return "Bios.INT13_DiskHandler";
         }
@@ -412,12 +414,15 @@ public class Bios_disk {
                     return Callback.CBRET_NONE;
                 }
 
-                segat = (int)CPU_Regs.reg_esVal.dword;
+                segat = CPU_Regs.reg_esVal.dword;
                 bufptr = CPU_Regs.reg_ebx.word();
                 for(i=0;i<CPU_Regs.reg_eax.low();i++) {
-                    last_status = imageDiskList[drivenum].Read_Sector((/*Bit32u*/long)CPU_Regs.reg_edx.high(), (/*Bit32u*/long)(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2)), (/*Bit32u*/long)((CPU_Regs.reg_ecx.low() & 63)+i), sectbuf);
+                    /*Bit32u*/
+                    /*Bit32u*/
+                    /*Bit32u*/
+                    last_status = imageDiskList[drivenum].Read_Sector(CPU_Regs.reg_edx.high(), CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2), (CPU_Regs.reg_ecx.low() & 63)+i, sectbuf);
                     if((last_status != 0x00) || (killRead)) {
-                        Log.log_msg("Error in disk read");
+                        System.out.println("Error in disk read");
                         killRead = false;
                         CPU_Regs.reg_eax.high(0x04);
                         Callback.CALLBACK_SCF(true);
@@ -443,11 +448,14 @@ public class Bios_disk {
                 bufptr = CPU_Regs.reg_ebx.word();
                 for(i=0;i<CPU_Regs.reg_eax.low();i++) {
                     for(t=0;t<imageDiskList[drivenum].getSectSize();t++) {
-                        sectbuf[t] = (byte)Memory.real_readb((int)CPU_Regs.reg_esVal.dword,bufptr);
+                        sectbuf[t] = (byte)Memory.real_readb(CPU_Regs.reg_esVal.dword,bufptr);
                         bufptr++;
                     }
 
-                    last_status = imageDiskList[drivenum].Write_Sector((/*Bit32u*/long)CPU_Regs.reg_edx.high(), (/*Bit32u*/long)(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0) << 2)), (/*Bit32u*/long)((CPU_Regs.reg_ecx.low() & 63) + i), sectbuf);
+                    /*Bit32u*/
+                    /*Bit32u*/
+                    /*Bit32u*/
+                    last_status = imageDiskList[drivenum].Write_Sector(CPU_Regs.reg_edx.high(), CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0) << 2), (CPU_Regs.reg_ecx.low() & 63) + i, sectbuf);
                     if(last_status != 0x00) {
                     Callback.CALLBACK_SCF(true);
                         return Callback.CBRET_NONE;
@@ -470,7 +478,7 @@ public class Bios_disk {
     //            for(i=0;i<CPU_Regs.reg_eax.low();i++) {
     //                last_status = imageDiskList[drivenum].Read_Sector((/*Bit32u*/long)CPU_Regs.reg_edx.high(), (/*Bit32u*/long)(CPU_Regs.reg_ecx.high() | ((CPU_Regs.reg_ecx.low() & 0xc0)<< 2)), (/*Bit32u*/long)((CPU_Regs.reg_ecx.low() & 63)+i), sectbuf);
     //                if(last_status != 0x00) {
-    //                    Log.log_msg("Error in disk read");
+    //                    System.out.println("Error in disk read");
     //                    Callback.CALLBACK_SCF(true);
     //                    return Callback.CBRET_NONE;
     //                }
@@ -566,8 +574,8 @@ public class Bios_disk {
         /*PhysPt*/int dp0physaddr=Callback.CALLBACK_PhysPointer(diskparm0);
         /*PhysPt*/int dp1physaddr=Callback.CALLBACK_PhysPointer(diskparm1);
         for(i=0;i<16;i++) {
-            Memory.phys_writeb((int)dp0physaddr+i,(short)0);
-            Memory.phys_writeb((int)dp1physaddr+i,(short)0);
+            Memory.phys_writeb(dp0physaddr +i,(short)0);
+            Memory.phys_writeb(dp1physaddr +i,(short)0);
         }
 
         imgDTASeg = 0;

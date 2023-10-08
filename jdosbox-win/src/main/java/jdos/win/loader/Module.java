@@ -9,7 +9,7 @@ import jdos.win.loader.winpe.HeaderImageImportDescriptor;
 import java.util.Vector;
 
 public abstract class Module extends WinAPI {
-    private int handle;
+    private final int handle;
     public String name;
     protected boolean threadLibraryCalls = true;
 

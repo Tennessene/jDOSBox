@@ -74,7 +74,7 @@ public class Cirrus extends VGA_header {
     };
 
     /***************************************
-     *
+     * <p>
      *  definitions
      *
      ***************************************/
@@ -208,17 +208,17 @@ public class Cirrus extends VGA_header {
                 (s.cirrus_blt_height * Math.abs(s.cirrus_blt_srcpitch) + (s.cirrus_blt_srcaddr & s.cirrus_addr_mask) > s.vram_size);
     }
 
-    static private interface cirrus_bitblt_rop_t {
-        public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight);
+    private interface cirrus_bitblt_rop_t {
+        void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight);
     }
 
-    static private interface cirrus_fill_t {
-        public void call(CirrusVGAState s, int dstPos, int dst_pitch, int width, int height);
+    private interface cirrus_fill_t {
+        void call(CirrusVGAState s, int dstPos, int dst_pitch, int width, int height);
     }
 
     static private final class CirrusVGAState extends VGACommonState {
         int get_bpp() {
-            int ret = 8;
+            int ret;
 
             if ((sr[0x07] & 0x01) != 0) {
             /* Cirrus SVGA */
@@ -279,9 +279,9 @@ public class Cirrus extends VGA_header {
         int cirrus_shadow_gr1;
         int cirrus_hidden_dac_lockindex;
         int cirrus_hidden_dac_data;
-        int[] cirrus_bank_base = new int[2];
-        int[] cirrus_bank_limit = new int[2];
-        int[] cirrus_hidden_palette = new int[48];
+        final int[] cirrus_bank_base = new int[2];
+        final int[] cirrus_bank_limit = new int[2];
+        final int[] cirrus_hidden_palette = new int[48];
         int hw_cursor_x;
         int hw_cursor_y;
         int cirrus_blt_pixelwidth;
@@ -325,31 +325,27 @@ public class Cirrus extends VGA_header {
     static private final byte[] rop_to_index = new byte[256];
 
     /***************************************
-     *
+     * <p>
      *  raster operations
      *
      ***************************************/
 
-    static private final cirrus_bitblt_rop_t cirrus_bitblt_rop_nop = new cirrus_bitblt_rop_t() {
-        public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
-        }
+    static private final cirrus_bitblt_rop_t cirrus_bitblt_rop_nop = (s, dstPos, srcPos, dstpitch, srcpitch, bltwidth, bltheight) -> {
     };
 
-    static private final cirrus_fill_t cirrus_bitblt_fill_nop = new cirrus_fill_t() {
-        public void call(CirrusVGAState s, int dstPos, int dstpitch, int bltwidth, int bltheight) {
-        }
+    static private final cirrus_fill_t cirrus_bitblt_fill_nop = (s, dstPos, dstpitch, bltwidth, bltheight) -> {
     };
 
-    static private interface ROP_OP {
-        public void call8(CirrusVGAState s, int dstPos, int srcColor);
+    private interface ROP_OP {
+        void call8(CirrusVGAState s, int dstPos, int srcColor);
 
-        public void call16(CirrusVGAState s, int dstPos, int srcColor);
+        void call16(CirrusVGAState s, int dstPos, int srcColor);
 
-        public void call32(CirrusVGAState s, int dstPos, int srcColor);
+        void call32(CirrusVGAState s, int dstPos, int srcColor);
     }
 
     static private abstract class cirrus_bitblt_rop implements cirrus_bitblt_rop_t {
-        public ROP_OP op;
+        public final ROP_OP op;
 
         public cirrus_bitblt_rop(ROP_OP op) {
             this.op = op;
@@ -357,7 +353,7 @@ public class Cirrus extends VGA_header {
     }
 
     static private abstract class cirrus_fill implements cirrus_fill_t {
-        public ROP_OP op;
+        public final ROP_OP op;
 
         public cirrus_fill(ROP_OP op) {
             this.op = op;
@@ -636,7 +632,6 @@ public class Cirrus extends VGA_header {
             int bitmask;
             int index;
             int srcskipleft = s.gr[0x2f] & 0x07;
-            int dstskipleft = srcskipleft;
 
             if ((s.cirrus_blt_modeext & CIRRUS_BLTMODEEXT_COLOREXPINV) != 0) {
                 bits_xor = 0xff;
@@ -649,8 +644,8 @@ public class Cirrus extends VGA_header {
             for (y = 0; y < bltheight; y++) {
                 bitmask = 0x80 >> srcskipleft;
                 bits = s.readb(srcPos++) ^ bits_xor;
-                dPos = dstPos + dstskipleft;
-                for (x = dstskipleft; x < bltwidth; x++) {
+                dPos = dstPos + srcskipleft;
+                for (x = srcskipleft; x < bltwidth; x++) {
                     if ((bitmask & 0xff) == 0) {
                         bitmask = 0x80;
                         bits = s.readb(srcPos++) ^ bits_xor;
@@ -806,7 +801,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -815,15 +810,14 @@ public class Cirrus extends VGA_header {
             int col;
             int bitmask;
             int srcskipleft = s.gr[0x2f] & 0x07;
-            int dstskipleft = srcskipleft;
 
             colors[0] = s.cirrus_blt_bgcol;
             colors[1] = s.cirrus_blt_fgcol;
             for (y = 0; y < bltheight; y++) {
                 bitmask = 0x80 >> srcskipleft;
                 bits = s.readb(srcPos++);
-                dPos = dstPos + dstskipleft;
-                for (x = dstskipleft; x < bltwidth; x++) {
+                dPos = dstPos + srcskipleft;
+                for (x = srcskipleft; x < bltwidth; x++) {
                     if ((bitmask & 0xff) == 0) {
                         bitmask = 0x80;
                         bits = s.readb(srcPos++);
@@ -843,7 +837,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -880,7 +874,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -919,7 +913,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -962,7 +956,6 @@ public class Cirrus extends VGA_header {
             int bits, bits_xor;
             int col;
             int srcskipleft = s.gr[0x2f] & 0x07;
-            int dstskipleft = srcskipleft;
 
             if ((s.cirrus_blt_modeext & CIRRUS_BLTMODEEXT_COLOREXPINV) != 0) {
                 bits_xor = 0xff;
@@ -976,8 +969,8 @@ public class Cirrus extends VGA_header {
             for (y = 0; y < bltheight; y++) {
                 bits = s.readb(srcPos + pattern_y) ^ bits_xor;
                 bitpos = 7 - srcskipleft;
-                dPos = dstPos + dstskipleft;
-                for (x = dstskipleft; x < bltwidth; x++) {
+                dPos = dstPos + srcskipleft;
+                for (x = srcskipleft; x < bltwidth; x++) {
                     if (((bits >> bitpos) & 1) != 0) {
                         op.call8(s, dPos, col);
                     }
@@ -1114,7 +1107,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -1122,7 +1115,6 @@ public class Cirrus extends VGA_header {
             int bits;
             int col;
             int srcskipleft = s.gr[0x2f] & 0x07;
-            int dstskipleft = srcskipleft;
 
             colors[0] = s.cirrus_blt_bgcol;
             colors[1] = s.cirrus_blt_fgcol;
@@ -1131,8 +1123,8 @@ public class Cirrus extends VGA_header {
             for (y = 0; y < bltheight; y++) {
                 bits = s.readb(srcPos + pattern_y);
                 bitpos = 7 - srcskipleft;
-                dPos = dstPos + dstskipleft;
-                for (x = dstskipleft; x < bltwidth; x++) {
+                dPos = dstPos + srcskipleft;
+                for (x = srcskipleft; x < bltwidth; x++) {
                     col = colors[(bits >> bitpos) & 1];
                     op.call8(s, dPos, col);
                     dPos++;
@@ -1149,7 +1141,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -1184,7 +1176,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -1221,7 +1213,7 @@ public class Cirrus extends VGA_header {
             super(op);
         }
 
-        int[] colors = new int[2];
+        final int[] colors = new int[2];
 
         public void call(CirrusVGAState s, int dstPos, int srcPos, int dstpitch, int srcpitch, int bltwidth, int bltheight) {
             int dPos;
@@ -1876,20 +1868,19 @@ public class Cirrus extends VGA_header {
     
     /* fill */
 
-    static private int cirrus_bitblt_solidfill(CirrusVGAState s, int blt_rop) {
+    static private void cirrus_bitblt_solidfill(CirrusVGAState s, int blt_rop) {
         cirrus_fill_t rop_func;
 
         if (BLTUNSAFE(s))
-            return 0;
+            return;
         rop_func = cirrus_fill[rop_to_index[blt_rop]][s.cirrus_blt_pixelwidth - 1];
         rop_func.call(s, s.vram_ptr + (s.cirrus_blt_dstaddr & s.cirrus_addr_mask), s.cirrus_blt_dstpitch, s.cirrus_blt_width, s.cirrus_blt_height);
         cirrus_invalidate_region(s, s.cirrus_blt_dstaddr, s.cirrus_blt_dstpitch, s.cirrus_blt_width, s.cirrus_blt_height);
         cirrus_bitblt_reset(s);
-        return 1;
     }
 
     /***************************************
-     *
+     * <p>
      *  bitblt (video-to-video)
      *
      ***************************************/
@@ -1965,7 +1956,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  bitblt (cpu-to-video)
      *
      ***************************************/
@@ -2004,7 +1995,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  bitblt wrapper
      *
      ***************************************/
@@ -2026,8 +2017,6 @@ public class Cirrus extends VGA_header {
         int w;
 
         s.cirrus_blt_mode &= ~CIRRUS_BLTMODE_MEMSYSSRC;
-        s.cirrus_srcptr = s.cirrus_bltbufPos;
-        s.cirrus_srcptr_end = s.cirrus_bltbufPos;
 
         if ((s.cirrus_blt_mode & CIRRUS_BLTMODE_PATTERNCOPY) != 0) {
             if ((s.cirrus_blt_mode & CIRRUS_BLTMODE_COLOREXPAND) != 0) {
@@ -2224,7 +2213,7 @@ public class Cirrus extends VGA_header {
 
 
     /***************************************
-     *
+     * <p>
      *  basic parameters
      *
      ***************************************/
@@ -2255,7 +2244,7 @@ public class Cirrus extends VGA_header {
 //        *pline_compare = line_compare;
 //    }
     static private int cirrus_get_bpp16_depth(CirrusVGAState s) {
-        int ret = 16;
+        int ret;
 
         switch (s.cirrus_hidden_dac_data & 0xf) {
             case 0:
@@ -2276,7 +2265,7 @@ public class Cirrus extends VGA_header {
     static private class cirrus_get_bpp implements VGACommonState.get_func {
         public int call(VGACommonState c) {
             CirrusVGAState s = (CirrusVGAState) c;
-            int ret = 8;
+            int ret;
 
             if ((s.sr[0x07] & 0x01) != 0) {
         /* Cirrus SVGA */
@@ -2331,7 +2320,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      * bank memory
      *
      ***************************************/
@@ -2374,7 +2363,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  I/O access between 0x3c4-0x3c5
      *
      ***************************************/
@@ -2521,7 +2510,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  I/O access at 0x3c6
      *
      ***************************************/
@@ -2544,7 +2533,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  I/O access at 0x3c9
      *
      ***************************************/
@@ -2580,7 +2569,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  I/O access between 0x3ce-0x3cf
      *
      ***************************************/
@@ -2698,7 +2687,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  I/O access between 0x3d4-0x3d5
      *
      ***************************************/
@@ -2821,7 +2810,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  memory-mapped I/O (bitblt)
      *
      ***************************************/
@@ -2830,7 +2819,7 @@ public class Cirrus extends VGA_header {
         int value = 0xff;
 
         switch (address) {
-            case (CIRRUS_MMIO_BLTBGCOLOR + 0):
+            case (CIRRUS_MMIO_BLTBGCOLOR):
                 value = cirrus_vga_read_gr(s, 0x00);
                 break;
             case (CIRRUS_MMIO_BLTBGCOLOR + 1):
@@ -2842,7 +2831,7 @@ public class Cirrus extends VGA_header {
             case (CIRRUS_MMIO_BLTBGCOLOR + 3):
                 value = cirrus_vga_read_gr(s, 0x14);
                 break;
-            case (CIRRUS_MMIO_BLTFGCOLOR + 0):
+            case (CIRRUS_MMIO_BLTFGCOLOR):
                 value = cirrus_vga_read_gr(s, 0x01);
                 break;
             case (CIRRUS_MMIO_BLTFGCOLOR + 1):
@@ -2854,31 +2843,31 @@ public class Cirrus extends VGA_header {
             case (CIRRUS_MMIO_BLTFGCOLOR + 3):
                 value = cirrus_vga_read_gr(s, 0x15);
                 break;
-            case (CIRRUS_MMIO_BLTWIDTH + 0):
+            case (CIRRUS_MMIO_BLTWIDTH):
                 value = cirrus_vga_read_gr(s, 0x20);
                 break;
             case (CIRRUS_MMIO_BLTWIDTH + 1):
                 value = cirrus_vga_read_gr(s, 0x21);
                 break;
-            case (CIRRUS_MMIO_BLTHEIGHT + 0):
+            case (CIRRUS_MMIO_BLTHEIGHT):
                 value = cirrus_vga_read_gr(s, 0x22);
                 break;
             case (CIRRUS_MMIO_BLTHEIGHT + 1):
                 value = cirrus_vga_read_gr(s, 0x23);
                 break;
-            case (CIRRUS_MMIO_BLTDESTPITCH + 0):
+            case (CIRRUS_MMIO_BLTDESTPITCH):
                 value = cirrus_vga_read_gr(s, 0x24);
                 break;
             case (CIRRUS_MMIO_BLTDESTPITCH + 1):
                 value = cirrus_vga_read_gr(s, 0x25);
                 break;
-            case (CIRRUS_MMIO_BLTSRCPITCH + 0):
+            case (CIRRUS_MMIO_BLTSRCPITCH):
                 value = cirrus_vga_read_gr(s, 0x26);
                 break;
             case (CIRRUS_MMIO_BLTSRCPITCH + 1):
                 value = cirrus_vga_read_gr(s, 0x27);
                 break;
-            case (CIRRUS_MMIO_BLTDESTADDR + 0):
+            case (CIRRUS_MMIO_BLTDESTADDR):
                 value = cirrus_vga_read_gr(s, 0x28);
                 break;
             case (CIRRUS_MMIO_BLTDESTADDR + 1):
@@ -2887,7 +2876,7 @@ public class Cirrus extends VGA_header {
             case (CIRRUS_MMIO_BLTDESTADDR + 2):
                 value = cirrus_vga_read_gr(s, 0x2a);
                 break;
-            case (CIRRUS_MMIO_BLTSRCADDR + 0):
+            case (CIRRUS_MMIO_BLTSRCADDR):
                 value = cirrus_vga_read_gr(s, 0x2c);
                 break;
             case (CIRRUS_MMIO_BLTSRCADDR + 1):
@@ -2908,13 +2897,13 @@ public class Cirrus extends VGA_header {
             case CIRRUS_MMIO_BLTMODEEXT:
                 value = cirrus_vga_read_gr(s, 0x33);
                 break;
-            case (CIRRUS_MMIO_BLTTRANSPARENTCOLOR + 0):
+            case (CIRRUS_MMIO_BLTTRANSPARENTCOLOR):
                 value = cirrus_vga_read_gr(s, 0x34);
                 break;
             case (CIRRUS_MMIO_BLTTRANSPARENTCOLOR + 1):
                 value = cirrus_vga_read_gr(s, 0x35);
                 break;
-            case (CIRRUS_MMIO_BLTTRANSPARENTCOLORMASK + 0):
+            case (CIRRUS_MMIO_BLTTRANSPARENTCOLORMASK):
                 value = cirrus_vga_read_gr(s, 0x38);
                 break;
             case (CIRRUS_MMIO_BLTTRANSPARENTCOLORMASK + 1):
@@ -2934,7 +2923,7 @@ public class Cirrus extends VGA_header {
 
     static void cirrus_mmio_blt_write(CirrusVGAState s, int address, int value) {
         switch (address) {
-            case (CIRRUS_MMIO_BLTBGCOLOR + 0):
+            case (CIRRUS_MMIO_BLTBGCOLOR):
                 cirrus_vga_write_gr(s, 0x00, value);
                 break;
             case (CIRRUS_MMIO_BLTBGCOLOR + 1):
@@ -2946,7 +2935,7 @@ public class Cirrus extends VGA_header {
             case (CIRRUS_MMIO_BLTBGCOLOR + 3):
                 cirrus_vga_write_gr(s, 0x14, value);
                 break;
-            case (CIRRUS_MMIO_BLTFGCOLOR + 0):
+            case (CIRRUS_MMIO_BLTFGCOLOR):
                 cirrus_vga_write_gr(s, 0x01, value);
                 break;
             case (CIRRUS_MMIO_BLTFGCOLOR + 1):
@@ -2958,31 +2947,31 @@ public class Cirrus extends VGA_header {
             case (CIRRUS_MMIO_BLTFGCOLOR + 3):
                 cirrus_vga_write_gr(s, 0x15, value);
                 break;
-            case (CIRRUS_MMIO_BLTWIDTH + 0):
+            case (CIRRUS_MMIO_BLTWIDTH):
                 cirrus_vga_write_gr(s, 0x20, value);
                 break;
             case (CIRRUS_MMIO_BLTWIDTH + 1):
                 cirrus_vga_write_gr(s, 0x21, value);
                 break;
-            case (CIRRUS_MMIO_BLTHEIGHT + 0):
+            case (CIRRUS_MMIO_BLTHEIGHT):
                 cirrus_vga_write_gr(s, 0x22, value);
                 break;
             case (CIRRUS_MMIO_BLTHEIGHT + 1):
                 cirrus_vga_write_gr(s, 0x23, value);
                 break;
-            case (CIRRUS_MMIO_BLTDESTPITCH + 0):
+            case (CIRRUS_MMIO_BLTDESTPITCH):
                 cirrus_vga_write_gr(s, 0x24, value);
                 break;
             case (CIRRUS_MMIO_BLTDESTPITCH + 1):
                 cirrus_vga_write_gr(s, 0x25, value);
                 break;
-            case (CIRRUS_MMIO_BLTSRCPITCH + 0):
+            case (CIRRUS_MMIO_BLTSRCPITCH):
                 cirrus_vga_write_gr(s, 0x26, value);
                 break;
             case (CIRRUS_MMIO_BLTSRCPITCH + 1):
                 cirrus_vga_write_gr(s, 0x27, value);
                 break;
-            case (CIRRUS_MMIO_BLTDESTADDR + 0):
+            case (CIRRUS_MMIO_BLTDESTADDR):
                 cirrus_vga_write_gr(s, 0x28, value);
                 break;
             case (CIRRUS_MMIO_BLTDESTADDR + 1):
@@ -2994,7 +2983,7 @@ public class Cirrus extends VGA_header {
             case (CIRRUS_MMIO_BLTDESTADDR + 3):
     	/* ignored */
                 break;
-            case (CIRRUS_MMIO_BLTSRCADDR + 0):
+            case (CIRRUS_MMIO_BLTSRCADDR):
                 cirrus_vga_write_gr(s, 0x2c, value);
                 break;
             case (CIRRUS_MMIO_BLTSRCADDR + 1):
@@ -3015,13 +3004,13 @@ public class Cirrus extends VGA_header {
             case CIRRUS_MMIO_BLTMODEEXT:
                 cirrus_vga_write_gr(s, 0x33, value);
                 break;
-            case (CIRRUS_MMIO_BLTTRANSPARENTCOLOR + 0):
+            case (CIRRUS_MMIO_BLTTRANSPARENTCOLOR):
                 cirrus_vga_write_gr(s, 0x34, value);
                 break;
             case (CIRRUS_MMIO_BLTTRANSPARENTCOLOR + 1):
                 cirrus_vga_write_gr(s, 0x35, value);
                 break;
-            case (CIRRUS_MMIO_BLTTRANSPARENTCOLORMASK + 0):
+            case (CIRRUS_MMIO_BLTTRANSPARENTCOLORMASK):
                 cirrus_vga_write_gr(s, 0x38, value);
                 break;
             case (CIRRUS_MMIO_BLTTRANSPARENTCOLORMASK + 1):
@@ -3038,7 +3027,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  write mode 4/5
      *
      ***************************************/
@@ -3048,7 +3037,7 @@ public class Cirrus extends VGA_header {
         int val = mem_value;
         int dstPos;
 
-        dstPos = s.vram_ptr + (offset &= s.cirrus_addr_mask);
+        dstPos = s.vram_ptr + (offset & s.cirrus_addr_mask);
         for (x = 0; x < 8; x++) {
             if ((val & 0x80) != 0) {
                 s.writeb(dstPos, s.cirrus_shadow_gr1);
@@ -3066,7 +3055,7 @@ public class Cirrus extends VGA_header {
         int val = mem_value;
         int dstPos;
 
-        dstPos = s.vram_ptr + (offset &= s.cirrus_addr_mask);
+        dstPos = s.vram_ptr + (offset & s.cirrus_addr_mask);
         for (x = 0; x < 8; x++) {
             if ((val & 0x80) != 0) {
                 s.writeb(dstPos, s.cirrus_shadow_gr1);
@@ -3082,7 +3071,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  memory access between 0xa0000-0xbffff
      *
      ***************************************/
@@ -3197,7 +3186,7 @@ public class Cirrus extends VGA_header {
 //    };
 
     /***************************************
-     *
+     * <p>
      *  hardware cursor
      *
      ***************************************/
@@ -3411,7 +3400,7 @@ public class Cirrus extends VGA_header {
                 x2 = s.last_scr_width;
             w = x2 - x1;
             palette = s.cirrus_hidden_palette;
-            color0 = s.rgb_to_pixel.call(c6_to_8(palette[0x0 * 3]), c6_to_8(palette[0x0 * 3 + 1]), c6_to_8(palette[0x0 * 3 + 2]));
+            color0 = s.rgb_to_pixel.call(c6_to_8(palette[0]), c6_to_8(palette[1]), c6_to_8(palette[2]));
             color1 = s.rgb_to_pixel.call(c6_to_8(palette[0xf * 3]), c6_to_8(palette[0xf * 3 + 1]), c6_to_8(palette[0xf * 3 + 2]));
             bpp = ((s.ds.ds_get_bits_per_pixel() + 7) >> 3);
             d1 += x1 * bpp;
@@ -3435,7 +3424,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  LFB memory access
      *
      ***************************************/
@@ -3512,7 +3501,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  system to screen memory access
      *
      ***************************************/
@@ -3540,7 +3529,7 @@ public class Cirrus extends VGA_header {
     }
 
     static private void map_linear_vram_bank(CirrusVGAState s, int bank) {
-        boolean enabled = !(s.cirrus_srcptr != s.cirrus_srcptr_end) && (s.sr[0x07] & 0x01) != 0 && (s.gr[0x0B] & 0x14) != 0x14 && (s.gr[0x0B] & 0x02) == 0;
+        boolean enabled = s.cirrus_srcptr == s.cirrus_srcptr_end && (s.sr[0x07] & 0x01) != 0 && (s.gr[0x0B] & 0x14) != 0x14 && (s.gr[0x0B] & 0x02) == 0;
         if (enabled) {
             Memory.MEM_SetPageHandler(VGA_PAGE_A0, 16, low_mem);
             Memory.MEM_SetPageHandler(VGA_PAGE_B0, 16, low_mem);
@@ -3598,7 +3587,7 @@ public class Cirrus extends VGA_header {
 
 
     /* I/O ports */
-    public static IoHandler.IO_ReadHandler cirrus_vga_ioport_read = new IoHandler.IO_ReadHandler() {
+    public static final IoHandler.IO_ReadHandler cirrus_vga_ioport_read = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int addr, /*Bitu*/int len) {
             CirrusVGAState s = cirrusVGAState;
             int val, index;
@@ -3687,7 +3676,7 @@ public class Cirrus extends VGA_header {
         }
     };
 
-    public static IoHandler.IO_WriteHandler cirrus_vga_ioport_write = new IoHandler.IO_WriteHandler() {
+    public static final IoHandler.IO_WriteHandler cirrus_vga_ioport_write = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int addr, /*Bitu*/int val, /*Bitu*/int len) {
             CirrusVGAState s = cirrusVGAState;
             int index;
@@ -3805,7 +3794,7 @@ public class Cirrus extends VGA_header {
     };
 
     /***************************************
-     *
+     * <p>
      *  memory-mapped I/O access
      *
      ***************************************/
@@ -3832,7 +3821,7 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  initialize
      *
      ***************************************/
@@ -3867,7 +3856,7 @@ public class Cirrus extends VGA_header {
     }
 
     static private boolean inited = false;
-    static private Paging.PageHandler low_mem = new cirrus_vga_mem();
+    static private final Paging.PageHandler low_mem = new cirrus_vga_mem();
 
     static private void cirrus_init_common(CirrusVGAState s, int device_id, boolean is_pci) {
         int i;
@@ -3935,12 +3924,12 @@ public class Cirrus extends VGA_header {
     }
 
     /***************************************
-     *
+     * <p>
      *  ISA bus support
      *
      ***************************************/
 
-    static int vga_initfn() {
+    static void vga_initfn() {
         VGACommonState s = cirrusVGAState;
 
         s.vram_size_mb = jdos.hardware.VGA.vga.vmemsize >> 20;
@@ -3950,7 +3939,6 @@ public class Cirrus extends VGA_header {
         Qemu.rom_add_vga("vgabios-cirrus.bin", true);
         /* XXX ISA-LFB support */
         /* FIXME not qdev yet */
-        return 0;
     }
 
 //    static void isa_cirrus_vga_class_init(ObjectClass *klass, void *data)
@@ -3970,7 +3958,7 @@ public class Cirrus extends VGA_header {
 //    };
 //
     /***************************************
-     *
+     * <p>
      *  PCI bus support
      *
      ***************************************/

@@ -19,15 +19,16 @@ public class UiTools extends WinAPI {
     }
 
     // BOOL DrawEdge(HDC hdc, LPRECT qrc, UINT edge, UINT grfFlags)
-    static public int DrawEdge(int hdc, int qrc, int edge, int grfFlags) {
-        if ((grfFlags & BF_DIAGONAL) != 0)
-            return UITOOLS95_DrawDiagEdge(hdc, qrc, edge, grfFlags);
-        else
-            return UITOOLS95_DrawRectEdge(hdc, qrc, edge, grfFlags);
+    static public void DrawEdge(int hdc, int qrc, int edge, int grfFlags) {
+        if ((grfFlags & BF_DIAGONAL) != 0) {
+            UITOOLS95_DrawDiagEdge(hdc, qrc, edge, grfFlags);
+        } else {
+            UITOOLS95_DrawRectEdge(hdc, qrc, edge, grfFlags);
+        }
     }
 
     // BOOL DrawFocusRect(HDC hDC, const RECT *lprc)
-    static public int DrawFocusRect(int hDC, int lprc) {
+    static public void DrawFocusRect(int hDC, int lprc) {
         LOGBRUSH lb = new LOGBRUSH();
 
         int hOldBrush = WinDC.SelectObject(hDC, GdiObj.GetStockObject(NULL_BRUSH));
@@ -47,19 +48,19 @@ public class UiTools extends WinAPI {
         GdiObj.DeleteObject(hNewPen);
         WinDC.SelectObject(hDC, hOldBrush);
 
-        return TRUE;
     }
 
     // BOOL DrawState(HDC hdc, HBRUSH hbr, DRAWSTATEPROC lpOutputFunc, LPARAM lData, WPARAM wData, int x, int y, int cx, int cy, UINT fuFlags)
-    static public int DrawStateA(int hdc, int hbr, int lpOutputFunc, int lData, int wData, int x, int y, int cx, int cy, int fuFlags) {
-        return UITOOLS_DrawState(hdc, hbr, lpOutputFunc, lData, wData, x, y, cx, cy, fuFlags, false);
+    static public void DrawStateA(int hdc, int hbr, int lpOutputFunc, int lData, int wData, int x, int y, int cx, int cy, int fuFlags) {
+        UITOOLS_DrawState(hdc, hbr, lpOutputFunc, lData, wData, x, y, cx, cy, fuFlags, false);
     }
 
     // BOOL DrawFrameControl(HDC hdc, LPRECT lprc, UINT uType, UINT uState)
-    static public int DrawFrameControl(int hdc, int rc, int uType, int uState) {
+    static public void DrawFrameControl(int hdc, int rc, int uType, int uState) {
         switch (uType) {
             case DFC_BUTTON:
-                return UITOOLS95_DrawFrameButton(hdc, rc, uState);
+                UITOOLS95_DrawFrameButton(hdc, rc, uState);
+                return;
             case DFC_CAPTION:
                 //return UITOOLS95_DrawFrameCaption(hdc, rc, uState);
             case DFC_MENU:
@@ -72,16 +73,15 @@ public class UiTools extends WinAPI {
             default:
                 warn("DrawFrameControl: unknown type " + uType);
         }
-        return FALSE;
     }
 
     // INT WINAPI FrameRect( HDC hdc, const RECT *rect, HBRUSH hbrush )
-    static public int FrameRect(int hdc, int rect, int hbrush) {
+    static public void FrameRect(int hdc, int rect, int hbrush) {
         WinRect r = new WinRect(rect);
 
-        if ((r.right <= r.left) || (r.bottom <= r.top)) return FALSE;
+        if ((r.right <= r.left) || (r.bottom <= r.top)) return;
         int prevBrush = WinDC.SelectObject(hdc, hbrush);
-        if (prevBrush == 0) return FALSE;
+        if (prevBrush == 0) return;
 
         WinDC.PatBlt(hdc, r.left, r.top, 1, r.bottom - r.top, PATCOPY);
         WinDC.PatBlt(hdc, r.right - 1, r.top, 1, r.bottom - r.top, PATCOPY);
@@ -89,7 +89,6 @@ public class UiTools extends WinAPI {
         WinDC.PatBlt(hdc, r.left, r.bottom - 1, r.right - r.left, 1, PATCOPY);
 
         WinDC.SelectObject(hdc, prevBrush);
-        return TRUE;
     }
 
     // BOOL InflateRect(LPRECT lprc, int dx, int dy)
@@ -171,42 +170,42 @@ public class UiTools extends WinAPI {
         return hrgn;
     }
 
-    static final private int LTInnerNormal[] = {
+    static final private int[] LTInnerNormal = {
             -1, -1, -1, -1,
             -1, COLOR_BTNHIGHLIGHT, COLOR_BTNHIGHLIGHT, -1,
             -1, COLOR_3DDKSHADOW, COLOR_3DDKSHADOW, -1,
             -1, -1, -1, -1
     };
 
-    static final private int LTOuterNormal[] = {
+    static final private int[] LTOuterNormal = {
             -1, COLOR_3DLIGHT, COLOR_BTNSHADOW, -1,
             COLOR_BTNHIGHLIGHT, COLOR_3DLIGHT, COLOR_BTNSHADOW, -1,
             COLOR_3DDKSHADOW, COLOR_3DLIGHT, COLOR_BTNSHADOW, -1,
             -1, COLOR_3DLIGHT, COLOR_BTNSHADOW, -1
     };
 
-    static final private int RBInnerNormal[] = {
+    static final private int[] RBInnerNormal = {
             -1, -1, -1, -1,
             -1, COLOR_BTNSHADOW, COLOR_BTNSHADOW, -1,
             -1, COLOR_3DLIGHT, COLOR_3DLIGHT, -1,
             -1, -1, -1, -1
     };
 
-    static final private int RBOuterNormal[] = {
+    static final private int[] RBOuterNormal = {
             -1, COLOR_3DDKSHADOW, COLOR_BTNHIGHLIGHT, -1,
             COLOR_BTNSHADOW, COLOR_3DDKSHADOW, COLOR_BTNHIGHLIGHT, -1,
             COLOR_3DLIGHT, COLOR_3DDKSHADOW, COLOR_BTNHIGHLIGHT, -1,
             -1, COLOR_3DDKSHADOW, COLOR_BTNHIGHLIGHT, -1
     };
 
-    static final private int LTInnerSoft[] = {
+    static final private int[] LTInnerSoft = {
             -1, -1, -1, -1,
             -1, COLOR_3DLIGHT, COLOR_3DLIGHT, -1,
             -1, COLOR_BTNSHADOW, COLOR_BTNSHADOW, -1,
             -1, -1, -1, -1
     };
 
-    static final private int LTOuterSoft[] = {
+    static final private int[] LTOuterSoft = {
             -1, COLOR_BTNHIGHLIGHT, COLOR_3DDKSHADOW, -1,
             COLOR_3DLIGHT, COLOR_BTNHIGHLIGHT, COLOR_3DDKSHADOW, -1,
             COLOR_BTNSHADOW, COLOR_BTNHIGHLIGHT, COLOR_3DDKSHADOW, -1,
@@ -216,28 +215,28 @@ public class UiTools extends WinAPI {
     static final private int[] RBInnerSoft = RBInnerNormal;   /* These are the same */
     static final private int[] RBOuterSoft = RBOuterNormal;
 
-    static final private int LTRBOuterMono[] = {
+    static final private int[] LTRBOuterMono = {
             -1, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME,
             COLOR_WINDOW, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME,
             COLOR_WINDOW, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME,
             COLOR_WINDOW, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME, COLOR_WINDOWFRAME,
     };
 
-    static final private int LTRBInnerMono[] = {
+    static final private int[] LTRBInnerMono = {
             -1, -1, -1, -1,
             -1, COLOR_WINDOW, COLOR_WINDOW, COLOR_WINDOW,
             -1, COLOR_WINDOW, COLOR_WINDOW, COLOR_WINDOW,
             -1, COLOR_WINDOW, COLOR_WINDOW, COLOR_WINDOW,
     };
 
-    static final private int LTRBOuterFlat[] = {
+    static final private int[] LTRBOuterFlat = {
             -1, COLOR_BTNSHADOW, COLOR_BTNSHADOW, COLOR_BTNSHADOW,
             COLOR_BTNFACE, COLOR_BTNSHADOW, COLOR_BTNSHADOW, COLOR_BTNSHADOW,
             COLOR_BTNFACE, COLOR_BTNSHADOW, COLOR_BTNSHADOW, COLOR_BTNSHADOW,
             COLOR_BTNFACE, COLOR_BTNSHADOW, COLOR_BTNSHADOW, COLOR_BTNSHADOW,
     };
 
-    static final private int LTRBInnerFlat[] = {
+    static final private int[] LTRBInnerFlat = {
             -1, -1, -1, -1,
             -1, COLOR_BTNFACE, COLOR_BTNFACE, COLOR_BTNFACE,
             -1, COLOR_BTNFACE, COLOR_BTNFACE, COLOR_BTNFACE,
@@ -254,7 +253,7 @@ public class UiTools extends WinAPI {
      * <p/>
      * See also comments with UITOOLS_DrawRectEdge()
      */
-    static private int UITOOLS95_DrawDiagEdge(int hdc, int prc, int uType, int uFlags) {
+    static private void UITOOLS95_DrawDiagEdge(int hdc, int prc, int uType, int uFlags) {
         WinPoint[] Points = new WinPoint[4];
         for (int i = 0; i < Points.length; i++) Points[i] = new WinPoint();
         int InnerI, OuterI;
@@ -266,7 +265,7 @@ public class UiTools extends WinAPI {
         WinRect rc = new WinRect(prc);
         int Width = rc.right - rc.left;
         int Height = rc.bottom - rc.top;
-        int SmallDiam = Width > Height ? Height : Width;
+        int SmallDiam = Math.min(Width, Height);
         int retval = BOOL(!(((uType & BDR_INNER) == BDR_INNER || (uType & BDR_OUTER) == BDR_OUTER) && (uFlags & (BF_FLAT | BF_MONO)) == 0));
         int add = (LTRBInnerMono[uType & (BDR_INNER | BDR_OUTER)] != -1 ? 1 : 0) + (LTRBOuterMono[uType & (BDR_INNER | BDR_OUTER)] != -1 ? 1 : 0);
 
@@ -471,7 +470,6 @@ public class UiTools extends WinAPI {
         WinPoint p = new WinPoint(SavePoint);
         PaintingGDI.MoveToEx(hdc, p.x, p.y, NULL);
 
-        return retval;
     }
 
     /**
@@ -549,7 +547,7 @@ public class UiTools extends WinAPI {
      */
 
 
-    static private int UITOOLS95_DrawRectEdge(int hdc, int rc, int uType, int uFlags) {
+    static private void UITOOLS95_DrawRectEdge(int hdc, int rc, int uType, int uFlags) {
         int LTInnerI, LTOuterI;
         int RBInnerI, RBOuterI;
         int LTInnerPen, LTOuterPen, RBInnerPen, RBOuterPen;
@@ -659,7 +657,6 @@ public class UiTools extends WinAPI {
         WinDC.SelectObject(hdc, SavePen);
         WinPoint p = new WinPoint(SavePoint);
         PaintingGDI.MoveToEx(hdc, p.x, p.y, NULL);
-        return retval;
     }
 
     /**
@@ -720,20 +717,20 @@ public class UiTools extends WinAPI {
      * *******************************************************************
      * UITOOLS_DrawState()
      */
-    static private int UITOOLS_DrawState(int hdc, int hbr, int func, int lp, int wp, int x, int y, int cx, int cy, int flags, boolean unicode) {
+    static private void UITOOLS_DrawState(int hdc, int hbr, int func, int lp, int wp, int x, int y, int cx, int cy, int flags, boolean unicode) {
         int dtflags = DT_NOCLIP;
         int opcode = flags & 0xf;
         int len = wp;
 
         if ((opcode == DST_TEXT || opcode == DST_PREFIXTEXT) && len == 0) {   /* The string is '\0' terminated */
-            if (lp == 0) return FALSE;
+            if (lp == 0) return;
 
             if (unicode)
                 len = StringUtil.strlenW(lp);
             else
                 len = StringUtil.strlenA(lp);
         }
-        int retval = 0;
+        int retval;
         /* Find out what size the image has if not given by caller */
         if (cx == 0 || cy == 0) {
             WinSize s = new WinSize();
@@ -746,13 +743,13 @@ public class UiTools extends WinAPI {
                         retval = WinFont.GetTextExtentPoint32W(hdc, lp, len, lpSize);
                     else
                         retval = WinFont.GetTextExtentPoint32A(hdc, lp, len, lpSize);
-                    if (retval == 0) return FALSE;
+                    if (retval == 0) return;
                     break;
                 }
                 case DST_ICON: {
                     WinIcon icon = WinIcon.get(lp);
                     if (icon == null)
-                        return FALSE;
+                        return;
                     s.cx = icon.cx;
                     s.cy = icon.cy;
                     break;
@@ -760,13 +757,13 @@ public class UiTools extends WinAPI {
                 case DST_BITMAP: {
                     WinBitmap bitmap = WinBitmap.get(lp);
                     if (bitmap == null)
-                        return FALSE;
+                        return;
                     s.cx = bitmap.getWidth();
                     s.cy = bitmap.getHeight();
                     break;
                 }
                 case DST_COMPLEX: /* cx and cy must be set in this mode */
-                    return FALSE;
+                    return;
             }
 
             if (cx == 0) cx = s.cx;
@@ -786,32 +783,32 @@ public class UiTools extends WinAPI {
 
         /* For DSS_NORMAL we just jam in the image and return */
         if ((flags & 0x7ff0) == DSS_NORMAL) {
-            return UITOOLS_DrawStateJam(hdc, opcode, func, lp, len, rc, dtflags, unicode);
+            UITOOLS_DrawStateJam(hdc, opcode, func, lp, len, rc, dtflags, unicode);
+            return;
         }
 
         /* For all other states we need to convert the image to B/W in a local bitmap */
         /* before it is displayed */
         int fg = WinDC.SetTextColor(hdc, RGB(0, 0, 0));
         int bg = WinDC.SetBkColor(hdc, RGB(255, 255, 255));
-        int hbm = NULL;
+        int hbm;
         int hbmsave = NULL;
         int hbrtmp = 0;
         int memdc = NULL;
         int hbsave = NULL;
-        retval = FALSE; /* assume failure */
 
         /* From here on we must use "goto cleanup" when something goes wrong */
         hbm = WinBitmap.CreateBitmap(cx, cy, 1, 32, NULL);
         try {
-            if (hbm == 0) return FALSE;
+            if (hbm == 0) return;
             memdc = WinDC.CreateCompatibleDC(hdc);
-            if (memdc == 0) return FALSE;
+            if (memdc == 0) return;
             hbmsave = WinDC.SelectObject(memdc, hbm);
-            if (hbmsave == 0) return FALSE;
+            if (hbmsave == 0) return;
             rc.left = rc.top = 0;
             rc.right = cx;
             rc.bottom = cy;
-            if (WinDC.FillRect(memdc, rc.allocTemp(), GdiObj.GetStockObject(WHITE_BRUSH)) == 0) return FALSE;
+            if (WinDC.FillRect(memdc, rc.allocTemp(), GdiObj.GetStockObject(WHITE_BRUSH)) == 0) return;
             WinDC.SetBkColor(memdc, RGB(255, 255, 255));
             WinDC.SetTextColor(memdc, RGB(0, 0, 0));
             int hfsave = WinDC.SelectObject(memdc, GdiObj.GetCurrentObject(hdc, OBJ_FONT));
@@ -819,18 +816,18 @@ public class UiTools extends WinAPI {
             /* DST_COMPLEX may draw text as well,
              * so we must be sure that correct font is selected
              */
-            if (hfsave == 0 && (opcode <= DST_PREFIXTEXT)) return FALSE;
+            if (hfsave == 0 && (opcode <= DST_PREFIXTEXT)) return;
             int tmp = UITOOLS_DrawStateJam(memdc, opcode, func, lp, len, rc, dtflags, unicode);
             if (hfsave != 0) WinDC.SelectObject(memdc, hfsave);
-            if (tmp == 0) return FALSE;
+            if (tmp == 0) return;
 
             /* This state cause the image to be dithered */
             if ((flags & DSS_UNION) != 0) {
                 hbsave = WinDC.SelectObject(memdc, StaticData.SYSCOLOR_55AABrush);
-                if (hbsave == 0) return FALSE;
+                if (hbsave == 0) return;
                 tmp = WinDC.PatBlt(memdc, 0, 0, cx, cy, 0x00FA0089);
                 WinDC.SelectObject(memdc, hbsave);
-                if (tmp == 0) return FALSE;
+                if (tmp == 0) return;
             }
 
             if ((flags & DSS_DISABLED) != 0)
@@ -840,10 +837,10 @@ public class UiTools extends WinAPI {
 
             /* Draw light or dark shadow */
             if ((flags & (DSS_DISABLED | DSS_DEFAULT)) != 0) {
-                if (hbrtmp == 0) return FALSE;
+                if (hbrtmp == 0) return;
                 hbsave = WinDC.SelectObject(hdc, hbrtmp);
-                if (hbsave == 0) return FALSE;
-                if (BitBlt.BitBlt(hdc, x + 1, y + 1, cx, cy, memdc, 0, 0, 0x00B8074A) == 0) return FALSE;
+                if (hbsave == 0) return;
+                if (BitBlt.BitBlt(hdc, x + 1, y + 1, cx, cy, memdc, 0, 0, 0x00B8074A) == 0) return;
                 WinDC.SelectObject(hdc, hbsave);
                 GdiObj.DeleteObject(hbrtmp);
                 hbrtmp = 0;
@@ -851,16 +848,16 @@ public class UiTools extends WinAPI {
 
             if ((flags & DSS_DISABLED) != 0) {
                 hbr = hbrtmp = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DSHADOW));
-                if (hbrtmp == 0) return FALSE;
+                if (hbrtmp == 0) return;
             } else if (hbr == 0) {
                 hbr = GdiObj.GetStockObject(BLACK_BRUSH);
             }
 
             hbsave = WinDC.SelectObject(hdc, hbr);
 
-            if (BitBlt.BitBlt(hdc, x, y, cx, cy, memdc, 0, 0, 0x00B8074A) == 0) return FALSE;
+            if (BitBlt.BitBlt(hdc, x, y, cx, cy, memdc, 0, 0, 0x00B8074A) == 0) {
+            }
 
-            return TRUE; /* We succeeded */
         } finally {
             WinDC.SetTextColor(hdc, fg);
             WinDC.SetBkColor(hdc, bg);
@@ -873,25 +870,27 @@ public class UiTools extends WinAPI {
         }
     }
 
-    static int UITOOLS95_DrawFrameButton(int hdc, int rc, int uState) {
+    static void UITOOLS95_DrawFrameButton(int hdc, int rc, int uState) {
         switch (uState & 0xff) {
             case DFCS_BUTTONPUSH:
-                return UITOOLS95_DFC_ButtonPush(hdc, rc, uState);
+                UITOOLS95_DFC_ButtonPush(hdc, rc, uState);
+                return;
 
             case DFCS_BUTTONCHECK:
             case DFCS_BUTTON3STATE:
-                return UITOOLS95_DFC_ButtonCheck(hdc, rc, uState);
+                UITOOLS95_DFC_ButtonCheck(hdc, rc, uState);
+                return;
 
             case DFCS_BUTTONRADIOIMAGE:
             case DFCS_BUTTONRADIOMASK:
             case DFCS_BUTTONRADIO:
-                return UITOOLS95_DFC_ButtonRadio(hdc, rc, uState);
+                UITOOLS95_DFC_ButtonRadio(hdc, rc, uState);
+                return;
 
             default:
                 log("Invalid button state=0x" + Ptr.toString(uState));
         }
 
-        return FALSE;
     }
 
     /**
@@ -1023,7 +1022,7 @@ public class UiTools extends WinAPI {
         WinRect src = new WinRect(s);
         int Width = src.width();
         int Height = src.height();
-        int SmallDiam = Width > Height ? Height : Width;
+        int SmallDiam = Math.min(Width, Height);
 
         dst.copy(src);
 
@@ -1126,7 +1125,7 @@ public class UiTools extends WinAPI {
 
         if ((uFlags & DFCS_CHECKED) != 0) {
             i = 6 * SmallDiam / 16;
-            i = i < 1 ? 1 : i;
+            i = Math.max(i, 1);
             myr.left = xc - i + i / 2;
             myr.right = xc + i / 2;
             myr.top = yc - i + i / 2;

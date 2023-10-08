@@ -425,7 +425,7 @@ public class Int10_char {
                 for (/*Bit8u*/short h=0;h<cheight;h++) {
                     /*Bit8u*/short bitsel=128;
                     /*Bit8u*/int bitline=Memory.mem_readb(fontdata++);
-                    /*Bit8u*/short res=0;
+                    /*Bit8u*/short res;
                     /*Bit8u*/short vidline=0;
                     /*Bit16u*/int tx=x;
                     while (bitsel!=0) {
@@ -499,7 +499,7 @@ public class Int10_char {
         if(!useattr) { //Set attribute(color) to a sensible value
 
             if(!warned_use){
-                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"writechar used without attribute in non-textmode "+String.valueOf((char)chr)+" "+Integer.toString(chr,16));
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_INT10,LogSeverities.LOG_ERROR,"writechar used without attribute in non-textmode "+ (char) chr +" "+Integer.toString(chr,16));
                 warned_use = true;
             }
             switch(Int10_modes.CurMode.type) {
@@ -552,7 +552,7 @@ public class Int10_char {
                 // EGAVGA_ARCH_CASE
                 case MachineType.MCH_EGA:
                 case MachineType.MCH_VGA:
-                    page%=Int10_modes.CurMode.ptotal;
+                    page%= (short) Int10_modes.CurMode.ptotal;
                     break;
                 case MachineType.MCH_CGA:
                 case MachineType.MCH_PCJR:

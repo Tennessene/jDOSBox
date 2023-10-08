@@ -10,11 +10,9 @@ import jdos.util.StringHelper;
 
 public class Serial {
     //  DUMMY
-    public boolean Getchar(ShortRef data, ShortRef lsr, boolean wait_dsr, /*Bitu*/int timeout) {
-        return false;
+    public void Getchar(ShortRef data, ShortRef lsr, boolean wait_dsr, /*Bitu*/int timeout) {
     }
-    public boolean Putchar(short data, boolean wait_dtr, boolean wait_rts, /*Bitu*/int timeout) {
-        return false;
+    public void Putchar(short data, boolean wait_dtr, boolean wait_rts, /*Bitu*/int timeout) {
     }
     ///////////////////////////
 
@@ -85,8 +83,11 @@ public class Serial {
         /*Bit8u*/short probeByte() {
             return data[pos];
         }
-        /*Bit8u*/short[] data;
-        /*Bitu*/int maxsize,size,pos,used;
+        /*Bit8u*/final short[] data;
+        /*Bitu*/final int maxsize;
+        int size;
+        int pos;
+        int used;
     }
 
 	FileIO debugfp;
@@ -100,17 +101,19 @@ public class Serial {
             String buf = StringHelper.format(Pic.PIC_FullIndex(), 3)+" ["+StringHelper.format(Main.GetTicks(), 7)+"] ";
             buf+=format;
             if(!buf.endsWith("\n")) buf+="\r\n";
-            try {debugfp.write(buf.getBytes());} catch (Exception e){}
+            try {debugfp.write(buf.getBytes());} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-	static boolean getBituSubstring(String name,/*Bitu*/IntRef data, CommandLine cmd) {
+    static boolean getBituSubstring(String name,/*Bitu*/IntRef data, CommandLine cmd) {
         String tmpstring;
         if((tmpstring=cmd.FindStringBegin(name,false))==null) return false;
         try {
             data.value = Integer.parseInt(tmpstring);
             return true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return false;
     }

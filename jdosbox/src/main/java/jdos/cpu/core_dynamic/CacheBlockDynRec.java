@@ -37,7 +37,7 @@ public class CacheBlockDynRec {
                 }
                 if (link[ind].to!=null && link[ind].to!=this) {
                     link[ind].to.link[ind].from.remove(this);
-                    if (link[ind].to.link[ind].from.size()==0) {
+                    if (link[ind].to.link[ind].from.isEmpty()) {
                         link[ind].to.link[ind].from = null;
                     }
                     link[ind].to = null;
@@ -70,11 +70,11 @@ public class CacheBlockDynRec {
             toblock.link[index].from = new Vector();
 		toblock.link[index].from.add(this);				// remember who links me
 	}
-	public class Page {
+	public static class Page {
 		public int start,end;		// where in the page is the original code
 		public CodePageHandlerDynRec  handler;			// page containing this code
 	}
-    public Page page = new Page();
+    public final Page page = new Page();
 
 	static public class _Cache {
 		public CacheBlockDynRec next;
@@ -84,20 +84,20 @@ public class CacheBlockDynRec {
 		public /*Bit16u*/int maskstart;
 		public /*Bit16u*/int masklen;
 	}
-    public _Cache cache = new _Cache();
+    public final _Cache cache = new _Cache();
 
 	static public class _Hash {
 		/*Bitu*/int index;
 		CacheBlockDynRec next;
 	}
-    public _Hash hash = new _Hash();
+    public final _Hash hash = new _Hash();
 	static public class _Link {
 		public CacheBlockDynRec to;		// this block can transfer control to the to-block
 		public Vector from = new Vector();	// the from-block can transfer control to this block
 	}
-    public _Link[] link = new _Link[2];
-    public _Link link1;
-    public _Link link2;
+    public final _Link[] link = new _Link[2];
+    public final _Link link1;
+    public final _Link link2;
 	CacheBlockDynRec crossblock;
     public Op code;
     public SwitchBlock[] inst; // micro instructions used by Core_switch

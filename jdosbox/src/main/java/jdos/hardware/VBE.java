@@ -229,7 +229,6 @@ public class VBE {
                     {
                         if (data < vbeRegs[VBE_DISPI_INDEX_XRES])
                             return;
-                        int w = data;
                         int lineOffset;
                         if (vbeRegs[VBE_DISPI_INDEX_BPP] == 4) {
                             lineOffset = data >>> 1;
@@ -240,7 +239,7 @@ public class VBE {
                         /* XXX: support wierd bochs semantics ? */
                         if (h < vbeRegs[VBE_DISPI_INDEX_YRES])
                             return;
-                        vbeRegs[VBE_DISPI_INDEX_VIRT_WIDTH] = w;
+                        vbeRegs[VBE_DISPI_INDEX_VIRT_WIDTH] = data;
                         vbeRegs[VBE_DISPI_INDEX_VIRT_HEIGHT] = h;
                         vbeLineOffset = lineOffset;
                     }

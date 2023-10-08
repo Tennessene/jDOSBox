@@ -1,6 +1,5 @@
 package jdos.ints;
 
-import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.dos.*;
@@ -14,6 +13,8 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.IntRef;
 import jdos.util.ShortRef;
+
+import java.util.Arrays;
 
 public class XMS extends Module_base {
     static private final int XMS_HANDLES							=50;		/* 50 XMS Memory Blocks */
@@ -95,7 +96,7 @@ public class XMS extends Module_base {
     private static /*RealPt*/int xms_callback;
     private static boolean umb_available;
 
-    private static XMS_Block[] xms_handles=new XMS_Block[XMS_HANDLES];
+    private static final XMS_Block[] xms_handles=new XMS_Block[XMS_HANDLES];
 
     private static boolean InvalidHandle(/*Bitu*/int handle) {
         return (handle==0 || (handle>=XMS_HANDLES) || xms_handles[handle].free);
@@ -143,7 +144,7 @@ public class XMS extends Module_base {
 
     private static /*Bitu*/int XMS_MoveMemory(/*PhysPt*/int bpt) {
         /* Read the block with mem_read's */
-        /*Bitu*/int length=Memory.mem_readd(bpt + 0/*offsetof(XMS_MemMove,length)*/);
+        /*Bitu*/int length=Memory.mem_readd(bpt/*offsetof(XMS_MemMove,length)*/);
         /*Bitu*/int src_handle=Memory.mem_readw(bpt+4/*offsetof(XMS_MemMove,src_handle)*/);
         int src;
         int dest;
@@ -208,7 +209,8 @@ public class XMS extends Module_base {
         for (/*Bitu*/int i=1;i<XMS_HANDLES;i++) {
             if (xms_handles[i].free) numFree.value++;
         }
-        size.value=(/*Bit16u*/int)(xms_handles[handle].size);
+        /*Bit16u*/
+        size.value= xms_handles[handle].size;
         return 0;
     }
 
@@ -225,7 +227,7 @@ public class XMS extends Module_base {
         } else return XMS_OUT_OF_SPACE;
     }
 
-    static private Dos_system.MultiplexHandler multiplex_xms = new Dos_system.MultiplexHandler() {
+    static private final Dos_system.MultiplexHandler multiplex_xms = new Dos_system.MultiplexHandler() {
         public boolean call() {
             switch (CPU_Regs.reg_eax.word()) {
             case 0x4300:					/* XMS installed check */
@@ -249,7 +251,7 @@ public class XMS extends Module_base {
         CPU_Regs.reg_eax.word((res==0)?1:0);
     }
 
-    static private Callback.Handler XMS_Handler = new Callback.Handler() {
+    static private final Callback.Handler XMS_Handler = new Callback.Handler() {
         public String getName() {
             return "XMS.XMS_Handler";
         }
@@ -319,8 +321,10 @@ public class XMS extends Module_base {
                 if(res!=0) CPU_Regs.reg_ebx.low(res);
                 CPU_Regs.reg_eax.word((res==0)?1:0);
                 if (res==0) { // success
-                    CPU_Regs.reg_ebx.word((/*Bit16u*/int)(address.value & 0xFFFF));
-                    CPU_Regs.reg_edx.word((/*Bit16u*/int)(address.value >>> 16));
+                    /*Bit16u*/
+                    CPU_Regs.reg_ebx.word(address.value & 0xFFFF);
+                    /*Bit16u*/
+                    CPU_Regs.reg_edx.word(address.value >>> 16);
                 }
                 } break;
             case XMS_UNLOCK_EXTENDED_MEMORY_BLOCK:						/* 0d */
@@ -339,7 +343,7 @@ public class XMS extends Module_base {
             }
                 break;
             case XMS_RESIZE_ANY_EXTENDED_MEMORY_BLOCK:					/* 0x8f */
-                if ((CPU_Regs.reg_ebx.dword & 0xFFFFFFFFl) > CPU_Regs.reg_ebx.word()) Log.log_msg("64MB memory limit!");
+                if ((CPU_Regs.reg_ebx.dword & 0xFFFFFFFFL) > CPU_Regs.reg_ebx.word()) System.out.println("64MB memory limit!");
                 //fall through
             case XMS_RESIZE_EXTENDED_MEMORY_BLOCK:						/* 0f */
                 SET_RESULT(XMS_ResizeMemory(CPU_Regs.reg_edx.word(), CPU_Regs.reg_ebx.word()));
@@ -432,7 +436,7 @@ public class XMS extends Module_base {
         }
     };
 
-    private Callback callbackhandler = new Callback();
+    private final Callback callbackhandler = new Callback();
 
     public XMS(Section configuration) {
         super(configuration);
@@ -492,17 +496,15 @@ public class XMS extends Module_base {
 
     static XMS test;
 
-    public static Section.SectionFunction XMS_ShutDown = new Section.SectionFunction() {
+    public static final Section.SectionFunction XMS_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
             test.ShutDown();
             test = null;
-            for (int i=0;i<XMS_HANDLES;i++) {
-                xms_handles[i] = null;
-            }
+            Arrays.fill(xms_handles, null);
         }
     };
 
-    public static Section.SectionFunction XMS_Init = new Section.SectionFunction() {
+    public static final Section.SectionFunction XMS_Init = new Section.SectionFunction() {
         public void call(Section section) {
             test = new XMS(section);
             section.AddDestroyFunction(XMS_ShutDown,true);

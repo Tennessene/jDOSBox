@@ -38,7 +38,7 @@ public class Poly {
         }
     	float       x;                          /* X coordinate */
     	float       y;                          /* Y coordinate */
-    	float[]     p = new float[MAX_VERTEX_PARAMS];       /* interpolated parameter values */
+    	final float[]     p = new float[MAX_VERTEX_PARAMS];       /* interpolated parameter values */
     }
 
 
@@ -107,7 +107,7 @@ public class Poly {
                 extent[i] = new tri_extent();
             }
         }
-    	tri_extent[] extent = new tri_extent[SCANLINES_PER_BUCKET]; /* array of scanline extents */
+    	final tri_extent[] extent = new tri_extent[SCANLINES_PER_BUCKET]; /* array of scanline extents */
     }
 
 
@@ -127,7 +127,7 @@ public class Poly {
                 extent[i] = new poly_extent();
             }
         }
-    	poly_extent[] extent = new poly_extent[SCANLINES_PER_BUCKET]; /* array of scanline extents */
+    	final poly_extent[] extent = new poly_extent[SCANLINES_PER_BUCKET]; /* array of scanline extents */
     }
 
     /* polygon_info describes a single polygon, which includes the poly_params */
@@ -153,7 +153,7 @@ public class Poly {
     	poly_draw_scanline_func     callback;               /* callback to handle a scanline's worth of work */
     	int                 xorigin;                /* X origin for all parameters */
     	int                 yorigin;                /* Y origin for all parameters */
-    	poly_param[]        param = new poly_param[MAX_VERTEX_PARAMS];/* array of parameter data */
+    	final poly_param[]        param = new poly_param[MAX_VERTEX_PARAMS];/* array of parameter data */
     }
 
 
@@ -187,7 +187,7 @@ public class Poly {
         int                 flags;                  /* flags */
 
     	/* buckets */
-        int[]               unit_bucket = new int[TOTAL_BUCKETS]; /* buckets for tracking unit usage */
+        final int[]               unit_bucket = new int[TOTAL_BUCKETS]; /* buckets for tracking unit usage */
 
     	/* statistics */
         int                 triangles;              /* number of triangles queued */
@@ -199,8 +199,8 @@ public class Poly {
         int                 polygon_max;            /* maximum polygons used */
         int                 extra_waits;            /* number of times we waited for an extra data */
         int                 extra_max;              /* maximum extra data used */
-        int[]               conflicts = new int[WORK_MAX_THREADS]; /* number of conflicts found, per thread */
-    	int[]               resolved = new int[WORK_MAX_THREADS]; /* number of conflicts resolved, per thread */
+        final int[]               conflicts = new int[WORK_MAX_THREADS]; /* number of conflicts found, per thread */
+    	final int[]               resolved = new int[WORK_MAX_THREADS]; /* number of conflicts resolved, per thread */
     }
 
     /***************************************************************************
@@ -340,7 +340,7 @@ public class Poly {
     
     	/* create the work queue */
     	if ((flags & POLYFLAG_NO_WORK_QUEUE)==0)
-    		poly.queue = new LinkedList<work_unit>();
+    		poly.queue = new LinkedList<>();
 
     	return poly;
     }
@@ -597,13 +597,13 @@ public class Poly {
     	return pixels;
     }
 
-    static Thread[] threads;
+    static final Thread[] threads;
 
     static private final class PolyThread extends Thread {
-        static final LinkedList<work_unit> queue = new LinkedList<work_unit>();
+        static final LinkedList<work_unit> queue = new LinkedList<>();
         static int active = WORK_MAX_THREADS;
         static final Object busyNotifier = new Object();
-        public int id;
+        public final int id;
         static public int count;
 
         public PolyThread(int id) {
@@ -614,7 +614,7 @@ public class Poly {
                 while (true) {
                     work_unit unit;
                     synchronized (queue) {
-                        if (queue.size()==0) {
+                        if (queue.isEmpty()) {
                             if (count == 0) {
                                 synchronized (busyNotifier) {
                                     busyNotifier.notify();
@@ -622,7 +622,7 @@ public class Poly {
                             }
                             queue.wait();
                         }
-                        if (queue.size()==0)
+                        if (queue.isEmpty())
                             continue;
                         unit = queue.removeFirst();
                     }
@@ -631,8 +631,6 @@ public class Poly {
                         count--;
                     }
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -649,7 +647,9 @@ public class Poly {
         static public void waitUntilDone() {
             synchronized (busyNotifier) {
                 if (count>0) {
-                    try {busyNotifier.wait();} catch (Exception e) {}
+                    try {busyNotifier.wait();} catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
@@ -763,7 +763,7 @@ public class Poly {
         item
     -------------------------------------------------*/
 
-    static poly_extent[] tmpextents = poly_extent.create(WORK_MAX_THREADS);
+    static final poly_extent[] tmpextents = poly_extent.create(WORK_MAX_THREADS);
     static void poly_item_callback(work_unit unit, int threadid)
     {
     	while (true)

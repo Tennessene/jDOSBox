@@ -25,7 +25,7 @@ public class Dos_devices {
         /* should only check for the names before the dot and spacepadded */
         StringRef fullname = new StringRef(); ShortRef drive = new ShortRef();
 //	if(!name || !(*name)) return DOS_DEVICES; //important, but makename does it
-        if (!Dos_files.DOS_MakeName(name,fullname,drive)) return DOS_DEVICES;
+        if (Dos_files.DOS_MakeName(name, fullname, drive)) return DOS_DEVICES;
 
         int pos =fullname.value.lastIndexOf('\\');
         String name_part = null;
@@ -226,7 +226,7 @@ public class Dos_devices {
                 case 'D':/* scrolling DOWN*/
                 case 'M':/* scrolling UP*/
                 default:
-                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unknown char "+String.valueOf((char)data[count])+" after a esc"); /*prob () */
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unknown char "+ (char) data[count] +" after a esc"); /*prob () */
                     ClearAnsi();
                     break;
                 }
@@ -435,7 +435,7 @@ public class Dos_devices {
                 case 'p':/* reassign keys (needs strings) */
                 case 'i':/* printer stuff */
                 default:
-                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unhandled char "+String.valueOf((char)data[count])+" in esc[");
+                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_IOCTL,LogSeverities.LOG_NORMAL,"ANSI: unhandled char "+ (char) data[count] +" in esc[");
                     ClearAnsi();
                     break;
                 }
@@ -489,7 +489,7 @@ public class Dos_devices {
             boolean sci;
             boolean enabled;
             /*Bit8u*/short attr;
-            /*Bit8u*/byte[] data=new byte[NUMBER_ANSI_DATA];
+            /*Bit8u*/final byte[] data=new byte[NUMBER_ANSI_DATA];
             /*Bit8u*/short numberofarg;
             /*Bit16u*/int nrows;
             /*Bit16u*/int ncols;
@@ -497,6 +497,6 @@ public class Dos_devices {
             /*Bit8s*/byte saverow;
             boolean warned;
         }
-        private Ansi ansi = new Ansi();
+        private final Ansi ansi = new Ansi();
     }
 }

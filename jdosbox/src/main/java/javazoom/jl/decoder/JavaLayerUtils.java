@@ -118,13 +118,13 @@ public class JavaLayerUtils
 		
 		Object obj = deserialize(in);
 		
-		Class cls = obj.getClass();
+		Class<? extends Object> cls = obj.getClass();
 		
 		
 		if (!cls.isArray())
 			throw new InvalidObjectException("object is not an array");
 		
-		Class arrayElemType = cls.getComponentType();
+		Class<?> arrayElemType = cls.getComponentType();
 		if (arrayElemType!=elemType)
 			throw new InvalidObjectException("unexpected array component type");
 				
@@ -144,10 +144,8 @@ public class JavaLayerUtils
 		InputStream str = getResourceAsStream(name);
 		if (str==null)
 			throw new IOException("unable to load resource '"+name+"'");
-		
-		Object obj = deserializeArray(str, elemType, length);
-		
-		return obj;
+
+        return deserializeArray(str, elemType, length);
 	}	
 	
 	static public void serialize(OutputStream out, Object obj)
@@ -190,7 +188,7 @@ public class JavaLayerUtils
 	 */
 	static synchronized public InputStream getResourceAsStream(String name)
 	{
-		InputStream is = null;
+		InputStream is;
 		
 		if (hook!=null)
 		{
@@ -198,7 +196,7 @@ public class JavaLayerUtils
 		}
 		else
 		{
-			Class cls = JavaLayerUtils.class;
+			Class<JavaLayerUtils> cls = JavaLayerUtils.class;
 			is = cls.getResourceAsStream(name);
 		}
 		

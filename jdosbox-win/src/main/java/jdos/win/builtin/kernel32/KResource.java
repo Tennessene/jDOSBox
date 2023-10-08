@@ -8,8 +8,7 @@ import jdos.win.system.WinSystem;
 
 public class KResource extends WinAPI {
     // BOOL WINAPI FreeResource(HGLOBAL hglbResource)
-    static public int FreeResource(int hglbResource) {
-        return TRUE;
+    static public void FreeResource(int hglbResource) {
     }
 
     // HRSRC WINAPI FindResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType)

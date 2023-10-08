@@ -4,13 +4,12 @@ import jdos.win.system.WinObject;
 
 public class WinIcon extends WinObject {
     static public WinIcon create(int instance, int name) {
-        WinIcon icon = new WinIcon(nextObjectId());
-        return icon;
+        return new WinIcon(nextObjectId());
     }
 
     static public WinIcon get(int handle) {
         WinObject object = getObject(handle);
-        if (object == null || !(object instanceof WinIcon))
+        if (!(object instanceof WinIcon))
             return null;
         return (WinIcon)object;
     }

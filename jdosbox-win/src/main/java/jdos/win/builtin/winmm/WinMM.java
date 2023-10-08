@@ -55,7 +55,7 @@ public class WinMM extends BuiltinModule {
 
     // :TODO: This code can use a lot of work
     // MCIERROR mciSendCommand(MCIDEVICEID IDDevice, UINT uMsg, DWORD_PTR fdwCommand, DWORD_PTR dwParam)
-    private Callback.Handler mciSendCommandA = new HandlerBase() {
+    private final Callback.Handler mciSendCommandA = new HandlerBase() {
         static final private int MCI_OPEN_SHAREABLE =            0x00000100;
         static final private int MCI_OPEN_ELEMENT =              0x00000200;
         static final private int MCI_OPEN_ALIAS =                0x00000400;
@@ -201,7 +201,7 @@ public class WinMM extends BuiltinModule {
     };
 
     // UINT mixerGetNumDevs(void)
-    private Callback.Handler mixerGetNumDevs = new HandlerBase() {
+    private final Callback.Handler mixerGetNumDevs = new HandlerBase() {
         public java.lang.String getName() {
             return "WinMM.mixerGetNumDevs";
         }

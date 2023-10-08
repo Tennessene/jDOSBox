@@ -10,10 +10,10 @@ import java.awt.geom.Line2D;
 
 public class PaintingGDI extends WinAPI {
     // BOOL LineTo(HDC hdc, int nXEnd, int nYEnd)
-    static public int LineTo(int hdc, int nXEnd, int nYEnd) {
+    static public void LineTo(int hdc, int nXEnd, int nYEnd) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null) {
-            return FALSE;
+            return;
         }
 
         Graphics2D g = dc.getGraphics();
@@ -25,14 +25,13 @@ public class PaintingGDI extends WinAPI {
         g.dispose();
         if (dc.getImage() == StaticData.screen.getImage())
             Main.drawImage(dc.getImage());
-        return TRUE;
     }
 
     // BOOL MoveToEx(HDC hdc, int X, int Y, LPPOINT lpPoint)
-    static public int MoveToEx(int hdc, int X, int Y, int lpPoint) {
+    static public void MoveToEx(int hdc, int X, int Y, int lpPoint) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null) {
-            return FALSE;
+            return;
         }
         if (lpPoint!=0) {
             WinPoint p = new WinPoint(dc.CursPosX, dc.CursPosY);
@@ -40,17 +39,16 @@ public class PaintingGDI extends WinAPI {
         }
         dc.CursPosX = X;
         dc.CursPosY = Y;
-        return TRUE;
     }
 
     // BOOL Polygon(HDC hdc, const POINT* lpPoints, int nCount)
-    static public int Polygon(int hdc, int lpPoints, int nCount) {
+    static public void Polygon(int hdc, int lpPoints, int nCount) {
         WinDC dc = WinDC.get(hdc);
         WinBrush brush = WinBrush.get(dc.hBrush);
         WinPen pen = WinPen.get(dc.hPen);
 
-        if (dc == null || brush == null || pen == null) {
-            return FALSE;
+        if (brush == null || pen == null) {
+            return;
         }
 
         int[] x = new int[nCount];
@@ -74,6 +72,5 @@ public class PaintingGDI extends WinAPI {
         g.dispose();
         if (dc.getImage() == StaticData.screen.getImage())
             Main.drawImage(dc.getImage());
-        return TRUE;
     }
 }

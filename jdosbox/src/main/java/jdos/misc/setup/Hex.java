@@ -1,7 +1,7 @@
 package jdos.misc.setup;
 
 public class Hex {
-    int _hex;
+    final int _hex;
 
     public Hex() {
         _hex = 0;

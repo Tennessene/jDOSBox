@@ -76,7 +76,7 @@ public class LongHelper {
                 }
             }
         }
-        if (quot>0xffffffffl) {
+        if (quot> 0xffffffffL) {
             throw new OverflowException();
         }
         return (rem << 32) | (quot & 0xffffffffL);

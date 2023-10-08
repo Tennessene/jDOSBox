@@ -21,7 +21,7 @@ public class WinBitmap extends WinGDI {
 
     static public WinBitmap get(int handle) {
         WinObject object = getObject(handle);
-        if (object == null || !(object instanceof WinBitmap))
+        if (!(object instanceof WinBitmap))
             return null;
         return (WinBitmap)object;
     }
@@ -145,10 +145,8 @@ public class WinBitmap extends WinGDI {
             refPalette = WinPalette.get(hPalette).palette;
 
         if (biSizeImage == 0) {
-            if (bitCount<8)
-                biSizeImage = (((bitCount * width + 7) / 8 + 3) & ~3)* Math.abs(height);
-            else
-                biSizeImage = (((bitCount + 7) / 8 * width + 3) & ~3)* Math.abs(height);
+            if (bitCount<8) {
+            }
         }
         bits = address+40;
 

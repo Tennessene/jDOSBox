@@ -8,6 +8,8 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.ShortPtr;
 
+import java.util.Arrays;
+
 public class Gameblaster {
     static final private int LEFT = 0x00;
     static final private int RIGHT = 0x01;
@@ -21,8 +23,8 @@ public class Gameblaster {
         int freq_enable;		/* frequency enable */
         int noise_enable;		/* noise enable */
         int octave; 			/* octave (0x00..0x07) */
-        int[] amplitude=new int[2];		/* amplitude (0x00..0x0f) */
-        int[] envelope=new int[2];		/* envelope (0x00..0x0f or 0x10 == off) */
+        final int[] amplitude=new int[2];		/* amplitude (0x00..0x0f) */
+        final int[] envelope=new int[2];		/* envelope (0x00..0x0f or 0x10 == off) */
 
         /* vars to simulate the square wave */
         double counter;
@@ -51,18 +53,18 @@ public class Gameblaster {
             }
         }
         int stream;						/* our stream */
-        int[] noise_params=new int[2];			/* noise generators parameters */
-        int[] env_enable=new int[2];				/* envelope generators enable */
-        int[] env_reverse_right=new int[2];		/* envelope reversed for right channel */
-        int[] env_mode=new int[2];				/* envelope generators mode */
-        int[] env_bits=new int[2];				/* non zero = 3 bits resolution */
-        int[] env_clock=new int[2];				/* envelope clock mode (non-zero external) */
-        int[] env_step=new int[2];                /* current envelope step */
+        final int[] noise_params=new int[2];			/* noise generators parameters */
+        final int[] env_enable=new int[2];				/* envelope generators enable */
+        final int[] env_reverse_right=new int[2];		/* envelope reversed for right channel */
+        final int[] env_mode=new int[2];				/* envelope generators mode */
+        final int[] env_bits=new int[2];				/* non zero = 3 bits resolution */
+        final int[] env_clock=new int[2];				/* envelope clock mode (non-zero external) */
+        final int[] env_step=new int[2];                /* current envelope step */
         int all_ch_enable;				/* all channels enable */
         int sync_state;					/* sync all channels */
         int selected_reg;				/* selected register */
-        saa1099_channel[] channels=new saa1099_channel[6];    /* channels */
-        saa1099_noise[] noise=new saa1099_noise[2];	/* noise generators */
+        final saa1099_channel[] channels=new saa1099_channel[6];    /* channels */
+        final saa1099_noise[] noise=new saa1099_noise[2];	/* noise generators */
     }
 
     private final static /*UINT8*/byte[][] envelope = new byte[][] {
@@ -110,7 +112,7 @@ public class Gameblaster {
 
 
     static final private int[] amplitude_lookup = new int[] {
-         0*32767/16,  1*32767/16,  2*32767/16,	3*32767/16,
+         0 /16,  32767 /16,  2*32767/16,	3*32767/16,
          4*32767/16,  5*32767/16,  6*32767/16,	7*32767/16,
          8*32767/16,  9*32767/16, 10*32767/16, 11*32767/16,
         12*32767/16, 13*32767/16, 14*32767/16, 15*32767/16
@@ -118,9 +120,9 @@ public class Gameblaster {
 
     /* global parameters */
     private static double sample_rate;
-    private static SAA1099[] saa1099 = new SAA1099[2];
+    private static final SAA1099[] saa1099 = new SAA1099[2];
     private static Mixer.MixerChannel cms_chan;
-    private static /*Bit16s*/ShortPtr[][] cms_buffer=new ShortPtr[2][2];
+    private static final /*Bit16s*/ShortPtr[][] cms_buffer=new ShortPtr[2][2];
 
     static {
         cms_buffer[0][0] = new ShortPtr(CMS_BUFFER_SIZE);
@@ -130,8 +132,8 @@ public class Gameblaster {
         cms_buf_point0 = new ShortPtr[] {cms_buffer[0][0],cms_buffer[0][1]};
         cms_buf_point2 = new ShortPtr[] {cms_buffer[1][0],cms_buffer[1][1]};
     }
-    private static /*Bit16s*/ ShortPtr[] cms_buf_point0;
-    private static /*Bit16s*/ ShortPtr[] cms_buf_point2;
+    private static final /*Bit16s*/ ShortPtr[] cms_buf_point0;
+    private static final /*Bit16s*/ ShortPtr[] cms_buf_point2;
 
     private static /*Bitu*/int last_command;
     private static /*Bitu*/int base_port;
@@ -152,18 +154,18 @@ public class Gameblaster {
             if (saa.env_bits[ch]!=0)
                 mask &= ~1; 	/* 3 bit resolution, mask LSB */
 
-            saa.channels[ch*3+0].envelope[ LEFT] =
+            saa.channels[ch * 3].envelope[ LEFT] =
             saa.channels[ch*3+1].envelope[ LEFT] =
             saa.channels[ch*3+2].envelope[ LEFT] = envelope[mode][step] & mask;
             if ((saa.env_reverse_right[ch] & 0x01)!=0)
             {
-                saa.channels[ch*3+0].envelope[RIGHT] =
+                saa.channels[ch * 3].envelope[RIGHT] =
                 saa.channels[ch*3+1].envelope[RIGHT] =
                 saa.channels[ch*3+2].envelope[RIGHT] = (15 - envelope[mode][step]) & mask;
             }
             else
             {
-                saa.channels[ch*3+0].envelope[RIGHT] =
+                saa.channels[ch * 3].envelope[RIGHT] =
                 saa.channels[ch*3+1].envelope[RIGHT] =
                 saa.channels[ch*3+2].envelope[RIGHT] = envelope[mode][step] & mask;
             }
@@ -171,10 +173,10 @@ public class Gameblaster {
         else
         {
             /* envelope mode off, set all envelope factors to 16 */
-            saa.channels[ch*3+0].envelope[ LEFT] =
+            saa.channels[ch * 3].envelope[ LEFT] =
             saa.channels[ch*3+1].envelope[ LEFT] =
             saa.channels[ch*3+2].envelope[ LEFT] =
-            saa.channels[ch*3+0].envelope[RIGHT] =
+            saa.channels[ch * 3].envelope[RIGHT] =
             saa.channels[ch*3+1].envelope[RIGHT] =
             saa.channels[ch*3+2].envelope[RIGHT] = 16;
         }
@@ -311,7 +313,7 @@ public class Gameblaster {
         /* channel i octave */
         case 0x10:	case 0x11:	case 0x12:
             ch = (reg - 0x10) << 1;
-            saa.channels[ch + 0].octave = data & 0x07;
+            saa.channels[ch].octave = data & 0x07;
             saa.channels[ch + 1].octave = (data >> 4) & 0x07;
             break;
         /* channel i frequency enable */
@@ -370,7 +372,7 @@ public class Gameblaster {
         }
     }
 
-    private static IoHandler.IO_WriteHandler write_cms = new IoHandler.IO_WriteHandler() {
+    private static final IoHandler.IO_WriteHandler write_cms = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             if(cms_chan!=null && (!cms_chan.enabled)) cms_chan.Enable(true);
             last_command = Pic.PIC_Ticks;
@@ -391,12 +393,12 @@ public class Gameblaster {
         }
     };
 
-    private static Mixer.MIXER_Handler CMS_CallBack = new Mixer.MIXER_Handler() {
+    private static final Mixer.MIXER_Handler CMS_CallBack = new Mixer.MIXER_Handler() {
         public void call(/*Bitu*/int len) {
             if (len > CMS_BUFFER_SIZE) return;
 
-            saa1099_update(0, cms_buf_point0, (int)len);
-            saa1099_update(1, cms_buf_point2, (int)len);
+            saa1099_update(0, cms_buf_point0, len);
+            saa1099_update(1, cms_buf_point2, len);
 
              /*Bit16s*/short[] stream=Mixer.MixTemp16;
             int streamOff = 0;
@@ -423,7 +425,7 @@ public class Gameblaster {
     // The Gameblaster detection
     private static /*Bit8u*/short cms_detect_register = 0xff;
 
-    static private IoHandler.IO_WriteHandler write_cms_detect = new IoHandler.IO_WriteHandler() {
+    static private final IoHandler.IO_WriteHandler write_cms_detect = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             switch(port-base_port) {
             case 0x6:
@@ -434,7 +436,7 @@ public class Gameblaster {
         }
     };
 
-    static private IoHandler.IO_ReadHandler read_cms_detect = new IoHandler.IO_ReadHandler() {
+    static private final IoHandler.IO_ReadHandler read_cms_detect = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             /*Bit8u*/short retval = 0xff;
             switch(port-base_port) {
@@ -451,16 +453,16 @@ public class Gameblaster {
     };
 
     static private class CMS extends Module_base {
-        private IoHandler.IO_WriteHandleObject WriteHandler = new IoHandler.IO_WriteHandleObject();
-        private IoHandler.IO_WriteHandleObject DetWriteHandler = new IoHandler.IO_WriteHandleObject();
-        private IoHandler.IO_ReadHandleObject DetReadHandler = new IoHandler.IO_ReadHandleObject();
-        private Mixer.MixerObject MixerChan = new Mixer.MixerObject();
+        private final IoHandler.IO_WriteHandleObject WriteHandler = new IoHandler.IO_WriteHandleObject();
+        private final IoHandler.IO_WriteHandleObject DetWriteHandler = new IoHandler.IO_WriteHandleObject();
+        private final IoHandler.IO_ReadHandleObject DetReadHandler = new IoHandler.IO_ReadHandleObject();
+        private final Mixer.MixerObject MixerChan = new Mixer.MixerObject();
 
         public CMS(Section configuration) {
             super(configuration);
             Section_prop section = (Section_prop)(configuration);
             /*Bitu*/int sample_rate_temp = section.Get_int("oplrate");
-            sample_rate = (double)(sample_rate_temp);
+            sample_rate = sample_rate_temp;
             base_port = section.Get_hex("sbbase").toInt();
             WriteHandler.Install(base_port, write_cms, IoHandler.IO_MB,4);
 
@@ -494,8 +496,7 @@ public class Gameblaster {
     static public void CMS_ShutDown(Section sec) {
         test.close();
         test = null;
-        for (int i=0;i<saa1099.length;i++)
-            saa1099[i] = null;
+        Arrays.fill(saa1099, null);
     }
 
 }

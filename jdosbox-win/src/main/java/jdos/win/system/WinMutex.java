@@ -9,7 +9,7 @@ public class WinMutex extends WaitObject {
 
     static public WinMutex get(int handle) {
         WinObject object = getObject(handle);
-        if (object == null || !(object instanceof WinMutex))
+        if (!(object instanceof WinMutex))
             return null;
         return (WinMutex)object;
     }

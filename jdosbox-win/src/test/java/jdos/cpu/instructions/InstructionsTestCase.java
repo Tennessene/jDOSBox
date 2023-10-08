@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 abstract public class InstructionsTestCase extends TestCase {
     // static CPU.CPU_Decoder decoder = Core_normal.CPU_Core_Normal_Run;
     //static CPU.CPU_Decoder decoder = Core_dynamic.CPU_Core_Dynamic_Run;
-    static CPU.CPU_Decoder decoder = Core_switch.CPU_Core_Switch_Run;
+    static final CPU.CPU_Decoder decoder = Core_switch.CPU_Core_Switch_Run;
     protected int cseip = 0x10000;
     protected final static int MEM_BASE_DS = 0x2000;
     protected final static int MEM_BASE_SS = 0x3000;
@@ -58,9 +58,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Mod.ed(rm).dword(ed);
         decoder.call();
         if (gdResult)
-            assertTrue(Mod.gd(rm).dword==(int)result);
+            assertEquals(Mod.gd(rm).dword, (int) result);
         else
-            assertTrue(Mod.ed(rm).dword==(int)result);
+            assertEquals(Mod.ed(rm).dword, (int) result);
     }
 
     protected void runRegs(byte op, long ed, long gd, boolean gbResult, long result, long result2) {
@@ -72,14 +72,14 @@ abstract public class InstructionsTestCase extends TestCase {
             decoder.call();
             if (Mod.gd(rm) == Mod.ed(rm)) {
                 if (gbResult)
-                    assertTrue("rm = "+rm, Mod.gd(rm).dword==(int)result2);
+                    assertEquals("rm = " + rm, Mod.gd(rm).dword, (int) result2);
                 else
-                    assertTrue("rm = "+rm, Mod.ed(rm).dword==(int)result2);
+                    assertEquals("rm = " + rm, Mod.ed(rm).dword, (int) result2);
             } else {
                 if (gbResult)
-                    assertTrue("rm = "+rm, Mod.gd(rm).dword==(int)result);
+                    assertEquals("rm = " + rm, Mod.gd(rm).dword, (int) result);
                 else
-                    assertTrue("rm = "+rm, Mod.ed(rm).dword==(int)result);
+                    assertEquals("rm = " + rm, Mod.ed(rm).dword, (int) result);
             }
         }
     }
@@ -90,10 +90,10 @@ abstract public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIw((short)value);
-        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.ew(rm).word(eb);
         decoder.call();
-        assertTrue((short) Mod.ew(rm).word()==(short)result);
+        assertEquals((short) Mod.ew(rm).word(), (short) result);
 
         CPU_Regs.flags = flags;
         rm-=0xC1;
@@ -104,9 +104,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
         Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
         decoder.call();
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)result);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) result);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -118,10 +118,10 @@ abstract public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb(value);
-        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.ew(rm).word(eb);
         decoder.call();
-        assertTrue((short) Mod.ew(rm).word()==(short)result);
+        assertEquals((short) Mod.ew(rm).word(), (short) result);
 
         CPU_Regs.flags = flags;
         rm-=0xC1;
@@ -132,9 +132,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
         Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
         decoder.call();
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)result);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) result);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -145,15 +145,15 @@ abstract public class InstructionsTestCase extends TestCase {
         int flags = CPU_Regs.flags;
         newInstruction(op);
         pushIb((byte)rm);
-        Mod.ed(rm).dword(0xABCDEF12);
-        Mod.gd(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
+        Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.gd(rm).word(gd);
         Mod.ed(rm).word(ed);
         decoder.call();
         if (gdResult)
-            assertTrue((short) Mod.gd(rm).word()==(short)result);
+            assertEquals((short) Mod.gd(rm).word(), (short) result);
         else
-            assertTrue((short) Mod.ed(rm).word()==(short)result);
+            assertEquals((short) Mod.ed(rm).word(), (short) result);
 
         CPU_Regs.flags = flags;
         
@@ -165,11 +165,11 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS+2, 0xCDCD);
         decoder.call();
         if (gdResult)
-            assertTrue((short) Mod.gd(rm).word()==(short)result);
+            assertEquals((short) Mod.gd(rm).word(), (short) result);
         else
-            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)result);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2) == (short)0xCDCD);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2) == (short)0xCDCD);
+            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) result);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDCD);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDCD);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -184,9 +184,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Mod.ed(rm).dword=ed;
         decoder.call();
         if (gdResult)
-            assertTrue(Mod.gd(rm).dword==result);
+            assertEquals(Mod.gd(rm).dword, result);
         else
-            assertTrue(Mod.ed(rm).dword==result);
+            assertEquals(Mod.ed(rm).dword, result);
 
         CPU_Regs.flags = flags;
 
@@ -198,11 +198,11 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writed(MEM_BASE_DS + 4, 0xCDCDCDCD);
         decoder.call();
         if (gdResult)
-            assertTrue(Mod.gd(rm).dword==result);
+            assertEquals(Mod.gd(rm).dword, result);
         else
-            assertTrue(Memory.mem_readd(MEM_BASE_DS)==result);
-        assertTrue(Memory.mem_readd(MEM_BASE_DS - 4) == 0xCDCDCDCD);
-        assertTrue(Memory.mem_readd(MEM_BASE_DS + 4) == 0xCDCDCDCD);
+            assertEquals(Memory.mem_readd(MEM_BASE_DS), result);
+        assertEquals(0xCDCDCDCD, Memory.mem_readd(MEM_BASE_DS - 4));
+        assertEquals(0xCDCDCDCD, Memory.mem_readd(MEM_BASE_DS + 4));
         Memory.mem_writed(MEM_BASE_DS - 4, 0);
         Memory.mem_writed(MEM_BASE_DS, 0);
         Memory.mem_writed(MEM_BASE_DS + 4, 0);
@@ -214,7 +214,7 @@ abstract public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIw((short) value);
-        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.ew(rm).word(eb);
         decoder.call();
         assertFlags(state);
@@ -228,9 +228,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
         decoder.call();
         assertFlags(state);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)eb);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) eb);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -242,7 +242,7 @@ abstract public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb(value);
-        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.ew(rm).word(eb);
         decoder.call();
         assertFlags(state);
@@ -250,15 +250,15 @@ abstract public class InstructionsTestCase extends TestCase {
         rm-=0xC1;
         newInstruction(op);
         pushIb((byte)rm);
-        pushIw((short)value);
+        pushIw(value);
         Memory.mem_writew(MEM_BASE_DS, eb);
         Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
         Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
         decoder.call();
         assertFlags(state);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)eb);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) eb);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -269,8 +269,8 @@ abstract public class InstructionsTestCase extends TestCase {
         int flags = CPU_Regs.flags;
         newInstruction(op);
         pushIb((byte)rm);
-        Mod.ed(rm).dword(0xABCDEF12);
-        Mod.gd(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
+        Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.gd(rm).word(gd);
         Mod.ed(rm).word(ed);
         decoder.call();
@@ -286,8 +286,8 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writew(MEM_BASE_DS + 2, 0xCDCD);
         decoder.call();
         assertFlags(state);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2) == (short)0xCDCD);
-        assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2) == (short)0xCDCD);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDCD);
+        assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDCD);
         Memory.mem_writew(MEM_BASE_DS-2, 0);
         Memory.mem_writew(MEM_BASE_DS, 0);
         Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -298,10 +298,10 @@ abstract public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xc0+rm+i));
             pushIw((short)value);
-            Mod.ed(rm+i).dword(0xABCDEF12);
+            Mod.ed(rm+i).dword(0xffff_ffff_abcd_ef12L);
             Mod.ew(rm+i).word(eb);
             decoder.call();
-            assertTrue("rm = "+(0xC0+rm+i), (short) Mod.ew(rm+i).word()==(short)result);
+            assertEquals("rm = " + (0xC0 + rm + i), (short) Mod.ew(rm + i).word(), (short) result);
         }
     }
 
@@ -310,10 +310,10 @@ abstract public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xc0+rm+i));
             pushIb(value);
-            Mod.ed(rm+i).dword(0xABCDEF12);
+            Mod.ed(rm+i).dword(0xffff_ffff_abcd_ef12L);
             Mod.ew(rm+i).word(eb);
             decoder.call();
-            assertTrue("rm = "+(0xC0+rm+i), (short) Mod.ew(rm+i).word()==(short)result);
+            assertEquals("rm = " + (0xC0 + rm + i), (short) Mod.ew(rm + i).word(), (short) result);
         }
     }
 
@@ -321,21 +321,21 @@ abstract public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
-            Mod.ed(rm).dword(0xABCDEF12);
-            Mod.gd(rm).dword(0xABCDEF12);
+            Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
+            Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
             Mod.gw(rm).word(gw);
             Mod.ew(rm).word(ew);
             decoder.call();
             if (Mod.gw(rm) == Mod.ew(rm)) {
                 if (gbResult)
-                    assertTrue("rm = "+rm, (short) Mod.gw(rm).word()==(short)result2);
+                    assertEquals("rm = " + rm, (short) Mod.gw(rm).word(), (short) result2);
                 else
-                    assertTrue("rm = "+rm, (short) Mod.ew(rm).word()==(short)result2);
+                    assertEquals("rm = " + rm, (short) Mod.ew(rm).word(), (short) result2);
             } else {
                 if (gbResult)
-                    assertTrue("rm = "+rm, (short) Mod.gw(rm).word()==(short)result);
+                    assertEquals("rm = " + rm, (short) Mod.gw(rm).word(), (short) result);
                 else
-                    assertTrue("rm = "+rm, (short) Mod.ew(rm).word()==(short)result);
+                    assertEquals("rm = " + rm, (short) Mod.ew(rm).word(), (short) result);
             }
         }
     }
@@ -349,14 +349,14 @@ abstract public class InstructionsTestCase extends TestCase {
             decoder.call();
             if (Mod.gd(rm) == Mod.ed(rm)) {
                 if (gdResult)
-                    assertTrue("rm = "+rm, Mod.gd(rm).dword==result2);
+                    assertEquals("rm = " + rm, Mod.gd(rm).dword, result2);
                 else
-                    assertTrue("rm = "+rm, Mod.ed(rm).dword==result2);
+                    assertEquals("rm = " + rm, Mod.ed(rm).dword, result2);
             } else {
                 if (gdResult)
-                    assertTrue("rm = "+rm, Mod.gd(rm).dword==result);
+                    assertEquals("rm = " + rm, Mod.gd(rm).dword, result);
                 else
-                    assertTrue("rm = "+rm, Mod.ed(rm).dword==result);
+                    assertEquals("rm = " + rm, Mod.ed(rm).dword, result);
             }
         }
     }
@@ -366,7 +366,7 @@ abstract public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xC0+rm+i));
             pushIw((short)value);
-            Mod.ed(rm).dword(0xABCDEF12);
+            Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
             Mod.ew(rm).word(eb);
             decoder.call();
             assertTrue("rm = "+rm, Flags.TFLG_L());
@@ -378,7 +378,7 @@ abstract public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xC0+rm+i));
             pushIb(value);
-            Mod.ed(rm).dword(0xABCDEF12);
+            Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
             Mod.ew(rm).word(eb);
             decoder.call();
             assertTrue("rm = "+rm, Flags.TFLG_L());
@@ -389,8 +389,8 @@ abstract public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
-            Mod.ed(rm).dword(0xABCDEF12);
-            Mod.gd(rm).dword(0xABCDEF12);
+            Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
+            Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
             Mod.gw(rm).word(gw);
             Mod.ew(rm).word(ew);
             decoder.call();
@@ -407,15 +407,15 @@ abstract public class InstructionsTestCase extends TestCase {
         int flags = CPU_Regs.flags;
         newInstruction(op);
         pushIb((byte)rm);
-        Mod.ed(rm).dword(0xABCDEF12);
-        Mod.gd(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
+        Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.gb(rm).set8((short)gb);
         Mod.eb(rm).set8((short)eb);
         decoder.call();
         if (gbResult)
-            assertTrue((byte) Mod.gb(rm).get8()==(byte)result);
+            assertEquals((byte) Mod.gb(rm).get8(), (byte) result);
         else
-            assertTrue((byte) Mod.eb(rm).get8()==(byte)result);
+            assertEquals((byte) Mod.eb(rm).get8(), (byte) result);
 
         CPU_Regs.flags = flags;
 
@@ -427,11 +427,11 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
         decoder.call();
         if (gbResult)
-            assertTrue((byte) Mod.gb(rm).get8()==(byte)result);
+            assertEquals((byte) Mod.gb(rm).get8(), (byte) result);
         else
-            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)result);            
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
+            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) result);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
         Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -443,10 +443,10 @@ abstract public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb((byte)value);
-        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.eb(rm).set8((short)eb);
         decoder.call();
-        assertTrue((byte) Mod.eb(rm).get8()==(byte)result);
+         assertEquals((byte) Mod.eb(rm).get8(), (byte) result);
 
         CPU_Regs.flags = flags;
         rm-=0xC1;
@@ -457,9 +457,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
         Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
         decoder.call();
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)result);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
+         assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) result);
+         assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
+         assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
         Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -486,16 +486,16 @@ abstract public class InstructionsTestCase extends TestCase {
 
         newInstruction(op);
         pushIb((byte)0x00);
-        Mod.gd(rm).dword(0xABCDEF12);
+        Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.gb(rm).set8((short)gb);
         Memory.mem_writeb(MEM_BASE_DS, eb);
         Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
         Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
         decoder.call();
         assertFlags(state);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)eb);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) eb);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
         Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -507,7 +507,7 @@ abstract public class InstructionsTestCase extends TestCase {
         newInstruction(op);
         pushIb((byte)rm);
         pushIb((byte)value);
-        Mod.ed(rm).dword(0xABCDEF12);
+        Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
         Mod.eb(rm).set8((short)eb);
         decoder.call();
         assertFlags(state);
@@ -521,9 +521,9 @@ abstract public class InstructionsTestCase extends TestCase {
         Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
         decoder.call();
         assertFlags(state);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)eb);
-        assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) eb);
+        assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
         Memory.mem_writeb(MEM_BASE_DS-1, 0);
         Memory.mem_writeb(MEM_BASE_DS, 0);
         Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -533,21 +533,21 @@ abstract public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
-            Mod.ed(rm).dword(0xABCDEF12);
-            Mod.gd(rm).dword(0xABCDEF12);
+            Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
+            Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
             Mod.gb(rm).set8((short)gb);
             Mod.eb(rm).set8((short)eb);
             decoder.call();
             if (Mod.gb(rm) == Mod.eb(rm)) {
                 if (gbResult)
-                    assertTrue("rm = "+rm, (byte) Mod.gb(rm).get8()==(byte)result2);
+                    assertEquals("rm = " + rm, (byte) Mod.gb(rm).get8(), (byte) result2);
                 else
-                    assertTrue("rm = "+rm, (byte) Mod.eb(rm).get8()==(byte)result2);
+                    assertEquals("rm = " + rm, (byte) Mod.eb(rm).get8(), (byte) result2);
             } else {
                 if (gbResult)
-                    assertTrue("rm = "+rm, (byte) Mod.gb(rm).get8()==(byte)result);
+                    assertEquals("rm = " + rm, (byte) Mod.gb(rm).get8(), (byte) result);
                 else
-                    assertTrue("rm = "+rm, (byte) Mod.eb(rm).get8()==(byte)result);
+                    assertEquals("rm = " + rm, (byte) Mod.eb(rm).get8(), (byte) result);
             }
         }
     }
@@ -557,10 +557,10 @@ abstract public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xc0+rm+i));
             pushIb(value);
-            Mod.ed(rm+i).dword(0xABCDEF12);
+            Mod.ed(rm+i).dword(0xffff_ffff_abcd_ef12L);
             Mod.eb(rm+i).set8((short)eb);
             decoder.call();
-            assertTrue("rm = "+(0xC0+rm+i), (byte) Mod.eb(rm+i).get8()==(byte)result);
+            assertEquals("rm = " + (0xC0 + rm + i), (byte) Mod.eb(rm + i).get8(), (byte) result);
         }
     }
 
@@ -568,8 +568,8 @@ abstract public class InstructionsTestCase extends TestCase {
         for (int rm=192;rm<256;rm++) {
             newInstruction(op);
             pushIb((byte)rm);
-            Mod.ed(rm).dword(0xABCDEF12);
-            Mod.gd(rm).dword(0xABCDEF12);
+            Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
+            Mod.gd(rm).dword(0xffff_ffff_abcd_ef12L);
             Mod.gb(rm).set8((short)gb);
             Mod.eb(rm).set8((short)eb);
             decoder.call();
@@ -586,7 +586,7 @@ abstract public class InstructionsTestCase extends TestCase {
             newInstruction(op);
             pushIb((byte)(0xC0+rm+i));
             pushIb((byte)value);
-            Mod.ed(rm).dword(0xABCDEF12);
+            Mod.ed(rm).dword(0xffff_ffff_abcd_ef12L);
             Mod.eb(rm).set8((short)eb);
             decoder.call();
             assertTrue("rm = "+rm, Flags.TFLG_L());
@@ -603,8 +603,8 @@ abstract public class InstructionsTestCase extends TestCase {
         CPU_Regs.reg_esi.dword(0);
         CPU_Regs.reg_edi.dword(0);
     }
-    Section_prop dosbox_prop = new Section_prop("dosbox");
-    Section_prop cpu_prop = new Section_prop("cpu");
+    final Section_prop dosbox_prop = new Section_prop("dosbox");
+    final Section_prop cpu_prop = new Section_prop("cpu");
 
     protected void setUp() throws java.lang.Exception  {
         super.setUp();

@@ -5,35 +5,35 @@ import junit.framework.TestCase;
 
 public class testHeap extends TestCase {
     public void testAlloc() {
-        Heap heap = new Heap(0x01000000l, 0xFFFF0000l);
+        Heap heap = new Heap(0x01000000L, 0xFFFF0000L);
         long a = heap.alloc(0x100, false);
-        assertTrue(a==0x01000000);
+        assertEquals(0x01000000, a);
         long b = heap.alloc(0x100, false);
-        assertTrue(b==0x01000100);
+        assertEquals(0x01000100, b);
         long c = heap.alloc(0x100, true);
-        assertTrue(c==0x01001000);
+        assertEquals(0x01001000, c);
     }
 
     public void testAllocAt() {
-        Heap heap = new Heap(0x01000000l, 0xFFFF0000l);
+        Heap heap = new Heap(0x01000000L, 0xFFFF0000L);
         long a = heap.alloc(0x40000000, 0x01000000);
-        assertTrue(a==0x40000000);
-        long b = heap.alloc(0xE0000000l, 0x01000000);
-        assertTrue(b==0xE0000000l);
-        long c = heap.alloc(0xE0001000l, 0x01000000);
-        assertTrue(c==0);
-        long d = heap.alloc(0x10000000l, 0x01000000);
-        assertTrue(d==0x10000000l);
+        assertEquals(0x40000000, a);
+        long b = heap.alloc(0xE0000000L, 0x01000000);
+        assertEquals(0xE0000000L, b);
+        long c = heap.alloc(0xE0001000L, 0x01000000);
+        assertEquals(0, c);
+        long d = heap.alloc(0x10000000L, 0x01000000);
+        assertEquals(0x10000000L, d);
     }
 
     public void testGetNext() {
-        Heap heap = new Heap(0x01000000l, 0xFFFF0000l);
+        Heap heap = new Heap(0x01000000L, 0xFFFF0000L);
         long a = heap.alloc(0x40000000, 0x01000000);
-        assertTrue(a==0x40000000);
+        assertEquals(0x40000000, a);
         long b = heap.alloc(0x42000000, 0x01000000);
-        assertTrue(b==0x42000000);
-        assertTrue(heap.getNextAddress(0x40000000, 0x00500000, false)==0x41000000);
-        assertTrue(heap.getNextAddress(0x40000000, 0x01000000, false)==0x41000000);
-        assertTrue(heap.getNextAddress(0x40000000, 0x01000001, false)==0x43000000);
+        assertEquals(0x42000000, b);
+        assertEquals(0x41000000, heap.getNextAddress(0x40000000, 0x00500000, false));
+        assertEquals(0x41000000, heap.getNextAddress(0x40000000, 0x01000000, false));
+        assertEquals(0x43000000, heap.getNextAddress(0x40000000, 0x01000001, false));
     }
 }

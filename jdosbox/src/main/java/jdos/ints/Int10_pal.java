@@ -137,7 +137,7 @@ public class Int10_pal {
             value=IoHandler.IO_Read(Int10.VGAREG_ACTL_READ_DATA);
             if (state<=1) {
                 value&=0xf7;
-                value|=state<<3;
+                value|= (short) (state<<3);
             }
 
             ResetACTL();

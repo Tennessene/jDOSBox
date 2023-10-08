@@ -14,7 +14,7 @@ public class UserEthernet extends EtherUtil implements Ethernet {
     }
 
     public void receive(RxFrame frame) {
-        if (frames.size()>0) {
+        if (!frames.isEmpty()) {
             byte[] data = (byte[])frames.removeFirst();
             //dump(data, 0, data.length);
             frame.rx_frame(new Ptr(data, 0), data.length);
@@ -23,7 +23,7 @@ public class UserEthernet extends EtherUtil implements Ethernet {
 
     public boolean open(Section_prop section, byte[] mac) {
         frames = new LinkedList();
-        return true;
+        return false;
     }
 
     public void close() {

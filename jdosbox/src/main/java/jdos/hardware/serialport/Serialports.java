@@ -1,15 +1,14 @@
 package jdos.hardware.serialport;
 
 import jdos.ints.Bios;
-import jdos.misc.Log;
 import jdos.misc.setup.*;
 
 public class Serialports extends Module_base {
-    static public Serial[] serialports = new Serial[4];
+    static public final Serial[] serialports = new Serial[4];
     static final private int[] serial_baseaddr = {0x3f8,0x2f8,0x3e8,0x2e8};
     static Serialports testSerialPortsBaseclass;
 
-    public static Section.SectionFunction SERIAL_Destroy = new Section.SectionFunction() {
+    public static final Section.SectionFunction SERIAL_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             for (/*Bitu*/int i = 0; i < 4; i++)
                 if (serialports[i]!= null) {
@@ -55,14 +54,14 @@ public class Serialports extends Module_base {
 				serialports[i] = null;
 			} else {
 				serialports[i] = null;
-				Log.log_msg("Invalid type for serial"+(i+1));
+				System.out.println("Invalid type for serial"+(i+1));
 			}
 			if(serialports[i]!=null) biosParameter[i] = serial_baseaddr[i];
 		} // for 1-4
 		Bios.BIOS_SetComPorts (biosParameter);
     }
 
-    public static Section.SectionFunction SERIAL_Init = new Section.SectionFunction() {
+    public static final Section.SectionFunction SERIAL_Init = new Section.SectionFunction() {
         public void call(Section section) {
             // should never happen
             testSerialPortsBaseclass = new Serialports(section);

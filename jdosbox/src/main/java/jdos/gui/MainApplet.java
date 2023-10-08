@@ -15,17 +15,17 @@ import java.awt.image.MemoryImageSource;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.Vector;
 
 public class MainApplet extends Applet implements GUI, KeyListener, Runnable, MouseListener, MouseMotionListener {
     final private static String base_dir = ".jdosbox";
 
-    int[] pixels = new int[16 * 16];
-    Image image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, pixels, 0, 16));
-    Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(0, 0), "invisibleCursor");
+    final int[] pixels = new int[16 * 16];
+    final Image image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, pixels, 0, 16));
+    final Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(0, 0), "invisibleCursor");
 
     private String progressMsg = null;
     private int progressPercent = 0;
@@ -108,7 +108,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
     }
     static Thread thread;
 
-    Progress progressBar = new Progress() {
+    final Progress progressBar = new Progress() {
         public void set(int value) {
         }
         public void status(String value) {
@@ -154,10 +154,10 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                 size = Long.parseLong(s);
             }
             bis = new BufferedInputStream(urlc.getInputStream());
-            bos = new BufferedOutputStream(new FileOutputStream(location));
+            bos = new BufferedOutputStream(Files.newOutputStream(location.toPath()));
 
             byte[] buffer = new byte[4096];
-            int read = 0;
+            int read;
             if (size>0)
                 progressBar.initializeSpeedValue(size);
             do {
@@ -183,8 +183,12 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (bis != null) try {bis.close();} catch (Exception e){}
-            if (bos != null) try {bos.close();} catch (Exception e){}
+            if (bis != null) try {bis.close();} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            if (bos != null) try {bos.close();} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         progressMsg = "FAILED to download file: "+urlLocation;
         progressPercent = 0;
@@ -204,6 +208,7 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
                 b = Integer.parseInt(s.substring(5, 7), 16);
                 return (new Color(r, g, b));
             } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
         return (Color.black);
@@ -253,8 +258,8 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
             }
             if (param.startsWith("-")) {
                 String[] p = StringHelper.split(param, " ");
-                for (int j=0;j<p.length;j++) {
-                    params.addElement(p[j]);
+                for (String s : p) {
+                    params.addElement(s);
                 }
             } else {
                 params.add("-c");
@@ -290,14 +295,12 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
         addMouseListener(this);
 
         addFocusListener(new FocusListener() {
-            private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
-                public boolean dispatchKeyEvent(KeyEvent e) {
-                    if (e.getKeyCode() == 18) {
-                        Main.addEvent(e);
-                        return true;
-                    }
-                    return false;
+            private final KeyEventDispatcher altDisabler = e -> {
+                if (e.getKeyCode() == 18) {
+                    Main.addEvent(e);
+                    return true;
                 }
+                return false;
             };
 
             public void focusGained(FocusEvent e) {
@@ -335,16 +338,20 @@ public class MainApplet extends Applet implements GUI, KeyListener, Runnable, Mo
             Main.pauseMutex.notify();
         }
         Main.addEvent(null);
-        try {thread.join(5000);} catch (Exception e) {}
+        try {thread.join(5000);} catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         thread = null;
         // Without this the 2nd time you run the applet after starting a browswer
         // it might run out of memory.  Not sure why
-        try {Thread.sleep(2000);} catch (Exception e) {}
+        try {Thread.sleep(2000);} catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     Graphics bufferGraphics;
     Image offscreen;
     private void drawProgress(Graphics g, int width, int height) {
-        int barHeight = 0;
+        int barHeight;
         int yOffset = 5;
 
         FontMetrics fm   = g.getFontMetrics(g.getFont());

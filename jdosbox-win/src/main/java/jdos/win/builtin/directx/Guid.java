@@ -3,17 +3,17 @@ package jdos.win.builtin.directx;
 import jdos.hardware.Memory;
 
 public class Guid {
-    int i1;
-    int i2;
-    int i3;
-    int i4;
-    int i5;
-    int i6;
-    int i7;
-    int i8;
-    int i9;
-    int i10;
-    int i11;
+    final int i1;
+    final int i2;
+    final int i3;
+    final int i4;
+    final int i5;
+    final int i6;
+    final int i7;
+    final int i8;
+    final int i9;
+    final int i10;
+    final int i11;
 
     public Guid(int address) {
         i1 = Memory.mem_readd(address);

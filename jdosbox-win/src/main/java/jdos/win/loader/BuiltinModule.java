@@ -25,11 +25,11 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class BuiltinModule extends Module {
-    private Hashtable<String, Callback.Handler> functions = new Hashtable<String, Callback.Handler>();
-    private String fileName;
-    private Hashtable<String, Integer> registeredCallbacks = new Hashtable<String, Integer>();
-    public Loader loader;
-    private Hashtable<Integer, String> ordinalToName = new Hashtable<Integer, String>();
+    private final Hashtable<String, Callback.Handler> functions = new Hashtable<>();
+    private final String fileName;
+    private final Hashtable<String, Integer> registeredCallbacks = new Hashtable<>();
+    public final Loader loader;
+    private final Hashtable<Integer, String> ordinalToName = new Hashtable<>();
 
     public BuiltinModule(Loader loader, String name, int handle) {
         super(handle);
@@ -48,7 +48,7 @@ public class BuiltinModule extends Module {
             System.out.print(desc.substring(8));
             System.out.print("=");
             if (IS_INTRESOURCE(value) || value==0) {
-                System.out.print(value.toString());
+                System.out.print(value);
             } else {
                 System.out.print(StringUtil.getString(value));
                 System.out.print("(0x");
@@ -59,7 +59,7 @@ public class BuiltinModule extends Module {
             System.out.print(desc.substring(9));
             System.out.print("=");
             if (IS_INTRESOURCE(value) || value==0) {
-                System.out.print(value.toString());
+                System.out.print(value);
             } else {
                 System.out.print(StringUtil.getStringW(value));
                 System.out.print("(0x");
@@ -70,7 +70,7 @@ public class BuiltinModule extends Module {
             System.out.print(desc.substring(10));
             System.out.print("=");
             if (IS_INTRESOURCE(value) || value==0) {
-                System.out.print(value.toString());
+                System.out.print(value);
             } else {
                 System.out.print(StringUtil.getString(value, fullArgs[Integer.parseInt(desc.substring(8, 9))]));
                 System.out.print("(0x");
@@ -93,7 +93,7 @@ public class BuiltinModule extends Module {
                 System.out.print("(INVALID)");
             else {
                 System.out.print("(");
-                System.out.print(brush.toString());
+                System.out.print(brush);
                 System.out.print(")");
             }
         } else if (desc.startsWith("(MSG)")) {
@@ -119,7 +119,7 @@ public class BuiltinModule extends Module {
                 if (gdi == null)
                     System.out.print("NULL");
                 else {
-                    System.out.print(gdi.toString());
+                    System.out.print(gdi);
                 }
                 System.out.print(")");
             }
@@ -281,7 +281,7 @@ public class BuiltinModule extends Module {
                 System.out.print(" ");
                 printParam(result, desc, null);
             } else {
-                System.out.print(" result="+result.toString());
+                System.out.print(" result="+ result);
                 System.out.print("(");
                 System.out.print(Ptr.toString(result));
                 System.out.print(")");
@@ -297,11 +297,11 @@ public class BuiltinModule extends Module {
         System.out.println(" time="+(System.currentTimeMillis()-startTime));
     }
     public static class ReturnHandler extends ReturnHandlerBase {
-        Method method;
-        Integer[] args;
-        String name;
-        boolean pop;
-        String[] params;
+        final Method method;
+        final Integer[] args;
+        final String name;
+        final boolean pop;
+        final String[] params;
 
         public ReturnHandler(String name, Method method, boolean pop, String[] params) {
             this.method = method;
@@ -321,9 +321,9 @@ public class BuiltinModule extends Module {
             try {
                 if (LOG && params != null)
                     preLog(name, args, params);
-                Integer result = (Integer)method.invoke(null, args);
+                Integer result = (Integer)method.invoke(null, (Object) args);
                 if (LOG && params != null)
-                    postLog(name, result, (params != null && params.length>args.length)?params[args.length]:null, args, params);
+                    postLog(name, result, params.length>args.length ?params[args.length]:null, args, params);
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -338,13 +338,13 @@ public class BuiltinModule extends Module {
     }
 
     public static class NoReturnHandler extends HandlerBase {
-        Method method;
-        Integer[] args;
-        String name;
-        boolean pop;
-        String[] params;
+        final Method method;
+        final Integer[] args;
+        final String name;
+        final boolean pop;
+        final String[] params;
 
-        public NoReturnHandler(String name, Method method, boolean pop, String params[]) {
+        public NoReturnHandler(String name, Method method, boolean pop, String[] params) {
             this.method = method;
             args = new Integer[method.getParameterTypes().length];
             this.name = name;
@@ -362,7 +362,7 @@ public class BuiltinModule extends Module {
             try {
                 if (LOG && params != null)
                     preLog(name, args, params);
-                method.invoke(null, args);
+                method.invoke(null, (Object) args);
                 if (LOG && params != null)
                     postLog(name, null, null, args, params);
             } catch (Exception e) {
@@ -377,13 +377,13 @@ public class BuiltinModule extends Module {
     }
 
     private static class WaitReturnHandler extends HandlerBase {
-        Method method;
-        Integer[] args;
-        String name;
-        boolean pop;
+        final Method method;
+        final Integer[] args;
+        final String name;
+        final boolean pop;
         int eip;
         int esp;
-        String[] params;
+        final String[] params;
 
         public WaitReturnHandler(String name, Method method, boolean pop, String[] params) {
             this.method = method;
@@ -410,7 +410,7 @@ public class BuiltinModule extends Module {
                 wait = false;
                 if (LOG && params != null)
                     preLog(name, args, params);
-                Integer result = (Integer)method.invoke(null, args);
+                Integer result = (Integer)method.invoke(null, (Object) args);
                 if (wait) {
                     if (LOG && params != null) {
                         System.out.print(" THREAD PUT TO SLEEP, WILL TRY AGAIN LATER");
@@ -421,7 +421,7 @@ public class BuiltinModule extends Module {
                     Scheduler.wait(Scheduler.getCurrentThread());
                 } else {
                     if (LOG && params != null)
-                        postLog(name, result, (params != null && params.length>args.length)?params[args.length]:null, args, params);
+                        postLog(name, result, params.length>args.length ?params[args.length]:null, args, params);
                     CPU_Regs.reg_eax.dword = result;
                 }
             } catch (Exception e) {
@@ -579,7 +579,7 @@ public class BuiltinModule extends Module {
     }
 
     public long findOrdinalExport(long exportAddress, long exportsSize, int ordinal) {
-        String name = ordinalToName.get(new Integer(ordinal));
+        String name = ordinalToName.get(ordinal);
         if (name != null)
             return getProcAddress(name, true);
         return 0;

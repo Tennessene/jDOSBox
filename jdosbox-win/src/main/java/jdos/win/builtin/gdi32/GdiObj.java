@@ -6,12 +6,11 @@ import jdos.win.system.StaticData;
 
 public class GdiObj extends WinAPI {
     // BOOL WINAPI DeleteObject( HGDIOBJ obj )
-    static public int DeleteObject(int obj) {
+    static public void DeleteObject(int obj) {
         WinGDI gdi = WinGDI.getGDI(obj);
         if (gdi == null)
-            return FALSE;
+            return;
         gdi.close();
-        return TRUE;
     }
 
     // DWORD GdiSetBatchLimit(DWORD dwLimit)
@@ -63,8 +62,7 @@ public class GdiObj extends WinAPI {
     }
 
     // BOOL WINAPI UnrealizeObject( HGDIOBJ obj )
-    static public int UnrealizeObject(int obj) {
+    static public void UnrealizeObject(int obj) {
         log("UnrealizeObject not implemented yet");
-        return TRUE;
     }
 }

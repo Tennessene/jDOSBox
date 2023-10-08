@@ -11,7 +11,7 @@ public class ARP extends EtherUtil {
         System.arraycopy(buffer, offset, senderMac, 0, 6);offset+=6;
         senderAddress = readDWord(buffer, offset);offset+=4;
         System.arraycopy(buffer, offset, targetMac, 0, 6);offset+=6;
-        targetAddress = readDWord(buffer, offset);offset+=4;
+        targetAddress = readDWord(buffer, offset);
     }
     public void handle(byte[] buffer, int offset, int len) {
         if (len<LEN)
@@ -33,8 +33,8 @@ public class ARP extends EtherUtil {
     int hlen;
     int plen;
     int op;
-    byte[] senderMac = new byte[6];
+    final byte[] senderMac = new byte[6];
     int senderAddress;
-    byte[] targetMac = new byte[6];
+    final byte[] targetMac = new byte[6];
     int targetAddress;
 }

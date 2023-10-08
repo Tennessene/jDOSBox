@@ -28,14 +28,14 @@ import jdos.misc.setup.Section_prop;
 import jdos.shell.AutoexecObject;
 
 public class Gus extends Module_base {
-    private static GFGus myGUS = new GFGus();
+    private static final GFGus myGUS = new GFGus();
 
     //Extra bits of precision over normal gus
     private static final int WAVE_BITS = 2;
     private static final int WAVE_FRACT = (9 + WAVE_BITS);
     private static final int WAVE_FRACT_MASK = ((1 << WAVE_FRACT) - 1);
     private static final long WAVE_MSWMASK = ((1 << (16 + WAVE_BITS)) - 1);
-    private static final long WAVE_LSWMASK = (0xffffffffl ^ WAVE_MSWMASK);
+    private static final long WAVE_LSWMASK = (0xffffffffL ^ WAVE_MSWMASK);
 
     //Amount of precision the volume has
     private static final int RAMP_FRACT = 10;
@@ -43,23 +43,23 @@ public class Gus extends Module_base {
     //private static final int LOG_GUS =0;
 
     private static Mixer.MixerChannel gus_chan;
-    private static byte irqtable[] = new byte[]{0, 2, 5, 3, 7, 11, 12, 15};
-    private static byte dmatable[] = new byte[]{0, 1, 3, 5, 6, 7, 0, 0};
-    private static byte GUSRam[] = null; // 1024K of GUS Ram
+    private static final byte[] irqtable = new byte[]{0, 2, 5, 3, 7, 11, 12, 15};
+    private static final byte[] dmatable = new byte[]{0, 1, 3, 5, 6, 7, 0, 0};
+    private static byte[] GUSRam = null; // 1024K of GUS Ram
     private static int AutoAmp = 512;
-    private static char[] vol16bit = new char[4096];
-    private static long[] pantable = new long[16];
+    private static final char[] vol16bit = new char[4096];
+    private static final long[] pantable = new long[16];
 
     public static /*short*/ short adlib_commandreg;
-    private static GUSChannels[] guschan = new GUSChannels[32];
+    private static final GUSChannels[] guschan = new GUSChannels[32];
     private static GUSChannels curchan;
 
-    private IO_ReadHandleObject[] ReadHandler = new IO_ReadHandleObject[8];
-    private IO_WriteHandleObject[] WriteHandler = new IO_WriteHandleObject[9];
-    private AutoexecObject[] autoexecline = new AutoexecObject[2];
-    private Mixer.MixerObject MixerChan = new Mixer.MixerObject();
+    private final IO_ReadHandleObject[] ReadHandler = new IO_ReadHandleObject[8];
+    private final IO_WriteHandleObject[] WriteHandler = new IO_WriteHandleObject[9];
+    private final AutoexecObject[] autoexecline = new AutoexecObject[2];
+    private final Mixer.MixerObject MixerChan = new Mixer.MixerObject();
 
-    private class GUSChannels {
+    private static class GUSChannels {
         private long WaveStart;
         private long WaveEnd;
         private long WaveAddr;
@@ -76,14 +76,14 @@ public class Gus extends Module_base {
         private short RampCtrl;
 
         private short PanPot;
-        private long irqmask;
+        private final long irqmask;
         private long PanLeft;
         private long PanRight;
         private int VolLeft;
         private int VolRight;
 
         private GUSChannels(short num) {
-            irqmask = 1 << num;
+            irqmask = 1L << num;
             WaveStart = 0;
             WaveEnd = 0;
             WaveAddr = 0;
@@ -259,7 +259,7 @@ public class Gus extends Module_base {
                 return tmpsmall << 8;
             } else {
                 // Interpolate
-                int w1 = GUSRam[useAddr + 0] << 8; // intentional signed shift - Bit32s w1 = ((Bit8s)GUSRam[useAddr+0]) << 8;
+                int w1 = GUSRam[useAddr] << 8; // intentional signed shift - Bit32s w1 = ((Bit8s)GUSRam[useAddr+0]) << 8;
                 int w2 = GUSRam[useAddr + 1] << 8; // intentional signed shift - Bit32s w2 = ((Bit8s)GUSRam[useAddr+1]) << 8;
                 int diff = w2 - w1;
                 return (int) (w1 + ((diff * (CurAddr & WAVE_FRACT_MASK)) >> WAVE_FRACT));
@@ -272,10 +272,10 @@ public class Gus extends Module_base {
             useAddr = (holdAddr | useAddr);
 
             if (Delta >= (1 << WAVE_FRACT)) {
-                return (GUSRam[useAddr + 0] & 0xFF) | ((GUSRam[useAddr + 1] & 0xFF) << 8);
+                return (GUSRam[useAddr] & 0xFF) | ((GUSRam[useAddr + 1] & 0xFF) << 8);
             } else {
                 // Interpolate
-                int w1 = (GUSRam[useAddr + 0] & 0xFF) | (GUSRam[useAddr + 1] << 8); // intentional signed shift - Bit32s w1 = (GUSRam[useAddr+0] | (((Bit8s)GUSRam[useAddr+1]) << 8));
+                int w1 = (GUSRam[useAddr] & 0xFF) | (GUSRam[useAddr + 1] << 8); // intentional signed shift - Bit32s w1 = (GUSRam[useAddr+0] | (((Bit8s)GUSRam[useAddr+1]) << 8));
                 int w2 = (GUSRam[useAddr + 2] & 0xFF) | (GUSRam[useAddr + 3] << 8); // intentional signed shift - Bit32s w2 = (GUSRam[useAddr+2] | (((Bit8s)GUSRam[useAddr+3]) << 8));
                 int diff = w2 - w1;
                 return (int) (w1 + ((diff * (CurAddr & WAVE_FRACT_MASK)) >> WAVE_FRACT));
@@ -397,11 +397,7 @@ public class Gus extends Module_base {
             }
             myGUS.IRQChan = 0;
         }
-        if ((myGUS.gRegData & 0x4) != 0) {
-            myGUS.irqenabled = true;
-        } else {
-            myGUS.irqenabled = false;
-        }
+        myGUS.irqenabled = (myGUS.gRegData & 0x4) != 0;
     }
 
     private static void GUS_CheckIRQ() {
@@ -418,7 +414,7 @@ public class Gus extends Module_base {
         if (myGUS.WaveIRQ != 0) myGUS.IRQStatus |= 0x20;
         GUS_CheckIRQ();
         for (; ; ) {
-            long check = (1 << myGUS.IRQChan);
+            long check = (1L << myGUS.IRQChan);
             if ((totalmask & check) != 0) return;
             myGUS.IRQChan++;
             if (myGUS.IRQChan >= myGUS.ActiveChannels) myGUS.IRQChan = 0;
@@ -431,7 +427,7 @@ public class Gus extends Module_base {
         switch (myGUS.gRegSelect) {
             case 0x41: // Dma control register - read acknowledges DMA IRQ
                 tmpreg = (short) (myGUS.DMAControl & 0xbf);
-                tmpreg |= (myGUS.IRQStatus & 0x80) >> 1;
+                tmpreg |= (short) ((myGUS.IRQStatus & 0x80) >> 1);
                 myGUS.IRQStatus &= 0x7f;
                 return (char) (tmpreg << 8);
             case 0x42:  // Dma address register
@@ -440,7 +436,7 @@ public class Gus extends Module_base {
                 return (char) (myGUS.TimerControl << 8);
             case 0x49:  // Dma sample register
                 tmpreg = (short) (myGUS.DMAControl & 0xbf);
-                tmpreg |= (myGUS.IRQStatus & 0x80) >> 1;
+                tmpreg |= (short) ((myGUS.IRQStatus & 0x80) >> 1);
                 return (char) (tmpreg << 8);
             case 0x80: // Channel voice control read register
                 if (curchan != null) return (char) (curchan.ReadWaveCtrl() << 8);
@@ -469,7 +465,7 @@ public class Gus extends Module_base {
             case 0x8f: // General channel IRQ status register
                 tmpreg = (short) (myGUS.IRQChan | 0x20);
                 long mask;
-                mask = 1 << myGUS.IRQChan;
+                mask = 1L << myGUS.IRQChan;
                 if ((myGUS.RampIRQ & mask) == 0) tmpreg |= 0x40;
                 if ((myGUS.WaveIRQ & mask) == 0) tmpreg |= 0x80;
                 myGUS.RampIRQ &= ~mask;
@@ -477,16 +473,16 @@ public class Gus extends Module_base {
                 CheckVoiceIrq();
                 return (char) (tmpreg << 8);
             default:
-                //Log.log_msg("Read Register num 0x" + myGUS.gRegSelect);
+                //System.out.println("Read Register num 0x" + myGUS.gRegSelect);
                 return myGUS.gRegData;
         }
     }
 
-    private static Pic.PIC_EventHandler GUS_TimerEvent = new Pic.PIC_EventHandler() {
+    private static final Pic.PIC_EventHandler GUS_TimerEvent = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             if (!myGUS.timers[val].masked) myGUS.timers[val].reached = true;
             if (myGUS.timers[val].raiseirq) {
-                myGUS.IRQStatus |= 0x4 << val;
+                myGUS.IRQStatus |= (short) (0x4 << val);
                 GUS_CheckIRQ();
             }
             if (myGUS.timers[val].running)
@@ -575,10 +571,10 @@ public class Gus extends Module_base {
                 myGUS.ActiveChannels = (short) (1 + (((short) (myGUS.gRegData >> 8)) & 63));
                 if (myGUS.ActiveChannels < 14) myGUS.ActiveChannels = 14;
                 if (myGUS.ActiveChannels > 32) myGUS.ActiveChannels = 32;
-                myGUS.ActiveMask = (0xffffffffl >> (32 - myGUS.ActiveChannels));
+                myGUS.ActiveMask = (0xffffffffL >> (32 - myGUS.ActiveChannels));
                 gus_chan.Enable(true);
-                myGUS.basefreq = (long) ((double) 1000000.0 / (1.619695497d * (double) (myGUS.ActiveChannels)));
-                //Log.log_msg("GUS set to " + myGUS.ActiveChannels + " channels");
+                myGUS.basefreq = (long) (1000000.0 / (1.619695497d * (double) (myGUS.ActiveChannels)));
+                //System.out.println("GUS set to " + myGUS.ActiveChannels + " channels");
                 for (int i = 0; i < myGUS.ActiveChannels; i++) guschan[i].UpdateWaveRamp();
                 break;
             case 0x10:  // Undocumented register used in Fast Tracker 2
@@ -621,13 +617,12 @@ public class Gus extends Module_base {
                 GUSReset();
                 break;
             default:
-                //Log.log_msg("Unimplemented global register " + myGUS.gRegSelect + " -- " + myGUS.gRegData);
+                //System.out.println("Unimplemented global register " + myGUS.gRegSelect + " -- " + myGUS.gRegData);
                 break;
         }
-        return;
     }
 
-    private static IoHandler.IO_ReadHandler read_gus = new IoHandler.IO_ReadHandler() {
+    private static final IoHandler.IO_ReadHandler read_gus = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             //    	LOG_MSG("read from gus port %x",port);
             switch (port - myGUS.portbase) {
@@ -660,7 +655,7 @@ public class Gus extends Module_base {
                         return 0;
                     }
                 default:
-                    //Log.log_msg("Read GUS at port 0x" + port);
+                    //System.out.println("Read GUS at port 0x" + port);
                     break;
             }
 
@@ -668,7 +663,7 @@ public class Gus extends Module_base {
         }
     };
 
-    private static IoHandler.IO_WriteHandler write_gus = new IoHandler.IO_WriteHandler() {
+    private static final IoHandler.IO_WriteHandler write_gus = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val16, /*Bitu*/int iolen) {
             //short val=(short)(val16&0xffff);
             char val = (char) (val16);
@@ -710,11 +705,11 @@ public class Gus extends Module_base {
                     if ((myGUS.mixControl & 0x40) != 0) {
                         // IRQ configuration, only use low bits for irq 1
                         if ((irqtable[val & 0x7]) != 0) myGUS.irq1 = irqtable[val & 0x7];
-                        //Log.log_msg("Assigned GUS to IRQ " + myGUS.irq1);
+                        //System.out.println("Assigned GUS to IRQ " + myGUS.irq1);
                     } else {
                         // DMA configuration, only use low bits for dma 1
                         if ((dmatable[val & 0x7]) != 0) myGUS.dma1 = dmatable[val & 0x7];
-                        //Log.log_msg("Assigned GUS to DMA " + myGUS.dma1);
+                        //System.out.println("Assigned GUS to DMA " + myGUS.dma1);
                     }
                     break;
                 case 0x302:
@@ -739,44 +734,42 @@ public class Gus extends Module_base {
                     if (myGUS.gDramAddr < GUSRam.length) GUSRam[(int) myGUS.gDramAddr] = (byte)val;
                     break;
                 default:
-                    //Log.log_msg("Write GUS at port 0x" + port + " with " + val);
+                    //System.out.println("Write GUS at port 0x" + port + " with " + val);
                     break;
             }
         }
     };
-    private static DMA.DMA_CallBack GUS_DMA_Callback = new DMA.DMA_CallBack() {
-        public void call(DMA.DmaChannel chan, int event) {
-            if (event != DMAEvent.DMA_UNMASKED) return;
-            int dmaaddr = myGUS.dmaAddr << 4;
-            if ((myGUS.DMAControl & 0x2) == 0) {
-                int read = chan.Read(chan.currcnt + 1, GUSRam, dmaaddr);
-                //Check for 16 or 8bit channel
-                read *= (chan.DMA16 + 1);
-                if ((myGUS.DMAControl & 0x80) != 0) {
-                    //Invert the MSB to convert twos compliment form
-                    int i;
-                    if ((myGUS.DMAControl & 0x40) == 0) {
-                        // 8-bit data
-                        for (i = dmaaddr; i < (dmaaddr + read); i++) GUSRam[i] ^= 0x80;
-                    } else {
-                        // 16-bit data
-                        for (i = dmaaddr + 1; i < (dmaaddr + read); i += 2) GUSRam[i] ^= 0x80;
-                    }
+    private static final DMA.DMA_CallBack GUS_DMA_Callback = (chan, event) -> {
+        if (event != DMAEvent.DMA_UNMASKED) return;
+        int dmaaddr = myGUS.dmaAddr << 4;
+        if ((myGUS.DMAControl & 0x2) == 0) {
+            int read = chan.Read(chan.currcnt + 1, GUSRam, dmaaddr);
+            //Check for 16 or 8bit channel
+            read *= (chan.DMA16 + 1);
+            if ((myGUS.DMAControl & 0x80) != 0) {
+                //Invert the MSB to convert twos compliment form
+                int i;
+                if ((myGUS.DMAControl & 0x40) == 0) {
+                    // 8-bit data
+                    for (i = dmaaddr; i < (dmaaddr + read); i++) GUSRam[i] ^= 0x80;
+                } else {
+                    // 16-bit data
+                    for (i = dmaaddr + 1; i < (dmaaddr + read); i += 2) GUSRam[i] ^= 0x80;
                 }
-            } else {
-                //Read data out of UltraSound
-                chan.Write(chan.currcnt + 1, GUSRam, dmaaddr);
             }
-            /* Raise the TC irq if needed */
-            if ((myGUS.DMAControl & 0x20) != 0) {
-                myGUS.IRQStatus |= 0x80;
-                GUS_CheckIRQ();
-            }
-            chan.Register_Callback(null);
+        } else {
+            //Read data out of UltraSound
+            chan.Write(chan.currcnt + 1, GUSRam, dmaaddr);
         }
+        /* Raise the TC irq if needed */
+        if ((myGUS.DMAControl & 0x20) != 0) {
+            myGUS.IRQStatus |= 0x80;
+            GUS_CheckIRQ();
+        }
+        chan.Register_Callback(null);
     };
 
-    private static Mixer.MIXER_Handler GUS_CallBack = new Mixer.MIXER_Handler() {
+    private static final Mixer.MIXER_Handler GUS_CallBack = new Mixer.MIXER_Handler() {
         public void call(/*Bitu*/int len) {
             //memset(&MixTemp,0,len*8);
             short[] buf16 = Mixer.MixTemp16;
@@ -814,7 +807,7 @@ public class Gus extends Module_base {
     // Generate logarithmic to linear volume conversion tables
     private static void MakeTables() {
         int i;
-        double out = (double) (1 << 13);
+        double out = 1 << 13;
         for (i = 4095; i >= 0; i--) {
             vol16bit[i] = (char) out;
             out /= 1.002709201;        /* 0.0235 dB Steps */
@@ -826,17 +819,13 @@ public class Gus extends Module_base {
     }
 
     static private Gus test = null;
-    private static Section.SectionFunction GUS_ShutDown = new Section.SectionFunction() {
-        public void call(Section section) {
-            GUSRam = null;
-            test = null;
-        }
+    private static final Section.SectionFunction GUS_ShutDown = section -> {
+        GUSRam = null;
+        test = null;
     };
-    public static Section.SectionFunction GUS_Init = new Section.SectionFunction() {
-        public void call(Section section) {
-            test = new Gus(section);
-            section.AddDestroyFunction(GUS_ShutDown, true);
-        }
+    public static final Section.SectionFunction GUS_Init = section -> {
+        test = new Gus(section);
+        section.AddDestroyFunction(GUS_ShutDown, true);
     };
     /*
 	~GUS() {
@@ -868,7 +857,7 @@ public class Gus extends Module_base {
     }
 
     static private class GFGus {
-        GusTimer[] timers = new GusTimer[2];
+        final GusTimer[] timers = new GusTimer[2];
         short gRegSelect;
         char gRegData;
         long gDramAddr;

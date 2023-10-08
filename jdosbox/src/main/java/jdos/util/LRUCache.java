@@ -15,9 +15,7 @@
 package jdos.util;
 
 import java.util.LinkedHashMap;
-import java.util.Collection;
 import java.util.Map;
-import java.util.ArrayList;
 
 /**
 * An LRU cache, based on <code>LinkedHashMap</code>.
@@ -37,8 +35,8 @@ public class LRUCache {
 
 private static final float   hashTableLoadFactor = 0.75f;
 
-private LinkedHashMap   map;
-private int                  cacheSize;
+private final LinkedHashMap   map;
+private final int                  cacheSize;
 
 /**
 * Creates a new LRU cache.

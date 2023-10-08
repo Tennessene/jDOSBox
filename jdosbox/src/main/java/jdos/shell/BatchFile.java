@@ -44,9 +44,9 @@ public class BatchFile {
         Dos_files.DOS_SeekFile(file_handle.value, location, Dos_files.DOS_SEEK_SET);
 
         /*Bit8u*/byte[] c=new byte[1];IntRef n=new IntRef(1);
-        StringBuffer l;
+        StringBuilder l;
         do {
-            l=new StringBuffer();
+            l=new StringBuilder();
             do {
                 n.value=1;
                 Dos_files.DOS_ReadFile(file_handle.value,c,n);
@@ -67,11 +67,11 @@ public class BatchFile {
             }
         } while (l.length()==0 || l.charAt(0)==':');
         String in = l.toString();
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
         /* Now parse the line read from the bat file for % stuff */
-        while (in.length()>0) {
+        while (!in.isEmpty()) {
             if (in.charAt(0)=='%') {
-                in = in.substring(1);if (in.length()==0) break;
+                in = in.substring(1);if (in.isEmpty()) break;
                 if (in.charAt(0) == '%') {
                     in = in.substring(1);
                     out.append('%');
@@ -89,9 +89,8 @@ public class BatchFile {
                     next -= '0';
                     if (cmd.GetCount()<next) continue;
                     String word;
-                    if ((word=cmd.FindCommand((int)next))==null) continue;
+                    if ((word=cmd.FindCommand(next))==null) continue;
                     out.append(word);
-                    continue;
                 } else {
                     /* Not a command line number has to be an environment */
                     int pos = in.indexOf('%');
@@ -129,7 +128,7 @@ public class BatchFile {
         /*Bit8u*/byte[] c=new byte[1];IntRef n=new IntRef(1);
         //again:
         while (true) {
-            StringBuffer l=new StringBuffer();
+            StringBuilder l=new StringBuilder();
             do {
                 n.value=1;
                 Dos_files.DOS_ReadFile(file_handle.value,c,n);
@@ -144,14 +143,14 @@ public class BatchFile {
             } while (c[0]!='\n' && n.value!=0);
 
             String nospace = l.toString().trim();
-            if (nospace.length()>0 && nospace.charAt(0) == ':') {
+            if (!nospace.isEmpty() && nospace.charAt(0) == ':') {
                 nospace=nospace.substring(1); //Skip :
                 //Strip spaces and = from it.
-                while (nospace.length()>0 && StringHelper.isspace(nospace.charAt(0)) || nospace.charAt(0)=='=') {
+                while (!nospace.isEmpty() && StringHelper.isspace(nospace.charAt(0)) || nospace.charAt(0)=='=') {
                     nospace = nospace.substring(1);
                 }
                 String beginLabel = nospace;
-                while (nospace.length()>0 && !StringHelper.isspace(nospace.charAt(0)) && nospace.charAt(0)!='=') {
+                while (!nospace.isEmpty() && !StringHelper.isspace(nospace.charAt(0)) && nospace.charAt(0)!='=') {
                     nospace = nospace.substring(1);
                 }
                 if (where.equalsIgnoreCase(beginLabel.substring(0, beginLabel.length()-nospace.length()))) {
@@ -174,11 +173,11 @@ public class BatchFile {
     void Shift() {
         cmd.Shift(1);
     }
-    /*Bit16u*/IntRef file_handle=new IntRef(0);
-    /*Bit32u*/ LongRef location=new LongRef(0);
-    boolean echo;
-    Dos_shell shell;
-    BatchFile prev;
-    CommandLine cmd;
+    /*Bit16u*/final IntRef file_handle=new IntRef(0);
+    /*Bit32u*/ final LongRef location=new LongRef(0);
+    final boolean echo;
+    final Dos_shell shell;
+    final BatchFile prev;
+    final CommandLine cmd;
     public String filename;
 }

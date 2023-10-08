@@ -6,9 +6,6 @@ import jdos.debug.Debug;
 public class Log {
     static public final int level = 1;
 
-    static public void log_msg(String msg) {
-        System.out.println(msg);
-    }
     static public void exit(String msg) {
         System.out.print(msg);
         Debug.close();
@@ -17,6 +14,7 @@ public class Log {
         else
             throw new RuntimeException("Exit");
     }
+
     static public void log(int type, int severity, String msg) {
         System.out.println(msg);
     }

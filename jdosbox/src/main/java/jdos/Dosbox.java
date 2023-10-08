@@ -30,8 +30,8 @@ import jdos.types.SVGACards;
 public class Dosbox {
     static public boolean allPrivileges = true;
 
-    static private interface LoopHandler {
-        public /*Bitu*/int call();
+    private interface LoopHandler {
+        /*Bitu*/int call();
     }
     public static boolean applet = false;
     public static Config control;
@@ -59,7 +59,7 @@ public class Dosbox {
         return (machine==MachineType.MCH_VGA);
     }
 
-    static private LoopHandler Normal_Loop = new LoopHandler() {
+    static private final LoopHandler Normal_Loop = new LoopHandler() {
          public /*Bitu*/int call() {
             /*Bits*/int ret;
             while (true) {
@@ -113,7 +113,7 @@ public class Dosbox {
                 if (ticksNew > ticksLast) {
                     ticksRemain = ticksNew-ticksLast;
                     ticksLast = ticksNew;
-                    ticksDone += ticksRemain;
+                    ticksDone += (int) ticksRemain;
                     if ( ticksRemain > 20 ) {
                         ticksRemain = 20;
                     }
@@ -124,7 +124,8 @@ public class Dosbox {
                             /* ratio we are aiming for is around 90% usage*/
                             /*Bit32s*/int ratio = (int)((ticksScheduled * (CPU.CPU_CyclePercUsed*90*1024/100/100)) / ticksDone);
                             /*Bit32s*/int new_cmax = CPU.CPU_CycleMax;
-                            /*Bit64s*/long cproc = (/*Bit64s*/long)CPU.CPU_CycleMax * (/*Bit64s*/long)ticksScheduled;
+                            /*Bit64s*//*Bit64s*/
+                            long cproc = (/*Bit64s*/long)CPU.CPU_CycleMax * ticksScheduled;
                             if (cproc > 0) {
                                 /* ignore the cycles added due to the io delay code in order
                                    to have smoother auto cycle adjustments */
@@ -174,7 +175,7 @@ public class Dosbox {
                 } else {
                     ticksAdded = 0;
                     Main.Delay(1);
-                    ticksDone -= Main.GetTicks() - ticksNew;
+                    ticksDone -= (int) (Main.GetTicks() - ticksNew);
                     if (ticksDone < 0)
                         ticksDone = 0;
                 }
@@ -217,10 +218,10 @@ public class Dosbox {
     }
 
     static private boolean autoadjust = false;
-    static private Mapper.MAPPER_Handler DOSBOX_UnlockSpeed = new Mapper.MAPPER_Handler() {
+    static private final Mapper.MAPPER_Handler DOSBOX_UnlockSpeed = new Mapper.MAPPER_Handler() {
         public void call(boolean pressed) {
             if (pressed) {
-                Log.log_msg("Fast Forward ON");
+                System.out.println("Fast Forward ON");
                 ticksLocked = true;
                 if (CPU.CPU_CycleAutoAdjust) {
                     autoadjust = true;
@@ -229,7 +230,7 @@ public class Dosbox {
                     if (CPU.CPU_CycleMax<1000) CPU.CPU_CycleMax=1000;
                 }
             } else {
-                Log.log_msg("Fast Forward OFF");
+                System.out.println("Fast Forward OFF");
                 ticksLocked = false;
                 if (autoadjust) {
                     autoadjust = false;
@@ -239,7 +240,7 @@ public class Dosbox {
         }
     };
 
-    private static Section.SectionFunction DOSBOX_RealInit = new Section.SectionFunction() {
+    private static final Section.SectionFunction DOSBOX_RealInit = new Section.SectionFunction() {
         public void call(Section sec) {
             System.out.println("DOSBOX_RealInit");
             Section_prop section=(Section_prop)sec;
@@ -264,22 +265,54 @@ public class Dosbox {
             Int10.int10 = new Int10.Int10Data();
             Int10.int10.vesa_nolfb = false;
             Int10.int10.vesa_oldvbe = false;
-            if      (mtype.equals("cga"))      { machine = MachineType.MCH_CGA; }
-            else if (mtype.equals("tandy"))    { machine = MachineType.MCH_TANDY; }
-            else if (mtype.equals("pcjr"))     { machine = MachineType.MCH_PCJR; }
-            else if (mtype.equals("hercules")) { machine = MachineType.MCH_HERC; }
-            else if (mtype.equals("ega"))      { machine = MachineType.MCH_EGA; }
-        //	else if (mtype.equals("vga")          { svgaCard = SVGA_S3Trio; }
-            else if (mtype.equals("svga_s3"))       { svgaCard = SVGACards.SVGA_S3Trio; }
-            else if (mtype.equals("vesa_nolfb"))   { svgaCard = SVGACards.SVGA_S3Trio; Int10.int10.vesa_nolfb = true;}
-            else if (mtype.equals("vesa_oldvbe"))   { svgaCard = SVGACards.SVGA_S3Trio; Int10.int10.vesa_oldvbe = true;}
-            else if (mtype.equals("svga_et4000"))   { svgaCard = SVGACards.SVGA_TsengET4K; }
-            else if (mtype.equals("svga_et3000"))   { svgaCard = SVGACards.SVGA_TsengET3K; }
-        //	else if (mtype.equals("vga_pvga1a")   { svgaCard = SVGA_ParadisePVGA1A; }
-            else if (mtype.equals("svga_paradise")) { svgaCard = SVGACards.SVGA_ParadisePVGA1A; }
-            else if (mtype.equals("vgaonly"))      { svgaCard = SVGACards.SVGA_None; }
-            else if (mtype.equals("vgastd"))      { svgaCard = SVGACards.SVGA_QEMU; }
-            else Log.exit("DOSBOX:Unknown machine type "+mtype);
+            switch (mtype) {
+                case "cga":
+                    machine = MachineType.MCH_CGA;
+                    break;
+                case "tandy":
+                    machine = MachineType.MCH_TANDY;
+                    break;
+                case "pcjr":
+                    machine = MachineType.MCH_PCJR;
+                    break;
+                case "hercules":
+                    machine = MachineType.MCH_HERC;
+                    break;
+                case "ega":
+                    machine = MachineType.MCH_EGA;
+                    break;
+                //	else if (mtype.equals("vga")          { svgaCard = SVGA_S3Trio; }
+                case "svga_s3":
+                    svgaCard = SVGACards.SVGA_S3Trio;
+                    break;
+                case "vesa_nolfb":
+                    svgaCard = SVGACards.SVGA_S3Trio;
+                    Int10.int10.vesa_nolfb = true;
+                    break;
+                case "vesa_oldvbe":
+                    svgaCard = SVGACards.SVGA_S3Trio;
+                    Int10.int10.vesa_oldvbe = true;
+                    break;
+                case "svga_et4000":
+                    svgaCard = SVGACards.SVGA_TsengET4K;
+                    break;
+                case "svga_et3000":
+                    svgaCard = SVGACards.SVGA_TsengET3K;
+                    break;
+                //	else if (mtype.equals("vga_pvga1a")   { svgaCard = SVGA_ParadisePVGA1A; }
+                case "svga_paradise":
+                    svgaCard = SVGACards.SVGA_ParadisePVGA1A;
+                    break;
+                case "vgaonly":
+                    svgaCard = SVGACards.SVGA_None;
+                    break;
+                case "vgastd":
+                    svgaCard = SVGACards.SVGA_QEMU;
+                    break;
+                default:
+                    Log.exit("DOSBOX:Unknown machine type " + mtype);
+                    break;
+            }
             if (svgaCard != SVGACards.SVGA_QEMU)
                 VGA.VGA_Init();
         }
@@ -395,7 +428,7 @@ public class Dosbox {
         Pstring.Set_values(scalers);
 
 
-        String force[] = { "", "forced" };
+        String[] force = { "", "forced" };
         Pstring = Pmulti.GetSection().Add_string("force",Property.Changeable.Always,"");
         Pstring.Set_values(force);
 
@@ -761,7 +794,7 @@ public class Dosbox {
                 "           this has to be changed. Modify the last three number blocks.\n" +
                 "           I.e. AC:DE:48:88:99:AB.\n" +
                 "realnic -- Specifies which of your network interfaces is used.\n" +
-                "           Write \'list\' here to see the list of devices in the\n" +
+                        "           Write 'list' here to see the list of devices in the\n" +
                 "           Status Window. Then make your choice and put either the\n" +
                 "           interface number (2 or something) or a part of your adapters\n" +
                 "           name, e.g. VIA here.\n"
@@ -795,7 +828,7 @@ public class Dosbox {
                 "I.e. AC:DE:48:88:99:AB.");
             Pstring = secprop.Add_string("realnic", Property.Changeable.WhenIdle,"list");
             Pstring.Set_help("Specifies which of your network interfaces is used.\n" +
-                "Write \'list\' here to see the list of devices in the\n" +
+                    "Write 'list' here to see the list of devices in the\n" +
                 "Status Window. Then make your choice and put either the\n" +
                 "interface number (2 or something) or a part of your adapters\n" +
                 "name, e.g. VIA here.  This option is used for mode=\"pcap\"");

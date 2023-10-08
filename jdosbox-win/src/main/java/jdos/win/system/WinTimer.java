@@ -1,6 +1,5 @@
 package jdos.win.system;
 
-import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.kernel32.WinThread;
 import jdos.win.builtin.user32.WinWindow;
 
@@ -9,14 +8,14 @@ import java.util.Collections;
 import java.util.Hashtable;
 
 public class WinTimer {
-    int hWnd;
+    final int hWnd;
 
     public WinTimer(int hWnd) {
         this.hWnd = hWnd;
     }
 
-    ArrayList<TimerItem> itemsByTime = new ArrayList<TimerItem>();
-    Hashtable<Integer, TimerItem> itemsById = new Hashtable<Integer, TimerItem>();
+    final ArrayList<TimerItem> itemsByTime = new ArrayList<>();
+    final Hashtable<Integer, TimerItem> itemsById = new Hashtable<>();
 
     static private class TimerItem implements Comparable {
         public TimerItem(int id, int eip, int elapse) {
@@ -25,10 +24,10 @@ public class WinTimer {
             this.elapse = elapse;
             this.nextRun = WinSystem.getTickCount()+elapse;
         }
-        int id;
-        int eip;
+        final int id;
+        final int eip;
         int nextRun;
-        int elapse;
+        final int elapse;
 
         public int compareTo(Object o) {
             return nextRun - ((TimerItem)o).nextRun;
@@ -58,24 +57,22 @@ public class WinTimer {
         return id;
     }
 
-    public int killTimer(int id) {
-        TimerItem item = (TimerItem)itemsById.remove(new Integer(id));
+    public void killTimer(int id) {
+        TimerItem item = itemsById.remove(id);
         if (item != null) {
             itemsByTime.remove(item);
-            return WinAPI.TRUE;
         }
-        return WinAPI.FALSE;
     }
 
     public int getNextTimerTime() {
-        if (itemsByTime.size()>0)
+        if (!itemsByTime.isEmpty())
             return itemsByTime.get(0).nextRun;
         return Integer.MAX_VALUE;
     }
 
     public boolean getNextTimerMsg(int msgAddress, int time, boolean reset) {
-        if (itemsByTime.size()>0) {
-            TimerItem item = (TimerItem)itemsByTime.get(0);
+        if (!itemsByTime.isEmpty()) {
+            TimerItem item = itemsByTime.get(0);
             if (item.nextRun<time) {
                 WinThread.setMessage(msgAddress, hWnd, WinWindow.WM_TIMER, item.id, 0, time, StaticData.currentPos.x, StaticData.currentPos.y);
                 if (reset) {

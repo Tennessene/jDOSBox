@@ -43,30 +43,34 @@ public class Midi extends Module_base {
         int status;
         int cmd_len;
         int cmd_pos;
-        byte[] cmd_buf = new byte[8];
+        final byte[] cmd_buf = new byte[8];
         byte[] rt_buf = new byte[8];
         public static class Sysex {
-            byte[] buf = new byte[SYSEX_SIZE];
+            final byte[] buf = new byte[SYSEX_SIZE];
             int used;
             int delay;
 		    long start;
         }
-        public Sysex sysex = new Sysex();
+        public final Sysex sysex = new Sysex();
         Receiver handler;
         MidiDevice device;
     }
     static private _midi midi;
-    static private ShortMessage msg = new ShortMessage();
-    static private SysexMessage sysex_msg = new SysexMessage();
+    static private final ShortMessage msg = new ShortMessage();
+    static private final SysexMessage sysex_msg = new SysexMessage();
 
     static public void MIDI_RawOutByte(/*Bit8u*/int data) {
         if (midi.sysex.start!=0) {
             /*Bit32u*/long passed_ticks = System.currentTimeMillis() - midi.sysex.start;
-            if (passed_ticks < midi.sysex.delay) try {Thread.sleep(midi.sysex.delay - passed_ticks);} catch (InterruptedException e){}
+            if (passed_ticks < midi.sysex.delay) try {Thread.sleep(midi.sysex.delay - passed_ticks);} catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
         /* Test for a realtime MIDI message */
         if (data>=0xf8) {
-            try {msg.setMessage(data);} catch (Exception e) {}
+            try {msg.setMessage(data);} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             midi.handler.send(msg, -1);
             return;
         }
@@ -82,7 +86,9 @@ public class Midi extends Module_base {
                     if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_ALL, LogSeverities.LOG_ERROR,"MIDI:Skipping invalid MT-32 SysEx midi message (too short to contain a checksum)");
                 } else {
     //				LOG(LOG_ALL,LOG_NORMAL)("Play sysex; address:%02X %02X %02X, length:%4d, delay:%3d", midi.sysex.buf[5], midi.sysex.buf[6], midi.sysex.buf[7], midi.sysex.used, midi.sysex.delay);
-                    try {sysex_msg.setMessage(midi.sysex.buf, midi.sysex.used);} catch (Exception e) {}
+                    try {sysex_msg.setMessage(midi.sysex.buf, midi.sysex.used);} catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     midi.handler.send(sysex_msg, -1);
                     if (midi.sysex.start!=0) {
                         if (midi.sysex.buf[5] == 0x7F) {
@@ -117,7 +123,9 @@ public class Midi extends Module_base {
 //                if (CaptureState & CAPTURE_MIDI) {
 //                    CAPTURE_AddMidi(false, midi.cmd_len, midi.cmd_buf);
 //                }
-                try {msg.setMessage(midi.cmd_buf[0], midi.cmd_buf[1], midi.cmd_buf[2]);} catch (Exception e) {}
+                try {msg.setMessage(midi.cmd_buf[0], midi.cmd_buf[1], midi.cmd_buf[2]);} catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 midi.handler.send(msg, -1);
                 midi.cmd_pos=1;		//Use Running status
             }
@@ -125,7 +133,7 @@ public class Midi extends Module_base {
     }
 
     static public boolean MIDI_Available()  {
-        return midi.device != null;
+        return midi.device == null;
     }
     
     public Midi(Section configuration) {
@@ -140,29 +148,29 @@ public class Midi extends Module_base {
 		if (conf.contains("delaysysex")) {
 			midi.sysex.start = System.currentTimeMillis();
             conf = StringHelper.replace(conf, "delaysysex", "").trim();
-			Log.log_msg("MIDI:Using delayed SysEx processing");
+			System.out.println("MIDI:Using delayed SysEx processing");
 		}
 
 		midi.status=0x00;
 		midi.cmd_pos=0;
 		midi.cmd_len=0;
-        MidiDevice.Info[] devices = null;
+        MidiDevice.Info[] devices;
 
         try {
             devices = MidiSystem.getMidiDeviceInfo();
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
         boolean def = dev.equalsIgnoreCase("default");
 
         if (!def) {
             if (devices != null) {
-                for (int i=0;i<devices.length;i++) {
-                    if (devices[i].getName().equalsIgnoreCase(dev)) {
+                for (MidiDevice.Info info : devices) {
+                    if (info.getName().equalsIgnoreCase(dev)) {
                         try {
                             MidiDevice device = MidiSystem.getMidiDevice(devices[0]);
                             device.open();
-                            midi.handler =  device.getReceiver();
+                            midi.handler = device.getReceiver();
                             midi.device = device;
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -171,22 +179,24 @@ public class Midi extends Module_base {
                 }
             }
             if (midi.handler==null) {
-                Log.log_msg("MIDI:Can't find device:"+dev+", finding default handler.");
+                System.out.println("MIDI:Can't find device:"+dev+", finding default handler.");
             }
         }
         if (midi.handler == null) {
-            Synthesizer	synth = null;
-            Soundbank soundbank = null;
+            Synthesizer	synth;
+            Soundbank soundbank;
 
             try {
                 synth=MidiSystem.getSynthesizer();
             } catch (Exception e) {
+                throw new RuntimeException(e);
             }
             if (synth != null) {
                 String fileName = "default";
                 try {
                     soundbank = synth.getDefaultSoundbank();
                 } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
                 if (soundbank == null) {
                     fileName = "soundbank-deluxe.gm";
@@ -203,21 +213,25 @@ public class Midi extends Module_base {
                         try {
                             soundbank = MidiSystem.getSoundbank(is);
                         } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
-                        try {is.close();} catch (Exception e) {}
+                        try {is.close();} catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
                 if (soundbank != null) {
                     try {
                         synth.open();
                         if (synth.isSoundbankSupported(soundbank) && synth.loadAllInstruments(soundbank)) {
-                            Log.log_msg("MIDI: Using Soundbank: "+fileName);
+                            System.out.println("MIDI: Using Soundbank: "+fileName);
                             midi.handler = synth.getReceiver();
                             midi.device = synth;
                         } else {
                             synth.close();
                         }
                     } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -229,20 +243,20 @@ public class Midi extends Module_base {
                     device.open();
                     midi.handler =  device.getReceiver();
                     midi.device = device;
-                    Log.log_msg("MIDI:Opened device:"+devices[i].getName());
+                    System.out.println("MIDI:Opened device:"+devices[i].getName());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
         if (midi.device == null) {
-            Log.log_msg("MIDI:Can't find any device");
+            System.out.println("MIDI:Can't find any device");
         }
     }
 
     private static Midi test;
 
-    public static Section.SectionFunction MIDI_Destroy = new Section.SectionFunction() {
+    public static final Section.SectionFunction MIDI_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             if(midi.device!=null) {
                 midi.handler.close();
@@ -253,7 +267,7 @@ public class Midi extends Module_base {
         }
     };
 
-    public static Section.SectionFunction MIDI_Init = new Section.SectionFunction() {
+    public static final Section.SectionFunction MIDI_Init = new Section.SectionFunction() {
         public void call(Section section) {
             midi = new _midi();
             test = new Midi(section);

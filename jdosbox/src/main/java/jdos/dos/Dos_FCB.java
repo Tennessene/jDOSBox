@@ -76,7 +76,8 @@ public class Dos_FCB extends MemStruct {
 	    SaveIt(1,27,0xff);//sSave(sFCB,file_handle,0xff);
     }
 	public void GetRecord(/*Bit16u*/IntRef _cur_block,/*Bit8u*/ShortRef _cur_rec) {
-        _cur_block.value=(/*Bit16u*/int)GetIt(2,12);//sGet(sFCB,cur_block);
+        /*Bit16u*/
+        _cur_block.value= GetIt(2,12);//sGet(sFCB,cur_block);
 	    _cur_rec.value=(/*Bit8u*/short)GetIt(1,32);//sGet(sFCB,cur_rec);
     }
 	public void SetRecord(/*Bit16u*/int _cur_block,/*Bit8u*/short _cur_rec) {
@@ -85,7 +86,8 @@ public class Dos_FCB extends MemStruct {
     }
 	public void GetSeqData(/*Bit8u*/ShortRef _fhandle,/*Bit16u*/IntRef _rec_size) {
         _fhandle.value=(/*Bit8u*/short)GetIt(1,27);//sGet(sFCB,file_handle);
-	    _rec_size.value=(/*Bit16u*/int)GetIt(2,14);//sGet(sFCB,rec_size);
+        /*Bit16u*/
+        _rec_size.value= GetIt(2,14);//sGet(sFCB,rec_size);
     }
 	public void GetRandom(/*Bit32u*/LongRef _random) {
         _random.value=GetIt(4,33);//sGet(sFCB,rndm);
@@ -112,12 +114,13 @@ public class Dos_FCB extends MemStruct {
     }
 	public boolean Valid() {
         //Very simple check for Oubliette
-        if(GetIt(1,1)/*sGet(sFCB,filename[0])*/ == 0 && GetIt(1,27)/*sGet(sFCB,file_handle)*/ == 0) return false;
-        return true;
+        /*sGet(sFCB,filename[0])*/
+        /*sGet(sFCB,file_handle)*/
+        return GetIt(1, 1) == 0 && GetIt(1, 27) == 0;
     }
 
 	private boolean extended;
-	private /*PhysPt*/int real_pt;
+	private final /*PhysPt*/int real_pt;
 
 //	struct sFCB {
 //0		Bit8u drive;			/* Drive number 0=default, 1=A, etc */

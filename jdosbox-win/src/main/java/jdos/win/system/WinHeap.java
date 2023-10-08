@@ -9,8 +9,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class WinHeap {
-    private Vector heaps = new Vector();
-    private KernelHeap heap;
+    private final Vector heaps = new Vector();
+    private final KernelHeap heap;
 
     public WinHeap(KernelHeap heap) {
         this.heap = heap;
@@ -77,10 +77,10 @@ public class WinHeap {
         return item.realloc(memory, size, zero);
     }
     private class HeapItem {
-        int initialSize;
-        int maxSize;
+        final int initialSize;
+        final int maxSize;
         int currentSize = 0;
-        Hashtable allocs = new Hashtable();
+        final Hashtable allocs = new Hashtable();
 
         public HeapItem(int initialSize, int maxSize) {
             this.initialSize = initialSize;
@@ -88,29 +88,29 @@ public class WinHeap {
         }
 
         public int free(int add) {
-            Integer size = (Integer)allocs.get(new Integer(add));
+            Integer size = (Integer)allocs.get(add);
             if (size == null) {
                 System.out.println("VirtualFree could not find address: 0x"+Integer.toString(add, 16));
                 Scheduler.getCurrentThread().setLastError(Error.ERROR_INVALID_PARAMETER);
                 return WinAPI.FALSE;
             }
             heap.free(add);
-            currentSize-=size.intValue();
+            currentSize-= size;
             return WinAPI.TRUE;
         }
 
         public int size(int add) {
-            Integer size = (Integer)allocs.get(new Integer(add));
+            Integer size = (Integer)allocs.get(add);
             if (size == null) {
                 return -1;
             }
-            return size.intValue();
+            return size;
         }
         public int alloc(int size) {
             if (maxSize!=0 && (currentSize+size)>maxSize)
                 return 0;
             int result = heap.alloc(size, false);
-            allocs.put(new Integer(result), new Integer(size));
+            allocs.put(result, size);
             return result;
         }
         public int realloc(int add, int size, boolean zero) {

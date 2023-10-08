@@ -20,9 +20,9 @@ public class Drive_zip extends Dos_Drive {
 	private static final int SIZE_CLUSTER = 32;
 	private ZipFile zipFile;
     private int totalSize;
-	private Map<Short, FileSearch> dirSearchEntries = new HashMap<Short, FileSearch>();
-	private final Map<String, ZipFileEntry> upperCaseNameFiles = new HashMap<String, ZipFileEntry>();
-	private final Map<String, List<ZipFileEntry>> directoryStructureMap = new HashMap<String, List<ZipFileEntry>>();
+	private final Map<Short, FileSearch> dirSearchEntries = new HashMap<>();
+	private final Map<String, ZipFileEntry> upperCaseNameFiles = new HashMap<>();
+	private final Map<String, List<ZipFileEntry>> directoryStructureMap = new HashMap<>();
 
 	static public class FileSearch {
 		private final Iterator<ZipFileEntry> fileListIterator;
@@ -165,7 +165,7 @@ public class Drive_zip extends Dos_Drive {
                 skip = offset;
             }
             while (skip>0) {
-                skip-=is.skip(skip);
+                skip-= (int) is.skip(skip);
             }
             real_pos = offset;
 
@@ -185,7 +185,7 @@ public class Drive_zip extends Dos_Drive {
         }
 
         private byte[] get(int offset) throws IOException {
-            Integer i = new Integer(offset);
+            Integer i = offset;
             byte[] b = (byte[])cache.get(i);
             if (b == null) {
                 b = fill(offset);
@@ -237,14 +237,17 @@ public class Drive_zip extends Dos_Drive {
                     break;
                 case Dos_files.DOS_SEEK_CUR:
                     /* Is this relative seek signed? */
-                    seekto = (/*Bit32s*/int) pos.value + (/*Bit32s*/int) seek;
+                    /*Bit32s*/
+                    seekto = (/*Bit32s*/int) pos.value + seek;
                     break;
                 case Dos_files.DOS_SEEK_END:
-                    seekto = (/*Bit32s*/int) length + (/*Bit32s*/int) pos.value;
+                    /*Bit32s*/
+                    seekto = length + (/*Bit32s*/int) pos.value;
                     break;
             }
 
-            if ((/*Bit32u*/long) seekto > length) seekto = (/*Bit32s*/int) length;
+            /*Bit32s*/
+            if ((/*Bit32u*/long) seekto > length) seekto = length;
             if (seekto < 0) seekto = 0;
             seek = seekto;
             pos.value = seek;
@@ -254,7 +257,9 @@ public class Drive_zip extends Dos_Drive {
         public boolean Close() {
         	length = 0;
         	if (is != null) {
-                try {is.close();} catch (Exception e1) {}
+                try {is.close();} catch (Exception e1) {
+                    throw new RuntimeException(e1);
+                }
                 is = null;
             }
         	open = false;
@@ -272,14 +277,14 @@ public class Drive_zip extends Dos_Drive {
 			zipFile = new ZipFile(sysFilename);
 			final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 			while (entries.hasMoreElements()) {
-				final ZipEntry zipEntry = (ZipEntry) entries.nextElement();
-                this.totalSize += zipEntry.getSize();
+				final ZipEntry zipEntry = entries.nextElement();
+                this.totalSize += (int) zipEntry.getSize();
 				final ZipFileEntry zipFileEntry = new ZipFileEntry(zipEntry);
 				upperCaseNameFiles.put(zipFileEntry.getFullName().toUpperCase(), zipFileEntry);
 				final String dirName = zipFileEntry.getDirName().toUpperCase();
 
 				if (!directoryStructureMap.containsKey(dirName)) {
-					directoryStructureMap.put(dirName, new ArrayList<ZipFileEntry>());
+					directoryStructureMap.put(dirName, new ArrayList<>());
 				}
 
 				directoryStructureMap.get(dirName).add(zipFileEntry);
@@ -328,11 +333,7 @@ public class Drive_zip extends Dos_Drive {
     public boolean FileExists(String name) {
     	final ZipFileEntry zipFileEntry = upperCaseNameFiles.get(name);
 
-    	if (zipFileEntry == null) {
-    		return false;
-    	}
-
-        return true;
+        return zipFileEntry != null;
     }
 
     public DOS_File FileOpen(final String name,/*Bit32u*/int flags) {

@@ -1,6 +1,5 @@
 package jdos.cpu.core_dynamic;
 
-import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Core_dynamic;
 import jdos.cpu.Paging;
@@ -118,7 +117,7 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	}
 	public void writed(/*PhysPt*/int address,/*Bitu*/int val){
 		int addr = (address & 4095);
-		if (RAM.readd(hostmem + addr)==(val & 0xFFFFFFFF)) return;
+		if (RAM.readd(hostmem + addr)==(val)) return;
 		RAM.writed(hostmem + addr, val);
 		// see if there's code where we are writing to
 		if (write_map.readd(addr)==0) {
@@ -247,14 +246,14 @@ final public class CodePageHandlerDynRec extends Paging.PageHandler {
 	}
 
 	// the write map, there are write_map[i] cache blocks that cover the byte at address i
-	public /*Bit8u*/Ptr write_map=new Ptr(4096);
+	public final /*Bit8u*/Ptr write_map=new Ptr(4096);
 	public /*Bit8u*/ Ptr invalidation_map;
 	CodePageHandlerDynRec next, prev;	// page linking
 
 	private Paging.PageHandler old_pagehandler;
 
 	// hash map to quickly find the cache blocks in this page
-	private CacheBlockDynRec[] hash_map = new CacheBlockDynRec[1+ Core_dynamic.DYN_PAGE_HASH];
+	private final CacheBlockDynRec[] hash_map = new CacheBlockDynRec[1+ Core_dynamic.DYN_PAGE_HASH];
 
 	private /*Bitu*/int active_blocks;		// the number of cache blocks in this page
 	private /*Bitu*/int active_count;		// delaying parameter to not immediately release a page

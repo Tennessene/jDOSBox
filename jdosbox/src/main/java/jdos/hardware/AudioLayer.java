@@ -25,21 +25,21 @@ public class AudioLayer {
             line.open(format, bufferSize);
             line.start();
             audioThreadExit = false;
-            audioThread = new Thread() {
-                public void run() {
-                    while (!audioThreadExit) {
-                        boolean result;
-                        synchronized (Mixer.audioMutex) {
-                            result = Mixer.MIXER_CallBack(0, audioBuffer, audioBuffer.length);
-                        }
-                        if (result)
-                            line.write(audioBuffer, 0, audioBuffer.length);
-                        else {
-                            try {Thread.sleep(20);} catch (Exception e){}
+            audioThread = new Thread(() -> {
+                while (!audioThreadExit) {
+                    boolean result;
+                    synchronized (Mixer.audioMutex) {
+                        result = Mixer.MIXER_CallBack(0, audioBuffer, audioBuffer.length);
+                    }
+                    if (result)
+                        line.write(audioBuffer, 0, audioBuffer.length);
+                    else {
+                        try {Thread.sleep(20);} catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 }
-            };
+            });
             audioBuffer = new byte[512]; // this needs to be smaller than buffer size passed into open other line.write will block
             audioThread.start();
             return true;
@@ -51,7 +51,9 @@ public class AudioLayer {
 
     public static void stop() {
         audioThreadExit = true;
-        try {audioThread.join(2000);} catch (Exception e){}
+        try {audioThread.join(2000);} catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         line.drain();
         line.stop();
     }
@@ -60,7 +62,7 @@ public class AudioLayer {
         MidiDevice.Info[] devices = MidiSystem.getMidiDeviceInfo();
 
         for (int i=0;i<devices.length;i++) {
-            program.WriteOut("%2d\t \"%s\"\n",new Object[]{new Integer(i),devices[i].getName()});
+            program.WriteOut("%2d\t \"%s\"\n",new Object[]{i,devices[i].getName()});
         }
     }
 }

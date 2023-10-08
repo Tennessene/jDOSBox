@@ -5,7 +5,7 @@ import jdos.cpu.Callback;
 import jdos.win.builtin.HandlerBase;
 
 public class IDirectDraw7 extends IUnknown {
-    private static int createVTable() {
+    private static void createVTable() {
         int address = allocateVTable("IDirectDraw7", IDirectDraw.VTABLE_SIZE+7);
         int result = address;
         address = IDirectDraw.addIDirectDraw(address, true);
@@ -20,7 +20,6 @@ public class IDirectDraw7 extends IUnknown {
         /* added in v7 */
         address = add(address, StartModeTest);
         address = add(address, EvaluateMode);
-        return result;
     }
 
     public static int create() {
@@ -32,7 +31,7 @@ public class IDirectDraw7 extends IUnknown {
 
     /* added in v2 */
     // HRESULT GetAvailableVidMem(this, LPDDSCAPS2 lpDDCaps, LPDWORD lpdwTotal, LPDWORD lpdwFree)
-    static private Callback.Handler GetAvailableVidMem = new HandlerBase() {
+    static private final Callback.Handler GetAvailableVidMem = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDraw7.GetAvailableVidMem";
         }
@@ -47,7 +46,7 @@ public class IDirectDraw7 extends IUnknown {
 
     /* added in v4 */
     // HRESULT GetSurfaceFromDC(this HDC hdc, LPDIRECTDRAWSURFACE7 *pSurf)
-    static private Callback.Handler GetSurfaceFromDC = new HandlerBase() {
+    static private final Callback.Handler GetSurfaceFromDC = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDraw7.GetSurfaceFromDC";
         }
@@ -60,7 +59,7 @@ public class IDirectDraw7 extends IUnknown {
     };
 
     // HRESULT RestoreAllSurfaces(this)
-    static private Callback.Handler RestoreAllSurfaces = new HandlerBase() {
+    static private final Callback.Handler RestoreAllSurfaces = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDraw7.RestoreAllSurfaces";
         }
@@ -71,7 +70,7 @@ public class IDirectDraw7 extends IUnknown {
     };
 
     // HRESULT TestCooperativeLevel(this)
-    static private Callback.Handler TestCooperativeLevel = new HandlerBase() {
+    static private final Callback.Handler TestCooperativeLevel = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDraw7.TestCooperativeLevel";
         }
@@ -81,7 +80,7 @@ public class IDirectDraw7 extends IUnknown {
         }
     };
     // HRESULT GetDeviceIdentifier(this, LPDDDEVICEIDENTIFIER2 pDDDI, DWORD dwFlags)
-    static private Callback.Handler GetDeviceIdentifier = new HandlerBase() {
+    static private final Callback.Handler GetDeviceIdentifier = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDraw7.GetDeviceIdentifier";
         }
@@ -95,7 +94,7 @@ public class IDirectDraw7 extends IUnknown {
 
     /* added in v7 */
     // HRESULT StartModeTest(this, LPSIZE pModes, DWORD dwNumModes, DWORD dwFlags)
-    static private Callback.Handler StartModeTest = new HandlerBase() {
+    static private final Callback.Handler StartModeTest = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDraw7.StartModeTest";
         }
@@ -109,7 +108,7 @@ public class IDirectDraw7 extends IUnknown {
     };
 
     // HRESULT EvaluateMode(this, DWORD dwFlags, DWORD  *pTimeout)
-    static private Callback.Handler EvaluateMode = new HandlerBase() {
+    static private final Callback.Handler EvaluateMode = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDraw7.EvaluateMode";
         }

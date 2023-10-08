@@ -165,7 +165,15 @@ public class MainFrame implements GUI {
     }
 
     public static void main(final String[] args) {
-        if (args.length>1 && args[0].equalsIgnoreCase("-pcap")) {
+        if (args.length == 1 && args[0].equalsIgnoreCase("-noconsole")) {
+            PrintStream dummyStream = new PrintStream(new OutputStream(){
+                public void write(int b) {
+                    // NO-OP
+                }
+            });
+
+            System.setOut(dummyStream);
+        } else if (args.length>1 && args[0].equalsIgnoreCase("-pcap")) {
             String nic = args[1];
             int port = 15654;
             if (args.length>3 && args[2].equalsIgnoreCase("-pcapport")) {

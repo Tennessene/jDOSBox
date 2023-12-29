@@ -7,7 +7,7 @@ import jdos.hardware.Pic;
 
 public class Inst2 extends Helper {
     final static public class Sldt_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Sldt_reg(int rm) {
             earw = Mod.ew(rm);
@@ -19,23 +19,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Sldt_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Sldt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -48,23 +36,13 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Str_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Str_reg(int rm) {
             earw = Mod.ew(rm);
@@ -76,23 +54,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Str_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Str_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -105,23 +71,13 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lldt_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Lldt_reg(int rm) {
             earw = Mod.ew(rm);
@@ -134,23 +90,13 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lldt_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Lldt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -164,23 +110,13 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Ltr_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Ltr_reg(int rm) {
             earw = Mod.ew(rm);
@@ -193,23 +129,13 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Ltr_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Ltr_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -223,23 +149,13 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Verr_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Verr_reg(int rm) {
             earw = Mod.ew(rm);
@@ -255,19 +171,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Verr_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Verr_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -284,19 +194,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Verw_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Verw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -312,19 +216,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Verw_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Verw_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -341,19 +239,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Sgdt_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Sgdt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -366,22 +258,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Sidt_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Sidt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -394,22 +275,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lgdt_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Lgdt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -424,22 +294,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lidt_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Lidt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -454,22 +314,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Smsw_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Smsw_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -481,22 +331,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lmsw_mem extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public Lmsw_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -509,18 +348,8 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Invlpg extends Op {
@@ -530,18 +359,8 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lgdt_reg extends Op {
@@ -550,19 +369,8 @@ public class Inst2 extends Helper {
             return Constants.BR_Illegal;
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lidt_reg extends Op {
@@ -571,23 +379,12 @@ public class Inst2 extends Helper {
             return Constants.BR_Illegal;
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Smsw_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Smsw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -598,22 +395,10 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Lmsw_reg extends Op {
-        Reg earw;
+        final Reg earw;
 
         public Lmsw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -624,23 +409,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class LarGwEw_reg extends Op {
-        Reg earw;
-        Reg rw;
+        final Reg earw;
+        final Reg rw;
         public LarGwEw_reg(int rm) {
             earw = Mod.ew(rm);
             rw = Mod.gw(rm);
@@ -656,20 +430,14 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class LarGwEw_mem extends Op {
-        EaaBase get_eaa;
-        Reg rw;
+        final EaaBase get_eaa;
+        final Reg rw;
 
         public LarGwEw_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -687,20 +455,14 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class LslGwEw_reg extends Op {
-        Reg earw;
-        Reg rw;
+        final Reg earw;
+        final Reg rw;
 
         public LslGwEw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -717,20 +479,14 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class LslGwEw_mem extends Op {
-        EaaBase get_eaa;
-        Reg rw;
+        final EaaBase get_eaa;
+        final Reg rw;
 
         public LslGwEw_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -748,15 +504,9 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
         public boolean returnsIllegal() {return true;}
-        public boolean throwsException() {return false;}
+
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Clts extends Op {
@@ -766,18 +516,7 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Invd extends Op {
@@ -786,23 +525,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovRdCr extends Op {
-        Reg eard;
-        int which;
+        final Reg eard;
+        final int which;
 
         public MovRdCr(int rm) {
             eard = Mod.ed(rm);
@@ -814,23 +542,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovRdDr extends Op {
-        Reg eard;
-        int which;
+        final Reg eard;
+        final int which;
 
         public MovRdDr(int rm) {
             eard = Mod.ed(rm);
@@ -842,24 +559,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public String description() {return "MOV Rd,DRx "+eard.getName()+"=DRX["+which+"]";}
     }
 
     final static public class MovCrRd extends Op {
-        Reg eard;
-        int which;
+        final Reg eard;
+        final int which;
 
         public MovCrRd(int rm) {
             eard = Mod.ed(rm);
@@ -871,24 +578,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public String description() {return "MOV CRx,Rd CR["+which+"]="+eard.dword;}
     }
 
     final static public class MovDrRd extends Op {
-        Reg eard;
-        int which;
+        final Reg eard;
+        final int which;
 
         public MovDrRd(int rm) {
             eard = Mod.ed(rm);
@@ -900,23 +597,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovRdTr extends Op {
-        Reg eard;
-        int which;
+        final Reg eard;
+        final int which;
 
         public MovRdTr(int rm) {
             eard = Mod.ed(rm);
@@ -928,23 +614,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovTrRd extends Op {
-        Reg eard;
-        int which;
+        final Reg eard;
+        final int which;
 
         public MovTrRd(int rm) {
             eard = Mod.ed(rm);
@@ -956,18 +631,7 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class Rdtsc extends Op {
@@ -975,27 +639,14 @@ public class Inst2 extends Helper {
             /* Use a fixed number when in auto cycles mode as else the reported value changes constantly */
 			/*Bit64s*/long tsc=(/*Bit64s*/long)(Pic.PIC_FullIndex()*(double) (CPU.CPU_CycleAutoAdjust?70000:CPU.CPU_CycleMax));
             reg_edx.dword=(int)(tsc>>>32);
-            reg_eax.dword=(int)(tsc&0xffffffffl);
+            reg_eax.dword=(int)(tsc& 0xffffffffL);
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean returnsIllegal() {return false;}
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     static abstract public class JumpCond16_w extends Op {
-        int offset;
+        final int offset;
         public JumpCond16_w() {
             offset = decode_fetchws();
         }
@@ -1008,8 +659,6 @@ public class Inst2 extends Helper {
             return Constants.BR_Link2;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
         public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
     }
@@ -1017,10 +666,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_o extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_O());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1033,10 +678,6 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NO());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.OF;
         }
@@ -1045,10 +686,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_b extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_B());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1061,10 +698,6 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NB());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.CF;
         }
@@ -1073,10 +706,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_z extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_Z());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1089,10 +718,6 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NZ());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF;
         }
@@ -1101,10 +726,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_be extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_BE());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1117,10 +738,6 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NBE());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.CF | CPU_Regs.ZF;
         }
@@ -1129,10 +746,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_s extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_S());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1145,10 +758,6 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NS());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF;
         }
@@ -1157,10 +766,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_p extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_P());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1173,10 +778,6 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NP());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.PF;
         }
@@ -1185,10 +786,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_l extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_L());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1201,10 +798,6 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NL());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
@@ -1213,10 +806,6 @@ public class Inst2 extends Helper {
     final static public class JumpCond16_w_le extends JumpCond16_w {
         public int call() {
             return jump(Flags.TFLG_LE());
-        }
-
-        public int sets() {
-            return 0;
         }
 
         public int gets() {
@@ -1229,17 +818,13 @@ public class Inst2 extends Helper {
             return jump(Flags.TFLG_NLE());
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
     }
 
     final static public class SETcc_reg_o extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_o(int rm) {
             earb = Mod.eb(rm);
@@ -1249,22 +834,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_o extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_o(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1275,22 +852,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_no extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_no(int rm) {
             earb = Mod.eb(rm);
@@ -1301,22 +871,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_no extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_no(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1328,22 +890,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_b extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_b(int rm) {
             earb = Mod.eb(rm);
@@ -1354,22 +909,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_b extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_b(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1381,22 +928,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_nb extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_nb(int rm) {
             earb = Mod.eb(rm);
@@ -1407,22 +947,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_nb extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_nb(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1434,22 +966,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_z extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_z(int rm) {
             earb = Mod.eb(rm);
@@ -1460,22 +985,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_z extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_z(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1487,22 +1004,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_nz extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_nz(int rm) {
             earb = Mod.eb(rm);
@@ -1513,22 +1023,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_nz extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_nz(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1540,22 +1042,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_be extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_be(int rm) {
             earb = Mod.eb(rm);
@@ -1566,22 +1061,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF | CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_be extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_be(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1593,22 +1080,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF | CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_nbe extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_nbe(int rm) {
             earb = Mod.eb(rm);
@@ -1619,22 +1099,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF | CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_nbe extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_nbe(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1646,22 +1118,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.ZF | CPU_Regs.CF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_s extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_s(int rm) {
             earb = Mod.eb(rm);
@@ -1672,22 +1137,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_s extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_s(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1699,22 +1156,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_ns extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_ns(int rm) {
             earb = Mod.eb(rm);
@@ -1725,22 +1175,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_ns extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_ns(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1752,22 +1194,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_p extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_p(int rm) {
             earb = Mod.eb(rm);
@@ -1777,22 +1212,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.PF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_p extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_p(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1804,22 +1231,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.PF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_np extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_np(int rm) {
             earb = Mod.eb(rm);
@@ -1830,22 +1250,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.PF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_np extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_np(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1857,22 +1269,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.PF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_l extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_l(int rm) {
             earb = Mod.eb(rm);
@@ -1883,22 +1288,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_l extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_l(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1910,22 +1307,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_nl extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_nl(int rm) {
             earb = Mod.eb(rm);
@@ -1936,22 +1326,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_nl extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_nl(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1963,22 +1345,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_le extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_le(int rm) {
             earb = Mod.eb(rm);
@@ -1989,22 +1364,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_le extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_le(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -2016,22 +1383,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_reg_nle extends Op {
-        Reg earb;
+        final Reg earb;
 
         public SETcc_reg_nle(int rm) {
             earb = Mod.eb(rm);
@@ -2042,22 +1402,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class SETcc_mem_nle extends Op {
-        EaaBase get_eaa;
+        final EaaBase get_eaa;
 
         public SETcc_mem_nle(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -2069,18 +1421,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
 
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class PushFS extends Op {
@@ -2089,18 +1434,7 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class PopFS extends Op {
@@ -2109,18 +1443,9 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int setsSeg() {return FS|FROM_STACK;}
     }
 
@@ -2130,25 +1455,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean returnsIllegal() {return false;}
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtEwGw_reg extends Op {
         int mask;
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public BtEwGw_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2165,20 +1477,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtEwGw_mem extends Op {
         int mask;
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public BtEwGw_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2198,20 +1502,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class ShldEwGwIb_reg extends Op {
-        int op3;
-        Reg rw;
-        Reg earw;
+        final int op3;
+        final Reg rw;
+        final Reg earw;
 
         public ShldEwGwIb_reg(int rm, Reg earw, int op3) {
             rw = Mod.gw(rm);
@@ -2229,21 +1526,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
     final static public class ShldEwGwIb_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
-        int op3;
+        final Reg rw;
+        final EaaBase get_eaa;
+        final int op3;
 
         public ShldEwGwIb_mem(int rm, EaaBase get_eaa, int op3) {
             rw = Mod.gw(rm);
@@ -2262,20 +1551,14 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
     final static public class ShldEwGwCl_reg extends Op {
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public ShldEwGwCl_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2293,20 +1576,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
     final static public class ShldEwGwCl_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public ShldEwGwCl_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2326,14 +1601,8 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int getFlagType() {return FLAG_TYPE_DSHLW;}
     }
 
@@ -2343,18 +1612,7 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class PopGS extends Op {
@@ -2363,24 +1621,14 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int setsSeg() {return GS|FROM_STACK;}
     }
 
     final static public class BtsEwGw_reg extends Op {
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public BtsEwGw_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2398,19 +1646,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEwGw_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public BtsEwGw_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2432,20 +1672,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class ShrdEwGwIb_reg extends Op {
-        int op3;
-        Reg rw;
-        Reg earw;
+        final int op3;
+        final Reg rw;
+        final Reg earw;
 
         public ShrdEwGwIb_reg(int rm, Reg earw, int op3) {
             rw = Mod.gw(rm);
@@ -2463,21 +1696,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ShrdEwGwIb_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
-        int op3;
+        final Reg rw;
+        final EaaBase get_eaa;
+        final int op3;
 
         public ShrdEwGwIb_mem(int rm, EaaBase get_eaa, int op3) {
             rw = Mod.gw(rm);
@@ -2496,20 +1721,14 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ShrdEwGwCl_reg extends Op {
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public ShrdEwGwCl_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2527,20 +1746,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ShrdEwGwCl_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public ShrdEwGwCl_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2559,20 +1770,14 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int getFlagType() {return FLAG_TYPE_DSHRW;}
     }
 
     final static public class ImulGwEw_reg extends Op {
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public ImulGwEw_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2588,19 +1793,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.OF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class ImulGwEw_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public ImulGwEw_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2617,19 +1814,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.OF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEbGb_reg extends Op {
-        Reg rb;
-        Reg earb;
+        final Reg rb;
+        final Reg earb;
 
         public CmpxchgEbGb_reg(int rm) {
             rb = Mod.gb(rm);
@@ -2653,19 +1843,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEbGb_mem extends Op {
-        Reg rb;
-        EaaBase get_eaa;
+        final Reg rb;
+        final EaaBase get_eaa;
 
         public CmpxchgEbGb_mem(int rm) {
             rb = Mod.gb(rm);
@@ -2692,19 +1874,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEwGw_reg extends Op {
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public CmpxchgEwGw_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2728,19 +1903,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEwGw_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public CmpxchgEwGw_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2767,19 +1934,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class LssEw extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public LssEw(int rm) {
             rw = Mod.gw(rm);
@@ -2793,24 +1953,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int setsSeg() {return SS|FROM_MEMORY;}
     }
 
     final static public class BtrEwGw_reg extends Op {
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public BtrEwGw_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2829,19 +1980,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEwGw_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public BtrEwGw_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2863,19 +2006,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class LfsEw extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public LfsEw(int rm) {
             rw = Mod.gw(rm);
@@ -2889,24 +2025,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int setsSeg() {return FS|FROM_MEMORY;}
     }
 
     final static public class LgsEw extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public LgsEw(int rm) {
             rw = Mod.gw(rm);
@@ -2920,24 +2047,15 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int setsSeg() {return GS|FROM_MEMORY;}
     }
 
     final static public class MovzxGwEb_reg extends Op {
-        Reg rw;
-        Reg earb;
+        final Reg rw;
+        final Reg earb;
 
         public MovzxGwEb_reg(int rm) {
             rw = Mod.gw(rm);
@@ -2949,23 +2067,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGwEb_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public MovzxGwEb_mem(int rm) {
             rw = Mod.gw(rm);
@@ -2978,23 +2084,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGwEw_reg extends Op {
-        Reg rw;
-        Reg earw;
+        final Reg rw;
+        final Reg earw;
 
         public MovzxGwEw_reg(int rm) {
             rw = Mod.gw(rm);
@@ -3006,23 +2101,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGwEw_mem extends Op {
-        Reg rw;
-        EaaBase get_eaa;
+        final Reg rw;
+        final EaaBase get_eaa;
 
         public MovzxGwEw_mem(int rm) {
             rw = Mod.gw(rm);
@@ -3035,23 +2118,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtEwIb_reg extends Op {
-        Reg earw;
-        int mask;
+        final Reg earw;
+        final int mask;
 
         public BtEwIb_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3068,19 +2140,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEwIb_reg extends Op {
-        Reg earw;
-        int mask;
+        final Reg earw;
+        final int mask;
 
         public BtsEwIb_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3098,19 +2162,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEwIb_reg extends Op {
-        Reg earw;
-        int mask;
+        final Reg earw;
+        final int mask;
 
         public BtrEwIb_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3128,19 +2184,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEwIb_reg extends Op {
-        Reg earw;
-        int mask;
+        final Reg earw;
+        final int mask;
 
         public BtcEwIb_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3158,19 +2206,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtEwIb_mem extends Op {
-        EaaBase get_eaa;
-        int mask;
+        final EaaBase get_eaa;
+        final int mask;
 
         public BtEwIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3189,19 +2229,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEwIb_mem extends Op {
-        EaaBase get_eaa;
-        int mask;
+        final EaaBase get_eaa;
+        final int mask;
 
         public BtsEwIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3221,19 +2254,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEwIb_mem extends Op {
-        EaaBase get_eaa;
-        int mask;
+        final EaaBase get_eaa;
+        final int mask;
 
         public BtrEwIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3253,19 +2279,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEwIb_mem extends Op {
-        EaaBase get_eaa;
-        int mask;
+        final EaaBase get_eaa;
+        final int mask;
 
         public BtcEwIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3285,19 +2304,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEwGw_reg extends Op {
-        Reg earw;
-        Reg rw;
+        final Reg earw;
+        final Reg rw;
 
         public BtcEwGw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3316,19 +2328,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEwGw_mem extends Op {
-        EaaBase get_eaa;
-        Reg rw;
+        final EaaBase get_eaa;
+        final Reg rw;
 
         public BtcEwGw_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3350,19 +2354,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BsfGwEw_reg extends Op {
-        Reg earw;
-        Reg rw;
+        final Reg earw;
+        final Reg rw;
 
         public BsfGwEw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3388,19 +2385,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BsfGwEw_mem extends Op {
-        EaaBase get_eaa;
-        Reg rw;
+        final EaaBase get_eaa;
+        final Reg rw;
 
         public BsfGwEw_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3427,19 +2416,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BsrGwEw_reg extends Op {
-        Reg earw;
-        Reg rw;
+        final Reg earw;
+        final Reg rw;
 
         public BsrGwEw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3465,19 +2447,11 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class BsrGwEw_mem extends Op {
-        EaaBase get_eaa;
-        Reg rw;
+        final EaaBase get_eaa;
+        final Reg rw;
 
         public BsrGwEw_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3504,19 +2478,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.ZF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGwEb_reg extends Op {
-        Reg earb;
-        Reg rw;
+        final Reg earb;
+        final Reg rw;
 
         public MovsxGwEb_reg(int rm) {
             earb = Mod.eb(rm);
@@ -3528,23 +2495,11 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGwEb_mem extends Op {
-        EaaBase get_eaa;
-        Reg rw;
+        final EaaBase get_eaa;
+        final Reg rw;
 
         public MovsxGwEb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3557,22 +2512,12 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class XaddGbEb_reg extends Op {
-        Reg earb;
-        Reg rb;
+        final Reg earb;
+        final Reg rb;
 
         public XaddGbEb_reg(int rm) {
             earb = Mod.eb(rm);
@@ -3591,20 +2536,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class XaddGbEb_mem extends Op {
-        EaaBase get_eaa;
-        Reg rb;
+        final EaaBase get_eaa;
+        final Reg rb;
 
         public XaddGbEb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3625,20 +2562,14 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int getFlagType() {return FLAG_TYPE_ADDB;}
     }
 
     final static public class XaddGwEw_reg extends Op {
-        Reg earw;
-        Reg rw;
+        final Reg earw;
+        final Reg rw;
 
         public XaddGwEw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -3657,20 +2588,12 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class XaddGwEw_mem extends Op {
-        EaaBase get_eaa;
-        Reg rw;
+        final EaaBase get_eaa;
+        final Reg rw;
 
         public XaddGwEw_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -3691,19 +2614,13 @@ public class Inst2 extends Helper {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
+
         public int getFlagType() {return FLAG_TYPE_ADDW;}
     }
 
     final static public class Bswapw extends Op {
-        Reg reg;
+        final Reg reg;
 
         public Bswapw(Reg reg) {
         this.reg = reg;
@@ -3714,34 +2631,17 @@ public class Inst2 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public int sets() {
-            return 0;
-        }
-
-        public int gets() {
-            return 0;
-        }
-
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     static abstract public class ConditionalMov_reg extends Op {
-        Reg ew;
-        Reg gw;
+        final Reg ew;
+        final Reg gw;
 
         public ConditionalMov_reg(int rm) {
             ew = Mod.ew(rm);
             gw = Mod.gw(rm);
         }
 
-        public int sets() {return 0;}
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return false;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
     }
 
     final static public class ConditionalMov_o_reg extends ConditionalMov_reg {
@@ -3953,20 +2853,16 @@ public class Inst2 extends Helper {
     }
 
      static abstract public class ConditionalMov_mem extends Op {
-        EaaBase get_eaa;
-        Reg gw;
+        final EaaBase get_eaa;
+        final Reg gw;
 
         public ConditionalMov_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
             gw = Mod.gw(rm);
         }
 
-        public int sets() {return 0;}
-        public boolean throwsException() {return false;}
-        public boolean accessesMemory() {return true;}
-        public boolean usesEip() {return false;}
-        public boolean setsEip() {return false;}
-    }
+         public boolean accessesMemory() {return true;}
+     }
 
     final static public class ConditionalMov_o_mem extends ConditionalMov_mem {
         public ConditionalMov_o_mem(int rm) {

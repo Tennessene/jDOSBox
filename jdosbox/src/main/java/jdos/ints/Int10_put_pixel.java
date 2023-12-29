@@ -11,8 +11,8 @@ import jdos.types.MachineType;
 import jdos.types.SVGACards;
 
 public class Int10_put_pixel {
-    static private short[] cga_masks={0x3f,0xcf,0xf3,0xfc};
-    static private short[] cga_masks2={0x7f,0xbf,0xdf,0xef,0xf7,0xfb,0xfd,0xfe};
+    static private final short[] cga_masks={0x3f,0xcf,0xf3,0xfc};
+    static private final short[] cga_masks2={0x7f,0xbf,0xdf,0xef,0xf7,0xfb,0xfd,0xfe};
 
     static private boolean putpixelwarned = false;
     public static void INT10_PutPixel(/*Bit16u*/int x,/*Bit16u*/int y,/*Bit8u*/short page,/*Bit8u*/short color) {
@@ -201,7 +201,7 @@ public class Int10_put_pixel {
                 /* Set the read map */
                 color=0;
                 IoHandler.IO_Write(0x3ce,0x4);IoHandler.IO_Write(0x3cf,0);
-                color|=((Memory.mem_readb(off)>>shift) & 1) << 0;
+                color|= ((Memory.mem_readb(off) >> shift) & 1);
                 IoHandler.IO_Write(0x3ce,0x4);IoHandler.IO_Write(0x3cf,1);
                 color|=((Memory.mem_readb(off)>>shift) & 1) << 1;
                 IoHandler.IO_Write(0x3ce,0x4);IoHandler.IO_Write(0x3cf,2);

@@ -21,6 +21,8 @@
 
 package javazoom.jl.decoder;
 
+import java.util.Arrays;
+
 /**
  * The <code>Equalizer</code> class can be used to specify
  * equalization settings for the MPEG audio decoder. 
@@ -74,7 +76,7 @@ public final class Equalizer
 	public void setFrom(float[] eq)
 	{
 		reset();
-		int max = (eq.length > BANDS) ? BANDS : eq.length;
+		int max = Math.min(eq.length, BANDS);
 		
 		for (int i=0; i<max; i++)
 		{
@@ -85,9 +87,8 @@ public final class Equalizer
 	public void setFrom(EQFunction eq)
 	{
 		reset();
-		int max = BANDS;
-		
-		for (int i=0; i<max; i++)
+
+        for (int i = 0; i< BANDS; i++)
 		{
 			settings[i] = limit(eq.getBand(i));
 		}		
@@ -113,10 +114,7 @@ public final class Equalizer
 	 */
 	public void reset()
 	{
-		for (int i=0; i<BANDS; i++)
-		{
-			settings[i] = 0.0f;
-		}
+        Arrays.fill(settings, 0.0f);
 	}
 
 	
@@ -164,11 +162,9 @@ public final class Equalizer
 			return eq;
 		if (eq > 1.0f)
 			return 1.0f;
-		if (eq < -1.0f)
-			return -1.0f;
-		
-		return eq;
-	}
+        return Math.max(eq, -1.0f);
+
+    }
 	
 	/**
 	 * Retrieves an array of floats whose values represent a
@@ -182,7 +178,7 @@ public final class Equalizer
 	float[] getBandFactors()
 	{
 		float[] factors = new float[BANDS];
-		for (int i=0, maxCount=BANDS; i<maxCount; i++)
+		for (int i = 0; i< BANDS; i++)
 		{
 			factors[i] = getBandFactor(settings[i]);
 		}
@@ -200,9 +196,8 @@ public final class Equalizer
 	{
 		if (eq==BAND_NOT_PRESENT)
 			return 0.0f;
-		
-		float f = (float)Math.pow(2.0, eq);
-		return f;
+
+        return (float)Math.pow(2.0, eq);
 	}
 	
 	

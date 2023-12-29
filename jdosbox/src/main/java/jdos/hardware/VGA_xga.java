@@ -19,7 +19,7 @@ public class VGA_xga {
         public static class scissorreg {
             /*Bit16u*/int x1, y1, x2, y2;
         }
-        public scissorreg scissors = new scissorreg();
+        public final scissorreg scissors = new scissorreg();
 
         /*Bit32u*/long readmask;
         /*Bit32u*/long writemask;
@@ -54,7 +54,7 @@ public class VGA_xga {
             /*Bitu*/int datasize;
             /*Bitu*/int buswidth;
         }
-        public XGA_WaitCmd waitcmd = new XGA_WaitCmd();
+        public final XGA_WaitCmd waitcmd = new XGA_WaitCmd();
 
     }
 
@@ -92,7 +92,7 @@ public class VGA_xga {
                 xga.read_sel = dataval;
                 break;
             default:
-                Log.log_msg("XGA: Unhandled multifunction command "+Integer.toString(regselect,16));
+                System.out.println("XGA: Unhandled multifunction command "+Integer.toString(regselect,16));
                 break;
         }
     }
@@ -224,7 +224,7 @@ public class VGA_xga {
                 destval = ~(srcval | dstdata);
                 break;
             default:
-                Log.log_msg("XGA: GetMixResult: Unknown mix.  Shouldn't be able to get here!");
+                System.out.println("XGA: GetMixResult: Unknown mix.  Shouldn't be able to get here!");
                 break;
         }
         return destval;
@@ -284,37 +284,34 @@ public class VGA_xga {
 
         for (i=0;i<=dx;i++) {
             /*Bitu*/int mixmode = (xga.pix_cntl >> 6) & 0x3;
-            switch (mixmode) {
-                case 0x00: /* FOREMIX always used */
-                    mixmode = xga.foremix;
-                    switch((mixmode >> 5) & 0x03) {
-                        case 0x00: /* Src is background color */
-                            srcval = xga.backcolor;
-                            break;
-                        case 0x01: /* Src is foreground color */
-                            srcval = xga.forecolor;
-                            break;
-                        case 0x02: /* Src is pixel data from PIX_TRANS register */
-                            //srcval = tmpval;
-                            //Log.log_msg("XGA: DrawRect: Wants data from PIX_TRANS register");
-                            break;
-                        case 0x03: /* Src is bitmap data */
-                            Log.log_msg("XGA: DrawRect: Wants data from srcdata");
-                            //srcval = srcdata;
-                            break;
-                        default:
-                            Log.log_msg("XGA: DrawRect: Shouldn't be able to get here!");
-                            break;
-                    }
-                    dstdata = XGA_GetPoint(xat,yat);
+            if (mixmode == 0x00) { /* FOREMIX always used */
+                mixmode = xga.foremix;
+                switch ((mixmode >> 5) & 0x03) {
+                    case 0x00: /* Src is background color */
+                        srcval = xga.backcolor;
+                        break;
+                    case 0x01: /* Src is foreground color */
+                        srcval = xga.forecolor;
+                        break;
+                    case 0x02: /* Src is pixel data from PIX_TRANS register */
+                        //srcval = tmpval;
+                        //System.out.println("XGA: DrawRect: Wants data from PIX_TRANS register");
+                        break;
+                    case 0x03: /* Src is bitmap data */
+                        System.out.println("XGA: DrawRect: Wants data from srcdata");
+                        //srcval = srcdata;
+                        break;
+                    default:
+                        System.out.println("XGA: DrawRect: Shouldn't be able to get here!");
+                        break;
+                }
+                dstdata = XGA_GetPoint(xat, yat);
 
-                    destval = XGA_GetMixResult(mixmode, srcval, dstdata);
+                destval = XGA_GetMixResult(mixmode, srcval, dstdata);
 
-                    XGA_DrawPoint(xat,yat, destval);
-                    break;
-                default:
-                    Log.log_msg("XGA: DrawLine: Needs mixmode "+Integer.toString(mixmode,16));
-                    break;
+                XGA_DrawPoint(xat, yat, destval);
+            } else {
+                System.out.println("XGA: DrawLine: Needs mixmode " + Integer.toString(mixmode, 16));
             }
             xat += sx;
             yat += sy;
@@ -336,11 +333,13 @@ public class VGA_xga {
 
         // Probably a lot easier way to do this, but this works.
 
-        dminor = (/*Bits*/int)((/*Bit16s*/short)xga.desty);
+        /*Bits*/
+        dminor = (/*Bit16s*/short)xga.desty;
         if((xga.desty&0x2000)!=0) dminor |= 0xffffe000;
         dminor >>= 1;
 
-        destxtmp=(/*Bits*/int)((/*Bit16s*/short)xga.destx);
+        /*Bits*/
+        destxtmp= (/*Bit16s*/short)xga.destx;
         if((xga.destx&0x2000)!=0) destxtmp |= 0xffffe000;
 
 
@@ -358,7 +357,8 @@ public class VGA_xga {
         } else {
             sy = -1;
         }
-        e = (/*Bits*/int)((/*Bit16s*/short)xga.ErrTerm);
+        /*Bits*/
+        e = (/*Bit16s*/short)xga.ErrTerm;
         if((xga.ErrTerm&0x2000)!=0) e |= 0xffffe000;
         xat = xga.curx;
         yat = xga.cury;
@@ -377,52 +377,48 @@ public class VGA_xga {
             steep = true;
         }
 
-        //Log.log_msg("XGA: Bresenham: ASC %d, LPDSC %d, sx %d, sy %d, err %d, steep %d, length %d, dmajor %d, dminor %d, xstart %d, ystart %d", dx, dy, sx, sy, e, steep, xga.MAPcount, dmajor, dminor,xat,yat);
+        //System.out.println("XGA: Bresenham: ASC %d, LPDSC %d, sx %d, sy %d, err %d, steep %d, length %d, dmajor %d, dminor %d, xstart %d, ystart %d", dx, dy, sx, sy, e, steep, xga.MAPcount, dmajor, dminor,xat,yat);
 
         for (i=0;i<=xga.MAPcount;i++) {
                 /*Bitu*/int mixmode = (xga.pix_cntl >> 6) & 0x3;
-                switch (mixmode) {
-                    case 0x00: /* FOREMIX always used */
-                        mixmode = xga.foremix;
-                        switch((mixmode >> 5) & 0x03) {
-                            case 0x00: /* Src is background color */
-                                srcval = xga.backcolor;
-                                break;
-                            case 0x01: /* Src is foreground color */
-                                srcval = xga.forecolor;
-                                break;
-                            case 0x02: /* Src is pixel data from PIX_TRANS register */
-                                //srcval = tmpval;
-                                Log.log_msg("XGA: DrawRect: Wants data from PIX_TRANS register");
-                                break;
-                            case 0x03: /* Src is bitmap data */
-                                Log.log_msg("XGA: DrawRect: Wants data from srcdata");
-                                //srcval = srcdata;
-                                break;
-                            default:
-                                Log.log_msg("XGA: DrawRect: Shouldn't be able to get here!");
-                                break;
-                        }
-
-                        if(steep) {
-                            dstdata = XGA_GetPoint(xat,yat);
-                        } else {
-                            dstdata = XGA_GetPoint(yat,xat);
-                        }
-
-                        destval = XGA_GetMixResult(mixmode, srcval, dstdata);
-
-                        if(steep) {
-                            XGA_DrawPoint(xat,yat, destval);
-                        } else {
-                            XGA_DrawPoint(yat,xat, destval);
-                        }
-
+            if (mixmode == 0x00) { /* FOREMIX always used */
+                mixmode = xga.foremix;
+                switch ((mixmode >> 5) & 0x03) {
+                    case 0x00: /* Src is background color */
+                        srcval = xga.backcolor;
+                        break;
+                    case 0x01: /* Src is foreground color */
+                        srcval = xga.forecolor;
+                        break;
+                    case 0x02: /* Src is pixel data from PIX_TRANS register */
+                        //srcval = tmpval;
+                        System.out.println("XGA: DrawRect: Wants data from PIX_TRANS register");
+                        break;
+                    case 0x03: /* Src is bitmap data */
+                        System.out.println("XGA: DrawRect: Wants data from srcdata");
+                        //srcval = srcdata;
                         break;
                     default:
-                        Log.log_msg("XGA: DrawLine: Needs mixmode "+Integer.toString(mixmode,16));
+                        System.out.println("XGA: DrawRect: Shouldn't be able to get here!");
                         break;
                 }
+
+                if (steep) {
+                    dstdata = XGA_GetPoint(xat, yat);
+                } else {
+                    dstdata = XGA_GetPoint(yat, xat);
+                }
+
+                destval = XGA_GetMixResult(mixmode, srcval, dstdata);
+
+                if (steep) {
+                    XGA_DrawPoint(xat, yat, destval);
+                } else {
+                    XGA_DrawPoint(yat, xat, destval);
+                }
+            } else {
+                System.out.println("XGA: DrawLine: Needs mixmode " + Integer.toString(mixmode, 16));
+            }
                 while (e > 0) {
                     yat += sy;
                     e -= (dx << 1);
@@ -463,37 +459,34 @@ public class VGA_xga {
             srcx = xga.curx;
             for(xat=0;xat<=xga.MAPcount;xat++) {
                 /*Bitu*/int mixmode = (xga.pix_cntl >> 6) & 0x3;
-                switch (mixmode) {
-                    case 0x00: /* FOREMIX always used */
-                        mixmode = xga.foremix;
-                        switch((mixmode >> 5) & 0x03) {
-                            case 0x00: /* Src is background color */
-                                srcval = xga.backcolor;
-                                break;
-                            case 0x01: /* Src is foreground color */
-                                srcval = xga.forecolor;
-                                break;
-                            case 0x02: /* Src is pixel data from PIX_TRANS register */
-                                //srcval = tmpval;
-                                Log.log_msg("XGA: DrawRect: Wants data from PIX_TRANS register");
-                                break;
-                            case 0x03: /* Src is bitmap data */
-                                Log.log_msg("XGA: DrawRect: Wants data from srcdata");
-                                //srcval = srcdata;
-                                break;
-                            default:
-                                Log.log_msg("XGA: DrawRect: Shouldn't be able to get here!");
-                                break;
-                        }
-                        dstdata = XGA_GetPoint(srcx,srcy);
+                if (mixmode == 0x00) { /* FOREMIX always used */
+                    mixmode = xga.foremix;
+                    switch ((mixmode >> 5) & 0x03) {
+                        case 0x00: /* Src is background color */
+                            srcval = xga.backcolor;
+                            break;
+                        case 0x01: /* Src is foreground color */
+                            srcval = xga.forecolor;
+                            break;
+                        case 0x02: /* Src is pixel data from PIX_TRANS register */
+                            //srcval = tmpval;
+                            System.out.println("XGA: DrawRect: Wants data from PIX_TRANS register");
+                            break;
+                        case 0x03: /* Src is bitmap data */
+                            System.out.println("XGA: DrawRect: Wants data from srcdata");
+                            //srcval = srcdata;
+                            break;
+                        default:
+                            System.out.println("XGA: DrawRect: Shouldn't be able to get here!");
+                            break;
+                    }
+                    dstdata = XGA_GetPoint(srcx, srcy);
 
-                        destval = XGA_GetMixResult(mixmode, srcval, dstdata);
+                    destval = XGA_GetMixResult(mixmode, srcval, dstdata);
 
-                        XGA_DrawPoint(srcx,srcy, destval);
-                        break;
-                    default:
-                        Log.log_msg("XGA: DrawRect: Needs mixmode "+Integer.toString(mixmode,16));
-                        break;
+                    XGA_DrawPoint(srcx, srcy, destval);
+                } else {
+                    System.out.println("XGA: DrawRect: Needs mixmode " + Integer.toString(mixmode, 16));
                 }
                 srcx += dx;
             }
@@ -502,10 +495,10 @@ public class VGA_xga {
         xga.curx = srcx;
         xga.cury = srcy;
 
-        //Log.log_msg("XGA: Draw rect (%d, %d)-(%d, %d), %d", x1, y1, x2, y2, xga.forecolor);
+        //System.out.println("XGA: Draw rect (%d, %d)-(%d, %d), %d", x1, y1, x2, y2, xga.forecolor);
     }
 
-    private static boolean XGA_CheckX() {
+    private static void XGA_CheckX() {
         boolean newline = false;
         if(!xga.waitcmd.newline) {
 
@@ -513,7 +506,6 @@ public class VGA_xga {
             xga.waitcmd.curx = xga.waitcmd.x1;
             xga.waitcmd.cury++;
             xga.waitcmd.cury&=0x0fff;
-            newline = true;
             xga.waitcmd.newline = true;
             if((xga.waitcmd.cury<2048)&&(xga.waitcmd.cury > xga.waitcmd.y2))
                 xga.waitcmd.wait = false;
@@ -525,7 +517,6 @@ public class VGA_xga {
                     xga.waitcmd.curx = xga.waitcmd.x1;
                     xga.waitcmd.cury++;
                     xga.waitcmd.cury&=0x0fff;
-                    newline = true;
                     xga.waitcmd.newline = true;
                     if((xga.waitcmd.cury<2048)&&(xga.waitcmd.cury > xga.waitcmd.y2))
                         xga.waitcmd.wait = false;
@@ -535,7 +526,6 @@ public class VGA_xga {
                     xga.waitcmd.curx = xga.waitcmd.x1;
                     xga.waitcmd.cury++;
                     xga.waitcmd.cury&=0x0fff;
-                    newline = true;
                     xga.waitcmd.newline = true;
                     if((xga.waitcmd.cury<2048)&&(xga.waitcmd.cury > xga.waitcmd.y2))
                         xga.waitcmd.wait = false;
@@ -545,15 +535,14 @@ public class VGA_xga {
         } else {
             xga.waitcmd.newline = false;
         }
-        return newline;
-}
+    }
 
     private static void XGA_DrawWaitSub(/*Bitu*/int mixmode, /*Bitu*/int srcval) {
         /*Bitu*/int destval;
         /*Bitu*/int dstdata;
         dstdata = XGA_GetPoint(xga.waitcmd.curx, xga.waitcmd.cury);
         destval = XGA_GetMixResult(mixmode, srcval, dstdata);
-        //Log.log_msg("XGA: DrawPattern: Mixmode: %x srcval: %x", mixmode, srcval);
+        //System.out.println("XGA: DrawPattern: Mixmode: %x srcval: %x", mixmode, srcval);
 
         XGA_DrawPoint(xga.waitcmd.curx, xga.waitcmd.cury, destval);
         xga.waitcmd.curx++;
@@ -565,11 +554,10 @@ public class VGA_xga {
         if(!xga.waitcmd.wait) return;
         /*Bitu*/int mixmode = (xga.pix_cntl >> 6) & 0x3;
         /*Bitu*/int srcval;
-        switch(xga.waitcmd.cmd) {
-            case 2: /* Rectangle */
-                switch(mixmode) {
-                    case 0x00: /* FOREMIX always used */
-                        mixmode = xga.foremix;
+        if (xga.waitcmd.cmd == 2) { /* Rectangle */
+            switch (mixmode) {
+                case 0x00: /* FOREMIX always used */
+                    mixmode = xga.foremix;
 
     /*					switch((mixmode >> 5) & 0x03) {
                             case 0x00: // Src is background color
@@ -580,130 +568,132 @@ public class VGA_xga {
                                 break;
                             case 0x02: // Src is pixel data from PIX_TRANS register
     */
-                        if(((mixmode >> 5) & 0x03) != 0x2) {
-                            // those cases don't seem to occur
-                            Log.log_msg("XGA: unsupported drawwait operation");
+                    if (((mixmode >> 5) & 0x03) != 0x2) {
+                        // those cases don't seem to occur
+                        System.out.println("XGA: unsupported drawwait operation");
+                        break;
+                    }
+                    switch (xga.waitcmd.buswidth) {
+                        case VGA.M_LIN8:        //  8 bit
+                            XGA_DrawWaitSub(mixmode, val);
                             break;
-                        }
-                        switch(xga.waitcmd.buswidth) {
-                            case VGA.M_LIN8:		//  8 bit
-                                XGA_DrawWaitSub(mixmode, val);
-                                break;
-                            case 0x20 | VGA.M_LIN8: // 16 bit
-                                for(/*Bitu*/int i = 0; i < len; i++) {
-                                    XGA_DrawWaitSub(mixmode, (val>>(8*i))&0xff);
-                                    if(xga.waitcmd.newline) break;
+                        case 0x20 | VGA.M_LIN8: // 16 bit
+                            for (/*Bitu*/int i = 0; i < len; i++) {
+                                XGA_DrawWaitSub(mixmode, (val >> (8 * i)) & 0xff);
+                                if (xga.waitcmd.newline) break;
+                            }
+                            break;
+                        case 0x40 | VGA.M_LIN8: // 32 bit
+                            for (int i = 0; i < 4; i++)
+                                XGA_DrawWaitSub(mixmode, (val >> (8 * i)) & 0xff);
+                            break;
+                        case (0x20 | VGA.M_LIN32):
+                            if (len != 4) { // Win 3.11 864 'hack?'
+                                if (xga.waitcmd.datasize == 0) {
+                                    // set it up to wait for the next word
+                                    xga.waitcmd.data = val;
+                                    xga.waitcmd.datasize = 2;
+                                    return;
+                                } else {
+                                    srcval = (int) ((val << 16) | xga.waitcmd.data);
+                                    xga.waitcmd.data = 0;
+                                    xga.waitcmd.datasize = 0;
+                                    XGA_DrawWaitSub(mixmode, srcval);
                                 }
                                 break;
-                            case 0x40 | VGA.M_LIN8: // 32 bit
-                                for(int i = 0; i < 4; i++)
-                                    XGA_DrawWaitSub(mixmode, (val>>(8*i))&0xff);
-                                break;
-                            case (0x20 | VGA.M_LIN32):
-                                if(len!=4) { // Win 3.11 864 'hack?'
-                                    if(xga.waitcmd.datasize == 0) {
-                                        // set it up to wait for the next word
-                                        xga.waitcmd.data = val;
-                                        xga.waitcmd.datasize = 2;
-                                        return;
-                                    } else {
-                                        srcval = (int)((val<<16)|xga.waitcmd.data);
-                                        xga.waitcmd.data = 0;
-                                        xga.waitcmd.datasize = 0;
-                                        XGA_DrawWaitSub(mixmode, srcval);
-                                    }
+                            } // fall-through
+                        case 0x40 | VGA.M_LIN32: // 32 bit
+                            XGA_DrawWaitSub(mixmode, val);
+                            break;
+                        case 0x20 | VGA.M_LIN15: // 16 bit
+                        case 0x20 | VGA.M_LIN16: // 16 bit
+                            XGA_DrawWaitSub(mixmode, val);
+                            break;
+                        case 0x40 | VGA.M_LIN15: // 32 bit
+                        case 0x40 | VGA.M_LIN16: // 32 bit
+                            XGA_DrawWaitSub(mixmode, val & 0xffff);
+                            if (!xga.waitcmd.newline)
+                                XGA_DrawWaitSub(mixmode, val >> 16);
+                            break;
+                        default:
+                            // Let's hope they never show up ;)
+                            System.out.println("XGA: unsupported bpp / datawidth combination " +
+                                    Integer.toString(xga.waitcmd.buswidth, 16));
+                            break;
+                    }
+                    break;
+
+                case 0x02: // Data from PIX_TRANS selects the mix
+                    /*Bitu*/
+                    int chunksize = 0;
+                    /*Bitu*/
+                    int chunks = 0;
+                    switch (xga.waitcmd.buswidth & 0x60) {
+                        case 0x0:
+                            chunksize = 8;
+                            chunks = 1;
+                            break;
+                        case 0x20: // 16 bit
+                            chunksize = 16;
+                            if (len == 4) chunks = 2;
+                            else chunks = 1;
+                            break;
+                        case 0x40: // 32 bit
+                            chunksize = 16;
+                            if (len == 4) chunks = 2;
+                            else chunks = 1;
+                            break;
+                        case 0x60: // undocumented guess (but works)
+                            chunksize = 8;
+                            chunks = 4;
+                            break;
+                    }
+
+                    for (/*Bitu*/int k = 0; k < chunks; k++) { // chunks counter
+                        xga.waitcmd.newline = false;
+                        for (/*Bitu*/int n = 0; n < chunksize; n++) { // pixels
+                            /*Bitu*/
+                            int mixmode1;
+
+                            // This formula can rule the world ;)
+                            /*Bitu*/
+                            int mask = 1 << ((((n & 0xF8) + (8 - (n & 0x7))) - 1) + chunksize * k);
+                            if ((val & mask) != 0) mixmode1 = xga.foremix;
+                            else mixmode1 = xga.backmix;
+
+                            switch ((mixmode1 >> 5) & 0x03) {
+                                case 0x00: // Src is background color
+                                    srcval = xga.backcolor;
                                     break;
-                                } // fall-through
-                            case 0x40 | VGA.M_LIN32: // 32 bit
-                                XGA_DrawWaitSub(mixmode, val);
-                                break;
-                            case 0x20 | VGA.M_LIN15: // 16 bit
-                            case 0x20 | VGA.M_LIN16: // 16 bit
-                                XGA_DrawWaitSub(mixmode, val);
-                                break;
-                            case 0x40 | VGA.M_LIN15: // 32 bit
-                            case 0x40 | VGA.M_LIN16: // 32 bit
-                                XGA_DrawWaitSub(mixmode, val&0xffff);
-                                if(!xga.waitcmd.newline)
-                                    XGA_DrawWaitSub(mixmode, val>>16);
-                                break;
-                            default:
-                                // Let's hope they never show up ;)
-                                Log.log_msg("XGA: unsupported bpp / datawidth combination "+
-                                    Integer.toString(xga.waitcmd.buswidth,16));
-                                break;
-                        };
-                        break;
-
-                    case 0x02: // Data from PIX_TRANS selects the mix
-                        /*Bitu*/int chunksize=0;
-                        /*Bitu*/int chunks=0;
-                        switch(xga.waitcmd.buswidth&0x60) {
-                            case 0x0:
-                                chunksize=8;
-                                chunks=1;
-                                break;
-                            case 0x20: // 16 bit
-                                chunksize=16;
-                                if(len==4) chunks=2;
-                                else chunks = 1;
-                                break;
-                            case 0x40: // 32 bit
-                                chunksize=16;
-                                if(len==4) chunks=2;
-                                else chunks = 1;
-                                break;
-                            case 0x60: // undocumented guess (but works)
-                                chunksize=8;
-                                chunks=4;
-                                break;
-                        }
-
-                        for(/*Bitu*/int k = 0; k < chunks; k++) { // chunks counter
-                            xga.waitcmd.newline = false;
-                            for(/*Bitu*/int n = 0; n < chunksize; n++) { // pixels
-                                /*Bitu*/int mixmode1;
-
-                                // This formula can rule the world ;)
-                                /*Bitu*/int mask = 1 << ((((n&0xF8)+(8-(n&0x7)))-1)+chunksize*k);
-                                if((val&mask)!=0) mixmode1 = xga.foremix;
-                                else mixmode1 = xga.backmix;
-
-                                switch((mixmode1 >> 5) & 0x03) {
-                                    case 0x00: // Src is background color
-                                        srcval = xga.backcolor;
-                                        break;
-                                    case 0x01: // Src is foreground color
-                                        srcval = xga.forecolor;
-                                        break;
-                                    default:
-                                        Log.log_msg("XGA: DrawBlitWait: Unsupported src "+
-                                            Integer.toString((mixmode1 >> 5) & 0x03,16));
-                                        srcval=0;
-                                        break;
-                                }
-                                XGA_DrawWaitSub(mixmode1, srcval);
-
-                                if((xga.waitcmd.cury<2048) &&
-                                  (xga.waitcmd.cury >= xga.waitcmd.y2)) {
-                                    xga.waitcmd.wait = false;
-                                    k=1000; // no more chunks
+                                case 0x01: // Src is foreground color
+                                    srcval = xga.forecolor;
                                     break;
-                                }
-                                // next chunk goes to next line
-                                if(xga.waitcmd.newline) break;
-                            } // pixels loop
-                        } // chunks loop
-                        break;
+                                default:
+                                    System.out.println("XGA: DrawBlitWait: Unsupported src " +
+                                            Integer.toString((mixmode1 >> 5) & 0x03, 16));
+                                    srcval = 0;
+                                    break;
+                            }
+                            XGA_DrawWaitSub(mixmode1, srcval);
 
-                    default:
-                        Log.log_msg("XGA: DrawBlitWait: Unhandled mixmode: "+mixmode);
-                        break;
-                } // switch mixmode
-                break;
-            default:
-                Log.log_msg("XGA: Unhandled draw command "+Integer.toString(xga.waitcmd.cmd,16));
-                break;
+                            if ((xga.waitcmd.cury < 2048) &&
+                                    (xga.waitcmd.cury >= xga.waitcmd.y2)) {
+                                xga.waitcmd.wait = false;
+                                k = 1000; // no more chunks
+                                break;
+                            }
+                            // next chunk goes to next line
+                            if (xga.waitcmd.newline) break;
+                        } // pixels loop
+                    } // chunks loop
+                    break;
+
+                default:
+                    System.out.println("XGA: DrawBlitWait: Unhandled mixmode: " + mixmode);
+                    break;
+            } // switch mixmode
+        } else {
+            System.out.println("XGA: Unhandled draw command " + Integer.toString(xga.waitcmd.cmd, 16));
         }
     }
 
@@ -723,9 +713,7 @@ public class VGA_xga {
         if(((val >> 5) & 0x01) != 0) dx = 1;
         if(((val >> 7) & 0x01) != 0) dy = 1;
 
-        srcx = xga.curx;
         srcy = xga.cury;
-        tarx = xga.destx;
         tary = xga.desty;
 
         /*Bitu*/int mixselect = (xga.pix_cntl >> 6) & 0x3;
@@ -735,13 +723,13 @@ public class VGA_xga {
                 mixmode = xga.foremix;
                 break;
             case 0x02: /* CPU Data determines mix used */
-                Log.log_msg("XGA: DrawPattern: Mixselect data from PIX_TRANS register");
+                System.out.println("XGA: DrawPattern: Mixselect data from PIX_TRANS register");
                 break;
             case 0x03: /* Video memory determines mix */
-                //Log.log_msg("XGA: Srcdata: %x, Forecolor %x, Backcolor %x, Foremix: %x Backmix: %x", srcdata, xga.forecolor, xga.backcolor, xga.foremix, xga.backmix);
+                //System.out.println("XGA: Srcdata: %x, Forecolor %x, Backcolor %x, Foremix: %x Backmix: %x", srcdata, xga.forecolor, xga.backcolor, xga.foremix, xga.backmix);
                 break;
             default:
-                Log.log_msg("XGA: BlitRect: Unknown mix select register");
+                System.out.println("XGA: BlitRect: Unknown mix select register");
                 break;
         }
 
@@ -776,19 +764,19 @@ public class VGA_xga {
                         srcval = xga.forecolor;
                         break;
                     case 0x02: /* Src is pixel data from PIX_TRANS register */
-                        Log.log_msg("XGA: DrawPattern: Wants data from PIX_TRANS register");
+                        System.out.println("XGA: DrawPattern: Wants data from PIX_TRANS register");
                         break;
                     case 0x03: /* Src is bitmap data */
                         srcval = srcdata;
                         break;
                     default:
-                        Log.log_msg("XGA: DrawPattern: Shouldn't be able to get here!");
+                        System.out.println("XGA: DrawPattern: Shouldn't be able to get here!");
                         srcval = 0;
                         break;
                 }
 
                 destval = XGA_GetMixResult(mixmode, srcval, dstdata);
-                //Log.log_msg("XGA: DrawPattern: Mixmode: %x Mixselect: %x", mixmode, mixselect);
+                //System.out.println("XGA: DrawPattern: Mixmode: %x Mixselect: %x", mixmode, mixselect);
 
                 XGA_DrawPoint(tarx, tary, destval);
 
@@ -827,13 +815,13 @@ public class VGA_xga {
                 mixmode = xga.foremix;
                 break;
             case 0x02: /* CPU Data determines mix used */
-                Log.log_msg("XGA: DrawPattern: Mixselect data from PIX_TRANS register");
+                System.out.println("XGA: DrawPattern: Mixselect data from PIX_TRANS register");
                 break;
             case 0x03: /* Video memory determines mix */
-                //Log.log_msg("XGA: Pixctl: %x, Srcdata: %x, Forecolor %x, Backcolor %x, Foremix: %x Backmix: %x",xga.pix_cntl, srcdata, xga.forecolor, xga.backcolor, xga.foremix, xga.backmix);
+                //System.out.println("XGA: Pixctl: %x, Srcdata: %x, Forecolor %x, Backcolor %x, Foremix: %x Backmix: %x",xga.pix_cntl, srcdata, xga.forecolor, xga.backcolor, xga.foremix, xga.backmix);
                 break;
             default:
-                Log.log_msg("XGA: DrawPattern: Unknown mix select register");
+                System.out.println("XGA: DrawPattern: Unknown mix select register");
                 break;
         }
 
@@ -842,7 +830,7 @@ public class VGA_xga {
             for(xat=0;xat<=xga.MAPcount;xat++) {
 
                 srcdata = XGA_GetPoint(srcx + (tarx & 0x7), srcy + (tary & 0x7));
-                //Log.log_msg("patternpoint (%3d/%3d)v%x",srcx + (tarx & 0x7), srcy + (tary & 0x7),srcdata);
+                //System.out.println("patternpoint (%3d/%3d)v%x",srcx + (tarx & 0x7), srcy + (tary & 0x7),srcdata);
                 dstdata = XGA_GetPoint(tarx, tary);
 
 
@@ -862,13 +850,13 @@ public class VGA_xga {
                         srcval = xga.forecolor;
                         break;
                     case 0x02: /* Src is pixel data from PIX_TRANS register */
-                        Log.log_msg("XGA: DrawPattern: Wants data from PIX_TRANS register");
+                        System.out.println("XGA: DrawPattern: Wants data from PIX_TRANS register");
                         break;
                     case 0x03: /* Src is bitmap data */
                         srcval = srcdata;
                         break;
                     default:
-                        Log.log_msg("XGA: DrawPattern: Shouldn't be able to get here!");
+                        System.out.println("XGA: DrawPattern: Shouldn't be able to get here!");
                         srcval = 0;
                         break;
                 }
@@ -887,7 +875,7 @@ public class VGA_xga {
         /*Bit16u*/int cmd;
         cmd = val >> 13;
         //if (XGA_SHOW_COMMAND_TRACE)
-            //Log.log_msg("XGA: Draw command %x", cmd);
+            //System.out.println("XGA: Draw command %x", cmd);
 
         xga.curcommand = val;
         switch(cmd) {
@@ -895,22 +883,22 @@ public class VGA_xga {
                 if((val & 0x100) == 0) {
                     if((val & 0x8) == 0) {
                         if (XGA_SHOW_COMMAND_TRACE)
-                            Log.log_msg("XGA: Drawing Bresenham line");
+                            System.out.println("XGA: Drawing Bresenham line");
                         XGA_DrawLineBresenham(val);
                     } else {
                         if (XGA_SHOW_COMMAND_TRACE)
-                            Log.log_msg("XGA: Drawing vector line");
+                            System.out.println("XGA: Drawing vector line");
                         XGA_DrawLineVector(val);
                     }
                 } else {
-                    Log.log_msg("XGA: Wants line drawn from PIX_TRANS register!");
+                    System.out.println("XGA: Wants line drawn from PIX_TRANS register!");
                 }
                 break;
             case 2: /* Rectangle fill */
                 if((val & 0x100) == 0) {
                     xga.waitcmd.wait = false;
                     if (XGA_SHOW_COMMAND_TRACE)
-                        Log.log_msg(StringHelper.sprintf("XGA: Draw immediate rect: xy(%3d/%3d), len(%3d/%3d)", new Object[] {new Integer(xga.curx),new Integer(xga.cury),new Integer(xga.MAPcount),new Integer(xga.MIPcount)}));
+                        System.out.println(StringHelper.sprintf("XGA: Draw immediate rect: xy(%3d/%3d), len(%3d/%3d)", new Object[] {xga.curx, xga.cury, xga.MAPcount, xga.MIPcount}));
                     XGA_DrawRectangle(val);
 
                 } else {
@@ -921,8 +909,10 @@ public class VGA_xga {
                     xga.waitcmd.cury = xga.cury;
                     xga.waitcmd.x1 = xga.curx;
                     xga.waitcmd.y1 = xga.cury;
-                    xga.waitcmd.x2 = (/*Bit16u*/int)((xga.curx + xga.MAPcount)&0x0fff);
-                    xga.waitcmd.y2 = (/*Bit16u*/int)((xga.cury + xga.MIPcount + 1)&0x0fff);
+                    /*Bit16u*/
+                    xga.waitcmd.x2 = (xga.curx + xga.MAPcount)&0x0fff;
+                    /*Bit16u*/
+                    xga.waitcmd.y2 = (xga.cury + xga.MIPcount + 1)&0x0fff;
                     xga.waitcmd.sizex = xga.MAPcount;
                     xga.waitcmd.sizey = xga.MIPcount + 1;
                     xga.waitcmd.cmd = 2;
@@ -931,25 +921,25 @@ public class VGA_xga {
                     xga.waitcmd.datasize = 0;
 
                     if (XGA_SHOW_COMMAND_TRACE)
-                        Log.log_msg(StringHelper.sprintf("XGA: Draw wait rect, w/h(%3d/%3d), x/y1(%3d/%3d), x/y2(%3d/%3d), %4x",
-                            new Object[] {new Integer(xga.MAPcount+1), new Integer(xga.MIPcount+1),new Integer(xga.curx),new Integer(xga.cury),
-                            new Integer((xga.curx + xga.MAPcount)&0x0fff),
-                            new Integer((xga.cury + xga.MIPcount + 1)&0x0fff),new Integer(val&0xffff)}));
+                        System.out.println(StringHelper.sprintf("XGA: Draw wait rect, w/h(%3d/%3d), x/y1(%3d/%3d), x/y2(%3d/%3d), %4x",
+                            new Object[] {xga.MAPcount + 1, xga.MIPcount + 1, xga.curx, xga.cury,
+                                    (xga.curx + xga.MAPcount) & 0x0fff,
+                                    (xga.cury + xga.MIPcount + 1) & 0x0fff, val & 0xffff}));
                 }
                 break;
             case 6: /* BitBLT */
                 if (XGA_SHOW_COMMAND_TRACE)
-                    Log.log_msg("XGA: Blit Rect");
+                    System.out.println("XGA: Blit Rect");
                 XGA_BlitRect(val);
                 break;
             case 7: /* Pattern fill */
                 if (XGA_SHOW_COMMAND_TRACE)
-                    Log.log_msg(StringHelper.sprintf("XGA: Pattern fill: src(%3d/%3d), dest(%3d/%3d), fill(%3d/%3d)",
-                        new Object[]{new Integer(xga.curx),new Integer(xga.cury),new Integer(xga.destx),new Integer(xga.desty),new Integer(xga.MAPcount),new Integer(xga.MIPcount)}));
+                    System.out.println(StringHelper.sprintf("XGA: Pattern fill: src(%3d/%3d), dest(%3d/%3d), fill(%3d/%3d)",
+                        new Object[]{xga.curx, xga.cury, xga.destx, xga.desty, xga.MAPcount, xga.MIPcount}));
                 XGA_DrawPattern(val);
                 break;
             default:
-                Log.log_msg("XGA: Unhandled draw command "+Integer.toString(cmd,16));
+                System.out.println("XGA: Unhandled draw command "+Integer.toString(cmd,16));
                 break;
         }
     }
@@ -966,9 +956,9 @@ public class VGA_xga {
             if ((xga.control1 & 0x200)!=0)
                 result = val;
             else if ((xga.control1 & 0x10)!=0)
-                result = (result&0x0000ffff)|(val<<16);
+                result = (result&0x0000ffff)|((long) val <<16);
             else
-                result = (result&0xffff0000l)|(val&0x0000ffff);
+                result = (result& 0xffff0000L)|(val&0x0000ffff);
             xga.control1 ^= 0x10;
             break;
         }
@@ -990,9 +980,9 @@ public class VGA_xga {
         return 0;
     }
 
-    public static IoHandler.IO_WriteHandler XGA_Write = new IoHandler.IO_WriteHandler() {
+    public static final IoHandler.IO_WriteHandler XGA_Write = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int len) {
-        //	Log.log_msg("XGA: Write to port %x, val %8x, len %x", port,val, len);
+        //	System.out.println("XGA: Write to port %x, val %8x, len %x", port,val, len);
 
             switch(port) {
                 case 0x8100:// drawing control: row (low word), column (high word)
@@ -1107,7 +1097,7 @@ public class VGA_xga {
                     xga.destx = val&0x3fff;
                     break;
                 case 0xb2e8:
-                    Log.log_msg("COLOR_CMP not implemented");
+                    System.out.println("COLOR_CMP not implemented");
                     break;
                 case 0xb6e8:
                     xga.backmix = val;
@@ -1136,18 +1126,18 @@ public class VGA_xga {
                     break;
                 default:
                     if(port <= 0x4000) {
-                        //Log.log_msg("XGA: Wrote to port %4x with %08x, len %x", port, val, len);
+                        //System.out.println("XGA: Wrote to port %4x with %08x, len %x", port, val, len);
                         xga.waitcmd.newline = false;
                         XGA_DrawWait(val, len);
 
                     }
-                    else Log.log_msg("XGA: Wrote to port "+Integer.toString(port, 16)+" with "+Integer.toString(val, 16)+", len "+Integer.toString(len));
+                    else System.out.println("XGA: Wrote to port "+Integer.toString(port, 16)+" with "+Integer.toString(val, 16)+", len "+ len);
                     break;
             }
         }
     };
 
-    public static IoHandler.IO_ReadHandler XGA_Read = new IoHandler.IO_ReadHandler() {
+    public static final IoHandler.IO_ReadHandler XGA_Read = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int len) {
             switch(port) {
                 case 0x8118:
@@ -1185,7 +1175,7 @@ public class VGA_xga {
                 case 0xaee8:
                     return XGA_GetDualReg(xga.readmask);
                 default:
-                    //Log.log_msg("XGA: Read from port %x, len %x", port, len);
+                    //System.out.println("XGA: Read from port %x, len %x", port, len);
                     break;
             }
             return 0xffffffff;

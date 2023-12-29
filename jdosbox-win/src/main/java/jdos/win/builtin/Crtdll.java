@@ -11,7 +11,7 @@ import jdos.win.utils.StringUtil;
 import java.util.Random;
 
 public class Crtdll extends BuiltinModule {
-    int _acmdln_dll;
+    final int _acmdln_dll;
 
     public Crtdll(Loader loader, int handle) {
         super(loader, "Crtdll.dll", handle);
@@ -69,7 +69,7 @@ public class Crtdll extends BuiltinModule {
         }
     }
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     public static int rand() {
         return random.nextInt() & 0x7FFF;
@@ -82,6 +82,6 @@ public class Crtdll extends BuiltinModule {
     }
 
     public static int toupper(int c) {
-        return (int)Character.toUpperCase((char)c);
+        return Character.toUpperCase((char)c);
     }
 }

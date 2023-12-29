@@ -8,11 +8,13 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.StringHelper;
 
+import java.util.Arrays;
+
 public class Timer extends Module_base {
     static public final int PIT_TICK_RATE = 1193182;
     
-    static public interface TIMER_TickHandler {
-        public void call();
+    public interface TIMER_TickHandler {
+        void call();
     }
     // FROM pic.pp
     static private class TickerBlock {
@@ -65,12 +67,10 @@ public class Timer extends Module_base {
     }
     // END FROM pic.cpp
 
-    static public int BIN2BCD(/*Bit16u*/int val) {
-        return val%10 + (((val/10)%10)<<4)+ (((val/100)%10)<<8) + (((val/1000)%10)<<12);
+    static public void BIN2BCD(/*Bit16u*/int val) {
     }
 
-    static public int BCD2BIN(/*Bit16u*/int val) {
-	    return (val&0x0f) +((val>>4)&0x0f) *10 +((val>>8)&0x0f) *100 +((val>>12)&0x0f) *1000;
+    static public void BCD2BIN(/*Bit16u*/int val) {
     }
 
     private static class PIT_Block {
@@ -94,7 +94,7 @@ public class Timer extends Module_base {
         boolean update_count;
     }
 
-    static private PIT_Block[] pit = new PIT_Block[3];
+    static private final PIT_Block[] pit = new PIT_Block[3];
     static private boolean gate2;
 
     static private /*Bit8u*/short latched_timerstatus;
@@ -102,7 +102,7 @@ public class Timer extends Module_base {
     // reprogrammed.
     static private boolean latched_timerstatus_locked;
 
-    static private Pic.PIC_EventHandler PIT0_Event = new Pic.PIC_EventHandler() {
+    static private final Pic.PIC_EventHandler PIT0_Event = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             Pic.PIC_ActivateIRQ(0);
             if (pit[0].mode != 0) {
@@ -130,15 +130,14 @@ public class Timer extends Module_base {
         switch (p.mode) {
         case 0:
             if (p.new_mode) return false;
-            if (index>p.delay) return true;
-            else return false;
+            return index > p.delay;
         case 2:
             if (p.new_mode) return true;
-            index=fmod(index,(double)p.delay);
+            index=fmod(index, p.delay);
             return index>0;
         case 3:
             if (p.new_mode) return true;
-            index=fmod(index,(double)p.delay);
+            index=fmod(index, p.delay);
             return index*2<p.delay;
         case 4:
             //Only low on terminal count
@@ -164,7 +163,7 @@ public class Timer extends Module_base {
             // should rarely be 1 (i.e. on exotic modes)
             // 7: OUT - the logic level on the Timer output pin
             if(p.bcd)latched_timerstatus|=0x1;
-            latched_timerstatus|=((p.mode&7)<<1);
+            latched_timerstatus|= (short) ((p.mode&7)<<1);
             if((p.read_state==0)||(p.read_state==3)) latched_timerstatus|=0x30;
             else if(p.read_state==1) latched_timerstatus|=0x10;
             else if(p.read_state==2) latched_timerstatus|=0x20;
@@ -219,11 +218,11 @@ public class Timer extends Module_base {
             }
             break;
         case 2:		/* Rate Generator */
-            index=fmod(index,(double)p.delay);
+            index=fmod(index, p.delay);
             p.read_latch=(/*Bit16u*/int)(p.cntr - (index/p.delay)*p.cntr);
             break;
         case 3:		/* Square Wave Rate Generator */
-            index=fmod(index,(double)p.delay);
+            index=fmod(index, p.delay);
             index*=2;
             if (index>p.delay) index-=p.delay;
             p.read_latch=(/*Bit16u*/int)(p.cntr - (index/p.delay)*p.cntr);
@@ -240,67 +239,66 @@ public class Timer extends Module_base {
     }
 
 
-    static private IoHandler.IO_WriteHandler write_latch = new IoHandler.IO_WriteHandler() {
-        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
-        //Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"port %X write:%X state:%X",port,val,pit[port-0x40].write_state);
-            /*Bitu*/int counter=port-0x40;
-            PIT_Block p=pit[counter];
-            if(p.bcd == true) BIN2BCD(p.write_latch);
+    /*Bitu*//*Bitu*//*Bitu*/
+    static private final IoHandler.IO_WriteHandler write_latch = (port, val, iolen) -> {
+    //Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"port %X write:%X state:%X",port,val,pit[port-0x40].write_state);
+        /*Bitu*/int counter=port-0x40;
+        PIT_Block p=pit[counter];
+        if(p.bcd) BIN2BCD(p.write_latch);
 
-            switch (p.write_state) {
-                case 0:
-                    p.write_latch = p.write_latch | ((val & 0xff) << 8);
-                    p.write_state = 3;
-                    break;
-                case 3:
-                    p.write_latch = val & 0xff;
-                    p.write_state = 0;
-                    break;
-                case 1:
-                    p.write_latch = val & 0xff;
-                    break;
-                case 2:
-                    p.write_latch = (val & 0xff) << 8;
+        switch (p.write_state) {
+            case 0:
+                p.write_latch = p.write_latch | ((val & 0xff) << 8);
+                p.write_state = 3;
                 break;
-            }
-            if (p.bcd==true) BCD2BIN(p.write_latch);
-            if (p.write_state != 0) {
-                if (p.write_latch == 0) {
-                    if (p.bcd == false) p.cntr = 0x10000;
-                    else p.cntr=9999;
-                } else p.cntr = p.write_latch;
+            case 3:
+                p.write_latch = val & 0xff;
+                p.write_state = 0;
+                break;
+            case 1:
+                p.write_latch = val & 0xff;
+                break;
+            case 2:
+                p.write_latch = (val & 0xff) << 8;
+            break;
+        }
+        if (p.bcd) BCD2BIN(p.write_latch);
+        if (p.write_state != 0) {
+            if (p.write_latch == 0) {
+                if (!p.bcd) p.cntr = 0x10000;
+                else p.cntr=9999;
+            } else p.cntr = p.write_latch;
 
-                if ((!p.new_mode) && (p.mode == 2) && (counter == 0)) {
-                    // In mode 2 writing another value has no direct effect on the count
-                    // until the old one has run out. This might apply to other modes too.
-                    // This is not fixed for PIT2 yet!!
-                    p.update_count=true;
-                    return;
-                }
-                p.start=Pic.PIC_FullIndex();
-                p.delay=(1000.0f/((float)PIT_TICK_RATE/(float)p.cntr));
-
-                switch (counter) {
-                case 0x00:			/* Timer hooked to IRQ 0 */
-                    if (p.new_mode || p.mode == 0 ) {
-                        if(p.mode==0) Pic.PIC_RemoveEvents(PIT0_Event); // DoWhackaDo demo
-                        Pic.PIC_AddEvent(PIT0_Event,p.delay);
-                    } else Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_NORMAL,"PIT 0 Timer set without new control word");
-                    if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_NORMAL,"PIT 0 Timer at "+ StringHelper.format(1000.0/p.delay, 4)+" Hz mode "+p.mode);
-                    break;
-                case 0x02:			/* Timer hooked to PC-Speaker */
-        //			LOG(LOG_PIT,"PIT 2 Timer at %.3g Hz mode %d",PIT_TICK_RATE/(double)p.cntr,p.mode);
-                    PCSpeaker.PCSPEAKER_SetCounter(p.cntr,p.mode);
-                    break;
-                default:
-                    Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"PIT:Illegal timer selected for writing");
-                }
-                p.new_mode=false;
+            if ((!p.new_mode) && (p.mode == 2) && (counter == 0)) {
+                // In mode 2 writing another value has no direct effect on the count
+                // until the old one has run out. This might apply to other modes too.
+                // This is not fixed for PIT2 yet!!
+                p.update_count=true;
+                return;
             }
+            p.start=Pic.PIC_FullIndex();
+            p.delay=(1000.0f/((float)PIT_TICK_RATE/(float)p.cntr));
+
+            switch (counter) {
+            case 0x00:			/* Timer hooked to IRQ 0 */
+                if (p.new_mode || p.mode == 0 ) {
+                    if(p.mode==0) Pic.PIC_RemoveEvents(PIT0_Event); // DoWhackaDo demo
+                    Pic.PIC_AddEvent(PIT0_Event,p.delay);
+                } else Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_NORMAL,"PIT 0 Timer set without new control word");
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_NORMAL,"PIT 0 Timer at "+ StringHelper.format(1000.0/p.delay, 4)+" Hz mode "+p.mode);
+                break;
+            case 0x02:			/* Timer hooked to PC-Speaker */
+    //			LOG(LOG_PIT,"PIT 2 Timer at %.3g Hz mode %d",PIT_TICK_RATE/(double)p.cntr,p.mode);
+                PCSpeaker.PCSPEAKER_SetCounter(p.cntr,p.mode);
+                break;
+            default:
+                Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"PIT:Illegal timer selected for writing");
+            }
+            p.new_mode=false;
         }
     };
 
-    static private IoHandler.IO_ReadHandler read_latch = new IoHandler.IO_ReadHandler() {
+    static private final IoHandler.IO_ReadHandler read_latch = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
         //Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"port read %X",port);
             /*Bit32u*/int counter=port-0x40;
@@ -310,10 +308,10 @@ public class Timer extends Module_base {
                 latched_timerstatus_locked = false;
                 ret = latched_timerstatus;
             } else {
-                if (pit[counter].go_read_latch == true)
+                if (pit[counter].go_read_latch)
                     counter_latch(counter);
 
-                if( pit[counter].bcd == true) BIN2BCD(pit[counter].read_latch);
+                if(pit[counter].bcd) BIN2BCD(pit[counter].read_latch);
 
                 switch (pit[counter].read_state) {
                 case 0: /* read MSB & return to state 3 */
@@ -337,13 +335,13 @@ public class Timer extends Module_base {
                     Log.exit("Timer.cpp: error in readlatch");
                     break;
                 }
-                if( pit[counter].bcd == true) BCD2BIN(pit[counter].read_latch);
+                if(pit[counter].bcd) BCD2BIN(pit[counter].read_latch);
             }
             return ret;
         }
     };
 
-    static private IoHandler.IO_WriteHandler write_p43 = new IoHandler.IO_WriteHandler() {
+    static private final IoHandler.IO_WriteHandler write_p43 = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
         //Log.log(LogTypes.LOG_PIT,LogSeverities.LOG_ERROR,"port 43 %X",val);
             /*Bitu*/int latch=(val >> 6) & 0x03;
@@ -452,8 +450,8 @@ public class Timer extends Module_base {
         gate2 = in; //Set it here so the counter_latch above works
     }
 
-	private IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[4];
-	private IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[4];
+	private final IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[4];
+	private final IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[4];
     public Timer(Section configuration) {
         super(configuration);
         for (int i=0;i<ReadHandler.length;i++)
@@ -510,16 +508,15 @@ public class Timer extends Module_base {
 
     private static Timer test;
 
-    public static Section.SectionFunction TIMER_Destroy = new Section.SectionFunction() {
+    public static final Section.SectionFunction TIMER_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             Pic.PIC_RemoveEvents(PIT0_Event);
             test = null;
-            for (int i=0;i<pit.length;i++)
-                pit[i] = null;
+            Arrays.fill(pit, null);
             firstticker = null;
         }
     };
-    public static Section.SectionFunction TIMER_Init = new Section.SectionFunction() {
+    public static final Section.SectionFunction TIMER_Init = new Section.SectionFunction() {
         public void call(Section section) {
             firstticker = null;
             for (int i=0;i<pit.length;i++)

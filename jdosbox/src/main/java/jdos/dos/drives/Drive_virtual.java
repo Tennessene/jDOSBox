@@ -89,9 +89,9 @@ public class Drive_virtual extends Dos_Drive {
             return 0x40;
         }
 
-        private /*Bit32u*/int file_size;
+        private final /*Bit32u*/int file_size;
         private /*Bit32u*/int file_pos;
-        private byte[] file_data;
+        private final byte[] file_data;
     }
 
 	public Drive_virtual() {
@@ -128,8 +128,7 @@ public class Drive_virtual extends Dos_Drive {
     }
     
 	public boolean TestDir(String _dir) {
-        if (_dir.length()==0) return true;		//only valid dir is the empty dir
-	    return false;
+        return _dir.isEmpty();		//only valid dir is the empty dir
     }
     
 	public boolean FindFirst(String _dir,Dos_DTA dta,boolean fcb_findfirst/*=false*/) {

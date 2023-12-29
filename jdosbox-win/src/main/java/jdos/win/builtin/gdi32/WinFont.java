@@ -18,7 +18,7 @@ public class WinFont extends WinGDI {
 
     static public WinFont get(int handle) {
         WinObject object = getObject(handle);
-        if (object == null || !(object instanceof WinFont))
+        if (!(object instanceof WinFont))
             return null;
         return (WinFont)object;
     }
@@ -199,11 +199,11 @@ public class WinFont extends WinGDI {
         Memory.mem_writeb(lptm, 0);lptm+=1; // tmUnderlined
         Memory.mem_writeb(lptm, 0);lptm+=1; // tmStruckOut
         Memory.mem_writeb(lptm, 0x06);lptm+=1; // tmPitchAndFamily TMPF_FIXED_PITCH=0x01 TMPF_VECTOR=0x02 TMPF_DEVICE=0x08 TMPF_TRUETYPE=0x04
-        Memory.mem_writeb(lptm, 0);lptm+=1; // tmCharSet 0=ANSI_CHARSET
+        Memory.mem_writeb(lptm, 0);
         return WinAPI.TRUE;
     }
 
-    public Font font;
+    public final Font font;
 
     public WinFont(int id, Font font) {
         super(id);
@@ -224,15 +224,15 @@ public class WinFont extends WinGDI {
 
     /***********************************************************************
      *           GdiGetCharDimensions    (GDI32.@)
-     *
+     * <p>
      * Gets the average width of the characters in the English alphabet.
-     *
+     * <p>
      * PARAMS
      *  hdc    [I] Handle to the device context to measure on.
-     *
+     * <p>
      * RETURNS
      *  The average width of characters in the English alphabet.
-     *
+     * <p>
      * NOTES
      *  This function is used by the dialog manager to get the size of a dialog
      *  unit. It should also be used by other pieces of code that need to know
@@ -240,7 +240,7 @@ public class WinFont extends WinGDI {
      *  window handle of the dialog.
      *  Windows caches the font metrics from this function, but we don't and
      *  there doesn't appear to be an immediate advantage to do so.
-     *
+     * <p>
      * SEE ALSO
      *  GetTextExtentPointW, GetTextMetricsW, MapDialogRect.
      */

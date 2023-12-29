@@ -2,7 +2,6 @@ package jdos.dos.drives;
 
 import jdos.dos.*;
 import jdos.hardware.IoHandler;
-import jdos.misc.Log;
 import jdos.util.*;
 
 import java.io.File;
@@ -32,7 +31,9 @@ public class Drive_local extends Dos_Drive {
             }
             //if (last_action==Last_action.WRITE) fseek(fhandle,ftell(fhandle),SEEK_SET);
             last_action=Last_action.READ;
-            try {size.value=fhandle.read(data,0,size.value);} catch (Exception e) {}
+            try {size.value=fhandle.read(data,0,size.value);} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             if (size.value==-1) size.value = 0;
             /* Fake harddrive motion. Inspector Gadget with soundblaster compatible */
             /* Same for Igor */
@@ -50,17 +51,21 @@ public class Drive_local extends Dos_Drive {
             //if (last_action==Last_action.READ) fseek(fhandle,ftell(fhandle),SEEK_SET);
             last_action=Last_action.WRITE;
             if(size.value==0){
-                try {fhandle.setLength(fhandle.getFilePointer());} catch (Exception e){}
+                try {fhandle.setLength(fhandle.getFilePointer());} catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             else
             {
-                try {fhandle.write(data,0,size.value);} catch (Exception e) {}
+                try {fhandle.write(data,0,size.value);} catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             return true;
         }
             
         public boolean Seek(/*Bit32u*/LongRef pos,/*Bit32u*/int type) {
-            int p = (int)(pos.value & 0xFFFFFFFFl);
+            int p = (int)(pos.value & 0xFFFFFFFFL);
             try {
                 switch (type) {
                 case Dos_files.DOS_SEEK_SET:
@@ -78,6 +83,7 @@ public class Drive_local extends Dos_Drive {
                 }
                 pos.value=fhandle.getFilePointer();
             } catch (Exception e) {
+                throw new RuntimeException(e);
             }
             last_action=Last_action.NONE;
             return true;
@@ -86,7 +92,9 @@ public class Drive_local extends Dos_Drive {
         public boolean Close() {
             // only close if one reference left
             if (refCtr==1) {
-                if(fhandle!=null) try {fhandle.close();} catch (Exception e){}
+                if(fhandle!=null) try {fhandle.close();} catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 fhandle = null;
                 open = false;
             }
@@ -131,7 +139,7 @@ public class Drive_local extends Dos_Drive {
             public static final int WRITE=2;
         }
         private int last_action;
-        private String machinePath;
+        private final String machinePath;
     }
 
     public Drive_local(String startdir,/*Bit16u*/int _bytes_sector,/*Bit8u*/short _sectors_cluster,/*Bit16u*/int _total_clusters,/*Bit16u*/int _free_clusters,/*Bit8u*/short _mediaid) {
@@ -212,7 +220,7 @@ public class Drive_local extends Dos_Drive {
             file.flags=Dos_files.OPEN_READWRITE;
             return file;
         } catch (Exception e) {
-            Log.log_msg("Warning: file creation failed: "+newname);
+            System.out.println("Warning: file creation failed: "+newname);
             return null;
         }
     }
@@ -316,7 +324,7 @@ public class Drive_local extends Dos_Drive {
             }
         } else {
             if (sAttr.value == Dos_system.DOS_ATTR_VOLUME) {
-                if (dirCache.GetLabel().length()==0) {
+                if (dirCache.GetLabel().isEmpty()) {
     //				LOG(LOG_DOSMISC,LOG_ERROR)("DRIVELABEL REQUESTED: none present, returned  NOLABEL");
     //				dta.SetResult("NO_LABEL",0,0,0,DOS_ATTR_VOLUME);
     //				return true;
@@ -325,7 +333,7 @@ public class Drive_local extends Dos_Drive {
                 }
                 dta.SetResult(dirCache.GetLabel(),0,0,0,(short)Dos_system.DOS_ATTR_VOLUME);
                 return true;
-            } else if ((sAttr.value & Dos_system.DOS_ATTR_VOLUME)!=0  && (dir.length() == 0) && !fcb_findfirst) {
+            } else if ((sAttr.value & Dos_system.DOS_ATTR_VOLUME)!=0  && (dir.isEmpty()) && !fcb_findfirst) {
             //should check for a valid leading directory instead of 0
             //exists==true if the volume label matches the searchmask and the path is valid
                 if (Drives.WildFileCmp(dirCache.GetLabel(),tempDir.value)) {
@@ -347,7 +355,7 @@ public class Drive_local extends Dos_Drive {
 
         dta.GetSearchParams(srch_attr,srch_pattern);
         /*Bit16u*/int id = dta.GetDirID();
-        File f = null;
+        File f;
 
         while (true) {
             if (!dirCache.FindNext(id,dir_ent)) {
@@ -471,17 +479,16 @@ public class Drive_local extends Dos_Drive {
         }
     }
 
-	public boolean GetSystemFilename(StringRef sysName, String dosName) {
+	public void GetSystemFilename(StringRef sysName, String dosName) {
         sysName.value=basedir+dosName;
         dirCache.ExpandName(sysName);
-        return true;
     }
 
 	public String basedir;
 	private static class SrchInfo{
 		String srch_dir;
 	}
-    SrchInfo[] srchInfo = new SrchInfo[DOS_Drive_Cache.MAX_OPENDIRS];
+    final SrchInfo[] srchInfo = new SrchInfo[DOS_Drive_Cache.MAX_OPENDIRS];
 
 	private static class Allocation {
 		/*Bit16u*/int bytes_sector;
@@ -490,5 +497,5 @@ public class Drive_local extends Dos_Drive {
 		/*Bit16u*/int free_clusters;
 		/*Bit8u*/short mediaid;
 	}
-    private Allocation allocation = new Allocation();
+    private final Allocation allocation = new Allocation();
 }

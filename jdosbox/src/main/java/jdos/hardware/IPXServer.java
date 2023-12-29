@@ -1,7 +1,5 @@
 package jdos.hardware;
 
-import jdos.misc.Log;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -141,11 +139,11 @@ public class IPXServer {
                                 ipconn[i].port = receivePacket.getPort();
 
                                 connBuffer[i].connected = true;
-                                Log.log_msg("IPXSERVER: Connect from " + receivePacket.getAddress().getHostAddress());
+                                System.out.println("IPXSERVER: Connect from " + receivePacket.getAddress().getHostAddress());
                                 ackClient(ipconn[i]);
                                 break;
                             } else if((ipconn[i].host == tmpHeader.src.addr.host()) && (ipconn[i].port == tmpHeader.src.addr.port())) {
-                                Log.log_msg("IPXSERVER: Reconnect from " + receivePacket.getAddress().getHostAddress());
+                                System.out.println("IPXSERVER: Reconnect from " + receivePacket.getAddress().getHostAddress());
                                 // Update anonymous port number if changed
                                 ipconn[i].port = receivePacket.getPort();
                                 ackClient(ipconn[i]);
@@ -166,7 +164,9 @@ public class IPXServer {
 
     static void IPX_StopServer() {
         ipxServerSocket.close();
-        try {serverThread.join();} catch (Exception e) {}
+        try {serverThread.join();} catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     static boolean IPX_StartServer(/*Bit16u*/int portnum) {

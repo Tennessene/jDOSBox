@@ -14,7 +14,7 @@ public class DRAWTEXTPARAMS extends WinAPI {
         iTabLength = readd(address);address+=4;
         iLeftMargin = readd(address);address+=4;
         iRightMargin = readd(address);address+=4;
-        uiLengthDrawn = readd(address);address+=4;
+        uiLengthDrawn = readd(address);
     }
 
     public void write(int address) {
@@ -22,7 +22,7 @@ public class DRAWTEXTPARAMS extends WinAPI {
         writed(address, iTabLength); address+=4;
         writed(address, iLeftMargin); address+=4;
         writed(address, iRightMargin); address+=4;
-        writed(address, uiLengthDrawn); address+=4;
+        writed(address, uiLengthDrawn);
     }
 
     public int allocTemp() {
@@ -31,7 +31,7 @@ public class DRAWTEXTPARAMS extends WinAPI {
         return p;
     }
 
-    public int cbSize;
+    public final int cbSize;
     public int iTabLength;
     public int iLeftMargin;
     public int iRightMargin;

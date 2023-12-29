@@ -14,7 +14,7 @@ public class Msvfw32 extends BuiltinModule {
     }
 
     // BOOL ICInfo(DWORD fccType, DWORD fccHandler, ICINFO  *lpicinfo)
-    private Callback.Handler ICInfo = new HandlerBase() {
+    private final Callback.Handler ICInfo = new HandlerBase() {
         public java.lang.String getName() {
             return "Msvfw32.ICInfo";
         }

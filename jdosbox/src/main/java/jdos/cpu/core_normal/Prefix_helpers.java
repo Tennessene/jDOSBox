@@ -7,8 +7,8 @@ import jdos.cpu.Modrm;
 import jdos.hardware.Memory;
 
 public class Prefix_helpers extends Instructions {
-    static public interface OP {
-        public int call();
+    public interface OP {
+        int call();
     }
     static protected final int[] AddrMaskTable1={0x0000ffff,0xffffffff};
 
@@ -115,53 +115,53 @@ public class Prefix_helpers extends Instructions {
     static protected int m;
 
     static protected final Instructions.loadw rw_l = new Instructions.loadw() {
-        final public int call() {
+        public int call() {
             return Modrm.Getrw[r].word();
         }
     };
     static protected final Instructions.savew rw_s = new Instructions.savew() {
-        final public void call(int value) {
+        public void call(int value) {
             Modrm.Getrw[r].word(value);
         }
     };
     static protected final Instructions.loadb earb_l = new Instructions.loadb() {
-        final public int call() {
+        public int call() {
             return Modrm.GetEArb[r].get();
         }
     };
     static protected final Instructions.saveb earb_s = new Instructions.saveb() {
-        final public void call(int value) {
+        public void call(int value) {
             Modrm.GetEArb[r].set(value);
         }
     };
     static protected final Instructions.loadw earw_l = new Instructions.loadw() {
-        final public int call() {
+        public int call() {
             return Modrm.GetEArw[r].word();
         }
     };
     static protected final Instructions.savew earw_s = new Instructions.savew() {
-        final public void call(int value) {
+        public void call(int value) {
             Modrm.GetEArw[r].word(value);
         }
     };
 
     static protected final Instructions.loadb b_l = new Instructions.loadb() {
-        final public int call() {
+        public int call() {
             return Memory.mem_readb(m);
         }
     };
     static protected final Instructions.saveb b_s = new Instructions.saveb() {
-        final public void call(int value) {
+        public void call(int value) {
             Memory.mem_writeb(m, value);
         }
     };
     static protected final Instructions.loadw w_l = new Instructions.loadw() {
-        final public int call() {
+        public int call() {
             return Memory.mem_readw(m);
         }
     };
     static protected final Instructions.savew w_s = new Instructions.savew() {
-        final public void call(int value) {
+        public void call(int value) {
             Memory.mem_writew(m, value);
         }
     };

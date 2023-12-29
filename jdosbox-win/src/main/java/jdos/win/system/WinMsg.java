@@ -25,11 +25,11 @@ public class WinMsg {
     public BitSet keyState;
     public WinThread callingThread;
     public int sendResult;
-    public int hwnd;
-    public int message;
+    public final int hwnd;
+    public final int message;
     public int wParam;
     public int lParam;
-    public int time;
-    public int x;
-    public int y;
+    public final int time;
+    public final int x;
+    public final int y;
 }

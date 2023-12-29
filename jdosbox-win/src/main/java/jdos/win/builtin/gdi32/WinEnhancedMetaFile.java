@@ -9,7 +9,7 @@ public class WinEnhancedMetaFile extends WinObject {
 
     static public WinEnhancedMetaFile get(int handle) {
         WinObject object = getObject(handle);
-        if (object == null || !(object instanceof WinEnhancedMetaFile))
+        if (!(object instanceof WinEnhancedMetaFile))
             return null;
         return (WinEnhancedMetaFile)object;
     }

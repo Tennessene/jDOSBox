@@ -6,7 +6,6 @@ public class Clipboard {
         return 0;
     }
 
-    static public boolean CLIPBOARD_ReleaseOwner() {
-        return true;
+    static public void CLIPBOARD_ReleaseOwner() {
     }
 }

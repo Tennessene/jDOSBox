@@ -92,7 +92,7 @@ public class JavaBitmap {
             colorKey = palette[colorKey];
         if (colorKey != cachedColorKey) {
             if (bpp<=8) {
-                int[] p = (int[])palette.clone();
+                int[] p = palette.clone();
                 for (int i=0;i<p.length;i++) {
                     if ((p[i] & 0xFFFFFF) == (colorKey & 0xFFFFFF))
                         p[i]&=0xFFFFFF;
@@ -123,7 +123,7 @@ public class JavaBitmap {
 
     static private class PageHandler8 extends Paging.PageHandler {
         byte[] data;
-        int address;
+        final int address;
 
         public PageHandler8(int address) {
             this.address = address;
@@ -166,7 +166,7 @@ public class JavaBitmap {
 
     static private class PageHandler16 extends Paging.PageHandler {
         short[] data;
-        int address;
+        final int address;
 
         public PageHandler16(int address) {
             this.address = address;
@@ -276,7 +276,7 @@ public class JavaBitmap {
             Paging.writehandler[frame++] = handler;
         }
         if (WinAPI.LOG) {
-            System.out.println("JavaBitmap.map address=0x"+Long.toString(address & 0xFFFFFFFFl, 16)+" size="+size+" frames="+frameStart+"-"+frame+" handler="+handler+" this="+this);
+            System.out.println("JavaBitmap.map address=0x"+Long.toString(address & 0xFFFFFFFFL, 16)+" size="+size+" frames="+frameStart+"-"+frame+" handler="+handler+" this="+this);
         }
         return address;
     }
@@ -292,7 +292,7 @@ public class JavaBitmap {
         }
         WinSystem.getCurrentProcess().addressSpace.free(address);
         if (WinAPI.LOG) {
-            System.out.println("JavaBitmap.unmap address=0x"+Long.toString(address & 0xFFFFFFFFl, 16));
+            System.out.println("JavaBitmap.unmap address=0x"+Long.toString(address & 0xFFFFFFFFL, 16));
         }
         address = 0;
         if (bpp == 8) {
@@ -338,7 +338,7 @@ public class JavaBitmap {
         for (int r = 0;r<256;r+=51) {
             for (int g = 0;r<256;r+=51) {
                 for (int b = 0;r<256;r+=51) {
-                    table[pos++] = (r<<16)|(g<<8)|b;
+                    table[pos++] = (r<<16)|(0)|b;
                 }
             }
         }

@@ -4,6 +4,8 @@ import jdos.Dosbox;
 import jdos.hardware.mame.RasterizerCompiler;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -19,11 +21,11 @@ public class Loader {
             this.source = source;
             this.start = start;
         }
-        String source;
-        String name;
-        byte[] byteCode;
-        byte[] opCode;
-        int start;
+        final String source;
+        final String name;
+        final byte[] byteCode;
+        final byte[] opCode;
+        final int start;
     }
     private static class Item {
         String name;
@@ -31,15 +33,15 @@ public class Loader {
         int start;
     }
 
-    private static Vector savedItems = new Vector();
+    private static final Vector savedItems = new Vector();
 
-    private static Hashtable items = new Hashtable();
+    private static final Hashtable items = new Hashtable();
     private static boolean initialized = false;
 
     public static boolean isLoaded() {
         if (!initialized)
             init();
-        return items.size()!=0;
+        return !items.isEmpty();
     }
     private static void init() {
         initialized = true;
@@ -55,7 +57,7 @@ public class Loader {
                     int len = dis.readInt();
                     item.opCodes = new byte[len];
                     dis.readFully(item.opCodes);
-                    Integer key = new Integer(item.start);
+                    Integer key = item.start;
                     Vector bucket = (Vector)items.get(key);
                     if (bucket == null) {
                         bucket = new Vector();
@@ -67,11 +69,13 @@ public class Loader {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            try {dis.close();} catch (Exception e) {}
+            try {dis.close();} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     public static Op load(int start, byte[] opCodes) {
-        Integer key = new Integer(start);
+        Integer key = start;
         Vector bucket = (Vector)items.get(key);
         if (bucket != null) {
             for (int i=0;i<bucket.size();i++) {
@@ -98,7 +102,7 @@ public class Loader {
             dos.writeInt(savedItems.size());
             ByteArrayOutputStream src_bos = null;
             DataOutputStream src_dos = null;
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(fileName+".jar")));
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(Paths.get(fileName + ".jar"))));
             String root = fileName+"_src"+File.separator+ "jdos";
             String dirName = root+File.separator+"cpu"+File.separator+"core_dynamic";
             if (source) {
@@ -109,8 +113,8 @@ public class Loader {
                 if (!dir.exists())
                     dir.mkdirs();
                 File[] existing = dir.listFiles();
-                for (int i=0;i<existing.length;i++) {
-                    existing[i].delete();
+                for (File file : existing) {
+                    file.delete();
                 }
             }
             for (int i=0;i<savedItems.size();i++) {

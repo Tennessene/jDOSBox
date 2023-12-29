@@ -304,8 +304,8 @@ public class SysParams extends WinAPI {
             this.name = name;
             this.color = color;
         }
-        public String name;
-        public int color;
+        public final String name;
+        public final int color;
     }
 
     static public final DefColor[] DefSysColors = new DefColor[] {

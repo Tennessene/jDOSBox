@@ -16,7 +16,7 @@ public class Value {
     private String _string;
     private double _double;
 
-    public class WrongType extends RuntimeException {}
+    public static class WrongType extends RuntimeException {}
     public static final class Etype {
         static final int V_NONE = 0;
         static final int V_HEX = 1;
@@ -35,7 +35,10 @@ public class Value {
     public Value(double in) {_double = in; type = Etype.V_DOUBLE; }
     public Value(String in) {_string = in; type = Etype.V_STRING; }
     public Value(Value in) {plaincopy(in);}
-    public Value(String in, int _t) { type = Etype.V_NONE; try {SetValue(in, _t);} catch (WrongType e){}}
+    public Value(String in, int _t) { type = Etype.V_NONE; try {SetValue(in, _t);} catch (WrongType e) {
+        throw new RuntimeException(e);
+    }
+    }
 
     public void set(Hex in) throws WrongType {copy(new Value(in));}
     public void set(int in) throws WrongType {copy(new Value(in));}

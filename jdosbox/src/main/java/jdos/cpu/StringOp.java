@@ -216,7 +216,7 @@ public class StringOp extends Prefix_helpers {
         case R_SCASB:
             {
                 /*Bit8u*/int val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readb(di_base+reg_edi.word());
                     reg_edi.word(reg_edi.word()+add_index);
@@ -229,7 +229,7 @@ public class StringOp extends Prefix_helpers {
         case R_SCASW:
             {
                 add_index<<=1;/*Bit16u*/int val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readw(di_base+reg_edi.word());
                     reg_edi.word(reg_edi.word()+add_index);
@@ -242,7 +242,7 @@ public class StringOp extends Prefix_helpers {
         case R_SCASD:
             {
                 add_index<<=2;/*Bit32u*/int val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readd(di_base + reg_edi.word());
                     reg_edi.word(reg_edi.word()+add_index);
@@ -255,7 +255,7 @@ public class StringOp extends Prefix_helpers {
         case R_CMPSB:
             {
                 /*Bit8u*/int val1=0,val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readb(si_base+reg_esi.word());
                     val2=Memory.mem_readb(di_base+reg_edi.word());
@@ -270,7 +270,7 @@ public class StringOp extends Prefix_helpers {
         case R_CMPSW:
             {
                 add_index<<=1;/*Bit16u*/int val1=0,val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readw(si_base+reg_esi.word());
                     val2=Memory.mem_readw(di_base+reg_edi.word());
@@ -285,7 +285,7 @@ public class StringOp extends Prefix_helpers {
         case R_CMPSD:
             {
                 add_index<<=2;/*Bit32u*/int val1=0,val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readd(si_base + reg_esi.word());
                     val2=Memory.mem_readd(di_base + reg_edi.word());
@@ -311,7 +311,7 @@ public class StringOp extends Prefix_helpers {
 
         si_base=base_ds;
         di_base=CPU_Regs.reg_esPhys.dword;
-        count=reg_ecx.dword & 0xFFFFFFFFl;
+        count=reg_ecx.dword & 0xFFFFFFFFL;
         if ((prefixes & PREFIX_REP)==0) {
             count=1;
         } else {
@@ -469,7 +469,7 @@ public class StringOp extends Prefix_helpers {
         case R_SCASB:
             {
                 /*Bit8u*/int val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readb(di_base+reg_edi.dword);
                     reg_edi.dword+=add_index;
@@ -482,7 +482,7 @@ public class StringOp extends Prefix_helpers {
         case R_SCASW:
             {
                 add_index<<=1;/*Bit16u*/int val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readw(di_base+reg_edi.dword);
                     reg_edi.dword+=add_index;
@@ -495,7 +495,7 @@ public class StringOp extends Prefix_helpers {
         case R_SCASD:
             {
                 add_index<<=2;/*Bit32u*/int val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val2=Memory.mem_readd(di_base + reg_edi.dword);
                     reg_edi.dword+=add_index;
@@ -508,7 +508,7 @@ public class StringOp extends Prefix_helpers {
         case R_CMPSB:
             {
                 /*Bit8u*/int val1=0,val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readb(si_base+reg_esi.dword);
                     val2=Memory.mem_readb(di_base+reg_edi.dword);
@@ -523,7 +523,7 @@ public class StringOp extends Prefix_helpers {
         case R_CMPSW:
             {
                 add_index<<=1;/*Bit16u*/int val1=0,val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readw(si_base+reg_esi.dword);
                     val2=Memory.mem_readw(di_base+reg_edi.dword);
@@ -538,7 +538,7 @@ public class StringOp extends Prefix_helpers {
         case R_CMPSD:
             {
                 add_index<<=2;/*Bit32u*/int val1=0,val2=0;
-                for (;count>0;) {
+                while (count>0) {
                     count--;CPU.CPU_Cycles--;
                     val1=Memory.mem_readd(si_base + reg_esi.dword);
                     val2=Memory.mem_readd(di_base + reg_edi.dword);

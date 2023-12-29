@@ -1,7 +1,6 @@
 package jdos.ints;
 
 import jdos.Dosbox;
-import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.hardware.IoHandler;
@@ -24,12 +23,12 @@ public class Bios_keyboard {
             this.control = control;
             this.alt = alt;
         }
-        /*Bit16u*/int normal;
-        /*Bit16u*/int shift;
-        /*Bit16u*/int control;
-        /*Bit16u*/int alt;
+        /*Bit16u*/final int normal;
+        /*Bit16u*/final int shift;
+        /*Bit16u*/final int control;
+        /*Bit16u*/final int alt;
     }
-    static private Scan[] scan_to_scanascii = {
+    static private final Scan[] scan_to_scanascii = {
           new Scan(   none,   none,   none,   none ),
           new Scan( 0x011b, 0x011b, 0x011b, 0x01f0 ), /* escape */
           new Scan( 0x0231, 0x0221,   none, 0x7800 ), /* 1! */
@@ -221,7 +220,7 @@ public class Bios_keyboard {
         */
 
 
-    static private Callback.Handler IRQ1_Handler = new Callback.Handler() {
+    static private final Callback.Handler IRQ1_Handler = new Callback.Handler() {
         public String getName() {
             return "Bios_keyboard.IRQ1_Handler";
         }
@@ -448,20 +447,20 @@ public class Bios_keyboard {
                 key.value=(key.value&0xff)|0x3500;
             }
             /* both key are not considered enhanced key */
-            return false;
+            return true;
         } else if (((key.value>>8)>0x84) || (((key.value&0xff)==0xf0) && (key.value>>8)!=0)) {
             /* key is enhanced key (either scancode part>0x84 or
                specially-marked keyboard combination, low part==0xf0) */
-            return true;
+            return false;
         }
         /* convert key.value if necessary (extended key.values) */
         if ((key.value>>8)!=0 && ((key.value&0xff)==0xe0))  {
             key.value&=0xff00;
         }
-        return false;
+        return true;
     }
 
-    static private Callback.Handler INT16_Handler = new Callback.Handler() {
+    static private final Callback.Handler INT16_Handler = new Callback.Handler() {
         public String getName() {
             return "Bios_keyboard.INT16_Handler";
         }
@@ -469,7 +468,7 @@ public class Bios_keyboard {
             /*Bit16u*/IntRef temp=new IntRef(0);
             switch (CPU_Regs.reg_eax.high()) {
             case 0x00: /* GET KEYSTROKE */
-                if ((get_key(temp)) && (!IsEnhancedKey(temp))) {
+                if ((get_key(temp)) && (IsEnhancedKey(temp))) {
                     /* normal key found, return translated key in ax */
                     CPU_Regs.reg_eax.word(temp.value);
                 } else {
@@ -494,7 +493,7 @@ public class Bios_keyboard {
                 Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4,(Memory.mem_readw(CPU_Regs.reg_ssPhys.dword+CPU_Regs.reg_esp.word()+4) | CPU_Regs.IF));
                 for (;;) {
                     if (check_key(temp)) {
-                        if (!IsEnhancedKey(temp)) {
+                        if (IsEnhancedKey(temp)) {
                             /* normal key, return translated key in ax */
                             Callback.CALLBACK_SZF(false);
                             CPU_Regs.reg_eax.word(temp.value);

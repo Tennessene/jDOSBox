@@ -7,8 +7,6 @@ public class Disney extends Module_base {
     public Disney(Section configuration) {
         super(configuration);
     }
-    public static Section.SectionFunction DISNEY_Init = new Section.SectionFunction() {
-        public void call(Section section) {
-        }
+    public static final Section.SectionFunction DISNEY_Init = section -> {
     };
 }

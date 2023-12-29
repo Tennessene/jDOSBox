@@ -4,7 +4,7 @@ import jdos.cpu.Paging;
 import jdos.hardware.Memory;
 
 public class MemoryRegion {
-    Paging.PageHandler handler;
+    final Paging.PageHandler handler;
 
     public MemoryRegion(int address, int offset, int size, String name, Paging.PageHandler handler) {
         this.address = address;
@@ -18,8 +18,8 @@ public class MemoryRegion {
         Memory.MEM_ResetPageHandler( address, size );
     }
 
-    int address;
-    int size;
-    int offset;
-    String name;
+    final int address;
+    final int size;
+    final int offset;
+    final String name;
 }

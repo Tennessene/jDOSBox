@@ -19,19 +19,19 @@ public class WAVEHDR {
         dwFlags = Memory.mem_readd(address);address+=4;
         dwLoops = Memory.mem_readd(address);address+=4;
         lpNext = Memory.mem_readd(address);address+=4;
-        reserved = Memory.mem_readd(address);address+=4;
+        reserved = Memory.mem_readd(address);
     }
 
     public void writeFlags() {
         Memory.mem_writed(reserved+16, dwFlags);
     }
-    public int lpData;
-    public int dwBufferLength;
-    public int dwBytesRecorded;
-    public int dwUser;
+    public final int lpData;
+    public final int dwBufferLength;
+    public final int dwBytesRecorded;
+    public final int dwUser;
     public int dwFlags;
-    public int dwLoops;
-    public int lpNext;
+    public final int dwLoops;
+    public final int lpNext;
     public int reserved;
 
     public byte[] data;

@@ -6,20 +6,20 @@ import java.util.Vector;
 
 public abstract class Section {
     public static final String NO_SUCH_PROPERTY = "PROP_NOT_EXIST";
-    static public interface SectionFunction {
-        public void call(Section section);
+    public interface SectionFunction {
+        void call(Section section);
     }
-    private class Function_wrapper {
-        SectionFunction function;
-        boolean canchange;
+    private static class Function_wrapper {
+        final SectionFunction function;
+        final boolean canchange;
         Function_wrapper(SectionFunction _fun, boolean _ch) {
             function = _fun;
             canchange = _ch;
         }
     }
-    private Vector initfunctions = new Vector();
-    private Vector destroyfunction = new Vector();
-    private String sectionname;
+    private final Vector initfunctions = new Vector();
+    private final Vector destroyfunction = new Vector();
+    private final String sectionname;
 
     public Section(String _sectionname) {
         sectionname = _sectionname;

@@ -502,12 +502,12 @@ public class Int10_vptable {
     static public /*Bit16u*/int INT10_SetupVideoParameterTable(/*PhysPt*/int basepos) {
         if (Dosbox.IS_VGA_ARCH()) {
             for (/*Bitu*/int i=0;i<0x40*0x1d;i++) {
-                Memory.phys_writeb((int)(basepos+i),video_parameter_table_vga[i]);
+                Memory.phys_writeb(basepos+i,video_parameter_table_vga[i]);
             }
             return (byte)0x40*0x1d;
         } else {
             for (/*Bitu*/int i=0;i<0x40*0x17;i++) {
-                Memory.phys_writeb((int)(basepos+i),video_parameter_table_ega[i]);
+                Memory.phys_writeb(basepos+i,video_parameter_table_ega[i]);
             }
             return (byte)0x40*0x17;
         }

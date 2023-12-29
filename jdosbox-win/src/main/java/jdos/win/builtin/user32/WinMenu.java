@@ -10,7 +10,7 @@ public class WinMenu extends WinObject {
 
     static public WinMenu get(int handle) {
         WinObject object = getObject(handle);
-        if (object == null || !(object instanceof WinMenu))
+        if (!(object instanceof WinMenu))
             return null;
         return (WinMenu)object;
     }
@@ -31,12 +31,11 @@ public class WinMenu extends WinObject {
     }
 
     // BOOL WINAPI DestroyMenu(HMENU hMenu)
-    static public int DestroyMenu(int hMenu) {
+    static public void DestroyMenu(int hMenu) {
         WinMenu menu = WinMenu.get(hMenu);
         if (menu == null)
-            return FALSE;
+            return;
         menu.close();
-        return TRUE;
     }
 
     // BOOL WINAPI DrawMenuBar(HWND hWnd)
@@ -50,8 +49,7 @@ public class WinMenu extends WinObject {
     }
 
     // BOOL WINAPI EndMenu(void)
-    static public int EndMenu() {
-        return TRUE;
+    static public void EndMenu() {
     }
 
     // HMENU WINAPI GetMenu(HWND hWnd)

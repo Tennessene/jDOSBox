@@ -48,7 +48,7 @@ public class Lz32 extends BuiltinModule {
     public static int LZRead(int hFile, int lpBuffer, int toRead) {
         WinObject obj = WinObject.getObject(hFile);
         if (obj instanceof WinFile)
-            return (int)((WinFile) obj).read(lpBuffer, toRead);
+            return ((WinFile) obj).read(lpBuffer, toRead);
         if (!(obj instanceof LZState))
             return LZERROR_BADINHANDLE;
         LZState lzs = (LZState)obj;
@@ -75,14 +75,14 @@ public class Lz32 extends BuiltinModule {
                 lzs.curtabent	= 0xFF0;
             }
             while (lzs.realcurrent<lzs.realwanted) {
-                if (!DECOMPRESS_ONE_BYTE(lzs, b)) {
-                    return toRead-howmuch;
+                if (DECOMPRESS_ONE_BYTE(lzs, b)) {
+                    return 0;
                 }
             }
         }
 
         while (howmuch!=0) {
-            if (!DECOMPRESS_ONE_BYTE(lzs, b))
+            if (DECOMPRESS_ONE_BYTE(lzs, b))
                 return toRead-howmuch;
             lzs.realwanted++;
             writeb(lpBuffer++, b.value);
@@ -149,20 +149,20 @@ public class Lz32 extends BuiltinModule {
 		} else {
 			if ((lzs.bytetype&0x100) == 0) {
 				if (1!=GET(lzs,b))
-					return false;
+					return true;
 				lzs.bytetype = b.value|0xFF00;
 			}
 			if ((lzs.bytetype & 1)!=0) {
 				if (1!=GET(lzs,b))
-					return false;
+					return true;
 			} else {
 				IntRef b1 = new IntRef(0);
                 IntRef b2 = new IntRef(0);
 
 				if (1!=GET(lzs,b1))
-					return false;
+					return true;
 				if (1!=GET(lzs,b2))
-					return false;
+					return true;
 				/* Format:
 				 * b1 b2
 				 * AB CD
@@ -181,11 +181,11 @@ public class Lz32 extends BuiltinModule {
 		lzs.table[lzs.curtabent++] = (byte)b.value;
 		lzs.curtabent &= 0xFFF;
 		lzs.realcurrent++;
-        return true;
+        return false;
     }
 
-    static private int LZ_MAGIC_LEN =  8;
-    static private int LZ_HEADER_LEN = 14;
+    static private final int LZ_MAGIC_LEN =  8;
+    static private final int LZ_HEADER_LEN = 14;
 
     static private class lzfileheader {
         public lzfileheader() {
@@ -198,7 +198,7 @@ public class Lz32 extends BuiltinModule {
             reallength = file.readd();
         }
 
-	    byte[]	magic = new byte[LZ_MAGIC_LEN];
+	    final byte[]	magic = new byte[LZ_MAGIC_LEN];
 	    int compressiontype;
 	    int lastchar;
 	    int reallength;
@@ -222,7 +222,7 @@ public class Lz32 extends BuiltinModule {
         int realcurrent;	/* the position the decompressor currently is */
         int realwanted;	/* the position the user wants to read from */
 
-        byte[] table = new byte[LZ_TABLE_SIZE];	/* the rotating LZ table */
+        final byte[] table = new byte[LZ_TABLE_SIZE];	/* the rotating LZ table */
         int curtabent;	/* CURrent TABle ENTry */
 
         int stringlen;	/* length and position of current string */
@@ -231,7 +231,7 @@ public class Lz32 extends BuiltinModule {
 
         int bytetype;	/* bitmask within blocks */
 
-        byte[] get = new byte[2048];		/* GETLEN bytes */
+        final byte[] get = new byte[2048];		/* GETLEN bytes */
         int getcur;		/* current read */
         int getlen;		/* length last got */
 
@@ -240,7 +240,7 @@ public class Lz32 extends BuiltinModule {
         }
     }
 
-    static private byte[] LZMagic = new byte[] {(byte)'S',(byte)'Z',(byte)'D',(byte)'D',(byte)0x88,(byte)0xf0,0x27,0x33};
+    static private final byte[] LZMagic = new byte[] {(byte)'S',(byte)'Z',(byte)'D',(byte)'D',(byte)0x88,(byte)0xf0,0x27,0x33};
 
     /* internal function, reads lzheader
      * returns BADINHANDLE for non filedescriptors

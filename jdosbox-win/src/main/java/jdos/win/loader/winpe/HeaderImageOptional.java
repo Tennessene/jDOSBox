@@ -64,7 +64,7 @@ public class HeaderImageOptional {
     public long SizeOfHeapCommit;
     public long LoaderFlags;
     public long NumberOfRvaAndSizes;
-    public ImageDataDirectory[] DataDirectory = new ImageDataDirectory[16]; /* 0x60 */
+    public final ImageDataDirectory[] DataDirectory = new ImageDataDirectory[16]; /* 0x60 */
     /* 0xE0 */
 
     public void load(OutputStream os, WinFile fis) throws IOException {

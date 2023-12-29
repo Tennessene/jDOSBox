@@ -3,21 +3,21 @@ package jdos.misc.setup;
 import java.util.Vector;
 
 public class Prop_multival extends Property {
-    protected Section_prop section;
-    protected String separator;
+    protected final Section_prop section;
+    protected final String separator;
     protected void make_default_value() {
         Property p = section.Get_prop(0);
         if (p == null) return;
-        String result = p.Get_Default_Value().toString();
+        StringBuilder result = new StringBuilder(p.Get_Default_Value().toString());
         int i=1;
         while (true) {
             p = section.Get_prop(i++);
             if (p == null)
                 break;
             String props = p.Get_Default_Value().toString();
-            if (props.length()!=0) {
-                result+=separator;
-                result+=props;
+            if (!props.isEmpty()) {
+                result.append(separator);
+                result.append(props);
             }
         }
     }
@@ -45,7 +45,7 @@ public class Prop_multival extends Property {
             if (pos >= 0) {
                 in = input.substring(0, pos); //seperator found
                 input = input.substring(pos+separator.length());
-            } else if (input.length() > 0) { //last argument
+            } else if (!input.isEmpty()) { //last argument
                 in = input;
                 input = "";
             }

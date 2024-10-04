@@ -10,6 +10,8 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 
 public class MainFrame implements GUI {

@@ -1,0 +1,17 @@
+name: Release Caller
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*'
+
+jobs:
+  call-workflow:
+    permissions:
+      contents: write
+    uses: tennessene/workflows/.github/workflows/release-called.yml@main
+    secrets:
+      token: ${{ secrets.TOKEN }}
+      passwd: ${{ secrets.PASSWD }}

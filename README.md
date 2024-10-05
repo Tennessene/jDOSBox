@@ -106,8 +106,8 @@ See the ReadMe.txt in the pcap directory (only applies to certain builds).
 
 Compiling from source
 ------
-The compilation from source is handled by Maven using Java 8 or newer:
+The compilation from source is handled by Gradle using Java 8 or newer:
 ```
-mvn clean install
+gradle build
 ```
-The `launcher` submodule contains `fat` jar with all dependencies included. 
+The `launcher` submodule contains `fat` jar with all dependencies included.

@@ -2,9 +2,11 @@ plugins {
     id("java")
 }
 
+// Apply a specific Java toolchain to ease working on different environments.
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 allprojects {

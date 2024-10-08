@@ -2,11 +2,16 @@ plugins {
     id("java")
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
+// Apply a toolchain to allow any JDK version 8 or newer
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion.set(JavaLanguageVersion.of(8)) // Default to Java 8
     }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    // Allow any JDK version 8 or newer by specifying compatibility
+    options.release.set(8) // Set the minimum compatibility level
 }
 
 allprojects {

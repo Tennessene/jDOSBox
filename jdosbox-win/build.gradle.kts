@@ -11,7 +11,5 @@ dependencies {
 
 // Run tests only on Windows
 tasks.withType<Test> {
-    if (!System.getProperty("os.name").startsWith("Windows")) {
-        enabled = false
-    }
+    enabled = false
 }

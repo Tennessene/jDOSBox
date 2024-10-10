@@ -11,7 +11,7 @@ jobs:
   call-workflow:
     permissions:
       contents: write
-    uses: tennessene/workflows/.github/workflows/release-called.yml@main
+    uses: tennessene/workflows/.github/workflows/release-called.yml@custom
     secrets:
       token: ${{ secrets.TOKEN }}
       passwd: ${{ secrets.PASSWD }}

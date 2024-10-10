@@ -12,7 +12,7 @@ public class WinAPI extends Error {
     final static public boolean LOG_GDI = LOG;
     final static public boolean LOG_MM = false;
     final static public boolean MSGLOG = false;
-    static public final int NULL = 0;
+    static public int NULL = 0;
 
     static public void log(String s) {
         if (BuiltinModule.inPre) {
@@ -1766,7 +1766,7 @@ public class WinAPI extends Error {
     static final public int WODM_OPEN = 5;
     static final public int WAVE_MAPPER = -1;
 
-    static final public int WAVERR_BADFORMAT = WAVERR_BASE;    /* unsupported wave format */
+    static final public int WAVERR_BADFORMAT =     WAVERR_BASE + 0;    /* unsupported wave format */
     static final public int WAVERR_STILLPLAYING =  WAVERR_BASE + 1;    /* still something playing */
     static final public int WAVERR_UNPREPARED =    WAVERR_BASE + 2;    /* header not prepared */
     static final public int WAVERR_SYNC =          WAVERR_BASE + 3;    /* device is synchronous */
@@ -1846,7 +1846,7 @@ public class WinAPI extends Error {
     static final public int MMIO_CREATERIFF =        0x0020;  /* mmioCreateChunk: make a LIST chunk */
     static final public int MMIO_CREATELIST =        0x0040;  /* mmioCreateChunk: make a RIFF chunk */
     
-    static public int mmioFOURCC(int ch0, int ch1, int ch2, int ch3) {
+    static final public int mmioFOURCC(int ch0, int ch1, int ch2, int ch3) {
         return (ch0 & 0xFF) | ((ch1 & 0xFF) << 8) | ((ch2 & 0xFF) << 16) | ((ch3 & 0xFF) << 24);
     }
     static final public int FOURCC_RIFF = mmioFOURCC('R', 'I', 'F', 'F');
@@ -1981,8 +1981,8 @@ public class WinAPI extends Error {
     // * Internal *
     // ************
 
-    public static final int DF_END =          0x0001;
-    public static final int DF_OWNERENABLED = 0x0002;
+    public static int DF_END =          0x0001;
+    public static int DF_OWNERENABLED = 0x0002;
 
     static final public int WAIT_SWITCH = 0xFFFF;
     static public final int NUM_SYS_COLORS = COLOR_MENUBAR+1;

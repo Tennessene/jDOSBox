@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 /**
  * <i>Work In Progress.</i>
- * <p>
+ * 
  * An instance of <code>InputStreamSource</code> implements a
  * <code>Source</code> that provides data from an <code>InputStream
  * </code>. Seeking functionality is not supported. 
@@ -47,7 +47,8 @@ public class InputStreamSource implements Source
 	public int read(byte[] b, int offs, int len)
 		throws IOException
 	{
-        return in.read(b, offs, len);
+		int read = in.read(b, offs, len);
+		return read;
 	}
 	
 	public boolean willReadBlock()

@@ -15,17 +15,17 @@ public class WaitGroup {
     }
 
     public boolean released() {
-        for (WaitObject waitObject : objects) {
-            if (!waitObject.isReady())
+        for (int i=0;i<objects.size();i++) {
+            if (!objects.get(i).isReady())
                 return false;
         }
-        for (WaitObject object : objects) {
-            object.get(this);
+        for (int i=0;i<objects.size();i++) {
+            objects.get(i).get(this);
         }
         Scheduler.addThread(thread, false);
         return true;
     }
 
-    public final Vector<WaitObject> objects = new Vector<>();
-    public final WinThread thread;
+    public Vector<WaitObject> objects = new Vector<WaitObject>();
+    public WinThread thread;
 }

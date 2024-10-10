@@ -11,16 +11,21 @@ import jdos.hardware.RAM;
 
 final public class DecodeBlock extends Op {
     public Op op;
-    public final boolean active = true;
-    public final int codeStart;
-    public final int codeLen;
+    public boolean active = true;
+    public int codeStart;
+    public int codeLen;
     public int runCount = 0;
     static public int compileThreshold = 0;
 
     public static boolean smc = false;
     private boolean compiled = false;
-    public final CacheBlockDynRec parent;
+    public CacheBlockDynRec parent;
     public Op compiledOp = null;
+
+    public boolean throwsException() {return false;}
+    public boolean accessesMemory() {return false;}
+    public boolean usesEip() {return false;}
+    public boolean setsEip() {return false;}
 
     static private byte[] getOpCode(int start, int len) {
         byte[] opCode = new byte[len];
@@ -47,7 +52,7 @@ final public class DecodeBlock extends Op {
             }
         }
     }
-    public int call() {
+    final public int call() {
         if (Compiler.ENABLED) {
             runCount++;
             if (runCount==compileThreshold && !compiled && Dosbox.allPrivileges) {

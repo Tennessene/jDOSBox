@@ -176,7 +176,7 @@ public class DefDlg extends WinAPI {
         Focus.SetFocus(hwndCtrl);
     }
 
-    private static void DEFDLG_SetDefId(int hwndDlg, int wParam) {
+    private static boolean DEFDLG_SetDefId(int hwndDlg, int wParam) {
         int dlgcode = 0;
         int hwndOld;
         int hwndNew = WinDialog.GetDlgItem(hwndDlg, wParam);
@@ -185,7 +185,7 @@ public class DefDlg extends WinAPI {
 
         window.dlgInfo.idResult = wParam;
         if (hwndNew != 0 && ((dlgcode = Message.SendMessageA(hwndNew, WM_GETDLGCODE, 0, 0)) & (DLGC_UNDEFPUSHBUTTON | DLGC_BUTTON)) == 0)
-            return;  /* Destination is not a push button */
+            return false;  /* Destination is not a push button */
 
         /* Make sure the old default control is a valid push button ID */
         hwndOld = WinDialog.GetDlgItem(hwndDlg, old_id);
@@ -198,6 +198,7 @@ public class DefDlg extends WinAPI {
             if ((dlgcode & DLGC_UNDEFPUSHBUTTON) != 0)
                 Message.SendMessageA(hwndNew, BM_SETSTYLE, BS_DEFPUSHBUTTON, TRUE);
         }
+        return true;
     }
 
     static public int DEFDLG_FindDefButton(int hwndDlg) {
@@ -220,16 +221,16 @@ public class DefDlg extends WinAPI {
         return hwndChild;
     }
 
-    private static void DEFDLG_SetDefButton(int hwndDlg, int hwndNew) {
+    private static boolean DEFDLG_SetDefButton(int hwndDlg, int hwndNew) {
         int dlgcode = 0;
         WinWindow window = WinWindow.get(hwndDlg);
         int hwndOld = WinDialog.GetDlgItem(hwndDlg, window.dlgInfo.idResult);
 
         if (hwndNew != 0 && ((dlgcode = Message.SendMessageA(hwndNew, WM_GETDLGCODE, 0, 0)) & (DLGC_UNDEFPUSHBUTTON | DLGC_DEFPUSHBUTTON)) == 0) {
-            /*
-              Need to draw only default push button rectangle.
-              Since the next control is not a push button, need to draw the push
-              button rectangle for the default control.
+            /**
+             * Need to draw only default push button rectangle.
+             * Since the next control is not a push button, need to draw the push
+             * button rectangle for the default control.
              */
             hwndNew = hwndOld;
             dlgcode = Message.SendMessageA(hwndNew, WM_GETDLGCODE, 0, 0);
@@ -245,5 +246,6 @@ public class DefDlg extends WinAPI {
             if ((dlgcode & DLGC_UNDEFPUSHBUTTON) != 0)
                 Message.SendMessageA(hwndNew, BM_SETSTYLE, BS_DEFPUSHBUTTON, TRUE);
         }
+        return true;
     }
 }

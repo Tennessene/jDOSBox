@@ -1,8 +1,8 @@
 package jdos.dos;
 
 public class Dos_system {
-    public interface MultiplexHandler {
-        boolean call();
+    static public interface MultiplexHandler {
+        public boolean call();
     }
     
     static public final int DOS_NAMELENGTH =12;

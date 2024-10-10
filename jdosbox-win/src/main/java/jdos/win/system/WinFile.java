@@ -22,7 +22,7 @@ public class WinFile extends WinObject {
 
     static public WinFile get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinFile))
+        if (object == null || !(object instanceof WinFile))
             return null;
         return (WinFile)object;
     }
@@ -54,7 +54,9 @@ public class WinFile extends WinObject {
 
         public boolean accept(File pathname) {
             String name = pathname.getName().toLowerCase();
-            return name.startsWith(begin) && name.endsWith(end);
+            if (name.startsWith(begin) && name.endsWith(end))
+                return true;
+            return false;
         }
     }
     public static final int STD_OUT = 1;
@@ -90,7 +92,7 @@ public class WinFile extends WinObject {
     }
 
     public static long readFileTime(int address) {
-        return (Memory.mem_readd(address) & 0xFFFFFFFFL) | ((Memory.mem_readd(address+4)  & 0xFFFFFFFFL) << 32);
+        return (Memory.mem_readd(address) & 0xFFFFFFFFl) | ((Memory.mem_readd(address+4)  & 0xFFFFFFFFl) << 32);
     }
 
     public WinFile(int type, int handle) {
@@ -112,7 +114,8 @@ public class WinFile extends WinObject {
         }
         try {
             return file.length();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+        }
         return 0;
     }
 
@@ -198,12 +201,11 @@ public class WinFile extends WinObject {
         try {
             file.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
     private FilePath file = null;
     public int shareMode;
     public int attributes;
-    public final int type;
+    public int type;
 }

@@ -41,18 +41,18 @@ public class Painting extends WinAPI {
     }
 
     // BOOL Ellipse(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
-    static public void Ellipse(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect) {
+    static public int Ellipse(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null)
-            return;
+            return FALSE;
 
         if (nLeftRect == nRightRect || nTopRect == nBottomRect)
-            return;
+            return TRUE;
         WinPen pen = WinPen.get(dc.hPen);
         WinBrush brush = WinBrush.get(dc.hBrush);
 
         if (pen == null || brush == null)
-            return;
+            return FALSE;
 
         Graphics2D graphics = dc.getGraphics();
         Ellipse2D ellipse2D = new Ellipse2D.Float(dc.x+nLeftRect, dc.y+nTopRect, nRightRect-nLeftRect, nBottomRect-nTopRect);
@@ -64,16 +64,18 @@ public class Painting extends WinAPI {
             graphics.draw(ellipse2D);
 
         graphics.dispose();
+        return TRUE;
     }
 
     // BOOL EndPaint(HWND hWnd, const PAINTSTRUCT *lpPaint)
-    static public void EndPaint(int hWnd, int lpPaint) {
+    static public int EndPaint(int hWnd, int lpPaint) {
         WinDC dc = WinDC.get(readd(lpPaint));
         if (dc != null)
             dc.close();
         Caret.ShowCaret(hWnd);
         Main.drawImage(StaticData.screen.getImage());
         WinWindow.get(hWnd).validate();
+        return TRUE;
     }
 
     // HDC WINAPI GetDC(HWND hwnd)
@@ -113,30 +115,31 @@ public class Painting extends WinAPI {
     }
 
     // BOOL InvalidateRect(HWND hWnd, const RECT *lpRect, BOOL bErase)
-    static public void InvalidateRect(int hWnd, int lpRect, int bErase) {
+    static public int InvalidateRect(int hWnd, int lpRect, int bErase) {
         WinWindow window = WinWindow.get(hWnd);
         if (window == null)
-            return; // :TODO: invalidate all windows
+            return FALSE; // :TODO: invalidate all windows
         WinRect rect = null;
         if (lpRect != 0) {
             rect = new WinRect(lpRect);
         }
         window.invalidate(rect);
+        return TRUE;
     }
 
     // BOOL Pie(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nXRadial1, int nYRadial1, int nXRadial2, int nYRadial2)
-    static public void Pie(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int xstart, int ystart, int xend, int yend) {
+    static public int Pie(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int xstart, int ystart, int xend, int yend) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null)
-            return;
+            return FALSE;
 
         if (nLeftRect == nRightRect || nTopRect == nBottomRect)
-            return;
+            return TRUE;
         WinPen pen = WinPen.get(dc.hPen);
         WinBrush brush = WinBrush.get(dc.hBrush);
 
         if (pen == null || brush == null)
-            return;
+            return FALSE;
 
         Graphics2D graphics = dc.getGraphics();
         int width = nRightRect-nLeftRect;
@@ -159,20 +162,21 @@ public class Painting extends WinAPI {
 
         graphics.dispose();
 
+        return TRUE;
     }
 
     // BOOL Rectangle(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
-    static public void Rectangle(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect) {
+    static public int Rectangle(int hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null)
-            return;
+            return FALSE;
         if (nLeftRect == nRightRect || nTopRect == nBottomRect)
-            return;
+            return TRUE;
         WinPen pen = WinPen.get(dc.hPen);
         WinBrush brush = WinBrush.get(dc.hBrush);
 
         if (pen == null || brush == null)
-            return;
+            return FALSE;
 
         int width = nRightRect-nLeftRect-1;
         int height = nBottomRect-nTopRect-1;
@@ -189,27 +193,30 @@ public class Painting extends WinAPI {
         graphics.dispose();
         if (dc.getImage() == StaticData.screen.getImage())
             Main.drawImage(dc.getImage());
+        return TRUE;
     }
 
     // int ReleaseDC(HWND hWnd, HDC hDC)
-    static public void ReleaseDC(int hWnd, int hDC) {
+    static public int ReleaseDC(int hWnd, int hDC) {
         WinDC dc = WinDC.get(hDC);
         if (dc == null)
-            return;
+            return 0;
         if (dc.isScreen()) {
             Main.drawImage(dc.getImage());
         }
         dc.close();
+        return 1;
     }
 
     // BOOL RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags)
-    static public void RedrawWindow(int hWnd, int lprcUpdate, int hrgnUpdate, int flags) {
+    static public int RedrawWindow(int hWnd, int lprcUpdate, int hrgnUpdate, int flags) {
         log("RedrawWindow faked");
         if (hWnd == 0)
             hWnd = WinWindow.GetDesktopWindow();
         WinWindow window = WinWindow.get(hWnd);
-        if (window == null) {
-        }
+        if (window == null)
+            return FALSE;
+        return TRUE;
     }
 
     // BOOL UpdateWindow(HWND hWnd)

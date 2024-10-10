@@ -19,7 +19,7 @@ public class DRAWITEMSTRUCT extends WinAPI {
         writed(address, hwndItem);address+=4;
         writed(address, hDC);address+=4;
         rcItem.write(address);address+=WinRect.SIZE;
-        writed(address, itemData);
+        writed(address, itemData);address+=4;
     }
     public int allocTemp() {
         int result = getTempBuffer(SIZE);
@@ -34,6 +34,6 @@ public class DRAWITEMSTRUCT extends WinAPI {
     public int     itemState;  /* Item state (ODS_* flags from "winuser.h") */
     public int     hwndItem;   /* Control window */
     public int     hDC;        /* Device context to draw to */
-    public final WinRect rcItem;     /* Position of the control in hDC */
+    public WinRect rcItem;     /* Position of the control in hDC */
     public int     itemData;   /* Extra data added by the application, if any */
 }

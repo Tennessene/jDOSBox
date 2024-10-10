@@ -73,5 +73,5 @@ public class WinFatFile extends WinFile {
         fatFile.Close();
     }
 
-    private final Drive_fat.fatFile fatFile;
+    private Drive_fat.fatFile fatFile = null;
 }

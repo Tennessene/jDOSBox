@@ -1,5 +1,6 @@
 package jdos.ints;
 
+import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.hardware.IoHandler;
 import jdos.hardware.Memory;
@@ -101,7 +102,7 @@ public class Int10_vesa {
         /*Bit32u*/long PhysBasePtr;
         /*Bit32u*/long OffScreenMemOffset;
         /*Bit16u*/int OffScreenMemSize;
-        /*Bit8u*/final byte[] Reserved = new byte[206];
+        /*Bit8u*/byte[] Reserved = new byte[206];
     }
 
     public static /*Bit8u*/short VESA_GetSVGAInformation(/*Bit16u*/int seg,/*Bit16u*/int off) {
@@ -135,8 +136,7 @@ public class Int10_vesa {
         }
         Memory.mem_writed(buffer+0x0a,0x0);					//Capabilities and flags
         Memory.mem_writed(buffer+0x0e,Int10.int10.rom.vesa_modes);	//VESA Mode list
-        /*Bit16u*/
-        Memory.mem_writew(buffer+0x12, VGA.vga.vmemsize/(64*1024)); // memory size in 64kb blocks
+        Memory.mem_writew(buffer+0x12,(/*Bit16u*/int)(VGA.vga.vmemsize/(64*1024))); // memory size in 64kb blocks
         return VESA_SUCCESS;
     }
 
@@ -277,7 +277,7 @@ public class Int10_vesa {
         minfo.YCharSize=(short)mblock.cheight;
         if (!Int10.int10.vesa_nolfb) minfo.PhysBasePtr=Int10.S3_LFB_BASE;
 
-        minfo.write(buf);//MEM_BlockWrite(buf,&minfo,sizeof(MODE_INFO));
+        minfo.write((int)buf);//MEM_BlockWrite(buf,&minfo,sizeof(MODE_INFO));
         return VESA_SUCCESS;
     }
 
@@ -522,7 +522,7 @@ public class Int10_vesa {
         return VESA_SUCCESS;
     }
 
-    static private final jdos.cpu.Callback.Handler VESA_SetWindow = new jdos.cpu.Callback.Handler() {
+    static private jdos.cpu.Callback.Handler VESA_SetWindow = new jdos.cpu.Callback.Handler() {
         public String getName() {
             return "Int10_vesa.VESA_SetWindow";
         }
@@ -534,7 +534,7 @@ public class Int10_vesa {
         }
     };
 
-    static private final jdos.cpu.Callback.Handler VESA_PMSetWindow = new jdos.cpu.Callback.Handler() {
+    static private jdos.cpu.Callback.Handler VESA_PMSetWindow = new jdos.cpu.Callback.Handler() {
         public String getName() {
             return "Int10_vesa.VESA_PMSetWindow 0x"+Integer.toHexString(CPU_Regs.reg_edx.word());
         }
@@ -544,7 +544,7 @@ public class Int10_vesa {
         }
     };
 
-    static private final jdos.cpu.Callback.Handler VESA_PMSetPalette = new jdos.cpu.Callback.Handler() {
+    static private jdos.cpu.Callback.Handler VESA_PMSetPalette = new jdos.cpu.Callback.Handler() {
         public String getName() {
             return "Int10_vesa.VESA_PMSetPalette";
         }
@@ -554,7 +554,7 @@ public class Int10_vesa {
         }
     };
 
-    static private final jdos.cpu.Callback.Handler VESA_PMSetStart = new jdos.cpu.Callback.Handler() {
+    static private jdos.cpu.Callback.Handler VESA_PMSetStart = new jdos.cpu.Callback.Handler() {
         public String getName() {
             return "Int10_vesa.VESA_PMSetStart 0x"+Integer.toHexString((CPU_Regs.reg_edx.word() << 16) | CPU_Regs.reg_ecx.word());
         }
@@ -563,8 +563,8 @@ public class Int10_vesa {
 	        // display start address.
 
 	        // TODO wait for retrace in case bl==0x80
-            /*Bit32u*/
-            VGA.vga.config.display_start = (CPU_Regs.reg_edx.word() << 16) | CPU_Regs.reg_ecx.word();
+            /*Bit32u*/int start = (CPU_Regs.reg_edx.word() << 16) | CPU_Regs.reg_ecx.word();
+            VGA.vga.config.display_start = start;
             return 0;
         }
     };
@@ -584,13 +584,13 @@ public class Int10_vesa {
             }
             if (Int10_modes.ModeList_VGA[i].mode>=0x100 && canuse_mode) {
                 if ((!Int10.int10.vesa_oldvbe) || (Int10_modes.ModeList_VGA[i].mode<0x120)) {
-                    Memory.phys_writew(Memory.PhysMake(0xc000,Int10.int10.rom.used),Int10_modes.ModeList_VGA[i].mode);
+                    Memory.phys_writew((int)Memory.PhysMake(0xc000,Int10.int10.rom.used),Int10_modes.ModeList_VGA[i].mode);
                     Int10.int10.rom.used+=2;
                 }
             }
             i++;
         }
-        Memory.phys_writew(Memory.PhysMake(0xc000,Int10.int10.rom.used),0xffff);
+        Memory.phys_writew((int)Memory.PhysMake(0xc000,Int10.int10.rom.used),0xffff);
         Int10.int10.rom.used+=2;
         Int10.int10.rom.oemstring=Memory.RealMake(0xc000,Int10.int10.rom.used);
         Memory.phys_writes(0xc0000+Int10.int10.rom.used, string_oem);
@@ -608,24 +608,21 @@ public class Int10_vesa {
         Int10.int10.rom.used += 8;		//Skip the byte later used for offsets
         /* PM Set Window call */
         Int10.int10.rom.pmode_interface_window = Int10.int10.rom.used - Memory.RealOff( Int10.int10.rom.pmode_interface );
-        Memory.phys_writew(Memory.Real2Phys(Int10.int10.rom.pmode_interface), Int10.int10.rom.pmode_interface_window );
+        Memory.phys_writew( (int)Memory.Real2Phys(Int10.int10.rom.pmode_interface) + 0, Int10.int10.rom.pmode_interface_window );
         callback.pmWindow=jdos.cpu.Callback.CALLBACK_Allocate();
-        /*Bit16u*/
-        Int10.int10.rom.used += jdos.cpu.Callback.CALLBACK_Setup(callback.pmWindow, VESA_PMSetWindow, jdos.cpu.Callback.CB_RETN, Memory.PhysMake(0xc000,Int10.int10.rom.used), "VESA PM Set Window");
+        Int10.int10.rom.used += (/*Bit16u*/int)jdos.cpu.Callback.CALLBACK_Setup(callback.pmWindow, VESA_PMSetWindow, jdos.cpu.Callback.CB_RETN, Memory.PhysMake(0xc000,Int10.int10.rom.used), "VESA PM Set Window");
         /* PM Set start call */
         Int10.int10.rom.pmode_interface_start = Int10.int10.rom.used - Memory.RealOff( Int10.int10.rom.pmode_interface );
-        Memory.phys_writew( Memory.Real2Phys(Int10.int10.rom.pmode_interface) + 2, Int10.int10.rom.pmode_interface_start);
+        Memory.phys_writew( (int)Memory.Real2Phys(Int10.int10.rom.pmode_interface) + 2, Int10.int10.rom.pmode_interface_start);
         callback.pmStart=jdos.cpu.Callback.CALLBACK_Allocate();
-        /*Bit16u*/
-        Int10.int10.rom.used += jdos.cpu.Callback.CALLBACK_Setup(callback.pmStart, VESA_PMSetStart, jdos.cpu.Callback.CB_RETN, Memory.PhysMake(0xc000,Int10.int10.rom.used), "VESA PM Set Start");
+        Int10.int10.rom.used += (/*Bit16u*/int)jdos.cpu.Callback.CALLBACK_Setup(callback.pmStart, VESA_PMSetStart, jdos.cpu.Callback.CB_RETN, Memory.PhysMake(0xc000,Int10.int10.rom.used), "VESA PM Set Start");
         /* PM Set Palette call */
         Int10.int10.rom.pmode_interface_palette = Int10.int10.rom.used - Memory.RealOff( Int10.int10.rom.pmode_interface );
-        Memory.phys_writew( Memory.Real2Phys(Int10.int10.rom.pmode_interface) + 4, Int10.int10.rom.pmode_interface_palette);
+        Memory.phys_writew( (int)Memory.Real2Phys(Int10.int10.rom.pmode_interface) + 4, Int10.int10.rom.pmode_interface_palette);
         callback.pmPalette=jdos.cpu.Callback.CALLBACK_Allocate();
-        /*Bit16u*/
-        Int10.int10.rom.used += jdos.cpu.Callback.CALLBACK_Setup(callback.pmPalette, VESA_PMSetPalette, jdos.cpu.Callback.CB_RETN, Memory.PhysMake(0xc000,Int10.int10.rom.used), "VESA PM Set Palette");
+        Int10.int10.rom.used += (/*Bit16u*/int)jdos.cpu.Callback.CALLBACK_Setup(callback.pmPalette, VESA_PMSetPalette, jdos.cpu.Callback.CB_RETN, Memory.PhysMake(0xc000,Int10.int10.rom.used), "VESA PM Set Palette");
         /* Finalize the size and clear the required ports pointer */
-        Memory.phys_writew( Memory.Real2Phys(Int10.int10.rom.pmode_interface) + 6, 0);
+        Memory.phys_writew( (int)Memory.Real2Phys(Int10.int10.rom.pmode_interface) + 6, 0);
         Int10.int10.rom.pmode_interface_size=Int10.int10.rom.used - Memory.RealOff( Int10.int10.rom.pmode_interface );
     }
 

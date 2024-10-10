@@ -16,7 +16,7 @@ public class DSound extends BuiltinModule {
     }
 
     // HRESULT DirectSoundCreate(LPCGUID lpGUID,LPDIRECTSOUND *ppDS,LPUNKNOWN pUnkOuter);
-    private final Callback.Handler DirectSoundCreate = new HandlerBase() {
+    private Callback.Handler DirectSoundCreate = new HandlerBase() {
         public String getName() {
             return "DSound.DirectSoundCreate";
         }

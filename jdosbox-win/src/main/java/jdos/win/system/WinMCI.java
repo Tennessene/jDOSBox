@@ -10,7 +10,7 @@ abstract public class WinMCI extends WinObject {
 
     static public WinMCI getMCI(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinMCI))
+        if (object == null || !(object instanceof WinMCI))
             return null;
         return (WinMCI)object;
     }

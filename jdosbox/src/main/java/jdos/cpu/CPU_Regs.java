@@ -126,13 +126,13 @@ public class CPU_Regs extends Flags {
             this.name = name;
             this.fullName32 = "CPU_Regs.reg_"+name+".dword";
             this.name16 = name.substring(1);
-            this.name8 = this.name16.charAt(0)+"l";
+            this.name8 = this.name16.substring(0, 1)+"l";
         }
 
         public Reg(Reg parent) {
             this.parent = parent;
             this.name = parent.name;
-            this.name8 = parent.name16.charAt(0)+"h";
+            this.name8 = parent.name16.substring(0, 1)+"h";
             this.name16 = parent.name16;
         }
 
@@ -164,29 +164,29 @@ public class CPU_Regs extends Flags {
             else
                 return parent.high();
         }
-        public void dword(long l) {
+        final public void dword(long l) {
             dword = (int)l;
         }
-        public void word_dec() {
+        final public void word_dec() {
             word(word()-1);
         }
-        public int word() {
+        final public int word() {
             return dword & 0xFFFF;
         }
-        public void word(int value) {
+        final public void word(int value) {
             dword = (value & 0xFFFF) | (dword & 0xFFFF0000);
         }
-        public int low() {
+        final public int low() {
             return dword & 0xff;
         }
-        public void low(int value) {
+        final public void low(int value) {
             dword = (value & 0xFF) | (dword & 0xFFFFFF00);
         }
 
-        public int high() {
+        final public int high() {
             return (dword >> 8) & 0xff;
         }
-        public void high(int value) {
+        final public void high(int value) {
             dword = ((value & 0xFF) << 8) | (dword & 0xFFFF00FF);
         }
         public int dword;

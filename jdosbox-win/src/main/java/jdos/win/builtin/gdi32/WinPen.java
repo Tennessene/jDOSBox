@@ -13,7 +13,7 @@ public class WinPen extends WinGDI {
 
     static public WinPen get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinPen))
+        if (object == null || !(object instanceof WinPen))
             return null;
         return (WinPen) object;
     }
@@ -69,7 +69,7 @@ public class WinPen extends WinGDI {
 
                 for (i = 0; (i < style_count) && !has_neg; i++) {
                     int s = readd(lpStyle + i * 4);
-                    has_neg = s < 0;
+                    has_neg = has_neg || (s < 0);
                     all_zero = all_zero && (s == 0);
                 }
 
@@ -121,7 +121,7 @@ public class WinPen extends WinGDI {
         return penPtr.handle;
     }
 
-    public final EXTLOGPEN logpen = new EXTLOGPEN();
+    public EXTLOGPEN logpen = new EXTLOGPEN();
 
     public WinPen(int id) {
         super(id);
@@ -132,8 +132,8 @@ public class WinPen extends WinGDI {
             return false;
         }
         g.setPaint(new Color(0xFF000000 | Pixel.BGRtoRGB(logpen.elpColor)));
-        int cap;
-        int join;
+        int cap = 0;
+        int join = 0;
 
         float[] dash;
         float dashSize=3.0f*logpen.elpWidth;

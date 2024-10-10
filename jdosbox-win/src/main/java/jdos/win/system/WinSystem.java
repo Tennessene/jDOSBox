@@ -87,7 +87,7 @@ public class WinSystem {
         return (int)(System.currentTimeMillis() - startTime);
     }
 
-    static private final Callback.Handler returnCallback = new Callback.Handler() {
+    static private Callback.Handler returnCallback = new Callback.Handler() {
         public String getName() {
             return "WinProc";
         }

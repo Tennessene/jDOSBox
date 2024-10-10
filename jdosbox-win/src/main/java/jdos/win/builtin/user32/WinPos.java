@@ -9,13 +9,14 @@ import jdos.win.utils.Error;
 
 public class WinPos extends WinAPI {
     // BOOL ClientToScreen(HWND hWnd, LPPOINT lpPoint)
-    public static void ClientToScreen(int hWnd, int lpPoint) {
+    public static int ClientToScreen(int hWnd, int lpPoint) {
         WinWindow window = WinWindow.get(hWnd);
         if (window == null)
-            return;
+            return FALSE;
         WinPoint offset = window.getScreenOffset();
         writed(lpPoint, readd(lpPoint)+offset.x);
         writed(lpPoint+4, readd(lpPoint+4)+offset.y);
+        return TRUE;
     }
 
     // BOOL WINAPI IsIconic(HWND hWnd)
@@ -24,15 +25,19 @@ public class WinPos extends WinAPI {
     }
 
     // BOOL WINAPI GetClientRect(HWND hWnd, LPRECT lpRect)
-    public static void GetClientRect(int hWnd, int lpRect) {
+    public static int GetClientRect(int hWnd, int lpRect) {
         WinRect rect = new WinRect();
         if (WinWindow.WIN_GetRectangles(hWnd, COORDS_CLIENT, null, rect)) {
             rect.write(lpRect);
+            return TRUE;
         }
+        return FALSE;
     }
-    public static void WIN_GetClientRect(int hWnd, WinRect rect) {
+    public static int WIN_GetClientRect(int hWnd, WinRect rect) {
         if (WinWindow.WIN_GetRectangles(hWnd, COORDS_CLIENT, null, rect)) {
+            return TRUE;
         }
+        return FALSE;
     }
 
     // BOOL WINAPI GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl)
@@ -183,7 +188,7 @@ public class WinPos extends WinAPI {
 
         boolean zOrderChanged = false;
         if ((uFlags & SWP_NOZORDER)==0) {
-            int hParent;
+            int hParent = 0;
             if (window.parent != 0)
                 hParent = window.parent ;
             else // if (window.owner == 0)
@@ -274,7 +279,7 @@ public class WinPos extends WinAPI {
         }
 
           /* And last, send the WM_WINDOWPOSCHANGED message */
-        if (geometryChanged) {
+        if (geometryChanged || zOrderChanged) {
             /* WM_WINDOWPOSCHANGED is sent even if SWP_NOSENDCHANGING is set
                and always contains final window position.
              */
@@ -388,7 +393,7 @@ public class WinPos extends WinAPI {
             if (hWnd == hFocus) {
                 Focus.SetFocus(parent);
             }
-            return BOOL(true);
+            return BOOL(wasVisible);
         }
 
         // if (IsIconic(hWnd)!=0)
@@ -754,7 +759,8 @@ public class WinPos extends WinAPI {
 //        if (maxTrack) *maxTrack = MinMax.ptMaxTrackSize;
     }
 
-    static private void WINPOS_ShowIconTitle(WinWindow wndPtr, boolean bShow) {
+    static private boolean WINPOS_ShowIconTitle(WinWindow wndPtr, boolean bShow) {
+        return false;
 
 //        if (!GetPropA( hwnd, "__wine_x11_managed" ))
 //        {

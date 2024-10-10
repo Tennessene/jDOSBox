@@ -3,8 +3,8 @@ package jdos.dos.drives;
 import jdos.util.Ptr;
 
 public class Bootstrap {
-    /*Bit8u*/final byte[] nearjmp = new byte[3];
-	/*Bit8u*/final byte[] oemname=new byte[8];
+    /*Bit8u*/byte[] nearjmp = new byte[3];
+	/*Bit8u*/byte[] oemname=new byte[8];
 	/*Bit16u*/int bytespersector;
 	/*Bit8u*/short  sectorspercluster;
 	/*Bit16u*/int reservedsectors;
@@ -18,7 +18,7 @@ public class Bootstrap {
 	/* 32-bit FAT extensions */
 	/*Bit32u*/long hiddensectorcount;
 	/*Bit32u*/long totalsecdword;
-	/*Bit8u*/final byte[]  bootcode=new byte[474];
+	/*Bit8u*/byte[]  bootcode=new byte[474];
 	/*Bit8u*/byte  magic1; /* 0x55 */
 	/*Bit8u*/byte  magic2; /* 0xaa */
 

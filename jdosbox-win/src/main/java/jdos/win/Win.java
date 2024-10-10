@@ -44,12 +44,10 @@ public class Win extends WinAPI {
     }
 
     public static void exit() {
-        System.out.println("The Windows program has finished.  Rebooting in .. ");
+        Console.out("The Windows program has finished.  Rebooting in .. ");
         for (int i=5;i>0;i--) {
             System.out.println(i);
-            try {Thread.sleep(1000);} catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            try {Thread.sleep(1000);} catch (Exception e) {}
         }
         throw new Dos_programs.RebootException();
     }
@@ -59,7 +57,7 @@ public class Win extends WinAPI {
         FilePath.disks.put("C", drive);
         WinFile file = WinFile.createNoHandle(new FilePath(path), false, 0, 0);
 
-        if (HeaderPE.fastCheckWinPE(file))
+        if (!HeaderPE.fastCheckWinPE(file))
             return false;
         String name;
         String winPath = path.substring(0, path.lastIndexOf("\\")+1);
@@ -80,8 +78,8 @@ public class Win extends WinAPI {
         /*Bit8u*/char drive=(char)(Dos_files.DOS_GetDefaultDrive()+'A');
         StringRef dir = new StringRef();
         Dos_files.DOS_GetCurrentDir((short)0,dir);
-        String p = drive +":\\";
-        if (!dir.value.isEmpty()) {
+        String p = String.valueOf(drive)+":\\";
+        if (dir.value.length()>0) {
             p+=dir.value+"\\";
         }
         String winPath = p;
@@ -92,7 +90,7 @@ public class Win extends WinAPI {
         WinFile file = null;
         try {
             file = WinFile.createNoHandle(new FilePath(path), false, 0, 0);
-            if (HeaderPE.fastCheckWinPE(file))
+            if (!HeaderPE.fastCheckWinPE(file))
                 return false;
         } catch (Exception e) {
             return false;

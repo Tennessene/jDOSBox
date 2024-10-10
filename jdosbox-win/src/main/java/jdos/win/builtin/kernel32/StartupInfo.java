@@ -28,7 +28,7 @@ class StartupInfo extends WinAPI {
         lpReserved2 = readd(address); address+=4;
         hStdInput = readd(address); address+=4;
         hStdOutput = readd(address); address+=4;
-        hStdError = readd(address);
+        hStdError = readd(address); address+=4;
         if (lpDesktop != 0)
             desktop = StringUtil.getString(lpDesktop);
         if (lpTitle != 0)
@@ -53,7 +53,7 @@ class StartupInfo extends WinAPI {
         writed(address, lpReserved2);address+=4;
         writed(address, hStdInput);address+=4;
         writed(address, hStdOutput);address+=4;
-        writed(address, hStdError);
+        writed(address, hStdError);address+=4;
     }
 
     public int allocTemp() {
@@ -65,7 +65,7 @@ class StartupInfo extends WinAPI {
     public String desktop;
     public String title;
 
-    public final int cb;
+    public int cb;
     public int lpReserved;
     public int lpDesktop;
     public int lpTitle;

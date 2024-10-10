@@ -5,17 +5,18 @@ import jdos.cpu.CPU_Regs;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class Record {
     public static DataOutputStream dos;
-    public static final DataInputStream ios;
+    public static DataInputStream ios;
 
     static {
         try {
             //dos = new DataOutputStream(new FileOutputStream("good.bin"));
             ios = new DataInputStream(new FileInputStream("good.bin"));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+
         }
     }
 
@@ -69,7 +70,7 @@ public class Record {
                     throw new Exception();
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
             }
         }
         if (dos!=null) {
@@ -86,7 +87,7 @@ public class Record {
                 dos.writeInt(CPU_Regs.reg_esi.dword);
                 dos.writeInt(CPU_Regs.reg_edi.dword);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
             }
         }
     }

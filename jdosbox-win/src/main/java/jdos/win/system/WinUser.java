@@ -7,7 +7,7 @@ public class WinUser extends WinObject {
 
     static public WinUser get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinUser))
+        if (object == null || !(object instanceof WinUser))
             return null;
         return (WinUser)object;
     }

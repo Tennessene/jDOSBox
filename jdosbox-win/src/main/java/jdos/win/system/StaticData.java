@@ -16,19 +16,19 @@ public class StaticData extends WinAPI {
     public static int mouseCapture; // HWND
     public static int foregroundWindow; // HWND
     public static int nextObjectId = 8200;
-    public static final Hashtable<Integer, WinObject> objects = new Hashtable<>();
-    public static final Hashtable<String, WinObject> namedObjects = new Hashtable<>();
+    public static Hashtable<Integer, WinObject> objects = new Hashtable<Integer, WinObject>();
+    public static Hashtable<String, WinObject> namedObjects = new Hashtable<String, WinObject>();
     public static WinPoint currentPos = new WinPoint(0, 0);
 
-    public static final int[] SysColors = new int[NUM_SYS_COLORS];
-    public static final int[] SysColorBrushes = new int[NUM_SYS_COLORS];
-    public static final int[] SysColorPens = new int[NUM_SYS_COLORS];
+    public static int[] SysColors = new int[NUM_SYS_COLORS];
+    public static int[] SysColorBrushes = new int[NUM_SYS_COLORS];
+    public static int[] SysColorPens = new int[NUM_SYS_COLORS];
     public static int SYSCOLOR_55AABrush;
 
     public static int[] stockObjects;
     public static WinUser user;
     public static JavaBitmap screen;
-    public static final List inputQueue = Collections.synchronizedList(new LinkedList<>());
+    public static List inputQueue = Collections.synchronizedList(new LinkedList());
     public static final Object inputQueueMutex = new Object();
     public static int nextRegisteredMessage;
     public static Hashtable<String, Integer> registeredMessages;
@@ -70,9 +70,9 @@ public class StaticData extends WinAPI {
 
         stockObjects[DC_BRUSH]     = WinBrush.CreateSolidBrush(RGB(255, 255, 255));
         stockObjects[DC_PEN]       = WinPen.CreatePen(PS_SOLID, 0, RGB(0, 0, 0));
-        for (int stockObject : stockObjects) {
-            if (stockObject != 0) {
-                WinGDI gdi = WinGDI.getGDI(stockObject);
+        for (int i=0;i<stockObjects.length;i++) {
+            if (stockObjects[i] != 0) {
+                WinGDI gdi = WinGDI.getGDI(stockObjects[i]);
                 gdi.makePermanent();
             }
         }
@@ -80,8 +80,8 @@ public class StaticData extends WinAPI {
         for (int i=0;i<SysColors.length;i++)
             SysColors[i] = SysParams.DefSysColors[i].color;
 
-        hooks = new Hashtable<>();
-        registeredMessages = new Hashtable<>();
+        hooks = new Hashtable<Integer, Vector<Hook>>();
+        registeredMessages = new Hashtable<String, Integer>();
         nextRegisteredMessage = 0xC000;
         hbitmapCheckBoxes = 0;
         top_popup = 0;

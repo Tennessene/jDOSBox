@@ -54,114 +54,126 @@ public class VGA_dac {
         VGA_DAC_SendColor( index, maskIndex );
     }
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler write_p3c6 = (port, val, iolen) -> {
-        if ( VGA.vga.dac.pel_mask != val ) {
-            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:DCA:Pel Mask set to "+Integer.toString(val,16));
-            VGA.vga.dac.pel_mask = (short)val;
-            for ( /*Bitu*/int i = 0;i<256;i++)
-                VGA_DAC_UpdateColor( i );
+    static private IoHandler.IO_WriteHandler write_p3c6 = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            if ( VGA.vga.dac.pel_mask != val ) {
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_VGAMISC, LogSeverities.LOG_NORMAL,"VGA:DCA:Pel Mask set to "+Integer.toString(val,16));
+                VGA.vga.dac.pel_mask = (short)val;
+                for ( /*Bitu*/int i = 0;i<256;i++)
+                    VGA_DAC_UpdateColor( i );
+            }
         }
     };
 
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler read_p3c6 = (port, iolen) -> VGA.vga.dac.pel_mask;
-
-
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler write_p3c7 = (port, val, iolen) -> {
-        VGA.vga.dac.read_index=(short)(val & 0xFF);
-        VGA.vga.dac.pel_index=0;
-        VGA.vga.dac.state=DAC_READ;
-        VGA.vga.dac.write_index= (short)((val + 1) & 0xFF);
+    static private IoHandler.IO_ReadHandler read_p3c6 = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            return VGA.vga.dac.pel_mask;
+        }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler read_p3c7 = (port, iolen) -> {
-        if (VGA.vga.dac.state==DAC_READ) return 0x3;
-        else return 0x0;
+
+    static private IoHandler.IO_WriteHandler write_p3c7 = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            VGA.vga.dac.read_index=(short)(val & 0xFF);
+            VGA.vga.dac.pel_index=0;
+            VGA.vga.dac.state=DAC_READ;
+            VGA.vga.dac.write_index= (short)((val + 1) & 0xFF);
+        }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler write_p3c8 = (port, val, iolen) -> {
-        VGA.vga.dac.write_index=(short)(val & 0xFF);
-        VGA.vga.dac.pel_index=0;
-        VGA.vga.dac.state=DAC_WRITE;
+    static private IoHandler.IO_ReadHandler read_p3c7 = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            if (VGA.vga.dac.state==DAC_READ) return 0x3;
+            else return 0x0;
+        }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler read_p3c8 = (port, iolen) -> VGA.vga.dac.write_index;
+    static private IoHandler.IO_WriteHandler write_p3c8 = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            VGA.vga.dac.write_index=(short)(val & 0xFF);
+            VGA.vga.dac.pel_index=0;
+            VGA.vga.dac.state=DAC_WRITE;
+        }
+    };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler write_p3c9 = (port, val, iolen) -> {
-        val&=0x3f;
-        switch (VGA.vga.dac.pel_index) {
-        case 0:
-            VGA.vga.dac.rgb[VGA.vga.dac.write_index].red=(short)val;
-            VGA.vga.dac.pel_index=1;
-            break;
-        case 1:
-            VGA.vga.dac.rgb[VGA.vga.dac.write_index].green=(short)val;
-            VGA.vga.dac.pel_index=2;
-            break;
-        case 2:
-            VGA.vga.dac.rgb[VGA.vga.dac.write_index].blue=(short)val;
-            switch (VGA.vga.mode) {
-            case VGA.M_VGA:
-            case VGA.M_LIN8:
-                VGA_DAC_UpdateColor( VGA.vga.dac.write_index );
-                if (VGA.vga.dac.pel_mask != 0xff) {
-                    /*Bitu*/int index = VGA.vga.dac.write_index;
-                    if ( (index & VGA.vga.dac.pel_mask) == index ) {
-                        for ( /*Bitu*/int i = index+1;i<256;i++)
-                            if ( (i & VGA.vga.dac.pel_mask) == index )
-                                VGA_DAC_UpdateColor( i );
+    static private IoHandler.IO_ReadHandler read_p3c8 = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            return VGA.vga.dac.write_index;
+        }
+    };
+
+    static private IoHandler.IO_WriteHandler write_p3c9 = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            val&=0x3f;
+            switch (VGA.vga.dac.pel_index) {
+            case 0:
+                VGA.vga.dac.rgb[VGA.vga.dac.write_index].red=(short)val;
+                VGA.vga.dac.pel_index=1;
+                break;
+            case 1:
+                VGA.vga.dac.rgb[VGA.vga.dac.write_index].green=(short)val;
+                VGA.vga.dac.pel_index=2;
+                break;
+            case 2:
+                VGA.vga.dac.rgb[VGA.vga.dac.write_index].blue=(short)val;
+                switch (VGA.vga.mode) {
+                case VGA.M_VGA:
+                case VGA.M_LIN8:
+                    VGA_DAC_UpdateColor( VGA.vga.dac.write_index );
+                    if (VGA.vga.dac.pel_mask != 0xff) {
+                        /*Bitu*/int index = VGA.vga.dac.write_index;
+                        if ( (index & VGA.vga.dac.pel_mask) == index ) {
+                            for ( /*Bitu*/int i = index+1;i<256;i++)
+                                if ( (i & VGA.vga.dac.pel_mask) == index )
+                                    VGA_DAC_UpdateColor( i );
+                        }
+                    }
+                    break;
+                default:
+                    /* Check for attributes and DAC entry link */
+                    for (/*Bitu*/int i=0;i<16;i++) {
+                        if (VGA.vga.dac.combine[i]==VGA.vga.dac.write_index) {
+                            VGA_DAC_SendColor( i, VGA.vga.dac.write_index );
+                        }
                     }
                 }
+                VGA.vga.dac.write_index++;VGA.vga.dac.write_index&=0xFF;
+    //		VGA.vga.dac.read_index = VGA.vga.dac.write_index - 1;//disabled as it breaks Wari
+                VGA.vga.dac.pel_index=0;
                 break;
             default:
-                /* Check for attributes and DAC entry link */
-                for (/*Bitu*/int i=0;i<16;i++) {
-                    if (VGA.vga.dac.combine[i]==VGA.vga.dac.write_index) {
-                        VGA_DAC_SendColor( i, VGA.vga.dac.write_index );
-                    }
-                }
+                Log.log(LogTypes.LOG_VGAGFX,LogSeverities.LOG_NORMAL,"VGA:DAC:Illegal Pel Index");			//If this can actually happen that will be the day
+                break;
             }
-            VGA.vga.dac.write_index++;VGA.vga.dac.write_index&=0xFF;
-//		VGA.vga.dac.read_index = VGA.vga.dac.write_index - 1;//disabled as it breaks Wari
-            VGA.vga.dac.pel_index=0;
-            break;
-        default:
-            Log.log(LogTypes.LOG_VGAGFX,LogSeverities.LOG_NORMAL,"VGA:DAC:Illegal Pel Index");			//If this can actually happen that will be the day
-            break;
         }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler read_p3c9 = (port, iolen) -> {
-        /*Bitu*/short ret;
-        switch (VGA.vga.dac.pel_index) {
-        case 0:
-            ret=VGA.vga.dac.rgb[VGA.vga.dac.read_index].red;
-            VGA.vga.dac.pel_index=1;
-            break;
-        case 1:
-            ret=VGA.vga.dac.rgb[VGA.vga.dac.read_index].green;
-            VGA.vga.dac.pel_index=2;
-            break;
-        case 2:
-            ret=VGA.vga.dac.rgb[VGA.vga.dac.read_index].blue;
-            VGA.vga.dac.read_index++;VGA.vga.dac.read_index&=0xFF;
-            VGA.vga.dac.pel_index=0;
-//		VGA.vga.dac.write_index=VGA.vga.dac.read_index+1;//disabled as it breaks wari
-            break;
-        default:
-            Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:DAC:Illegal Pel Index");			//If this can actually happen that will be the day
-            ret=0;
-            break;
+    static private IoHandler.IO_ReadHandler read_p3c9 = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            /*Bitu*/short ret;
+            switch (VGA.vga.dac.pel_index) {
+            case 0:
+                ret=VGA.vga.dac.rgb[VGA.vga.dac.read_index].red;
+                VGA.vga.dac.pel_index=1;
+                break;
+            case 1:
+                ret=VGA.vga.dac.rgb[VGA.vga.dac.read_index].green;
+                VGA.vga.dac.pel_index=2;
+                break;
+            case 2:
+                ret=VGA.vga.dac.rgb[VGA.vga.dac.read_index].blue;
+                VGA.vga.dac.read_index++;VGA.vga.dac.read_index&=0xFF;
+                VGA.vga.dac.pel_index=0;
+    //		VGA.vga.dac.write_index=VGA.vga.dac.read_index+1;//disabled as it breaks wari
+                break;
+            default:
+                Log.log(LogTypes.LOG_VGAMISC,LogSeverities.LOG_NORMAL,"VGA:DAC:Illegal Pel Index");			//If this can actually happen that will be the day
+                ret=0;
+                break;
+            }
+            return ret;
         }
-        return ret;
     };
 
     public static void VGA_DAC_CombineColor(/*Bitu*/int attr,/*Bitu*/int pal) {

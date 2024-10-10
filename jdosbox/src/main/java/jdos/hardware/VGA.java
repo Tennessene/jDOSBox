@@ -142,13 +142,13 @@ public class VGA {
             double hdend, htotal;
             double parts;
         }
-        public final Delay delay = new Delay();
+        public Delay delay = new Delay();
         public /*Bitu*/int bpp;
         public double aspect_ratio;
         public boolean double_scan;
         public boolean doublewidth,doubleheight;
-        public final /*Bit8u*/byte[] font = new byte[64*1024];
-        public final /*Bit8u*/Ptr[] font_tables = new Ptr[2];
+        public /*Bit8u*/byte[] font = new byte[64*1024];
+        public /*Bit8u*/Ptr[] font_tables = new Ptr[2];
         public /*Bitu*/boolean blinking;
         public boolean blink;
 	    public boolean char9dot;
@@ -158,7 +158,7 @@ public class VGA {
             /*Bit8u*/short count,delay;
             /*Bit8u*/boolean enabled;
         }
-        public final Cursor cursor = new Cursor();
+        public Cursor cursor = new Cursor();
         public int mode;
         public boolean vret_triggered;
         public boolean vga_override;
@@ -168,8 +168,8 @@ public class VGA {
         public /*Bit8u*/short curmode;
         public /*Bit16u*/int originx, originy;
         public /*Bit8u*/short fstackpos, bstackpos;
-        public final /*Bit8u*/Ptr forestack = new Ptr(4);
-        public final /*Bit8u*/Ptr backstack = new Ptr(4);
+        public /*Bit8u*/Ptr forestack = new Ptr(4);
+        public /*Bit8u*/Ptr backstack = new Ptr(4);
         public /*Bit16u*/int startaddr;
         public /*Bit8u*/short posx, posy;
         public /*Bit8u*/short[][] mc=new short[64][64];
@@ -209,15 +209,15 @@ public class VGA {
             /*Bit8u*/short n;
             /*Bit8u*/short m;
         }
-        public final CLK[] clk = new CLK[4];
-        public final CLK mclk = new CLK();
+        public CLK[] clk = new CLK[4];
+        public CLK mclk = new CLK();
 
         public static class PLL{
             /*Bit8u*/short lock;
             /*Bit8u*/short cmd;
         }
-        public final PLL pll = new PLL();
-        public final VGA_HWCURSOR hgc = new VGA_HWCURSOR();
+        public PLL pll = new PLL();
+        public VGA_HWCURSOR hgc = new VGA_HWCURSOR();
     }
 
     public static class VGA_HERC {
@@ -269,7 +269,7 @@ public class VGA {
     }
 
     public static class VGA_Attr {
-        public final /*Bit8u*/short[] palette = new short[16];
+        public /*Bit8u*/short[] palette = new short[16];
         public /*Bit8u*/short mode_control;
         public /*Bit8u*/short horizontal_pel_panning;
         public /*Bit8u*/short overscan_color;
@@ -346,9 +346,9 @@ public class VGA {
         public /*Bit8u*/short write_index;
         public /*Bit8u*/short read_index;
         public /*Bitu*/int first_changed;
-        public final /*Bit8u*/short[] combine = new short[16];
-        public final RGBEntry[] rgb = new RGBEntry[0x100];
-        public final /*Bit16u*/int[] xlat16=new int[256];
+        public /*Bit8u*/short[] combine = new short[16];
+        public RGBEntry[] rgb = new RGBEntry[0x100];
+        public /*Bit16u*/int[] xlat16=new int[256];
     }
 
     public static class VGA_SVGA {
@@ -403,28 +403,28 @@ public class VGA {
     static public class VGA_Type {
         public int mode;								/* The mode the vga system is in */
         /*Bit8u*/short misc_output;
-        public final VGA_Draw draw = new VGA_Draw();
-        public final VGA_Config config = new VGA_Config();
-        public final VGA_Internal internal = new VGA_Internal();
+        public VGA_Draw draw = new VGA_Draw();
+        public VGA_Config config = new VGA_Config();
+        public VGA_Internal internal = new VGA_Internal();
     /* Internal module groups */
-        public final VGA_Seq seq = new VGA_Seq();
-        public final VGA_Attr attr = new VGA_Attr();
-        public final VGA_Crtc crtc = new VGA_Crtc();
-        public final VGA_Gfx gfx = new VGA_Gfx();
-        public final VGA_Dac dac = new VGA_Dac();
-        public final VGA_Latch latch = new VGA_Latch();
-        public final VGA_S3 s3 = new VGA_S3();
-        public final VGA_SVGA svga = new VGA_SVGA();
-        public final VGA_HERC herc = new VGA_HERC();
+        public VGA_Seq seq = new VGA_Seq();
+        public VGA_Attr attr = new VGA_Attr();
+        public VGA_Crtc crtc = new VGA_Crtc();
+        public VGA_Gfx gfx = new VGA_Gfx();
+        public VGA_Dac dac = new VGA_Dac();
+        public VGA_Latch latch = new VGA_Latch();
+        public VGA_S3 s3 = new VGA_S3();
+        public VGA_SVGA svga = new VGA_SVGA();
+        public VGA_HERC herc = new VGA_HERC();
         public VGA_TANDY tandy = new VGA_TANDY();
-        public final VGA_OTHER other = new VGA_OTHER();
-        public final VGA_Memory mem = new VGA_Memory();
+        public VGA_OTHER other = new VGA_OTHER();
+        public VGA_Memory mem = new VGA_Memory();
         public /*Bit32u*/int vmemwrap; /* this is assumed to be power of 2 */
         public /*Bit8u*/int fastmem;  /* memory for fast (usually 16-color) rendering, always twice as big as vmemsize */
         public /*Bit8u*/int fastmem_orgptr;
         public /*Bit32u*/int vmemsize;
         public VGA_Changes changes;
-        public final VGA_LFB lfb = new VGA_LFB();
+        public VGA_LFB lfb = new VGA_LFB();
     }
 
     /* Support for modular SVGA implementation */
@@ -448,29 +448,29 @@ public class VGA {
     }
 
     // Vector function prototypes
-    public interface tWritePort {
-        void call(/*Bitu*/int reg,/*Bitu*/int val,/*Bitu*/int iolen);
+    public static interface tWritePort {
+        public void call(/*Bitu*/int reg,/*Bitu*/int val,/*Bitu*/int iolen);
     }
-    public interface tReadPort {
-        /*Bitu*/int call(/*Bitu*/int reg,/*Bitu*/int iolen);
+    public static interface tReadPort {
+        public /*Bitu*/int call(/*Bitu*/int reg,/*Bitu*/int iolen);
     }
-    public interface tFinishSetMode {
-        void call(/*Bitu*/int crtc_base, VGA_ModeExtraData modeData);
+    public static interface tFinishSetMode {
+        public void call(/*Bitu*/int crtc_base, VGA_ModeExtraData modeData);
     }
-    public interface tDetermineMode {
-        void call();
+    public static interface tDetermineMode {
+        public void call();
     }
-    public interface tSetClock {
-        void call(/*Bitu*/int which,/*Bitu*/int target);
+    public static interface tSetClock {
+        public void call(/*Bitu*/int which,/*Bitu*/int target);
     }
-    public interface tGetClock {
-        /*Bitu*/int call();
+    public static interface tGetClock {
+        public /*Bitu*/int call();
     }
-    public interface tHWCursorActive {
-        boolean call();
+    public static interface tHWCursorActive {
+        public boolean call();
     }
-    public interface tAcceptsMode {
-        boolean call(/*Bitu*/int modeNo);
+    public static interface tAcceptsMode {
+        public boolean call(/*Bitu*/int modeNo);
     }
 
     public static class SVGA_Driver {
@@ -494,17 +494,17 @@ public class VGA {
     public static VGA_Type vga;
     public static SVGA_Driver svga;
 
-    public static final /*Bit32u*/int[] CGA_2_Table=new int[16];
-    public static final /*Bit32u*/int[] CGA_4_Table=new int[256];
-    public static final /*Bit32u*/int[] CGA_4_HiRes_Table=new int[256];
-    private static final /*Bit32u*/int[] CGA_16_Table=new int[256];
-    public static final /*Bit32u*/int[] TXT_Font_Table=new int[16];
-    public static final /*Bit32u*/int[] TXT_FG_Table=new int[16];
-    public static final /*Bit32u*/int[] TXT_BG_Table=new int[16];
-    public static final /*Bit32u*/int[] ExpandTable=new int[256];
-    public static final /*Bit32u*/int[][] Expand16Table=new int[4][16];
-    public static final /*Bit32u*/int[] FillTable=new int[16];
-    private static final /*Bit32u*/int[] ColorTable=new int[16];
+    public static /*Bit32u*/int[] CGA_2_Table=new int[16];
+    public static /*Bit32u*/int[] CGA_4_Table=new int[256];
+    public static /*Bit32u*/int[] CGA_4_HiRes_Table=new int[256];
+    private static /*Bit32u*/int[] CGA_16_Table=new int[256];
+    public static /*Bit32u*/int[] TXT_Font_Table=new int[16];
+    public static /*Bit32u*/int[] TXT_FG_Table=new int[16];
+    public static /*Bit32u*/int[] TXT_BG_Table=new int[16];
+    public static /*Bit32u*/int[] ExpandTable=new int[256];
+    public static /*Bit32u*/int[][] Expand16Table=new int[4][16];
+    public static /*Bit32u*/int[] FillTable=new int[16];
+    private static /*Bit32u*/int[] ColorTable=new int[16];
 
     public static void VGA_SetModeNow(int mode) {
         if (vga.mode == mode) return;
@@ -607,8 +607,8 @@ public class VGA {
         /*Bit8u*/byte[] total={ (byte)val0,(byte)val1};
         for (/*Bitu*/int i=0;i<16;i++) {
             CGA_2_Table[i]=
-                (total[(i >> 3) & 1]) | (total[(i >> 2) & 1] << 8  ) |
-                (total[(i >> 1) & 1] << 16 ) | (total[(i) & 1] << 24 );
+                (total[(i >> 3) & 1] << 0  ) | (total[(i >> 2) & 1] << 8  ) |
+                (total[(i >> 1) & 1] << 16 ) | (total[(i >> 0) & 1] << 24 );
         }
     }
 
@@ -616,11 +616,11 @@ public class VGA {
         /*Bit8u*/byte[] total={ (byte)val0,(byte)val1,(byte)val2,(byte)val3};
         for (/*Bitu*/int i=0;i<256;i++) {
             CGA_4_Table[i]=
-                (total[(i >> 6) & 3]) | (total[(i >> 4) & 3] << 8  ) |
-                (total[(i >> 2) & 3] << 16 ) | (total[(i) & 3] << 24 );
+                (total[(i >> 6) & 3] << 0  ) | (total[(i >> 4) & 3] << 8  ) |
+                (total[(i >> 2) & 3] << 16 ) | (total[(i >> 0) & 3] << 24 );
             CGA_4_HiRes_Table[i]=
-                (total[((i >> 3) & 1) | ((i >> 6) & 2)]) | (total[((i >> 2) & 1) | ((i >> 5) & 2)] << 8  ) |
-                (total[((i >> 1) & 1) | ((i >> 4) & 2)] << 16 ) | (total[((i) & 1) | ((i >> 3) & 2)] << 24 );
+                (total[((i >> 3) & 1) | ((i >> 6) & 2)] << 0  ) | (total[((i >> 2) & 1) | ((i >> 5) & 2)] << 8  ) |
+                (total[((i >> 1) & 1) | ((i >> 4) & 2)] << 16 ) | (total[((i >> 0) & 1) | ((i >> 3) & 2)] << 24 );
         }
     }
 
@@ -646,7 +646,7 @@ public class VGA {
         }
     }
 
-    public static final Section.SectionFunction VGA_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction VGA_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             if (Dosbox.svgaCard >= SVGACards.SVGA_QEMU)
                 return;

@@ -25,7 +25,7 @@ public final class tmu_state
     public int                 lodmin, lodmax;         /* min, max LOD values */
     public int                 lodbias;                /* LOD bias */
     public int                 lodmask;                /* mask of available LODs */
-    public final int[]               lodoffset = new int[9]; /* offset of texture base for each LOD */
+    public int[]               lodoffset = new int[9]; /* offset of texture base for each LOD */
     public int                 detailmax;              /* detail clamp */
     public int                 detailbias;             /* detail bias */
     public int                 detailscale;            /* detail scale */
@@ -35,11 +35,11 @@ public final class tmu_state
 
     public int                 bilinear_mask;          /* mask for bilinear resolution (0xf0 for V1, 0xff for V2) */
 
-    public final VoodooCommon.ncc_table[]         ncc = new VoodooCommon.ncc_table[2]; /* two NCC tables */
+    public VoodooCommon.ncc_table[]         ncc = new VoodooCommon.ncc_table[2]; /* two NCC tables */
 
     public int[]               lookup;                 /* currently selected lookup */
-    public final int[][]             texel = new int[16][];    /* texel lookups for each format */
+    public int[][]             texel = new int[16][];    /* texel lookups for each format */
 
-    public final int[]               palette = new int[256]; /* palette lookup table */
-    public final int[]               palettea = new int[256];/* palette+alpha lookup table */
+    public int[]               palette = new int[256]; /* palette lookup table */
+    public int[]               palettea = new int[256];/* palette+alpha lookup table */
 }

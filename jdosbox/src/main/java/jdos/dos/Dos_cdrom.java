@@ -59,35 +59,37 @@ public class Dos_cdrom {
 
     static public class TCtrl {
         public void copy(TCtrl t) {
-            System.arraycopy(t.out, 0, out, 0, out.length);
-            System.arraycopy(t.vol, 0, vol, 0, vol.length);
+            for (int i=0;i<out.length;i++)
+                out[i] = t.out[i];
+            for (int i=0;i<vol.length;i++)
+                vol[i] = t.vol[i];
         }
-	    /*Bit8u*/final int[] out = new int[4]; // output channel
-	    /*Bit8u*/final int[] vol = new int[4]; // channel volume
+	    /*Bit8u*/int[] out = new int[4]; // output channel
+	    /*Bit8u*/int[] vol = new int[4]; // channel volume
     }
 
-    public interface CDROM_Interface {
+    static public interface CDROM_Interface {
     //	CDROM_Interface						(void);
-    void close();
-        boolean SetDevice(String path, int forceCD);
+        public void close();
+        public boolean SetDevice(String path, int forceCD);
 
-        boolean GetUPC(ShortRef attr, StringRef upc);
+        public boolean GetUPC(ShortRef attr, StringRef upc);
 
-        boolean GetAudioTracks(IntRef stTrack, IntRef end, TMSF leadOut);
-        boolean GetAudioTrackInfo(int track, TMSF start, ShortRef attr);
-        boolean GetAudioSub(ShortRef attr, ShortRef track, ShortRef index, TMSF relPos, TMSF absPos);
-        boolean GetAudioStatus(BooleanRef playing, BooleanRef pause);
-        boolean GetMediaTrayStatus(BooleanRef mediaPresent, BooleanRef mediaChanged, BooleanRef trayOpen);
+        public boolean GetAudioTracks(IntRef stTrack, IntRef end, TMSF leadOut);
+        public boolean GetAudioTrackInfo(int track, TMSF start, ShortRef attr);
+        public boolean GetAudioSub(ShortRef attr, ShortRef track, ShortRef index, TMSF relPos, TMSF absPos);
+        public boolean GetAudioStatus(BooleanRef playing, BooleanRef pause);
+        public boolean GetMediaTrayStatus(BooleanRef mediaPresent, BooleanRef mediaChanged, BooleanRef trayOpen);
 
-        boolean PlayAudioSector(long start, long len);
-        boolean PauseAudio(boolean resume);
-        boolean StopAudio();
-        void ChannelControl(TCtrl ctrl);
+        public boolean PlayAudioSector(long start,long len);
+        public boolean PauseAudio(boolean resume);
+        public boolean StopAudio();
+        public void ChannelControl(TCtrl ctrl);
 
-        boolean ReadSectors(/*PhysPt*/int buffer, boolean raw, long sector, long num);
+        public boolean ReadSectors(/*PhysPt*/int buffer, boolean raw, long sector, long num);
 
-        boolean LoadUnloadMedia(boolean unload);
+        public boolean LoadUnloadMedia(boolean unload);
 
-        void	InitNewMedia();
+        public void	InitNewMedia();
     }
 }

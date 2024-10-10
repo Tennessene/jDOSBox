@@ -1,5 +1,7 @@
 package jdos.misc.setup;
 
+import jdos.misc.Log;
+
 public class Prop_int extends Property{
     public Prop_int(String _propname, int when, int _value) {
         super(_propname, when);
@@ -28,9 +30,9 @@ public class Prop_int extends Property{
         int va = in.getInt();
         if (mi == -1 && ma == -1) return true;
         if (va >= mi && va <= ma) return true;
-        if (warn) System.out.println(in +" lies outside the range "+ min +"-"+ max +" for variable: "+propname+".\nIt might now be reset to the default value: "+ default_value);
+        if (warn) Log.log_msg(in.toString()+" lies outside the range "+min.toString()+"-"+max.toString()+" for variable: "+propname+".\nIt might now be reset to the default value: "+default_value.toString());
         return false;
     }
-    private final Value min = new Value();
-    private final Value max = new Value();
+    private Value min = new Value();
+    private Value max = new Value();
 }

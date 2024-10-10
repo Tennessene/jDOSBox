@@ -17,7 +17,7 @@ public class MMCKINFO extends WinAPI {
         writed(address, cksize); address+=4;
         writed(address, fccType); address+=4;
         writed(address, dwDataOffset); address+=4;
-        writed(address, dwFlags);
+        writed(address, dwFlags); address+=4;
     }
 
     public void read(int address) {
@@ -25,7 +25,7 @@ public class MMCKINFO extends WinAPI {
         cksize = readd(address);address+=4;
         fccType = readd(address);address+=4;
         dwDataOffset = readd(address);address+=4;
-        dwFlags = readd(address);
+        dwFlags = readd(address);address+=4;
     }
 
     public int allocTemp() {

@@ -5,6 +5,7 @@ import jdos.cpu.CPU_Regs;
 import jdos.cpu.Callback;
 import jdos.gui.Main;
 import jdos.hardware.Memory;
+import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.HandlerBase;
 import jdos.win.builtin.directx.DError;
@@ -65,23 +66,23 @@ public class IDirectDrawSurface extends IUnknown {
     static final int DDCKEY_SRCBLT =        0x00000008;  /* To be used as src for blt */
     static final int DDCKEY_SRCOVERLAY =    0x00000010;  /* To be used as src for CK overlays */
 
-    static final int FLAGS_CAPS2 =    0x00000001;
-    static final int FLAGS_DESC2 =    0x00000002;
-    static final int FLAGS_LOCKED =   0x00000004;
+    static int FLAGS_CAPS2 =    0x00000001;
+    static int FLAGS_DESC2 =    0x00000002;
+    static int FLAGS_LOCKED =   0x00000004;
 
-    static final int OFFSET_FLAGS = 0;
-    static final int OFFSET_PALETTE = 4;
-    static final int OFFSET_BACK_BUFFER = 8;
-    static final int OFFSET_DC = 12;
-    static final int OFFSET_IMAGE_CACHE = 16;
-    static final int OFFSET_IMAGE_CACHE_TIME = 20;
-    static final int OFFSET_DIRECT_DRAW = 24;
-    static final int OFFSET_CLIPPER = 28;
+    static int OFFSET_FLAGS = 0;
+    static int OFFSET_PALETTE = 4;
+    static int OFFSET_BACK_BUFFER = 8;
+    static int OFFSET_DC = 12;
+    static int OFFSET_IMAGE_CACHE = 16;
+    static int OFFSET_IMAGE_CACHE_TIME = 20;
+    static int OFFSET_DIRECT_DRAW = 24;
+    static int OFFSET_CLIPPER = 28;
 
     // doesn't include description since that gets computed on the fly
-    static final int DATA_SIZE = 32;
+    static int DATA_SIZE = 32;
 
-    static final int OFFSET_DESC = DATA_SIZE;
+    static int OFFSET_DESC = DATA_SIZE;
 
     static public int lastPaletteChange = 0;
 
@@ -153,7 +154,7 @@ public class IDirectDrawSurface extends IUnknown {
         return create("IDirectDrawSurface", pDirectDraw, pDesc, 0);
     }
 
-    static private final Callback.Handler CleanUp = new DirectCallback() {
+    static private Callback.Handler CleanUp = new DirectCallback() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.CleanUp";
         }
@@ -321,7 +322,7 @@ public class IDirectDrawSurface extends IUnknown {
         return result;
     }
 
-    static final int VTABLE_COUNT = 33;
+    static int VTABLE_COUNT = 33;
 
     static private int createVTable() {
         int address = allocateVTable("IDirectDrawSurface", VTABLE_COUNT);
@@ -369,7 +370,7 @@ public class IDirectDrawSurface extends IUnknown {
     }
 
     // HRESULT AddAttachedSurface(this, LPDIRECTDRAWSURFACE lpDDSAttachedSurface)
-    static private final Callback.Handler AddAttachedSurface = new HandlerBase() {
+    static private Callback.Handler AddAttachedSurface = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.AddAttachedSurface";
         }
@@ -381,7 +382,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
     
     // HRESULT AddOverlayDirtyRect(this, LPRECT lpRect)
-    static private final Callback.Handler AddOverlayDirtyRect = new HandlerBase() {
+    static private Callback.Handler AddOverlayDirtyRect = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.AddOverlayDirtyRect";
         }
@@ -393,7 +394,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT Blt(this, LPRECT lpDestRect, LPDIRECTDRAWSURFACE lpDDSrcSurface, LPRECT lpSrcRect, DWORD dwFlags, LPDDBLTFX lpDDBltFx)
-    static private final Callback.Handler Blt = new HandlerBase() {
+    static private Callback.Handler Blt = new HandlerBase() {
         static public final int DDBLT_ALPHADEST =                   0x00000001;
         static public final int DDBLT_ALPHADESTCONSTOVERRIDE =      0x00000002;
         static public final int DDBLT_ALPHADESTNEG =                0x00000004;
@@ -486,7 +487,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT BltBatch(this, LPDDBLTBATCH lpDDBltBatch, DWORD dwCount, DWORD dwFlags)
-    static private final Callback.Handler BltBatch = new HandlerBase() {
+    static private Callback.Handler BltBatch = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.BltBatch";
         }
@@ -500,7 +501,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT BltFast(this, DWORD dwX, DWORD dwY, LPDIRECTDRAWSURFACE lpDDSrcSurface, LPRECT lpSrcRect, DWORD dwTrans)
-    static private final Callback.Handler BltFast = new HandlerBase() {
+    static private Callback.Handler BltFast = new HandlerBase() {
         static private final int DDBLTFAST_NOCOLORKEY =     0x00000000;
         static private final int DDBLTFAST_SRCCOLORKEY =    0x00000001;
         static private final int DDBLTFAST_DESTCOLORKEY =   0x00000002;
@@ -546,7 +547,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT DeleteAttachedSurface(this, DWORD dwFlags, LPDIRECTDRAWSURFACE lpDDSAttachedSurface)
-    static private final Callback.Handler DeleteAttachedSurface = new HandlerBase() {
+    static private Callback.Handler DeleteAttachedSurface = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.DeleteAttachedSurface";
         }
@@ -559,7 +560,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT EnumAttachedSurfaces(this, LPVOID lpContext, LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback)
-    static private final Callback.Handler EnumAttachedSurfaces = new HandlerBase() {
+    static private Callback.Handler EnumAttachedSurfaces = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.EnumAttachedSurfaces";
         }
@@ -572,7 +573,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT EnumOverlayZOrders(this, DWORD dwFlags, LPVOID lpContext, LPDDENUMSURFACESCALLBACK lpfnCallback)
-    static private final Callback.Handler EnumOverlayZOrders = new HandlerBase() {
+    static private Callback.Handler EnumOverlayZOrders = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.EnumOverlayZOrders";
         }
@@ -586,7 +587,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT Flip(this, LPDIRECTDRAWSURFACE lpDDSurfaceTargetOverride, DWORD dwFlags)
-    static private final Callback.Handler Flip = new HandlerBase() {
+    static private Callback.Handler Flip = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.Flip";
         }
@@ -616,7 +617,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetAttachedSurface(this, LPDDSCAPS lpDDSCaps, LPDIRECTDRAWSURFACE *lplpDDAttachedSurface)
-    static private final Callback.Handler GetAttachedSurface = new HandlerBase() {
+    static private Callback.Handler GetAttachedSurface = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetAttachedSurface";
         }
@@ -639,7 +640,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetBltStatus(this, DWORD dwFlags)
-    static private final Callback.Handler GetBltStatus = new HandlerBase() {
+    static private Callback.Handler GetBltStatus = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetBltStatus";
         }
@@ -651,7 +652,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetCaps(this, LPDDSCAPS lpDDSCaps)
-    static private final Callback.Handler GetCaps = new HandlerBase() {
+    static private Callback.Handler GetCaps = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetCaps";
         }
@@ -673,7 +674,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetClipper(this, LPDIRECTDRAWCLIPPER *lplpDDClipper)
-    static private final Callback.Handler GetClipper = new HandlerBase() {
+    static private Callback.Handler GetClipper = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetClipper";
         }
@@ -692,7 +693,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetColorKey(this, DWORD dwFlags, LPDDCOLORKEY lpDDColorKey)
-    static private final Callback.Handler GetColorKey = new HandlerBase() {
+    static private Callback.Handler GetColorKey = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetColorKey";
         }
@@ -705,7 +706,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetDC(this, HDC *lphDC)
-    static private final Callback.Handler GetDC = new HandlerBase() {
+    static private Callback.Handler GetDC = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetDC";
         }
@@ -731,7 +732,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetFlipStatus(this, DWORD dwFlags)
-    static private final Callback.Handler GetFlipStatus = new HandlerBase() {
+    static private Callback.Handler GetFlipStatus = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetFlipStatus";
         }
@@ -743,7 +744,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetOverlayPosition(this, LPLONG lplX, LPLONG lplY)
-    static private final Callback.Handler GetOverlayPosition = new HandlerBase() {
+    static private Callback.Handler GetOverlayPosition = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetOverlayPosition";
         }
@@ -756,7 +757,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetPalette(this, LPDIRECTDRAWPALETTE *lplpDDPalette)
-    static private final Callback.Handler GetPalette = new HandlerBase() {
+    static private Callback.Handler GetPalette = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetPalette";
         }
@@ -768,7 +769,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetPixelFormat(this, LPDDPIXELFORMAT lpDDPixelFormat)
-    static private final Callback.Handler GetPixelFormat = new HandlerBase() {
+    static private Callback.Handler GetPixelFormat = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetPixelFormat";
         }
@@ -791,7 +792,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT GetSurfaceDesc(this, LPDDSURFACEDESC lpDDSurfaceDesc)
-    static private final Callback.Handler GetSurfaceDesc = new HandlerBase() {
+    static private Callback.Handler GetSurfaceDesc = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.GetSurfaceDesc";
         }
@@ -815,7 +816,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT Initialize(this, LPDIRECTDRAW lpDD, LPDDSURFACEDESC lpDDSurfaceDesc)
-    static private final Callback.Handler Initialize = new HandlerBase() {
+    static private Callback.Handler Initialize = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.Initialize";
         }
@@ -828,7 +829,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT IsLost(this)
-    static private final Callback.Handler IsLost = new HandlerBase() {
+    static private Callback.Handler IsLost = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.IsLost";
         }
@@ -839,7 +840,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT Lock(this, LPRECT lpDestRect, LPDDSURFACEDESC lpDDSurfaceDesc, DWORD dwFlags, HANDLE hEvent)
-    static private final Callback.Handler Lock = new HandlerBase() {
+    static private Callback.Handler Lock = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.Lock";
         }
@@ -851,19 +852,19 @@ public class IDirectDrawSurface extends IUnknown {
             int hEvent = CPU.CPU_Pop32();
 
             if ((dwFlags & DDLOCK_EVENT)!=0) {
-                System.out.println(getName()+" flag DDLOCK_EVENT not implemented yet ");
+                Console.out(getName()+" flag DDLOCK_EVENT not implemented yet ");
                 notImplemented();
             }
             if ((dwFlags & DDLOCK_NOSYSLOCK)!=0) {
-                System.out.println(getName()+" flag DDLOCK_NOSYSLOCK not implemented yet ");
+                Console.out(getName()+" flag DDLOCK_NOSYSLOCK not implemented yet ");
                 notImplemented();
             }
             if ((dwFlags & DDLOCK_NOOVERWRITE)!=0) {
-                System.out.println(getName()+" flag DDLOCK_NOOVERWRITE not implemented yet ");
+                Console.out(getName()+" flag DDLOCK_NOOVERWRITE not implemented yet ");
                 notImplemented();
             }
             if ((dwFlags & DDLOCK_DISCARDCONTENTS)!=0) {
-                System.out.println(getName()+" flag DDLOCK_DISCARDCONTENTS not implemented yet ");
+                Console.out(getName()+" flag DDLOCK_DISCARDCONTENTS not implemented yet ");
                 notImplemented();
             }
             if (lpDDSurfaceDesc == 0) {
@@ -882,7 +883,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT ReleaseDC(this, HDC hDC)
-    static private final Callback.Handler ReleaseDC = new HandlerBase() {
+    static private Callback.Handler ReleaseDC = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.ReleaseDC";
         }
@@ -903,7 +904,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT Restore(this)
-    static private final Callback.Handler Restore = new HandlerBase() {
+    static private Callback.Handler Restore = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.Restore";
         }
@@ -915,7 +916,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT SetClipper(this, LPDIRECTDRAWCLIPPER lpDDClipper)
-    static private final Callback.Handler SetClipper = new HandlerBase() {
+    static private Callback.Handler SetClipper = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.SetClipper";
         }
@@ -929,7 +930,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT SetColorKey(this, DWORD dwFlags, LPDDCOLORKEY lpDDColorKey)
-    static private final Callback.Handler SetColorKey = new HandlerBase() {
+    static private Callback.Handler SetColorKey = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.SetColorKey";
         }
@@ -988,7 +989,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT SetOverlayPosition(this, LONG lX, LONG lY)
-    static private final Callback.Handler SetOverlayPosition = new HandlerBase() {
+    static private Callback.Handler SetOverlayPosition = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.SetOverlayPosition";
         }
@@ -1001,7 +1002,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT SetPalette(this, LPDIRECTDRAWPALETTE lpDDPalette)
-    static private final Callback.Handler SetPalette = new HandlerBase() {
+    static private Callback.Handler SetPalette = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.SetPalette";
         }
@@ -1050,7 +1051,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT Unlock(this, LPVOID lpSurfaceData)
-    static private final Callback.Handler Unlock = new HandlerBase() {
+    static private Callback.Handler Unlock = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.Unlock";
         }
@@ -1065,7 +1066,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT UpdateOverlay(this, LPRECT lpSrcRect, LPDIRECTDRAWSURFACE lpDDDestSurface, LPRECT lpDestRect, DWORD dwFlags, LPDDOVERLAYFX lpDDOverlayFx)
-    static private final Callback.Handler UpdateOverlay = new HandlerBase() {
+    static private Callback.Handler UpdateOverlay = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.UpdateOverlay";
         }
@@ -1081,7 +1082,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT UpdateOverlayDisplay(this, DWORD dwFlags)
-    static private final Callback.Handler UpdateOverlayDisplay = new HandlerBase() {
+    static private Callback.Handler UpdateOverlayDisplay = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.UpdateOverlayDisplay";
         }
@@ -1093,7 +1094,7 @@ public class IDirectDrawSurface extends IUnknown {
     };
 
     // HRESULT UpdateOverlayZOrder(this, DWORD dwFlags, LPDIRECTDRAWSURFACE lpDDSReference)
-    static private final Callback.Handler UpdateOverlayZOrder = new HandlerBase() {
+    static private Callback.Handler UpdateOverlayZOrder = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface.UpdateOverlayZOrder";
         }

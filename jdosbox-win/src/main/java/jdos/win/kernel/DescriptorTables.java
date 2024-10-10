@@ -28,7 +28,7 @@ public class DescriptorTables {
         }
 
         public void limit_low(int index, int value) {
-            writew(index * SIZE, value);
+            writew(index*SIZE+0, value);
         }
         public void base_low(int index, int value) {
             writew(index*SIZE+2, value);
@@ -89,7 +89,7 @@ public class DescriptorTables {
             Memory.mem_zero(ptr, count*SIZE);
         }
         public void base_lo(int index, int value) {
-            writew(index * SIZE, value);
+            writew(index*SIZE+0, value);
         }
         public void sel(int index, int value) {
             writew(index*SIZE+2, value);
@@ -251,12 +251,12 @@ public class DescriptorTables {
 
     // Initialisation routine - zeroes all the interrupt service routines,
     // initialises the GDT and IDT.
-    final gdt_entry_t gdt_entries;
-    final gdt_ptr_t   gdt_ptr;
-    final idt_entry_t idt_entries;
-    final idt_ptr_t   idt_ptr;
-    final tss_entry_t tss_entry;
-    final Interrupts interrupts;
+    gdt_entry_t gdt_entries;
+    gdt_ptr_t   gdt_ptr;
+    idt_entry_t idt_entries;
+    idt_ptr_t   idt_ptr;
+    tss_entry_t tss_entry;
+    Interrupts interrupts;
 
     public DescriptorTables(Interrupts interrupts, KernelMemory memory) {
         gdt_entries = gdt_entry_t.alloc(6, memory);

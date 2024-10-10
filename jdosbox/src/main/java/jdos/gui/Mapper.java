@@ -4,8 +4,8 @@ public class Mapper {
     public static final int MMOD1 = 0x1;
     public static final int MMOD2 = 0x2;
 
-    public interface MAPPER_Handler {
-        void call(boolean pressed);
+    public static interface MAPPER_Handler {
+        public void call(boolean pressed);
     }
 
     public static final class MapKeys {

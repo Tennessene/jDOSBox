@@ -7,40 +7,40 @@ import jdos.util.StringRef;
 public class Drives {
     public static boolean WildFileCmp(String file, String wild) 
     {
-        StringBuilder file_name;
-        StringBuilder file_ext;
-        StringBuilder wild_name;
-        StringBuilder wild_ext;
+        String file_name;
+        String file_ext;
+        String wild_name;
+        String wild_ext;
         int pos;
 
         pos = file.indexOf('.');
         if (pos>=0) {
-            file_name = new StringBuilder(file.substring(0, pos));
-            file_ext = new StringBuilder(file.substring(pos + 1));
+            file_name = file.substring(0,pos);
+            file_ext = file.substring(pos+1);
         } else {
-            file_name = new StringBuilder(file);
-            file_ext = new StringBuilder();
+            file_name = file;
+            file_ext = "";
         }
-        file_name = new StringBuilder(file_name.toString().toUpperCase());
-        file_ext = new StringBuilder(file_ext.toString().toUpperCase());
+        file_name = file_name.toUpperCase();
+        file_ext = file_ext.toUpperCase();
         pos = wild.indexOf('.');
         if (pos>=0) {
-            wild_name = new StringBuilder(wild.substring(0, pos));
-            wild_ext = new StringBuilder(wild.substring(pos + 1));
+            wild_name = wild.substring(0, pos);
+            wild_ext = wild.substring(pos+1);
         } else {
-            wild_name = new StringBuilder(wild);
-            wild_ext = new StringBuilder();
+            wild_name = wild;
+            wild_ext = "";
         }
-        wild_name = new StringBuilder(wild_name.toString().toUpperCase());
-        wild_ext = new StringBuilder(wild_ext.toString().toUpperCase());
-        while (wild_name.length()<8) wild_name.append(' ');
-        while (wild_ext.length()<3) wild_ext.append(' ');
-        while (file_name.length()<8) file_name.append(' ');
-        while (file_ext.length()<3) file_ext.append(' ');
-        if (wild_name.length()>8) wild_name = new StringBuilder(wild_name.substring(0, 8));
-        if (wild_ext.length()>3) wild_name = new StringBuilder(wild_ext.substring(0, 3));
-        if (file_name.length()>8) wild_name = new StringBuilder(file_name.substring(0, 8));
-        if (file_ext.length()>3) wild_name = new StringBuilder(file_ext.substring(0, 3));
+        wild_name = wild_name.toUpperCase();
+        wild_ext = wild_ext.toUpperCase();
+        while (wild_name.length()<8) wild_name+=' ';
+        while (wild_ext.length()<3) wild_ext+=' ';
+        while (file_name.length()<8) file_name+=' ';
+        while (file_ext.length()<3) file_ext+=' ';
+        if (wild_name.length()>8) wild_name = wild_name.substring(0, 8);
+        if (wild_ext.length()>3) wild_name = wild_ext.substring(0, 3);
+        if (file_name.length()>8) wild_name = file_name.substring(0, 8);
+        if (file_ext.length()>3) wild_name = file_ext.substring(0, 3);
         /* Names are right do some checking */
         for (int i=0;i<wild_name.length() && i<file_name.length();i++) {
             if (wild_name.charAt(i)=='*') break;
@@ -84,5 +84,9 @@ public class Drives {
         result.value = StringHelper.toString(output);
     }
     
-    public static final Section.SectionFunction DRIVES_Init = section -> DriveManager.Init(section);
+    public static Section.SectionFunction DRIVES_Init = new Section.SectionFunction() {
+        public void call(Section section) {
+            DriveManager.Init(section);
+        }
+    };
 }

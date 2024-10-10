@@ -25,7 +25,7 @@ public class WINDOWPOS extends WinAPI {
         writed(address, y); address+=4;
         writed(address, cx); address+=4;
         writed(address, cy); address+=4;
-        writed(address, flags);
+        writed(address, flags); address+=4;
     }
 
     public int allocTemp() {

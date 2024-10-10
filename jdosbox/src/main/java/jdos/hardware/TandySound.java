@@ -1,6 +1,7 @@
 package jdos.hardware;
 
 import jdos.Dosbox;
+import jdos.misc.Log;
 import jdos.misc.setup.Module_base;
 import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
@@ -35,18 +36,18 @@ public class TandySound extends Module_base {
     final private static class SN76496 {
         int SampleRate;
         int UpdateStep;
-        final int[] VolTable = new int[16];	/* volume table         */
-        final int[] Register = new int[8];	/* registers */
+        int[] VolTable = new int[16];	/* volume table         */
+        int[] Register = new int[8];	/* registers */
         int LastRegister;	/* last register written */
-        final int[] Volume = new int[4];		/* volume of voice 0-2 and noise */
+        int[] Volume = new int[4];		/* volume of voice 0-2 and noise */
         int RNG;		/* noise generator      */
         int NoiseFB;		/* noise feedback mask */
-        final int[] Period = new int[4];
-        final int[] Count = new int[4];
-        final int[] Output = new int[4];
+        int[] Period = new int[4];
+        int[] Count = new int[4];
+        int[] Output = new int[4];
     }
     
-    static private final SN76496 sn = new SN76496();
+    static private SN76496 sn = new SN76496();
     
     private static final int TDAC_DMA_BUFSIZE = 1024;
     
@@ -61,195 +62,200 @@ public class TandySound extends Module_base {
                 /*Bitu*/int base;
                 /*Bit8u*/short irq,dma;
             }
-            final HW hw = new HW();
+            HW hw = new HW();
             public static class DMA {
                 /*Bitu*/int rate;
-                /*Bit8u*/final byte[] buf = new byte[TDAC_DMA_BUFSIZE];
-                /*Bit8u*/final byte[] last_sample = new byte[1];
+                /*Bit8u*/byte[] buf = new byte[TDAC_DMA_BUFSIZE];
+                /*Bit8u*/byte[] last_sample = new byte[1];
                 jdos.hardware.DMA.DmaChannel chan;
                 boolean transfer_done;
             }
-            final DMA dma = new DMA();
+            DMA dma = new DMA();
             /*Bit8u*/short mode,control;
             /*Bit16u*/int frequency;
             /*Bit8u*/short amplitude;
             boolean irq_activated;
         }
-        final Dac dac = new Dac();
+        Dac dac = new Dac();
     }
     final static private Tandy tandy = new Tandy();
+    
+    
+    private static final IoHandler.IO_WriteHandler SN76496Write = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int data, /*Bitu*/int iolen) {
+            SN76496 R = sn;
 
-
-    /*Bitu*//*Bitu*//*Bitu*/
-    private static final IoHandler.IO_WriteHandler SN76496Write = (port, data, iolen) -> {
-        SN76496 R = sn;
-
-        tandy.last_write=Pic.PIC_Ticks;
-        if (!tandy.enabled) {
-            tandy.chan.Enable(true);
-            tandy.enabled=true;
-        }
-
-        /* update the output buffer before changing the registers */
-
-        if ((data & 0x80)!=0) {
-            int r = (data & 0x70) >> 4;
-            int c = r/2;
-
-            R.LastRegister = r;
-            R.Register[r] = (R.Register[r] & 0x3f0) | (data & 0x0f);
-            switch (r)
-            {
-                case 0:	/* tone 0 : frequency */
-                case 2:	/* tone 1 : frequency */
-                case 4:	/* tone 2 : frequency */
-                    R.Period[c] = R.UpdateStep * R.Register[r];
-                    if (R.Period[c] == 0) R.Period[c] = 0x3fe;
-                    if (r == 4)
-                    {
-                        /* update noise shift frequency */
-                        if ((R.Register[6] & 0x03) == 0x03)
-                            R.Period[3] = 2 * R.Period[2];
-                    }
-                    break;
-                case 1:	/* tone 0 : volume */
-                case 3:	/* tone 1 : volume */
-                case 5:	/* tone 2 : volume */
-                case 7:	/* noise  : volume */
-                    R.Volume[c] = R.VolTable[data & 0x0f];
-                    break;
-                case 6:	/* noise  : frequency, mode */
-                    {
-                        int n = R.Register[6];
-                        R.NoiseFB = (n & 4)!=0 ? FB_WNOISE : FB_PNOISE;
-                        n &= 3;
-                        /* N/512,N/1024,N/2048,Tone #3 output */
-                        R.Period[3] = (n == 3) ? 2 * R.Period[2] : (R.UpdateStep << (5+n));
-
-                        /* reset noise shifter */
-    //					R.RNG = NG_PRESET;
-    //					R.Output[3] = R.RNG & 1;
-                    }
-                    break;
+            tandy.last_write=Pic.PIC_Ticks;
+            if (!tandy.enabled) {
+                tandy.chan.Enable(true);
+                tandy.enabled=true;
             }
-        }
-        else
-        {
-            int r = R.LastRegister;
-            int c = r/2;
 
-            switch (r)
+            /* update the output buffer before changing the registers */
+
+            if ((data & 0x80)!=0) {
+                int r = (data & 0x70) >> 4;
+                int c = r/2;
+
+                R.LastRegister = r;
+                R.Register[r] = (R.Register[r] & 0x3f0) | (data & 0x0f);
+                switch (r)
+                {
+                    case 0:	/* tone 0 : frequency */
+                    case 2:	/* tone 1 : frequency */
+                    case 4:	/* tone 2 : frequency */
+                        R.Period[c] = R.UpdateStep * R.Register[r];
+                        if (R.Period[c] == 0) R.Period[c] = 0x3fe;
+                        if (r == 4)
+                        {
+                            /* update noise shift frequency */
+                            if ((R.Register[6] & 0x03) == 0x03)
+                                R.Period[3] = 2 * R.Period[2];
+                        }
+                        break;
+                    case 1:	/* tone 0 : volume */
+                    case 3:	/* tone 1 : volume */
+                    case 5:	/* tone 2 : volume */
+                    case 7:	/* noise  : volume */
+                        R.Volume[c] = R.VolTable[data & 0x0f];
+                        break;
+                    case 6:	/* noise  : frequency, mode */
+                        {
+                            int n = R.Register[6];
+                            R.NoiseFB = (n & 4)!=0 ? FB_WNOISE : FB_PNOISE;
+                            n &= 3;
+                            /* N/512,N/1024,N/2048,Tone #3 output */
+                            R.Period[3] = (n == 3) ? 2 * R.Period[2] : (R.UpdateStep << (5+n));
+
+                            /* reset noise shifter */
+        //					R.RNG = NG_PRESET;
+        //					R.Output[3] = R.RNG & 1;
+                        }
+                        break;
+                }
+            }
+            else
             {
-                case 0:	/* tone 0 : frequency */
-                case 2:	/* tone 1 : frequency */
-                case 4:	/* tone 2 : frequency */
-                    R.Register[r] = (R.Register[r] & 0x0f) | ((data & 0x3f) << 4);
-                    R.Period[c] = R.UpdateStep * R.Register[r];
-                    if (R.Period[c] == 0) R.Period[c] = 0x3fe;
-                    if (r == 4)
-                    {
-                        /* update noise shift frequency */
-                        if ((R.Register[6] & 0x03) == 0x03)
-                            R.Period[3] = 2 * R.Period[2];
-                    }
-                    break;
+                int r = R.LastRegister;
+                int c = r/2;
+
+                switch (r)
+                {
+                    case 0:	/* tone 0 : frequency */
+                    case 2:	/* tone 1 : frequency */
+                    case 4:	/* tone 2 : frequency */
+                        R.Register[r] = (R.Register[r] & 0x0f) | ((data & 0x3f) << 4);
+                        R.Period[c] = R.UpdateStep * R.Register[r];
+                        if (R.Period[c] == 0) R.Period[c] = 0x3fe;
+                        if (r == 4)
+                        {
+                            /* update noise shift frequency */
+                            if ((R.Register[6] & 0x03) == 0x03)
+                                R.Period[3] = 2 * R.Period[2];
+                        }
+                        break;
+                }
             }
         }
     };
 
-    /*Bitu*/
-    private static final Mixer.MIXER_Handler SN76496Update = length -> {
-        if ((tandy.last_write+5000)<Pic.PIC_Ticks) {
-            tandy.enabled=false;
-            tandy.chan.Enable(false);
-        }
-        int i;
-        SN76496 R = sn;
-        /*Bit16s*/short[] buffer=Mixer.MixTemp16;
-        int bufferIndex = 0;
-
-        /* If the volume is 0, increase the counter */
-        for (i = 0;i < 4;i++)
-        {
-            if (R.Volume[i] == 0)
-            {
-                /* note that I do count += length, NOT count = length + 1. You might think */
-                /* it's the same since the volume is 0, but doing the latter could cause */
-                /* interferencies when the program is rapidly modulating the volume. */
-                if (R.Count[i] <= length *STEP) R.Count[i] += length*STEP;
+    private static final Mixer.MIXER_Handler SN76496Update = new Mixer.MIXER_Handler() {
+        public void call(/*Bitu*/int length) {
+            if ((tandy.last_write+5000)<Pic.PIC_Ticks) {
+                tandy.enabled=false;
+                tandy.chan.Enable(false);
             }
-        }
+            int i;
+            SN76496 R = sn;
+            /*Bit16s*/short[] buffer=Mixer.MixTemp16;
+            int bufferIndex = 0;
 
-        /*Bitu*/int count=length;
-        int[] vol = new int[4];
-        while (count!=0)
-        {
-            int out;
-            int left;
-
-
-            /* vol[] keeps track of how long each square wave stays */
-            /* in the 1 position during the sample period. */
-            vol[0] = vol[1] = vol[2] = vol[3] = 0;
-
-            for (i = 0;i < 3;i++)
+            /* If the volume is 0, increase the counter */
+            for (i = 0;i < 4;i++)
             {
-                if (R.Output[i]!=0) vol[i] += R.Count[i];
-                R.Count[i] -= STEP;
-                /* Period[i] is the half period of the square wave. Here, in each */
-                /* loop I add Period[i] twice, so that at the end of the loop the */
-                /* square wave is in the same status (0 or 1) it was at the start. */
-                /* vol[i] is also incremented by Period[i], since the wave has been 1 */
-                /* exactly half of the time, regardless of the initial position. */
-                /* If we exit the loop in the middle, Output[i] has to be inverted */
-                /* and vol[i] incremented only if the exit status of the square */
-                /* wave is 1. */
-                while (R.Count[i] <= 0)
+                if (R.Volume[i] == 0)
                 {
-                    R.Count[i] += R.Period[i];
-                    if (R.Count[i] > 0)
+                    /* note that I do count += length, NOT count = length + 1. You might think */
+                    /* it's the same since the volume is 0, but doing the latter could cause */
+                    /* interferencies when the program is rapidly modulating the volume. */
+                    if (R.Count[i] <= (int)length*STEP) R.Count[i] += length*STEP;
+                }
+            }
+
+            /*Bitu*/int count=length;
+            int[] vol = new int[4];
+            while (count!=0)
+            {
+                int out;
+                int left;
+
+
+                /* vol[] keeps track of how long each square wave stays */
+                /* in the 1 position during the sample period. */
+                vol[0] = vol[1] = vol[2] = vol[3] = 0;
+
+                for (i = 0;i < 3;i++)
+                {
+                    if (R.Output[i]!=0) vol[i] += R.Count[i];
+                    R.Count[i] -= STEP;
+                    /* Period[i] is the half period of the square wave. Here, in each */
+                    /* loop I add Period[i] twice, so that at the end of the loop the */
+                    /* square wave is in the same status (0 or 1) it was at the start. */
+                    /* vol[i] is also incremented by Period[i], since the wave has been 1 */
+                    /* exactly half of the time, regardless of the initial position. */
+                    /* If we exit the loop in the middle, Output[i] has to be inverted */
+                    /* and vol[i] incremented only if the exit status of the square */
+                    /* wave is 1. */
+                    while (R.Count[i] <= 0)
                     {
-                        R.Output[i] ^= 1;
-                        if (R.Output[i]!=0) vol[i] += R.Period[i];
-                        break;
+                        R.Count[i] += R.Period[i];
+                        if (R.Count[i] > 0)
+                        {
+                            R.Output[i] ^= 1;
+                            if (R.Output[i]!=0) vol[i] += R.Period[i];
+                            break;
+                        }
+                        R.Count[i] += R.Period[i];
+                        vol[i] += R.Period[i];
                     }
-                    R.Count[i] += R.Period[i];
-                    vol[i] += R.Period[i];
+                    if (R.Output[i]!=0) vol[i] -= R.Count[i];
                 }
-                if (R.Output[i]!=0) vol[i] -= R.Count[i];
-            }
 
-            left = STEP;
-            do
-            {
-                int nextevent = Math.min(R.Count[3], left);
-
-
-                if (R.Output[3]!=0) vol[3] += R.Count[3];
-                R.Count[3] -= nextevent;
-                if (R.Count[3] <= 0)
+                left = STEP;
+                do
                 {
-                    if ((R.RNG & 1)!=0) R.RNG ^= R.NoiseFB;
-                    R.RNG >>= 1;
-                    R.Output[3] = R.RNG & 1;
-                    R.Count[3] += R.Period[3];
-                    if (R.Output[3]!=0) vol[3] += R.Period[3];
-                }
-                if (R.Output[3]!=0) vol[3] -= R.Count[3];
+                    int nextevent;
 
-                left -= nextevent;
-            } while (left > 0);
 
-            out = vol[0] * R.Volume[0] + vol[1] * R.Volume[1] +
-                    vol[2] * R.Volume[2] + vol[3] * R.Volume[3];
+                    if (R.Count[3] < left) nextevent = R.Count[3];
+                    else nextevent = left;
 
-            if (out > MAX_OUTPUT * STEP) out = MAX_OUTPUT * STEP;
+                    if (R.Output[3]!=0) vol[3] += R.Count[3];
+                    R.Count[3] -= nextevent;
+                    if (R.Count[3] <= 0)
+                    {
+                        if ((R.RNG & 1)!=0) R.RNG ^= R.NoiseFB;
+                        R.RNG >>= 1;
+                        R.Output[3] = R.RNG & 1;
+                        R.Count[3] += R.Period[3];
+                        if (R.Output[3]!=0) vol[3] += R.Period[3];
+                    }
+                    if (R.Output[3]!=0) vol[3] -= R.Count[3];
 
-            buffer[bufferIndex++] = (/*Bit16s*/short)(out / STEP);
+                    left -= nextevent;
+                } while (left > 0);
 
-            count--;
+                out = vol[0] * R.Volume[0] + vol[1] * R.Volume[1] +
+                        vol[2] * R.Volume[2] + vol[3] * R.Volume[3];
+
+                if (out > MAX_OUTPUT * STEP) out = MAX_OUTPUT * STEP;
+
+                buffer[bufferIndex++] = (/*Bit16s*/short)(out / STEP);
+
+                count--;
+            }
+            tandy.chan.AddSamples_m16(length,buffer);
         }
-        tandy.chan.AddSamples_m16(length,buffer);
     };
 
     private static void SN76496_set_clock(int clock) {
@@ -273,7 +279,7 @@ public class TandySound extends Module_base {
         gain &= 0xff;
     
         /* increase max output basing on gain (0.2 dB per step) */
-        out = (double) MAX_OUTPUT / 3;
+        out = MAX_OUTPUT / 3;
         while (gain-- > 0)
             out *= 1.023292992;	/* = (10 ^ (0.2/20)) */
     
@@ -281,7 +287,7 @@ public class TandySound extends Module_base {
         for (i = 0;i < 15;i++)
         {
             /* limit volume to avoid clipping */
-            if (out > (double) MAX_OUTPUT / 3) R.VolTable[i] = MAX_OUTPUT / 3;
+            if (out > MAX_OUTPUT / 3) R.VolTable[i] = MAX_OUTPUT / 3;
             else R.VolTable[i] = (int)out;
     
             out /= 1.258925412;	/* = 10 ^ (2/20) = 2dB */
@@ -303,10 +309,12 @@ public class TandySound extends Module_base {
     }
     
     
-    private static final DMA.DMA_CallBack TandyDAC_DMA_CallBack = (chan, event) -> {
-        if (event == DMA.DMAEvent.DMA_REACHED_TC) {
-            tandy.dac.dma.transfer_done=true;
-            Pic.PIC_ActivateIRQ(tandy.dac.hw.irq);
+    private static final DMA.DMA_CallBack TandyDAC_DMA_CallBack = new DMA.DMA_CallBack() {
+        public void call(DMA.DmaChannel chan, int event) {
+            if (event == DMA.DMAEvent.DMA_REACHED_TC) {
+                tandy.dac.dma.transfer_done=true;
+                Pic.PIC_ActivateIRQ(tandy.dac.hw.irq);
+            }
         }
     };
     
@@ -349,79 +357,81 @@ public class TandySound extends Module_base {
     private static void TandyDACDMADisabled() {
     }
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    private static final IoHandler.IO_WriteHandler TandyDACWrite = (port, data, iolen) -> {
-        switch (port) {
-        case 0xc4: {
-            /*Bitu*/int oldmode = tandy.dac.mode;
-            tandy.dac.mode = (/*Bit8u*/short)(data&0xff);
-            if ((data&3)!=(oldmode&3)) {
-                TandyDACModeChanged();
+    private static final IoHandler.IO_WriteHandler TandyDACWrite = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int data, /*Bitu*/int iolen) {
+            switch (port) {
+            case 0xc4: {
+                /*Bitu*/int oldmode = tandy.dac.mode;
+                tandy.dac.mode = (/*Bit8u*/short)(data&0xff);
+                if ((data&3)!=(oldmode&3)) {
+                    TandyDACModeChanged();
+                }
+                if (((data&0x0c)==0x0c) && ((oldmode&0x0c)!=0x0c)) {
+                    TandyDACDMAEnabled();
+                } else if (((data&0x0c)!=0x0c) && ((oldmode&0x0c)==0x0c)) {
+                    TandyDACDMADisabled();
+                }
+                }
+                break;
+            case 0xc5:
+                switch (tandy.dac.mode&3) {
+                case 0:
+                    // joystick mode
+                    break;
+                case 1:
+                    tandy.dac.control = (/*Bit8u*/short)(data&0xff);
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    // direct output
+                    break;
+                }
+                break;
+            case 0xc6:
+                tandy.dac.frequency = tandy.dac.frequency & 0xf00 | (/*Bit8u*/short)(data&0xff);
+                switch (tandy.dac.mode&3) {
+                case 0:
+                    // joystick mode
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                    TandyDACModeChanged();
+                    break;
+                }
+                break;
+            case 0xc7:
+                tandy.dac.frequency = tandy.dac.frequency & 0x00ff | (((/*Bit8u*/short)(data&0xf))<<8);
+                tandy.dac.amplitude = (/*Bit8u*/short)(data>>5);
+                switch (tandy.dac.mode&3) {
+                case 0:
+                    // joystick mode
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                    TandyDACModeChanged();
+                    break;
+                }
+                break;
             }
-            if (((data&0x0c)==0x0c) && ((oldmode&0x0c)!=0x0c)) {
-                TandyDACDMAEnabled();
-            } else if (((data&0x0c)!=0x0c) && ((oldmode&0x0c)==0x0c)) {
-                TandyDACDMADisabled();
-            }
-            }
-            break;
-        case 0xc5:
-            switch (tandy.dac.mode&3) {
-            case 0:
-                // joystick mode
-                break;
-            case 1:
-                tandy.dac.control = (/*Bit8u*/short)(data&0xff);
-                break;
-            case 2:
-                break;
-            case 3:
-                // direct output
-                break;
-            }
-            break;
-        case 0xc6:
-            tandy.dac.frequency = tandy.dac.frequency & 0xf00 | (/*Bit8u*/short)(data&0xff);
-            switch (tandy.dac.mode&3) {
-            case 0:
-                // joystick mode
-                break;
-            case 1:
-            case 2:
-            case 3:
-                TandyDACModeChanged();
-                break;
-            }
-            break;
-        case 0xc7:
-            tandy.dac.frequency = tandy.dac.frequency & 0x00ff | (((/*Bit8u*/short)(data&0xf))<<8);
-            tandy.dac.amplitude = (/*Bit8u*/short)(data>>5);
-            switch (tandy.dac.mode&3) {
-            case 0:
-                // joystick mode
-                break;
-            case 1:
-            case 2:
-            case 3:
-                TandyDACModeChanged();
-                break;
-            }
-            break;
         }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler TandyDACRead = (port, iolen) -> {
-        switch (port) {
-        case 0xc4:
-            return (tandy.dac.mode&0x77) | (tandy.dac.irq_activated ? 0x08 : 0x00);
-        case 0xc6:
-            return (/*Bit8u*/short)(tandy.dac.frequency&0xff);
-        case 0xc7:
-            return (/*Bit8u*/short)(((tandy.dac.frequency>>8)&0xf) | (tandy.dac.amplitude<<5));
+    static private final IoHandler.IO_ReadHandler TandyDACRead = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            switch (port) {
+            case 0xc4:
+                return (tandy.dac.mode&0x77) | (tandy.dac.irq_activated ? 0x08 : 0x00);
+            case 0xc6:
+                return (/*Bit8u*/short)(tandy.dac.frequency&0xff);
+            case 0xc7:
+                return (/*Bit8u*/short)(((tandy.dac.frequency>>8)&0xf) | (tandy.dac.amplitude<<5));
+            }
+            Log.log_msg("Tandy DAC: Read from unknown "+Integer.toString(port,16));
+            return 0xff;
         }
-        System.out.println("Tandy DAC: Read from unknown "+Integer.toString(port,16));
-        return 0xff;
     };
 
     private static void TandyDACGenerateDMASound(/*Bitu*/int length) {
@@ -436,27 +446,28 @@ public class TandySound extends Module_base {
             }
         }
     }
-
-    /*Bitu*/
-    private static final Mixer.MIXER_Handler TandyDACUpdate = length -> {
-        if (tandy.dac.enabled && ((tandy.dac.mode&0x0c)==0x0c)) {
-            if (!tandy.dac.dma.transfer_done) {
-                /*Bitu*/
-                TandyDACGenerateDMASound(length);
-            } else {
-                for (/*Bitu*/int ct=0; ct < length; ct++) {
-                    tandy.dac.chan.AddSamples_m8(1,tandy.dac.dma.last_sample);
+    
+    private static final Mixer.MIXER_Handler TandyDACUpdate = new Mixer.MIXER_Handler() {
+        public void call(/*Bitu*/int length) {
+            if (tandy.dac.enabled && ((tandy.dac.mode&0x0c)==0x0c)) {
+                if (!tandy.dac.dma.transfer_done) {
+                    /*Bitu*/int len = length;
+                    TandyDACGenerateDMASound(len);
+                } else {
+                    for (/*Bitu*/int ct=0; ct < length; ct++) {
+                        tandy.dac.chan.AddSamples_m8(1,tandy.dac.dma.last_sample);
+                    }
                 }
+            } else {
+                tandy.dac.chan.AddSilence();
             }
-        } else {
-            tandy.dac.chan.AddSilence();
         }
     };
     
-    private final IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[4];
-    private final IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[4];
-    private final Mixer.MixerObject MixerChan = new Mixer.MixerObject();
-    private final Mixer.MixerObject MixerChanDAC = new Mixer.MixerObject();
+    private IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[4];
+    private IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[4];
+    private Mixer.MixerObject MixerChan = new Mixer.MixerObject();
+    private Mixer.MixerObject MixerChanDAC = new Mixer.MixerObject();
 
     public TandySound(Section configuration) {
         super(configuration);
@@ -553,13 +564,13 @@ public class TandySound extends Module_base {
     
     private static TandySound test;
     
-    private static final Section.SectionFunction TANDYSOUND_ShutDown = new Section.SectionFunction() {
+    private static Section.SectionFunction TANDYSOUND_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
             test = null;
         }
     };
 
-    public static final Section.SectionFunction TANDYSOUND_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction TANDYSOUND_Init = new Section.SectionFunction() {
         public void call(Section section) {
             test = new TandySound(section);
             section.AddDestroyFunction(TANDYSOUND_ShutDown,true);

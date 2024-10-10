@@ -44,7 +44,7 @@ public class IDirectDrawPalette extends IUnknown {
         for (int r = 0;r<256;r+=51) {
             for (int g = 0;r<256;r+=51) {
                 for (int b = 0;r<256;r+=51) {
-                    table[pos++] = (r<<16)|(0)|b;
+                    table[pos++] = (r<<16)|(g<<8)|b;
                 }
             }
         }
@@ -90,7 +90,7 @@ public class IDirectDrawPalette extends IUnknown {
     }
 
     // HRESULT GetCaps(this, LPDWORD lpdwCaps)
-    static private final Callback.Handler GetCaps = new HandlerBase() {
+    static private Callback.Handler GetCaps = new HandlerBase() {
         public String getName() {
             return "IDirectDrawPalette.GetCaps";
         }
@@ -107,7 +107,7 @@ public class IDirectDrawPalette extends IUnknown {
     };
 
     // HRESULT GetEntries(this, DWORD dwFlags, DWORD dwBase, DWORD dwNumEntries, LPPALETTEENTRY lpEntries)
-    static private final Callback.Handler GetEntries = new HandlerBase() {
+    static private Callback.Handler GetEntries = new HandlerBase() {
         public String getName() {
             return "IDirectDrawPalette.GetEntries";
         }
@@ -125,7 +125,7 @@ public class IDirectDrawPalette extends IUnknown {
     };
 
     // HRESULT Initialize(this, LPDIRECTDRAW lpDD, DWORD dwFlags, LPPALETTEENTRY lpDDColorTable)
-    static private final Callback.Handler Initialize = new HandlerBase() {
+    static private Callback.Handler Initialize = new HandlerBase() {
         public String getName() {
             return "IDirectDrawPalette.Initialize";
         }
@@ -139,7 +139,7 @@ public class IDirectDrawPalette extends IUnknown {
     };
 
     // HRESULT SetEntries(this, DWORD dwFlags, DWORD dwStartingEntry, DWORD dwCount, LPPALETTEENTRY lpEntries)
-    static private final Callback.Handler SetEntries = new HandlerBase() {
+    static private Callback.Handler SetEntries = new HandlerBase() {
         public String getName() {
             return "IDirectDrawPalette.SetEntries";
         }

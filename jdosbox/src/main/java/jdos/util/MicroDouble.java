@@ -762,6 +762,7 @@ public class MicroDouble {
     int dx = x1 - x2;
     if (dx > 0) {
       m2 = BitUtils.stickyRightShift(m2, dx);
+      x2 = x1;
     } else if (dx < 0) {
       m1 = BitUtils.stickyRightShift(m1, -dx);
       x1 = x2;
@@ -1228,7 +1229,7 @@ public class MicroDouble {
   /**
    * Double-precision integer multiplication of x1 and x2.
    */
-  private static long dpMul(long x1, long x2) {
+  private static final long dpMul(long x1, long x2) {
     long v1 = (x1 >>> 32)        * (x2 >>> 32);
     long v2 = (x1 & 0xffffffffL) * (x2 >>> 32);
     long v3 = (x1 >>> 32)        * (x2 & 0xffffffffL);
@@ -1269,7 +1270,7 @@ public class MicroDouble {
     int idx = 0;
 
     // read sign
-    boolean negative;
+    boolean negative = false;
     char c = s.charAt(0);
     negative = (c == '-');
     if (negative || (c == '+')) {
@@ -1328,6 +1329,7 @@ public class MicroDouble {
       } catch (NumberFormatException e) {
         throw new NumberFormatException(s);
       }
+      idx = len;
     } else if (idx != len) {
       // check that we parsed the entire string
       throw new NumberFormatException(s);
@@ -1546,7 +1548,7 @@ public class MicroDouble {
   }
 
   private static String toString(boolean negative, int base10x, long base10m) {
-    StringBuilder sb = new StringBuilder(26);
+    StringBuffer sb = new StringBuffer(26);
     if (negative) {
       sb.append('-');
     }
@@ -1583,7 +1585,7 @@ public class MicroDouble {
     }
     if (scientific) {
       sb.append('E');
-      sb.append(base10x);
+      sb.append(Integer.toString(base10x));
     }
     return sb.toString();
   }
@@ -1808,7 +1810,7 @@ public class MicroDouble {
 
     // argument reduction
     long hi=0, lo=0;
-    int k;
+    int k=0;
     int hx = getHI(x) & 0x7fffffff;
     if (hx > 0x3fd62e42) { // if |x| > 0.5 ln2
       if (hx < 0x3ff0a2b2) { // and |x| < 1.5 ln2
@@ -1867,8 +1869,7 @@ public class MicroDouble {
     int hx = getHI(d); // high word of x
     int xsb = hx & 0x80000000; // sign bit of x
     long y;
-    if (xsb==0) {
-    }
+    if (xsb==0) y=d; else y= -d; // y = |x|
     hx &= 0x7fffffff; // high word of |x|
 
     // filter out huge and non-finite argument
@@ -1958,9 +1959,9 @@ public class MicroDouble {
     return y;
   }
 
-  private static final long[] BP = { ONE, THREE_HALVES };
-  private static final long[] DP_HI = { ZERO, 0x3fe2b80340000000L}; // 5.84962487220764160156e-01
-  private static final long[] DP_LO = { ZERO, 0x3e4cfdeb43cfd006L}; // 1.35003920212974897128e-08
+  private static final long BP[]       = { ONE, THREE_HALVES };
+  private static final long DP_HI[]    = { ZERO, 0x3fe2b80340000000L}; // 5.84962487220764160156e-01
+  private static final long DP_LO[]    = { ZERO, 0x3e4cfdeb43cfd006L}; // 1.35003920212974897128e-08
   // poly coefs for (3/2)*(log(x)-2s-2/3*s**3
   private static final long L1         = 0x3fe3333333333303L; // 5.99999999999994648725e-01
   private static final long L2         = 0x3fdb6db6db6fabffL; //  4.28571428578550184252e-01
@@ -2484,7 +2485,7 @@ public class MicroDouble {
       return NaN;
     } else {
       // argument reduction needed
-      long[] y = new long[2];
+      long y[] = new long[2];
       int n = remPio2(d,y);
       switch(n&3) {
         case 0:
@@ -2597,12 +2598,12 @@ public class MicroDouble {
     }
   }
 
-  private static final long S1 = 0xBFC5555555555549L; // -1.66666666666666324348e-01
-  private static final long S2 = 0x3F8111111110F8A6L; // 8.33333333332248946124e-03
-  private static final long S3 = 0xBF2A01A019C161D5L; // -1.98412698298579493134e-04
-  private static final long S4 = 0x3EC71DE357B1FE7DL; // 2.75573137070700676789e-06
-  private static final long S5 = 0xBE5AE5E68A2B9CEBL; // -2.50507602534068634195e-08
-  private static final long S6 = 0x3DE5D93A5ACFD57CL; // 1.58969099521155010221e-10
+  private static long S1 = 0xBFC5555555555549L; // -1.66666666666666324348e-01
+  private static long S2 = 0x3F8111111110F8A6L; // 8.33333333332248946124e-03
+  private static long S3 = 0xBF2A01A019C161D5L; // -1.98412698298579493134e-04
+  private static long S4 = 0x3EC71DE357B1FE7DL; // 2.75573137070700676789e-06
+  private static long S5 = 0xBE5AE5E68A2B9CEBL; // -2.50507602534068634195e-08
+  private static long S6 = 0x3DE5D93A5ACFD57CL; // 1.58969099521155010221e-10
 
   private static long kernelSin(long x, long y, int iy) {
     int ix = getHI(x) & 0x7fffffff; // high word of x
@@ -2652,7 +2653,7 @@ public class MicroDouble {
     return sub(a, (sub(hz, sub(mul(z, r), mul(x, y)))));
   }
 
-  private static final long[] PIO2 = {
+  private static final long PIO2[] = {
           0x3ff921fb40000000L,  // 1.57079625129699707031e+00
           0x3e74442d00000000L,  // 7.54978941586159635335e-08
           0x3cf8469880000000L,  // 5.39030252995776476554e-15
@@ -2768,7 +2769,7 @@ public class MicroDouble {
     }
     // set z = scalbn(|x|,ilogb(x)-23)
     long z = getLO(x);
-    int e0 = (ix >> 20) - 1046;
+    int e0 = (int) ((ix >> 20) - 1046);
     z = setHI(z, ix - (e0 << 20));
     long[] tx = new long[3];
     for (int i=0; i<2; i++) {
@@ -2792,8 +2793,9 @@ public class MicroDouble {
   private static int kernelRemPio2(long[] x, long[] y, int e0, int nx) {
     // initialize jk
     int jk = 4;
+    int jp = jk;
 
-      // determine jx,jv,q0, note that 3>q0
+    // determine jx,jv,q0, note that 3>q0
     int jx =  nx - 1;
     int jv = (e0-3)/24;
     if (jv < 0)  jv = 0;
@@ -2929,7 +2931,7 @@ public class MicroDouble {
     long[] fq = new long[20];
     for (int i=jz; i>=0; i--) {
       fw = ZERO;
-      for (int k = 0; (k<= jk) && (k<=(jz-i)); k++)
+      for (int k=0; (k<=jp) && (k<=(jz-i)); k++)
         fw = add(fw, mul(PIO2[k], q[i+k]));
       fq[jz-i] = fw;
     }
@@ -2971,7 +2973,7 @@ public class MicroDouble {
   /**
    * Mimics <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Math.html#asin(double)">Math.asin(double)</a>.
    */
-  public static long asin(long d) {
+  public static final long asin(long d) {
     int hx = getHI(d);
     int ix = hx & 0x7fffffff;
     if (ix>= 0x3ff00000) { // |x|>= 1
@@ -3045,14 +3047,14 @@ public class MicroDouble {
     }
   }
 
-  private static final long[] atanhi = {
+  private static final long atanhi[] = {
           0x3fddac670561bb4fL,  // 4.63647609000806093515e-01 atan(0.5)hi
           0x3fe921fb54442d18L,  // 7.85398163397448278999e-01 atan(1.0)hi
           0x3fef730bd281f69bL,  // 9.82793723247329054082e-01 atan(1.5)hi
           0x3ff921fb54442d18L   // 1.57079632679489655800e+00 atan(inf)hi
   };
 
-  private static final long[] atanlo = {
+  private static final long atanlo[] = {
           0x3c7a2b7f222f65e2L,  // 2.26987774529616870924e-17 atan(0.5)lo
           0x3c81a62633145c07L,  // 3.06161699786838301793e-17 atan(1.0)lo
           0x3c7007887af0cbbdL,  // 1.39033110312309984516e-17 atan(1.5)lo
@@ -3630,6 +3632,7 @@ public class MicroDouble {
     }
     else if(ix<0x40200000) { // x < 8.0
       i = intValue(x);
+      t = ZERO;
       y = sub(x, intToDouble(i));
       long p = mul(y, add(SB0, mul(y, add(SB1, mul(y, add(SB2,
               mul(y, add(SB3, mul(y, add(SB4, mul(y, add(SB5,

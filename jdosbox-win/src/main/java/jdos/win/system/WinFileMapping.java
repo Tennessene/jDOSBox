@@ -11,7 +11,7 @@ public class WinFileMapping extends WinObject {
 
     static public WinFileMapping get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinFileMapping))
+        if (object == null || !(object instanceof WinFileMapping))
             return null;
         return (WinFileMapping)object;
     }
@@ -37,7 +37,7 @@ public class WinFileMapping extends WinObject {
             if (fileHandle == -1) {
                 Memory.phys_zero(frames[i] << 12, 0x1000);
             } else if (i>0) {
-                int len;
+                int len = 0;
                 len = file.read(buffer);
                 Memory.phys_memcpy(frames[i] << 12, buffer, 0, len);
             }
@@ -92,8 +92,8 @@ public class WinFileMapping extends WinObject {
         if (WinAPI.LOG) {
             System.out.println("Freeing File Mapping: handle="+handle+" name="+name+" fileName="+fileName);
         }
-        for (int frame : frames) {
-            WinSystem.memory.freeFrame(frame);
+        for (int i=0;i<frames.length;i++) {
+            WinSystem.memory.freeFrame(frames[i]);
         }
     }
 
@@ -102,7 +102,7 @@ public class WinFileMapping extends WinObject {
     }
 
     private String fileName;
-    private final int fileHandle;
-    private final int size;
-    private final int[] frames;
+    private int fileHandle;
+    private int size;
+    private int[] frames;
 }

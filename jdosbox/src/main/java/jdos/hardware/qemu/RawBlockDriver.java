@@ -3,8 +3,8 @@ package jdos.hardware.qemu;
 import jdos.util.FileIO;
 
 public class RawBlockDriver extends BlockDriver {
-    final FileIO file;
-    final int sector_size = 512;
+    FileIO file;
+    int sector_size = 512;
     long current_fpos = -1;
 
     public RawBlockDriver(FileIO file) {

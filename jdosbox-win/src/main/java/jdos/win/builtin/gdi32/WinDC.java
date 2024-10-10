@@ -18,10 +18,10 @@ import java.awt.font.LineMetrics;
 import java.awt.image.BufferedImage;
 
 public class WinDC extends WinObject {
-    static final WinFont defaultFont = WinFont.get(GdiObj.GetStockObject(DEVICE_DEFAULT_FONT));
-    static final WinPalette defaultPalette = WinPalette.create(JavaBitmap.getDefaultPalette());
-    static final WinPen defaultPen = WinPen.get(GdiObj.GetStockObject(BLACK_PEN));
-    static final WinBrush defaultBrush = WinBrush.get(GdiObj.GetStockObject(WHITE_BRUSH));
+    static WinFont defaultFont = WinFont.get(GdiObj.GetStockObject(DEVICE_DEFAULT_FONT));
+    static WinPalette defaultPalette = WinPalette.create(JavaBitmap.getDefaultPalette());
+    static WinPen defaultPen = WinPen.get(GdiObj.GetStockObject(BLACK_PEN));
+    static WinBrush defaultBrush = WinBrush.get(GdiObj.GetStockObject(WHITE_BRUSH));
 
     static public WinDC create(JavaBitmap image, boolean owner) {
         return new WinDC(nextObjectId(), image, owner);
@@ -33,7 +33,7 @@ public class WinDC extends WinObject {
 
     static public WinDC get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinDC))
+        if (object == null || !(object instanceof WinDC))
             return null;
         return (WinDC)object;
     }
@@ -67,11 +67,12 @@ public class WinDC extends WinObject {
     }
 
     // BOOL DeleteDC(HDC hdc)
-    static public void DeleteDC(int hdc) {
+    static public int DeleteDC(int hdc) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null)
-            return;
+            return FALSE;
         dc.close();
+        return TRUE;
     }
 
     // BOOL ExtTextOut(HDC hdc, int X, int Y, UINT fuOptions, const RECT *lprc, LPCTSTR lpString, UINT cbCount, const INT *lpDx)
@@ -113,14 +114,13 @@ public class WinDC extends WinObject {
     }
 
     // int GetClipBox(HDC hdc,  LPRECT lprc)
-    static public void GetClipBox(int hdc, int rect)  {
+    static public int GetClipBox(int hdc, int rect)  {
         WinDC dc = WinDC.get(hdc);
-        if (dc==null) return;
-        if (dc.hClipRgn != 0) {
-            WinRegion.GetRgnBox(dc.hClipRgn, rect);
-            return;
-        }
+        if (dc==null) return ERROR;
+        if (dc.hClipRgn != 0)
+            return WinRegion.GetRgnBox(dc.hClipRgn, rect);
         new WinRect(0, 0, dc.clipCx, dc.clipCy).write(rect);
+        return SIMPLEREGION;
     }
 
     // int GetDeviceCaps(HDC hdc, int nIndex)
@@ -227,15 +227,16 @@ public class WinDC extends WinObject {
     }
 
     // int SelectClipRgn(HDC hdc, HRGN hrgn)
-    static public void SelectClipRgn(int hdc, int hrgn) {
+    static public int SelectClipRgn(int hdc, int hrgn) {
         WinDC dc = WinDC.get(hdc);
         if (dc == null)
-            return;
+            return 0;
         if (hrgn == 0) {
             if (dc.hClipRgn != 0)
                 WinRegion.get(dc.hClipRgn).close();
+            return NULLREGION;
         } else {
-            SelectObject(hdc, hrgn);
+            return SelectObject(hdc, hrgn);
         }
     }
 
@@ -347,11 +348,11 @@ public class WinDC extends WinObject {
 
     WinBitmap bitmap;
 
-    int bkColor;
-    int textColor;
+    int bkColor = 0xFFFFFFFF;
+    int textColor = 0xFF000000;
     int hFont;
-    boolean owner;
-    int hPalette;
+    boolean owner = false;
+    int hPalette = 0;
     int bkMode = OPAQUE;
     JavaBitmap image;
     int hBitmap;
@@ -365,7 +366,7 @@ public class WinDC extends WinObject {
     public int clipX;
     public int clipY;
     int ROPmode=R2_COPYPEN;
-    final float miterLimit = 10.0f; /* 10.0 is the default, from MSDN */
+    float miterLimit = 10.0f; /* 10.0 is the default, from MSDN */
 
     public int CursPosX;
     public int CursPosY;

@@ -6,7 +6,7 @@ import jdos.cpu.Callback;
 import jdos.hardware.Memory;
 
 public class WinCallback {
-    static private final Callback.Handler[] handlers = new Callback.Handler[2048];
+    static private Callback.Handler[] handlers = new Callback.Handler[2048];
     static private int nextCB = 1;
     static private int idle_eip;
 
@@ -42,7 +42,7 @@ public class WinCallback {
         return physAddress;
     }
 
-    static private final Callback.Handler idle = new Callback.Handler() {
+    static private Callback.Handler idle = new Callback.Handler() {
         public int call() {
             CPU_Regs.reg_eip = idle_eip;
             return 0;

@@ -1,5 +1,7 @@
 package jdos.win.loader.winpe;
 
+import java.io.IOException;
+
 public class HeaderImageImportDescriptor {
     static public final int SIZE = 20;
 
@@ -19,7 +21,7 @@ public class HeaderImageImportDescriptor {
     /* RVA to IAT (if bound this IAT has actual addresses) */
     public long FirstThunk;
 
-    public void load(LittleEndianFile is) {
+    public void load(LittleEndianFile is) throws IOException {
         Characteristics_or_OriginalFirstThunk = is.readUnsignedInt();
         TimeDateStamp = is.readUnsignedInt();
         ForwarderChain = is.readUnsignedInt();

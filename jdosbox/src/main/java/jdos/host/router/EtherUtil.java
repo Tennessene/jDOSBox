@@ -39,7 +39,7 @@ public class EtherUtil {
         while (length > 1) {
           data = (((buffer[i+offset] << 8) & 0xFF00) | ((buffer[i + 1 + offset]) & 0xFF));
           sum += data;
-          if ((sum & 0xffff_ffff_ffff_0000L) > 0) {
+          if ((sum & 0xFFFF0000) > 0) {
             sum = sum & 0xFFFF;
             sum += 1;
           }
@@ -49,7 +49,7 @@ public class EtherUtil {
 
         if (length > 0) {
           sum += (buffer[i+offset] << 8 & 0xFF00);
-          if ((sum & 0xffff_ffff_ffff_0000L) > 0) {
+          if ((sum & 0xFFFF0000) > 0) {
             sum = sum & 0xFFFF;
             sum += 1;
           }

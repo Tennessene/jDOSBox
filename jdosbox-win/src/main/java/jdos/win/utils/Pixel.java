@@ -29,9 +29,9 @@ public class Pixel {
         ImageFilter filter = new RGBImageFilter() {
 
             // the color we are looking for... Alpha bits are set to opaque
-            public final int markerRGB = color.getRGB() | 0xFF000000;
+            public int markerRGB = color.getRGB() | 0xFF000000;
 
-            public int filterRGB(int x, int y, int rgb) {
+            public final int filterRGB(int x, int y, int rgb) {
                 if ((rgb | 0xFF000000) == markerRGB) {
                     // Mark the alpha bits as zero - transparent
                     return 0x00FFFFFF & rgb;
@@ -54,7 +54,7 @@ public class Pixel {
     }
 
     static public BufferedImage createImage(byte[] bits, int bpp, boolean alpha, int[] srcPalette, int width, int height, boolean flip) {
-        IndexColorModel cm;
+        IndexColorModel cm = null;
         byte[] pixels = new byte[width * height];
         int pitch = getPitch(width, bpp);
         BufferedImage image = null;
@@ -123,8 +123,9 @@ public class Pixel {
                 else
                     Win.panic("Currently only 24-bit, 16-bit, 8-bit and 4-bit bitmaps are supported");
                 WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, null);
+                BufferedImage bi = new BufferedImage(sp, raster, false, null);
                 // Main.drawImage(bi);try {Thread.sleep(1000*5);} catch (Exception e) {}
-                return new BufferedImage(sp, raster, false, null);
+                return bi;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -143,8 +144,9 @@ public class Pixel {
                     DataBuffer dataBuffer = new DataBufferUShort(pixels, width*height);
                     WritableRaster raster = Raster.createPackedRaster(dataBuffer, width, height, width, new int[]{0xF800, 0x07E0, 0x001F}, null);
                     ColorModel colorModel = new DirectColorModel(16, 0xF800, 0x07E0, 0x001F);
+                    BufferedImage bi = new BufferedImage(colorModel, raster, false, null);
                     //Main.drawImage(bi);try {Thread.sleep(1000*60);} catch (Exception e) {}
-                    return new BufferedImage(colorModel, raster, false, null);
+                    return bi;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -32,8 +32,8 @@ public class Decoder implements DecoderErrors
 {
 	static private final Params DEFAULT_PARAMS = new Params();
 	
-	/*
-	  The Bistream from which the MPEG audio frames are read.
+	/**
+	 * The Bistream from which the MPEG audio frames are read.
 	 */
 	//private Bitstream				stream;
 	
@@ -63,10 +63,10 @@ public class Decoder implements DecoderErrors
 	private int						outputFrequency;
 	private int						outputChannels;
 	
-	private final Equalizer				equalizer = new Equalizer();
-
-	private final Params					params;
-
+	private Equalizer				equalizer = new Equalizer();
+	
+	private Params					params;
+	
 	private boolean					initialized;
 		
 	
@@ -83,13 +83,15 @@ public class Decoder implements DecoderErrors
 	/**
 	 * Creates a new <code>Decoder</code> instance with default 
 	 * parameters.
-	 *
-     */
+	 * 
+	 * @param params	The <code>Params</code> instance that describes
+	 *					the customizable aspects of the decoder.  
+	 */
 	public Decoder(Params params0)
 	{
 		if (params0==null)
 			params0 = DEFAULT_PARAMS;
-
+	
 		params = params0;
 		
 		Equalizer eq = params.getInitialEqualizerSettings();
@@ -124,6 +126,8 @@ public class Decoder implements DecoderErrors
 	 * Decodes one frame from an MPEG audio bitstream.
 	 * 
 	 * @param header		The header describing the frame to decode.
+	 * @param bitstream		The bistream that provides the bits for te body of the frame. 
+	 * 
 	 * @return A SampleBuffer containing the decoded samples.
 	 */
 	public Obuffer decodeFrame(Header header, Bitstream stream)
@@ -160,8 +164,10 @@ public class Decoder implements DecoderErrors
 	 * Retrieves the sample frequency of the PCM samples output
 	 * by this decoder. This typically corresponds to the sample
 	 * rate encoded in the MPEG audio stream.
-	 *
-     */
+	 * 
+	 * @param the sample rate (in Hz) of the samples written to the
+	 *		output buffer when decoding. 
+	 */
 	public int getOutputFrequency()
 	{
 		return outputFrequency;
@@ -257,7 +263,9 @@ public class Decoder implements DecoderErrors
 		return decoder;
 	}
 	
-	private void initialize(Header header) {
+	private void initialize(Header header)
+		throws DecoderException
+	{
 		
 		// REVIEW: allow customizable scale factor
 		float scalefactor = 32700.0f;
@@ -294,7 +302,7 @@ public class Decoder implements DecoderErrors
 	{
 		private OutputChannels	outputChannels = OutputChannels.BOTH;
 		
-		private final Equalizer		equalizer = new Equalizer();
+		private Equalizer		equalizer = new Equalizer();
 		
 		public Params()
 		{			
@@ -344,6 +352,6 @@ public class Decoder implements DecoderErrors
 			return equalizer;	
 		}
 				
-	}
+	};
 }
 

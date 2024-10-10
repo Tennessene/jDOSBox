@@ -44,7 +44,8 @@ public class Message extends WinAPI {
     }
 
     // BOOL WINAPI MessageBeep(UINT uType)
-    static public void MessageBeep(int uType) {
+    static public int MessageBeep(int uType) {
+        return TRUE;
     }
 
     // BOOL WINAPI PeekMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
@@ -53,12 +54,13 @@ public class Message extends WinAPI {
     }
 
     // BOOL WINAPI PostMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-    static public void PostMessageA(int hWnd, int Msg, int wParam, int lParam) {
+    static public int PostMessageA(int hWnd, int Msg, int wParam, int lParam) {
         if (WinWindow.get(hWnd) == null)
-            return;
+            return FALSE;
         if (hWnd == 0xFFFF)
             Win.panic("Broadcast PostMessage not implemented yet");
         Scheduler.getCurrentThread().postMessage(hWnd, Msg, wParam, lParam);
+        return TRUE;
     }
 
     // If the message is successfully registered, the return value is a message identifier in the range 0xC000 through 0xFFFF

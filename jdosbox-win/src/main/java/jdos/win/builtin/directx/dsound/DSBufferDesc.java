@@ -34,9 +34,9 @@ public class DSBufferDesc {
             lpwfxFormat = new WAVEFORMATEX(address);
     }
 
-    public final int dwSize;
-    public final int dwFlags;
-    public final int dwBufferBytes;
-    public final int dwReserved;
+    public int dwSize;
+    public int dwFlags;
+    public int dwBufferBytes;
+    public int dwReserved;
     public WAVEFORMATEX lpwfxFormat = null;
 }

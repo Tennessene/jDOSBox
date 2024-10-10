@@ -17,7 +17,8 @@ public class IDirectDrawClipper extends IUnknown {
         int vtable = getVTable("IDirectDrawClipper");
         if (vtable == 0)
             vtable = createVTable();
-        return allocate(vtable, DATA_SIZE, 0);
+        int result = allocate(vtable, DATA_SIZE, 0);
+        return result;
     }
 
     static private int createVTable() {
@@ -35,7 +36,7 @@ public class IDirectDrawClipper extends IUnknown {
     }
     
     // HRESULT GetClipList(this, LPRECT lpRect, LPRGNDATA lpClipList, LPDWORD lpdwSize)
-    static private final Callback.Handler GetClipList = new HandlerBase() {
+    static private Callback.Handler GetClipList = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawClipper.GetClipList";
         }
@@ -49,7 +50,7 @@ public class IDirectDrawClipper extends IUnknown {
     };
 
     // HRESULT GetHWnd(this, HWND *lphWnd)
-    static private final Callback.Handler GetHWnd = new HandlerBase() {
+    static private Callback.Handler GetHWnd = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawClipper.GetHWnd";
         }
@@ -66,7 +67,7 @@ public class IDirectDrawClipper extends IUnknown {
     };
 
     // HRESULT Initialize(this, LPDIRECTDRAW lpDD, DWORD dwFlags)
-    static private final Callback.Handler Initialize = new HandlerBase() {
+    static private Callback.Handler Initialize = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawClipper.Initialize";
         }
@@ -79,7 +80,7 @@ public class IDirectDrawClipper extends IUnknown {
     };
 
     // HRESULT IsClipListChanged(this, BOOL *lpbChanged)
-    static private final Callback.Handler IsClipListChanged = new HandlerBase() {
+    static private Callback.Handler IsClipListChanged = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawClipper.IsClipListChanged";
         }
@@ -91,7 +92,7 @@ public class IDirectDrawClipper extends IUnknown {
     };
 
     // HRESULT SetClipList(this, LPRGNDATA lpClipList, DWORD dwFlags)
-    static private final Callback.Handler SetClipList = new HandlerBase() {
+    static private Callback.Handler SetClipList = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawClipper.SetClipList";
         }
@@ -104,7 +105,7 @@ public class IDirectDrawClipper extends IUnknown {
     };
 
     // HRESULT SetHWnd(this, DWORD dwFlags, HWND hWnd)
-    static private final Callback.Handler SetHWnd = new HandlerBase() {
+    static private Callback.Handler SetHWnd = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawClipper.SetHWnd";
         }

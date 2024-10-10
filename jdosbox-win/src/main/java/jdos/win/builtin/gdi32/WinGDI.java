@@ -5,7 +5,7 @@ import jdos.win.system.WinObject;
 public class WinGDI extends WinObject {
     static public WinGDI getGDI(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinGDI))
+        if (object == null || !(object instanceof WinGDI))
             return null;
         return (WinGDI)object;
     }

@@ -12,7 +12,7 @@ public class WinObject extends WinAPI {
     }
 
     static public WinObject getObject(int handle) {
-        return StaticData.objects.get(handle);
+        return StaticData.objects.get(new Integer(handle));
     }
     static public WinObject getNamedObject(String name) {
         return StaticData.namedObjects.get(name);
@@ -25,7 +25,7 @@ public class WinObject extends WinAPI {
             if (StaticData.objects.put(handle, this) != null) {
                 Win.panic("Object handle collision: handle="+handle);
             }
-            if (name != null && !name.isEmpty())
+            if (name != null && name.length()>0)
                 StaticData.namedObjects.put(name, this);
             open();
         }
@@ -53,7 +53,7 @@ public class WinObject extends WinAPI {
             refCount--;
             if (refCount == 0) {
                 StaticData.objects.remove(handle);
-                if (name != null && !name.isEmpty())
+                if (name != null && name.length()>0)
                     StaticData.namedObjects.remove(name);
                 onFree();
             }
@@ -67,7 +67,7 @@ public class WinObject extends WinAPI {
     }
 
     public String name;
-    public final int handle;
+    public int handle;
     private int refCount = 0;
     public Object data;
 }

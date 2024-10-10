@@ -1,8 +1,8 @@
 package jdos.dos;
 
 public class Dos_Block {
-    public final Dos_Date date = new Dos_Date();
-	public final Dos_Version version = new Dos_Version();
+    public Dos_Date date = new Dos_Date();
+	public Dos_Version version = new Dos_Version();
 	public /*Bit16u*/int firstMCB;
 	public /*Bit16u*/int errorcode;
 	public /*Bit16u*/int psp(){return new Dos_SDA(Dos.DOS_SDA_SEG,Dos.DOS_SDA_OFS).GetPSP();}
@@ -28,6 +28,6 @@ public class Dos_Block {
 		/*Bit8u*/byte[] country;//Will be copied to dos memory. resides in real mem
 		/*Bit16u*/int dpb; //Fake Disk parameter system using only the first entry so the drive letter matches
 	}
-    public final Tables tables = new Tables();
-	/*Bit16u*/final int loaded_codepage=437;
+    public Tables tables = new Tables();
+	/*Bit16u*/int loaded_codepage=437;
 }

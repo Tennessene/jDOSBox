@@ -16,7 +16,7 @@ public class WAVEOUTCAPS extends WinAPI {
         writew(address, dwFormats); address+=4;
         writew(address, wChannels); address+=2;
         writew(address, wReserved1); address+=2;
-        writew(address, dwSupport);
+        writew(address, dwSupport); address+=4;
     }
 
     public int allocTemp() {

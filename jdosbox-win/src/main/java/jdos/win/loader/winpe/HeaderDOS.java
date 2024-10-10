@@ -24,10 +24,10 @@ public class HeaderDOS {
     int  e_cs;                  /* 16: Initial (relative) CS value */
     int  e_lfarlc;              /* 18: File address of relocation table */
     int  e_ovno;                /* 1a: Overlay number */
-    final int[]  e_res = new int[4];  /* 1c: Reserved words */
+    int[]  e_res = new int[4];  /* 1c: Reserved words */
     int  e_oemid;               /* 24: OEM identifier (for e_oeminfo) */
     int  e_oeminfo;             /* 26: OEM information; e_oemid specific */
-    final int[]  e_res2 = new int[10];/* 28: Reserved words */
+    int[]  e_res2 = new int[10];/* 28: Reserved words */
     long e_lfanew;              /* 3c: Offset to extended header */
 
     public void load(OutputStream os, WinFile fis) throws IOException {

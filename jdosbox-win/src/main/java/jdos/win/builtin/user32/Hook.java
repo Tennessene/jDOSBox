@@ -17,7 +17,7 @@ public class Hook extends WinObject {
 
     static public Hook get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof Hook))
+        if (object == null || !(object instanceof Hook))
             return null;
         return (Hook)object;
     }
@@ -47,12 +47,17 @@ public class Hook extends WinObject {
             }
         } else {
             /* system-global hook */
+            if (dwThreadId == WH_KEYBOARD_LL || dwThreadId == WH_MOUSE_LL) hMod = 0;
+            else if (hMod==0) {
+                SetLastError(ERROR_HOOK_NEEDS_HMOD);
+                return 0;
+            }
         }
         if (idHook < WH_MIN || idHook > WH_MAX) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return 0;
         }
-        WinThread thread;
+        WinThread thread = null;
         if (dwThreadId != 0) {
             thread = WinThread.get(dwThreadId);
             if (thread == null) {
@@ -67,7 +72,11 @@ public class Hook extends WinObject {
             Win.panic("Kernel32.SetWindowsHookExA does not support WH_KEYBOARD_LL or WH_MOUSE_LL yet");
         }
         Hook hook = create(idHook, dwThreadId, lpfn);
-        Vector<Hook> hooks = StaticData.hooks.computeIfAbsent(idHook, k -> new Vector<>());
+        Vector<Hook> hooks = StaticData.hooks.get(idHook);
+        if (hooks == null) {
+            hooks = new Vector<Hook>();
+            StaticData.hooks.put(idHook, hooks);
+        }
         hooks.add(hook);
         return hook.handle;
     }
@@ -79,13 +88,13 @@ public class Hook extends WinObject {
         this.eip = eip;
     }
 
-    public final int type;
-    public final int threadId;
-    public final int eip;
+    public int type;
+    public int threadId;
+    public int eip;
 
     static public int HOOK_CallHooks(int id, int code, int wparam, int lparam) {
-        Vector<Hook> hooks = StaticData.hooks.get(id);
-        if (hooks != null && !hooks.isEmpty()) {
+        Vector hooks = StaticData.hooks.get(id);
+        if (hooks != null && hooks.size()>0) {
             Hook hook = (Hook)hooks.elementAt(0);
             StaticData.currentHookChain = hooks;
             StaticData.currentHookIndex = 0;

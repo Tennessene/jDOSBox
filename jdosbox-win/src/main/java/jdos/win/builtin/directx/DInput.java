@@ -16,7 +16,7 @@ public class DInput  extends BuiltinModule {
     }
 
     // HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPUTA *ppDI, LPUNKNOWN punkOuter);
-    private final Callback.Handler DirectInputCreateA = new HandlerBase() {
+    private Callback.Handler DirectInputCreateA = new HandlerBase() {
         public String getName() {
             return "DInput.DirectInputCreateA";
         }

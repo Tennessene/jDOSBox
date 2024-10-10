@@ -11,12 +11,14 @@ import java.io.File;
 
 public class Cross {
     public static boolean isWindows() {
-        return System.getProperty("os.name").toLowerCase().contains("win");
+        return System.getProperty("os.name").toLowerCase().indexOf( "win" ) >= 0;
     }
 
     public static boolean isCDRom(String path) {
         String label = HomeDirectory.getVolumeLabel(path).toLowerCase();
-        return label.indexOf("bd-rom") >= 0 || label.indexOf("dvd") >= 0;
+        if (label.indexOf("bd-rom")>=0 || label.indexOf("dvd")>=0)
+            return true;
+        return false;
     }
 
     static public class dir_information {
@@ -59,7 +61,7 @@ public class Cross {
     static public String CreatePlatformConfigDir() {
         if (!Dosbox.allPrivileges) return "";
         String result = System.getProperty("user.dir");
-        if (result != null && !result.isEmpty() && new File(result).exists()) {
+        if (result != null && result.length()!=0 && new File(result).exists()) {
             result += File.separator + ".dosbox";
             File f = new File(result);
             if (!f.exists()) {

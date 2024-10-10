@@ -4,18 +4,18 @@ import jdos.util.LongHelper;
 import jdos.util.OverflowException;
 
 public class Instructions extends Table_ea {
-    public interface loadb {
-        int call();
+    static public interface loadb {
+        public int call();
     }
-    public interface saveb {
-        void call(int value);
+    static public interface saveb {
+        public void call(int value);
     }
 
-    public interface loadw {
-        int call();
+    static public interface loadw {
+        public int call();
     }
-    public interface savew {
-        void call(int value);
+    static public interface savew {
+        public void call(int value);
     }
 
     static public int ADDB(int op2, int l) {
@@ -417,8 +417,7 @@ public class Instructions extends Table_ea {
     }
 
     static public int do_RCLB(int op2, int l) {
-        /*Bit8u*//*Bit8u*/
-        int cf= FillFlags() &0x1;
+        /*Bit8u*/int cf=(/*Bit8u*/int)FillFlags()&0x1;
         lf_var1b(l);
         lf_var2b(op2%9);
         lf_resb((lf_var1b() << lf_var2b()) |
@@ -438,8 +437,7 @@ public class Instructions extends Table_ea {
         return (op2%17)!=0;
     }
     static public int do_RCLW(int op2, int l) {
-        /*Bit16u*//*Bit16u*/
-        int cf= FillFlags() &0x1;
+        /*Bit16u*/int cf=(/*Bit16u*/int)FillFlags()&0x1;
         lf_var1w(l);
         lf_var2b(op2%17);
         lf_resw((lf_var1w() << lf_var2b()) |
@@ -758,10 +756,10 @@ public class Instructions extends Table_ea {
             CPU_Regs.SETFLAGBIT(CPU_Regs.OF,false);
             CPU_Regs.SETFLAGBIT(CPU_Regs.AF,false);
             type=t_UNKNOWN;
-            return false;
+            return true;
         } else {
             CPU.CPU_PrepareException(0, 0);
-            return true;
+            return false;
         }
     }
 
@@ -805,7 +803,7 @@ public class Instructions extends Table_ea {
     }
 
     static public void MULD(int l) {
-        /*Bit64u*/long tempu=(CPU_Regs.reg_eax.dword & 0xFFFFFFFFL)*(l & 0xFFFFFFFFL);
+        /*Bit64u*/long tempu=(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl)*(l & 0xFFFFFFFFl);
         CPU_Regs.reg_eax.dword=(int)tempu;
         CPU_Regs.reg_edx.dword=(int)(tempu >> 32);
         FillFlagsNoCFOF();
@@ -857,7 +855,7 @@ public class Instructions extends Table_ea {
             CPU.CPU_PrepareException(0, 0);
             return false;
         }
-        /*Bit64u*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFL);
+        /*Bit64u*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         try {
             /*Bit64u*/long quo= LongHelper.divideLongByInt(num,val);
             CPU_Regs.reg_edx.dword=(int)(quo >> 32);
@@ -911,10 +909,10 @@ public class Instructions extends Table_ea {
             CPU.CPU_PrepareException(0, 0);
             return false;
         }
-        /*Bit64s*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFL);
+        /*Bit64s*/long num=(((long)CPU_Regs.reg_edx.dword)<<32)|(CPU_Regs.reg_eax.dword & 0xFFFFFFFFl);
         /*Bit64s*/long quo=num/val;
         /*Bit32s*/int rem=(/*Bit32s*/int)(num % val);
-        /*Bit32s*/int quo32s=(/*Bit32s*/int)(quo& 0xffffffffL);
+        /*Bit32s*/int quo32s=(/*Bit32s*/int)(quo&0xffffffffl);
         if (quo!=(/*Bit64s*/long)quo32s) {
             CPU.CPU_PrepareException(0, 0);
             return false;
@@ -1012,7 +1010,7 @@ public class Instructions extends Table_ea {
         lf_var2b(val);
         var1=(l<<16)|op2;
         long tempd=(long)var1 << lf_var2b();
-        if (lf_var2b()>16) tempd |= ((long) op2 << (lf_var2b() - 16));
+        if (lf_var2b()>16) tempd |= (op2 << (lf_var2b() - 16));
         lf_resw((int)(tempd >>> 16));
         type=t_DSHLw;
         return lf_resw();
@@ -1033,7 +1031,7 @@ public class Instructions extends Table_ea {
         lf_var2b(val);
         var1=(op2<<16)|l;
         /*Bit32u*/long tempd=var1 >>> lf_var2b();
-        if (lf_var2b()>16) tempd |= ((long) op2 << (32-lf_var2b() ));
+        if (lf_var2b()>16) tempd |= (op2 << (32-lf_var2b() ));
         lf_resw((/*Bit16u*/int)(tempd));
         type=t_DSHRw;
         return lf_resw();
@@ -1054,21 +1052,21 @@ public class Instructions extends Table_ea {
     static public int Negd(int op1) {
         Flags.type=Flags.t_NEGd;
         var1 = op1;
-        res = -op1;
+        res = 0 - op1;
         return res;
     }
 
     static public int Negb(int op1) {
         Flags.type=Flags.t_NEGb;
         Flags.lf_var1b(op1);
-        Flags.lf_resb(-Flags.lf_var1b());
+        Flags.lf_resb(0-Flags.lf_var1b());
         return Flags.lf_resb();
     }
 
     static public int Negw(int op1) {
         Flags.type=Flags.t_NEGw;
         Flags.lf_var1w(op1);
-        Flags.lf_resw(-Flags.lf_var1w());
+        Flags.lf_resw(0-Flags.lf_var1w());
         return Flags.lf_resw();
     }
 }

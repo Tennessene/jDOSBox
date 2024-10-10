@@ -14,8 +14,8 @@ public class KernelMemory {
     int placement_address = PLACEMENT_START;
     KernelHeap heap = null;
     static private final int KHEAP_INITIAL_SIZE = 0x10000;
-    private final long KHEAP_START = WinProcess.ADDRESS_KHEAP_START;
-    private final long KHEAP_END = WinProcess.ADDRESS_KHEAP_END;
+    private long KHEAP_START = WinProcess.ADDRESS_KHEAP_START;
+    private long KHEAP_END = WinProcess.ADDRESS_KHEAP_END;
 
     public int kmalloc(int sz) {
         return kmalloc(sz, false, null);
@@ -207,7 +207,7 @@ public class KernelMemory {
     void alloc_frame(int pagePtr, boolean is_kernel, boolean is_writeable) {
         int page = Memory.mem_readd(pagePtr);
         if (Page.getFrame(page) != 0) {
-            // Frame was already allocated, return straight away.  This will only happen during initialization of paging
+            return; // Frame was already allocated, return straight away.  This will only happen during initialization of paging
         } else {
             int idx = first_frame(); // idx is now the index of the first free frame.
             if (idx == -1) {
@@ -319,7 +319,7 @@ public class KernelMemory {
         interrupts.registerHandler(Interrupts.IRQ14, pageFaultHandler);
     }
 
-    final Callback.Handler pageFaultHandler = new Callback.Handler() {
+    Callback.Handler pageFaultHandler = new Callback.Handler() {
         public int call() {
             System.out.println("Page Fault");
             System.exit(0);

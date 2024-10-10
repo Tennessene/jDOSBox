@@ -28,7 +28,7 @@ public class Waveform extends WinAPI {
 
         static public WaveObject get(int handle) {
             WinObject object = getObject(handle);
-            if (!(object instanceof WaveObject))
+            if (object == null || !(object instanceof WaveObject))
                 return null;
             return (WaveObject)object;
         }
@@ -38,7 +38,7 @@ public class Waveform extends WinAPI {
             thread = new WaveOutThread(format);
             thread.start();
         }
-        public final WaveOutThread thread;
+        public WaveOutThread thread;
     }
 
     private static class WaveOutThread extends Thread {
@@ -47,7 +47,7 @@ public class Waveform extends WinAPI {
             open();
         }
 
-        public void open() {
+        public boolean open() {
             try {
                 AudioFormat af = new AudioFormat(format.nSamplesPerSec, format.wBitsPerSample, format.nChannels, true, false);
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, af);
@@ -56,21 +56,23 @@ public class Waveform extends WinAPI {
                 line.start();
             } catch (Exception e) {
                 e.printStackTrace();
+                return false;
             }
+            return true;
         }
 
         public void reset() {
             buffers.clear();
         }
 
-        final Vector<WAVEHDR> buffers = new Vector<>();
-        final WAVEFORMATEX format;
+        final Vector<WAVEHDR> buffers = new Vector<WAVEHDR>();
+        WAVEFORMATEX format;
         boolean exit = false;
         SourceDataLine line;
 
         public void run() {
             while (!exit) {
-                while (!buffers.isEmpty()) {
+                while (buffers.size()>0) {
                     WAVEHDR hdr = buffers.remove(0);
                     line.write(hdr.data, 0, hdr.data.length);
                     hdr.dwFlags &= ~WAVEHDR.WHDR_INQUEUE;
@@ -78,10 +80,8 @@ public class Waveform extends WinAPI {
                     hdr.writeFlags();
                 }
                 synchronized (buffers) {
-                    if (buffers.isEmpty() && !exit)
-                        try {buffers.wait();} catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                    if (buffers.size()==0 && !exit)
+                        try {buffers.wait();} catch (Exception e){}
                 }
             }
             line.stop();
@@ -99,9 +99,7 @@ public class Waveform extends WinAPI {
         synchronized(obj.thread.buffers) {
             obj.thread.buffers.notify();
         }
-        try {obj.thread.join();} catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        try {obj.thread.join();} catch (Exception e) {}
         obj.close();
         return WinMM.MMSYSERR_NOERROR;
     }

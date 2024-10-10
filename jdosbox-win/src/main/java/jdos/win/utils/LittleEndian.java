@@ -1,7 +1,7 @@
 package jdos.win.utils;
 
 public class LittleEndian {
-    final byte[] buffer;
+    byte[] buffer;
     int pos;
 
     public LittleEndian(byte[] buffer) {
@@ -73,7 +73,7 @@ public class LittleEndian {
     }
 
      static public String readCString(byte[] buffer, int offset) {
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer();
         while (offset<buffer.length) {
             char c = (char)buffer[offset++]; // :TODO: need to research converting according to 1252
             if (c == 0)
@@ -90,7 +90,7 @@ public class LittleEndian {
     }
 
     static public String readCString(byte[] buffer, int offset, int len) {
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer();
         while (offset<buffer.length && len>0) {
             char c = (char)buffer[offset++]; // :TODO: need to research converting according to 1252
             if (c == 0)
@@ -102,7 +102,7 @@ public class LittleEndian {
     }
 
     static public String readCStringW(byte[] buffer, int offset) {
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer();
         while (offset<buffer.length) {
             char c = (char)readShort(buffer, offset);
             if (c == 0)
@@ -114,7 +114,7 @@ public class LittleEndian {
     }
 
     static public String readCStringW(byte[] buffer, int offset, int len) {
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer();
         while (offset<buffer.length && len>0) {
             char c = (char)readShort(buffer, offset);
             if (c == 0)
@@ -125,23 +125,23 @@ public class LittleEndian {
         }
         return result.toString();
     }
-    static public short readShort(byte[] buffer, int offset) {
+    static public final short readShort(byte[] buffer, int offset) {
         return (short)((buffer[offset] & 0xFF) | ((buffer[offset+1] & 0xFF) << 8));
     }
 
-    static public int readUnsignedShort(byte[] buffer, int offset) {
+    static public final int readUnsignedShort(byte[] buffer, int offset) {
         return (buffer[offset] & 0xFF) | ((buffer[offset+1] & 0xFF) << 8);
     }
 
-    static public int readInt(byte[] buffer, int offset) {
+    static public final int readInt(byte[] buffer, int offset) {
         return (buffer[offset] & 0xFF) | ((buffer[offset+1] & 0xFF) << 8) | ((buffer[offset+2] & 0xFF) << 16) | ((buffer[offset+3] & 0xFF) << 24);
     }
 
-    static public long readUnsignedInt(byte[] buffer, int offset) {
-        return readInt(buffer, offset) & 0xFFFFFFFFL;
+    static public final long readUnsignedInt(byte[] buffer, int offset) {
+        return readInt(buffer, offset) & 0xFFFFFFFFl;
     }
 
-    static public short readUnsignedByte(byte[] buffer, int offset) {
+    static public final short readUnsignedByte(byte[] buffer, int offset) {
         return (short)(buffer[offset] & 0xFF);
     }
 }

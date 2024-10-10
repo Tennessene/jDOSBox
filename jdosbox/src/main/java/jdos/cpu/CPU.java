@@ -31,8 +31,8 @@ public class CPU extends Module_base {
     public static final int CPU_ARCHTYPE_PENTIUM=0x50;
     public static final int CPU_ARCHTYPE_PENTIUM_PRO=0x55;
 
-    public interface CPU_Decoder {
-        /*Bits*/int call();
+    public static interface CPU_Decoder {
+        public /*Bits*/int call();
     }
 
     public static final int CPU_INT_SOFTWARE=0x1;
@@ -312,22 +312,22 @@ public class CPU extends Module_base {
     static private final int TSS_32_ldt_offset = 96;
 
     static public class Descriptor {
-        static final public class Descriptor_union {
-            final S_Descriptor seg = new S_Descriptor();
-            final G_Descriptor gate = new G_Descriptor();
-            public void setType(int type) {
-                seg.fill &= ~(0x1FL << 40);
+        final public class Descriptor_union {
+            S_Descriptor seg = new S_Descriptor();
+            G_Descriptor gate = new G_Descriptor();
+            final public void setType(int type) {
+                seg.fill &= ~(0x1Fl << 40);
                 seg.fill |= ((long)type << 40);
                 gate.fill = seg.fill;
             }
-            public int getType() {
+            final public int getType() {
                 return (int)((seg.fill >> 40) & 0x1F);
             }
-            public void fill(long l) {
+            final public void fill(long l) {
                 seg.fill = l;
                 gate.fill = l;
             }
-            public int get_fill(int index) {
+            final public int get_fill(int index) {
                 if (index == 0) {
                     return (int)seg.fill;
                 } else {
@@ -337,7 +337,7 @@ public class CPU extends Module_base {
         }
         final public void Load(/*PhysPt*/int address) {
             cpu.mpl=0;
-            saved.fill((Memory.mem_readd(address) & 0xFFFFFFFFL) | (long)Memory.mem_readd(address + 4) << 32);
+            saved.fill((Memory.mem_readd(address) & 0xFFFFFFFFl) | (long)Memory.mem_readd(address + 4) << 32);
             cpu.mpl=3;
         }
 
@@ -352,7 +352,7 @@ public class CPU extends Module_base {
             return (saved.seg.base_24_31()<<24) | (saved.seg.base_16_23()<<16) | saved.seg.base_0_15();
         }
         final public /*Bitu*/long GetLimit () {
-            /*Bitu*/long limit = ((long) saved.seg.limit_16_19() <<16) | saved.seg.limit_0_15();
+            /*Bitu*/long limit = (saved.seg.limit_16_19()<<16) | saved.seg.limit_0_15();
             if (saved.seg.g() != 0)	{
                 limit = (limit<<12) | 0xFFF;            }
             return limit;
@@ -415,14 +415,16 @@ public class CPU extends Module_base {
                 return true;
             }
         }
-        public void SetDescriptor(/*Bitu*/int selector, Descriptor desc) {
+        public boolean SetDescriptor(/*Bitu*/int selector, Descriptor desc) {
             /*Bitu*/int address=selector & ~7;
             if ((selector & 4) != 0) {
-                if (address>=ldt_limit) return;
+                if (address>=ldt_limit) return false;
                 desc.Save(ldt_base+address);
+                return true;
             } else {
-                if (address>=table_limit) return;
+                if (address>=table_limit) return false;
                 desc.Save(table_base+address);
+                return true;
             }
         }
         public /*Bitu*/int SLDT()	{
@@ -451,13 +453,13 @@ public class CPU extends Module_base {
     }
 
     final private static class TSS_Descriptor extends Descriptor {
-        public /*Bitu*/int IsBusy() {
+        final public /*Bitu*/int IsBusy() {
             return saved.seg.type() & 2;
         }
-        public /*Bitu*/int Is386() {
+        final public /*Bitu*/int Is386() {
             return saved.seg.type() & 8;
         }
-        void SetBusy(boolean busy) {
+        final void SetBusy(boolean busy) {
             if (busy) {
                 saved.setType(saved.getType()|2);
             } else {
@@ -474,22 +476,22 @@ public class CPU extends Module_base {
         public boolean pmode;							/* Is Protected mode enabled */
         final public GDTDescriptorTable gdt = new GDTDescriptorTable();
         final public DescriptorTable idt = new DescriptorTable();
-        static final public class Stack {
+        final public class Stack {
             public /*Bitu*/int mask, notmask;
             public boolean big;
         }
         final public Stack stack = new Stack();
-        static final public class Code {
+        final public class Code {
             public boolean big;
         }
         final public Code code = new Code();
-        static final public class Hlt {
+        final public class Hlt {
             public /*Bitu*/int cs;
             public int eip;
             public CPU_Decoder old_decoder;
         }
         final public Hlt hlt = new Hlt();
-        static final public class Exception {
+        final public class Exception {
             public /*Bitu*/int which, error;
         }
         final public Exception exception = new Exception();
@@ -674,7 +676,7 @@ public class CPU extends Module_base {
         return false;
     }
 
-    static final Descriptor desc_temp_1 = new Descriptor();
+    static Descriptor desc_temp_1 = new Descriptor();
     static private void CPU_CheckSegments() {
         boolean needs_invalidation=false;
 
@@ -723,19 +725,19 @@ public class CPU extends Module_base {
         public TaskStateSegment() {
             valid=false;
         }
-        public boolean IsValid() {
+        final public boolean IsValid() {
             return valid;
         }
-        /*Bitu*/int Get_back() {
+        final /*Bitu*/int Get_back() {
             cpu.mpl=0;
             /*Bit16u*/int backlink=Memory.mem_readw(base);
             cpu.mpl=3;
             return backlink;
         }
-        void SaveSelector() {
+        final void SaveSelector() {
             cpu.gdt.SetDescriptor(selector,desc);
         }
-        void Get_SSx_ESPx( /*Bitu*/int level, /*Bitu*/IntRef _ss, /*Bitu*/IntRef _esp) {
+        final void Get_SSx_ESPx( /*Bitu*/int level, /*Bitu*/IntRef _ss, /*Bitu*/IntRef _esp) {
             cpu.mpl=0;
             if (is386 != 0) {
                 /*PhysPt*/int where=base+TSS_32_esp0_offset+level*8;
@@ -748,7 +750,7 @@ public class CPU extends Module_base {
             }
             cpu.mpl=3;
         }
-        boolean SetSelector( /*Bitu*/int new_sel) {
+        final boolean SetSelector( /*Bitu*/int new_sel) {
             valid=false;
             if ((new_sel & 0xfffc)==0) {
                 selector=0;
@@ -774,7 +776,7 @@ public class CPU extends Module_base {
             is386=desc.Is386();
             return true;
         }
-        final TSS_Descriptor desc = new TSS_Descriptor();
+        TSS_Descriptor desc = new TSS_Descriptor();
         /*Bitu*/int selector;
         /*PhysPt*/int base;
         /*Bitu*/long limit;
@@ -792,7 +794,7 @@ public class CPU extends Module_base {
 
     static private final TaskStateSegment new_tss_temp=new TaskStateSegment();
     static private final Descriptor cs_desc_temp = new Descriptor();
-    static private void CPU_SwitchTask( /*Bitu*/int new_tss_selector, int tstype, /*Bitu*/int old_eip) {
+    static private boolean CPU_SwitchTask( /*Bitu*/int new_tss_selector,int tstype, /*Bitu*/int old_eip) {
         Flags.FillFlags();
 
         if (!new_tss_temp.SetSelector(new_tss_selector))
@@ -928,7 +930,7 @@ public class CPU extends Module_base {
         }
         /* Load the new selectors */
         if ((CPU_Regs.flags & CPU_Regs.VM) != 0) {
-            CPU_Regs.SegSet16CS(new_cs);
+            CPU_Regs.SegSet16CS((int)new_cs);
             cpu.code.big=false;
             CPU_SetCPL(3);			//We don't have segment caches so this will do
         } else {
@@ -936,8 +938,8 @@ public class CPU extends Module_base {
             if (new_ldt!=0) CPU_LLDT(new_ldt);
             /* Load the new CS*/
 
-            CPU_SetCPL(new_cs & 3);
-            if (!cpu.gdt.GetDescriptor(new_cs,cs_desc_temp))
+            CPU_SetCPL((int)(new_cs & 3));
+            if (!cpu.gdt.GetDescriptor((int)new_cs,cs_desc_temp))
                 Log.exit("Task switch with CS beyond limits");
             if (cs_desc_temp.saved.seg.p()==0)
                 Log.exit("Task switch with non present code-segment");
@@ -962,17 +964,18 @@ public class CPU extends Module_base {
                 Log.exit("Task switch CS Type "+cs_desc_temp.Type());
             }
         }
-        CPU_SetSegGeneralES(new_es);
-        CPU_SetSegGeneralSS(new_ss);
-        CPU_SetSegGeneralDS(new_ds);
-        CPU_SetSegGeneralFS(new_fs);
-        CPU_SetSegGeneralGS(new_gs);
+        CPU_SetSegGeneralES((int)new_es);
+        CPU_SetSegGeneralSS((int)new_ss);
+        CPU_SetSegGeneralDS((int)new_ds);
+        CPU_SetSegGeneralFS((int)new_fs);
+        CPU_SetSegGeneralGS((int)new_gs);
         if (!cpu_tss.SetSelector(new_tss_selector)) {
             if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU, LogSeverities.LOG_NORMAL, "TaskSwitch: set tss selector "+Integer.toString(new_tss_selector, 16)+" failed");
         }
 //	cpu_tss.desc.SetBusy(true);
 //	cpu_tss.SaveSelector();
 //	LOG_MSG("Task CPL %X CS:%X IP:%X SS:%X SP:%X eflags %x",cpu.cpl,SegValue(cs),reg_eip,SegValue(ss),reg_esp,reg_flags);
+        return true;
     }
 
     static boolean doexception(int port) {
@@ -1154,7 +1157,7 @@ public class CPU extends Module_base {
                                 cpu.stack.big=false;
                                 cpu.stack.mask=0xffff;
                                 cpu.stack.notmask=0xffff0000;
-                                CPU_Regs.reg_esp.word(n_esp_1.value & 0xffff);
+                                CPU_Regs.reg_esp.word((int)(n_esp_1.value & 0xffff));
                             }
 
                             CPU_SetCPL(cs_dpl);
@@ -1467,7 +1470,7 @@ public class CPU extends Module_base {
                     cpu.stack.big=false;
                     cpu.stack.mask=0xffff;
                     cpu.stack.notmask=0xffff0000;
-                    CPU_Regs.reg_esp.word((int)(n_esp & 0xffffL));
+                    CPU_Regs.reg_esp.word((int)(n_esp & 0xffffl));
                 }
 
                 // borland extender, zrdx
@@ -1718,7 +1721,7 @@ public class CPU extends Module_base {
                                 cpu.stack.big=false;
                                 cpu.stack.mask=0xffff;
                                 cpu.stack.notmask=0xffff0000;
-                                CPU_Regs.reg_esp.word((int)(n_esp_4.value & 0xffffL));
+                                CPU_Regs.reg_esp.word((int)(n_esp_4.value & 0xffffl));
                             }
 
                             CPU_SetCPL(n_cs_desc_4.DPL());
@@ -2098,7 +2101,7 @@ public class CPU extends Module_base {
                         Main.GFX_SetTitle(CPU_CyclePercUsed,-1,false);
                         if(!printed_cycles_auto_info) {
                             printed_cycles_auto_info = true;
-                            System.out.println("DOSBox switched to max cycles, because of the setting: cycles=auto. If the game runs too fast try a fixed cycles amount in DOSBox's options.");
+                            Log.log_msg("DOSBox switched to max cycles, because of the setting: cycles=auto. If the game runs too fast try a fixed cycles amount in DOSBox's options.");
                         }
                     } else {
                         Main.GFX_SetTitle(-1,-1,false);
@@ -2112,7 +2115,7 @@ public class CPU extends Module_base {
                     CPU_AutoDetermineMode<<=CPU_AUTODETERMINE_SHIFT;
                 } else {
                     cpu.pmode=false;
-                    if ((value & CR0_PAGING)!=0) System.out.println("Paging requested without PE=1");
+                    if ((value & CR0_PAGING)!=0) Log.log_msg("Paging requested without PE=1");
                     Paging.PAGING_Enable(false);
                     if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_CPU,LogSeverities.LOG_NORMAL,"Real mode");
                 }
@@ -2287,7 +2290,7 @@ public class CPU extends Module_base {
         if (cpu.pmode && (cpu.cpl>0)) return CPU_PrepareException(EXCEPTION_GP,0);
         word&=0xf;
         if ((cpu.cr0 & 1)!=0) word|=1;
-        word|= (int) (cpu.cr0& 0xfffffff0L);
+        word|=(cpu.cr0&0xfffffff0l);
         CPU_SET_CRX(0,word);
         return false;
     }
@@ -2908,50 +2911,54 @@ public class CPU extends Module_base {
         CPU_Regs.reg_esp.dword=(CPU_Regs.reg_esp.dword & cpu.stack.notmask)|(sp_index & cpu.stack.mask);
     }
 
-    final static private Mapper.MAPPER_Handler CPU_CycleIncrease = pressed -> {
-        if (!pressed) return;
-        if (CPU_CycleAutoAdjust) {
-            CPU_CyclePercUsed+=5;
-            if (CPU_CyclePercUsed>105) CPU_CyclePercUsed=105;
-            System.out.println("CPU speed: max "+CPU_CyclePercUsed+" percent.");
-            Main.GFX_SetTitle(CPU_CyclePercUsed,-1,false);
-        } else {
-            /*Bit32s*/int old_cycles=CPU_CycleMax;
-            if (CPU_CycleUp < 100) {
-                CPU_CycleMax = (/*Bit32s*/int)(CPU_CycleMax * (1 + (float)CPU_CycleUp / 100.0));
+    final static private Mapper.MAPPER_Handler CPU_CycleIncrease = new Mapper.MAPPER_Handler() {
+        public void call(boolean pressed) {
+            if (!pressed) return;
+            if (CPU_CycleAutoAdjust) {
+                CPU_CyclePercUsed+=5;
+                if (CPU_CyclePercUsed>105) CPU_CyclePercUsed=105;
+                Log.log_msg("CPU speed: max "+CPU_CyclePercUsed+" percent.");
+                Main.GFX_SetTitle(CPU_CyclePercUsed,-1,false);
             } else {
-                CPU_CycleMax = (CPU_CycleMax + CPU_CycleUp);
-            }
+                /*Bit32s*/int old_cycles=CPU_CycleMax;
+                if (CPU_CycleUp < 100) {
+                    CPU_CycleMax = (/*Bit32s*/int)(CPU_CycleMax * (1 + (float)CPU_CycleUp / 100.0));
+                } else {
+                    CPU_CycleMax = (CPU_CycleMax + CPU_CycleUp);
+                }
 
-            CPU_CycleLeft=0;CPU_Cycles=0;
-            if (CPU_CycleMax==old_cycles) CPU_CycleMax++;
-            if(CPU_CycleMax > 15000 )
-                System.out.println("CPU speed: fixed "+CPU_CycleMax+" cycles. If you need more than 20000, try core=dynamic in DOSBox's options.");
-            else
-                System.out.println("CPU speed: fixed "+CPU_CycleMax+" cycles.");
-            Main.GFX_SetTitle(CPU_CycleMax,-1,false);
+                CPU_CycleLeft=0;CPU_Cycles=0;
+                if (CPU_CycleMax==old_cycles) CPU_CycleMax++;
+                if(CPU_CycleMax > 15000 )
+                    Log.log_msg("CPU speed: fixed "+CPU_CycleMax+" cycles. If you need more than 20000, try core=dynamic in DOSBox's options.");
+                else
+                    Log.log_msg("CPU speed: fixed "+CPU_CycleMax+" cycles.");
+                Main.GFX_SetTitle(CPU_CycleMax,-1,false);
+            }
         }
     };
-    final static private Mapper.MAPPER_Handler CPU_CycleDecrease = pressed -> {
-        if (!pressed) return;
-        if (CPU_CycleAutoAdjust) {
-            CPU_CyclePercUsed-=5;
-            if (CPU_CyclePercUsed<=0) CPU_CyclePercUsed=1;
-            if(CPU_CyclePercUsed <=70)
-                System.out.println("CPU speed: max "+CPU_CyclePercUsed+" percent. If the game runs too fast, try a fixed cycles amount in DOSBox's options.");
-            else
-                System.out.println("CPU speed: max "+CPU_CyclePercUsed+" percent.");
-            Main.GFX_SetTitle(CPU_CyclePercUsed,-1,false);
-        } else {
-            if (CPU_CycleDown < 100) {
-                CPU_CycleMax = (/*Bit32s*/int)(CPU_CycleMax / (1 + (float)CPU_CycleDown / 100.0));
+    final static private Mapper.MAPPER_Handler CPU_CycleDecrease = new Mapper.MAPPER_Handler() {
+        public void call(boolean pressed) {
+            if (!pressed) return;
+            if (CPU_CycleAutoAdjust) {
+                CPU_CyclePercUsed-=5;
+                if (CPU_CyclePercUsed<=0) CPU_CyclePercUsed=1;
+                if(CPU_CyclePercUsed <=70)
+                    Log.log_msg("CPU speed: max "+CPU_CyclePercUsed+" percent. If the game runs too fast, try a fixed cycles amount in DOSBox's options.");
+                else
+                    Log.log_msg("CPU speed: max "+CPU_CyclePercUsed+" percent.");
+                Main.GFX_SetTitle(CPU_CyclePercUsed,-1,false);
             } else {
-                CPU_CycleMax = (CPU_CycleMax - CPU_CycleDown);
+                if (CPU_CycleDown < 100) {
+                    CPU_CycleMax = (/*Bit32s*/int)(CPU_CycleMax / (1 + (float)CPU_CycleDown / 100.0));
+                } else {
+                    CPU_CycleMax = (CPU_CycleMax - CPU_CycleDown);
+                }
+                CPU_CycleLeft=0;CPU_Cycles=0;
+                if (CPU_CycleMax <= 0) CPU_CycleMax=1;
+                Log.log_msg("CPU speed: fixed "+CPU_CycleMax+" cycles.");
+                Main.GFX_SetTitle(CPU_CycleMax,-1,false);
             }
-            CPU_CycleLeft=0;CPU_Cycles=0;
-            if (CPU_CycleMax <= 0) CPU_CycleMax=1;
-            System.out.println("CPU speed: fixed "+CPU_CycleMax+" cycles.");
-            Main.GFX_SetTitle(CPU_CycleMax,-1,false);
         }
     };
 
@@ -2975,20 +2982,20 @@ public class CPU extends Module_base {
         Dosbox.ticksScheduled = 0;
     }
 
-    private static final Hashtable<Integer, Long> msrs = new Hashtable<>();
+    private static Hashtable<Integer, Long> msrs = new Hashtable<Integer, Long>();
 
     public static long readMSR(int index) {
-        Integer i = index;
+        Integer i = new Integer(index);
         Long result = msrs.get(i);
         if (result != null) {
-            return result;
+            return result.longValue();
         }
         return 0;
     }
 
     public static void writeMSR(int index, long value) {
-        Integer i = index;
-        msrs.put(i, value);
+        Integer i = new Integer(index);
+        msrs.put(i, new Long(value));
     }
     private static boolean inited = false;
     static public void initialize() {
@@ -3074,7 +3081,6 @@ public class CPU extends Module_base {
                             int percval=Integer.parseInt(str.substring(0, str.length()-1));
                             if ((percval>0) && (percval<=105)) CPU_CyclePercUsed=percval;
                         } catch (Exception e) {
-                            throw new RuntimeException(e);
                         }
                     } else if (str.equals("limit")) {
                         cmdnum++;
@@ -3083,7 +3089,6 @@ public class CPU extends Module_base {
                                 int cyclimit=Integer.parseInt(str);
                                 if (cyclimit>0) CPU_CycleLimit=cyclimit;
                             } catch (Exception e) {
-                                throw new RuntimeException(e);
                             }
                         }
                     }
@@ -3102,7 +3107,6 @@ public class CPU extends Module_base {
                                 int percval=Integer.parseInt(str.substring(0, str.length()-1));
                                 if ((percval>0) && (percval<=105)) CPU_CyclePercUsed=percval;
                             } catch (Exception e) {
-                                throw new RuntimeException(e);
                             }
                         } else if (str.equals("limit")) {
                             cmdnum++;
@@ -3111,7 +3115,6 @@ public class CPU extends Module_base {
                                     int cyclimit=Integer.parseInt(str);
                                     if (cyclimit>0) CPU_CycleLimit=cyclimit;
                                 } catch (Exception e) {
-                                    throw new RuntimeException(e);
                                 }
                             }
                         } else {
@@ -3122,23 +3125,19 @@ public class CPU extends Module_base {
                                     CPU_OldCycleMax=rmdval;
                                 }
                             } catch (Exception e) {
-                                throw new RuntimeException(e);
                             }
                         }
                     }
                 }
             } else if(type.equals("fixed")) {
                 str = cmd.FindCommand(1);
-                try {CPU_CycleMax=Integer.parseInt(str);} catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                try {CPU_CycleMax=Integer.parseInt(str);} catch (Exception e){}
             } else {
-                int rmdval;
+                int rmdval=0;
                 try {
                     rmdval = Integer.parseInt(type);
                     if(rmdval!=0) CPU_CycleMax=rmdval;
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
             CPU_CycleAutoAdjust=false;
@@ -3167,48 +3166,40 @@ public class CPU extends Module_base {
 
         CPU_ArchitectureType = CPU_ARCHTYPE_MIXED;
         String cputype = section.Get_string("cputype");
-        switch (cputype) {
-            case "auto":
-                CPU_ArchitectureType = CPU_ARCHTYPE_MIXED;
-                break;
-            case "386":
-                CPU_ArchitectureType = CPU_ARCHTYPE_386;
-                break;
-            case "386_prefetch":
-                CPU_ArchitectureType = CPU_ARCHTYPE_386;
-                if (core.equals("normal")) {
-                    cpudecoder = Core_prefetch.CPU_Core_Prefetch_Run;
-                    CPU_PrefetchQueueSize = 16;
-                } else if (core.equals("auto")) {
-                    cpudecoder = Core_prefetch.CPU_Core_Prefetch_Run;
-                    CPU_PrefetchQueueSize = 16;
-                    CPU_AutoDetermineMode &= (~CPU_AUTODETERMINE_CORE);
-                } else {
-                    Log.exit("prefetch queue emulation requires the normal core setting.");
-                }
-                break;
-            case "486":
-                CPU_ArchitectureType = CPU_ARCHTYPE_486NEW;
-                break;
-            case "486_prefetch":
-                CPU_ArchitectureType = CPU_ARCHTYPE_486NEW;
-                if (core.equals("normal")) {
-                    cpudecoder = Core_prefetch.CPU_Core_Prefetch_Run;
-                    CPU_PrefetchQueueSize = 32;
-                } else if (core.equals("auto")) {
-                    cpudecoder = Core_prefetch.CPU_Core_Prefetch_Run;
-                    CPU_PrefetchQueueSize = 32;
-                    CPU_AutoDetermineMode &= (~CPU_AUTODETERMINE_CORE);
-                } else {
-                    Log.exit("prefetch queue emulation requires the normal core setting.");
-                }
-                break;
-            case "pentium":
-                CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM;
-                break;
-            case "p6":
-                CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM_PRO;
-                break;
+        if (cputype.equals("auto")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_MIXED;
+        } else if (cputype.equals("386")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_386;
+        } else if (cputype.equals("386_prefetch")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_386;
+            if (core.equals("normal")) {
+                cpudecoder=Core_prefetch.CPU_Core_Prefetch_Run;
+                CPU_PrefetchQueueSize = 16;
+            } else if (core.equals("auto")) {
+                cpudecoder=Core_prefetch.CPU_Core_Prefetch_Run;
+                CPU_PrefetchQueueSize = 16;
+                CPU_AutoDetermineMode&=(~CPU_AUTODETERMINE_CORE);
+            } else {
+                Log.exit("prefetch queue emulation requires the normal core setting.");
+            }
+        } else if (cputype.equals("486")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_486NEW;
+        } else if (cputype.equals("486_prefetch")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_486NEW;
+            if (core.equals("normal")) {
+                cpudecoder=Core_prefetch.CPU_Core_Prefetch_Run;
+                CPU_PrefetchQueueSize = 32;
+            } else if (core.equals("auto")) {
+                cpudecoder=Core_prefetch.CPU_Core_Prefetch_Run;
+                CPU_PrefetchQueueSize = 32;
+                CPU_AutoDetermineMode&=(~CPU_AUTODETERMINE_CORE);
+            } else {
+                Log.exit("prefetch queue emulation requires the normal core setting.");
+            }
+        } else if (cputype.equals("pentium")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM;
+        } else if (cputype.equals("p6")) {
+            CPU_ArchitectureType = CPU_ARCHTYPE_PENTIUM_PRO;
         }
 
         if (CPU_ArchitectureType>=CPU_ARCHTYPE_486NEW) CPU_extflags_toggle=(CPU_Regs.ID|CPU_Regs.AC);

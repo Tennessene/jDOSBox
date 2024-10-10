@@ -11,7 +11,7 @@ public class WinPalette extends WinGDI {
 
     static public WinPalette get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinPalette))
+        if (object == null || !(object instanceof WinPalette))
             return null;
         return (WinPalette)object;
     }
@@ -78,7 +78,7 @@ public class WinPalette extends WinGDI {
         return SYSPAL_NOSTATIC;
     }
 
-    final int[] palette;
+    int[] palette;
 
     public WinPalette(int handle, int[] palette) {
         super(handle);

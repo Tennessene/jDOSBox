@@ -12,7 +12,7 @@ public class WinEvent extends WaitObject {
 
     static public WinEvent get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinEvent))
+        if (object == null || !(object instanceof WinEvent))
             return null;
         return (WinEvent)object;
     }
@@ -30,8 +30,9 @@ public class WinEvent extends WaitObject {
         return WinAPI.TRUE;
     }
 
-    public void pulse() {
+    public int pulse() {
         Win.panic("Event.pulse not implemented yet");
+        return WinAPI.TRUE;
     }
 
     boolean isReady() {
@@ -75,6 +76,6 @@ public class WinEvent extends WaitObject {
         //}
     }
 
-    public final boolean manual;
+    public boolean manual;
     public boolean set;
 }

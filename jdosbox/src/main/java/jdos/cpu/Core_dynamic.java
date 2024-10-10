@@ -55,7 +55,7 @@ public class Core_dynamic {
     };
 
     private static CacheBlockDynRec LinkBlocks(CacheBlockDynRec running, /*BlockReturn*/int ret) {
-        CacheBlockDynRec block;
+        CacheBlockDynRec block=null;
         // the last instruction was a control flow modifying instruction
         /*Bitu*/int temp_ip=CPU_Regs.reg_csPhys.dword+CPU_Regs.reg_eip;
         Paging.PageHandler handler = Paging.get_tlb_readhandler(temp_ip);
@@ -63,7 +63,7 @@ public class Core_dynamic {
             CodePageHandlerDynRec temp_handler=(CodePageHandlerDynRec)handler;
             if ((temp_handler.flags & Paging.PFLAG_HASCODE)!=0) {
                 // see if the target is an already translated block
-                block=temp_handler.FindCacheBlock(temp_ip & 4095);
+                block=temp_handler.FindCacheBlock((int)(temp_ip & 4095));
                 if (block==null) return null;
 
                 // found it, link the current block to
@@ -89,7 +89,7 @@ public class Core_dynamic {
                 CodePageHandlerDynRec chandler=null;
                 int page_ip_point = ip_point & 4095;
 
-                if (handler instanceof CodePageHandlerDynRec)
+                if (handler != null && handler instanceof CodePageHandlerDynRec)
                     chandler = (CodePageHandlerDynRec)handler;
                 if (chandler == null) {
                     // see if the current page is present and contains code

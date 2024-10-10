@@ -2,7 +2,7 @@ package jdos.cpu;
 
 public class Flags {
     // needs to come before creating LazyFlags
-    static public final GetFlags t_UNKNOWN = new GetFlags() {
+    static public GetFlags t_UNKNOWN = new GetFlags() {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return CPU_Regs.GETFLAG(CPU_Regs.AF) != 0;}
         public boolean ZF() {return CPU_Regs.GETFLAG(CPU_Regs.ZF) != 0;}
@@ -119,12 +119,12 @@ public class Flags {
         CPU_Regs.SETFLAGBIT(CPU_Regs.AF,get_AF());
     }
 
-    public interface GetFlags {
-        boolean CF();
-        boolean AF();
-        boolean ZF();
-        boolean SF();
-        boolean OF();
+    static public interface GetFlags {
+        public boolean CF();
+        public boolean AF();
+        public boolean ZF();
+        public boolean SF();
+        public boolean OF();
     }
 
     final static public GetFlags t_INCb = new GetFlags() {
@@ -171,7 +171,7 @@ public class Flags {
         public boolean CF() {return CPU_Regs.GETFLAG(CPU_Regs.CF)!=0;}
         public boolean AF() {return (lf_resd() & 0x0f) == 0x0f;}
         public boolean ZF() {return (lf_resd()==0);}
-        public boolean SF() {return	(lf_resd()& 0x80000000L)!= 0;}
+        public boolean SF() {return	(lf_resd()&0x80000000l)!= 0;}
         public boolean OF() {return (lf_resd() == 0x7fffffff);}
     };
 
@@ -192,7 +192,7 @@ public class Flags {
     };
 
     final static public GetFlags t_ADDd = new GetFlags() {
-        public boolean CF() {return ((lf_resd() & 0xFFFFFFFFL)<(lf_var1d() & 0xFFFFFFFFL));}
+        public boolean CF() {return ((lf_resd() & 0xFFFFFFFFl)<(lf_var1d() & 0xFFFFFFFFl));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
         public boolean SF() {return	(lf_resd()&0x80000000)!= 0;}
@@ -216,7 +216,7 @@ public class Flags {
     };
 
     final static public GetFlags t_ADCd = new GetFlags() {
-        public boolean CF() {return ((lf_resd() & 0xFFFFFFFFL) < (lf_var1d() & 0xFFFFFFFFL)) || (oldcf && (lf_resd() == lf_var1d()));}
+        public boolean CF() {return ((lf_resd() & 0xFFFFFFFFl) < (lf_var1d() & 0xFFFFFFFFl)) || (oldcf && (lf_resd() == lf_var1d()));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
         public boolean SF() {return	(lf_resd()&0x80000000)!= 0;}
@@ -336,7 +336,7 @@ public class Flags {
     };
 
     final static public GetFlags t_SUBd = new GetFlags() {
-        public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFL)<(lf_var2d() & 0xFFFFFFFFL));}
+        public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFl)<(lf_var2d() & 0xFFFFFFFFl));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
         public boolean SF() {return	(lf_resd()&0x80000000)!= 0;}
@@ -360,7 +360,7 @@ public class Flags {
     };
 
     final static public GetFlags t_CMPd = new GetFlags() {
-        public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFL)<(lf_var2d() & 0xFFFFFFFFL));}
+        public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFl)<(lf_var2d() & 0xFFFFFFFFl));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
         public boolean SF() {return	(lf_resd()&0x80000000)!= 0;}
@@ -384,7 +384,7 @@ public class Flags {
     };
 
     final static public GetFlags t_SBBd = new GetFlags() {
-        public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFL) < (lf_resd() & 0xFFFFFFFFL)) || (oldcf && (lf_var2d()==0xffffffff));}
+        public boolean CF() {return ((lf_var1d() & 0xFFFFFFFFl) < (lf_resd() & 0xFFFFFFFFl)) || (oldcf && (lf_var2d()==0xffffffff));}
         public boolean AF() {return (((lf_var1d() ^ lf_var2d()) ^ lf_resd()) & 0x10) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
         public boolean SF() {return	(lf_resd()&0x80000000)!= 0;}
@@ -444,7 +444,7 @@ public class Flags {
         public boolean AF() {return (lf_var2d() & 0x1f) != 0;}
         public boolean ZF() {return (lf_resd()==0);}
         public boolean SF() {return	(lf_resd()&0x80000000)!= 0;}
-        public boolean OF() {return (lf_var2b()&0x1f)==1 && (lf_var1d() & 0xFFFFFFFFL) > 0x80000000L;}
+        public boolean OF() {return (lf_var2b()&0x1f)==1 && (lf_var1d() & 0xFFFFFFFFl) > 0x80000000l;}
     };
 
     final static public GetFlags t_SARb = new GetFlags() {
@@ -565,7 +565,7 @@ public class Flags {
         return type.OF();
     }
 
-    public static final int[] parity_lookup = new int[] {
+    public static int[] parity_lookup = new int[] {
         CPU_Regs.PF, 0, 0, CPU_Regs.PF, 0, CPU_Regs.PF, CPU_Regs.PF, 0, 0, CPU_Regs.PF, CPU_Regs.PF, 0, CPU_Regs.PF, 0, 0, CPU_Regs.PF,
         0, CPU_Regs.PF, CPU_Regs.PF, 0, CPU_Regs.PF, 0, 0, CPU_Regs.PF, CPU_Regs.PF, 0, 0, CPU_Regs.PF, 0, CPU_Regs.PF, CPU_Regs.PF, 0,
         0, CPU_Regs.PF, CPU_Regs.PF, 0, CPU_Regs.PF, 0, 0, CPU_Regs.PF, CPU_Regs.PF, 0, 0, CPU_Regs.PF, 0, CPU_Regs.PF, CPU_Regs.PF, 0,

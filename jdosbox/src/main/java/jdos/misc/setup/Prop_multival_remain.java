@@ -29,7 +29,7 @@ public class Prop_multival_remain extends Prop_multival {
             if (pos >= 0 && i < number_of_properties) {
                 in = input.substring(0, pos); //seperator found
                 input = input.substring(pos+separator.length());
-            } else if (!input.isEmpty()) { //last argument or last property
+            } else if (input.length() > 0) { //last argument or last property
                 in = input;
                 input = "";
             }

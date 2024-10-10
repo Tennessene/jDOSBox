@@ -1,5 +1,7 @@
 package jdos.win.loader.winpe;
 
+import java.io.IOException;
+
 public class HeaderImageExportDirectory {
     public long	Characteristics;
 	public long	TimeDateStamp;
@@ -13,7 +15,7 @@ public class HeaderImageExportDirectory {
 	public long	AddressOfNames;
 	public long	AddressOfNameOrdinals;
 
-    public void load(LittleEndianFile is) {
+    public void load(LittleEndianFile is) throws IOException {
         Characteristics = is.readUnsignedInt();
         TimeDateStamp = is.readUnsignedInt();
         MajorVersion = is.readUnsignedShort();

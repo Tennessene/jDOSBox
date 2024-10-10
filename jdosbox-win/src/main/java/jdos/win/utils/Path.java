@@ -5,6 +5,6 @@ public class Path {
         this.nativePath = nativePath;
         this.winPath = winPath;
     }
-    public final String nativePath;
-    public final String winPath;
+    public String nativePath;
+    public String winPath;
 }

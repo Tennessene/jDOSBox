@@ -20,7 +20,7 @@ public class Dos_InfoBlock  extends MemStruct {
         SaveIt(1, joindedDrives, 0); //sSave(sDIB,joindedDrives,(Bit8u)0);
         SaveIt(1, lastdrive, 0x01); //sSave(sDIB,lastdrive,(Bit8u)0x01);//increase this if you add drives to cds-chain
 
-        SaveIt(4, diskInfoBuffer, Memory.RealMake(segment,diskBufferHeadPt)); //sSave(sDIB,diskInfoBuffer,RealMake(segment,offsetof(sDIB,diskBufferHeadPt)));
+        SaveIt(4, diskInfoBuffer, (int)Memory.RealMake(segment,diskBufferHeadPt)); //sSave(sDIB,diskInfoBuffer,RealMake(segment,offsetof(sDIB,diskBufferHeadPt)));
         SaveIt(4, setverPtr, 0); //sSave(sDIB,setverPtr,(Bit32u)0);
 
         SaveIt(2, a20FixOfs, 0); //sSave(sDIB,a20FixOfs,(Bit16u)0);
@@ -62,8 +62,8 @@ public class Dos_InfoBlock  extends MemStruct {
 
         /* Create a fake SFT, so programs think there are 100 file handles */
         /*Bit16u*/short sftOffset=firstFileTable+0xa2;
-        SaveIt(4, firstFileTable, Memory.RealMake(segment, sftOffset)); //Save(sDIB,firstFileTable,RealMake(segment,sftOffset));
-        Memory.real_writed(segment, sftOffset,Memory.RealMake(segment+0x26,0));	//Next File Table
+        SaveIt(4, firstFileTable, (int)Memory.RealMake(segment, sftOffset)); //Save(sDIB,firstFileTable,RealMake(segment,sftOffset));
+        Memory.real_writed(segment,sftOffset+0x00,Memory.RealMake(segment+0x26,0));	//Next File Table
         Memory.real_writew(segment,sftOffset+0x04,100);		//File Table supports 100 files
         Memory.real_writed(segment+0x26,0x00,0xffffffff);		//Last File Table
         Memory.real_writew(segment+0x26,0x04,100);				//File Table supports 100 files

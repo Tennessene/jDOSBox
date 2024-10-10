@@ -32,7 +32,7 @@ public class Int10_video_state {
             /*Bit16u*/int crt_reg=Memory.real_readw(Int10.BIOSMEM_SEG,Int10.BIOSMEM_CRTC_ADDRESS);
             Memory.real_writew(base_seg,base_dest+0x40,crt_reg);
 
-            Memory.real_writeb(base_seg, base_dest,IO.IO_ReadB(0x3c4));
+            Memory.real_writeb(base_seg,base_dest+0x00,IO.IO_ReadB(0x3c4));
             Memory.real_writeb(base_seg,base_dest+0x01,IO.IO_ReadB(0x3d4));
             Memory.real_writeb(base_seg,base_dest+0x02,IO.IO_ReadB(0x3ce));
             IO.IO_ReadB(crt_reg+6);
@@ -110,7 +110,7 @@ public class Int10_video_state {
         if ((state&2)!=0)  {
             Memory.real_writew(base_seg,Memory.RealOff(buffer)+2,base_dest);
 
-            Memory.real_writeb(base_seg, base_dest,Memory.mem_readb(0x410)&0x30);
+            Memory.real_writeb(base_seg,base_dest+0x00,Memory.mem_readb(0x410)&0x30);
             for (ct=0; ct<0x1e; ct++) {
                 Memory.real_writeb(base_seg,base_dest+0x01+ct,Memory.mem_readb(0x449+ct));
             }
@@ -138,13 +138,13 @@ public class Int10_video_state {
             /*Bitu*/int dac_state=IO.IO_ReadB(0x3c7)&1;
             /*Bitu*/int dac_windex=IO.IO_ReadB(0x3c8);
             if (dac_state!=0) dac_windex--;
-            Memory.real_writeb(base_seg, base_dest,(short)dac_state);
+            Memory.real_writeb(base_seg,base_dest+0x000,(short)dac_state);
             Memory.real_writeb(base_seg,base_dest+0x001,(short)dac_windex);
             Memory.real_writeb(base_seg,base_dest+0x002,(short)IO.IO_ReadB(0x3c6));
 
             for (ct=0; ct<0x100; ct++) {
                 IO.IO_WriteB(0x3c7,ct);
-                Memory.real_writeb(base_seg, base_dest + 0x003 + ct * 3,(short)IO.IO_ReadB(0x3c9));
+                Memory.real_writeb(base_seg,base_dest+0x003+ct*3+0,(short)IO.IO_ReadB(0x3c9));
                 Memory.real_writeb(base_seg,base_dest+0x003+ct*3+1,(short)IO.IO_ReadB(0x3c9));
                 Memory.real_writeb(base_seg,base_dest+0x003+ct*3+2,(short)IO.IO_ReadB(0x3c9));
             }
@@ -169,7 +169,7 @@ public class Int10_video_state {
             // sequencer
             for (ct=0; ct<0x13; ct++) {
                 IO.IO_WriteB(0x3c4,0x09+ct);
-                Memory.real_writeb(base_seg, base_dest + ct,(short)IO.IO_ReadB(0x3c5));
+                Memory.real_writeb(base_seg,base_dest+0x00+ct,(short)IO.IO_ReadB(0x3c5));
             }
 
             // unlock s3-specific registers
@@ -259,7 +259,7 @@ public class Int10_video_state {
                 IO.IO_WriteB(0x3c0,Memory.real_readb(base_seg,base_dest+0x23+ct));
             }
 
-            IO.IO_WriteB(0x3c4,Memory.real_readb(base_seg, base_dest));
+            IO.IO_WriteB(0x3c4,Memory.real_readb(base_seg,base_dest+0x00));
             IO.IO_WriteB(0x3d4,Memory.real_readb(base_seg,base_dest+0x01));
             IO.IO_WriteB(0x3ce,Memory.real_readb(base_seg,base_dest+0x02));
             IO.IO_ReadB(crt_reg+6);
@@ -269,7 +269,7 @@ public class Int10_video_state {
         if ((state&2)!=0)  {
             base_dest=Memory.real_readw(base_seg,Memory.RealOff(buffer)+2);
 
-            Memory.mem_writeb(0x410,(Memory.mem_readb(0x410)&0xcf) | Memory.real_readb(base_seg, base_dest));
+            Memory.mem_writeb(0x410,(Memory.mem_readb(0x410)&0xcf) | Memory.real_readb(base_seg,base_dest+0x00));
             for (ct=0; ct<0x1e; ct++) {
                 Memory.mem_writeb(0x449+ct,Memory.real_readb(base_seg,base_dest+0x01+ct));
             }
@@ -292,7 +292,7 @@ public class Int10_video_state {
 
             for (ct=0; ct<0x100; ct++) {
                 IO.IO_WriteB(0x3c8,ct);
-                IO.IO_WriteB(0x3c9,Memory.real_readb(base_seg, base_dest + 0x003 + ct * 3));
+                IO.IO_WriteB(0x3c9,Memory.real_readb(base_seg,base_dest+0x003+ct*3+0));
                 IO.IO_WriteB(0x3c9,Memory.real_readb(base_seg,base_dest+0x003+ct*3+1));
                 IO.IO_WriteB(0x3c9,Memory.real_readb(base_seg,base_dest+0x003+ct*3+2));
             }
@@ -301,7 +301,7 @@ public class Int10_video_state {
             IO.IO_WriteB(0x3c0,0x14);
             IO.IO_WriteB(0x3c0,Memory.real_readb(base_seg,base_dest+0x303));
 
-            /*Bitu*/int dac_state=Memory.real_readb(base_seg, base_dest);
+            /*Bitu*/int dac_state=Memory.real_readb(base_seg,base_dest+0x000);
             if (dac_state==0) {
                 IO.IO_WriteB(0x3c8,Memory.real_readb(base_seg,base_dest+0x001));
             } else {
@@ -323,7 +323,7 @@ public class Int10_video_state {
 
             // sequencer
             for (ct=0; ct<0x13; ct++) {
-                IO.IO_WriteW(0x3c4,(0x09+ct)+(Memory.real_readb(base_seg, base_dest + ct)<<8));
+                IO.IO_WriteW(0x3c4,(0x09+ct)+(Memory.real_readb(base_seg,base_dest+0x00+ct)<<8));
             }
             IO.IO_WriteB(0x3c4,seq_idx);
 

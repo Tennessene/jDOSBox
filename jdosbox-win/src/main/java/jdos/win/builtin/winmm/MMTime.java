@@ -29,7 +29,7 @@ public class MMTime extends WinAPI {
     static final public int TIME_CALLBACK_EVENT_PULSE = 0x0020;	/* callback is event - use PulseEvent */
     static final public int TIME_KILL_SYNCHRONOUS =     0x0100;
 
-    static private final Callback.Handler mmTimerThread = new HandlerBase() {
+    static private Callback.Handler mmTimerThread = new HandlerBase() {
         public String getName() {
             return "mmTimerThread";
         }
@@ -61,11 +61,11 @@ public class MMTime extends WinAPI {
     };
 
     static private class MMTimer extends Thread {
-        final int delay;
-        final int callback;
-        final int dwUser;
-        final int flags;
-        final int id;
+        int delay;
+        int callback;
+        int dwUser;
+        int flags;
+        int id;
         final WinThread thread;
         boolean bExit = false;
 
@@ -108,9 +108,7 @@ public class MMTime extends WinAPI {
 
         public void run() {
             while(!bExit) {
-                try {sleep(delay);} catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                try {sleep(delay);} catch (Exception e) {}
                 if (!bExit) {
                     WinEvent event = WinEvent.get(callback);
                     if (event == null)
@@ -128,7 +126,7 @@ public class MMTime extends WinAPI {
         }
     }
 
-    static private final Hashtable<Integer, MMTimer> timers = new Hashtable<>();
+    static private Hashtable<Integer, MMTimer> timers = new Hashtable<Integer, MMTimer>();
 
     // MMRESULT timeBeginPeriod(UINT uPeriod)
     static public int timeBeginPeriod(int wPeriod) {

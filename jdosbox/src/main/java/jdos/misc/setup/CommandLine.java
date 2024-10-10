@@ -1,14 +1,15 @@
 package jdos.misc.setup;
 
+import jdos.util.StringHelper;
 import jdos.util.StringRef;
 
-import java.util.Collections;
 import java.util.Vector;
 
 public class CommandLine {
     public CommandLine(String[] args) {
         cmds = new Vector(args.length);
-        Collections.addAll(cmds, args);
+        for (int i=0;i<args.length;i++)
+            cmds.add(args[i]);
         // :TODO: file_name = ?
     }
 
@@ -18,7 +19,7 @@ public class CommandLine {
         /* Parse the cmds and put them in the list */
         boolean inword,inquote;char c;
         inword=false;inquote=false;
-        StringBuilder str = new StringBuilder();
+        StringBuffer str = new StringBuffer();
         for (int i=0;i<cmdline.length();i++) {
             c = cmdline.charAt(i);
             if (inquote) {
@@ -27,7 +28,7 @@ public class CommandLine {
                 else {
                     inquote=false;
                     cmds.addElement(str.toString());
-                    str = new StringBuilder();
+                    str = new StringBuffer();
                 }
             } else if (inword) {
                 if (c!=' ')
@@ -35,7 +36,7 @@ public class CommandLine {
                 else {
                     inword=false;
                     cmds.addElement(str.toString());
-                    str = new StringBuilder();
+                    str = new StringBuffer();
                 }
             }
             else if (c=='"') { inquote=true;}
@@ -64,7 +65,7 @@ public class CommandLine {
         int index = FindEntry(name, true);
         if (index < 0) return null;
         try {
-            Integer result = Integer.parseInt((String) cmds.elementAt(index + 1), 16);
+            Integer result = new Integer(Integer.parseInt((String)cmds.elementAt(index+1), 16));
             if (remove) {
                 cmds.removeElementAt(index);
                 cmds.removeElementAt(index);
@@ -82,7 +83,7 @@ public class CommandLine {
         int index = FindEntry(name, true);
         if (index < 0) return null;
         try {
-            Integer result = Integer.parseInt((String) cmds.elementAt(index + 1), 10);
+            Integer result = new Integer(Integer.parseInt((String)cmds.elementAt(index+1), 10));
             if (remove) {
                 cmds.removeElementAt(index);
                 cmds.removeElementAt(index);
@@ -133,7 +134,7 @@ public class CommandLine {
         int index = FindEntry(name, false);
         if (index < 0) return null;
         index++;
-        StringBuilder value = new StringBuilder();
+        StringBuffer value = new StringBuffer();
         for (int i=index;i<cmds.size();i++) {
             value.append(" ");
             value.append(cmds.elementAt(i));
@@ -146,7 +147,7 @@ public class CommandLine {
      * Restoring quotes back into the commands so command /C mount d "/tmp/a b" works as intended
      */
     public boolean FindStringRemainBegin(String name,StringRef value) {
-        int i;
+        int i=-1;
         value.value = "";
         if ((i=FindEntry(name, false)) < 0) {
             int len = name.length();
@@ -183,8 +184,8 @@ public class CommandLine {
     }
 
     public String GetStringRemain() {
-        if (cmds.isEmpty()) return null;
-        StringBuilder value = new StringBuilder();
+        if (cmds.size() == 0) return null;
+        StringBuffer value = new StringBuffer();
         for (int i=0;i<cmds.size();i++) {
             if (i>0)
                 value.append(" ");
@@ -198,8 +199,8 @@ public class CommandLine {
     }
     public void Shift(int amount) {
         for (int i=0;i<amount;i++) {
-            file_name = !cmds.isEmpty() ?(String)cmds.elementAt(0):"";
-            if (!cmds.isEmpty()) cmds.removeElementAt(0);
+            file_name = cmds.size()>0?(String)cmds.elementAt(0):"";
+            if (cmds.size()>0) cmds.removeElementAt(0);
         }
     }
     public int GetCount() {
@@ -215,7 +216,7 @@ public class CommandLine {
         return result;
     }
 
-    private final Vector cmds;
+    private Vector cmds;
     private String file_name;
     private int FindEntry(String name, boolean needNext) {
         for (int i=0;i<cmds.size();i++) {

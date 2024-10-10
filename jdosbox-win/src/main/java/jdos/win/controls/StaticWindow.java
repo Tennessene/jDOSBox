@@ -10,6 +10,7 @@ import jdos.win.builtin.kernel32.WinProcess;
 import jdos.win.builtin.user32.*;
 import jdos.win.kernel.WinCallback;
 import jdos.win.system.WinRect;
+import jdos.win.utils.Ptr;
 import jdos.win.utils.StringUtil;
 
 public class StaticWindow extends WinAPI {
@@ -25,7 +26,7 @@ public class StaticWindow extends WinAPI {
     }
 
     // LRESULT WINAPI SendMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-    static private final Callback.Handler static_proc = new HandlerBase() {
+    static private Callback.Handler static_proc = new HandlerBase() {
         public java.lang.String getName() {
             return "STATIC.proc";
         }
@@ -41,13 +42,13 @@ public class StaticWindow extends WinAPI {
     static final private int HFONT_GWL_OFFSET = 0;
     static final private int HICON_GWL_OFFSET = 4;
 
-    private interface StaticPaint {
-        void paint(int hWnd, int hdc, int style);
+    static private interface StaticPaint {
+        public void paint(int hWnd, int hdc, int style);
     }
 
     /***********************************************************************
      *           STATIC_SetIcon
-     * <p>
+     *
      * Set the icon for an SS_ICON control.
      */
     static private int STATIC_SetIcon(int hwnd, int hicon, int style ) {
@@ -80,7 +81,7 @@ public class StaticWindow extends WinAPI {
 
     /***********************************************************************
      *           STATIC_SetBitmap
-     * <p>
+     *
      * Set the bitmap for an SS_BITMAP control.
      */
     static private int STATIC_SetBitmap(int hwnd, int hBitmap, int style) {
@@ -114,7 +115,7 @@ public class StaticWindow extends WinAPI {
 
     /***********************************************************************
      *           STATIC_SetEnhMetaFile
-     * <p>
+     *
      * Set the enhanced metafile for an SS_ENHMETAFILE control.
      */
     static private int STATIC_SetEnhMetaFile(int hwnd, int hEnhMetaFile, int style) {
@@ -129,7 +130,7 @@ public class StaticWindow extends WinAPI {
 
     /***********************************************************************
      *           STATIC_GetImage
-     * <p>
+     *
      * Gets the bitmap for an SS_BITMAP control, the icon/cursor for an
      * SS_ICON control or the enhanced metafile for an SS_ENHMETAFILE control.
      */
@@ -154,7 +155,7 @@ public class StaticWindow extends WinAPI {
 
     /***********************************************************************
      *           STATIC_LoadIconA
-     * <p>
+     *
      * Load the icon for an SS_ICON control.
      */
     static int STATIC_LoadIconA(int hInstance, int name, int style) {
@@ -204,7 +205,7 @@ public class StaticWindow extends WinAPI {
 
     /***********************************************************************
      *           STATIC_TryPaintFcn
-     * <p>
+     *
      * Try to immediately paint the control.
      */
     static private void STATIC_TryPaintFcn(int hwnd, int full_style) {
@@ -237,7 +238,7 @@ public class StaticWindow extends WinAPI {
 
     /***********************************************************************
      *           hasTextStyle
-     * <p>
+     *
      * Tests if the control displays text.
      */
     static private boolean hasTextStyle(int style) {
@@ -267,6 +268,10 @@ public class StaticWindow extends WinAPI {
         switch (uMsg)
         {
         case WM_CREATE:
+            if (style < 0L || style > SS_TYPEMASK) {
+                warn("Unknown style "+Ptr.toString(style));
+                return -1;
+            }
             break;
         case WM_NCDESTROY:
             if (style == SS_ICON) {
@@ -427,238 +432,252 @@ public class StaticWindow extends WinAPI {
         return 0;
     }
 
-    static private final StaticPaint STATIC_PaintOwnerDrawfn = (hWnd, hdc, style) -> {
-        DRAWITEMSTRUCT dis = new DRAWITEMSTRUCT();
-        int id = WinWindow.GetWindowLongA(hWnd, GWLP_ID);
+    static private StaticPaint STATIC_PaintOwnerDrawfn = new StaticPaint()  {
+        public void paint(int hWnd, int hdc, int style) {
+            DRAWITEMSTRUCT dis = new DRAWITEMSTRUCT();
+            int id = WinWindow.GetWindowLongA(hWnd, GWLP_ID);
 
-        dis.CtlType    = ODT_STATIC;
-        dis.CtlID      = id;
-        dis.itemID     = 0;
-        dis.itemAction = ODA_DRAWENTIRE;
-        dis.itemState  = WinWindow.IsWindowEnabled(hWnd)!=0 ? 0 : ODS_DISABLED;
-        dis.hwndItem   = hWnd;
-        dis.hDC        = hdc;
-        dis.itemData   = 0;
-        WinPos.WIN_GetClientRect(hWnd, dis.rcItem);
+            dis.CtlType    = ODT_STATIC;
+            dis.CtlID      = id;
+            dis.itemID     = 0;
+            dis.itemAction = ODA_DRAWENTIRE;
+            dis.itemState  = WinWindow.IsWindowEnabled(hWnd)!=0 ? 0 : ODS_DISABLED;
+            dis.hwndItem   = hWnd;
+            dis.hDC        = hdc;
+            dis.itemData   = 0;
+            WinPos.WIN_GetClientRect(hWnd, dis.rcItem);
 
-        int font = WinWindow.GetWindowLongA(hWnd, HFONT_GWL_OFFSET);
-        int oldFont = 0;
-        if (font!=0)
-            oldFont = WinDC.SelectObject(hdc, font);
-        Message.SendMessageA(WinWindow.GetParent(hWnd), WM_CTLCOLORSTATIC, hdc, hWnd);
-        Message.SendMessageA(WinWindow.GetParent(hWnd), WM_DRAWITEM, id, dis.allocTemp());
-        if (font!=0)
-            WinDC.SelectObject(hdc, oldFont);
+            int font = WinWindow.GetWindowLongA(hWnd, HFONT_GWL_OFFSET);
+            int oldFont = 0;
+            if (font!=0)
+                oldFont = WinDC.SelectObject(hdc, font);
+            Message.SendMessageA(WinWindow.GetParent(hWnd), WM_CTLCOLORSTATIC, hdc, hWnd);
+            Message.SendMessageA(WinWindow.GetParent(hWnd), WM_DRAWITEM, id, dis.allocTemp());
+            if (font!=0)
+                WinDC.SelectObject(hdc, oldFont);
+        }
     };
 
-    static private final StaticPaint STATIC_PaintTextfn = (hWnd, hdc, style) -> {
-        int format;
+    static private StaticPaint STATIC_PaintTextfn = new StaticPaint()  {
+        public void paint(int hWnd, int hdc, int style) {
+            int format;
 
-        WinWindow window = WinWindow.get(hWnd);
-        if (window == null)
-            return;
-
-        switch (style & SS_TYPEMASK)
-        {
-            case SS_LEFT:
-                format = DT_LEFT | DT_EXPANDTABS | DT_WORDBREAK;
-                break;
-            case SS_CENTER:
-                format = DT_CENTER | DT_EXPANDTABS | DT_WORDBREAK;
-                break;
-            case SS_RIGHT:
-                format = DT_RIGHT | DT_EXPANDTABS | DT_WORDBREAK;
-                break;
-            case SS_SIMPLE:
-                format = DT_LEFT | DT_SINGLELINE;
-                break;
-            case SS_LEFTNOWORDWRAP:
-                format = DT_LEFT | DT_EXPANDTABS;
-                break;
-            default:
+            WinWindow window = WinWindow.get(hWnd);
+            if (window == null)
                 return;
+
+            switch (style & SS_TYPEMASK)
+            {
+                case SS_LEFT:
+                    format = DT_LEFT | DT_EXPANDTABS | DT_WORDBREAK;
+                    break;
+                case SS_CENTER:
+                    format = DT_CENTER | DT_EXPANDTABS | DT_WORDBREAK;
+                    break;
+                case SS_RIGHT:
+                    format = DT_RIGHT | DT_EXPANDTABS | DT_WORDBREAK;
+                    break;
+                case SS_SIMPLE:
+                    format = DT_LEFT | DT_SINGLELINE;
+                    break;
+                case SS_LEFTNOWORDWRAP:
+                    format = DT_LEFT | DT_EXPANDTABS;
+                    break;
+                default:
+                    return;
+            }
+
+            int rc = getTempBuffer(WinRect.SIZE);
+            WinPos.GetClientRect(hWnd, rc);
+
+            if ((WinWindow.GetWindowLongA(hWnd, GWL_EXSTYLE) & WS_EX_RIGHT)!=0)
+                format = DT_RIGHT | (format & ~(DT_LEFT | DT_CENTER));
+
+            if ((style & SS_NOPREFIX)!=0)
+                format |= DT_NOPREFIX;
+
+            if ((style & SS_TYPEMASK) != SS_SIMPLE) {
+                if ((style & SS_CENTERIMAGE)!=0)
+                    format |= DT_SINGLELINE | DT_VCENTER;
+                if ((style & SS_EDITCONTROL)!=0)
+                    format |= DT_EDITCONTROL;
+                if ((style & SS_ENDELLIPSIS)!=0)
+                    format |= DT_SINGLELINE | DT_END_ELLIPSIS;
+                if ((style & SS_PATHELLIPSIS)!=0)
+                    format |= DT_SINGLELINE | DT_PATH_ELLIPSIS;
+                if ((style & SS_WORDELLIPSIS)!=0)
+                    format |= DT_SINGLELINE | DT_WORD_ELLIPSIS;
+            }
+            int hFont = WinWindow.GetWindowLongA(hWnd, HFONT_GWL_OFFSET);
+            int hOldFont = 0;
+            if (hFont != 0)
+                hOldFont = WinDC.SelectObject(hdc, hFont);
+
+            /* SS_SIMPLE controls: WM_CTLCOLORSTATIC is sent, but the returned
+                                   brush is not used */
+            int hBrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
+
+            if ((style & SS_TYPEMASK) != SS_SIMPLE) {
+                WinDC.FillRect(hdc, rc, hBrush);
+                if (WinWindow.IsWindowEnabled(hWnd)==0)
+                    WinDC.SetTextColor(hdc, SysParams.GetSysColor(COLOR_GRAYTEXT));
+            }
+
+            if (window.text.length()>0) {
+                if (((style & SS_TYPEMASK) == SS_SIMPLE) && (style & SS_NOPREFIX)!=0) {
+                    /* Windows uses the faster ExtTextOut() to draw the text and
+                       to paint the whole client rectangle with the text background
+                       color. Reference: "Static Controls" by Kyle Marsh, 1992 */
+                    WinRect rect = new WinRect(rc);
+                    WinDC.ExtTextOutA( hdc, rect.left, rect.top, ETO_CLIPPED | ETO_OPAQUE, rc, StringUtil.allocateTempA(window.text), window.text.length(), NULL );
+                } else {
+                    WinText.DrawTextA(hdc, StringUtil.allocateTempA(window.text), -1, rc, format);
+                }
+            }
+            if (hFont!=0)
+                WinDC.SelectObject(hdc, hOldFont);
         }
+    };
 
-        int rc = getTempBuffer(WinRect.SIZE);
-        WinPos.GetClientRect(hWnd, rc);
+    static private StaticPaint STATIC_PaintRectfn = new StaticPaint()  {
+        public void paint(int hWnd, int hdc, int style) {
+            int rc = getTempBuffer(WinRect.SIZE);
+            int hBrush;
 
-        if ((WinWindow.GetWindowLongA(hWnd, GWL_EXSTYLE) & WS_EX_RIGHT)!=0)
-            format = DT_RIGHT | (format & ~(DT_LEFT | DT_CENTER));
+            WinPos.GetClientRect(hWnd, rc);
 
-        if ((style & SS_NOPREFIX)!=0)
-            format |= DT_NOPREFIX;
-
-        if ((style & SS_TYPEMASK) != SS_SIMPLE) {
-            if ((style & SS_CENTERIMAGE)!=0)
-                format |= DT_SINGLELINE | DT_VCENTER;
-            if ((style & SS_EDITCONTROL)!=0)
-                format |= DT_EDITCONTROL;
-            if ((style & SS_ENDELLIPSIS)!=0)
-                format |= DT_SINGLELINE | DT_END_ELLIPSIS;
-            if ((style & SS_PATHELLIPSIS)!=0)
-                format |= DT_SINGLELINE | DT_PATH_ELLIPSIS;
-            if ((style & SS_WORDELLIPSIS)!=0)
-                format |= DT_SINGLELINE | DT_WORD_ELLIPSIS;
+            /* FIXME: send WM_CTLCOLORSTATIC */
+            switch (style & SS_TYPEMASK)
+            {
+                case SS_BLACKRECT:
+                    hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DDKSHADOW));
+                    WinDC.FillRect(hdc, rc, hBrush);
+                break;
+                case SS_GRAYRECT:
+                    hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DSHADOW));
+                    WinDC.FillRect(hdc, rc, hBrush);
+                break;
+                case SS_WHITERECT:
+                    hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DHIGHLIGHT));
+                    WinDC.FillRect(hdc, rc, hBrush);
+                break;
+                case SS_BLACKFRAME:
+                    hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DDKSHADOW));
+                    UiTools.FrameRect(hdc, rc, hBrush);
+                break;
+                case SS_GRAYFRAME:
+                    hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DSHADOW));
+                    UiTools.FrameRect(hdc, rc, hBrush);
+                break;
+                case SS_WHITEFRAME:
+                    hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DHIGHLIGHT));
+                    UiTools.FrameRect(hdc, rc, hBrush);
+                break;
+                default:
+                    return;
+            }
+            GdiObj.DeleteObject(hBrush);
         }
-        int hFont = WinWindow.GetWindowLongA(hWnd, HFONT_GWL_OFFSET);
-        int hOldFont = 0;
-        if (hFont != 0)
-            hOldFont = WinDC.SelectObject(hdc, hFont);
+    };
 
-        /* SS_SIMPLE controls: WM_CTLCOLORSTATIC is sent, but the returned
-                               brush is not used */
-        int hBrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
-
-        if ((style & SS_TYPEMASK) != SS_SIMPLE) {
-            WinDC.FillRect(hdc, rc, hBrush);
-            if (WinWindow.IsWindowEnabled(hWnd)==0)
-                WinDC.SetTextColor(hdc, SysParams.GetSysColor(COLOR_GRAYTEXT));
-        }
-
-        if (!window.text.isEmpty()) {
-            if (((style & SS_TYPEMASK) == SS_SIMPLE) && (style & SS_NOPREFIX)!=0) {
-                /* Windows uses the faster ExtTextOut() to draw the text and
-                   to paint the whole client rectangle with the text background
-                   color. Reference: "Static Controls" by Kyle Marsh, 1992 */
+    static private StaticPaint STATIC_PaintIconfn = new StaticPaint()  {
+        public void paint(int hWnd, int hdc, int style) {
+            int rc = getTempBuffer(WinRect.SIZE);
+            WinPos.GetClientRect(hWnd, rc);
+            int hbrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
+            int hIcon = WinWindow.GetWindowLongA(hWnd, HICON_GWL_OFFSET);
+            WinIcon icon = WinIcon.get(hIcon);
+            WinDC.FillRect(hdc, rc, hbrush);
+            if (icon != null) {
+                WinRect iconRect = new WinRect();
                 WinRect rect = new WinRect(rc);
-                WinDC.ExtTextOutA( hdc, rect.left, rect.top, ETO_CLIPPED | ETO_OPAQUE, rc, StringUtil.allocateTempA(window.text), window.text.length(), NULL );
-            } else {
-                WinText.DrawTextA(hdc, StringUtil.allocateTempA(window.text), -1, rc, format);
+                if ((style & SS_CENTERIMAGE)==0)
+                    iconRect = rect;
+                else {
+                    iconRect.left = (rect.right - rect.left) / 2 - icon.cx / 2;
+                    iconRect.top = (rect.bottom - rect.top) / 2 - icon.cy / 2;
+                    iconRect.right = iconRect.left + icon.cx;
+                    iconRect.bottom = iconRect.top + icon.cy;
+                }
+                WinIcon.DrawIconEx(hdc, iconRect.left, iconRect.top, hIcon, iconRect.right - iconRect.left, iconRect.bottom - iconRect.top, 0, NULL, DI_NORMAL);
             }
         }
-        if (hFont!=0)
-            WinDC.SelectObject(hdc, hOldFont);
     };
 
-    static private final StaticPaint STATIC_PaintRectfn = (hWnd, hdc, style) -> {
-        int rc = getTempBuffer(WinRect.SIZE);
-        int hBrush;
+    static private StaticPaint STATIC_PaintBitmapfn = new StaticPaint()  {
+        public void paint(int hWnd, int hdc, int style) {
+            /* message is still sent, even if the returned brush is not used */
+            int hbrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
+            int hBitmap = WinWindow.GetWindowLongA(hWnd, HICON_GWL_OFFSET);
+            WinBitmap bitmap = WinBitmap.get(hBitmap);
+            int hMemDC = 0;
+            if (bitmap != null)
+                hMemDC = WinDC.CreateCompatibleDC(hdc);
 
-        WinPos.GetClientRect(hWnd, rc);
+            if (hMemDC != 0) {
+                int oldbitmap = WinDC.SelectObject(hMemDC, hBitmap);
 
-        /* FIXME: send WM_CTLCOLORSTATIC */
-        switch (style & SS_TYPEMASK)
-        {
-            case SS_BLACKRECT:
-                hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DDKSHADOW));
-                WinDC.FillRect(hdc, rc, hBrush);
-            break;
-            case SS_GRAYRECT:
-                hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DSHADOW));
-                WinDC.FillRect(hdc, rc, hBrush);
-            break;
-            case SS_WHITERECT:
-                hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DHIGHLIGHT));
-                WinDC.FillRect(hdc, rc, hBrush);
-            break;
-            case SS_BLACKFRAME:
-                hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DDKSHADOW));
-                UiTools.FrameRect(hdc, rc, hBrush);
-            break;
-            case SS_GRAYFRAME:
-                hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DSHADOW));
-                UiTools.FrameRect(hdc, rc, hBrush);
-            break;
-            case SS_WHITEFRAME:
-                hBrush = WinBrush.CreateSolidBrush(SysParams.GetSysColor(COLOR_3DHIGHLIGHT));
-                UiTools.FrameRect(hdc, rc, hBrush);
-            break;
-            default:
-                return;
-        }
-        GdiObj.DeleteObject(hBrush);
-    };
+                /* Set the background color for monochrome bitmaps
+                   to the color of the background brush */
+                WinBrush brush = WinBrush.get(hbrush);
+                if (brush != null) {
+                    if (brush.style == BS_SOLID)
+                        WinDC.SetBkColor(hdc, brush.color);
+                }
+                WinRect rcClient = new WinRect();
+                WinPos.WIN_GetClientRect(hWnd, rcClient);
 
-    static private final StaticPaint STATIC_PaintIconfn = (hWnd, hdc, style) -> {
-        int rc = getTempBuffer(WinRect.SIZE);
-        WinPos.GetClientRect(hWnd, rc);
-        int hbrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
-        int hIcon = WinWindow.GetWindowLongA(hWnd, HICON_GWL_OFFSET);
-        WinIcon icon = WinIcon.get(hIcon);
-        WinDC.FillRect(hdc, rc, hbrush);
-        if (icon != null) {
-            WinRect iconRect = new WinRect();
-            WinRect rect = new WinRect(rc);
-            if ((style & SS_CENTERIMAGE)==0)
-                iconRect = rect;
-            else {
-                iconRect.left = (rect.right - rect.left) / 2 - icon.cx / 2;
-                iconRect.top = (rect.bottom - rect.top) / 2 - icon.cy / 2;
-                iconRect.right = iconRect.left + icon.cx;
-                iconRect.bottom = iconRect.top + icon.cy;
+                if ((style & SS_CENTERIMAGE)!=0) {
+                    int x, y;
+                    x = (rcClient.right - rcClient.left)/2 - bitmap.getWidth()/2;
+                    y = (rcClient.bottom - rcClient.top)/2 - bitmap.getHeight()/2;
+                    WinDC.FillRect(hdc, rcClient.allocTemp(), hbrush);
+                    BitBlt.BitBlt(hdc, x, y, bitmap.getWidth(), bitmap.getHeight(), hMemDC, 0, 0, SRCCOPY);
+                } else {
+                    BitBlt.StretchBlt(hdc, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, hMemDC, 0, 0, bitmap.getWidth(), bitmap.getHeight(), SRCCOPY);
+                }
+                WinDC.SelectObject(hMemDC, oldbitmap);
+                WinDC.DeleteDC(hMemDC);
             }
-            WinIcon.DrawIconEx(hdc, iconRect.left, iconRect.top, hIcon, iconRect.right - iconRect.left, iconRect.bottom - iconRect.top, 0, NULL, DI_NORMAL);
         }
     };
 
-    static private final StaticPaint STATIC_PaintBitmapfn = (hWnd, hdc, style) -> {
-        /* message is still sent, even if the returned brush is not used */
-        int hbrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
-        int hBitmap = WinWindow.GetWindowLongA(hWnd, HICON_GWL_OFFSET);
-        WinBitmap bitmap = WinBitmap.get(hBitmap);
-        int hMemDC = 0;
-        if (bitmap != null)
-            hMemDC = WinDC.CreateCompatibleDC(hdc);
-
-        if (hMemDC != 0) {
-            int oldbitmap = WinDC.SelectObject(hMemDC, hBitmap);
-
-            /* Set the background color for monochrome bitmaps
-               to the color of the background brush */
-            WinBrush brush = WinBrush.get(hbrush);
-            if (brush != null) {
-                if (brush.style == BS_SOLID)
-                    WinDC.SetBkColor(hdc, brush.color);
+    static private StaticPaint STATIC_PaintEnhMetafn = new StaticPaint()  {
+        public void paint(int hWnd, int hdc, int style) {
+            int rc = getTempBuffer(WinRect.SIZE);
+            WinPos.GetClientRect(hWnd, rc);
+            int hbrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
+            WinDC.FillRect(hdc, rc, hbrush);
+            int hEnhMetaFile = WinWindow.GetWindowLongA(hWnd, HICON_GWL_OFFSET);
+            WinEnhancedMetaFile mf = WinEnhancedMetaFile.get((hEnhMetaFile));
+            if (mf != null) {
+                /* The control's current font is not selected into the
+                   device context! */
+                // :TODO:
+                log("STATIC metafile faked");
+                // PlayEnhMetaFile(hdc, hEnhMetaFile, rc);
             }
-            WinRect rcClient = new WinRect();
-            WinPos.WIN_GetClientRect(hWnd, rcClient);
+        }
+    };
 
-            if ((style & SS_CENTERIMAGE)!=0) {
-                int x, y;
-                x = (rcClient.right - rcClient.left)/2 - bitmap.getWidth()/2;
-                y = (rcClient.bottom - rcClient.top)/2 - bitmap.getHeight()/2;
-                WinDC.FillRect(hdc, rcClient.allocTemp(), hbrush);
-                BitBlt.BitBlt(hdc, x, y, bitmap.getWidth(), bitmap.getHeight(), hMemDC, 0, 0, SRCCOPY);
-            } else {
-                BitBlt.StretchBlt(hdc, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, hMemDC, 0, 0, bitmap.getWidth(), bitmap.getHeight(), SRCCOPY);
+    static private StaticPaint STATIC_PaintEtchedfn = new StaticPaint()  {
+        public void paint(int hWnd, int hdc, int style) {
+            int rc = getTempBuffer(WinRect.SIZE);
+
+            /* FIXME: sometimes (not always) sends WM_CTLCOLORSTATIC */
+            WinPos.GetClientRect(hWnd, rc);
+            switch (style & SS_TYPEMASK)
+            {
+            case SS_ETCHEDHORZ:
+                UiTools.DrawEdge(hdc, rc, EDGE_ETCHED,BF_TOP|BF_BOTTOM);
+                break;
+            case SS_ETCHEDVERT:
+                UiTools.DrawEdge(hdc, rc, EDGE_ETCHED,BF_LEFT|BF_RIGHT);
+                break;
+            case SS_ETCHEDFRAME:
+                UiTools.DrawEdge (hdc, rc, EDGE_ETCHED, BF_RECT);
+                break;
             }
-            WinDC.SelectObject(hMemDC, oldbitmap);
-            WinDC.DeleteDC(hMemDC);
-        }
-    };
-
-    static private final StaticPaint STATIC_PaintEnhMetafn = (hWnd, hdc, style) -> {
-        int rc = getTempBuffer(WinRect.SIZE);
-        WinPos.GetClientRect(hWnd, rc);
-        int hbrush = STATIC_SendWmCtlColorStatic(hWnd, hdc);
-        WinDC.FillRect(hdc, rc, hbrush);
-        int hEnhMetaFile = WinWindow.GetWindowLongA(hWnd, HICON_GWL_OFFSET);
-        WinEnhancedMetaFile mf = WinEnhancedMetaFile.get((hEnhMetaFile));
-        if (mf != null) {
-            /* The control's current font is not selected into the
-               device context! */
-            // :TODO:
-            log("STATIC metafile faked");
-            // PlayEnhMetaFile(hdc, hEnhMetaFile, rc);
-        }
-    };
-
-    static private final StaticPaint STATIC_PaintEtchedfn = (hWnd, hdc, style) -> {
-        int rc = getTempBuffer(WinRect.SIZE);
-
-        /* FIXME: sometimes (not always) sends WM_CTLCOLORSTATIC */
-        WinPos.GetClientRect(hWnd, rc);
-        switch (style & SS_TYPEMASK)
-        {
-        case SS_ETCHEDHORZ:
-            UiTools.DrawEdge(hdc, rc, EDGE_ETCHED,BF_TOP|BF_BOTTOM);
-            break;
-        case SS_ETCHEDVERT:
-            UiTools.DrawEdge(hdc, rc, EDGE_ETCHED,BF_LEFT|BF_RIGHT);
-            break;
-        case SS_ETCHEDFRAME:
-            UiTools.DrawEdge (hdc, rc, EDGE_ETCHED, BF_RECT);
-            break;
         }
     };
 

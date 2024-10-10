@@ -100,5 +100,5 @@ public class Drive_local_cdrom extends Drive_local {
     }
 
 	private /*Bit8u*/short subUnit;
-	private final char driveLetter;
+	private char driveLetter;
 }

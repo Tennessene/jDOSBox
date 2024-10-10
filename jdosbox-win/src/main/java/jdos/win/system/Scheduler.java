@@ -14,8 +14,8 @@ public class Scheduler {
     }
     private static SchedulerItem currentThread = null;
     private static SchedulerItem first;
-    private static final Hashtable<WinThread, SchedulerItem> threadMap = new Hashtable<>();
-    private static final long start = System.currentTimeMillis();
+    private static Hashtable<WinThread, SchedulerItem> threadMap = new Hashtable<WinThread, SchedulerItem>();
+    private static long start = System.currentTimeMillis();
 
     // DirectX surface to force to the screen
     public static int monitor;
@@ -85,9 +85,7 @@ public class Scheduler {
                         Input.processInput();
                         if (first != null)
                             break;
-                        try {StaticData.inputQueueMutex.wait();} catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                        try {StaticData.inputQueueMutex.wait();} catch (Exception e){}
                     }
                 }
                 if (item == currentThread) {
@@ -115,7 +113,7 @@ public class Scheduler {
 
     // :TODO: run them in order of process to minimize page swapping
     static public void tick() {
-        if (threadMap.isEmpty()) {
+        if (threadMap.size() == 0) {
             return;
         }
         SchedulerItem next = currentThread.next;
@@ -130,9 +128,7 @@ public class Scheduler {
                 break;
             }
             if (next == start) {
-                try {Thread.sleep(10);} catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                try {Thread.sleep(10);} catch (Exception e) {}
                 tickCount = currentTickCount();
             }
             next = next.next;

@@ -29,7 +29,7 @@ public class Ether extends EtherUtil {
     final static IP ip = new IP();
     final static ARP arp = new ARP();
 
-    final byte[] dest = new byte[6];
-    final byte[] src = new byte[6];
+    byte[] dest = new byte[6];
+    byte[] src = new byte[6];
     int protocol;
 }

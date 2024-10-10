@@ -18,11 +18,11 @@ public class IO extends Module_base {
                 entries[i] = new IOF_Entry();
         }
         /*Bitu*/int used;
-        final IOF_Entry[] entries = new IOF_Entry[IOF_QUEUESIZE];
+        IOF_Entry[] entries = new IOF_Entry[IOF_QUEUESIZE];
     }
     private static IOF_Queue iof_queue;
 
-    private static final CPU.CPU_Decoder IOFaultCore = new CPU.CPU_Decoder() {
+    private static CPU.CPU_Decoder IOFaultCore = new CPU.CPU_Decoder() {
         public /*Bits*/int call() {
             CPU.CPU_CycleLeft+=CPU.CPU_Cycles;
             CPU.CPU_Cycles=1;
@@ -67,7 +67,7 @@ public class IO extends Module_base {
     }
 
 
-    static private final int IODELAY_READ_MICROSk = 1024;
+    static private final int IODELAY_READ_MICROSk = (int)(1024/1.0);
     static private final int IODELAY_WRITE_MICROSk = (int)(1024/0.75);
 
     static private void IO_USEC_read_delay() {
@@ -165,7 +165,7 @@ public class IO extends Module_base {
             old_cpudecoder=CPU.cpudecoder;
             CPU.cpudecoder=IOFaultCore;
             IOF_Entry entry=iof_queue.entries[iof_queue.used++];
-            entry.cs= CPU_Regs.reg_csVal.dword;
+            entry.cs=(int)CPU_Regs.reg_csVal.dword;
             entry.eip=CPU_Regs.reg_eip;
             CPU.CPU_Push16(CPU_Regs.reg_csVal.dword);
             CPU.CPU_Push16(CPU_Regs.reg_ip());
@@ -275,7 +275,7 @@ public class IO extends Module_base {
             CPU_Regs.reg_edx.word(port);
             /*RealPt*/int icb = Callback.CALLBACK_RealPointer(Callback.call_priv_io);
             CPU_Regs.SegSet16CS(Memory.RealSeg(icb));
-            CPU_Regs.reg_eip= Memory.RealOff(icb);
+            CPU_Regs.reg_eip=Memory.RealOff(icb)+0x00;
             CPU.CPU_Exception(CPU.cpu.exception.which,CPU.cpu.exception.error);
 
             Dosbox.DOSBOX_RunMachine();
@@ -370,13 +370,13 @@ public class IO extends Module_base {
 	    IoHandler.IO_FreeWriteHandler(0,IoHandler.IO_MA,IoHandler.IO_MAX);
     }
     static IO test;
-    public static final Section.SectionFunction IO_Destroy = new Section.SectionFunction() {
+    public static Section.SectionFunction IO_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             test = null;
             iof_queue = null;
         }
     };
-    public static final Section.SectionFunction IO_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction IO_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             iof_queue = new IOF_Queue();
             test = new IO(sec);

@@ -1,6 +1,7 @@
 package jdos.cpu.core_dynamic;
 
 import jdos.cpu.CPU_Regs;
+import jdos.cpu.PageFaultException;
 import jdos.hardware.Memory;
 import jdos.hardware.RAM;
 import jdos.misc.Log;
@@ -11,7 +12,7 @@ public class Helper extends CPU_Regs {
     static protected int prefixes = 0;
     static protected int opcode_index = 0;
 
-    static protected final long[] AddrMaskTable={0x0000ffffL, 0xffffffffL};
+    static protected final long[] AddrMaskTable={0x0000ffffl,0xffffffffl};
     static protected final int[] AddrMaskTable1={0x0000ffff,0xffffffff};
     
     protected static final int OPCODE_NONE=0x000;
@@ -107,7 +108,7 @@ public class Helper extends CPU_Regs {
             /*Bit32u*/int val=decode_fetchb();
             val|=decode_fetchb() << 8;
             val|=decode_fetchb() << 16;
-            val|= (int) ((long)decode_fetchb() << 24);
+            val|=(long)decode_fetchb() << 24;
             return val;
             /* Advance to the next page */
         }

@@ -22,7 +22,7 @@ package javazoom.jl.decoder;
 
 /**
  * Work in progress.
- * <p>
+ * 
  * API usage errors may be handled by throwing an instance of this
  * class, as per JMF 2.0. 
  */

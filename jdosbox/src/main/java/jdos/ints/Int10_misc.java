@@ -33,7 +33,7 @@ public class Int10_misc {
         /*RealPt*/int svstable=Memory.real_readd(Memory.RealSeg(vsavept),Memory.RealOff(vsavept)+0x10);
         if (svstable!= 0) {
             /*RealPt*/int dcctable=Memory.real_readd(Memory.RealSeg(svstable),Memory.RealOff(svstable)+0x02);
-            /*Bit8u*/int entries=Memory.real_readb(Memory.RealSeg(dcctable), Memory.RealOff(dcctable));
+            /*Bit8u*/int entries=Memory.real_readb(Memory.RealSeg(dcctable),Memory.RealOff(dcctable)+0x00);
             /*Bit8u*/int idx=Memory.real_readb(Int10.BIOSMEM_SEG,Int10.BIOSMEM_DCC_INDEX);
             // check if index within range
             if (idx<entries) {

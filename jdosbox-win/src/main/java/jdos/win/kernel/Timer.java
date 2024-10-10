@@ -9,18 +9,18 @@ import jdos.win.system.WinSystem;
 public class Timer {
     public Timer(int frequency) {
         //init_timer(frequency);
-        Thread thread = new Thread(() -> {
-            while (true) {
-                HandlerBase.tick = true;
-                try {Thread.sleep(15);} catch (Exception e) {
-                    throw new RuntimeException(e);
+        Thread thread = new Thread() {
+            public void run() {
+                while (true) {
+                    HandlerBase.tick = true;
+                    try {Thread.sleep(15);} catch (Exception e) {}
                 }
             }
-        });
+        };
         thread.start();
     }
 
-    final Callback.Handler handler = new Callback.Handler() {
+    Callback.Handler handler = new Callback.Handler() {
         int tickCount;
         public int call() {
             Scheduler.tick();

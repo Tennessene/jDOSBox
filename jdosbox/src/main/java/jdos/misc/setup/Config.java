@@ -1,6 +1,7 @@
 package jdos.misc.setup;
 
 import jdos.misc.Cross;
+import jdos.misc.Log;
 import jdos.misc.Msg;
 import jdos.util.FileIOFactory;
 import jdos.util.StringHelper;
@@ -28,12 +29,12 @@ public class Config {
     static public final boolean PCI_FUNCTIONALITY_ENABLED = true;
 
     static String current_config_dir; // Set by parseconfigfile so Prop_path can use it to construct the realpath
-    public interface StartFunction {
-        void call();
+    static public interface StartFunction {
+        public void call();
     }
-    public final CommandLine cmdline;
+    public CommandLine cmdline;
 
-    private final Vector sectionlist = new Vector();
+    private Vector sectionlist = new Vector();
     private boolean secure_mode; //Sandbox mode
     private StartFunction _start_function;
 
@@ -98,11 +99,9 @@ public class Config {
     private void fprintf(OutputStream outfile, String format, String args, int maxwidth) throws IOException {
         format = StringHelper.replace(format, "%s", args);
         if (maxwidth>0) {
-            StringBuilder argsBuilder = new StringBuilder(args);
-            while (argsBuilder.length()<maxwidth) {
-                argsBuilder.insert(0, " ");
+            while (args.length()<maxwidth) {
+                args = " "+args;
             }
-            args = argsBuilder.toString();
             format = StringHelper.replace(format, "%"+maxwidth+"s", args);
         }
         fputs(format, outfile);
@@ -135,14 +134,14 @@ public class Config {
                         maxwidth = Math.max(maxwidth, p.propname.length());
                     }
                     String prefix = "\n# %"+(maxwidth>0?String.valueOf(maxwidth):"")+"s";
-                    StringBuilder prefix2 = new StringBuilder("\n#   ");
+                    String prefix2 = "\n#   ";
                     for (int l=0;l<maxwidth;l++) {
-                        prefix2.append(" ");
+                        prefix2 = prefix2+" ";
                     }
                     i = 0;
                     while ((p = sec.Get_prop(i++)) != null) {
                         String help = p.Get_help();
-                        help = StringHelper.replace(help, "\n", prefix2.toString());
+                        help = StringHelper.replace(help, "\n", prefix2);
                         fprintf(outfile,  prefix+": "+help,p.propname, maxwidth);
                         Vector values = p.GetValues();
                         if (!values.isEmpty()) {
@@ -152,7 +151,7 @@ public class Config {
                                 if (!v.toString().equals("%u")) {
                                     if (j!=0)
                                         fputs(",", outfile);
-                                    fputs(" "+ v, outfile);
+                                    fputs(" "+v.toString(), outfile);
                                 }
                             }
                             fputs(".", outfile);
@@ -170,14 +169,12 @@ public class Config {
             }
             return true;
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (outfile != null) {
-                try { outfile.close(); } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                try { outfile.close(); } catch (Exception e){}
             }
         }
         return false;
@@ -191,13 +188,13 @@ public class Config {
             in = new BufferedReader(new InputStreamReader(FileIOFactory.openStream(configfilename)));
             String settings_type = first_configfile?"primary":"additional";
             first_configfile = false;
-            System.out.println("CONFIG:Loading "+settings_type+" settings from config file "+configfilename);
+            Log.log_msg("CONFIG:Loading "+settings_type+" settings from config file "+configfilename);
             current_config_dir = FileIOFactory.getFullPath(configfilename);
             String line;
             Section currentsection = null;
             while ((line=in.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty())
+                if (line.length() == 0)
                     continue;
                 char c = line.charAt(0);
                 if (c == '%' || c == '\0' || c == '#' || c == ' ' || c == '\n')
@@ -216,12 +213,11 @@ public class Config {
                 }
             }
             return true;
+        } catch (FileNotFoundException e) {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (in != null) try {in.close();} catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            if (in != null) try {in.close();} catch (Exception e) {}
 
         }
         current_config_dir = ""; //So internal changes don't use the path information

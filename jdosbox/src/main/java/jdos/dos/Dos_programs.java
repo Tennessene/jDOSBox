@@ -44,7 +44,7 @@ public class Dos_programs {
             for (int d = 0;d < Dos_files.DOS_DRIVES;d++) {
                 if (Dos_files.Drives[d] == null) continue;
 
-                String root = (char) ('A' + d) +":\\";
+                String root = String.valueOf((char)('A'+d))+":\\";
                 boolean ret = Dos_files.DOS_FindFirst(root, Dos_system.DOS_ATTR_VOLUME);
                 if (ret) {
                     dta.GetResult(name,size,date,time,attr);
@@ -62,7 +62,7 @@ public class Dos_programs {
             Dos.dos.dta(save_dta);
         }
         public void Run() {
-            Dos_Drive newdrive;char drive;
+            Dos_Drive newdrive=null;char drive='C';
             String label;
             String umount;
 
@@ -102,7 +102,7 @@ public class Dos_programs {
                             break;
                     }
                 } else {
-                    WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_NOT_MOUNTED"),new Object[]{umount.charAt(0)});
+                    WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_NOT_MOUNTED"),new Object[]{new Character(umount.charAt(0))});
                 }
                 return;
             }
@@ -124,7 +124,7 @@ public class Dos_programs {
                     if (fs.GetEnvStr("PATH",line)){
                         line.value = StringHelper.replace(line.value, "Z:\\", newz+":\\");
                     }
-                    if (line.value.isEmpty()) line.value = newz+":\\";
+                    if (line.value.length()==0) line.value = newz+":\\";
                     fs.SetEnv("PATH",line.value);
                     fs.SetEnv("COMSPEC",newz+":\\COMMAND.COM");
 
@@ -141,40 +141,36 @@ public class Dos_programs {
             // Show list of cdroms
             if (cmd.FindExist("-cd",false)) {
                 File[] roots = File.listRoots();
-                WriteOut(Msg.get("PROGRAM_MOUNT_CDROMS_FOUND"),new Object[]{roots.length});
+                WriteOut(Msg.get("PROGRAM_MOUNT_CDROMS_FOUND"),new Object[]{new Integer(roots.length)});
                 for (int i=0; i<roots.length; i++) {
-                    WriteOut("%2d. %s\n",new Object[]{i,roots[i].getAbsolutePath()});
+                    WriteOut("%2d. %s\n",new Object[]{new Integer(i),roots[i].getAbsolutePath()});
                 }
                 return;
             }
 
             String type;
             type = cmd.FindString("-t",true);
-            if (type==null || type.isEmpty()) type = "dir";
+            if (type==null || type.length()==0) type = "dir";
             boolean iscdrom = (type.equals("cdrom")); //Used for mscdex bug cdrom label name emulation
             while (true) {
                 if (type.equals("floppy") || type.equals("dir") || type.equals("cdrom")) {
                     /*Bit16u*/int[] sizes=new int[4];
                     /*Bit8u*/short mediaid;
-                    String str_size;
-                    switch (type) {
-                        case "floppy":
-                            str_size = "512,1,2880,2880";/* All space free */
-                            mediaid = 0xF0;        /* Floppy 1.44 media */
-                            break;
-                        case "dir":
-                            // 512*32*32765==~500MB total size
-                            // 512*32*16000==~250MB total free size
-                            str_size = "512,32,32765,16000";
-                            mediaid = 0xF8;        /* Hard Disk */
-                            break;
-                        case "cdrom":
-                            str_size = "2048,1,32765,0";
-                            mediaid = 0xF8;        /* Hard Disk */
-                            break;
-                        default:
-                            WriteOut(Msg.get("PROGAM_MOUNT_ILL_TYPE"), new Object[]{type});
-                            return;
+                    String str_size="";
+                    if (type.equals("floppy")) {
+                        str_size="512,1,2880,2880";/* All space free */
+                        mediaid=0xF0;		/* Floppy 1.44 media */
+                    } else if (type.equals("dir")) {
+                        // 512*32*32765==~500MB total size
+                        // 512*32*16000==~250MB total free size
+                        str_size="512,32,32765,16000";
+                        mediaid=0xF8;		/* Hard Disk */
+                    } else if (type.equals("cdrom")) {
+                        str_size="2048,1,32765,0";
+                        mediaid=0xF8;		/* Hard Disk */
+                    } else {
+                        WriteOut(Msg.get("PROGAM_MOUNT_ILL_TYPE"),new Object[]{type});
+                        return;
                     }
                     /* Parse the free space in mb's (kb's for floppies) */
                     String mb_size;
@@ -183,21 +179,21 @@ public class Dos_programs {
                         try {freesize=Integer.parseInt(mb_size);} catch (Exception e){e.printStackTrace();}
                         if (type.equals("floppy")) {
                             // freesize in kb
-                            str_size = "512,1,2880,"+ freesize * 1024 / (512);
+                            str_size = "512,1,2880,"+String.valueOf(freesize*1024/(512*1));
                         } else {
                             long total_size_cyl=32765;
-                            long free_size_cyl= (long) freesize *1024*1024/(512*32);
+                            long free_size_cyl=freesize*1024*1024/(512*32);
                             if (free_size_cyl>65534) free_size_cyl=65534;
                             if (total_size_cyl<free_size_cyl) total_size_cyl=free_size_cyl+10;
                             if (total_size_cyl>65534) total_size_cyl=65534;
                             // freesize in mb
-                            str_size = "512,32,"+ total_size_cyl +",65535,"+ free_size_cyl;
+                            str_size = "512,32,"+String.valueOf(total_size_cyl)+",65535,"+String.valueOf(free_size_cyl);
                         }
                     }
 
                     {
                         String s = cmd.FindString("-size",true);
-                        if (s!=null && !s.isEmpty()) str_size = s;
+                        if (s!=null && s.length()!=0) str_size = s;
                     }
 
                     {
@@ -221,7 +217,7 @@ public class Dos_programs {
 
                     temp_line=cmd.FindCommand(2);
                     if (temp_line==null) break;
-                    if (temp_line.isEmpty()) break;
+                    if (temp_line.length()==0) break;
                     temp_line = FileHelper.resolve_path(temp_line);
                     File temp_file = new File(temp_line);
                     if (!temp_file.exists()) {
@@ -240,6 +236,7 @@ public class Dos_programs {
                         int num = -1;
                         Integer tmp_num = cmd.FindInt("-usecd",true);
                         if (tmp_num != null) {
+                            num = tmp_num.intValue();
                         }
                         IntRef error = new IntRef(0);
                         if (cmd.FindExist("-aspi",false)) {
@@ -302,14 +299,14 @@ public class Dos_programs {
                     return;
                 }
                 if (Dos_files.Drives[drive-'A']!=null) {
-                    WriteOut(Msg.get("PROGRAM_MOUNT_ALREADY_MOUNTED"),new Object[]{drive,Dos_files.Drives[drive-'A'].GetInfo()});
+                    WriteOut(Msg.get("PROGRAM_MOUNT_ALREADY_MOUNTED"),new Object[]{new Character(drive),Dos_files.Drives[drive-'A'].GetInfo()});
                     return;
                 }
                 if (newdrive==null) Log.exit("DOS:Can't create drive");
                 Dos_files.Drives[drive-'A']=newdrive;
                 /* Set the correct media byte in the table */
                 Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid)+(drive-'A')*2,newdrive.GetMediaByte());
-                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"),new Object[]{drive,newdrive.GetInfo()});
+                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"),new Object[]{new Character(drive),newdrive.GetInfo()});
                 /* check if volume label is given and don't allow it to updated in the future */
                 if ((label=cmd.FindString("-label",true))!=null) newdrive.dirCache.SetLabel(label,iscdrom,false);
                     /* For hard drives set the label to DRIVELETTER_Drive.
@@ -330,7 +327,11 @@ public class Dos_programs {
         }
     }
 
-    static private final Program.PROGRAMS_Main MOUNT_ProgramStart = () -> new MOUNT();
+    static private Program.PROGRAMS_Main MOUNT_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new MOUNT();
+        }
+    };
 
     private static class MEM extends Program {
         public void Run() {
@@ -348,8 +349,8 @@ public class Dos_programs {
             /*Bit16u*/IntRef seg=new IntRef(0),blocks=new IntRef(0xffff);
             Dos_memory.DOS_AllocateMemory(seg,blocks);
             if ((Dosbox.machine== MachineType.MCH_PCJR) && (Memory.real_readb(0x2000,0)==0x5a) && (Memory.real_readw(0x2000,1)==0) && (Memory.real_readw(0x2000,3)==0x7ffe)) {
-                WriteOut(Msg.get("PROGRAM_MEM_CONVEN"),new Object[]{0x7ffe * 16 / 1024});
-            } else WriteOut(Msg.get("PROGRAM_MEM_CONVEN"),new Object[]{blocks.value * 16 / 1024});
+                WriteOut(Msg.get("PROGRAM_MEM_CONVEN"),new Object[]{new Integer(0x7ffe*16/1024)});
+            } else WriteOut(Msg.get("PROGRAM_MEM_CONVEN"),new Object[]{new Integer(blocks.value*16/1024)});
 
             if (umb_start!=0xffff) {
                 Dos_memory.DOS_LinkUMBsToMemChain(1);
@@ -369,18 +370,18 @@ public class Dos_programs {
                 if ((current_umb_flag&1)!=(umb_flag&1)) Dos_memory.DOS_LinkUMBsToMemChain(umb_flag);
                 Dos_memory.DOS_SetMemAllocStrategy(old_memstrat);	// restore strategy
 
-                if (block_count>0) WriteOut(Msg.get("PROGRAM_MEM_UPPER"),new Object[]{total_blocks * 16 / 1024, block_count, largest_block * 16 / 1024});
+                if (block_count>0) WriteOut(Msg.get("PROGRAM_MEM_UPPER"),new Object[]{new Integer(total_blocks*16/1024),new Integer(block_count),new Integer(largest_block*16/1024)});
             }
 
             /* Test for and show free XMS */
             CPU_Regs.reg_eax.word(0x4300);Callback.CALLBACK_RunRealInt(0x2f);
             if (CPU_Regs.reg_eax.low()==0x80) {
                 CPU_Regs.reg_eax.word(0x4310);Callback.CALLBACK_RunRealInt(0x2f);
-                /*Bit16u*/int xms_seg= CPU_Regs.reg_esVal.dword;/*Bit16u*/int xms_off=CPU_Regs.reg_ebx.word();
+                /*Bit16u*/int xms_seg= (int)CPU_Regs.reg_esVal.dword;/*Bit16u*/int xms_off=CPU_Regs.reg_ebx.word();
                 CPU_Regs.reg_eax.high(8);
                 Callback.CALLBACK_RunRealFar(xms_seg,xms_off);
                 if (CPU_Regs.reg_ebx.low()==0) {
-                    WriteOut(Msg.get("PROGRAM_MEM_EXTEND"),new Object[]{(long) CPU_Regs.reg_edx.word()});
+                    WriteOut(Msg.get("PROGRAM_MEM_EXTEND"),new Object[]{new Long(CPU_Regs.reg_edx.word())});
                 }
             }
             /* Test for and show free EMS */
@@ -390,18 +391,24 @@ public class Dos_programs {
                 Dos_files.DOS_CloseFile(handle.value);
                 CPU_Regs.reg_eax.high(0x42);
                 Callback.CALLBACK_RunRealInt(0x67);
-                WriteOut(Msg.get("PROGRAM_MEM_EXPAND"),new Object[]{CPU_Regs.reg_ebx.word() * 16L});
+                WriteOut(Msg.get("PROGRAM_MEM_EXPAND"),new Object[]{new Long(CPU_Regs.reg_ebx.word()*16)});
             }
         }
     }
 
     static public class RebootException extends RuntimeException {}
 
-    static private final Program.PROGRAMS_Main REBOOT_ProgramStart = () -> {
-        throw new RebootException();
+    static private Program.PROGRAMS_Main REBOOT_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            throw new RebootException();
+        }
     };
     
-    static private final Program.PROGRAMS_Main MEM_ProgramStart = () -> new MEM();
+    static private Program.PROGRAMS_Main MEM_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new MEM();
+        }
+    };
 
 //    extern Bit32u floppytype;
 //
@@ -416,7 +423,7 @@ public class Dos_programs {
             StringRef fullname = new StringRef();
 
             Drive_local ldp;
-            if (Dos_files.DOS_MakeName(filename, fullname, drive)) return null;
+            if (!Dos_files.DOS_MakeName(filename,fullname,drive)) return null;
 
             try {
                 if (!(Dos_files.Drives[drive.value] instanceof Drive_local)) return null;
@@ -475,7 +482,6 @@ public class Dos_programs {
                 bsize.value = tmpfile.length();
                 ksize.value = bsize.value / 1024;
             } catch (Exception e) {
-                throw new RuntimeException(e);
             }
             return tmpfile;
         }
@@ -502,7 +508,7 @@ public class Dos_programs {
 //                Bit16u reserve_sect;
 //                Bit8u misc[496];
 //            } bootdata;
-final byte[] rawdata = new byte[512];
+            byte[] rawdata = new byte[512];
         }
         public void Run() {
             //Hack To allow long commandlines
@@ -594,12 +600,12 @@ final byte[] rawdata = new byte[512];
                 if (bochs.startsWith("CD")) {
                     Block.BlockDriverState cdrom = IDE.getFirstCdrom();
                     if (cdrom == null) {
-                        WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {drive});
+                        WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
                         return;
                     }
                 }
             } else if(Bios_disk.imageDiskList[drive-65]==null) {
-                WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {drive});
+                WriteOut(Msg.get("PROGRAM_BOOT_UNABLE"), new Object[] {new Character(drive)});
                 return;
             }
             int eip = 0x7c00;
@@ -642,7 +648,7 @@ final byte[] rawdata = new byte[512];
                 else {
                     byte[] rombuf = new byte[65536];
                     int cfound_at=-1;
-                    if (!cart_cmd.isEmpty()) {
+                    if (cart_cmd.length()>0) {
                         /* read cartridge data into buffer */
                         try {
                             usefile_1.seek(0x200L);
@@ -651,19 +657,19 @@ final byte[] rawdata = new byte[512];
                             e.printStackTrace();
                         }
 
-                        StringBuilder cmdlist = new StringBuilder();
+                        String cmdlist = "";
                         int ct=6;
                         int clen=rombuf[ct] & 0xFF;
                         byte[] buf=new byte[257];
                         if (cart_cmd.equals("?")) {
                             while (clen!=0 && cmdlist.length()<1024) {
-                                cmdlist.append(" ");
-                                cmdlist.append(new String(rombuf, ct + 1, clen).toUpperCase());
+                                cmdlist+=" ";
+                                cmdlist+=new String(rombuf, ct+1, clen).toUpperCase();
                                 ct+=1+clen+3;
                                 clen=rombuf[ct] & 0xFF;
                             }
                             if (ct>6) {
-                                WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"),new Object[]{cmdlist.toString()});
+                                WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"),new Object[]{cmdlist});
                             } else {
                                 WriteOut(Msg.get("PROGRAM_BOOT_CART_NO_CMDS"));
                             }
@@ -691,7 +697,7 @@ final byte[] rawdata = new byte[512];
                             }
                             if (cfound_at<=0) {
                                 if (ct>6) {
-                                    WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"), new Object[] {cmdlist.toString()});
+                                    WriteOut(Msg.get("PROGRAM_BOOT_CART_LIST_CMDS"), new Object[] {cmdlist});
                                 } else {
                                     WriteOut(Msg.get("PROGRAM_BOOT_CART_NO_CMDS"));
                                 }
@@ -727,9 +733,7 @@ final byte[] rawdata = new byte[512];
                         if (drd==0xb000) {
                             for(i=0;i<0xb000;i++) Memory.phys_writeb(0xf3000+i,rombuf[i]);
                         }
-                        try {tfile.close();} catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                        try {tfile.close();} catch (Exception e) {}
                     }
 
                     if (usefile_2!=null) {
@@ -775,7 +779,7 @@ final byte[] rawdata = new byte[512];
                         }
                     }
 
-                    if (cart_cmd.isEmpty()) {
+                    if (cart_cmd.length()==0) {
                         int old_int18=Memory.mem_readd(0x60);
                         /* run cartridge setup */
                         CPU_Regs.SegSet16DS(romseg);
@@ -802,15 +806,15 @@ final byte[] rawdata = new byte[512];
             } else {
                 disable_umb_ems_xms();
                 Memory.RemoveEMSPageFrame();
-                WriteOut(Msg.get("PROGRAM_BOOT_BOOT"), new Object[] {drive});
+                WriteOut(Msg.get("PROGRAM_BOOT_BOOT"), new Object[] {new Character(drive)});
 
                 /* revector some dos-allocated interrupts */
-                Memory.real_writed(0, 4,0xf000ff53);
+                Memory.real_writed(0,0x01*4,0xf000ff53);
                 Memory.real_writed(0,0x03*4,0xf000ff53);
 
                 if (bochs != null) {
                     try {
-                        byte[] data;
+                        byte[] data = null;
                         try {
                             FileInputStream fis = new FileInputStream("bios.bin");
                             data = new byte[fis.available()];
@@ -829,14 +833,13 @@ final byte[] rawdata = new byte[512];
                         for(i=0;i<data.length;i++) RAM.writeb(address + i, data[i]);
 
                         byte[] videoData = new byte[0x10000];
-                        boolean videoBiosFound;
+                        boolean videoBiosFound = false;
                         try {
                             FileInputStream videofis = new FileInputStream("vgabios.bin");
                             videofis.read(videoData);
                             videofis.close();
                             videoBiosFound = true;
                         } catch (Exception e) {
-                            throw new RuntimeException(e);
                         }
                         if (!videoBiosFound) {
                             FileIO fileIO = FileIOFactory.open("jar://vgabios.bin", FileIOFactory.MODE_READ);
@@ -846,12 +849,13 @@ final byte[] rawdata = new byte[512];
                         address = 0xC0000;
                         for(i=0;i<videoData.length;i++) RAM.writeb(address + i, videoData[i]);
                         if (Dosbox.svgaCard < SVGACards.SVGA_QEMU) {
-                            /*Bitu*//*Bitu*//*Bitu*/
-                            IoHandler.IO_WriteHandler vga_write  = (port, val, iolen) -> {
-                                if (port == 0x500 || port == 0x503) {
-                                    System.out.print((char)val);
-                                } else if (port == 0x501 || port == 0x502) {
-                                    System.out.println("panic in vgabios at line "+val);
+                            IoHandler.IO_WriteHandler vga_write  = new IoHandler.IO_WriteHandler() {
+                                public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+                                    if (port == 0x500 || port == 0x503) {
+                                        System.out.print((char)val);
+                                    } else if (port == 0x501 || port == 0x502) {
+                                        System.out.println("panic in vgabios at line "+val);
+                                    }
                                 }
                             };
                             new IoHandler.IO_WriteHandleObject().Install(0x500, vga_write, IoHandler.IO_MA);
@@ -862,7 +866,7 @@ final byte[] rawdata = new byte[512];
                             VBE.registerIoPorts();
                         }
 
-                        int endLoadAddress = (int) (0x100000000L - data.length);
+                        int endLoadAddress = (int) (0x100000000l - data.length);
                         Memory.MEM_AddROM(endLoadAddress >>> 12, data.length >>> 12, data);
                         //Memory.MEM_AddROM(0xC0, 0x10, videoData);
                         CPU_Regs.reg_eip = 0xFFF0;
@@ -879,14 +883,15 @@ final byte[] rawdata = new byte[512];
                         else
                             CPU_Regs.reg_edx.dword = 0x00000402;
 
-                        /*Bitu*//*Bitu*//*Bitu*/
-                        IoHandler.IO_WriteHandler bios_write  = (port, val, iolen) -> {
-                            if (port == 0x8900)
-                                throw new Main.KillException();
-                            if (port == 0x402 || port == 0x403) {
-                                System.out.print((char)val);
-                            } else if (port == 0x401 || port == 0x402) {
-                                System.out.println("panic in rombios.c at line "+val);
+                        IoHandler.IO_WriteHandler bios_write  = new IoHandler.IO_WriteHandler() {
+                            public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+                                if (port == 0x8900)
+                                    throw new Main.KillException();
+                                if (port == 0x402 || port == 0x403) {
+                                    System.out.print((char)val);
+                                } else if (port == 0x401 || port == 0x402) {
+                                    System.out.println("panic in rombios.c at line "+val);
+                                }
                             }
                         };
                         new IoHandler.IO_WriteHandleObject().Install(0x400, bios_write, IoHandler.IO_MA);
@@ -999,7 +1004,11 @@ final byte[] rawdata = new byte[512];
         }
     }
 
-    static private final Program.PROGRAMS_Main BOOT_ProgramStart = () -> new BOOT();
+    static private Program.PROGRAMS_Main BOOT_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new BOOT();
+        }
+    };
 
 //
 //    #if C_DEBUG
@@ -1070,7 +1079,7 @@ final byte[] rawdata = new byte[512];
                     if (ch=='D' || ch=='F') {
                         // Deallocate all
                         Dos_memory.DOS_FreeProcessMemory(0x40);
-                        WriteOut(Msg.get("PROGRAM_LOADFIX_DEALLOCALL"),new Object[]{kb});
+                        WriteOut(Msg.get("PROGRAM_LOADFIX_DEALLOCALL"),new Object[]{new Integer(kb)});
                         return;
                     } else {
                         // Set mem amount to allocate
@@ -1086,33 +1095,37 @@ final byte[] rawdata = new byte[512];
             if (Dos_memory.DOS_AllocateMemory(segment,blocks)) {
                 Dos_MCB mcb=new Dos_MCB(segment.value-1);
                 mcb.SetPSPSeg(0x40);			// use fake segment
-                WriteOut(Msg.get("PROGRAM_LOADFIX_ALLOC"),new Object[]{kb});
+                WriteOut(Msg.get("PROGRAM_LOADFIX_ALLOC"),new Object[]{new Integer(kb)});
                 // Prepare commandline...
                 if ((temp_line=cmd.FindCommand(commandNr++))!=null) {
                     // get Filename
                     String filename = temp_line;
                     // Setup commandline
                     boolean ok;
-                    StringBuilder args = new StringBuilder();
+                    String args = "";
 
                     do {
                         ok = (temp_line=cmd.FindCommand(commandNr++))!=null;
-                        args.append(temp_line);
-                        args.append(" ");
+                        args+=temp_line;
+                        args+=" ";
                     } while (ok);
                     // Use shell to start program
                     Dos_shell shell = new Dos_shell();
-                    shell.Execute(filename, args.toString());
+                    shell.Execute(filename,args);
                     Dos_memory.DOS_FreeMemory(segment.value);
-                    WriteOut(Msg.get("PROGRAM_LOADFIX_DEALLOC"),new Object[]{kb});
+                    WriteOut(Msg.get("PROGRAM_LOADFIX_DEALLOC"),new Object[]{new Integer(kb)});
                 }
             } else {
-                WriteOut(Msg.get("PROGRAM_LOADFIX_ERROR"),new Object[]{kb});
+                WriteOut(Msg.get("PROGRAM_LOADFIX_ERROR"),new Object[]{new Integer(kb)});
             }
         }
     }
 
-    static private final Program.PROGRAMS_Main LOADFIX_ProgramStart = () -> new LOADFIX();
+    static private Program.PROGRAMS_Main LOADFIX_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new LOADFIX();
+        }
+    };
 
 // RESCAN
 
@@ -1144,7 +1157,11 @@ final byte[] rawdata = new byte[512];
         }
     }
 
-    static private final Program.PROGRAMS_Main RESCAN_ProgramStart = () -> new RESCAN();
+    static private Program.PROGRAMS_Main RESCAN_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new RESCAN();
+        }
+    };
 
     private static class INTRO extends Program {
         void DisplayMount() {
@@ -1187,7 +1204,11 @@ final byte[] rawdata = new byte[512];
         }
     }
 
-    static private final Program.PROGRAMS_Main INTRO_ProgramStart = () -> new INTRO();
+    static private Program.PROGRAMS_Main INTRO_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new INTRO();
+        }
+    };
 
     private static class IMGMOUNT extends Program {
         public void Run() {
@@ -1215,7 +1236,7 @@ final byte[] rawdata = new byte[512];
                         Dos_files.Drives[i_drive] = null;
                         if (i_drive == Dos_files.DOS_GetDefaultDrive())
                             Dos_files.DOS_SetDrive((short)('Z' - 'A'));
-                        WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_SUCCESS"),new Object[]{umount.charAt(0)});
+                        WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_SUCCESS"),new Object[]{new Character(umount.charAt(0))});
                         break;
                     case 1:
                         WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_NO_VIRTUAL"));
@@ -1225,7 +1246,7 @@ final byte[] rawdata = new byte[512];
                         break;
                     }
                 } else {
-                    WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_NOT_MOUNTED"),new Object[]{umount.charAt(0)});
+                    WriteOut(Msg.get("PROGRAM_MOUNT_UMOUNT_NOT_MOUNTED"),new Object[]{new Character(umount.charAt(0))});
                 }
                 return;
             }
@@ -1261,7 +1282,7 @@ final byte[] rawdata = new byte[512];
                 if (ideattach.equals("auto")) {
                     IDE.IDE_Auto(ide_index, ide_slave);
                     System.out.println("IDE: index "+ide_index.value+" slave="+ide_slave.value);
-                } else if (!ideattach.equals("none") && !ideattach.isEmpty() && Character.isDigit(ideattach.charAt(0))) {
+                } else if (!ideattach.equals("none") && ideattach.length()>0 && Character.isDigit(ideattach.charAt(0))) {
                     ide_index.value = ideattach.charAt(0)-'1';
                     if (ideattach.length()>1 && ideattach.charAt(1)=='s')
                         ide_slave.value = true;
@@ -1279,7 +1300,7 @@ final byte[] rawdata = new byte[512];
                 if (s != null)
                     str_size = s;
 
-                if (type.equals("hdd") && str_size.isEmpty()) {
+                if (type.equals("hdd") && str_size.length()==0) {
                     imgsizedetect=true;
                 } else {
                     String[] ss = StringHelper.split(str_size, ",");
@@ -1316,7 +1337,7 @@ final byte[] rawdata = new byte[512];
                 }
 
                 // find all file parameters, assuming that all option parameters have been removed
-                while((temp_line=cmd.FindCommand(paths.size() + 2))!=null && !temp_line.isEmpty()) {
+                while((temp_line=cmd.FindCommand(paths.size() + 2))!=null && temp_line.length()>0) {
                     if (FileIOFactory.isRemote(temp_line)) {
                         paths.add(temp_line);
                         continue;
@@ -1334,7 +1355,7 @@ final byte[] rawdata = new byte[512];
                             String tmp = temp_line;
 
                             /*Bit8u*/ShortRef dummy = new ShortRef();
-                            if (Dos_files.DOS_MakeName(tmp, fullname, dummy) || !Dos_files.Drives[dummy.value].GetInfo().startsWith("local directory")) {
+                            if (!Dos_files.DOS_MakeName(tmp, fullname, dummy) || !Dos_files.Drives[dummy.value].GetInfo().startsWith("local directory")) {
                                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_NON_LOCAL_DRIVE"));
                                 return;
                             }
@@ -1360,7 +1381,7 @@ final byte[] rawdata = new byte[512];
                     }
                     paths.add(temp_line);
                 }
-                if (paths.isEmpty()) {
+                if (paths.size() == 0) {
                     WriteOut(Msg.get("PROGRAM_IMGMOUNT_SPECIFY_FILE"));
                     return;
                 }
@@ -1370,268 +1391,216 @@ final byte[] rawdata = new byte[512];
                     WriteOut(Msg.get("PROGRAM_IMGMOUNT_MULTIPLE_NON_CUEISO_FILES"));
                     return;
                 }
+                
+                if (fstype.equals("fat")) {
+                    if (imgsizedetect) {
+                        FileIO diskfile = null;
 
-                switch (fstype) {
-                    case "fat":
-                        if (imgsizedetect) {
-                            FileIO diskfile;
+                        try {
+                            diskfile = FileIOFactory.open(temp_line, FileIOFactory.MODE_READ|FileIOFactory.MODE_WRITE);
+                            /*Bit32u*/long fcsize = diskfile.length()/512;
+                            /*Bit8u*/byte[] buf=new byte[512];
 
-                            try {
-                                diskfile = FileIOFactory.open(temp_line, FileIOFactory.MODE_READ | FileIOFactory.MODE_WRITE);
-                                /*Bit32u*/
-                                long fcsize = diskfile.length() / 512;
-                                /*Bit8u*/
-                                byte[] buf = new byte[512];
-
-                                if (diskfile.read(buf) < 512) {
-                                    diskfile.close();
-                                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_IMAGE"));
-                                    return;
-                                }
+                            if (diskfile.read(buf)<512) {
                                 diskfile.close();
-                                if ((buf[510] != 0x55) || (buf[511] != (byte) 0xaa)) {
-                                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_GEOMETRY"));
-                                    return;
-                                }
-
-                                // check MBR partition entry 1
-                                /*Bitu*/
-                                int starthead = buf[0x1bf] & 0xFF;
-                                /*Bitu*/
-                                int startsect = buf[0x1c0] & 0x3f - 1;
-                                /*Bitu*/
-                                int startcyl = buf[0x1c1] | ((buf[0x1c0] & 0xc0) << 2);
-                                /*Bitu*/
-                                int endcyl = buf[0x1c5] | ((buf[0x1c4] & 0xc0) << 2);
-
-                                /*Bitu*/
-                                int heads = (buf[0x1c3] & 0xFF) + 1;
-                                /*Bitu*/
-                                int sectors = buf[0x1c4] & 0x3f;
-
-                                /*Bitu*/
-                                long pe1_size = new IntPtr(buf, 0x1ca).readd(0);
-                                boolean yet_detected = false;
-                                if (pe1_size != 0) {
-                                    /*Bitu*/
-                                    int part_start = startsect + sectors * starthead + startcyl * sectors * heads;
-                                    /*Bitu*/
-                                    int part_end = heads * sectors * endcyl;
-                                    /*Bitu*/
-                                    int part_len = part_end - part_start;
-                                    // partition start/end sanity check
-                                    // partition length should not exceed file length
-                                    // real partition size can be a few cylinders less than pe1_size
-                                    // if more than 1023 cylinders see if first partition fits
-                                    // into 1023, else bail.
-                                    if ((part_len < 0) || (part_len > pe1_size) || (pe1_size > fcsize) ||
-                                            ((pe1_size - part_len) / (sectors * heads) > 2) ||
-                                            ((pe1_size / (heads * sectors)) > 1023)) {
-                                        //LOG_MSG("start(c,h,s) %u,%u,%u",startcyl,starthead,startsect);
-                                        //LOG_MSG("endcyl %u heads %u sectors %u",endcyl,heads,sectors);
-                                        //LOG_MSG("psize %u start %u end %u",pe1_size,part_start,part_end);
-                                    } else {
-                                        sizes[0] = 512;
-                                        sizes[1] = sectors;
-                                        sizes[2] = heads;
-                                        sizes[3] = (int) (fcsize / (heads * sectors));
-                                        if (sizes[3] > 1023) sizes[3] = 1023;
-                                        yet_detected = true;
-                                    }
-                                }
-                                if (!yet_detected) {
-                                    // Try bximage disk geometry
-                                    /*Bitu*/
-                                    int cylinders = (int) (fcsize / (16 * 63));
-                                    // Int13 only supports up to 1023 cylinders
-                                    // For mounting unknown images we could go up with the heads to 255
-                                    if (((long) cylinders * 16 * 63 == fcsize) && (cylinders < 1024)) {
-                                        yet_detected = true;
-                                        sizes[0] = 512;
-                                        sizes[1] = 63;
-                                        sizes[2] = 16;
-                                        sizes[3] = cylinders;
-                                    }
-                                }
-
-                                if (yet_detected)
-                                    WriteOut(StringHelper.sprintf(Msg.get("PROGRAM_IMGMOUNT_AUTODET_VALUES"), new Object[]{sizes[0], sizes[1], sizes[2], sizes[3]}));
-                                else {
-                                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_GEOMETRY"));
-                                    return;
-                                }
-                            } catch (Exception e) {
                                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_IMAGE"));
                                 return;
                             }
-                        }
+                            diskfile.close();
+                            if ((buf[510]!=0x55) || (buf[511]!=(byte)0xaa)) {
+                                WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_GEOMETRY"));
+                                return;
+                            }
 
-                        newdrive = new Drive_fat(temp_line, sizes[0], sizes[1], sizes[2], sizes[3], 0);
-                        if (!((Drive_fat) newdrive).created_successfully) {
-                            newdrive = null;
-                        }
-                        break;
-                    case "iso":
-                        break;
-                    case "zip":
-                        newdrive = new Drive_zip(temp_line);
-                        break;
-                    default:
-                        FileIO newDisk;
-                        try {
-                            newDisk = FileIOFactory.open(temp_line, FileIOFactory.MODE_READ | FileIOFactory.MODE_WRITE);
-                            imagesize = (newDisk.length() / 1024);
+                            // check MBR partition entry 1
+                            /*Bitu*/int starthead = buf[0x1bf] & 0xFF;
+                            /*Bitu*/int startsect = buf[0x1c0] & 0x3f - 1;
+                            /*Bitu*/int startcyl = buf[0x1c1]|((buf[0x1c0]&0xc0)<<2);
+                            /*Bitu*/int endcyl = buf[0x1c5]|((buf[0x1c4]&0xc0)<<2);
+
+                            /*Bitu*/int heads = (buf[0x1c3] & 0xFF) +1;
+                            /*Bitu*/int sectors = buf[0x1c4] & 0x3f;
+
+                            /*Bitu*/long pe1_size = new IntPtr(buf, 0x1ca).readd(0);
+                            boolean yet_detected = false;
+                            if(pe1_size!=0) {
+                                /*Bitu*/int  part_start = startsect + sectors*starthead + startcyl*sectors*heads;
+                                /*Bitu*/int  part_end = heads*sectors*endcyl;
+                                /*Bitu*/int  part_len = part_end - part_start;
+                                // partition start/end sanity check
+                                // partition length should not exceed file length
+                                // real partition size can be a few cylinders less than pe1_size
+                                // if more than 1023 cylinders see if first partition fits
+                                // into 1023, else bail.
+                                if((part_len<0)||(part_len > pe1_size)||(pe1_size > fcsize)||
+                                    ((pe1_size-part_len)/(sectors*heads)>2)||
+                                    ((pe1_size/(heads*sectors))>1023)) {
+                                    //LOG_MSG("start(c,h,s) %u,%u,%u",startcyl,starthead,startsect);
+                                    //LOG_MSG("endcyl %u heads %u sectors %u",endcyl,heads,sectors);
+                                    //LOG_MSG("psize %u start %u end %u",pe1_size,part_start,part_end);
+                                } else {
+                                    sizes[0]=512; sizes[1]=sectors;
+                                    sizes[2]=heads; sizes[3]=(int)(fcsize/(heads*sectors));
+                                    if(sizes[3]>1023) sizes[3]=1023;
+                                    yet_detected = true;
+                                }
+                            }
+                            if(!yet_detected) {
+                                // Try bximage disk geometry
+                                /*Bitu*/int cylinders=(int)(fcsize/(16*63));
+                                // Int13 only supports up to 1023 cylinders
+                                // For mounting unknown images we could go up with the heads to 255
+                                if ((cylinders*16*63==fcsize)&&(cylinders<1024)) {
+                                    yet_detected=true;
+                                    sizes[0]=512; sizes[1]=63; sizes[2]=16; sizes[3]=cylinders;
+                                }
+                            }
+
+                            if(yet_detected)
+                                WriteOut(StringHelper.sprintf(Msg.get("PROGRAM_IMGMOUNT_AUTODET_VALUES"),new Object[] {new Integer(sizes[0]),new Integer(sizes[1]),new Integer(sizes[2]),new Integer(sizes[3])}));
+                            else {
+                                WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_GEOMETRY"));
+                                return;
+                            }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            WriteOut(Msg.get("PROGRAM_IMGMOUNT_INVALID_IMAGE"));
                             return;
                         }
-                        newImage = new Bios_disk.imageDisk(newDisk, temp_line, imagesize, (imagesize > 2880));
-                        if (imagesize > 2880) newImage.Set_Geometry(sizes[2], sizes[3], sizes[1], sizes[0]);
-                        break;
+                    }
+
+                    newdrive=new Drive_fat(temp_line,sizes[0],sizes[1],sizes[2],sizes[3],0);
+                    if(!((Drive_fat)newdrive).created_successfully) {
+                    	newdrive = null;
+                    }
+                } else if (fstype.equals("iso")) {
+                } else if (fstype.equals("zip")) {
+                	newdrive = new Drive_zip(temp_line);
+                } else {
+                    FileIO newDisk = null;
+                    try {
+                        newDisk = FileIOFactory.open(temp_line, FileIOFactory.MODE_READ|FileIOFactory.MODE_WRITE);
+                        imagesize = (newDisk.length() / 1024);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    newImage = new Bios_disk.imageDisk(newDisk, temp_line, imagesize, (imagesize > 2880));
+                    if(imagesize>2880) newImage.Set_Geometry(sizes[2],sizes[3],sizes[1],sizes[0]);
                 }
             } else {
                 WriteOut(Msg.get("PROGRAM_IMGMOUNT_TYPE_UNSUPPORTED"),new Object[]{type});
                 return;
             }
 
-            switch (fstype) {
-                case "fat":
-                    if (Dos_files.Drives[drive - 'A'] != null) {
-                        WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
+            if (fstype.equals("fat")) {
+                if (Dos_files.Drives[drive-'A']!=null) {
+                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
+                    return;
+                }
+                if (newdrive==null) {WriteOut(Msg.get("PROGRAM_IMGMOUNT_CANT_CREATE"));return;}
+                Dos_files.Drives[drive-'A']=newdrive;
+                // Set the correct media byte in the table
+                Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid)+(drive-'A')*2,mediaid);
+                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"),new Object[]{new Character(drive),temp_line});
+                if (((Drive_fat)newdrive).loadedDisk.hardDrive) {
+                    if (Bios_disk.imageDiskList[2] == null) {
+                        Bios_disk.imageDiskList[2] = ((Drive_fat)newdrive).loadedDisk;
+                        Bios_disk.imageDisk imageDisk = Bios_disk.imageDiskList[2];
+                        if (ide_index.value >= 0) IDE.IDE_Attach(false, ide_index.value, ide_slave.value, imageDisk.diskimg, (int) imageDisk.cylinders, (int) imageDisk.heads, (int) imageDisk.sectors);
+                        Bios_disk.updateDPT();
                         return;
                     }
-                    if (newdrive == null) {
-                        WriteOut(Msg.get("PROGRAM_IMGMOUNT_CANT_CREATE"));
+                    if (Bios_disk.imageDiskList[3] == null) {
+                        Bios_disk.imageDiskList[3] = ((Drive_fat)newdrive).loadedDisk;
+                        Bios_disk.imageDisk imageDisk = Bios_disk.imageDiskList[3];
+                        if (ide_index.value >= 0) IDE.IDE_Attach(false, ide_index.value, ide_slave.value, imageDisk.diskimg, (int) imageDisk.cylinders, (int) imageDisk.heads, (int) imageDisk.sectors);
+                        Bios_disk.updateDPT();
                         return;
                     }
-                    Dos_files.Drives[drive - 'A'] = newdrive;
-                    // Set the correct media byte in the table
-                    Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
-                    WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"), new Object[]{drive, temp_line});
-                    if (((Drive_fat) newdrive).loadedDisk.hardDrive) {
-                        if (Bios_disk.imageDiskList[2] == null) {
-                            Bios_disk.imageDiskList[2] = ((Drive_fat) newdrive).loadedDisk;
-                            Bios_disk.imageDisk imageDisk = Bios_disk.imageDiskList[2];
-                            if (ide_index.value >= 0)
-                                IDE.IDE_Attach(false, ide_index.value, ide_slave.value, imageDisk.diskimg, (int) imageDisk.cylinders, (int) imageDisk.heads, (int) imageDisk.sectors);
-                            Bios_disk.updateDPT();
-                            return;
-                        }
-                        if (Bios_disk.imageDiskList[3] == null) {
-                            Bios_disk.imageDiskList[3] = ((Drive_fat) newdrive).loadedDisk;
-                            Bios_disk.imageDisk imageDisk = Bios_disk.imageDiskList[3];
-                            if (ide_index.value >= 0)
-                                IDE.IDE_Attach(false, ide_index.value, ide_slave.value, imageDisk.diskimg, (int) imageDisk.cylinders, (int) imageDisk.heads, (int) imageDisk.sectors);
-                            Bios_disk.updateDPT();
-                            return;
-                        }
+                }
+                if (!((Drive_fat)newdrive).loadedDisk.hardDrive) {
+                    Bios_disk.imageDiskList[0] = ((Drive_fat)newdrive).loadedDisk;
+                    Floppy.Attach(0, Bios_disk.imageDiskList[0].diskimg);
+                }
+            } else if (fstype.equals("iso")) {
+                // If instructed, attach to IDE controller as ATAPI CD-ROM device
+			    if (ide_index.value >= 0) {
+                    try  {
+                        IDE.IDE_Attach(true, ide_index.value,ide_slave.value, FileIOFactory.open((String)paths.elementAt(0), FileIOFactory.MODE_READ), 0, 0 , 0);
+                        WriteOut("Attached ISO to IDE\n");
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    if (!((Drive_fat) newdrive).loadedDisk.hardDrive) {
-                        Bios_disk.imageDiskList[0] = ((Drive_fat) newdrive).loadedDisk;
-                        Floppy.Attach(0, Bios_disk.imageDiskList[0].diskimg);
-                    }
-                    break;
-                case "iso":
-                    // If instructed, attach to IDE controller as ATAPI CD-ROM device
-                    if (ide_index.value >= 0) {
-                        try {
-                            IDE.IDE_Attach(true, ide_index.value, ide_slave.value, FileIOFactory.open((String) paths.elementAt(0), FileIOFactory.MODE_READ), 0, 0, 0);
-                            WriteOut("Attached ISO to IDE\n");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
+                }
 
-                    if (Dos_files.Drives[drive - 'A'] != null) {
-                        WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
-                        return;
+                if (Dos_files.Drives[drive-'A']!=null) {
+                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
+                    return;
+                }
+                DosMSCDEX.MSCDEX_SetCDInterface(0, -1);
+                // create new drives for all images
+                Vector isoDisks = new Vector();
+                int i;
+                int ct;
+                for (i = 0; i < paths.size(); i++) {
+                    IntRef error = new IntRef(-1);
+                    Dos_Drive newDrive = new Drive_iso(drive, (String)paths.elementAt(i), mediaid, error);
+                    isoDisks.add(newDrive);
+                    switch (error.value) {
+                        case 0  :	break;
+                        case 1  :	WriteOut(Msg.get("MSCDEX_ERROR_MULTIPLE_CDROMS"));	break;
+                        case 2  :	WriteOut(Msg.get("MSCDEX_ERROR_NOT_SUPPORTED"));	break;
+                        case 3  :	WriteOut(Msg.get("MSCDEX_ERROR_OPEN"));				break;
+                        case 4  :	WriteOut(Msg.get("MSCDEX_TOO_MANY_DRIVES"));		break;
+                        case 5  :	WriteOut(Msg.get("MSCDEX_LIMITED_SUPPORT"));		break;
+                        case 6  :	WriteOut(Msg.get("MSCDEX_INVALID_FILEFORMAT"));		break;
+                        default :	WriteOut(Msg.get("MSCDEX_UNKNOWN_ERROR"));			break;
                     }
-                    DosMSCDEX.MSCDEX_SetCDInterface(0, -1);
-                    // create new drives for all images
-                    Vector isoDisks = new Vector();
-                    int i;
-                    int ct;
-                    for (i = 0; i < paths.size(); i++) {
-                        IntRef error = new IntRef(-1);
-                        Dos_Drive newDrive = new Drive_iso(drive, (String) paths.elementAt(i), mediaid, error);
-                        isoDisks.add(newDrive);
-                        switch (error.value) {
-                            case 0:
-                                break;
-                            case 1:
-                                WriteOut(Msg.get("MSCDEX_ERROR_MULTIPLE_CDROMS"));
-                                break;
-                            case 2:
-                                WriteOut(Msg.get("MSCDEX_ERROR_NOT_SUPPORTED"));
-                                break;
-                            case 3:
-                                WriteOut(Msg.get("MSCDEX_ERROR_OPEN"));
-                                break;
-                            case 4:
-                                WriteOut(Msg.get("MSCDEX_TOO_MANY_DRIVES"));
-                                break;
-                            case 5:
-                                WriteOut(Msg.get("MSCDEX_LIMITED_SUPPORT"));
-                                break;
-                            case 6:
-                                WriteOut(Msg.get("MSCDEX_INVALID_FILEFORMAT"));
-                                break;
-                            default:
-                                WriteOut(Msg.get("MSCDEX_UNKNOWN_ERROR"));
-                                break;
-                        }
-                        // error: clean up and leave
-                        if (error.value != 0) {
+                    // error: clean up and leave
+                    if (error.value != 0) {
 //                        for(ct = 0; ct < isoDisks.size(); ct++) {
 //                            isoDisks.elementAt(ct).close();
 //                        }
-                            return;
-                        }
-                    }
-                    // Update DriveManager
-                    for (ct = 0; ct < isoDisks.size(); ct++) {
-                        DriveManager.AppendDisk(drive - 'A', (Dos_Drive) isoDisks.elementAt(ct));
-                    }
-                    DriveManager.InitializeDrive(drive - 'A');
-
-                    // Set the correct media byte in the table
-                    Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
-
-                    // Print status message (success)
-                    WriteOut(Msg.get("MSCDEX_SUCCESS"));
-                    StringBuilder tmp = new StringBuilder((String) paths.elementAt(0));
-                    for (i = 1; i < paths.size(); i++) {
-                        tmp.append("; ").append(paths.elementAt(i));
-                    }
-                    WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"), new Object[]{drive, tmp.toString()});
-
-                    break;
-                case "zip":
-                    if (Dos_files.Drives[drive - 'A'] != null) {
-                        WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
                         return;
                     }
-                    if (newdrive == null) {
-                        WriteOut(Msg.get("PROGRAM_IMGMOUNT_CANT_CREATE"));
-                        return;
-                    }
-                    Dos_files.Drives[drive - 'A'] = newdrive;
-                    Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
-                    WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"), new Object[]{drive, temp_line});
-                    break;
-                case "none":
-                    //if(Bios_disk.imageDiskList[drive-'0'] != null) delete imageDiskList[drive-'0'];
-                    Bios_disk.imageDiskList[drive - '0'] = newImage;
-                    Bios_disk.updateDPT();
-                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_MOUNT_NUMBER"), new Object[]{drive - '0', temp_line});
-                    // If instructed, attach to IDE controller as ATA hard disk
-                    if (ide_index.value >= 0 && drive >= '2')
-                        IDE.IDE_Attach(false, ide_index.value, ide_slave.value, newImage.diskimg, (int) newImage.cylinders, (int) newImage.heads, (int) newImage.sectors);
-                    if (drive == 48)
-                        Floppy.Attach(0, Bios_disk.imageDiskList[0].diskimg);
-                    else if (drive == 49)
-                        Floppy.Attach(1, Bios_disk.imageDiskList[1].diskimg);
-                    break;
+                }
+                // Update DriveManager
+                for(ct = 0; ct < isoDisks.size(); ct++) {
+                    DriveManager.AppendDisk(drive - 'A', (Dos_Drive)isoDisks.elementAt(ct));
+                }
+                DriveManager.InitializeDrive(drive - 'A');
+
+                // Set the correct media byte in the table
+                Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
+
+                // Print status message (success)
+                WriteOut(Msg.get("MSCDEX_SUCCESS"));
+                String tmp = (String)paths.elementAt(0);
+                for (i = 1; i < paths.size(); i++) {
+                    tmp += "; " + paths.elementAt(i);
+                }
+                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"), new Object[]{new Character(drive), tmp});
+
+            } else if (fstype.equals("zip")) {
+                if (Dos_files.Drives[drive-'A']!=null) {
+                    WriteOut(Msg.get("PROGRAM_IMGMOUNT_ALREADY_MOUNTED"));
+                    return;
+                }
+                if (newdrive==null) {WriteOut(Msg.get("PROGRAM_IMGMOUNT_CANT_CREATE"));return;}
+                Dos_files.Drives[drive-'A']=newdrive;
+                Memory.mem_writeb(Memory.Real2Phys(Dos.dos.tables.mediaid) + (drive - 'A') * 2, mediaid);
+                WriteOut(Msg.get("PROGRAM_MOUNT_STATUS_2"),new Object[]{new Character(drive),temp_line});
+            } else if (fstype.equals("none")) {
+                //if(Bios_disk.imageDiskList[drive-'0'] != null) delete imageDiskList[drive-'0'];
+                Bios_disk.imageDiskList[drive-'0'] = newImage;
+                Bios_disk.updateDPT();
+                WriteOut(Msg.get("PROGRAM_IMGMOUNT_MOUNT_NUMBER"),new Object[]{new Integer(drive-'0'),temp_line});
+                // If instructed, attach to IDE controller as ATA hard disk
+			    if (ide_index.value >= 0 && drive>='2') IDE.IDE_Attach(false, ide_index.value,ide_slave.value, newImage.diskimg, (int)newImage.cylinders, (int)newImage.heads, (int)newImage.sectors);
+                if (drive==48)
+                    Floppy.Attach(0, Bios_disk.imageDiskList[0].diskimg);
+                else if (drive==49)
+                    Floppy.Attach(1, Bios_disk.imageDiskList[1].diskimg);
             }
 
             // check if volume label is given. becareful for cdrom
@@ -1640,7 +1609,11 @@ final byte[] rawdata = new byte[512];
     }
 
 
-    static private final Program.PROGRAMS_Main IMGMOUNT_ProgramStart = () -> new IMGMOUNT();
+    static private Program.PROGRAMS_Main IMGMOUNT_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new IMGMOUNT();
+        }
+    };
 
     private static class KEYB extends Program {
         public void Run() {
@@ -1649,14 +1622,12 @@ final byte[] rawdata = new byte[512];
                     WriteOut(Msg.get("PROGRAM_KEYB_SHOWHELP"));
                 } else {
                     /* first parameter is layout ID */
-                    /*Bitu*/int keyb_error;
+                    /*Bitu*/int keyb_error=0;
                     String cp_string;
                     /*Bit32s*/IntRef tried_cp = new IntRef(-1);
                     if ((cp_string=cmd.FindCommand(2))!=null) {
                         /* second parameter is codepage number */
-                        try {tried_cp.value=Integer.parseInt(cp_string);} catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                        try {tried_cp.value=Integer.parseInt(cp_string);} catch (Exception e) {}
                         String cp_file_name;
                         if ((cp_string=cmd.FindCommand(3))!=null) {
                             /* third parameter is codepage file */
@@ -1672,7 +1643,7 @@ final byte[] rawdata = new byte[512];
                     }
                     switch (keyb_error) {
                         case Dos_keyboard_layout.KEYB_NOERROR:
-                            WriteOut(Msg.get("PROGRAM_KEYB_NOERROR"),new Object[]{temp_line, Dos.dos.loaded_codepage});
+                            WriteOut(Msg.get("PROGRAM_KEYB_NOERROR"),new Object[]{temp_line,new Integer(Dos.dos.loaded_codepage)});
                             break;
                         case Dos_keyboard_layout.KEYB_FILENOTFOUND:
                             WriteOut(Msg.get("PROGRAM_KEYB_FILENOTFOUND"),new Object[]{temp_line});
@@ -1682,7 +1653,7 @@ final byte[] rawdata = new byte[512];
                             WriteOut(Msg.get("PROGRAM_KEYB_INVALIDFILE"),new Object[]{temp_line});
                             break;
                         case Dos_keyboard_layout.KEYB_LAYOUTNOTFOUND:
-                            WriteOut(Msg.get("PROGRAM_KEYB_LAYOUTNOTFOUND"),new Object[]{temp_line, tried_cp.value});
+                            WriteOut(Msg.get("PROGRAM_KEYB_LAYOUTNOTFOUND"),new Object[]{temp_line,new Integer(tried_cp.value)});
                             break;
                         case Dos_keyboard_layout.KEYB_INVALIDCPFILE:
                             WriteOut(Msg.get("PROGRAM_KEYB_INVCPFILE"),new Object[]{temp_line});
@@ -1697,15 +1668,19 @@ final byte[] rawdata = new byte[512];
                 /* no parameter in the command line, just output codepage info and possibly loaded layout ID */
                 String layout_name = Dos_keyboard_layout.DOS_GetLoadedLayout();
                 if (layout_name==null) {
-                    WriteOut(Msg.get("PROGRAM_KEYB_INFO"),new Object[]{Dos.dos.loaded_codepage});
+                    WriteOut(Msg.get("PROGRAM_KEYB_INFO"),new Object[]{new Integer(Dos.dos.loaded_codepage)});
                 } else {
-                    WriteOut(Msg.get("PROGRAM_KEYB_INFO_LAYOUT"),new Object[]{Dos.dos.loaded_codepage,layout_name});
+                    WriteOut(Msg.get("PROGRAM_KEYB_INFO_LAYOUT"),new Object[]{new Integer(Dos.dos.loaded_codepage),layout_name});
                 }
             }
         }
     }
 
-    static private final Program.PROGRAMS_Main KEYB_ProgramStart = () -> new KEYB();
+    static private Program.PROGRAMS_Main KEYB_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new KEYB();
+        }
+    };
 
     public static void DOS_SetupPrograms() {
         /*Add Messages */

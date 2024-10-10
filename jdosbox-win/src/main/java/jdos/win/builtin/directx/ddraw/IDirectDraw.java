@@ -54,11 +54,11 @@ public class IDirectDraw extends IUnknown {
         return address;
     }
 
-    static final int FLAGS_CALLBACK2 = 0x00000001;
-    static final int FLAGS_DESC2 = 0x00000002;
-    static final int FLAGS_V7 = 0x00000004;
+    static int FLAGS_CALLBACK2 = 0x00000001;
+    static int FLAGS_DESC2 = 0x00000002;
+    static int FLAGS_V7 = 0x00000004;
 
-    static final int OFFSET_FLAGS = 0;
+    static int OFFSET_FLAGS = 0;
 
     static final int OFFSET_PALETTE = 4;
 
@@ -140,7 +140,7 @@ public class IDirectDraw extends IUnknown {
     }
 
 
-    static private final int[][] mode = new int[][] {
+    static private int[][] mode = new int[][] {
             {320, 240, 8},
             {320, 240, 16},
             {320, 240, 32},
@@ -170,23 +170,23 @@ public class IDirectDraw extends IUnknown {
         Memory.mem_writed(address, DDSurfaceDesc.SIZE);
         Memory.mem_writed(address+4, DDSurfaceDesc.DDSD_HEIGHT|DDSurfaceDesc.DDSD_WIDTH|DDSurfaceDesc.DDSD_PITCH|DDSurfaceDesc.DDSD_PIXELFORMAT);
         Memory.mem_writed(address+0x48, DDPixelFormat.SIZE);
-        for (int[] ints : mode) {
+        for (int i=0;i<mode.length;i++) {
             if (desc != null) {
-                if ((desc.dwFlags & DDSurfaceDesc.DDSD_WIDTH) != 0 && desc.dwWidth != ints[0])
+                if ((desc.dwFlags & DDSurfaceDesc.DDSD_WIDTH)!=0 && desc.dwWidth!=mode[i][0])
                     continue;
-                if ((desc.dwFlags & DDSurfaceDesc.DDSD_HEIGHT) != 0 && desc.dwHeight != ints[1])
+                if ((desc.dwFlags & DDSurfaceDesc.DDSD_HEIGHT)!=0 && desc.dwHeight!=mode[i][1])
                     continue;
-                if ((desc.dwFlags & DDSurfaceDesc.DDSD_PIXELFORMAT) != 0 && desc.ddpfPixelFormat.dwRGBBitCount != ints[2])
+                if ((desc.dwFlags & DDSurfaceDesc.DDSD_PIXELFORMAT)!=0 && desc.ddpfPixelFormat.dwRGBBitCount!=mode[i][2])
                     continue;
             }
-            Memory.mem_writed(address + 8, ints[1]);
-            Memory.mem_writed(address + 12, ints[0]);
-            Memory.mem_writed(address + 16, ints[1] * (ints[1] >> 3));
-            if (ints[2] > 8)
-                Memory.mem_writed(address + 0x48 + 4, DDPixelFormat.DDPF_RGB);
+            Memory.mem_writed(address+8, mode[i][1]);
+            Memory.mem_writed(address+12, mode[i][0]);
+            Memory.mem_writed(address+16, mode[i][1]*(mode[i][1]>>3));
+            if (mode[i][2]>8)
+                Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB);
             else
-                Memory.mem_writed(address + 0x48 + 4, DDPixelFormat.DDPF_RGB | DDPixelFormat.DDPF_PALETTEINDEXED8);
-            Memory.mem_writed(address + 0x48 + 0xC, ints[2]);
+                Memory.mem_writed(address+0x48+4, DDPixelFormat.DDPF_RGB|DDPixelFormat.DDPF_PALETTEINDEXED8);
+            Memory.mem_writed(address+0x48+0xC, mode[i][2]);
             // :TODO: what about pixel formats?
             WinSystem.call(lpEnumModesCallback, address, lpContext);
         }
@@ -324,7 +324,7 @@ public class IDirectDraw extends IUnknown {
         Memory.mem_writed(lpDDDriverCaps, 0x02000000);lpDDDriverCaps+=4;//  40 dwVidMemFree
         Memory.mem_writed(lpDDDriverCaps, 0x00000020);lpDDDriverCaps+=4;//  44 dwMaxVisibleOverlays
         Memory.mem_writed(lpDDDriverCaps, 0x00000000);lpDDDriverCaps+=4;//  48 dwCurrVisibleOverlays
-        Memory.mem_writed(lpDDDriverCaps, 0x00000003);
+        Memory.mem_writed(lpDDDriverCaps, 0x00000003);lpDDDriverCaps+=4;//  4C dwNumFourCCCodes
 //            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  50 dwAlignBoundarySrc
 //            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  54 dwAlignSizeSrc
 //            Memory.mem_writed(lpDDDriverCaps, );lpDDDriverCaps+=4;          //  58 dwAlignBoundaryDest

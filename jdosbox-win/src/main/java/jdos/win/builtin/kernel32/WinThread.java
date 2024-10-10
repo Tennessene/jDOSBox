@@ -23,7 +23,7 @@ public class WinThread extends WaitObject {
 
     static public WinThread get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinThread))
+        if (object == null || !(object instanceof WinThread))
             return null;
         return (WinThread)object;
     }
@@ -55,34 +55,34 @@ public class WinThread extends WaitObject {
     static public final int THREAD_PRIORITY_HIGHEST = 2;
     static public final int THREAD_PRIORITY_TIME_CRITICAL = 15;
 
-    private final WinProcess process;
+    private WinProcess process;
     private int lastError = jdos.win.utils.Error.ERROR_SUCCESS;
-    public final CpuState cpuState = new CpuState();
-    private final KernelHeap stack;
-    private final int stackAddress;
-    private final int startAddress;
-    private final List<WinMsg> msgQueue = Collections.synchronizedList(new ArrayList<>()); // synchronized since the keyboard will post message from another thread
-    private final List sendMsgQueue = new ArrayList();
-    public final Vector<WinWindow> windows = new Vector<>();
-    private final Vector<Integer> paintList = new Vector<>();
-    private final boolean quit = false;
-    private final WinTimer timer = new WinTimer(0);
+    public CpuState cpuState = new CpuState();
+    private KernelHeap stack;
+    private int stackAddress;
+    private int startAddress;
+    private List<WinMsg> msgQueue = Collections.synchronizedList(new ArrayList<WinMsg>()); // synchronized since the keyboard will post message from another thread
+    private List sendMsgQueue = new ArrayList();
+    public Vector<WinWindow> windows = new Vector<WinWindow>();
+    private Vector<Integer> paintList = new Vector<Integer>();
+    private boolean quit = false;
+    private WinTimer timer = new WinTimer(0);
     public int priority = THREAD_PRIORITY_NORMAL;
     public BitSet keyState;
     public int msg_window;
     final private WinEvent msgReady = WinEvent.create(null, true, true);
-    private final GuiThreadInfo guiInfo = new GuiThreadInfo();
+    private GuiThreadInfo guiInfo = new GuiThreadInfo();
     public int waitTime;
     public int waitTimeStart;
     public int currentGetMessageTime = 0;
     public int currentGetMessagePos = 0;
-    public final TIB tib;
+    public TIB tib;
 
     public GuiThreadInfo GetGUIThreadInfo() {
         return guiInfo;
     }
 
-    private final Callback.Handler startUp = new HandlerBase() {
+    private Callback.Handler startUp = new HandlerBase() {
         public String getName() {
             return "WinThread.start";
         }
@@ -253,7 +253,7 @@ public class WinThread extends WaitObject {
                     return getMessage(msgAddress, i, remove);
             }
         }
-        while (!paintList.isEmpty()) {
+        while (paintList.size() != 0) {
             int h;
             if (remove)
                 h = paintList.remove(0);
@@ -312,7 +312,7 @@ public class WinThread extends WaitObject {
 
     public WinMsg getLastMessage() {
         synchronized (msgQueue) {
-            if (!msgQueue.isEmpty())
+            if (msgQueue.size()!=0)
                 return msgQueue.get(msgQueue.size()-1);
         }
         return null;
@@ -357,7 +357,7 @@ public class WinThread extends WaitObject {
 
     public int tlsAlloc() {
         WinProcess process = WinSystem.getCurrentProcess();
-        if (!process.freeTLS.isEmpty())
+        if (process.freeTLS.size()>0)
             return process.freeTLS.remove(0);
         return process.tlsSize++;
     }

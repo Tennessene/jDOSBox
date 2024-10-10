@@ -7,6 +7,7 @@ import jdos.misc.Log;
 import jdos.types.LogTypes;
 import jdos.types.LogSeverities;
 import jdos.gui.Midi;
+import jdos.cpu.CPU;
 
 public class MPU401 extends Module_base {
     static final private int MPU401_VERSION = 0x15;
@@ -44,11 +45,11 @@ public class MPU401 extends Module_base {
         public boolean intelligent;
         public int mode;
         /*Bitu*/int irq;
-        /*Bit8u*/final short[] queue = new short[MPU401_QUEUE];
+        /*Bit8u*/short[] queue = new short[MPU401_QUEUE];
         /*Bitu*/int queue_pos,queue_used;
         public static class track {
             /*Bits*/int counter;
-            /*Bit8u*/final short[] value = new short[8];
+            /*Bit8u*/short[] value = new short[8];
             short sys_val;
             /*Bit8u*/short vlength,length;
             /*MpuDataType*/ int type;
@@ -104,12 +105,13 @@ public class MPU401 extends Module_base {
         mpu.queue_pos=0;
     }
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    private static final IoHandler.IO_ReadHandler MPU401_ReadStatus = (port, iolen) -> {
-        /*Bit8u*/short ret=0x3f;	/* Bits 6 and 7 clear */
-        if (mpu.state.cmd_pending!=0) ret|=0x40;
-        if (mpu.queue_used==0) ret|=0x80;
-        return ret;
+    private static final IoHandler.IO_ReadHandler MPU401_ReadStatus = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            /*Bit8u*/short ret=0x3f;	/* Bits 6 and 7 clear */
+            if (mpu.state.cmd_pending!=0) ret|=0x40;
+            if (mpu.queue_used==0) ret|=0x80;
+            return ret;
+        }
     };
 
     private static final IoHandler.IO_WriteHandler MPU401_WriteCommand = new IoHandler.IO_WriteHandler() {
@@ -323,8 +325,7 @@ public class MPU401 extends Module_base {
                 case 0xef: /* Set 9-16 MIDI channel mask */
                     mpu.state.command_byte=0;
                     mpu.state.midi_mask&=0x00ff;
-                    /*Bit16u*/
-                    mpu.state.midi_mask|= val <<8;
+                    mpu.state.midi_mask|=((/*Bit16u*/int)val)<<8;
                     return;
                 //case 0xe2:	/* Set graduation for relative tempo */
                 //case 0xe4:	/* Set metronome */
@@ -393,7 +394,8 @@ public class MPU401 extends Module_base {
                             MPU401_EOIHandlerDispatch();
                             return;
                         }
-                        mpu.state.send_now= val == 0;
+                        if (val==0) mpu.state.send_now=true;
+                        else mpu.state.send_now=false;
                         mpu.condbuf.counter=val;
                         break;
                     case  1: /* Command byte #1 */
@@ -422,7 +424,8 @@ public class MPU401 extends Module_base {
                         MPU401_EOIHandlerDispatch();
                         return;
                     }
-                    mpu.state.send_now= val == 0;
+                    if (val==0) mpu.state.send_now=true;
+                    else mpu.state.send_now=false;
                     mpu.playbuf[mpu.state.channel].counter=val;
                     break;
                 case    1: /* MIDI */
@@ -473,7 +476,7 @@ public class MPU401 extends Module_base {
                 val=mpu.playbuf[chan].sys_val;
                 if (val==0xfc) {
                     Midi.MIDI_RawOutByte(val);
-                    mpu.state.amask&= (short) ~(1<<chan);
+                    mpu.state.amask&=~(1<<chan);
                     mpu.state.req_mask&=~(1<<chan);
                 }
                 break;
@@ -549,33 +552,35 @@ public class MPU401 extends Module_base {
         else if (!mpu.state.eoi_scheduled) MPU401_EOIHandler.call(0);
     }
 
-    /*Bitu*/
     //Updates counters and requests new data on "End of Input"
-    static private final Pic.PIC_EventHandler MPU401_EOIHandler = val -> {
-        mpu.state.eoi_scheduled=false;
-        if (mpu.state.send_now) {
-            mpu.state.send_now=false;
-            if (mpu.state.cond_req) UpdateConductor();
-            else UpdateTrack(mpu.state.channel);
-        }
-        mpu.state.irq_pending=false;
-        if (!mpu.state.playing || mpu.state.req_mask==0) return;
-        /*Bitu*/int i=0;
-        do {
-            if ((mpu.state.req_mask & (1<<i))!=0) {
-                QueueByte(0xf0+i);
-                mpu.state.req_mask&=~(1<<i);
-                break;
+    static private final Pic.PIC_EventHandler MPU401_EOIHandler = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            mpu.state.eoi_scheduled=false;
+            if (mpu.state.send_now) {
+                mpu.state.send_now=false;
+                if (mpu.state.cond_req) UpdateConductor();
+                else UpdateTrack(mpu.state.channel);
             }
-        } while ((i++)<16);
+            mpu.state.irq_pending=false;
+            if (!mpu.state.playing || mpu.state.req_mask==0) return;
+            /*Bitu*/int i=0;
+            do {
+                if ((mpu.state.req_mask & (1<<i))!=0) {
+                    QueueByte(0xf0+i);
+                    mpu.state.req_mask&=~(1<<i);
+                    break;
+                }
+            } while ((i++)<16);
+        }
     };
 
-    /*Bitu*/
-    static private final Pic.PIC_EventHandler MPU401_ResetDone = val -> {
-        mpu.state.reset=false;
-        if (mpu.state.cmd_pending!=0) {
-            MPU401_WriteCommand.call(0x331,mpu.state.cmd_pending-1,1);
-            mpu.state.cmd_pending=0;
+    static private final Pic.PIC_EventHandler MPU401_ResetDone = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            mpu.state.reset=false;
+            if (mpu.state.cmd_pending!=0) {
+                MPU401_WriteCommand.call(0x331,mpu.state.cmd_pending-1,1);
+                mpu.state.cmd_pending=0;
+            }
         }
     };
 
@@ -612,8 +617,8 @@ public class MPU401 extends Module_base {
         for (/*Bitu*/int i=0;i<8;i++) {mpu.playbuf[i].type=T_OVERFLOW;mpu.playbuf[i].counter=0;}
     }
 
-    private final IoHandler.IO_ReadHandleObject[] ReadHandler=new IoHandler.IO_ReadHandleObject[2];
-    private final IoHandler.IO_WriteHandleObject[] WriteHandler=new IoHandler.IO_WriteHandleObject[2];
+    private IoHandler.IO_ReadHandleObject[] ReadHandler=new IoHandler.IO_ReadHandleObject[2];
+    private IoHandler.IO_WriteHandleObject[] WriteHandler=new IoHandler.IO_WriteHandleObject[2];
     private boolean installed; /*as it can fail to install by 2 ways (config and no midi)*/
 
     public MPU401(Section configuration) {
@@ -624,7 +629,7 @@ public class MPU401 extends Module_base {
         if(s_mpu.equalsIgnoreCase("none")) return;
         if(s_mpu.equalsIgnoreCase("off")) return;
         if(s_mpu.equalsIgnoreCase("false")) return;
-        if (Midi.MIDI_Available()) return;
+        if (!Midi.MIDI_Available()) return;
         /*Enabled and there is a Midi */
         installed = true;
 
@@ -642,8 +647,10 @@ public class MPU401 extends Module_base {
         mpu.queue_used=0;
         mpu.queue_pos=0;
         mpu.mode=M_UART;
-        mpu.irq=9;	/* Princess Maker 2 wants it on irq 9 *///Default is on
-        mpu.intelligent = !s_mpu.equalsIgnoreCase("uart");
+        mpu.irq=9;	/* Princess Maker 2 wants it on irq 9 */
+
+        mpu.intelligent = true;	//Default is on
+        if(s_mpu.equalsIgnoreCase("uart")) mpu.intelligent = false;
         if (!mpu.intelligent) return;
         /*Set IRQ and unmask it(for timequest/princess maker 2) */
         Pic.PIC_SetIRQMask(mpu.irq,false);
@@ -652,7 +659,7 @@ public class MPU401 extends Module_base {
 
     static private MPU401 test;
 
-    public static final Section.SectionFunction MPU401_Destroy = new Section.SectionFunction() {
+    public static Section.SectionFunction MPU401_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             if(!test.installed) return;
             Section_prop sec_prop=(Section_prop)section;
@@ -660,7 +667,7 @@ public class MPU401 extends Module_base {
             Pic.PIC_SetIRQMask(mpu.irq,true);
         }
     };
-    public static final Section.SectionFunction MPU401_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction MPU401_Init = new Section.SectionFunction() {
         public void call(Section section) {
             test = new MPU401(section);
             section.AddDestroyFunction(MPU401_Destroy,true);

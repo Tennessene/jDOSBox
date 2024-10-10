@@ -1,10 +1,10 @@
 package jdos.util;
 
 public class Ptr {
-    public final byte[] p;
+    public byte[] p;
     public int off;
-    protected final int start;
-    public final int size;
+    protected int start;
+    public int size;
     public Ptr() {
         this.p = null;
         this.off = 0;
@@ -99,7 +99,7 @@ public class Ptr {
     }
 
     public void or(int off, int mask) {
-        p[this.off+off*dataWidth()]|= (byte) mask;
+        p[this.off+off*dataWidth()]|=mask;
     }
 
     public int get(int off) {
@@ -168,21 +168,23 @@ public class Ptr {
         System.arraycopy(p, off, b, 0, len);
     }
     public /*Bitu*/int read(int size, /*HostPt*/int o ) {
+        int off = (int)o;
         if ( size == 1)
-            return readb(o);
+            return readb(off);
         else if ( size == 2)
-            return readw(o);
+            return readw(off);
         else if ( size == 4)
-            return readd(o);
+            return (int)readd(off);
         return 0;
     }
 
     public void write(int size, /*HostPt*/int o, /*Bitu*/int val) {
+        int off = (int)o;
         if ( size == 1)
-            writeb(o, (short)val );
+            writeb(off, (short)val );
         else if ( size == 2)
-            writew(o, val );
+            writew(off, val );
         else if ( size == 4)
-            writed(o, val );
+            writed(off, val );
     }
 }

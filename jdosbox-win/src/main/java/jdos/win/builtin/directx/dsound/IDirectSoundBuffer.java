@@ -167,7 +167,7 @@ public class IDirectSoundBuffer extends IUnknown {
         return address;
     }
 
-    static void addIDirectSound(int address) {
+    static int addIDirectSound(int address) {
         address = addIUnknown(address);
         address = add(address, GetCaps);
         address = add(address, GetCurrentPosition);
@@ -187,9 +187,10 @@ public class IDirectSoundBuffer extends IUnknown {
         address = add(address, Stop);
         address = add(address, Unlock);
         address = add(address, Restore);
+        return address;
     }
 
-    static private final Callback.Handler CleanUp = new DirectCallback() {
+    static private Callback.Handler CleanUp = new DirectCallback() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.CleanUp";
         }
@@ -279,7 +280,7 @@ public class IDirectSoundBuffer extends IUnknown {
     }
 
     // HRESULT GetCaps(this, LPDSBCAPS lpDSBufferCaps)
-    static private final Callback.Handler GetCaps = new HandlerBase() {
+    static private Callback.Handler GetCaps = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetCaps";
         }
@@ -297,7 +298,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT GetCurrentPosition(this, LPDWORD lpdwCurrentPlayCursor, LPDWORD lpdwCurrentWriteCursor)
-    static private final Callback.Handler GetCurrentPosition = new HandlerBase() {
+    static private Callback.Handler GetCurrentPosition = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetCurrentPosition";
         }
@@ -314,7 +315,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT GetFormat(this, LPWAVEFORMATEX lpwfxFormat, DWORD dwSizeAllocated, LPDWORD lpdwSizeWritten)
-    static private final Callback.Handler GetFormat = new HandlerBase() {
+    static private Callback.Handler GetFormat = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetFormat";
         }
@@ -329,7 +330,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT GetVolume(this, LPLONG lplVolume)
-    static private final Callback.Handler GetVolume = new HandlerBase() {
+    static private Callback.Handler GetVolume = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetVolume";
         }
@@ -342,7 +343,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT GetPan(this, LPLONG lplpan)
-    static private final Callback.Handler GetPan = new HandlerBase() {
+    static private Callback.Handler GetPan = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetPan";
         }
@@ -355,7 +356,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT GetFrequency(this, LPDWORD lpdwFrequency)
-    static private final Callback.Handler GetFrequency = new HandlerBase() {
+    static private Callback.Handler GetFrequency = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.GetFrequency";
         }
@@ -372,7 +373,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT GetStatus(this, LPDWORD lpdwStatus)
-    static private final Callback.Handler GetStatus = new HandlerBase() {
+    static private Callback.Handler GetStatus = new HandlerBase() {
         static public final int DSBSTATUS_PLAYING = 0x00000001;
         static public final int DSBSTATUS_BUFFERLOST = 0x00000002;
         static public final int DSBSTATUS_LOOPING = 0x00000004;
@@ -402,7 +403,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT Initialize(this, LPDIRECTSOUND lpDirectSound, LPCDSBUFFERDESC lpcDSBufferDesc)
-    static private final Callback.Handler Initialize = new HandlerBase() {
+    static private Callback.Handler Initialize = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Initialize";
         }
@@ -416,7 +417,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT Lock(this, DWORD dwOffset, DWORD dwBytes, LPVOID *ppvAudioPtr1, LPDWORD pdwAudioBytes1, LPVOID *ppvAudioPtr2, LPDWORD pdwAudioBytes2, DWORD dwFlags)
-    static private final Callback.Handler Lock = new HandlerBase() {
+    static private Callback.Handler Lock = new HandlerBase() {
         static final int DSBLOCK_FROMWRITECURSOR = 0x00000001;
         static final int DSBLOCK_ENTIREBUFFER = 0x00000002;
 
@@ -461,7 +462,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT Play(this, DWORD dwReserved1, DWORD dwReserved2, DWORD dwFlags)
-    static private final Callback.Handler Play = new HandlerBase() {
+    static private Callback.Handler Play = new HandlerBase() {
         static public final int DSBPLAY_LOOPING = 0x00000001;
         static public final int DSBPLAY_LOCHARDWARE = 0x00000002;
         static public final int DSBPLAY_LOCSOFTWARE = 0x00000004;
@@ -486,7 +487,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT SetCurrentPosition(this, DWORD dwNewPosition)
-    static private final Callback.Handler SetCurrentPosition = new HandlerBase() {
+    static private Callback.Handler SetCurrentPosition = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetCurrentPosition";
         }
@@ -501,7 +502,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT SetFormat(this, LPCWAVEFORMATEX lpcfxFormat)
-    static private final Callback.Handler SetFormat = new HandlerBase() {
+    static private Callback.Handler SetFormat = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetFormat";
         }
@@ -515,7 +516,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT SetVolume(this, LONG lVolume)
-    static private final Callback.Handler SetVolume = new ReturnHandlerBase() {
+    static private Callback.Handler SetVolume = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetVolume";
         }
@@ -545,7 +546,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT SetPan(this, LONG lPan)
-    static private final Callback.Handler SetPan = new ReturnHandlerBase() {
+    static private Callback.Handler SetPan = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetPan";
         }
@@ -577,7 +578,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT SetFrequency(this, DWORD dwFrequency)
-    static private final Callback.Handler SetFrequency = new ReturnHandlerBase() {
+    static private Callback.Handler SetFrequency = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.SetFrequency";
         }
@@ -620,7 +621,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT Stop(this)
-    static private final Callback.Handler Stop = new HandlerBase() {
+    static private Callback.Handler Stop = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Stop";
         }
@@ -634,7 +635,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT Unlock(this, LPVOID pvAudioPtr1, DWORD dwAudioBytes1, LPVOID pvAudioPtr2, DWORD dwAudioPtr2)
-    static private final Callback.Handler Unlock = new ReturnHandlerBase() {
+    static private Callback.Handler Unlock = new ReturnHandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Unlock";
         }
@@ -666,7 +667,7 @@ public class IDirectSoundBuffer extends IUnknown {
     };
 
     // HRESULT Restore(this)
-    static private final Callback.Handler Restore = new HandlerBase() {
+    static private Callback.Handler Restore = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectSoundBuffer.Restore";
         }
@@ -685,7 +686,7 @@ public class IDirectSoundBuffer extends IUnknown {
             open();
         }
 
-        public void open() {
+        public boolean open() {
             try {
                 AudioFormat af = new AudioFormat(DSMixer.DEVICE_SAMPLE_RATE, DSMixer.DEVICE_BITS_PER_SAMEPLE, DSMixer.DEVICE_CHANNELS, true, false);
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, af);
@@ -694,10 +695,12 @@ public class IDirectSoundBuffer extends IUnknown {
                 line.start();
             } catch (Exception e) {
                 e.printStackTrace();
+                return false;
             }
+            return true;
         }
 
-        final WAVEFORMATEX format;
+        WAVEFORMATEX format;
         SourceDataLine line;
         final Data data;
         boolean playing = false;
@@ -757,9 +760,7 @@ public class IDirectSoundBuffer extends IUnknown {
                 } while (loop && !stop);
 
                 while (line.available() != LINE_SIZE) {
-                    try {Thread.sleep(10);} catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                    try {Thread.sleep(10);} catch (Exception e) {}
                 }
                 synchronized (mutex) {
                     playing = false;
@@ -768,7 +769,6 @@ public class IDirectSoundBuffer extends IUnknown {
                         try {
                             mutex.wait();
                         } catch (Exception e) {
-                            throw new RuntimeException(e);
                         }
                     }
                 }

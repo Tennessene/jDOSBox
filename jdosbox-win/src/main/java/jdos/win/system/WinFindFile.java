@@ -12,12 +12,12 @@ public class WinFindFile extends WinObject {
 
     static public WinFindFile get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinFindFile))
+        if (object == null || !(object instanceof WinFindFile))
             return null;
         return (WinFindFile)object;
     }
 
-    final FilePath[] results;
+    FilePath[] results;
     int index = 0;
 
     private WinFindFile(int id, FilePath[] results) {
@@ -57,7 +57,7 @@ public class WinFindFile extends WinObject {
         Memory.mem_writed(address, 0);address+=4; // dwReserved0
         Memory.mem_writed(address, 0);address+=4; // dwReserved1
         StringUtil.strcpy(address, name);address+=WinAPI.MAX_PATH; // cFileName
-        StringUtil.strncpy(address, name, 14);
+        StringUtil.strncpy(address, name, 14);address+=14; // cAlternateFileName
         return WinAPI.TRUE;
     }
 }

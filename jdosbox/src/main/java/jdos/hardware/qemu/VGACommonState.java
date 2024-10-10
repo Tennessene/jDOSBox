@@ -8,23 +8,23 @@ public class VGACommonState {
     static public final int DISPLAY_ADDRESS = 0x60000000;
 
     public interface Retrace {
-        int call(VGACommonState s);
+        public int call(VGACommonState s);
     }
 
     public interface vga_update_retrace_info_fn {
-        void call(VGACommonState s);
+        public void call(VGACommonState s);
     }
 
     public interface rgb_to_pixel_dup_func {
-        int call(int r, int g, int b);
+        public int call(int r, int g, int b);
     }
 
     public interface get_func {
-        int call(VGACommonState s);
+        public int call(VGACommonState s);
     }
 
     public interface cursor_draw_line_func {
-        void call(VGACommonState s, int d, int y);
+        public void call(VGACommonState s, int d, int y);
     }
 
     public int readb(int offset) {
@@ -103,7 +103,7 @@ public class VGACommonState {
                 try {
                     Render.render.src.outWrite32[offset >>> 2] = value;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    e.printStackTrace();;
                 }
             } else {
               int index = (offset >>> 2);
@@ -138,14 +138,14 @@ public class VGACommonState {
     int latch;
     MemoryRegion chain4_alias;
     int sr_index;
-    final int[] sr = new int[256];
+    int[] sr = new int[256];
     int gr_index;
-    final int[] gr = new int[256];
+    int[] gr = new int[256];
     int ar_index;
-    final int[] ar = new int[21];
+    int[] ar = new int[21];
     int ar_flip_flop;
     int cr_index;
-    final int[] cr = new int[256]; /* CRT registers */
+    int[] cr = new int[256]; /* CRT registers */
     int msr; /* Misc Output Register */
     int fcr; /* Feature Control Register */
     int st00; /* status 0 */
@@ -154,9 +154,9 @@ public class VGACommonState {
     int dac_sub_index;
     int dac_read_index;
     int dac_write_index;
-    final int[] dac_cache = new int[3]; /* used when writing */
+    int[] dac_cache = new int[3]; /* used when writing */
     boolean dac_8bit;
-    final int[] palette = new int[768];
+    int[] palette = new int[768];
     int bank_offset;
     get_func get_bpp;
     get_func getLineOffset;
@@ -167,15 +167,15 @@ public class VGACommonState {
     get_func get_resolutionCy;
     // Bochs VBE
     int vbe_index;
-    final int[] vbe_regs = new int[VGA_header.VBE_DISPI_INDEX_NB];
+    int[] vbe_regs = new int[VGA_header.VBE_DISPI_INDEX_NB];
     int vbe_start_addr;
     int vbe_line_offset;
     int vbe_bank_mask;
     int vbe_mapped;
 
     /* display refresh support */
-    final DisplayState ds = new DisplayState();
-    final int[] font_offsets = new int[2];
+    DisplayState ds = new DisplayState();
+    int[] font_offsets = new int[2];
     int graphic_mode;
     int shift_control;
     int double_scan;
@@ -198,15 +198,15 @@ public class VGACommonState {
     //vga_hw_screen_dump_ptr screen_dump;
     //vga_hw_text_update_ptr text_update;
     /* hardware mouse cursor support */
-    final int[] invalidated_y_table = new int[VGA_header.VGA_MAX_HEIGHT / 32];
+    int[] invalidated_y_table = new int[VGA_header.VGA_MAX_HEIGHT / 32];
     //void (*cursor_invalidate)(struct VGACommonState *s);
     cursor_draw_line_func cursor_draw_line;
     /* tell for each page if it has been updated since the last time */
-    final int[] last_palette = new int[256];
-    final int[] renderer_palette = new int[256];
-    final int[] last_ch_attr = new int[VGA_header.CH_ATTR_SIZE]; /* XXX: make it dynamic */
+    int[] last_palette = new int[256];
+    int[] renderer_palette = new int[256];
+    int[] last_ch_attr = new int[VGA_header.CH_ATTR_SIZE]; /* XXX: make it dynamic */
     /* retrace */
     Retrace retrace;
     vga_update_retrace_info_fn update_retrace_info;
-    final vga_precise_retrace retrace_info = new vga_precise_retrace();
+    vga_precise_retrace retrace_info = new vga_precise_retrace();
 }

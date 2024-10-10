@@ -1,5 +1,6 @@
 package jdos.host;
 
+import jdos.misc.Log;
 import jdos.misc.setup.Section_prop;
 import jdos.util.Ptr;
 import jdos.util.StringHelper;
@@ -36,32 +37,32 @@ public class PCapEthernet implements Ethernet{
     }
     public boolean open(Section_prop section, byte[] mac) {
         pcap = open(section.Get_string("realnic"), true);
-        return pcap == null;
+        return pcap!=null;
     }
     static public Pcap open(String realnicstring, boolean async) {
         try {
             ArrayList alldevs = new ArrayList(); // Will be filled with NICs
             StringBuilder errbuf = new StringBuilder(); // For any error msgs
 
-            /**************************************************************************
-             First get a list of devices on this system
-             */
+            /***************************************************************************
+             * First get a list of devices on this system
+             **************************************************************************/
             int r = Pcap.findAllDevs(alldevs, errbuf);
             if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
-                System.out.println("Cannot enumerate network interfaces: " + errbuf);
+                Log.log_msg("Cannot enumerate network interfaces: " + errbuf.toString());
                 return null;
             }
 
             if (realnicstring.equalsIgnoreCase("list")) {
-                int i;
-                System.out.println("\nNetwork Interface List \n-----------------------------------");
+                int i = 0;
+                Log.log_msg("\nNetwork Interface List \n-----------------------------------");
                 for (i=0;i<alldevs.size();i++) {
                     PcapIf currentdev = (PcapIf)alldevs.get(i);
                     String desc = currentdev.getDescription();
-                    if (desc == null || desc.isEmpty())
+                    if (desc == null || desc.length()==0)
                         desc = "no description";
                     i++;
-                    System.out.println(StringHelper.sprintf("%2d. %s\n    (%s)\n", new Object[]{i, currentdev.getName(), desc}));
+                    Log.log_msg(StringHelper.sprintf("%2d. %s\n    (%s)\n", new Object[]{new Integer(i), currentdev.getName(), desc}));
                 }
                 Pcap.freeAllDevs(alldevs, errbuf);
                 return null;
@@ -73,29 +74,29 @@ public class PCapEthernet implements Ethernet{
                     dev = (PcapIf)alldevs.get(index);
                 }
             } catch (Exception e) {
-                for (Object alldev : alldevs) {
-                    PcapIf currentdev = (PcapIf) alldev;
+                for (int i=0;i<alldevs.size();i++) {
+                    PcapIf currentdev = (PcapIf)alldevs.get(i);
                     if (currentdev.getName().contains(realnicstring)) {
                         dev = currentdev;
                         break;
-                    } else if (currentdev.getDescription() != null && currentdev.getDescription().contains(realnicstring)) {
+                    } else if (currentdev.getDescription()!=null && currentdev.getDescription().contains(realnicstring)) {
                         dev = currentdev;
                         break;
                     }
                 }
             }
             if (dev == null) {
-                System.out.println("Unable to find network interface - check realnic parameter\n");
+                Log.log_msg("Unable to find network interface - check realnic parameter\n");
                 Pcap.freeAllDevs(alldevs, errbuf);
                 return null;
             }
             String desc = dev.getDescription();
-            if (desc == null || desc.isEmpty())
+            if (desc == null || desc.length() == 0)
                 desc = "no description";
-    		System.out.println("Using Network interface:\n" + dev.getName() + "\n(" + desc + ")\n");
+    		Log.log_msg("Using Network interface:\n" + dev.getName() + "\n(" + desc + ")\n");
             Pcap pcap = Pcap.openLive(dev.getName(), 65536, Pcap.MODE_PROMISCUOUS, -1, errbuf);
             if (pcap == null) {
-                System.out.println("\\nUnable to open the interface: " + errbuf);
+                Log.log_msg("\\nUnable to open the interface: " + errbuf.toString());
                 Pcap.freeAllDevs(alldevs, errbuf);
                 return null;
             }

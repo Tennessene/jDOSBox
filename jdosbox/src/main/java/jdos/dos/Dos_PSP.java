@@ -20,7 +20,7 @@ public class Dos_PSP extends MemStruct {
         SaveIt(1,5,0xea); //sSave(sPSP,far_call,0xea);
         // far call to interrupt 0x21 - faked for bill & ted
         // lets hope nobody really uses this address
-        SaveIt(4,6, Memory.RealMake(0xDEAD,0xFFFF)); //sSave(sPSP,cpm_entry,RealMake(0xDEAD,0xFFFF));
+        SaveIt(4,6,(int)Memory.RealMake(0xDEAD,0xFFFF)); //sSave(sPSP,cpm_entry,RealMake(0xDEAD,0xFFFF));
         /* Standard blocks,int 20  and int21 retf */
         SaveIt(1, 0, 0xcd); //sSave(sPSP,exit[0],0xcd);
         SaveIt(1, 1, 0x20); //sSave(sPSP,exit[1],0x20);
@@ -37,7 +37,7 @@ public class Dos_PSP extends MemStruct {
         /* FCBs are filled with 0 */
         // ....
         /* Init file pointer and max_files */
-        SaveIt(4, 52, Memory.RealMake(seg,24)); //sSave(sPSP,file_table,RealMake(seg,offsetof(sPSP,files)));
+        SaveIt(4, 52, (int)Memory.RealMake(seg,24)); //sSave(sPSP,file_table,RealMake(seg,offsetof(sPSP,files)));
         SaveIt(2, 50, 20); //sSave(sPSP,max_files,20);
         for (/*Bit16u*/int ct=0;ct<20;ct++) SetFileHandle(ct,0xff);
 
@@ -87,9 +87,9 @@ public class Dos_PSP extends MemStruct {
 
 	public void	SaveVectors () {
         /* Save interrupt 22,23,24 */
-        SaveIt(4, 10, Memory.RealGetVec(0x22));//sSave(sPSP,int_22,RealGetVec(0x22));
-        SaveIt(4, 14, Memory.RealGetVec(0x23));//sSave(sPSP,int_23,RealGetVec(0x23));
-        SaveIt(4, 18, Memory.RealGetVec(0x24));//sSave(sPSP,int_24,RealGetVec(0x24));
+        SaveIt(4, 10, (int)Memory.RealGetVec(0x22));//sSave(sPSP,int_22,RealGetVec(0x22));
+        SaveIt(4, 14, (int)Memory.RealGetVec(0x23));//sSave(sPSP,int_23,RealGetVec(0x23));
+        SaveIt(4, 18, (int)Memory.RealGetVec(0x24));//sSave(sPSP,int_24,RealGetVec(0x24));
     }
 
 	public void	RestoreVectors() {
@@ -137,12 +137,11 @@ public class Dos_PSP extends MemStruct {
     }
 
 	public /*Bit16u*/int GetParent() {
-        /*Bit16u*/
-        return GetIt(2,22);//sGet(sPSP,psp_parent);
+        return (/*Bit16u*/int)GetIt(2,22);//sGet(sPSP,psp_parent);
     }
 
 	public void	SetStack(/*RealPt*/int stackpt) {
-        SaveIt(4,46, stackpt); //sSave(sPSP,stack,stackpt);
+        SaveIt(4,46,(int)stackpt); //sSave(sPSP,stack,stackpt);
     }
 
 	public /*RealPt*/int GetStack() {
@@ -150,7 +149,7 @@ public class Dos_PSP extends MemStruct {
     }
 
 	public void	SetInt22(/*RealPt*/int int22pt) {
-        SaveIt(4,10, int22pt);//sSave(sPSP,int_22,int22pt);
+        SaveIt(4,10,(int)int22pt);//sSave(sPSP,int_22,int22pt);
     }
 
 	public /*RealPt*/int GetInt22() {
@@ -174,7 +173,7 @@ public class Dos_PSP extends MemStruct {
         }
     }
 
-	public void SetNumFiles(/*Bit16u*/int fileNum) {
+	public boolean	SetNumFiles(/*Bit16u*/int fileNum) {
         //20 minimum. clipper program.
 	    if (fileNum < 20) fileNum = 20;
 
@@ -183,7 +182,7 @@ public class Dos_PSP extends MemStruct {
             fileNum+=2;	// Add a few more files for safety
             /*Bit16u*/int para = (fileNum/16)+((fileNum%16)>0?1:0);
             /*RealPt*/int data	= Memory.RealMake(Dos_tables.DOS_GetMemory(para),0);
-            SaveIt(4, 52, data); //sSave(sPSP,file_table,data);
+            SaveIt(4, 52, (int)data); //sSave(sPSP,file_table,data);
             SaveIt(2, 50, fileNum); //sSave(sPSP,max_files,fileNum);
             /*Bit16u*/int i;
             for (i=0; i<20; i++)		SetFileHandle(i,GetIt(1,24+i)/*(Bit8u)sGet(sPSP,files[i])*/);
@@ -191,6 +190,7 @@ public class Dos_PSP extends MemStruct {
         } else {
             SaveIt(2, 50, fileNum);//sSave(sPSP,max_files,fileNum);
         }
+        return true;
     }
 
 	public /*Bit16u*/int FindEntryByHandle(/*Bit8u*/short handle) {
@@ -234,6 +234,6 @@ public class Dos_PSP extends MemStruct {
 //124	Bit8u	fill_4[4];			/* unused */
 //128	CommandTail cmdtail;
 //256	} GCC_ATTRIBUTE(packed);
-	private final /*Bit16u*/int seg;
+	private /*Bit16u*/int seg;
     public static /*Bit16u*/int rootpsp;
 }

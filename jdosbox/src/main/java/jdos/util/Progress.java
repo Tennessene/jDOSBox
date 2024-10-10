@@ -1,11 +1,11 @@
 package jdos.util;
 
 public interface Progress {
-    void set(int value);
-    void status(String value);
-    void done();
-    boolean hasCancelled();
-    void speed(String value);
-    void initializeSpeedValue(long totalExpected);
-    void incrementSpeedValue(long value);
+    public void set(int value);
+    public void status(String value);
+    public void done();
+    public boolean hasCancelled();
+    public void speed(String value);
+    public void initializeSpeedValue(long totalExpected);
+    public void incrementSpeedValue(long value);
 }

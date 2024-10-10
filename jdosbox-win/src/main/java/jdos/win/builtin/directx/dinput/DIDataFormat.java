@@ -16,10 +16,10 @@ public class DIDataFormat {
             address+=DIObjectDataFormat.SIZE;
         }
     }
-    public final int dwSize;
-    public final int dwObjSize;
-    public final int dwFlags;
-    public final int dwDataSize;
-    public final int dwNumObjs;
-    public final DIObjectDataFormat[] rgodf;
+    public int dwSize;
+    public int dwObjSize;
+    public int dwFlags;
+    public int dwDataSize;
+    public int dwNumObjs;
+    public DIObjectDataFormat[] rgodf;
 }

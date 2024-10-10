@@ -26,7 +26,7 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(2, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==2);
 
         newInstruction(op);
         pushIb((byte)0xc3);
@@ -37,7 +37,7 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(2, CPU_Regs.reg_ebx.dword); // make sure carry flag is ignored
+        assertTrue(CPU_Regs.reg_ebx.dword==2); // make sure carry flag is ignored
 
         newInstruction(op);
         pushIb((byte)0xc3);
@@ -46,13 +46,13 @@ public class testGrp2 extends InstructionsTestCase {
         if (op==0xd2 || op==0xd3 || op==0x2d3)
             CPU_Regs.reg_ecx.low(1);
         if (op == 0x2c1 || op==0x2d1 || op==0x2d3)
-            CPU_Regs.reg_ebx.dword(0xffff_ffff_8000_0000L);
+            CPU_Regs.reg_ebx.dword(0x80000000);
         else if (op == 0xc1 || op==0xd1 || op==0xd3)
             CPU_Regs.reg_ebx.dword(0x8000);
         else
             CPU_Regs.reg_ebx.dword(0x80);
         decoder.call();
-        assertEquals(1, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==1);
 
         newInstruction(op);
         pushIb((byte)0x0);
@@ -65,9 +65,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
             decoder.call();
-            assertEquals(1, Memory.mem_readd(MEM_BASE_DS));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==1);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS-4, 0);
             Memory.mem_writed(MEM_BASE_DS, 0);
             Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -76,9 +76,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
             Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
             decoder.call();
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 1);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)1);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
             Memory.mem_writew(MEM_BASE_DS-2, 0);
             Memory.mem_writew(MEM_BASE_DS, 0);
             Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -87,9 +87,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
             Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
             decoder.call();
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 1);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)1);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
             Memory.mem_writeb(MEM_BASE_DS-1, 0);
             Memory.mem_writeb(MEM_BASE_DS, 0);
             Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -104,14 +104,14 @@ public class testGrp2 extends InstructionsTestCase {
             if (op==0xd2 || op==0xd3 || op==0x2d3)
                 CPU_Regs.reg_ecx.low(2);
             if (op == 0x2c1 || op==0x2d3)
-                CPU_Regs.reg_ebx.dword(0xffff_ffff_8000_0000L);
+                CPU_Regs.reg_ebx.dword(0x80000000);
             else if (op == 0xc1 || op==0xd3)
                 CPU_Regs.reg_ebx.dword(0x8000);
             else
                 CPU_Regs.reg_ebx.dword(0x80);
             decoder.call();
-            assertEquals(2, CPU_Regs.reg_ebx.dword);
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(CPU_Regs.reg_ebx.dword==2);
+            assertTrue(!CPU_Regs.get_CF());
         }
     }
     public void testEbIb_rol() {
@@ -153,8 +153,8 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(2);
         decoder.call();
-        assertEquals(1, CPU_Regs.reg_ebx.dword);
-        assertFalse(CPU_Regs.get_CF());
+        assertTrue(CPU_Regs.reg_ebx.dword==1);
+        assertTrue(!CPU_Regs.get_CF());
 
         newInstruction(op);
         pushIb((byte)(0xc3+(1<<3)));
@@ -165,9 +165,9 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         CPU_Regs.reg_ebx.dword(2);
         decoder.call();
-        assertEquals(1, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==1);
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF()); // make sure carry flag is ignored
+            assertTrue(!CPU_Regs.get_CF()); // make sure carry flag is ignored
 
         newInstruction(op);
         pushIb((byte)(0xc3+(1<<3)));
@@ -178,11 +178,11 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
         if (op == 0x2c1 || op==0x2d1 || op==0x2d3)
-            assertEquals(0x80000000, CPU_Regs.reg_ebx.dword);
+            assertTrue(CPU_Regs.reg_ebx.dword==0x80000000);
         else if (op == 0xc1 || op==0xd1 || op==0xd3)
-            assertEquals(0x8000, CPU_Regs.reg_ebx.dword);
+            assertTrue(CPU_Regs.reg_ebx.dword==0x8000);
         else
-            assertEquals(0x80, CPU_Regs.reg_ebx.dword);
+            assertTrue(CPU_Regs.reg_ebx.dword==0x80);
         if (!Compiler.alwayUseFastVersion)
             assertTrue(CPU_Regs.get_CF());
 
@@ -197,9 +197,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
             decoder.call();
-            assertEquals(0x80000000, Memory.mem_readd(MEM_BASE_DS));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==0x80000000);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS-4, 0);
             Memory.mem_writed(MEM_BASE_DS, 0);
             Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -208,9 +208,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
             Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
             decoder.call();
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0x8000);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0x8000);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
             Memory.mem_writew(MEM_BASE_DS-2, 0);
             Memory.mem_writew(MEM_BASE_DS, 0);
             Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -219,9 +219,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
             Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
             decoder.call();
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0x80);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0x80);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
             Memory.mem_writeb(MEM_BASE_DS-1, 0);
             Memory.mem_writeb(MEM_BASE_DS, 0);
             Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -238,13 +238,13 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ebx.dword(1);
             decoder.call();
             if (op == 0x2c1 || op==0x2d3)
-                assertEquals(0x40000000, CPU_Regs.reg_ebx.dword);
+                assertTrue(CPU_Regs.reg_ebx.dword==0x40000000);
             else if (op == 0xc1 || op==0xd3)
-                assertEquals(0x4000, CPU_Regs.reg_ebx.dword);
+                assertTrue(CPU_Regs.reg_ebx.dword==0x4000);
             else
-                assertEquals(0x40, CPU_Regs.reg_ebx.dword);
+                assertTrue(CPU_Regs.reg_ebx.dword==0x40);
             if (!Compiler.alwayUseFastVersion)
-                assertFalse(CPU_Regs.get_CF());
+                assertTrue(!CPU_Regs.get_CF());
         }
     }
     public void testEbIb_ror() {
@@ -286,8 +286,8 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(2, CPU_Regs.reg_ebx.dword);
-        assertFalse(CPU_Regs.get_CF());
+        assertTrue(CPU_Regs.reg_ebx.dword==2);
+        assertTrue(!CPU_Regs.get_CF());
 
         newInstruction(op);
         pushIb((byte)(0xc3+(2<<3)));
@@ -301,9 +301,9 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(CPU_Regs.reg_ebx.dword, result);// make sure carry flag is used
+        assertTrue(CPU_Regs.reg_ebx.dword==result);// make sure carry flag is used
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
 
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, false);
         newInstruction(op);
@@ -319,7 +319,7 @@ public class testGrp2 extends InstructionsTestCase {
         else
             CPU_Regs.reg_ebx.dword(0x80);
         decoder.call();
-        assertEquals(0, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==0);
         if (!Compiler.alwayUseFastVersion)
             assertTrue(CPU_Regs.get_CF());
 
@@ -335,9 +335,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
             decoder.call();
-            assertEquals(0, Memory.mem_readd(MEM_BASE_DS));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==0);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS-4, 0);
             Memory.mem_writed(MEM_BASE_DS, 0);
             Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -346,9 +346,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
             Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
             decoder.call();
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
             Memory.mem_writew(MEM_BASE_DS-2, 0);
             Memory.mem_writew(MEM_BASE_DS, 0);
             Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -357,9 +357,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
             Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
             decoder.call();
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
             Memory.mem_writeb(MEM_BASE_DS-1, 0);
             Memory.mem_writeb(MEM_BASE_DS, 0);
             Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -380,9 +380,9 @@ public class testGrp2 extends InstructionsTestCase {
                 Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
                 Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
                 decoder.call();
-                assertEquals(0, Memory.mem_readd(MEM_BASE_DS));
-                assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-                assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+                assertTrue(Memory.mem_readd(MEM_BASE_DS)==0);
+                assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+                assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
                 Memory.mem_writed(MEM_BASE_DS-4, 0);
                 Memory.mem_writed(MEM_BASE_DS, 0);
                 Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -391,9 +391,9 @@ public class testGrp2 extends InstructionsTestCase {
                 Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
                 Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
                 decoder.call();
-                assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0);
-                assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-                assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+                assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0);
+                assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+                assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
                 Memory.mem_writew(MEM_BASE_DS-2, 0);
                 Memory.mem_writew(MEM_BASE_DS, 0);
                 Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -402,9 +402,9 @@ public class testGrp2 extends InstructionsTestCase {
                 Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
                 Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
                 decoder.call();
-                assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0);
-                assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-                assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+                assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0);
+                assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+                assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
                 Memory.mem_writeb(MEM_BASE_DS-1, 0);
                 Memory.mem_writeb(MEM_BASE_DS, 0);
                 Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -422,15 +422,15 @@ public class testGrp2 extends InstructionsTestCase {
             if (op==0xd2 || op==0xd3 || op==0x2d3)
                 CPU_Regs.reg_ecx.low(2);
             if (op == 0x2c1 || op==0x2d3)
-                CPU_Regs.reg_ebx.dword(0xffff_ffff_8000_0000L);
+                CPU_Regs.reg_ebx.dword(0x80000000);
             else if (op == 0xc1 || op==0xd3)
                 CPU_Regs.reg_ebx.dword(0x8000);
             else
                 CPU_Regs.reg_ebx.dword(0x80);
             decoder.call();
-            assertEquals(1, CPU_Regs.reg_ebx.dword);
+            assertTrue(CPU_Regs.reg_ebx.dword==1);
             if (!Compiler.alwayUseFastVersion)
-                assertFalse(CPU_Regs.get_CF());
+                assertTrue(!CPU_Regs.get_CF());
         }
     }
     public void testEbIb_rcl() {
@@ -473,7 +473,7 @@ public class testGrp2 extends InstructionsTestCase {
                 CPU_Regs.reg_ecx.low(0);
             CPU_Regs.reg_ebx.dword(2);
             decoder.call();
-            assertEquals(2, CPU_Regs.reg_ebx.dword);
+            assertTrue(CPU_Regs.reg_ebx.dword==2);
         }
 
         int result = 1;
@@ -487,8 +487,8 @@ public class testGrp2 extends InstructionsTestCase {
             result = 2;
         CPU_Regs.reg_ebx.dword(4);
         decoder.call();
-        assertEquals(CPU_Regs.reg_ebx.dword, result);
-        assertFalse(CPU_Regs.get_CF());
+        assertTrue(CPU_Regs.reg_ebx.dword==result);
+        assertTrue(!CPU_Regs.get_CF());
 
         newInstruction(op);
         pushIb((byte)(0xc3+(3<<3)));
@@ -500,13 +500,13 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.reg_ebx.dword(2);
         decoder.call();
         if (op == 0x2c1 || op==0x2d1 || op==0x2d3)
-            assertEquals(0x80000001, CPU_Regs.reg_ebx.dword);// make sure carry flag is used
+            assertTrue(CPU_Regs.reg_ebx.dword==0x80000001);// make sure carry flag is used
         else if (op == 0xc1 || op==0xd1 || op==0xd3)
-            assertEquals(0x8001, CPU_Regs.reg_ebx.dword);// make sure carry flag is used
+            assertTrue(CPU_Regs.reg_ebx.dword==0x8001);// make sure carry flag is used
         else
-            assertEquals(0x81, CPU_Regs.reg_ebx.dword);// make sure carry flag is used
+            assertTrue(CPU_Regs.reg_ebx.dword==0x81);// make sure carry flag is used
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
 
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, false);
         newInstruction(op);
@@ -517,7 +517,7 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(0, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==0);
         if (!Compiler.alwayUseFastVersion)
             assertTrue(CPU_Regs.get_CF());
 
@@ -533,9 +533,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
             decoder.call();
-            assertEquals(0, Memory.mem_readd(MEM_BASE_DS));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==0);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS-4, 0);
             Memory.mem_writed(MEM_BASE_DS, 0);
             Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -544,9 +544,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
             Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
             decoder.call();
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
             Memory.mem_writew(MEM_BASE_DS-2, 0);
             Memory.mem_writew(MEM_BASE_DS, 0);
             Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -555,9 +555,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
             Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
             decoder.call();
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
             Memory.mem_writeb(MEM_BASE_DS-1, 0);
             Memory.mem_writeb(MEM_BASE_DS, 0);
             Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -578,9 +578,9 @@ public class testGrp2 extends InstructionsTestCase {
                 Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
                 Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
                 decoder.call();
-                assertEquals(0, Memory.mem_readd(MEM_BASE_DS));
-                assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-                assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+                assertTrue(Memory.mem_readd(MEM_BASE_DS)==0);
+                assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+                assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
                 Memory.mem_writed(MEM_BASE_DS-4, 0);
                 Memory.mem_writed(MEM_BASE_DS, 0);
                 Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -589,9 +589,9 @@ public class testGrp2 extends InstructionsTestCase {
                 Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
                 Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
                 decoder.call();
-                assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0);
-                assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-                assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+                assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0);
+                assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+                assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
                 Memory.mem_writew(MEM_BASE_DS-2, 0);
                 Memory.mem_writew(MEM_BASE_DS, 0);
                 Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -600,9 +600,9 @@ public class testGrp2 extends InstructionsTestCase {
                 Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
                 Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
                 decoder.call();
-                assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0);
-                assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-                assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+                assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0);
+                assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+                assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
                 Memory.mem_writeb(MEM_BASE_DS-1, 0);
                 Memory.mem_writeb(MEM_BASE_DS, 0);
                 Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -621,13 +621,13 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ebx.dword(1);
             decoder.call();
             if (op == 0x2c1 || op==0x2d3)
-                assertEquals(0x80000000, CPU_Regs.reg_ebx.dword);
+                assertTrue(CPU_Regs.reg_ebx.dword==0x80000000);
             else if (op == 0xc1 || op==0xd3)
-                assertEquals(0x8000, CPU_Regs.reg_ebx.dword);
+                assertTrue(CPU_Regs.reg_ebx.dword==0x8000);
             else
-                assertEquals(0x80, CPU_Regs.reg_ebx.dword);
+                assertTrue(CPU_Regs.reg_ebx.dword==0x80);
             if (!Compiler.alwayUseFastVersion)
-                assertFalse(CPU_Regs.get_CF());
+                assertTrue(!CPU_Regs.get_CF());
         }
     }
     public void testEbIb_rcr() {
@@ -669,8 +669,8 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(2, CPU_Regs.reg_ebx.dword);
-        assertFalse(CPU_Regs.get_CF());
+        assertTrue(CPU_Regs.reg_ebx.dword==2);
+        assertTrue(!CPU_Regs.get_CF());
 
         newInstruction(op);
         pushIb((byte)(0xc3+(6<<3)));
@@ -681,9 +681,9 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(2, CPU_Regs.reg_ebx.dword);// make sure carry flag is ignored
+        assertTrue(CPU_Regs.reg_ebx.dword==2);// make sure carry flag is ignored
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
 
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         newInstruction(op);
@@ -699,7 +699,7 @@ public class testGrp2 extends InstructionsTestCase {
         else
             CPU_Regs.reg_ebx.dword(0x80);
         decoder.call();
-        assertEquals(0, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==0);
         if (!Compiler.alwayUseFastVersion)
             assertTrue(CPU_Regs.get_CF());
 
@@ -715,9 +715,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
             decoder.call();
-            assertEquals(0, Memory.mem_readd(MEM_BASE_DS));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==0);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS-4, 0);
             Memory.mem_writed(MEM_BASE_DS, 0);
             Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -726,9 +726,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
             Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
             decoder.call();
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
             Memory.mem_writew(MEM_BASE_DS-2, 0);
             Memory.mem_writew(MEM_BASE_DS, 0);
             Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -737,9 +737,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
             Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
             decoder.call();
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
             Memory.mem_writeb(MEM_BASE_DS-1, 0);
             Memory.mem_writeb(MEM_BASE_DS, 0);
             Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -756,15 +756,15 @@ public class testGrp2 extends InstructionsTestCase {
             if (op==0xd2 || op==0xd3 || op==0x2d3)
                 CPU_Regs.reg_ecx.low(2);
             if (op == 0x2c1 || op==0x2d3)
-                CPU_Regs.reg_ebx.dword(0xffff_ffff_8000_0000L);
+                CPU_Regs.reg_ebx.dword(0x80000000);
             else if (op == 0xc1 || op==0xd3)
                 CPU_Regs.reg_ebx.dword(0x8000);
             else
                 CPU_Regs.reg_ebx.dword(0x80);
             decoder.call();
-            assertEquals(0, CPU_Regs.reg_ebx.dword);
+            assertTrue(CPU_Regs.reg_ebx.dword==0);
             if (!Compiler.alwayUseFastVersion)
-                assertFalse(CPU_Regs.get_CF());
+                assertTrue(!CPU_Regs.get_CF());
         }
     }
     public void testEbIb_shl() {
@@ -806,8 +806,8 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(2);
         decoder.call();
-        assertEquals(1, CPU_Regs.reg_ebx.dword);
-        assertFalse(CPU_Regs.get_CF());
+        assertTrue(CPU_Regs.reg_ebx.dword==1);
+        assertTrue(!CPU_Regs.get_CF());
 
         newInstruction(op);
         pushIb((byte)(0xc3+(5<<3)));
@@ -818,9 +818,9 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         CPU_Regs.reg_ebx.dword(2);
         decoder.call();
-        assertEquals(1, CPU_Regs.reg_ebx.dword);// make sure carry flag is ignored
+        assertTrue(CPU_Regs.reg_ebx.dword==1);// make sure carry flag is ignored
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
 
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, false);
         newInstruction(op);
@@ -831,7 +831,7 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(0, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==0);
         if (!Compiler.alwayUseFastVersion)
             assertTrue(CPU_Regs.get_CF());
 
@@ -847,9 +847,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
             decoder.call();
-            assertEquals(0, Memory.mem_readd(MEM_BASE_DS));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==0);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS-4, 0);
             Memory.mem_writed(MEM_BASE_DS, 0);
             Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -858,9 +858,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
             Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
             decoder.call();
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
             Memory.mem_writew(MEM_BASE_DS-2, 0);
             Memory.mem_writew(MEM_BASE_DS, 0);
             Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -869,9 +869,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
             Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
             decoder.call();
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
             Memory.mem_writeb(MEM_BASE_DS-1, 0);
             Memory.mem_writeb(MEM_BASE_DS, 0);
             Memory.mem_writeb(MEM_BASE_DS+1, 0);
@@ -889,9 +889,9 @@ public class testGrp2 extends InstructionsTestCase {
                 CPU_Regs.reg_ecx.low(2);
             CPU_Regs.reg_ebx.dword(1);
             decoder.call();
-            assertEquals(0, CPU_Regs.reg_ebx.dword);  // no wrap
+            assertTrue(CPU_Regs.reg_ebx.dword==0);  // no wrap
             if (!Compiler.alwayUseFastVersion)
-                assertFalse(CPU_Regs.get_CF());
+                assertTrue(!CPU_Regs.get_CF());
         }
 
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, false);
@@ -909,13 +909,13 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ebx.dword(0x80);
         decoder.call();
         if (op == 0x2c1 || op==0x2d1 || op==0x2d3)
-            assertEquals(0x40000000, CPU_Regs.reg_ebx.dword);  // no sign extension
+            assertTrue(CPU_Regs.reg_ebx.dword==0x40000000);  // no sign extension
         else if (op == 0xc1 || op==0xd1 || op==0xd3)
-            assertEquals(0x4000, CPU_Regs.reg_ebx.dword);  // no sign extension
+            assertTrue(CPU_Regs.reg_ebx.dword==0x4000);  // no sign extension
         else
-            assertEquals(0x40, CPU_Regs.reg_ebx.dword);  // no sign extension
+            assertTrue(CPU_Regs.reg_ebx.dword==0x40);  // no sign extension
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
     }
     public void testEbIb_shr() {
         shrb(0xc0);
@@ -957,8 +957,8 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(2);
         decoder.call();
-        assertEquals(1, CPU_Regs.reg_ebx.dword);
-        assertFalse(CPU_Regs.get_CF());
+        assertTrue(CPU_Regs.reg_ebx.dword==1);
+        assertTrue(!CPU_Regs.get_CF());
 
         newInstruction(op);
         pushIb((byte)(0xc3+(7<<3)));
@@ -969,9 +969,9 @@ public class testGrp2 extends InstructionsTestCase {
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, true);
         CPU_Regs.reg_ebx.dword(2);
         decoder.call();
-        assertEquals(1, CPU_Regs.reg_ebx.dword);// make sure carry flag is ignored
+        assertTrue(CPU_Regs.reg_ebx.dword==1);// make sure carry flag is ignored
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
 
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, false);
         newInstruction(op);
@@ -982,7 +982,7 @@ public class testGrp2 extends InstructionsTestCase {
             CPU_Regs.reg_ecx.low(1);
         CPU_Regs.reg_ebx.dword(1);
         decoder.call();
-        assertEquals(0, CPU_Regs.reg_ebx.dword);
+        assertTrue(CPU_Regs.reg_ebx.dword==0);
         if (!Compiler.alwayUseFastVersion)
             assertTrue(CPU_Regs.get_CF());
 
@@ -996,9 +996,9 @@ public class testGrp2 extends InstructionsTestCase {
                 CPU_Regs.reg_ecx.low(2);
             CPU_Regs.reg_ebx.dword(1);
             decoder.call();
-            assertEquals(0, CPU_Regs.reg_ebx.dword);  // no wrap
+            assertTrue(CPU_Regs.reg_ebx.dword==0);  // no wrap
             if (!Compiler.alwayUseFastVersion)
-                assertFalse(CPU_Regs.get_CF());
+                assertTrue(!CPU_Regs.get_CF());
         }
 
         CPU_Regs.SETFLAGBIT(CPU_Regs.CF, false);
@@ -1009,20 +1009,20 @@ public class testGrp2 extends InstructionsTestCase {
         if (op==0xd2 || op==0xd3 || op==0x2d3)
             CPU_Regs.reg_ecx.low(1);
         if (op == 0x2c1 || op==0x2d1 || op == 0x2d3)
-            CPU_Regs.reg_ebx.dword(0xffff_ffff_8000_0000L);
+            CPU_Regs.reg_ebx.dword(0x80000000);
         else if (op == 0xc1 || op==0xd1 || op==0xd3)
             CPU_Regs.reg_ebx.dword(0x8000);
         else
             CPU_Regs.reg_ebx.dword(0x80);
         decoder.call();
         if (op == 0x2c1 || op==0x2d1 || op == 0x2d3)
-            assertEquals(0xC0000000, CPU_Regs.reg_ebx.dword);  // sign extension
+            assertTrue(CPU_Regs.reg_ebx.dword==0xC0000000);  // sign extension
         else if (op == 0xc1 || op==0xd1 || op==0xd3)
-            assertEquals(0xC000, CPU_Regs.reg_ebx.dword);  // sign extension
+            assertTrue(CPU_Regs.reg_ebx.dword==0xC000);  // sign extension
         else
-            assertEquals(0xC0, CPU_Regs.reg_ebx.dword);  // sign extension
+            assertTrue(CPU_Regs.reg_ebx.dword==0xC0);  // sign extension
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
 
         newInstruction(op);
         pushIb((byte)(7<<3));
@@ -1035,9 +1035,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writed(MEM_BASE_DS-4,0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS+4,0xCDEF1234);
             decoder.call();
-            assertEquals(0xC0000000, Memory.mem_readd(MEM_BASE_DS));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS - 4));
-            assertEquals(0xCDEF1234, Memory.mem_readd(MEM_BASE_DS + 4));
+            assertTrue(Memory.mem_readd(MEM_BASE_DS)==0xC0000000);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS - 4)==0xCDEF1234);
+            assertTrue(Memory.mem_readd(MEM_BASE_DS + 4)==0xCDEF1234);
             Memory.mem_writed(MEM_BASE_DS-4, 0);
             Memory.mem_writed(MEM_BASE_DS, 0);
             Memory.mem_writed(MEM_BASE_DS+4, 0);
@@ -1046,9 +1046,9 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writew(MEM_BASE_DS-2,0xCDEF);
             Memory.mem_writew(MEM_BASE_DS+2,0xCDEF);
             decoder.call();
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS), (short) 0xC000);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS - 2), (short) 0xCDEF);
-            assertEquals((short) Memory.mem_readw(MEM_BASE_DS + 2), (short) 0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS)==(short)0xC000);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS-2)==(short)0xCDEF);
+            assertTrue((short)Memory.mem_readw(MEM_BASE_DS+2)==(short)0xCDEF);
             Memory.mem_writew(MEM_BASE_DS-2, 0);
             Memory.mem_writew(MEM_BASE_DS, 0);
             Memory.mem_writew(MEM_BASE_DS+2, 0);
@@ -1057,15 +1057,15 @@ public class testGrp2 extends InstructionsTestCase {
             Memory.mem_writeb(MEM_BASE_DS-1,0xCD);
             Memory.mem_writeb(MEM_BASE_DS+1,0xCD);
             decoder.call();
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS), (byte) 0xC0);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS - 1), (byte) 0xCD);
-            assertEquals((byte) Memory.mem_readb(MEM_BASE_DS + 1), (byte) 0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS)==(byte)0xC0);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS-1)==(byte)0xCD);
+            assertTrue((byte)Memory.mem_readb(MEM_BASE_DS+1)==(byte)0xCD);
             Memory.mem_writeb(MEM_BASE_DS-1, 0);
             Memory.mem_writeb(MEM_BASE_DS, 0);
             Memory.mem_writeb(MEM_BASE_DS+1, 0);
         }
         if (!Compiler.alwayUseFastVersion)
-            assertFalse(CPU_Regs.get_CF());
+            assertTrue(!CPU_Regs.get_CF());
     }
     /* GRP2 Eb,Ib */
     public void testEbIb_sar() {

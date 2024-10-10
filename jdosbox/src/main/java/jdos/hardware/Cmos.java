@@ -9,12 +9,11 @@ import jdos.types.LogSeverities;
 import jdos.types.LogTypes;
 import jdos.util.StringHelper;
 
-import java.util.Arrays;
 import java.util.Calendar;
 
 public class Cmos extends Module_base {
     static private class CMOS {
-        public final byte[] regs = new byte[0x40];
+        public byte[] regs = new byte[0x40];
         boolean nmi;
         boolean bcd;
         /*Bit8u*/byte reg;
@@ -24,18 +23,18 @@ public class Cmos extends Module_base {
             float delay;
             boolean acknowledged;
         }
-        public final Timer timer = new Timer();
+        public Timer timer = new Timer();
         public static class Last {
             double timer;
             double ended;
             double alarm;
         }
-        public final Last last = new Last();
+        public Last last = new Last();
         boolean update_ended;
     }
-    static private final CMOS cmos = new CMOS();
+    static private CMOS cmos = new CMOS();
 
-    static private final Pic.PIC_EventHandler cmos_timerevent = new Pic.PIC_EventHandler() {
+    static private Pic.PIC_EventHandler cmos_timerevent = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             if (cmos.timer.acknowledged) {
                 cmos.timer.acknowledged=false;
@@ -64,53 +63,55 @@ public class Cmos extends Module_base {
     //	status reg A reading with this (and with other delays actually)
     }
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler cmos_selreg = (port, val, iolen) -> {
-        cmos.reg=(byte)(val & 0x3f);
-        cmos.nmi=(val & 0x80)>0;
+    static private IoHandler.IO_WriteHandler cmos_selreg = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            cmos.reg=(byte)(val & 0x3f);
+            cmos.nmi=(val & 0x80)>0;
+        }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler cmos_writereg = (port, val, iolen) -> {
-        switch (cmos.reg) {
-        case 0x00:		/* Seconds */
-        case 0x02:		/* Minutes */
-        case 0x04:		/* Hours */
-        case 0x06:		/* Day of week */
-        case 0x07:		/* Date of month */
-        case 0x08:		/* Month */
-        case 0x09:		/* Year */
-        case 0x32:              /* Century */
-            /* Ignore writes to change alarm */
-            break;
-        case 0x01:		/* Seconds Alarm */
-        case 0x03:		/* Minutes Alarm */
-        case 0x05:		/* Hours Alarm */
-            Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Trying to set alarm");
-            cmos.regs[cmos.reg]=(byte)val;
-            break;
-        case 0x0a:		/* Status reg A */
-            cmos.regs[cmos.reg]=(byte)(val & 0x7f);
-            if ((val & 0x70)!=0x20) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS Illegal 22 stage divider value");
-            cmos.timer.div=(byte)(val & 0xf);
-            cmos_checktimer();
-            break;
-        case 0x0b:		/* Status reg B */
-            cmos.bcd= (val & 0x4) == 0;
-            cmos.regs[cmos.reg]=(byte)(val & 0x7f);
-            cmos.timer.enabled=(val & 0x40)>0;
-            if ((val&0x10)!=0) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:Updated ended interrupt not supported yet");
-            cmos_checktimer();
-            break;
-        case 0x0d:/* Status reg D */
-            cmos.regs[cmos.reg]=(byte)(val & 0x80);	/*Bit 7=1:RTC Pown on*/
-            break;
-        case 0x0f:		/* Shutdown status byte */
-            cmos.regs[cmos.reg]=(byte)(val & 0x7f);
-            break;
-        default:
-            cmos.regs[cmos.reg]=(byte)(val & 0x7f);
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:WRite to unhandled register "+Integer.toString(cmos.reg,16));
+    static private IoHandler.IO_WriteHandler cmos_writereg = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            switch (cmos.reg) {
+            case 0x00:		/* Seconds */
+            case 0x02:		/* Minutes */
+            case 0x04:		/* Hours */
+            case 0x06:		/* Day of week */
+            case 0x07:		/* Date of month */
+            case 0x08:		/* Month */
+            case 0x09:		/* Year */
+            case 0x32:              /* Century */
+                /* Ignore writes to change alarm */
+                break;
+            case 0x01:		/* Seconds Alarm */
+            case 0x03:		/* Minutes Alarm */
+            case 0x05:		/* Hours Alarm */
+                Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Trying to set alarm");
+                cmos.regs[cmos.reg]=(byte)val;
+                break;
+            case 0x0a:		/* Status reg A */
+                cmos.regs[cmos.reg]=(byte)(val & 0x7f);
+                if ((val & 0x70)!=0x20) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS Illegal 22 stage divider value");
+                cmos.timer.div=(byte)(val & 0xf);
+                cmos_checktimer();
+                break;
+            case 0x0b:		/* Status reg B */
+                cmos.bcd=!((val & 0x4)!=0);
+                cmos.regs[cmos.reg]=(byte)(val & 0x7f);
+                cmos.timer.enabled=(val & 0x40)>0;
+                if ((val&0x10)!=0) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:Updated ended interrupt not supported yet");
+                cmos_checktimer();
+                break;
+            case 0x0d:/* Status reg D */
+                cmos.regs[cmos.reg]=(byte)(val & 0x80);	/*Bit 7=1:RTC Pown on*/
+                break;
+            case 0x0f:		/* Shutdown status byte */
+                cmos.regs[cmos.reg]=(byte)(val & 0x7f);
+                break;
+            default:
+                cmos.regs[cmos.reg]=(byte)(val & 0x7f);
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:WRite to unhandled register "+Integer.toString(cmos.reg,16));
+            }
         }
     };
 
@@ -118,208 +119,209 @@ public class Cmos extends Module_base {
         return (cmos.bcd ? ((((_VAL) / 10) << 4) | ((_VAL) % 10)) : (_VAL));
     }
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler cmos_readreg = (port, iolen) -> {
-        if (cmos.reg>0x3f) {
-            if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:Read from illegal register "+Integer.toString(cmos.reg,16));
-            return 0xff;
-        }
-        /*Bitu*/int drive_a, drive_b;
-        /*Bit8u*/short hdparm;
+    static private IoHandler.IO_ReadHandler cmos_readreg = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            if (cmos.reg>0x3f) {
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_ERROR,"CMOS:Read from illegal register "+Integer.toString(cmos.reg,16));
+                return 0xff;
+            }
+            /*Bitu*/int drive_a, drive_b;
+            /*Bit8u*/short hdparm;
 
-        Calendar c = Calendar.getInstance();
-        switch (cmos.reg) {
-        case 0x00:		/* Seconds */
-            return 	MAKE_RETURN(c.get(Calendar.SECOND));
-        case 0x02:		/* Minutes */
-            return 	MAKE_RETURN(c.get(Calendar.MINUTE));
-        case 0x04:		/* Hours */
-            return 	MAKE_RETURN(c.get(Calendar.HOUR));
-        case 0x06:		/* Day of week */
-            return 	MAKE_RETURN(c.get(Calendar.DAY_OF_WEEK));
-        case 0x07:		/* Date of month */
-            return 	MAKE_RETURN(c.get(Calendar.DAY_OF_MONTH));
-        case 0x08:		/* Month */
-            return 	MAKE_RETURN(c.get(Calendar.MONTH) + 1);
-        case 0x09:		/* Year */
-            return 	MAKE_RETURN(c.get(Calendar.YEAR) % 100);
-        case 0x32:		/* Century */
-            return 	MAKE_RETURN(c.get(Calendar.YEAR) / 100);
-        case 0x01:		/* Seconds Alarm */
-        case 0x03:		/* Minutes Alarm */
-        case 0x05:		/* Hours Alarm */
-            return cmos.regs[cmos.reg];
-        case 0x0a:		/* Status register A */
-            if (Pic.PIC_TickIndex()<0.002) {
-                return (cmos.regs[0x0a]&0x7f) | 0x80;
-            } else {
-                return (cmos.regs[0x0a]&0x7f);
-            }
-        case 0x0c:		/* Status register C */
-            cmos.timer.acknowledged=true;
-            if (cmos.timer.enabled) {
-                /* In periodic interrupt mode only care for those flags */
-                /*Bit8u*/byte val=cmos.regs[0xc];
-                cmos.regs[0xc]=0;
-                return val;
-            } else {
-                /* Give correct values at certain times */
-                /*Bit8u*/byte val=0;
-                double index=Pic.PIC_FullIndex();
-                if (index>=(cmos.last.timer+cmos.timer.delay)) {
-                    cmos.last.timer=index;
-                    val|=0x40;
+            Calendar c = Calendar.getInstance();
+            switch (cmos.reg) {
+            case 0x00:		/* Seconds */
+                return 	MAKE_RETURN(c.get(Calendar.SECOND));
+            case 0x02:		/* Minutes */
+                return 	MAKE_RETURN(c.get(Calendar.MINUTE));
+            case 0x04:		/* Hours */
+                return 	MAKE_RETURN(c.get(Calendar.HOUR));
+            case 0x06:		/* Day of week */
+                return 	MAKE_RETURN(c.get(Calendar.DAY_OF_WEEK));
+            case 0x07:		/* Date of month */
+                return 	MAKE_RETURN(c.get(Calendar.DAY_OF_MONTH));
+            case 0x08:		/* Month */
+                return 	MAKE_RETURN(c.get(Calendar.MONTH) + 1);
+            case 0x09:		/* Year */
+                return 	MAKE_RETURN(c.get(Calendar.YEAR) % 100);
+            case 0x32:		/* Century */
+                return 	MAKE_RETURN(c.get(Calendar.YEAR) / 100);
+            case 0x01:		/* Seconds Alarm */
+            case 0x03:		/* Minutes Alarm */
+            case 0x05:		/* Hours Alarm */
+                return cmos.regs[cmos.reg];
+            case 0x0a:		/* Status register A */
+                if (Pic.PIC_TickIndex()<0.002) {
+                    return (cmos.regs[0x0a]&0x7f) | 0x80;
+                } else {
+                    return (cmos.regs[0x0a]&0x7f);
                 }
-                if (index>=(cmos.last.ended+1000)) {
-                    cmos.last.ended=index;
-                    val|=0x10;
+            case 0x0c:		/* Status register C */
+                cmos.timer.acknowledged=true;
+                if (cmos.timer.enabled) {
+                    /* In periodic interrupt mode only care for those flags */
+                    /*Bit8u*/byte val=cmos.regs[0xc];
+                    cmos.regs[0xc]=0;
+                    return val;
+                } else {
+                    /* Give correct values at certain times */
+                    /*Bit8u*/byte val=0;
+                    double index=Pic.PIC_FullIndex();
+                    if (index>=(cmos.last.timer+cmos.timer.delay)) {
+                        cmos.last.timer=index;
+                        val|=0x40;
+                    }
+                    if (index>=(cmos.last.ended+1000)) {
+                        cmos.last.ended=index;
+                        val|=0x10;
+                    }
+                    return val;
                 }
-                return val;
+            case 0x10:		/* Floppy size */
+                drive_a = 0;
+                drive_b = 0;
+                if(Bios_disk.imageDiskList[0] != null) drive_a = Bios_disk.imageDiskList[0].GetBiosType();
+                if(Bios_disk.imageDiskList[1] != null) drive_b = Bios_disk.imageDiskList[1].GetBiosType();
+                return ((drive_a << 4) | (drive_b));
+            /* First harddrive info */
+            case 0x12:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                hdparm = 0;
+                if(Bios_disk.imageDiskList[3] != null) hdparm |= 0xf;
+                if(Bios_disk.imageDiskList[2] != null) hdparm |= 0xf0;
+                return hdparm;
+            case 0x19:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return 47; /* User defined type */
+                return 0;
+            case 0x1b:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].cylinders & 0xff);
+                return 0;
+            case 0x1c:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return (int)((Bios_disk.imageDiskList[2].cylinders & 0xff00)>>8);
+                return 0;
+            case 0x1d:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].heads);
+                return 0;
+            case 0x1e:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return 0xff;
+                return 0;
+            case 0x1f:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return 0xff;
+                return 0;
+            case 0x20:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return (int)(0xc0 | ((((Bios_disk.imageDiskList[2].heads) > 8)?1:0) << 3));
+                return 0;
+            case 0x21:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].cylinders & 0xff);
+                return 0;
+            case 0x22:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return (int)((Bios_disk.imageDiskList[2].cylinders & 0xff00)>>8);
+                return 0;
+            case 0x23:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].sectors);
+                return 0;
+            /* Second harddrive info */
+            case 0x1a:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return 47; /* User defined type */
+                return 0;
+            case 0x24:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].cylinders & 0xff);
+                return 0;
+            case 0x25:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return (int)((Bios_disk.imageDiskList[3].cylinders & 0xff00)>>8);
+                return 0;
+            case 0x26:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].heads);
+                return 0;
+            case 0x27:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return 0xff;
+                return 0;
+            case 0x28:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return 0xff;
+                return 0;
+            case 0x29:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return (int)(0xc0 | (((Bios_disk.imageDiskList[3].heads) > 8)?1:0 << 3));
+                return 0;
+            case 0x2a:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].cylinders & 0xff);
+                return 0;
+            case 0x2b:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return (int)((Bios_disk.imageDiskList[3].cylinders & 0xff00)>>8);
+                return 0;
+            case 0x2c:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].sectors);
+                return 0;
+            case 0x39:
+                if (Bios.boot)
+                    return cmos.regs[cmos.reg] & 0xFF;
+                return 0;
+            case 0x3a:
+                return 0;
+            case 0x37: // Password Seed and Color Option
+                return 0x20;
+            case 0x3d:      /* boot order */
+                return cmos.regs[cmos.reg] & 0xFF;
+            case 0x34:      /* extended memory over 64MB */
+                return cmos.regs[cmos.reg] & 0xFF;
+            case 0x35:      /* extended memory over 64MB */
+                return cmos.regs[cmos.reg] & 0xFF;
+            case 0x0b:		/* Status register B */
+            case 0x0d:		/* Status register D */
+            case 0x0f:		/* Shutdown status byte */
+            case 0x14:		/* Equipment */
+            case 0x15:		/* Base Memory KB Low Byte */
+            case 0x16:		/* Base Memory KB High Byte */
+            case 0x17:		/* Extended memory in KB Low Byte */
+            case 0x18:		/* Extended memory in KB High Byte */
+            case 0x30:		/* Extended memory in KB Low Byte */
+            case 0x31:		/* Extended memory in KB High Byte */
+        //		Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg %X : %04X",cmos.reg,cmos.regs[cmos.reg]);
+                return cmos.regs[cmos.reg] & 0xFF;
+            default:
+                if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg "+Integer.toString(cmos.reg,16));
+                return cmos.regs[cmos.reg];
             }
-        case 0x10:		/* Floppy size */
-            drive_a = 0;
-            drive_b = 0;
-            if(Bios_disk.imageDiskList[0] != null) drive_a = Bios_disk.imageDiskList[0].GetBiosType();
-            if(Bios_disk.imageDiskList[1] != null) drive_b = Bios_disk.imageDiskList[1].GetBiosType();
-            return ((drive_a << 4) | (drive_b));
-        /* First harddrive info */
-        case 0x12:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            hdparm = 0;
-            if(Bios_disk.imageDiskList[3] != null) hdparm |= 0xf;
-            if(Bios_disk.imageDiskList[2] != null) hdparm |= 0xf0;
-            return hdparm;
-        case 0x19:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return 47; /* User defined type */
-            return 0;
-        case 0x1b:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].cylinders & 0xff);
-            return 0;
-        case 0x1c:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return (int)((Bios_disk.imageDiskList[2].cylinders & 0xff00)>>8);
-            return 0;
-        case 0x1d:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].heads);
-            return 0;
-        case 0x1e:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return 0xff;
-            return 0;
-        case 0x1f:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return 0xff;
-            return 0;
-        case 0x20:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return 0xc0 | ((((Bios_disk.imageDiskList[2].heads) > 8)?1:0) << 3);
-            return 0;
-        case 0x21:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].cylinders & 0xff);
-            return 0;
-        case 0x22:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return (int)((Bios_disk.imageDiskList[2].cylinders & 0xff00)>>8);
-            return 0;
-        case 0x23:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[2] != null) return (int)(Bios_disk.imageDiskList[2].sectors);
-            return 0;
-        /* Second harddrive info */
-        case 0x1a:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return 47; /* User defined type */
-            return 0;
-        case 0x24:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].cylinders & 0xff);
-            return 0;
-        case 0x25:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return (int)((Bios_disk.imageDiskList[3].cylinders & 0xff00)>>8);
-            return 0;
-        case 0x26:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].heads);
-            return 0;
-        case 0x27:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return 0xff;
-            return 0;
-        case 0x28:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return 0xff;
-            return 0;
-        case 0x29:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return 0xc0 | (((Bios_disk.imageDiskList[3].heads) > 8)?1: 0);
-            return 0;
-        case 0x2a:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].cylinders & 0xff);
-            return 0;
-        case 0x2b:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return (int)((Bios_disk.imageDiskList[3].cylinders & 0xff00)>>8);
-            return 0;
-        case 0x2c:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            if(Bios_disk.imageDiskList[3] != null) return (int)(Bios_disk.imageDiskList[3].sectors);
-            return 0;
-        case 0x39:
-            if (Bios.boot)
-                return cmos.regs[cmos.reg] & 0xFF;
-            return 0;
-        case 0x3a:
-            return 0;
-        case 0x37: // Password Seed and Color Option
-            return 0x20;
-        case 0x3d:      /* boot order */
-            return cmos.regs[cmos.reg] & 0xFF;
-        case 0x34:      /* extended memory over 64MB */
-            return cmos.regs[cmos.reg] & 0xFF;
-        case 0x35:      /* extended memory over 64MB */
-            return cmos.regs[cmos.reg] & 0xFF;
-        case 0x0b:		/* Status register B */
-        case 0x0d:		/* Status register D */
-        case 0x0f:		/* Shutdown status byte */
-        case 0x14:		/* Equipment */
-        case 0x15:		/* Base Memory KB Low Byte */
-        case 0x16:		/* Base Memory KB High Byte */
-        case 0x17:		/* Extended memory in KB Low Byte */
-        case 0x18:		/* Extended memory in KB High Byte */
-        case 0x30:		/* Extended memory in KB Low Byte */
-        case 0x31:		/* Extended memory in KB High Byte */
-    //		Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg %X : %04X",cmos.reg,cmos.regs[cmos.reg]);
-            return cmos.regs[cmos.reg] & 0xFF;
-        default:
-            if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_BIOS,LogSeverities.LOG_NORMAL,"CMOS:Read from reg "+Integer.toString(cmos.reg,16));
-            return cmos.regs[cmos.reg];
         }
     };
 
@@ -328,8 +330,8 @@ public class Cmos extends Module_base {
     }
 
 
-    private static final IoHandler.IO_ReadHandleObject[] ReadHandler=new IoHandler.IO_ReadHandleObject[2];
-	private static final IoHandler.IO_WriteHandleObject[] WriteHandler=new IoHandler.IO_WriteHandleObject[2];
+    private static IoHandler.IO_ReadHandleObject[] ReadHandler=new IoHandler.IO_ReadHandleObject[2];
+	private static IoHandler.IO_WriteHandleObject[] WriteHandler=new IoHandler.IO_WriteHandleObject[2];
 
     public Cmos(Section configuration) {
         super(configuration);
@@ -370,15 +372,17 @@ public class Cmos extends Module_base {
 
     static Cmos test;
 
-    private static final Section.SectionFunction CMOS_Destroy = new Section.SectionFunction() {
+    private static Section.SectionFunction CMOS_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             test = null;
-            Arrays.fill(ReadHandler, null);
-            Arrays.fill(WriteHandler, null);
+            for (int i=0;i<ReadHandler.length;i++)
+                ReadHandler[i] = null;
+            for (int i=0;i<WriteHandler.length;i++)
+                WriteHandler[i] = null;
         }
     };
 
-    public static final Section.SectionFunction CMOS_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction CMOS_Init = new Section.SectionFunction() {
         public void call(Section section) {
             for (int i=0;i<ReadHandler.length;i++)
                 ReadHandler[i] = new IoHandler.IO_ReadHandleObject();

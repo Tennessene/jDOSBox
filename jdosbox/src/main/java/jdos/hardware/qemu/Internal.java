@@ -310,23 +310,23 @@ public class Internal {
     static public final int IDE_CFATA=2;
 
     public interface EndTransferFunc {
-        void call(IDEState s);
+        public void call(IDEState s);
     }
 
-    public interface DMAStartFunc {
-        void call(IDEDMA dma, IDEState s, Block.BlockDriverCompletionFunc cb);
+    public static interface DMAStartFunc {
+        public void call(IDEDMA dma, IDEState s, Block.BlockDriverCompletionFunc cb);
     }
 
-    public interface DMAFunc {
-        void call(IDEDMA dma);
+    public static interface DMAFunc {
+        public int call(IDEDMA dma);
     }
 
-    public interface DMAIntFunc {
-        int call(IDEDMA dma, int x);
+    public static interface DMAIntFunc {
+        public int call(IDEDMA dma, int x);
     }
 
-    public interface DMARestartFunc {
-        void call(Object opaque, int x, int y);
+    public static interface DMARestartFunc {
+        public void call(Object opaque, int x, int y);
     }
     
     static public class unreported_events {
@@ -334,7 +334,7 @@ public class Internal {
         public boolean new_media;
     }
     
-    public enum ide_dma_cmd {
+    static public enum ide_dma_cmd {
         IDE_DMA_READ,
         IDE_DMA_WRITE,
         IDE_DMA_TRIM,
@@ -351,7 +351,7 @@ public class Internal {
         public long nb_sectors;
         public int mult_sectors;
         public boolean identify_set;
-        public final byte[] identify_data = new byte[512];
+        public byte[] identify_data = new byte[512];
         public int drive_serial;
         public String drive_serial_str;
         public String drive_model_str;
@@ -378,7 +378,7 @@ public class Internal {
         public Block.BlockDriverState bs;
         public String version;
         /* ATAPI specific */
-        public final unreported_events events = new unreported_events();
+        public unreported_events events = new unreported_events();
         public int sense_key;
         public int asc;
         public boolean tray_open;
@@ -390,9 +390,9 @@ public class Internal {
         public long lba;
         public int cd_sector_size;
         public int atapi_dma; /* true if dma is requested for the packet cmd */
-        public final Block.BlockAcctCookie acct = new Block.BlockAcctCookie();
+        public Block.BlockAcctCookie acct = new Block.BlockAcctCookie();
         public Block.BlockDriverAIOCB pio_aiocb;
-        public final QemuCommon.iovec iov = new QemuCommon.iovec();
+        public QemuCommon.iovec iov = new QemuCommon.iovec();
         public QemuCommon.QEMUIOVector qiov;
         /* ATA DMA state */
         public int io_buffer_offset;
@@ -468,12 +468,12 @@ public class Internal {
 
     public static class BlockConf {
         //BlockDriverState bs;
-        final long physical_block_size = 512;
-        final long logical_block_size = 512;
+        long physical_block_size = 512;
+        long logical_block_size = 512;
         long min_io_size;
         long opt_io_size;
         long bootindex;
-        final int discard_granularity = 0;
+        int discard_granularity = 0;
         /* geometry, not all devices use this */
         long cyls, heads, secs;
 
@@ -492,7 +492,7 @@ public class Internal {
     public static class IDEDevice {
         //DeviceState qdev;
         int unit;
-        final BlockConf conf = new BlockConf();
+        BlockConf conf = new BlockConf();
         int chs_trans;
         String version;
         String serial;
@@ -561,7 +561,7 @@ public class Internal {
     }
 
     static long be_readd(byte[] b, int offset) {
-        return (b[offset+3] & 0xFF) | ((b[offset+2] & 0xFF) << 8) | ((b[offset+1] & 0xFF) << 16) | ((long) (b[offset] & 0xFF) << 24);
+        return (b[offset+3] & 0xFF) | ((b[offset+2] & 0xFF) << 8) | ((b[offset+1] & 0xFF) << 16) | ((b[offset] & 0xFF) << 24);
     }
     static int be_readw(byte[] b, int offset) {
         return (b[offset+1] & 0xFF) | ((b[offset] & 0xFF) << 8);

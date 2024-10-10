@@ -27,11 +27,11 @@ public class DSMixer extends IDirectSoundBuffer {
      * unsampled frame (writepos), translating frequency (pitch), stereo/mono
      * and bits-per-sample so that it is ideal for the primary buffer.
      * Doesn't perform any mixing - this is a straight copy/convert operation.
-     * <p>
+     *
      * dsb = the secondary buffer
      * writepos = Starting position of changed buffer
      * len = number of bytes to resample from writepos
-     * <p>
+     *
      * NOTE: writepos + len <= buflen. When called by mixer, MixOne makes sure of this.
      */
     static void DSOUND_MixToTemporary(IDirectSoundBuffer.Data dsb, int writepos, int len)
@@ -44,7 +44,7 @@ public class DSMixer extends IDirectSoundBuffer {
 
         int	iAdvance = wfx.nBlockAlign;
         int oAdvance = DEVICE_BLOCK_ALIGN;
-        int freqAcc = 0, target_writepos, overshot, maxlen;
+        int freqAcc = 0, target_writepos = 0, overshot, maxlen;
 
         assert(writepos + len <= dsb.buflen);
 
@@ -98,7 +98,7 @@ public class DSMixer extends IDirectSoundBuffer {
      * Should be called when one of the following things occur:
      * - Primary buffer format is changed
      * - This buffer format (frequency) is changed
-     * <p>
+     *
      * After this, DSOUND_MixToTemporary(dsb, 0, dsb.buflen) should
      * be called to refill the temporary buffer with data.
      */
@@ -111,7 +111,10 @@ public class DSMixer extends IDirectSoundBuffer {
         int pAlign = DEVICE_BLOCK_ALIGN;
 
         WAVEFORMATEXTENSIBLE pwfxe = dsb.wfxe();
-        boolean ieee = (pwfxe.Format.wFormatTag == WAVE_FORMAT_IEEE_FLOAT) || (pwfxe.Format.wFormatTag == WAVE_FORMAT_EXTENSIBLE && pwfxe.SubFormat.equals(KSDATAFORMAT_SUBTYPE_IEEE_FLOAT));
+        boolean ieee = false;
+
+        if ((pwfxe.Format.wFormatTag == WAVE_FORMAT_IEEE_FLOAT) || (pwfxe.Format.wFormatTag == WAVE_FORMAT_EXTENSIBLE && pwfxe.SubFormat.equals(KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)))
+            ieee = true;
 
         /* calculate the 10ms write lead */
         dsb.writelead=(dsb.freq / 100) * wfx.nBlockAlign;
@@ -159,9 +162,9 @@ public class DSMixer extends IDirectSoundBuffer {
         int ostep = DEVICE_BITS_PER_SAMEPLE / 8;
 
         if (DEVICE_CHANNELS == wfx.nChannels ||
-                (DEVICE_CHANNELS == 2 && wfx.nChannels == 6) ||
-                (DEVICE_CHANNELS == 8 && wfx.nChannels == 2) ||
-                (DEVICE_CHANNELS == 6 && wfx.nChannels == 2)) {
+            (DEVICE_CHANNELS == 2 && wfx.nChannels == 6) ||
+            (DEVICE_CHANNELS == 8 && wfx.nChannels == 2) ||
+            (DEVICE_CHANNELS == 6 && wfx.nChannels == 2)) {
             dsb.convert.call(ibuf, obuf, istride, ostride, count, freqAcc, adj);
             if (DEVICE_CHANNELS == 2 || wfx.nChannels == 2)
                 dsb.convert.call(ibuf + istep, new Ptr(obuf, ostep), istride, ostride, count, freqAcc, adj);
@@ -193,9 +196,9 @@ public class DSMixer extends IDirectSoundBuffer {
         /* FIXME: dwPan{Left|Right}AmpFactor */
 
         /* FIXME: use calculated vol and pan ampfactors */
-        temp = volpan.lVolume - (Math.max(volpan.lPan, 0));
+        temp = (double) (volpan.lVolume - (volpan.lPan > 0 ? volpan.lPan : 0));
         volpan.dwTotalLeftAmpFactor = (int) (Math.pow(2.0, temp / 600.0) * 0xffff);
-        temp = volpan.lVolume + (Math.min(volpan.lPan, 0));
+        temp = (double) (volpan.lVolume + (volpan.lPan < 0 ? volpan.lPan : 0));
         volpan.dwTotalRightAmpFactor = (int) (Math.pow(2.0, temp / 600.0) * 0xffff);
     }
 
@@ -208,8 +211,8 @@ public class DSMixer extends IDirectSoundBuffer {
         int len = dsb.tmp_buffer_len;
 
         if (((flags & DSBufferDesc.DSBCAPS_CTRLPAN)==0 || (dsb.volpan.lPan == 0)) &&
-                ((flags & DSBufferDesc.DSBCAPS_CTRLVOLUME)==0 || (dsb.volpan.lVolume == 0)) &&
-                (flags & DSBufferDesc.DSBCAPS_CTRL3D)==0)
+            ((flags & DSBufferDesc.DSBCAPS_CTRLVOLUME)==0 || (dsb.volpan.lVolume == 0)) &&
+             (flags & DSBufferDesc.DSBCAPS_CTRL3D)==0)
             return; /* Nothing to do */
 
         if (DEVICE_CHANNELS != 1 && DEVICE_CHANNELS != 2)
@@ -233,28 +236,28 @@ public class DSMixer extends IDirectSoundBuffer {
 
         byte[] buffer = dsb.tmp_buffer;
         switch (DEVICE_BITS_PER_SAMEPLE) {
-            case 8:
-                /* 8-bit WAV is unsigned, but we need to operate */
-                /* on signed data for this to work properly */
-                for (int i = 0; i < len-1; i+=2) {
-                    buffer[i] = (byte) ((((buffer[i] - 128) * vLeft) >> 16) + 128);
-                    buffer[i] = (byte) ((((buffer[i] - 128) * vRight) >> 16) + 128);
-                }
-                if (len % 2 == 1 && DEVICE_CHANNELS == 1)
-                    buffer[len-1] = (byte) ((((buffer[len-1] - 128) * vLeft) >> 16) + 128);
-                break;
-            case 16:
-                /* 16-bit WAV is signed -- much better */
-                ShortPtr p = new ShortPtr(buffer, 0);
-                for (int i = 0; i < len-3; i += 4) {
-                    p.set((p.get () * vLeft) >> 16);
-                    p.inc();
-                    p.set((p.get () * vRight) >> 16);
-                    p.inc();
-                }
-                if (len % 4 == 2 && DEVICE_CHANNELS == 1)
-                    p.set((p.get () * vLeft) >> 16);
-                break;
+        case 8:
+            /* 8-bit WAV is unsigned, but we need to operate */
+            /* on signed data for this to work properly */
+            for (int i = 0; i < len-1; i+=2) {
+                buffer[i] = (byte) ((((buffer[i] - 128) * vLeft) >> 16) + 128);
+                buffer[i] = (byte) ((((buffer[i] - 128) * vRight) >> 16) + 128);
+            }
+            if (len % 2 == 1 && DEVICE_CHANNELS == 1)
+                buffer[len-1] = (byte) ((((buffer[len-1] - 128) * vLeft) >> 16) + 128);
+            break;
+        case 16:
+            /* 16-bit WAV is signed -- much better */
+            ShortPtr p = new ShortPtr(buffer, 0);
+            for (int i = 0; i < len-3; i += 4) {
+                p.set((p.get () * vLeft) >> 16);
+                p.inc();
+                p.set((p.get () * vRight) >> 16);
+                p.inc();
+            }
+            if (len % 4 == 2 && DEVICE_CHANNELS == 1)
+                p.set((p.get () * vLeft) >> 16);
+            break;
         }
     }
 

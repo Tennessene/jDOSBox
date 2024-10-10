@@ -86,15 +86,15 @@ public class SBlaster extends Module_base {
             /*Bitu*/int total,left,min;
             /*Bit64u*/long start;
             static private class Buf {
-                /*Bit8u*/ final byte[] b8 = new byte[DMA_BUFSIZE];
-                /*Bit16s*/ final short[] b16 = new short[DMA_BUFSIZE];
+                /*Bit8u*/ byte[] b8 = new byte[DMA_BUFSIZE];
+                /*Bit16s*/ short[] b16 = new short[DMA_BUFSIZE];
             }
-            final Buf buf = new Buf();
+            Buf buf = new Buf();
             /*Bitu*/int bits;
             DMA.DmaChannel chan;
             /*Bitu*/int remain_size;
         }
-        final Dma dma = new Dma();
+        Dma dma = new Dma();
         boolean speaker;
         boolean midi;
         /*Bit8u*/short time_constant;
@@ -104,7 +104,7 @@ public class SBlaster extends Module_base {
             boolean pending_8bit;
             boolean pending_16bit;
         }
-        final Irq irq = new Irq();
+        Irq irq = new Irq();
         static private class Dsp {
             /*Bit8u*/short state;
             /*Bit8u*/short cmd;
@@ -113,52 +113,48 @@ public class SBlaster extends Module_base {
             /*Bit8u*/short[] cmd_in = new short[DSP_BUFSIZE];
             static private class Data {
                 /*Bit8u*/short lastval;
-                /*Bit8u*/final short[] data = new short[DSP_BUFSIZE];
+                /*Bit8u*/short[] data = new short[DSP_BUFSIZE];
                 /*Bitu*/int pos,used;
             }
-            final Data in = new Data();
-            final Data out = new Data();
+            Data in = new Data();
+            Data out = new Data();
             /*Bit8u*/short test_register;
             /*Bitu*/int write_busy;
         }
-        final Dsp dsp = new Dsp();
+        Dsp dsp = new Dsp();
         private static class Dac {
-            /*Bit16s*/final short[] data = new short[DSP_DACSIZE+1];
+            /*Bit16s*/short[] data = new short[DSP_DACSIZE+1];
             /*Bitu*/int used;
             /*Bit16s*/short last;
         }
-        final Dac dac = new Dac();
+        Dac dac = new Dac();
         private static class _Mixer {
             /*Bit8u*/short index;
-            /*Bit8u*/final short[] dac = new short[2];
-            final short[] fm = new short[2];
-            final short[] cda =new short[2];
-            final short[] master = new short[2];
-            final short[] lin = new short[2];
+            /*Bit8u*/short[] dac = new short[2],fm = new short[2],cda =new short[2],master = new short[2],lin = new short[2];
             /*Bit8u*/short mic;
             boolean stereo;
             boolean enabled;
             boolean filtered;
-            /*Bit8u*/final short[] unhandled = new short[0x48];
+            /*Bit8u*/short[] unhandled = new short[0x48];
         }
-        final _Mixer mixer = new _Mixer();
+        _Mixer mixer = new _Mixer();
         private static class Adpcm {
-            /*Bit8u*/final ShortRef reference = new ShortRef();
-            /*Bits*/final IntRef stepsize = new IntRef(0);
+            /*Bit8u*/ShortRef reference = new ShortRef();
+            /*Bits*/IntRef stepsize = new IntRef(0);
             boolean haveref;
         }
-        final Adpcm adpcm = new Adpcm();
+        Adpcm adpcm = new Adpcm();
         private static class Hw {
             /*Bitu*/int base;
             /*Bitu*/int irq;
             /*Bit8u*/short dma8,dma16;
         }
-        final Hw hw = new Hw();
+        Hw hw = new Hw();
         private static class E2 {
             /*Bits*/int value;
             /*Bitu*/int count;
         }
-        final E2 e2 = new E2();
+        E2 e2 = new E2();
         Mixer.MixerChannel chan;
     }
 
@@ -214,7 +210,7 @@ public class SBlaster extends Module_base {
       0,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0   // 0xf0
     };
 
-    private static final /*Bit8u*/short[] ASP_regs = new short[256];
+    private static /*Bit8u*/short[] ASP_regs = new short[256];
     private static boolean ASP_init_in_progress = false;
 
     private final static int[][] E2_incr_table = new int[][] {
@@ -267,10 +263,9 @@ public class SBlaster extends Module_base {
         sb.dsp.out.pos=0;
     }
 
-    private static final DMA.DMA_CallBack DSP_DMA_CallBack = new DMA.DMA_CallBack() {
+    private static DMA.DMA_CallBack DSP_DMA_CallBack = new DMA.DMA_CallBack() {
         public void call(DMA.DmaChannel chan, int event) {
-            if (event==DMA.DMAEvent.DMA_REACHED_TC) {
-            }
+            if (event==DMA.DMAEvent.DMA_REACHED_TC) return;
             else if (event==DMA.DMAEvent.DMA_MASKED) {
                 if (sb.mode==MODE_DMA) {
                     GenerateDMASound(sb.dma.min);
@@ -389,7 +384,7 @@ public class SBlaster extends Module_base {
     }
 
     private static void GenerateDMASound(/*Bitu*/int size) {
-        /*Bitu*/int read;/*Bitu*/int done=0;/*Bitu*/int i=0;
+        /*Bitu*/int read=0;/*Bitu*/int done=0;/*Bitu*/int i=0;
 
         if(sb.dma.autoinit) {
             if (sb.dma.left <= size) size = sb.dma.left;
@@ -408,7 +403,7 @@ public class SBlaster extends Module_base {
                 Mixer.MixTemp8[done++]=decode_ADPCM_2_sample((sb.dma.buf.b8[i] >> 6) & 0x3,sb.adpcm.reference,sb.adpcm.stepsize);
                 Mixer.MixTemp8[done++]=decode_ADPCM_2_sample((sb.dma.buf.b8[i] >> 4) & 0x3,sb.adpcm.reference,sb.adpcm.stepsize);
                 Mixer.MixTemp8[done++]=decode_ADPCM_2_sample((sb.dma.buf.b8[i] >> 2) & 0x3,sb.adpcm.reference,sb.adpcm.stepsize);
-                Mixer.MixTemp8[done++]=decode_ADPCM_2_sample((sb.dma.buf.b8[i]) & 0x3,sb.adpcm.reference,sb.adpcm.stepsize);
+                Mixer.MixTemp8[done++]=decode_ADPCM_2_sample((sb.dma.buf.b8[i] >> 0) & 0x3,sb.adpcm.reference,sb.adpcm.stepsize);
             }
             sb.chan.AddSamples_m8(done,Mixer.MixTemp8);
             break;
@@ -492,7 +487,7 @@ public class SBlaster extends Module_base {
             if (sb.dma.mode==DSP_DMA_16_ALIASED) read=read<<1;
             break;
         default:
-            System.out.println("Unhandled dma mode "+sb.dma.mode);
+            Log.log_msg("Unhandled dma mode "+sb.dma.mode);
             sb.mode=MODE_NONE;
             return;
         }
@@ -515,7 +510,7 @@ public class SBlaster extends Module_base {
         }
     }
 
-    private static final Pic.PIC_EventHandler DMA_Silent_Event = new Pic.PIC_EventHandler() {
+    private static Pic.PIC_EventHandler DMA_Silent_Event = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             if (sb.dma.left<val) val=sb.dma.left;
             /*Bitu*/int read=sb.dma.chan.Read(val,sb.dma.buf.b8, 0);
@@ -530,20 +525,23 @@ public class SBlaster extends Module_base {
                 }
             }
             if (sb.dma.left!=0) {
-                /*Bitu*/int bigger= Math.min(sb.dma.left, sb.dma.min);
+                /*Bitu*/int bigger=(sb.dma.left > sb.dma.min) ? sb.dma.min : sb.dma.left;
                 float delay=(bigger*1000.0f)/sb.dma.rate;
                 Pic.PIC_AddEvent(DMA_Silent_Event,delay,bigger);
             }
         }
     };
 
-    /*Bitu*/
-    private static final Pic.PIC_EventHandler END_DMA_Event = val -> GenerateDMASound(val);
+    private static Pic.PIC_EventHandler END_DMA_Event = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            GenerateDMASound(val);
+        }
+    };
 
     private static void CheckDMAEnd() {
         if (sb.dma.left==0) return;
         if (!sb.speaker && sb.type!=SBT_16) {
-            /*Bitu*/int bigger= Math.min(sb.dma.left, sb.dma.min);
+            /*Bitu*/int bigger=(sb.dma.left > sb.dma.min) ? sb.dma.min : sb.dma.left;
             float delay=(bigger*1000.0f)/sb.dma.rate;
             Pic.PIC_AddEvent(DMA_Silent_Event,delay,bigger);
             if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"Silent DMA Transfer scheduling IRQ in "+ StringHelper.format(delay, 3)+" milliseconds");
@@ -560,8 +558,11 @@ public class SBlaster extends Module_base {
         sb.mode=mode;
     }
 
-    /*Bitu*/
-    private static final Pic.PIC_EventHandler DSP_RaiseIRQEvent = val -> SB_RaiseIRQ(SB_IRQ_8);
+    private static Pic.PIC_EventHandler DSP_RaiseIRQEvent = new Pic.PIC_EventHandler() {
+        public void call(/*Bitu*/int val) {
+            SB_RaiseIRQ(SB_IRQ_8);
+        }
+    };
 
     static void DSP_DoDMATransfer(/*DMA_MODES*/int mode,/*Bitu*/int freq,boolean stereo) {
         String type;
@@ -658,7 +659,7 @@ public class SBlaster extends Module_base {
         }
     }
 
-    private static final Pic.PIC_EventHandler DSP_FinishReset = new Pic.PIC_EventHandler() {
+    private static Pic.PIC_EventHandler DSP_FinishReset = new Pic.PIC_EventHandler() {
         public void call(/*Bitu*/int val) {
             DSP_FlushData();
             DSP_AddData((short)0xaa);
@@ -711,7 +712,7 @@ public class SBlaster extends Module_base {
         }
     }
 
-    private static final DMA.DMA_CallBack DSP_E2_DMA_CallBack = new DMA.DMA_CallBack() {
+    private static DMA.DMA_CallBack DSP_E2_DMA_CallBack = new DMA.DMA_CallBack() {
         public void call(DMA.DmaChannel c, int event) {
             if (event==DMA.DMAEvent.DMA_UNMASKED) {
                 /*Bit8u*/byte[] val=new byte[] {(/*Bit8u*/byte)(sb.e2.value&0xff)};
@@ -722,7 +723,7 @@ public class SBlaster extends Module_base {
         }
     };
 
-    private static final DMA.DMA_CallBack DSP_ADC_CallBack = new DMA.DMA_CallBack() {
+    private static DMA.DMA_CallBack DSP_ADC_CallBack = new DMA.DMA_CallBack() {
         public void call(DMA.DmaChannel chan, int event) {
             if (event!=DMA.DMAEvent.DMA_UNMASKED) return;
             /*Bit8u*/byte[] val=new byte[] {(byte)128};
@@ -757,7 +758,8 @@ public class SBlaster extends Module_base {
         case 0x04:
             if (sb.type == SBT_16) {
                 /* SB16 ASP set mode register */
-                ASP_init_in_progress= (sb.dsp.in.data[0] & 0xf1) == 0xf1;
+                if ((sb.dsp.in.data[0]&0xf1)==0xf1) ASP_init_in_progress=true;
+                else ASP_init_in_progress=false;
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" (set mode register to "+Integer.toString(sb.dsp.in.data[0],16)+")");
             } else {
                 /* DSP Status SB 2.0/pro version. NOT SB16. */
@@ -773,11 +775,13 @@ public class SBlaster extends Module_base {
         case 0x08:	/* SB16 ASP get version */
             if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" sub "+Integer.toString(sb.dsp.in.data[0],16));
             if (sb.type == SBT_16) {
-                if (sb.dsp.in.data[0] == 0x03) {
-                    DSP_AddData(0x18);    // version ID (??)
-                } else {
-                    if (Log.level <= LogSeverities.LOG_NORMAL)
-                        Log.log(LogTypes.LOG_SB, LogSeverities.LOG_NORMAL, "DSP Unhandled SB16ASP command " + Integer.toString(sb.dsp.cmd, 16) + " sub " + Integer.toString(sb.dsp.in.data[0], 16));
+                switch (sb.dsp.in.data[0]) {
+                    case 0x03:
+                        DSP_AddData(0x18);	// version ID (??)
+                        break;
+                    default:
+                        if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" sub "+Integer.toString(sb.dsp.in.data[0], 16));
+                        break;
                 }
             } else {
                 if (Log.level<=LogSeverities.LOG_NORMAL) Log.log(LogTypes.LOG_SB,LogSeverities.LOG_NORMAL,"DSP Unhandled SB16ASP command "+Integer.toString(sb.dsp.cmd, 16)+" sub "+Integer.toString(sb.dsp.in.data[0],16));
@@ -957,8 +961,8 @@ public class SBlaster extends Module_base {
             {
                 DSP_FlushData();
                 byte[] b = copyright_string.getBytes();
-                for (byte value : b) {
-                    DSP_AddData(value);
+                for (int i=0;i<b.length;i++) {
+                    DSP_AddData(b[i]);
                 }
                 DSP_AddData(0);
             }
@@ -1050,16 +1054,18 @@ public class SBlaster extends Module_base {
     }
 
     private static void DSP_DoWrite(/*Bit8u*/short val) {
-        if (sb.dsp.cmd == DSP_NO_COMMAND) {
-            sb.dsp.cmd = val;
-            if (sb.type == SBT_16) sb.dsp.cmd_len = DSP_cmd_len_sb16[val];
-            else sb.dsp.cmd_len = DSP_cmd_len_sb[val];
-            sb.dsp.in.pos = 0;
-            if (sb.dsp.cmd_len == 0) DSP_DoCommand();
-        } else {
-            sb.dsp.in.data[sb.dsp.in.pos] = val;
+        switch (sb.dsp.cmd) {
+        case DSP_NO_COMMAND:
+            sb.dsp.cmd=val;
+            if (sb.type == SBT_16) sb.dsp.cmd_len=DSP_cmd_len_sb16[val];
+            else sb.dsp.cmd_len=DSP_cmd_len_sb[val];
+            sb.dsp.in.pos=0;
+            if (sb.dsp.cmd_len==0) DSP_DoCommand();
+            break;
+        default:
+            sb.dsp.in.data[sb.dsp.in.pos]=val;
             sb.dsp.in.pos++;
-            if (sb.dsp.in.pos >= sb.dsp.cmd_len) DSP_DoCommand();
+            if (sb.dsp.in.pos>=sb.dsp.cmd_len) DSP_DoCommand();
         }
     }
 
@@ -1075,7 +1081,7 @@ public class SBlaster extends Module_base {
     }
 
 //The soundblaster manual says 2.0 Db steps but we'll go for a bit less
-    static private float CALCVOL(float _VAL) { return (float)Math.pow(10.0f,((31-_VAL) *-1.3f)/20);}
+    static private float CALCVOL(float _VAL) { return (float)Math.pow(10.0f,((float)(31-_VAL)*-1.3f)/20);}
     private static void CTMIXER_UpdateVolumes() {
         if (!sb.mixer.enabled) return;
         Mixer.MixerChannel chan;
@@ -1373,7 +1379,7 @@ public class SBlaster extends Module_base {
         return ret;
     }
 
-    private static final IoHandler.IO_ReadHandler read_sb = new IoHandler.IO_ReadHandler() {
+    private static IoHandler.IO_ReadHandler read_sb = new IoHandler.IO_ReadHandler() {
         public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
             switch (port-sb.hw.base) {
             case MIXER_INDEX:
@@ -1414,7 +1420,7 @@ public class SBlaster extends Module_base {
         }
     };
 
-    private static final IoHandler.IO_WriteHandler write_sb = new IoHandler.IO_WriteHandler() {
+    private static IoHandler.IO_WriteHandler write_sb = new IoHandler.IO_WriteHandler() {
         public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
             /*Bit8u*/short val8=(/*Bit8u*/short)(val&0xff);
             switch (port-sb.hw.base) {
@@ -1437,8 +1443,11 @@ public class SBlaster extends Module_base {
         }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    private static final IoHandler.IO_WriteHandler adlib_gusforward = (port, val, iolen) -> Gus.adlib_commandreg=(/*Bit8u*/short)(val&0xff);
+    private static IoHandler.IO_WriteHandler adlib_gusforward = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            Gus.adlib_commandreg=(/*Bit8u*/short)(val&0xff);
+        }
+    };
 
     public static boolean SB_Get_Address(/*Bitu*/IntRef sbaddr, /*Bitu*/IntRef sbirq, /*Bitu*/IntRef sbdma) {
         sbaddr.value = 0;
@@ -1453,7 +1462,7 @@ public class SBlaster extends Module_base {
         }
     }
 
-    private static final Mixer.MIXER_Handler SBLASTER_CallBack = new Mixer.MIXER_Handler() {
+    private static Mixer.MIXER_Handler SBLASTER_CallBack = new Mixer.MIXER_Handler() {
         public void call(/*Bitu*/int len) {
             switch (sb.mode) {
             case MODE_NONE:
@@ -1483,10 +1492,10 @@ public class SBlaster extends Module_base {
     };
 
     /* Data */
-    private final IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[0x10];
-    private final IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[0x10];
-    private final AutoexecObject autoexecline = new AutoexecObject();
-    private final Mixer.MixerObject MixerChan = new Mixer.MixerObject();
+    private IoHandler.IO_ReadHandleObject[] ReadHandler = new IoHandler.IO_ReadHandleObject[0x10];
+    private IoHandler.IO_WriteHandleObject[] WriteHandler = new IoHandler.IO_WriteHandleObject[0x10];
+    private AutoexecObject autoexecline = new AutoexecObject();
+    private Mixer.MixerObject MixerChan = new Mixer.MixerObject();
     private /*OPL_Mode*/int oplmode;
 
     /* Support Functions */
@@ -1558,7 +1567,7 @@ public class SBlaster extends Module_base {
 
     private static SBlaster test;
 
-    public static final Section.SectionFunction SBLASTER_ShutDown = new Section.SectionFunction() {
+    public static Section.SectionFunction SBLASTER_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
             test.close();
             test = null;
@@ -1637,19 +1646,21 @@ public class SBlaster extends Module_base {
         // or disabled. Real SBPro2 has it disabled.
         sb.speaker=false;
         // On SB16 the speaker flag does not affect actual speaker state.
-        sb.chan.Enable(sb.type == SBT_16);
+        if (sb.type == SBT_16) sb.chan.Enable(true);
+        else sb.chan.Enable(false);
 
-        String line = StringHelper.sprintf("SET BLASTER=A%3x I%d D%d",new Object[]{sb.hw.base, sb.hw.irq, (int) sb.hw.dma8});
+        String line = StringHelper.sprintf("SET BLASTER=A%3x I%d D%d",new Object[]{new Integer(sb.hw.base),new Integer(sb.hw.irq), new Integer(sb.hw.dma8)});
         if (sb.type==SBT_16) line+= " H"+ sb.hw.dma16;
         line+=" T"+sb.type;
 
         autoexecline.Install(line);
 
         /* Soundblaster midi interface */
-        sb.midi = !Midi.MIDI_Available();
+        if (!Midi.MIDI_Available()) sb.midi = false;
+        else sb.midi = true;
     }
 
-    public static final Section.SectionFunction SBLASTER_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction SBLASTER_Init = new Section.SectionFunction() {
         public void call(Section section) {
             sb = new SB_INFO();
             test = new SBlaster(section);

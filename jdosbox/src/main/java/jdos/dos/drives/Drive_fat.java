@@ -19,8 +19,8 @@ public class Drive_fat extends Dos_Drive {
     static private final int FAT16 = 1;
     static private final int FAT32 = 2;
 
-    private final /*Bit8u*/ byte[] fatSectBuffer = new byte[1024];
-    private final Ptr pfatSectBuffer = new Ptr(fatSectBuffer, 0);
+    private /*Bit8u*/ byte[] fatSectBuffer = new byte[1024];
+    private Ptr pfatSectBuffer = new Ptr(fatSectBuffer, 0);
     /*Bit32u*/ long curFatSect;
 
     static public class fatFile extends DOS_File {
@@ -199,8 +199,7 @@ public class Drive_fat extends Dos_Drive {
 
             if ((/*Bit32u*/long) seekto > filelength) seekto = (/*Bit32s*/int) filelength;
             if (seekto < 0) seekto = 0;
-            /*Bit32u*/
-            seekpos = seekto;
+            seekpos = (/*Bit32u*/long) seekto;
             currentSector = myDrive.getAbsoluteSectFromBytePos(firstCluster, seekpos);
             if (currentSector == 0) {
                 /* not within file size, thus no sector is available */
@@ -225,18 +224,22 @@ public class Drive_fat extends Dos_Drive {
             return 0;
         }
 
+        public boolean UpdateDateTimeFromHost() {
+            return true;
+        }
+
         public /*Bit32u*/ long firstCluster;
         public /*Bit32u*/ long seekpos;
         public /*Bit32u*/ long filelength;
         public /*Bit32u*/ long currentSector;
         public /*Bit32u*/ int curSectOff;
-        public final /*Bit8u*/ byte[] sectorBuffer = new byte[512];
+        public /*Bit8u*/ byte[] sectorBuffer = new byte[512];
         /* Record of where in the directory structure this file is located */
         public /*Bit32u*/ long dirCluster;
         public /*Bit32u*/ long dirIndex;
 
         public boolean loadedSector;
-        public final Drive_fat myDrive;
+        public Drive_fat myDrive;
 
         private final static int NONE = 0;
         private final static int READ = 1;
@@ -276,9 +279,9 @@ public class Drive_fat extends Dos_Drive {
         /*Bit8u*/ short mediaid;
     }
 
-    private final Allocation allocation = new Allocation();
+    private Allocation allocation = new Allocation();
 
-    private final Bootstrap bootbuffer = new Bootstrap();
+    private Bootstrap bootbuffer = new Bootstrap();
     private /*Bit8u*/ short fattype;
     private /*Bit32u*/ long CountOfClusters;
     private /*Bit32u*/ long partSectOff;
@@ -403,10 +406,10 @@ public class Drive_fat extends Dos_Drive {
                 break;
         }
         for (int fc = 0; fc < bootbuffer.fatcopies; fc++) {
-            loadedDisk.Write_AbsoluteSector(fatsectnum + ((long) fc * bootbuffer.sectorsperfat), fatSectBuffer, 0);
+            loadedDisk.Write_AbsoluteSector(fatsectnum + (fc * bootbuffer.sectorsperfat), fatSectBuffer, 0);
             if (fattype == FAT12) {
                 if (fatentoff >= 511)
-                    loadedDisk.Write_AbsoluteSector(fatsectnum + 1 + ((long) fc * bootbuffer.sectorsperfat), fatSectBuffer, 512);
+                    loadedDisk.Write_AbsoluteSector(fatsectnum + 1 + (fc * bootbuffer.sectorsperfat), fatSectBuffer, 512);
             }
         }
     }
@@ -456,8 +459,7 @@ public class Drive_fat extends Dos_Drive {
         if (!FindNextInternal(currentClust, Bios_disk.imgDTA, foundEntry, findFile)) return false;
 
         useEntry.copy(foundEntry);
-        /*Bit32u*/
-        dirClust.value = currentClust;
+        dirClust.value = (/*Bit32u*/long) currentClust;
         subEntry.value = ((/*Bit32u*/long) Bios_disk.imgDTA.GetDirID() - 1);
         return true;
     }
@@ -527,7 +529,7 @@ public class Drive_fat extends Dos_Drive {
                     if (testvalue >= 0xfff8) isEOF = true;
                     break;
                 case FAT32:
-                    if (testvalue >= 0xfffffff8L) isEOF = true;
+                    if (testvalue >= 0xfffffff8l) isEOF = true;
                     break;
             }
             if ((isEOF) && (skipClust >= 1)) {
@@ -563,7 +565,7 @@ public class Drive_fat extends Dos_Drive {
                     if (testvalue >= 0xfff8) isEOF = true;
                     break;
                 case FAT32:
-                    if (testvalue >= 0xfffffff8L) isEOF = true;
+                    if (testvalue >= 0xfffffff8l) isEOF = true;
                     break;
             }
             if (isEOF) break;
@@ -588,7 +590,7 @@ public class Drive_fat extends Dos_Drive {
                     if (testvalue >= 0xfff8) isEOF = true;
                     break;
                 case FAT32:
-                    if (testvalue >= 0xfffffff8L) isEOF = true;
+                    if (testvalue >= 0xfffffff8l) isEOF = true;
                     break;
             }
             if (isEOF) break;
@@ -629,7 +631,7 @@ public class Drive_fat extends Dos_Drive {
                 setClusterValue(useCluster, 0xffff);
                 break;
             case FAT32:
-                setClusterValue(useCluster, 0xffffffffL);
+                setClusterValue(useCluster, 0xffffffffl);
                 break;
         }
         return true;
@@ -668,20 +670,20 @@ public class Drive_fat extends Dos_Drive {
             mbrData.load(d);
 
             if (mbrData.magic1 != 0x55 || mbrData.magic2 != (byte) 0xaa)
-                System.out.println("Possibly invalid partition table in disk image.");
+                Log.log_msg("Possibly invalid partition table in disk image.");
 
             startSector = 63;
             int m;
             for (m = 0; m < 4; m++) {
                 /* Pick the first available partition */
                 if (mbrData.pentry[m].partSize != 0x00) {
-                    System.out.println("Using partition " + m + " on drive; skipping " + mbrData.pentry[m].absSectStart + " sectors");
+                    Log.log_msg("Using partition " + m + " on drive; skipping " + mbrData.pentry[m].absSectStart + " sectors");
                     startSector = mbrData.pentry[m].absSectStart;
                     break;
                 }
             }
 
-            if (m == 4) System.out.println("No good partiton found in image.");
+            if (m == 4) Log.log_msg("No good partiton found in image.");
 
             partSectOff = startSector;
         } else {
@@ -689,11 +691,11 @@ public class Drive_fat extends Dos_Drive {
             partSectOff = 0;
         }
 
-        loadedDisk.Read_AbsoluteSector(partSectOff, d, 0);
+        loadedDisk.Read_AbsoluteSector(0 + partSectOff, d, 0);
         bootbuffer.load(d);
         if ((bootbuffer.magic1 != 0x55) || (bootbuffer.magic2 != (byte) 0xaa)) {
             /* Not a FAT filesystem */
-            System.out.println("Loaded image has no valid magicnumbers at the end!");
+            Log.log_msg("Loaded image has no valid magicnumbers at the end!");
         }
 
         if (bootbuffer.sectorsperfat == 0) {
@@ -708,36 +710,36 @@ public class Drive_fat extends Dos_Drive {
         /* Get size of root dir in sectors */
         /* TODO: Get 32-bit total sector count if needed */
         /*Bit32u*/
-        long RootDirSectors = ((bootbuffer.rootdirentries * 32L) + (bootbuffer.bytespersector - 1)) / bootbuffer.bytespersector;
+        long RootDirSectors = ((bootbuffer.rootdirentries * 32) + (bootbuffer.bytespersector - 1)) / bootbuffer.bytespersector;
         /*Bit32u*/
         long DataSectors;
         if (bootbuffer.totalsectorcount != 0) {
-            DataSectors = bootbuffer.totalsectorcount - (bootbuffer.reservedsectors + ((long) bootbuffer.fatcopies * bootbuffer.sectorsperfat) + RootDirSectors);
+            DataSectors = bootbuffer.totalsectorcount - (bootbuffer.reservedsectors + (bootbuffer.fatcopies * bootbuffer.sectorsperfat) + RootDirSectors);
         } else {
-            DataSectors = bootbuffer.totalsecdword - (bootbuffer.reservedsectors + ((long) bootbuffer.fatcopies * bootbuffer.sectorsperfat) + RootDirSectors);
+            DataSectors = bootbuffer.totalsecdword - (bootbuffer.reservedsectors + (bootbuffer.fatcopies * bootbuffer.sectorsperfat) + RootDirSectors);
 
         }
         CountOfClusters = DataSectors / bootbuffer.sectorspercluster;
 
-        firstDataSector = (bootbuffer.reservedsectors + ((long) bootbuffer.fatcopies * bootbuffer.sectorsperfat) + RootDirSectors) + partSectOff;
-        firstRootDirSect = bootbuffer.reservedsectors + ((long) bootbuffer.fatcopies * bootbuffer.sectorsperfat) + partSectOff;
+        firstDataSector = (bootbuffer.reservedsectors + (bootbuffer.fatcopies * bootbuffer.sectorsperfat) + RootDirSectors) + partSectOff;
+        firstRootDirSect = bootbuffer.reservedsectors + (bootbuffer.fatcopies * bootbuffer.sectorsperfat) + partSectOff;
 
         if (CountOfClusters < 4085) {
             /* Volume is FAT12 */
-            System.out.println("Mounted FAT volume is FAT12 with " + CountOfClusters + " clusters");
+            Log.log_msg("Mounted FAT volume is FAT12 with " + CountOfClusters + " clusters");
             fattype = FAT12;
         } else if (CountOfClusters < 65525) {
-            System.out.println("Mounted FAT volume is FAT16 with " + CountOfClusters + " clusters");
+            Log.log_msg("Mounted FAT volume is FAT16 with " + CountOfClusters + " clusters");
             fattype = FAT16;
         } else {
-            System.out.println("Mounted FAT volume is FAT32 with " + CountOfClusters + " clusters");
+            Log.log_msg("Mounted FAT volume is FAT32 with " + CountOfClusters + " clusters");
             fattype = FAT32;
         }
 
         /* There is no cluster 0, this means we are in the root directory */
         cwdDirCluster = 0;
 
-        curFatSect = 0xffffffffL;
+        curFatSect = 0xffffffffl;
     }
 
     public boolean AllocationInfo(/*Bit16u*/IntRef _bytes_sector,/*Bit8u*/ShortRef _sectors_cluster,/*Bit16u*/IntRef _total_clusters,/*Bit16u*/IntRef _free_clusters) {
@@ -842,7 +844,8 @@ public class Drive_fat extends Dos_Drive {
         DirEntry fileEntry = new DirEntry();
         /*Bit32u*/
         LongRef dummy1 = new LongRef(0), dummy2 = new LongRef(0);
-        return getFileDirEntry(name, fileEntry, dummy1, dummy2);
+        if (!getFileDirEntry(name, fileEntry, dummy1, dummy2)) return false;
+        return true;
     }
 
     public DOS_File FileOpen(String name,/*Bit32u*/int flags) {
@@ -887,7 +890,7 @@ public class Drive_fat extends Dos_Drive {
         StringRef pattern = new StringRef();
         dta.GetSearchParams(attr, pattern);
         if (attr.value == Dos_system.DOS_ATTR_VOLUME) {
-            if (GetLabel().isEmpty()) {
+            if (GetLabel().length() == 0) {
                 Dos.DOS_SetError(Dos.DOSERR_NO_MORE_FILES);
                 return false;
             }
@@ -929,14 +932,14 @@ public class Drive_fat extends Dos_Drive {
         for (int i = 0; i < sectbuf.length; i++) {
             sectbuf[i] = new DirEntry();
         }
-        String find_name;
-        StringBuilder longFileName = new StringBuilder();
+        String find_name = "";
+        String longFileName = "";
         boolean isLong = false;
 
         //nextfile:
         while (true) {
             if (!isLong) {
-                longFileName = new StringBuilder();
+                longFileName = "";
             }
             logentsector = dirPos / 16;
             entryoffset = dirPos % 16;
@@ -975,7 +978,7 @@ public class Drive_fat extends Dos_Drive {
             }
 
             if ((sectbuf[entryoffset].attrib & 0xFF) == 0xF) {
-                StringBuilder tmp = new StringBuilder();
+                StringBuffer tmp = new StringBuffer();
                 byte[] b = sectbuf[entryoffset].entryname;
                 boolean end = false;
 
@@ -1046,11 +1049,12 @@ public class Drive_fat extends Dos_Drive {
                 if (!end) {
                     char c = (char) (sectbuf[entryoffset].entrysize >>> 16);
                     if (c == 0) {
+                        end = true;
                     } else {
                         tmp.append(c);
                     }
                 }
-                longFileName.insert(0, tmp);
+                longFileName = tmp.toString() + longFileName;
                 isLong = true;
             } else {
                 isLong = false;
@@ -1062,7 +1066,7 @@ public class Drive_fat extends Dos_Drive {
             if ((~attrs.value & sectbuf[entryoffset].attrib & (Dos_system.DOS_ATTR_DIRECTORY | Dos_system.DOS_ATTR_HIDDEN | Dos_system.DOS_ATTR_SYSTEM)) != 0)
                 continue;
             if (!Drives.WildFileCmp(find_name, srch_pattern.value)) {
-                if (((longFileName.length() > 0) && longFileName.toString().equalsIgnoreCase(longName)))
+                if ((longFileName.length()!=0 && longName!=null && longFileName.equalsIgnoreCase(longName)))
                     break;
                 continue;
             }
@@ -1162,7 +1166,7 @@ public class Drive_fat extends Dos_Drive {
         return true;
     }
 
-    public void directoryChange(/*Bit32u*/long dirClustNumber, DirEntry useEntry, /*Bit32s*/int entNum) {
+    public boolean directoryChange(/*Bit32u*/long dirClustNumber, DirEntry useEntry, /*Bit32s*/int entNum) {
         DirEntry[] sectbuf = new DirEntry[16];    /* 16 directory entries per sector */
         /*Bit32u*/
         long logentsector;    /* Logical entry sector */
@@ -1182,13 +1186,13 @@ public class Drive_fat extends Dos_Drive {
             entryoffset = dirPos % 16;
 
             if (dirClustNumber == 0) {
-                if (dirPos >= bootbuffer.rootdirentries) return;
+                if (dirPos >= bootbuffer.rootdirentries) return false;
                 tmpsector = firstRootDirSect + logentsector;
                 loadedDisk.Read_AbsoluteSector(tmpsector, d, 0);
             } else {
                 tmpsector = getAbsoluteSectFromChain(dirClustNumber, logentsector);
                 /* A zero sector number can't happen */
-                if (tmpsector == 0) return;
+                if (tmpsector == 0) return false;
                 loadedDisk.Read_AbsoluteSector(tmpsector, d, 0);
             }
             for (int i = 0; i < sectbuf.length; i++)
@@ -1196,17 +1200,19 @@ public class Drive_fat extends Dos_Drive {
             dirPos++;
 
             /* End of directory list */
-            if (sectbuf[entryoffset].entryname[0] == 0x00) return;
+            if (sectbuf[entryoffset].entryname[0] == 0x00) return false;
             --entNum;
         }
         if (tmpsector != 0) {
             useEntry.save(d, entryoffset * DirEntry.size);
             loadedDisk.Write_AbsoluteSector(tmpsector, d, 0);
+            return true;
         } else {
+            return false;
         }
     }
 
-    private void addDirectoryEntry(/*Bit32u*/long dirClustNumber, DirEntry useEntry) {
+    private boolean addDirectoryEntry(/*Bit32u*/long dirClustNumber, DirEntry useEntry) {
         DirEntry[] sectbuf = new DirEntry[16]; /* 16 directory entries per sector */
         /*Bit32u*/
         long logentsector; /* Logical entry sector */
@@ -1226,7 +1232,7 @@ public class Drive_fat extends Dos_Drive {
             entryoffset = dirPos % 16;
 
             if (dirClustNumber == 0) {
-                if (dirPos >= bootbuffer.rootdirentries) return;
+                if (dirPos >= bootbuffer.rootdirentries) return false;
                 tmpsector = firstRootDirSect + logentsector;
                 loadedDisk.Read_AbsoluteSector(tmpsector, d, 0);
             } else {
@@ -1236,10 +1242,10 @@ public class Drive_fat extends Dos_Drive {
                     /*Bit32u*/
                     long newClust;
                     newClust = appendCluster(dirClustNumber);
-                    if (newClust == 0) return;
+                    if (newClust == 0) return false;
                     /* Try again to get tmpsector */
                     tmpsector = getAbsoluteSectFromChain(dirClustNumber, logentsector);
-                    if (tmpsector == 0) return; /* Give up if still can't get more room for directory */
+                    if (tmpsector == 0) return false; /* Give up if still can't get more room for directory */
                 }
                 loadedDisk.Read_AbsoluteSector(tmpsector, d, 0);
             }
@@ -1255,6 +1261,7 @@ public class Drive_fat extends Dos_Drive {
             }
         }
 
+        return true;
     }
 
     private void zeroOutCluster(/*Bit32u*/long clustNumber) {
@@ -1369,7 +1376,9 @@ public class Drive_fat extends Dos_Drive {
             fileidx++;
         }
 
-        return found;
+        if (!found) return false;
+
+        return true;
     }
 
     public boolean Rename(String oldname, String newname) {

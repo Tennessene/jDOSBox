@@ -12,10 +12,10 @@ public class Block {
     static public final int BIOS_ATA_TRANSLATION_LARGE = 3;
     static public final int BIOS_ATA_TRANSLATION_RECHS = 4;
 
-    static private final Vector<BlockDriver> bdrv_drivers = new Vector<>();
-    static private final Vector<BlockDriverState> bdrv_states = new Vector<>();
-    static private final String[] whitelist = new String[0];
-    static private final boolean use_bdrv_whitelist = false;
+    static private Vector<BlockDriver> bdrv_drivers = new Vector<BlockDriver>();
+    static private Vector<BlockDriverState> bdrv_states = new Vector<BlockDriverState>();
+    static private String[] whitelist = new String[0];
+    static private boolean use_bdrv_whitelist = false;
 
     static private final int NOT_DONE = 0x7fffffff; /* used while emulated sync operation in progress */
 
@@ -36,16 +36,16 @@ public class Block {
         
     static public final int BDRV_SECTOR_BITS = 9;
     static public final int BDRV_SECTOR_SIZE = (1 << BDRV_SECTOR_BITS);
-    static public final int BDRV_SECTOR_MASK = -BDRV_SECTOR_SIZE;
+    static public final int BDRV_SECTOR_MASK = ~(BDRV_SECTOR_SIZE - 1);
 
     public static final int BDRV_ACCT_READ = 0;
     public static final int BDRV_ACCT_WRITE = 1;
     public static final int BDRV_ACCT_FLUSH = 2;
     public static final int BDRV_MAX_IOTYPE = 3;
 
-    public enum BlockErrorAction {BLOCK_ERR_REPORT, BLOCK_ERR_IGNORE, BLOCK_ERR_STOP_ENOSPC,BLOCK_ERR_STOP_ANY}
+    public static enum BlockErrorAction {BLOCK_ERR_REPORT, BLOCK_ERR_IGNORE, BLOCK_ERR_STOP_ENOSPC,BLOCK_ERR_STOP_ANY}
 
-    public enum BlockQMPEventAction {BDRV_ACTION_REPORT, BDRV_ACTION_IGNORE, BDRV_ACTION_STOP}
+    public static enum BlockQMPEventAction {BDRV_ACTION_REPORT, BDRV_ACTION_IGNORE, BDRV_ACTION_STOP}
 
     static long get_clock() {
         return System.currentTimeMillis()*1000;
@@ -92,7 +92,7 @@ public class Block {
         public Object dev_opaque;
 
         public String filename;
-        public final String backing_file=""; /* if non zero, the image is a diff of this file image */
+        public String backing_file=""; /* if non zero, the image is a diff of this file image */
         public String backing_format; /* if non-zero and backing_file exists */
         public boolean is_temporary;
 
@@ -113,9 +113,9 @@ public class Block {
         public boolean  io_limits_enabled;
 
         /* I/O stats (display with "info blockstats"). */
-        public final long[] nr_bytes = new long[BDRV_MAX_IOTYPE];
-        public final long[] nr_ops = new long[BDRV_MAX_IOTYPE];
-        public final long[] total_time_ns = new long[BDRV_MAX_IOTYPE];
+        public long[] nr_bytes = new long[BDRV_MAX_IOTYPE];
+        public long[] nr_ops = new long[BDRV_MAX_IOTYPE];
+        public long[] total_time_ns = new long[BDRV_MAX_IOTYPE];
         public long wr_highest_sector;
 
         /* Whether the disk can expand beyond total_sectors */
@@ -149,7 +149,7 @@ public class Block {
     }
 
     /* Callbacks for block device models */
-    public interface BlockDevOps {
+    static public interface BlockDevOps {
         /*
          * Runs when virtual media changed (monitor commands eject, change)
          * Argument load is true on load and false on eject.
@@ -157,8 +157,8 @@ public class Block {
          * changes.  Sure would be useful if it did.
          * Device models with removable media must implement this callback.
          */
-        void change_media_cb(Object opaque, boolean load);
-        boolean has_change_media_cb();
+        public void change_media_cb(Object opaque, boolean load);
+        public boolean has_change_media_cb();
         /*
          * Runs when an eject request is issued from the monitor, the tray
          * is closed, and the medium is locked.
@@ -167,25 +167,25 @@ public class Block {
          * want to implement the callback and unlock the tray when "force" is
          * true, even if they do not support eject requests.
          */
-        void eject_request_cb(Object opaque, boolean force);
-        boolean has_eject_request_cb();
+        public void eject_request_cb(Object opaque, boolean force);
+        public boolean has_eject_request_cb();
         /*
          * Is the virtual tray open?
          * Device models implement this only when the device has a tray.
          */
-        boolean is_tray_open(Object opaque);
-        boolean has_is_tray_open();
+        public boolean is_tray_open(Object opaque);
+        public boolean has_is_tray_open();
         /*
          * Is the virtual medium locked into the device?
          * Device models implement this only when device has such a lock.
          */
-        boolean is_medium_locked(Object opaque);
-        boolean has_is_medium_locked();
+        public boolean is_medium_locked(Object opaque);
+        public boolean has_is_medium_locked();
         /*
          * Runs when the size changed (e.g. monitor command block_resize)
          */
-        void resize_cb(Object opaque);
-        boolean has_resize_cb();
+        public void resize_cb(Object opaque);
+        public boolean has_resize_cb();
     }
 
 //    /* throttling disk I/O limits */
@@ -258,13 +258,15 @@ public class Block {
 
     static private boolean is_windows_drive_prefix(String filename) {
         char c = filename.charAt(0);
-        return (!filename.isEmpty() && ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) && filename.charAt(1) == ':');
+        return (filename.length()>0 && ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) && filename.charAt(1) == ':');
     }
 
     static private boolean is_windows_drive(String filename) {
         if (is_windows_drive_prefix(filename) && filename.length()==2)
             return true;
-        return filename.startsWith("\\\\.\\") || filename.startsWith("//./");
+        if (filename.startsWith("\\\\.\\") || filename.startsWith("//./"))
+            return true;
+        return false;
     }
 
     /* check if the path starts with "<protocol>:" */
@@ -279,7 +281,9 @@ public class Block {
         if (pos2>=0 && pos2<pos1)
             return false;
         pos2 = path.indexOf("\\");
-        return pos2 < 0 || pos2 >= pos1;
+        if (pos2>=0 && pos2<pos1)
+            return false;
+        return true;
     }
 
     static private boolean path_is_absolute(String path) {
@@ -287,7 +291,7 @@ public class Block {
         if (is_windows_drive(path) || is_windows_drive_prefix(path)) {
             return true;
         }
-        return (!path.isEmpty() && path.charAt(0)=='/' || path.charAt(0)=='\\');
+        return (path.length()>0 && path.charAt(0)=='/' || path.charAt(0)=='\\');
     }
 
     /* if filename is absolute, just copy it to dest. Otherwise, build a
@@ -312,7 +316,7 @@ public class Block {
     }
 
     static private String bdrv_get_full_backing_filename(BlockDriverState bs) {
-        if (bs.backing_file.isEmpty() || path_has_protocol(bs.backing_file)) {
+        if (bs.backing_file.length()==0 || path_has_protocol(bs.backing_file)) {
             return bs.backing_file;
         } else {
             return path_combine(bs.filename, bs.backing_file);
@@ -343,7 +347,7 @@ public class Block {
         BlockDriverState bs = new BlockDriverState();
 
         bs.device_name = device_name;
-        if (device_name.isEmpty()) {
+        if (device_name.length()==0) {
             bdrv_states.add(bs);
         }
         bdrv_iostatus_disable(bs);
@@ -585,33 +589,26 @@ public class Block {
 
     /**
      * Set open flags for a given cache mode
-     * <p>
+     *
      * Return 0 on success, -1 if the cache mode was invalid.
      */
     static private int bdrv_parse_cache_flags(String mode, IntRef flags)
     {
         flags.value &= ~BDRV_O_CACHE_MASK;
 
-        switch (mode) {
-            case "off":
-            case "none":
-                flags.value |= BDRV_O_NOCACHE | BDRV_O_CACHE_WB;
-                break;
-            case "directsync":
-                flags.value |= BDRV_O_NOCACHE;
-                break;
-            case "writeback":
-                flags.value |= BDRV_O_CACHE_WB;
-                break;
-            case "unsafe":
-                flags.value |= BDRV_O_CACHE_WB;
-                flags.value |= BDRV_O_NO_FLUSH;
-                break;
-            case "writethrough":
-                /* this is the default */
-                break;
-            default:
-                return -1;
+        if (mode.equals("off") || mode.equals("none")) {
+            flags.value |= BDRV_O_NOCACHE | BDRV_O_CACHE_WB;
+        } else if (mode.equals("directsync")) {
+            flags.value |= BDRV_O_NOCACHE;
+        } else if (mode.equals("writeback")) {
+            flags.value |= BDRV_O_CACHE_WB;
+        } else if (mode.equals("unsafe")) {
+            flags.value |= BDRV_O_CACHE_WB;
+            flags.value |= BDRV_O_NO_FLUSH;
+        } else if (mode.equals("writethrough")) {
+            /* this is the default */
+        } else {
+            return -1;
         }
         return 0;
     }
@@ -814,7 +811,7 @@ public class Block {
         }
 
         /* If there is a backing file, use it */
-        if ((flags & BDRV_O_NO_BACKING) == 0 && !bs.backing_file.isEmpty()) {
+        if ((flags & BDRV_O_NO_BACKING) == 0 && bs.backing_file.length()>0) {
             String backing_filename;
             int back_flags;
             BlockDriver back_drv = null;
@@ -822,7 +819,7 @@ public class Block {
             bs.backing_hd = bdrv_new("");
             backing_filename = bdrv_get_full_backing_filename(bs);
 
-            if (!bs.backing_format.isEmpty()) {
+            if (bs.backing_format.length()>0) {
                 back_drv = bdrv_find_format(bs.backing_format);
             }
 
@@ -951,7 +948,7 @@ public class Block {
     /* make a BlockDriverState anonymous by removing from bdrv_state list.
        Also, NULL terminate the device_name to prevent double remove */
     static private void bdrv_make_anon(BlockDriverState bs) {
-        if (!bs.device_name.isEmpty()) {
+        if (bs.device_name.length()!=0) {
             bdrv_states.remove(bs);
         }
         bs.device_name="";
@@ -3336,7 +3333,7 @@ public class Block {
 //        qemu_bh_schedule(acb.bh);
 //    }
 
-    static public void bdrv_aio_flush(BlockDriverState bs, BlockDriverCompletionFunc cb, Object opaque) {
+    static public BlockDriverAIOCB bdrv_aio_flush(BlockDriverState bs, BlockDriverCompletionFunc cb, Object opaque) {
 //        trace_bdrv_aio_flush(bs, opaque);
 //
 //        Coroutine *co;
@@ -3348,6 +3345,7 @@ public class Block {
 //
 //        return &acb.common;
         cb.call(opaque, 0);
+        return null;
     }
 
 //    static void coroutine_fn bdrv_aio_discard_co_entry(void *opaque)
@@ -3647,7 +3645,7 @@ public class Block {
 //        return rwco.ret;
 //    }
 
-    /************************************************************/
+    /**************************************************************/
     /* removable device support */
 
     /**
@@ -3689,7 +3687,7 @@ public class Block {
             drv.bdrv_eject(bs, eject_flag);
         }
 
-        if (!bs.device_name.isEmpty()) {
+        if (bs.device_name.length()>0) {
             bdrv_emit_qmp_eject_event(bs, eject_flag);
         }
     }

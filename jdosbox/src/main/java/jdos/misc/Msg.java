@@ -9,15 +9,15 @@ import java.util.Vector;
 
 public class Msg {
     static class MessageBlock {
-        final String name;
-        final String val;
+        String name;
+        String val;
         public MessageBlock(String _name, String _val) {
             name = _name;
             val = _val;
         }
     }
 
-    static final Vector Lang = new Vector();
+    static Vector Lang = new Vector();
 
     static public void add(String name, String value) {
         for (int i=0;i<Lang.size();i++) {
@@ -38,7 +38,7 @@ public class Msg {
     }
 
     static public void LoadMessageFile(String fname) {
-        if (fname == null || fname.isEmpty()) return; //empty string=no languagefile
+        if (fname == null || fname.length()==0) return; //empty string=no languagefile
         FileReader fr=null;
         try {
             fr = new FileReader(fname);
@@ -67,12 +67,10 @@ public class Msg {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+
         }
         if (fr != null) {
-            try {fr.close();} catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            try {fr.close();} catch (Exception e){}
         }
     }
 
@@ -98,9 +96,7 @@ public class Msg {
             e.printStackTrace();
         } finally {
             if (fos != null) {
-                try {fos.close();} catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                try {fos.close();} catch (Exception e){};
             }
         }
     }

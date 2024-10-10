@@ -1,5 +1,6 @@
 package jdos.debug;
 
+import jdos.cpu.CPU;
 import jdos.cpu.CPU_Regs;
 import jdos.misc.setup.Section;
 
@@ -59,15 +60,13 @@ public class Debug {
     public static final int DONE = 47;
     public static final int INSTRUCTION_DONE = 48;
 
-    static final long[] last = new long[50];
+    static long[] last = new long[50];
 
-    static DataOutputStream log;
-    static public final boolean logging = true;
+    static DataOutputStream log = null;
+    static public boolean logging = true;
 
     static {
-        try {log = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("debug.log")));} catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        try {log = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("debug.log")));} catch (Exception e){}
     }
 
     static public final int TYPE_CPU = 0x01;
@@ -125,9 +124,7 @@ public class Debug {
     }
     static public void close() {
         if (log != null) {
-            try {log.close();} catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            try {log.close();} catch (Exception e) {}
         }
     }
     static public void log(int type, String value) {
@@ -138,7 +135,7 @@ public class Debug {
                 log.writeInt(b.length);
                 log.write(b);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
             }
         }
     }
@@ -152,7 +149,7 @@ public class Debug {
                     last[type]=value;
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
             }
         }
     }
@@ -166,7 +163,7 @@ public class Debug {
                     last[type]=value;
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
             }
         }
     }
@@ -178,7 +175,7 @@ public class Debug {
                 log.writeInt((int)value);
                 log.writeInt((int)value1);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
             }
         }
     }
@@ -198,7 +195,9 @@ public class Debug {
         return false;
     }
 
-    public static final Section.SectionFunction DEBUG_Init = section -> {
+    public static Section.SectionFunction DEBUG_Init = new Section.SectionFunction() {
+        public void call(Section section) {
+        }
     };
 
     public static boolean DEBUG_ExitLoop() {

@@ -6,13 +6,13 @@ public class Cache {
 		public CacheBlockDynRec active;		// the current cache block
 		public CacheBlockDynRec free;		// pointer to the free list
 	}
-    public final Block block = new Block();
+    public Block block = new Block();
 	/*Bit8u*/int pos;		// position in the cache block
 	CodePageHandlerDynRec free_pages;		// pointer to the free list
 	CodePageHandlerDynRec used_pages;		// pointer to the list of used pages
 	CodePageHandlerDynRec last_page;		// the last used page
 
-    public static final Cache cache = new Cache();
+    public static Cache cache = new Cache();
 
     public static boolean cache_initialized = false;
     

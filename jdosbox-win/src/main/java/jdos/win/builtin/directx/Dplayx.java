@@ -18,7 +18,7 @@ public class Dplayx extends BuiltinModule {
     }
 
     // HRESULT WINAPI DirectPlayCreate( LPGUID lpGUID, LPDIRECTPLAY *lplpDP, IUnknown *pUnkOuter )
-    private final Callback.Handler DirectPlayCreate = new HandlerBase() {
+    private Callback.Handler DirectPlayCreate = new HandlerBase() {
         public String getName() {
             return "Dplayx.DirectPlayCreate";
         }
@@ -31,7 +31,7 @@ public class Dplayx extends BuiltinModule {
     };
 
     // HRESULT WINAPI DirectPlayEnumerateA(LPDPENUMDPCALLBACKA lpEnumCallback, LPVOID lpContext);
-    private final Callback.Handler DirectPlayEnumerateA = new HandlerBase() {
+    private Callback.Handler DirectPlayEnumerateA = new HandlerBase() {
         public String getName() {
             return "Dplayx.DirectPlayEnumerateA";
         }
@@ -43,7 +43,7 @@ public class Dplayx extends BuiltinModule {
     };
 
     // HRESULT WINAPI DirectPlayEnumerateW(LPDPENUMDPCALLBACKW lpEnumCallback, LPVOID lpContext);
-    private final Callback.Handler DirectPlayEnumerateW = new HandlerBase() {
+    private Callback.Handler DirectPlayEnumerateW = new HandlerBase() {
         public String getName() {
             return "Dplayx.DirectPlayEnumerateW";
         }
@@ -55,7 +55,7 @@ public class Dplayx extends BuiltinModule {
     };
 
     // HRESULT WINAPI DirectPlayLobbyCreateA(LPGUID lpGUIDDSP, LPDIRECTPLAYLOBBYA *lplpDPL, IUnknown *lpUnk, LPVOID lpData, DWORD dwDataSize)
-    private final Callback.Handler DirectPlayLobbyCreateA = new HandlerBase() {
+    private Callback.Handler DirectPlayLobbyCreateA = new HandlerBase() {
         public String getName() {
             return "Dplayx.DirectPlayLobbyCreateA";
         }
@@ -72,7 +72,7 @@ public class Dplayx extends BuiltinModule {
     };
 
     // HRESULT WINAPI DirectPlayLobbyCreateW( LPGUID lpGUIDDSP, LPDIRECTPLAYLOBBY *lplpDPL, IUnknown *lpUnk, LPVOID lpData, DWORD dwDataSize)
-    private final Callback.Handler DirectPlayLobbyCreateW = new HandlerBase() {
+    private Callback.Handler DirectPlayLobbyCreateW = new HandlerBase() {
         public String getName() {
             return "Dplayx.DirectPlayLobbyCreateW";
         }

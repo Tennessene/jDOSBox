@@ -6,15 +6,19 @@ import java.util.Hashtable;
 public class Heap {
     static private final int SMALLEST_SIZE_FOR_SPLIT = 4;
 
-    private final long start;
-    private final long end;
-    private final ArrayList itemsBySize = new ArrayList();
-    private final ArrayList itemsByAddress = new ArrayList();
-    private final Hashtable usedMemory = new Hashtable();
+    private long start;
+    private long end;
+    private ArrayList itemsBySize = new ArrayList();
+    private ArrayList itemsByAddress = new ArrayList();
+    private Hashtable usedMemory = new Hashtable();
 
     private static class HeapItem implements Comparable {
         public int compareTo(Object o) {
-            return Long.compare(((HeapItem) o).size, size);
+            if (((HeapItem)o).size == size)
+                return 0;
+            if (((HeapItem)o).size < size)
+                return -1;
+            return 1;
         }
 
         public HeapItem(long address, long size) {
@@ -28,7 +32,7 @@ public class Heap {
     public Heap(long start, long end) {
         this.start = start;
         this.end = end;
-        insertItem(new HeapItem(start & 0xFFFFFFFFL, end-start));
+        insertItem(new HeapItem(start & 0xFFFFFFFFl, end-start));
     }
 
     private int findIndexBySize(long key) {
@@ -77,13 +81,13 @@ public class Heap {
     }
 
     private HeapItem getLastItem() {
-        if (itemsByAddress.isEmpty())
+        if (itemsByAddress.size()==0)
             return null;
         return (HeapItem)itemsByAddress.get(itemsByAddress.size()-1);
     }
 
     private HeapItem getLargestItem() {
-        if (itemsBySize.isEmpty())
+        if (itemsBySize.size() == 0)
             return null;
         return (HeapItem)itemsBySize.get(itemsBySize.size()-1);
     }
@@ -130,7 +134,7 @@ public class Heap {
     }
 
     public long alloc(long address, long size) {
-        address&= 0xFFFFFFFFL;
+        address&=0xFFFFFFFFl;
         int index = findIndexByAddress(address);
         if (index<0) {
             HeapItem last = getLastItem();
@@ -140,7 +144,7 @@ public class Heap {
             last.size = address - last.address;
             if (last.size != 0)
                 insertItem(last);
-            usedMemory.put(address, new HeapItem(address, size));
+            usedMemory.put(new Long(address), new HeapItem(address, size));
             if (address+size<end)
                 insertItem(new HeapItem(address+size, end-(address+size)));
         } else {
@@ -157,7 +161,7 @@ public class Heap {
             free.size-=newAddress-free.address;
             long oldAddress = free.address;
             free.address = newAddress;
-            usedMemory.put(address, new HeapItem(address, size));
+            usedMemory.put(new Long(address), new HeapItem(address, size));
             if (oldAddress<address && oldAddress>=start) {
                 insertItem(new HeapItem(oldAddress, address-oldAddress));
             }
@@ -208,15 +212,15 @@ public class Heap {
             insertItem(newItem);
             item.size-=newSize;
         }
-        usedMemory.put(item.address, item);
+        usedMemory.put(new Long(item.address), item);
         return item.address;
     }
 
     public void free(int p1) {
-        long p = p1 & 0xFFFFFFFFL;
+        long p = p1 & 0xFFFFFFFFl;
         if (p == 0)
             return;
-        HeapItem item = (HeapItem)usedMemory.remove(p);
+        HeapItem item = (HeapItem)usedMemory.remove(new Long(p));
         if (item == null) {
             System.out.println("Heap is corrupt, tried to free 0x"+Long.toString(p, 16));
             System.exit(0);

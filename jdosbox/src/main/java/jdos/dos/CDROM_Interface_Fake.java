@@ -10,7 +10,7 @@ public class CDROM_Interface_Fake implements Dos_cdrom.CDROM_Interface {
     }
 
     public boolean SetDevice(String path, int forceCD) {
-        return false;
+        return true;
     }
 
     public boolean GetUPC(ShortRef attr, StringRef upc) {

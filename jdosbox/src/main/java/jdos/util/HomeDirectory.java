@@ -26,7 +26,7 @@ public class HomeDirectory {
         if (result.endsWith("\\") || result.endsWith("/")) {
             result = result.substring(0, result.length()-1);
         }
-        if (result.isEmpty())
+        if (result.length()==0)
             result=".";
         return result;
     }

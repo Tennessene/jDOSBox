@@ -28,24 +28,24 @@ public class DDSurfaceDesc {
     static public final int DDSD_DEPTH =            0x00800000;
     static public final int DDSD_ALL =              0x00fff9ee;
 
-    public final int dwSize;		        /* 0: size of the DDSURFACEDESC structure*/
-	public final int dwFlags;	            /* 4: determines what fields are valid*/
-	public final int dwHeight;	        /* 8: height of surface to be created*/
-	public final int dwWidth;	            /* C: width of input surface*/
+    public int dwSize;		        /* 0: size of the DDSURFACEDESC structure*/
+	public int dwFlags;	            /* 4: determines what fields are valid*/
+	public int dwHeight;	        /* 8: height of surface to be created*/
+	public int dwWidth;	            /* C: width of input surface*/
 	// union
-    public final int lPitch;	            /* 10: distance to start of next line (return value only) or dwLinearSize*/
-	public final int dwBackBufferCount;   /* 14: number of back buffers requested*/
+    public int lPitch;	            /* 10: distance to start of next line (return value only) or dwLinearSize*/
+	public int dwBackBufferCount;   /* 14: number of back buffers requested*/
 	// union
-    public final int dwMipMapCount;      /* 18:number of mip-map levels requested or dwZBufferBitDepth or dwRefreshRate*/
-	public final int dwAlphaBitDepth;     /* 1C:depth of alpha buffer requested*/
-	public final int dwReserved;	        /* 20:reserved*/
-	public final int lpSurface;	        /* 24:pointer to the associated surface memory*/
-	public final DDColorKey ddckCKDestOverlay;    /* 28: CK for dest overlay use*/
-	public final DDColorKey ddckCKDestBlt;	    /* 30: CK for destination blt use*/
-	public final DDColorKey ddckCKSrcOverlay;     /* 38: CK for source overlay use*/
-	public final DDColorKey ddckCKSrcBlt;	        /* 40: CK for source blt use*/
-	public final DDPixelFormat ddpfPixelFormat;   /* 48: pixel format description of the surface*/
-	public final int ddsCaps;	                /* 68: direct draw surface caps */
+    public int dwMipMapCount;      /* 18:number of mip-map levels requested or dwZBufferBitDepth or dwRefreshRate*/
+	public int dwAlphaBitDepth;     /* 1C:depth of alpha buffer requested*/
+	public int dwReserved;	        /* 20:reserved*/
+	public int lpSurface;	        /* 24:pointer to the associated surface memory*/
+	public DDColorKey ddckCKDestOverlay;    /* 28: CK for dest overlay use*/
+	public DDColorKey ddckCKDestBlt;	    /* 30: CK for destination blt use*/
+	public DDColorKey ddckCKSrcOverlay;     /* 38: CK for source overlay use*/
+	public DDColorKey ddckCKSrcBlt;	        /* 40: CK for source blt use*/
+	public DDPixelFormat ddpfPixelFormat;   /* 48: pixel format description of the surface*/
+	public int ddsCaps;	                /* 68: direct draw surface caps */
 
     // DDSurfaceDesc2
         // DDSCAPS2

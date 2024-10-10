@@ -27,7 +27,7 @@ public class Shell {
  * remove things from the environment */
     public static Program first_shell; 
 
-    static private final Callback.Handler shellstop_handler = new Callback.Handler() {
+    static private Callback.Handler shellstop_handler = new Callback.Handler() {
         public String getName() {
             return "Shell.shellstop_handler";
         }
@@ -36,11 +36,15 @@ public class Shell {
         }
     };
 
-    static private final Program.PROGRAMS_Main SHELL_ProgramStart = () -> new Dos_shell();
+    static private Program.PROGRAMS_Main SHELL_ProgramStart = new Program.PROGRAMS_Main() {
+        public Program call() {
+            return new Dos_shell();
+        }
+    };
 
     private static class AUTOEXEC extends Module_base {
-        private final AutoexecObject[] autoexec = new AutoexecObject[17];
-        private final AutoexecObject autoexec_echo = new AutoexecObject();
+        private AutoexecObject[] autoexec = new AutoexecObject[17];
+        private AutoexecObject autoexec_echo = new AutoexecObject();
         public AUTOEXEC(Section configuration) {
             super(configuration);
             for (int i=0;i<autoexec.length;i++) {
@@ -72,7 +76,7 @@ public class Shell {
             String line;
             while ((line=Dosbox.control.cmdline.FindString("-c",true))!=null && (i <= 11)) {
                 //replace single with double quotes so that mount commands can contain spaces
-                StringHelper.replace(line, "'", "\"");
+                StringHelper.replace(line, "\'", "\"");
                 autoexec[i++].Install(line);
             }
 
@@ -122,16 +126,16 @@ public class Shell {
                             String name = buffer.substring(name_pos+1);
                             String orig = name;
                             name = name.toUpperCase();
-                            if(name.contains(".BAT")) {
+                            if(name.indexOf(".BAT")>=0) {
                                 if(secure) autoexec[14].Install("z:\\config.com -securemode");
                                 /* BATch files are called else exit will not work */
                                 autoexec[15].Install("CALL " + name);
                                 if(addexit) autoexec[16].Install("exit");
-                            } else if(name.contains(".IMG") || name.contains(".IMA")) {
+                            } else if(name.indexOf(".IMG")>=0 || name.indexOf(".IMA")>=0) {
                                 //No secure mode here as boot is destructive and enabling securemode disables boot
                                 /* Boot image files */
                                 autoexec[15].Install("BOOT " + orig);
-                            } else if(name.indexOf(".ISO") != 0 || name.contains(".CUE")) {
+                            } else if(name.indexOf(".ISO") != 0 || name.indexOf(".CUE")>=0) {
                                 /* imgmount CD image files */
                                 /* securemode gets a different number from the previous branches! */
                                 autoexec[14].Install("IMGMOUNT D \"" + orig + "\" -t iso");
@@ -156,14 +160,14 @@ public class Shell {
 
     static AUTOEXEC test;
 
-    public static final Section.SectionFunction AUTOEXEC_Destroy = new Section.SectionFunction() {
+    public static Section.SectionFunction AUTOEXEC_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             test = null;
             AutoexecObject.Shutdown();
         }
     };
 
-    public static final Section.SectionFunction AUTOEXEC_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction AUTOEXEC_Init = new Section.SectionFunction() {
         public void call(Section section) {
             test = new AUTOEXEC(section);
             section.AddDestroyFunction(AUTOEXEC_Destroy,false);
@@ -175,7 +179,7 @@ public class Shell {
     static private final String full_name="Z:\\COMMAND.COM";
     static private final String init_line="/INIT AUTOEXEC.BAT";
 
-    public static final Config.StartFunction SHELL_Init = new Config.StartFunction() {
+    public static Config.StartFunction SHELL_Init = new Config.StartFunction() {
         public void call() {
             Msg.add("SHELL_ILLEGAL_PATH","Illegal Path.\n");
             Msg.add("SHELL_CMD_HELP","If you want a list of all supported commands type \033[33;1mhelp /all\033[0m .\nA short list of the most often used commands:\n");
@@ -339,30 +343,25 @@ public class Shell {
             Memory.real_writed(0,0x23*4,(psp_seg<<16));
 
             /* Setup MCBs */
-            /*Bit16u*/
-            Dos_MCB pspmcb=new Dos_MCB(psp_seg-1);
+            Dos_MCB pspmcb=new Dos_MCB((/*Bit16u*/int)(psp_seg-1));
             pspmcb.SetPSPSeg(psp_seg);	// MCB of the command shell psp
             pspmcb.SetSize(0x10+2);
             pspmcb.SetType((short)0x4d);
-            /*Bit16u*/
-            Dos_MCB envmcb=new Dos_MCB(env_seg-1);
+            Dos_MCB envmcb=new Dos_MCB((/*Bit16u*/int)(env_seg-1));
             envmcb.SetPSPSeg(psp_seg);	// MCB of the command shell environment
             envmcb.SetSize(Dos.DOS_MEM_START-env_seg);
             envmcb.SetType((short)0x4d);
 
             /* Setup environment */
             /*PhysPt*/int env_write=Memory.PhysMake(env_seg,0);
-            /*Bitu*/
-            Memory.MEM_BlockWrite(env_write,path_string, path_string.length()+1);
+            Memory.MEM_BlockWrite(env_write,path_string,(/*Bitu*/int)(path_string.length()+1));
             env_write += path_string.length()+1;
-            /*Bitu*/
-            Memory.MEM_BlockWrite(env_write,comspec_string, comspec_string.length()+1);
+            Memory.MEM_BlockWrite(env_write,comspec_string,(/*Bitu*/int)(comspec_string.length()+1));
             env_write += comspec_string.length()+1;
             Memory.mem_writeb(env_write++,0);
             Memory.mem_writew(env_write,1);
             env_write+=2;
-            /*Bitu*/
-            Memory.MEM_BlockWrite(env_write,full_name, full_name.length()+1);
+            Memory.MEM_BlockWrite(env_write,full_name,(/*Bitu*/int)(full_name.length()+1));
 
             Dos_PSP psp=new Dos_PSP(psp_seg);
             psp.MakeNew(0);
@@ -391,7 +390,7 @@ public class Shell {
             Memory.MEM_BlockWrite(Memory.PhysMake(psp_seg,128),tail,128);
 
             /* Setup internal DOS Variables */
-            Dos.dos.dta(Memory.RealMake(psp_seg,0x80));
+            Dos.dos.dta((int)Memory.RealMake(psp_seg,0x80));
             Dos.dos.psp(psp_seg);
 
 

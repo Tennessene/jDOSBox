@@ -121,7 +121,7 @@ public class BootP extends EtherUtil {
                 i+=tagLen+1;
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+
         }
         if (msg == DHCPREQUEST) {
             System.out.print(" Request");
@@ -229,8 +229,8 @@ public class BootP extends EtherUtil {
     int yiaddr; // your
     int siaddr; // server
     int giaddr; // gateway
-    final byte[] hwaddr = new byte[16];
-    final byte[] sname = new byte[64];
-    final byte[] file = new byte[128];
+    byte[] hwaddr = new byte[16];
+    byte[] sname = new byte[64];
+    byte[] file = new byte[128];
     byte[] vend = new byte[312];
 }

@@ -1,6 +1,7 @@
 package jdos.win.builtin.user32;
 
 import jdos.hardware.Memory;
+import jdos.win.Console;
 import jdos.win.Win;
 import jdos.win.builtin.WinAPI;
 import jdos.win.builtin.gdi32.WinBitmap;
@@ -58,7 +59,7 @@ public class Resource extends WinAPI {
                 }
             }
         } else {
-            System.out.println("LoadImage type=" + uType + " faked");
+            Console.out("LoadImage type=" + uType + " faked");
         }
         return 0;
     }

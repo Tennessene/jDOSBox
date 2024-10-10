@@ -91,7 +91,7 @@ public class Int10_memory {
         Int10.int10.rom.used=3;
         if (Dosbox.IS_EGAVGA_ARCH()) {
             // set up the start of the ROM
-            Memory.phys_writew(rom_base,0xaa55);
+            Memory.phys_writew(rom_base+0,0xaa55);
             Memory.phys_writeb(rom_base+2,(short)0x40);		// Size of ROM: 64 512-blocks = 32KB
             if (Dosbox.IS_VGA_ARCH()) {
                 Memory.phys_writeb(rom_base+0x1e,(short)0x49);	// IBM string
@@ -122,7 +122,7 @@ public class Int10_memory {
             Memory.phys_writeb(rom_base+Int10.int10.rom.used++,static_functionality[i]);
         }
         for (i=0;i<128*8;i++) {
-            Memory.phys_writeb(Memory.PhysMake(0xf000,0xfa6e)+i,int10_font_08[i]);
+            Memory.phys_writeb((int)(Memory.PhysMake(0xf000,0xfa6e)+i),int10_font_08[i]);
         }
         Memory.RealSetVec(0x1F,Int10.int10.rom.font_8_second);
         Int10.int10.rom.font_14_alternate=Memory.RealMake(0xC000,Int10.int10.rom.used);

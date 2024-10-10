@@ -43,7 +43,7 @@ public class DSCaps {
         dwUnlockTransferRateHwBuffers = Memory.mem_readd(address);address+=4;
         dwPlayCpuOverheadSwBuffers = Memory.mem_readd(address);address+=4;
         dwReserved1 = Memory.mem_readd(address);address+=4;
-        dwReserved2 = Memory.mem_readd(address);
+        dwReserved2 = Memory.mem_readd(address);address+=4;
     }
     
     public void write(int address) {
@@ -70,7 +70,7 @@ public class DSCaps {
          Memory.mem_writed(address, dwUnlockTransferRateHwBuffers);address+=4;
          Memory.mem_writed(address, dwPlayCpuOverheadSwBuffers);address+=4;
          Memory.mem_writed(address, dwReserved1);address+=4;
-         Memory.mem_writed(address, dwReserved2);
+         Memory.mem_writed(address, dwReserved2);address+=4;
     }
     public int dwSize;
     public int dwFlags;

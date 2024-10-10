@@ -21,8 +21,6 @@ import jdos.types.MachineType;
 import jdos.util.IntRef;
 import jdos.util.LongRef;
 
-import java.util.Arrays;
-
 public class EMS extends Module_base {
     static final private int EMM_PAGEFRAME = 0xE000;
     static final private int EMM_PAGEFRAME4K = ((EMM_PAGEFRAME*16)/4096);
@@ -82,7 +80,7 @@ public class EMS extends Module_base {
             data[2]=(byte)(val & 0xFF);
 	        data[3]=(byte)((val >> 8) & 0xFF);
         }
-        final byte[] data = new byte[4];
+        byte[] data = new byte[4];
     }
 
     static private class EMM_Handle {
@@ -94,7 +92,7 @@ public class EMS extends Module_base {
         /*MemHandle*/int mem;
         String name="";
         boolean saved_page_map;
-        final EMM_Mapping[] page_map=new EMM_Mapping[EMM_MAX_PHYS];
+        EMM_Mapping[] page_map=new EMM_Mapping[EMM_MAX_PHYS];
     }
 
     private static int ems_type;
@@ -132,7 +130,7 @@ public class EMS extends Module_base {
             switch (subfct) {
                 case 0x00:
                     if (size!=6) return false;
-                    Memory.mem_writew(bufptr,0x0023);		// ID
+                    Memory.mem_writew(bufptr+0x00,0x0023);		// ID
                     Memory.mem_writed(bufptr+0x02,0);			// private API entry point
                     retcode.value=6;
                     return true;
@@ -142,7 +140,7 @@ public class EMS extends Module_base {
                     if (GEMMIS_seg==0) GEMMIS_seg= Dos_tables.DOS_GetMemory(0x20);
                     /*PhysPt*/int GEMMIS_addr=Memory.PhysMake(GEMMIS_seg,0);
 
-                    Memory.mem_writew(GEMMIS_addr,0x0004);			// flags
+                    Memory.mem_writew(GEMMIS_addr+0x00,0x0004);			// flags
                     Memory.mem_writew(GEMMIS_addr+0x02,0x019d);			// size of this structure
                     Memory.mem_writew(GEMMIS_addr+0x04,GEMMIS_VERSION);	// version 1.0 (provide ems information only)
                     Memory.mem_writed(GEMMIS_addr+0x06,0);					// reserved
@@ -188,7 +186,7 @@ public class EMS extends Module_base {
                     }
 
                     /* fill buffer with import structure */
-                    Memory.mem_writed(bufptr,GEMMIS_seg<<4);
+                    Memory.mem_writed(bufptr+0x00,GEMMIS_seg<<4);
                     Memory.mem_writew(bufptr+0x04,GEMMIS_VERSION);
                     retcode.value=6;
                     return true;
@@ -196,7 +194,7 @@ public class EMS extends Module_base {
                 case 0x02:
                     if (!is_emm386) return false;
                     if (size!=2) return false;
-                    Memory.mem_writeb(bufptr,EMM_VERSION>>4);		// version 4
+                    Memory.mem_writeb(bufptr+0x00,EMM_VERSION>>4);		// version 4
                     Memory.mem_writeb(bufptr+0x01,EMM_MINOR_VERSION);
                     retcode.value=2;
                     return true;
@@ -204,8 +202,7 @@ public class EMS extends Module_base {
                     if (!is_emm386) return false;
                     if (EMM_MINOR_VERSION < 0x2d) return false;
                     if (size!=4) return false;
-                    /*Bit16u*/
-                    Memory.mem_writew(bufptr, Memory.MEM_TotalPages()*4);	// max size (kb)
+                    Memory.mem_writew(bufptr+0x00,(/*Bit16u*/int)(Memory.MEM_TotalPages()*4));	// max size (kb)
                     Memory.mem_writew(bufptr+0x02,0x80);							// min size (kb)
                     retcode.value=2;
                     return true;
@@ -216,7 +213,7 @@ public class EMS extends Module_base {
             return true;
         }
         private /*Bit8u*/short cache;
-        private final boolean is_emm386;
+        private boolean is_emm386;
     }
 
     static private class Vcpi {
@@ -226,7 +223,7 @@ public class EMS extends Module_base {
         /*MemHandle*/int private_area;
         /*Bit8u*/short pic1_remapping,pic2_remapping;
     }
-    static private final Vcpi vcpi = new Vcpi();
+    static private Vcpi vcpi = new Vcpi();
 
     private static class MoveRegion {
         /*Bit32u*/long bytes;
@@ -243,13 +240,13 @@ public class EMS extends Module_base {
     private static /*Bit16u*/int EMM_GetFreePages() {
         /*Bitu*/int count=Memory.MEM_FreeTotal()/4;
         if (count>0x7fff) count=0x7fff;
-        /*Bit16u*/
-        return count;
+        return (/*Bit16u*/int)count;
     }
 
     private static boolean ValidHandle(/*Bit16u*/int handle) {
-        if (handle>=EMM_MAX_HANDLES) return true;
-        return emm_handles[handle].pages == NULL_HANDLE;
+        if (handle>=EMM_MAX_HANDLES) return false;
+        if (emm_handles[handle].pages==NULL_HANDLE) return false;
+        return true;
     }
 
     private static /*Bit8u*/short EMM_AllocateMemory(/*Bit16u*/int pages, /*Bit16u*/IntRef dhandle, boolean can_allocate_zpages) {
@@ -276,9 +273,9 @@ public class EMS extends Module_base {
         return EMM_NO_ERROR;
     }
 
-    private static /*Bit8u*/void EMM_AllocateSystemHandle(/*Bit16u*/int pages) {
+    private static /*Bit8u*/short EMM_AllocateSystemHandle(/*Bit16u*/int pages) {
         /* Check for enough free pages */
-        if ((Memory.MEM_FreeTotal()/ 4) < pages) { return;}
+        if ((Memory.MEM_FreeTotal()/ 4) < pages) { return EMM_OUT_OF_LOG;}
         /*Bit16u*/int handle = EMM_SYSTEM_HANDLE;	// emm system handle (reserved for OS usage)
         /* Release memory if already allocated */
         if (emm_handles[handle].pages != NULL_HANDLE) {
@@ -288,11 +285,12 @@ public class EMS extends Module_base {
         if (mem==0) Log.exit("EMS:System handle memory allocation failure");
         emm_handles[handle].pages = pages;
         emm_handles[handle].mem = mem;
+        return EMM_NO_ERROR;
     }
 
     static /*Bit8u*/short EMM_ReallocatePages(/*Bit16u*/int handle,/*Bit16u*/int pages) {
         /* Check for valid handle */
-        if (ValidHandle(handle)) return EMM_INVALID_HANDLE;
+        if (!ValidHandle(handle)) return EMM_INVALID_HANDLE;
         if (emm_handles[handle].pages != 0) {
             /* Check for enough pages */
             IntRef mem = new IntRef(emm_handles[handle].mem);
@@ -324,14 +322,14 @@ public class EMS extends Module_base {
             return EMM_NO_ERROR;
         }
         /* Check for valid handle */
-        if (ValidHandle(handle)) return EMM_INVALID_HANDLE;
+        if (!ValidHandle(handle)) return EMM_INVALID_HANDLE;
 
         if (log_page<emm_handles[handle].pages) {
             /* Mapping it is */
             emm_mappings[phys_page].handle(handle);
             emm_mappings[phys_page].page(log_page);
 
-            /*MemHandle*/int memh=Memory.MEM_NextHandleAt(emm_handles[handle].mem,log_page*4);
+            /*MemHandle*/int memh=Memory.MEM_NextHandleAt(emm_handles[handle].mem,log_page*4);;
             for (/*Bitu*/int i=0;i<4;i++) {
                 Paging.PAGING_MapPage(EMM_PAGEFRAME4K+phys_page*4+i,memh);
                 memh=Memory.MEM_NextHandle(memh);
@@ -364,8 +362,7 @@ public class EMS extends Module_base {
         }
 
 	    if (valid_segment) {
-            /*Bit32s*//*Bit32s*/
-            int tphysPage = (segment -EMM_PAGEFRAME)/(0x1000/EMM_MAX_PHYS);
+            /*Bit32s*/int tphysPage = ((/*Bit32s*/int)segment-EMM_PAGEFRAME)/(0x1000/EMM_MAX_PHYS);
 
             /* unmapping doesn't need valid handle (as handle isn't used) */
             if (log_page==NULL_PAGE) {
@@ -383,7 +380,7 @@ public class EMS extends Module_base {
                 return EMM_NO_ERROR;
             }
             /* Check for valid handle */
-            if (ValidHandle(handle)) return EMM_INVALID_HANDLE;
+            if (!ValidHandle(handle)) return EMM_INVALID_HANDLE;
 
             if (log_page<emm_handles[handle].pages) {
                 /* Mapping it is */
@@ -413,7 +410,7 @@ public class EMS extends Module_base {
 
     private static /*Bit8u*/short EMM_ReleaseMemory(/*Bit16u*/int handle) {
         /* Check for valid handle */
-        if (ValidHandle(handle)) return EMM_INVALID_HANDLE;
+        if (!ValidHandle(handle)) return EMM_INVALID_HANDLE;
 
         // should check for saved_page_map flag here, returning an error if it's true
         // as apps are required to restore the pagemap beforehand; to be checked
@@ -518,7 +515,7 @@ public class EMS extends Module_base {
             }
             break;
         case 0x01:	/* Restore Partial Page Map */
-            data = CPU_Regs.reg_dsPhys.dword +CPU_Regs.reg_esi.word();
+            data = (int)CPU_Regs.reg_dsPhys.dword+CPU_Regs.reg_esi.word();
             count= Memory.mem_readw(data);data+=2;
             for (;count>0;count--) {
                 /*Bit16u*/int segment=Memory.mem_readw(data);data+=2;
@@ -545,7 +542,7 @@ public class EMS extends Module_base {
 
     private static /*Bit8u*/short HandleNameSearch() {
         String name;
-        /*Bit16u*/int handle;/*PhysPt*/int data;
+        /*Bit16u*/int handle=0;/*PhysPt*/int data;
         switch (CPU_Regs.reg_eax.low()) {
         case 0x00:	/* Get all handle names */
             CPU_Regs.reg_eax.low(0);data=CPU_Regs.reg_esPhys.dword+CPU_Regs.reg_edi.word();
@@ -600,7 +597,7 @@ public class EMS extends Module_base {
 
 
     private static void LoadMoveRegion(/*PhysPt*/int data, MoveRegion region) {
-        region.bytes=Memory.mem_readd(data);
+        region.bytes=Memory.mem_readd(data + 0x0);
 
         region.src_type=(short)Memory.mem_readb(data+0x4);
         region.src_handle=Memory.mem_readw(data+0x5);
@@ -629,8 +626,8 @@ public class EMS extends Module_base {
         if (region.src_type==0) {
             src_mem=region.src_page_seg*16+region.src_offset;
         } else {
-            if (ValidHandle(region.src_handle)) return EMM_INVALID_HANDLE;
-            if (((long) emm_handles[region.src_handle].pages *EMM_PAGE_SIZE) < (((long) region.src_page_seg *EMM_PAGE_SIZE)+region.src_offset+region.bytes)) return EMM_LOG_OUT_RANGE;
+            if (!ValidHandle(region.src_handle)) return EMM_INVALID_HANDLE;
+            if ((emm_handles[region.src_handle].pages*EMM_PAGE_SIZE) < ((region.src_page_seg*EMM_PAGE_SIZE)+region.src_offset+region.bytes)) return EMM_LOG_OUT_RANGE;
             src_handle=emm_handles[region.src_handle].mem;
             /*Bitu*/int pages=region.src_page_seg*4+(region.src_offset/Paging.MEM_PAGE_SIZE);
             for (;pages>0;pages--) src_handle=Memory.MEM_NextHandle(src_handle);
@@ -640,8 +637,8 @@ public class EMS extends Module_base {
         if (region.dest_type==0) {
             dest_mem=region.dest_page_seg*16+region.dest_offset;
         } else {
-            if (ValidHandle(region.dest_handle)) return EMM_INVALID_HANDLE;
-            if ((long) emm_handles[region.dest_handle].pages *EMM_PAGE_SIZE < ((long) region.dest_page_seg *EMM_PAGE_SIZE)+region.dest_offset+region.bytes) return EMM_LOG_OUT_RANGE;
+            if (!ValidHandle(region.dest_handle)) return EMM_INVALID_HANDLE;
+            if (emm_handles[region.dest_handle].pages*EMM_PAGE_SIZE < (region.dest_page_seg*EMM_PAGE_SIZE)+region.dest_offset+region.bytes) return EMM_LOG_OUT_RANGE;
             dest_handle=emm_handles[region.dest_handle].mem;
             /*Bitu*/int pages=region.dest_page_seg*4+(region.dest_offset/Paging.MEM_PAGE_SIZE);
             for (;pages>0;pages--) dest_handle=Memory.MEM_NextHandle(dest_handle);
@@ -709,7 +706,7 @@ public class EMS extends Module_base {
         return EMM_NO_ERROR;
     }
 
-    private static final Callback.Handler INT67_Handler = new Callback.Handler() {
+    private static Callback.Handler INT67_Handler = new Callback.Handler() {
         public String getName() {
             return "EMS.INT67_Handler";
         }
@@ -724,8 +721,7 @@ public class EMS extends Module_base {
                 CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                 break;
             case 0x42:		/* Get number of pages */
-                /*Bit16u*/
-                CPU_Regs.reg_edx.word(Memory.MEM_TotalPages()/4);		//Not entirely correct but okay
+                CPU_Regs.reg_edx.word((/*Bit16u*/int)(Memory.MEM_TotalPages()/4));		//Not entirely correct but okay
                 CPU_Regs.reg_ebx.word(EMM_GetFreePages());
                 CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                 break;
@@ -758,7 +754,7 @@ public class EMS extends Module_base {
                 CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                 break;
             case 0x4c:		/* Get Pages for one Handle */
-                if (ValidHandle(CPU_Regs.reg_edx.word())) {CPU_Regs.reg_eax.high(EMM_INVALID_HANDLE);break;}
+                if (!ValidHandle(CPU_Regs.reg_edx.word())) {CPU_Regs.reg_eax.high(EMM_INVALID_HANDLE);break;}
                 CPU_Regs.reg_ebx.word(emm_handles[CPU_Regs.reg_edx.word()].pages);
                 CPU_Regs.reg_eax.high(EMM_NO_ERROR);
                 break;
@@ -893,26 +889,25 @@ public class EMS extends Module_base {
                         /*Bit16u*/int ct;
                         /* Set up page table buffer */
                         for (ct=0; ct<0xff; ct++) {
-                            Memory.real_writeb(CPU_Regs.reg_esVal.dword, CPU_Regs.reg_edi.word() + ct * 4,0x67);		// access bits
-                            Memory.real_writew(CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x01,ct*0x10);		// mapping
-                            Memory.real_writeb(CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x00,0x67);		// access bits
+                            Memory.real_writew((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x01,ct*0x10);		// mapping
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
                         }
                         for (ct=0xff; ct<0x100; ct++) {
-                            Memory.real_writeb(CPU_Regs.reg_esVal.dword, CPU_Regs.reg_edi.word() + ct * 4,0x67);		// access bits
-                            Memory.real_writew(CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x01,(ct-0xff)*0x10+0x1100);	// mapping
-                            Memory.real_writeb(CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x00,0x67);		// access bits
+                            Memory.real_writew((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x01,(ct-0xff)*0x10+0x1100);	// mapping
+                            Memory.real_writeb((int)CPU_Regs.reg_esVal.dword,CPU_Regs.reg_edi.word()+ct*4+0x03,0x00);
                         }
                         /* adjust paging entries for page frame (if mapped) */
                         for (ct=0; ct<4; ct++) {
                             /*Bit16u*/int handle=emm_mappings[ct].handle();
                             if (handle!=0xffff) {
-                                /*Bit16u*//*Bit16u*/
-                                int memh= Memory.MEM_NextHandleAt(emm_handles[handle].mem,emm_mappings[ct].page()*4);
+                                /*Bit16u*/int memh=(/*Bit16u*/int)Memory.MEM_NextHandleAt(emm_handles[handle].mem,emm_mappings[ct].page()*4);
                                 /*Bit16u*/int entry_addr=CPU_Regs.reg_edi.word()+(EMM_PAGEFRAME>>6)+(ct*0x10);
-                                Memory.real_writew(CPU_Regs.reg_esVal.dword, entry_addr + 0x01,(memh)*0x10);		// mapping of 1/4 of page
-                                Memory.real_writew(CPU_Regs.reg_esVal.dword,entry_addr+0x04+0x01,(memh+1)*0x10);		// mapping of 2/4 of page
-                                Memory.real_writew(CPU_Regs.reg_esVal.dword,entry_addr+0x08+0x01,(memh+2)*0x10);		// mapping of 3/4 of page
-                                Memory.real_writew(CPU_Regs.reg_esVal.dword,entry_addr+0x0c+0x01,(memh+3)*0x10);		// mapping of 4/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x00+0x01,(memh+0)*0x10);		// mapping of 1/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x04+0x01,(memh+1)*0x10);		// mapping of 2/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x08+0x01,(memh+2)*0x10);		// mapping of 3/4 of page
+                                Memory.real_writew((int)CPU_Regs.reg_esVal.dword,entry_addr+0x0c+0x01,(memh+3)*0x10);		// mapping of 4/4 of page
                             }
                         }
                         CPU_Regs.reg_edi.word(CPU_Regs.reg_edi.word()+0x400);		// advance pointer by 0x100*4
@@ -921,14 +916,14 @@ public class EMS extends Module_base {
                         /*Bit32u*/int cbseg_low=(Callback.CALLBACK_GetBase()&0xffff)<<16;
                         /*Bit32u*/int cbseg_high=(Callback.CALLBACK_GetBase()&0x1f0000)>>16;
                         /* Descriptor 1 (code segment, callback segment) */
-                        Memory.real_writed(CPU_Regs.reg_dsVal.dword, CPU_Regs.reg_esi.word(),0x0000ffff|cbseg_low);
-                        Memory.real_writed(CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x04,0x00009a00|cbseg_high);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x00,0x0000ffff|cbseg_low);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x04,0x00009a00|cbseg_high);
                         /* Descriptor 2 (data segment, full access) */
-                        Memory.real_writed(CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x08,0x0000ffff);
-                        Memory.real_writed(CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x0c,0x00009200);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x08,0x0000ffff);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x0c,0x00009200);
                         /* Descriptor 3 (full access) */
-                        Memory.real_writed(CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x10,0x0000ffff);
-                        Memory.real_writed(CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x14,0x00009200);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x10,0x0000ffff);
+                        Memory.real_writed((int)CPU_Regs.reg_dsVal.dword,CPU_Regs.reg_esi.word()+0x14,0x00009200);
 
                         CPU_Regs.reg_ebx.dword=vcpi.pm_interface&0xffff;
                         CPU_Regs.reg_eax.high(EMM_NO_ERROR);
@@ -1016,9 +1011,9 @@ public class EMS extends Module_base {
 
                         /* Switch to protected mode, paging enabled if necessary */
                         /*Bit32u*/long new_cr0=CPU.CPU_GET_CRX(0)|1;
-                        if (new_cr3!=0) new_cr0|= 0x80000000L;
+                        if (new_cr3!=0) new_cr0|=0x80000000l;
                         CPU.CPU_SET_CRX(0, (int)new_cr0);
-                        CPU.CPU_SET_CRX(3, new_cr3);
+                        CPU.CPU_SET_CRX(3, (int)new_cr3);
 
                         /*PhysPt*/int tbaddr=new_gdt_base+(new_tr&0xfff8)+5;
                         /*Bit8u*/int tb=Memory.mem_readb(tbaddr);
@@ -1027,8 +1022,8 @@ public class EMS extends Module_base {
                         /* Load tables and initialize segment registers */
                         CPU.CPU_LGDT(new_gdt_limit, new_gdt_base);
                         CPU.CPU_LIDT(new_idt_limit, new_idt_base);
-                        if (CPU.CPU_LLDT(new_ldt)) System.out.println("VCPI:Could not load LDT with "+Integer.toString(new_ldt,16));
-                        if (CPU.CPU_LTR(new_tr)) System.out.println("VCPI:Could not load TR with "+Integer.toString(new_tr, 16));
+                        if (CPU.CPU_LLDT(new_ldt)) Log.log_msg("VCPI:Could not load LDT with "+Integer.toString(new_ldt,16));
+                        if (CPU.CPU_LTR(new_tr)) Log.log_msg("VCPI:Could not load TR with "+Integer.toString(new_tr, 16));
 
                         CPU.CPU_SetSegGeneralDS(0);
                         CPU.CPU_SetSegGeneralES(0);
@@ -1040,7 +1035,7 @@ public class EMS extends Module_base {
                         /* Switch to protected mode */
                         CPU_Regs.flags&=(~(CPU_Regs.VM|CPU_Regs.NT));
                         CPU_Regs.flags|=0x3000;
-                        CPU.CPU_JMP(true, new_cs, new_eip, 0);
+                        CPU.CPU_JMP(true, new_cs, (int)new_eip, 0);
                         }
                         break;
                     default:
@@ -1059,7 +1054,7 @@ public class EMS extends Module_base {
         }
     };
 
-    private static final Callback.Handler VCPI_PM_Handler = new Callback.Handler() {
+    private static Callback.Handler VCPI_PM_Handler = new Callback.Handler() {
         public String getName() {
             return "EMS.VCPI_PM_Handler";
         }
@@ -1094,15 +1089,15 @@ public class EMS extends Module_base {
                 CPU.CPU_SET_CRX(0, CPU.CPU_GET_CRX(0)&0x7ffffff7);
                 CPU.CPU_SET_CRX(3, 0);
 
-                /*PhysPt*/int tbaddr= vcpi.private_area + (0x10 & 0xfff8) + 5;
+                /*PhysPt*/int tbaddr=vcpi.private_area+0x0000+(0x10&0xfff8)+5;
                 /*Bit8u*/int tb=Memory.mem_readb(tbaddr);
                 Memory.mem_writeb(tbaddr, tb&0xfd);
 
                 /* Load descriptor table registers */
-                CPU.CPU_LGDT(0xff, vcpi.private_area);
+                CPU.CPU_LGDT(0xff, vcpi.private_area+0x0000);
                 CPU.CPU_LIDT(0x7ff, vcpi.private_area+0x2000);
-                if (CPU.CPU_LLDT(0x08)) System.out.println("VCPI:Could not load LDT");
-                if (CPU.CPU_LTR(0x10)) System.out.println("VCPI:Could not load TR");
+                if (CPU.CPU_LLDT(0x08)) Log.log_msg("VCPI:Could not load LDT");
+                if (CPU.CPU_LTR(0x10)) Log.log_msg("VCPI:Could not load TR");
 
                 CPU_Regs.flags&=(~CPU_Regs.NT);
                 CPU_Regs.reg_esp.dword+=8;		// skip interrupt return information
@@ -1120,7 +1115,7 @@ public class EMS extends Module_base {
         }
     };
 
-    private static final Callback.Handler V86_Monitor = new Callback.Handler() {
+    private static Callback.Handler V86_Monitor = new Callback.Handler() {
         public String getName() {
             return "EMS.V86_Monitor";
         }
@@ -1193,8 +1188,7 @@ public class EMS extends Module_base {
                         Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xe5:		// IN AX,Ib
-                        /*Bit16u*/
-                        CPU_Regs.reg_eax.word(IO.IO_ReadW(Memory.mem_readb((v86_cs<<4)+v86_ip+1))&0xffff);
+                        CPU_Regs.reg_eax.word((/*Bit16u*/int)(IO.IO_ReadW(Memory.mem_readb((v86_cs<<4)+v86_ip+1))&0xffff));
                         Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+2);
                         break;
                     case 0xe6:		// OUT Ib,AL
@@ -1210,8 +1204,7 @@ public class EMS extends Module_base {
                         Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     case 0xed:		// IN AX,DX
-                        /*Bit16u*/
-                        CPU_Regs.reg_eax.word(IO.IO_ReadW(CPU_Regs.reg_edx.word())&0xffff);
+                        CPU_Regs.reg_eax.word((/*Bit16u*/int)(IO.IO_ReadW(CPU_Regs.reg_edx.word())&0xffff));
                         Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword) & CPU.cpu.stack.mask),v86_ip+1);
                         break;
                     case 0xee:		// OUT DX,AL
@@ -1258,15 +1251,15 @@ public class EMS extends Module_base {
             Memory.mem_writew(CPU_Regs.reg_ssPhys.dword+((CPU_Regs.reg_esp.dword +0x0c) & CPU.cpu.stack.mask),v86_sp);
 
             /* Return to original code after v86-interrupt handler */
-            Memory.mem_writew((v86_ss << 4) + v86_sp,return_ip);
+            Memory.mem_writew((v86_ss<<4)+v86_sp+0,return_ip);
             Memory.mem_writew((v86_ss<<4)+v86_sp+2,return_cs);
-            /*Bit16u*/
-            Memory.mem_writew((v86_ss<<4)+v86_sp+4, return_eflags&0xffff);
+            Memory.mem_writew((v86_ss<<4)+v86_sp+4,(/*Bit16u*/int)(return_eflags&0xffff));
             return Callback.CBRET_NONE;
         }
     };
 
     private static void SetupVCPI() {
+        vcpi.enabled=false;
 
         vcpi.ems_handle=0;	// use EMM system handle for VCPI data
 
@@ -1278,7 +1271,7 @@ public class EMS extends Module_base {
         vcpi.private_area=emm_handles[vcpi.ems_handle].mem<<12;
 
         /* GDT */
-        Memory.mem_writed(vcpi.private_area,0x00000000);	// descriptor 0
+        Memory.mem_writed(vcpi.private_area+0x0000,0x00000000);	// descriptor 0
         Memory.mem_writed(vcpi.private_area+0x0004,0x00000000);	// descriptor 0
 
         /*Bit32u*/int ldt_address=(vcpi.private_area+0x1000);
@@ -1310,12 +1303,12 @@ public class EMS extends Module_base {
         for (/*Bit16u*/int int_ct=0; int_ct<0x100; int_ct++) {
             /* build a CALL NEAR V86MON, the value of IP pushed by the
                 CALL is used to identify the interrupt number */
-            Memory.mem_writeb(vcpi.private_area + 0x2800 + int_ct * 4,0xe8);	// call
+            Memory.mem_writeb(vcpi.private_area+0x2800+int_ct*4+0,0xe8);	// call
             Memory.mem_writew(vcpi.private_area+0x2800+int_ct*4+1,0x05fd-(int_ct*4));
             Memory.mem_writeb(vcpi.private_area+0x2800+int_ct*4+3,0xcf);	// iret (dummy)
 
             /* put a Gate-Descriptor into the IDT */
-            Memory.mem_writed(vcpi.private_area + 0x2000 + int_ct * 8,0x000c0000|(0x2800+int_ct*4));
+            Memory.mem_writed(vcpi.private_area+0x2000+int_ct*8+0,0x000c0000|(0x2800+int_ct*4));
             Memory.mem_writed(vcpi.private_area+0x2000+int_ct*8+4,0x0000ee00);
         }
 
@@ -1331,17 +1324,19 @@ public class EMS extends Module_base {
         Memory.mem_writed(vcpi.private_area+0x3066,0x0068);		// io-map base (map follows, all zero)
     }
 
-    private static final Callback.Handler INT4B_Handler = new Callback.Handler() {
+    private static Callback.Handler INT4B_Handler = new Callback.Handler() {
         public String getName() {
             return "EMS.INT4B_Handler";
         }
         public /*Bitu*/int call() {
-            if (CPU_Regs.reg_eax.high() == 0x81) {
+            switch (CPU_Regs.reg_eax.high()) {
+            case 0x81:
                 Callback.CALLBACK_SCF(true);
                 CPU_Regs.reg_eax.word(0x1);
-            } else {
-                if (Log.level <= LogSeverities.LOG_WARN)
-                    Log.log(LogTypes.LOG_MISC, LogSeverities.LOG_WARN, "Unhandled interrupt 4B function " + Integer.toString(CPU_Regs.reg_eax.high(), 16));
+                break;
+            default:
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_MISC,LogSeverities.LOG_WARN,"Unhandled interrupt 4B function "+Integer.toString(CPU_Regs.reg_eax.high(),16));
+                break;
             }
             return Callback.CBRET_NONE;
         }
@@ -1352,13 +1347,11 @@ public class EMS extends Module_base {
      * stored  32 bytes.*/
     private static /*Bit16u*/int ems_baseseg;
     private /*RealPt*/int old4b_pointer,old67_pointer;
-    private final Callback call_vdma=new Callback();
-    private final Callback call_vcpi=new Callback();
-    private final Callback call_v86mon=new Callback();
+    private Callback call_vdma=new Callback(),call_vcpi=new Callback(),call_v86mon=new Callback();
     /*Bitu*/int call_int67;
 
     static /*Bitu*/int GetEMSType(Section_prop section) {
-        /*Bitu*/int rtype;
+        /*Bitu*/int rtype = 0;
         String emstypestr = section.Get_string("ems");
         if (emstypestr.equalsIgnoreCase("true")) {
             rtype = 1;	// mixed mode
@@ -1389,7 +1382,7 @@ public class EMS extends Module_base {
 		if (ems_type<=0) return;
         if (Dosbox.machine== MachineType.MCH_PCJR) {
             ems_type=0;
-            System.out.println("EMS disabled for PCJr machine");
+            Log.log_msg("EMS disabled for PCJr machine");
             return;
         }
         Bios.BIOS_ZeroExtendedSize(true);
@@ -1459,10 +1452,10 @@ public class EMS extends Module_base {
             if (ENABLE_V86_STARTUP!=0) {
                 /* Prepare V86-task */
                 CPU.CPU_SET_CRX(0, 1);
-                CPU.CPU_LGDT(0xff, vcpi.private_area);
+                CPU.CPU_LGDT(0xff, vcpi.private_area+0x0000);
                 CPU.CPU_LIDT(0x7ff, vcpi.private_area+0x2000);
-                if (CPU.CPU_LLDT(0x08)) System.out.println("VCPI:Could not load LDT");
-                if (CPU.CPU_LTR(0x10)) System.out.println("VCPI:Could not load TR");
+                if (CPU.CPU_LLDT(0x08)) Log.log_msg("VCPI:Could not load LDT");
+                if (CPU.CPU_LTR(0x10)) Log.log_msg("VCPI:Could not load TR");
 
                 CPU.CPU_Push32(CPU_Regs.reg_gsVal.dword);
                 CPU.CPU_Push32(CPU_Regs.reg_fsVal.dword);
@@ -1519,17 +1512,20 @@ public class EMS extends Module_base {
 
     static EMS test;
 
-    public static final Section.SectionFunction EMS_ShutDown = new Section.SectionFunction() {
+    public static Section.SectionFunction EMS_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
             test.close();
             test = null;
-            Arrays.fill(emm_handles, null);
-            Arrays.fill(emm_mappings, null);
-            Arrays.fill(emm_segmentmappings, null);
+            for (int i=0;i<emm_handles.length;i++)
+                emm_handles[i] = null;
+            for (int i=0;i<emm_mappings.length;i++)
+                emm_mappings[i] = null;
+            for (int i=0;i<emm_segmentmappings.length;i++)
+                emm_segmentmappings[i] = null;
         }
     };
 
-    public static final Section.SectionFunction EMS_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction EMS_Init = new Section.SectionFunction() {
         public void call(Section section) {
             for (int i=0;i<emm_handles.length;i++)
                 emm_handles[i] = new EMM_Handle();

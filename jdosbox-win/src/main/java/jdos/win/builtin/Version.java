@@ -23,7 +23,7 @@ public class Version extends BuiltinModule {
     }
 
     // BOOL WINAPI GetFileVersionInfo(LPCTSTR lptstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData)
-    static private final Callback.Handler GetFileVersionInfoA = new HandlerBase() {
+    static private Callback.Handler GetFileVersionInfoA = new HandlerBase() {
         public java.lang.String getName() {
             return "Version.GetFileVersionInfoA";
         }
@@ -63,7 +63,7 @@ public class Version extends BuiltinModule {
     };
 
     // DWORD WINAPI GetFileVersionInfoSize(LPCTSTR lptstrFilename, LPDWORD lpdwHandle)
-    static private final Callback.Handler GetFileVersionInfoSizeA = new HandlerBase() {
+    static private Callback.Handler GetFileVersionInfoSizeA = new HandlerBase() {
         public java.lang.String getName() {
             return "Version.GetFileVersionInfoSizeA";
         }
@@ -101,7 +101,7 @@ public class Version extends BuiltinModule {
     // Direct port from Wine
     //
     // BOOL WINAPI VerQueryValue(LPCVOID pBlock, LPCTSTR lpSubBlock, LPVOID *lplpBuffer, PUINT puLen)
-    private final Callback.Handler VerQueryValueA = new HandlerBase() {
+    private Callback.Handler VerQueryValueA = new HandlerBase() {
         class VersionInfo {
             public VersionInfo(int address) {
                 wLength = Memory.mem_readw(address);
@@ -109,10 +109,10 @@ public class Version extends BuiltinModule {
                 wType = Memory.mem_readw(address+4);
                 szKey = new LittleEndianFile(address+6).readCStringW();
             }
-            final int wLength;
-            final int wValueLength;
-            final int wType;
-            final String szKey; // WCHAR
+            int wLength;
+            int wValueLength;
+            int wType;
+            String szKey; // WCHAR
         }
         static final String rootA = "\\";
         static final String varfileinfoA = "\\VarFileInfo\\Translation";
@@ -165,10 +165,10 @@ public class Version extends BuiltinModule {
             String subBlock = null;
             if (lpSubBlock != 0)
                 subBlock = new LittleEndianFile(lpSubBlock).readCString();
-            if (subBlock == null || subBlock.isEmpty())
+            if (subBlock == null || subBlock.length()==0)
                 subBlock = rootA;
             int info = pBlock;
-            while (!subBlock.isEmpty()) {
+            while (subBlock.length()>0) {
                 int pos = subBlock.indexOf("\\");
                 if (pos>=0) {
                     if (pos == 0) {

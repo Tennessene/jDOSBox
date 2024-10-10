@@ -21,11 +21,11 @@ public class Dos_ParamBlock extends MemStruct {
 
 	public void SaveData() {		/* Save it as an exec block */
         SaveIt(2,0,exec.envseg);//sSave(sExec,envseg,exec.envseg);
-        SaveIt(4,2, exec.cmdtail);//sSave(sExec,cmdtail,exec.cmdtail);
-        SaveIt(4,6, exec.fcb1);//sSave(sExec,fcb1,exec.fcb1);
-        SaveIt(4,10, exec.fcb2);//sSave(sExec,fcb2,exec.fcb2);
-        SaveIt(4,14, exec.initsssp);//sSave(sExec,initsssp,exec.initsssp);
-        SaveIt(4,18, exec.initcsip);//sSave(sExec,initcsip,exec.initcsip);
+        SaveIt(4,2,(int)exec.cmdtail);//sSave(sExec,cmdtail,exec.cmdtail);
+        SaveIt(4,6,(int)exec.fcb1);//sSave(sExec,fcb1,exec.fcb1);
+        SaveIt(4,10,(int)exec.fcb2);//sSave(sExec,fcb2,exec.fcb2);
+        SaveIt(4,14,(int)exec.initsssp);//sSave(sExec,initsssp,exec.initsssp);
+        SaveIt(4,18,(int)exec.initcsip);//sSave(sExec,initcsip,exec.initcsip);
     }
 
 	public static class sOverlay {

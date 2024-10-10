@@ -15,9 +15,9 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 
 public class MainFrame implements GUI {
-    final int[] pixels = new int[16 * 16];
-    final Image image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, pixels, 0, 16));
-    final Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(0, 0), "invisibleCursor");
+    int[] pixels = new int[16 * 16];
+    Image image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, pixels, 0, 16));
+    Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(0, 0), "invisibleCursor");
 
     static Robot robot;
     static private boolean eatNextMouseMove = false;
@@ -182,13 +182,12 @@ public class MainFrame implements GUI {
                 try {
                     port = Integer.parseInt(args[3]);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
             try {
-                Class<?> c = Class.forName("jdos.host.FowardPCapEthernet");
-                Method method = c.getDeclaredMethod("startServer", String.class, Integer.TYPE);
-                method.invoke(null, nic, port);
+                Class c = Class.forName("jdos.host.FowardPCapEthernet");
+                Method method = c.getDeclaredMethod("startServer", new Class[] {String.class, Integer.TYPE});
+                method.invoke(null, new Object[]{nic, new Integer(port)});
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -199,12 +198,14 @@ public class MainFrame implements GUI {
         frame = new MyFrame();
         frame.setFocusTraversalKeysEnabled(false);
         frame.addFocusListener(new FocusListener() {
-                private final KeyEventDispatcher altDisabler = e -> {
-                    if (e.getKeyCode() == 18) {
-                        Main.addEvent(e);
-                        return true;
+                private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
+                    public boolean dispatchKeyEvent(KeyEvent e) {
+                        if (e.getKeyCode() == 18) {
+                            Main.addEvent(e);
+                            return true;
+                        }
+                        return false;
                     }
-                    return false;
                 };
 
                 public void focusGained(FocusEvent e) {
@@ -242,9 +243,7 @@ public class MainFrame implements GUI {
                     Main.pauseMutex.notify();
                 }
                 Main.addEvent(null);
-                try {mainThread.join(5000);} catch (Exception e1) {
-                    throw new RuntimeException(e1);
-                }
+                try {mainThread.join(5000);} catch (Exception e1) {}
                 if (!Dosbox.applet) {
                     System.exit(0);
                 }
@@ -253,9 +252,11 @@ public class MainFrame implements GUI {
         Container contentPane = frame.getContentPane();
         contentPane.setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.PAGE_START);
-        mainThread = new Thread(() -> {
-            Main.main(new MainFrame(), args);
-            System.exit(0);
+        mainThread = new Thread(new Runnable() {
+            public void run() {
+                Main.main(new MainFrame(), args);
+                System.exit(0);
+            }
         });
         mainThread.start();
     }

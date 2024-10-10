@@ -6,8 +6,6 @@ import jdos.gui.Main;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -28,21 +26,21 @@ public class FileIOFactory {
     }
 
     static private class RamIO implements FileIO {
-        private final byte[] data;
+        private byte[] data;
         private int pos=0;
-        private final int mode;
+        private int mode;
 
         public RamIO(byte[] data, int mode) {
             this.data = data;
             this.mode = mode;
         }
-        public int read() {
+        public int read() throws IOException {
             if (pos>=data.length)
                 return -1;
             return data[pos++];
         }
 
-        public int read(byte[] b, int off, int len) {
+        public int read(byte[] b, int off, int len) throws IOException {
             if (b == null)
                 throw new NullPointerException();
             if (off<0 || off+len>=data.length)
@@ -57,11 +55,11 @@ public class FileIOFactory {
             return len;
         }
 
-        public int read(byte[] b) {
+        public int read(byte[] b) throws IOException {
             return read(b, 0, b.length);
         }
 
-        public int skipBytes(int n) {
+        public int skipBytes(int n) throws IOException {
             if (pos>=data.length)
                 return 0;
             if (n+pos>data.length)
@@ -99,18 +97,18 @@ public class FileIOFactory {
             pos=(int)p;
         }
 
-        public long length() {
+        public long length() throws IOException {
             return data.length;
         }
 
         public void setLength(long newLength) throws IOException {
             throw new IOException("Not Supported");
         }
-
-        public void close() {
+        
+        public void close() throws IOException {
         }
 
-        public long getFilePointer() {
+        public long getFilePointer() throws IOException {
             return pos;
         }
 
@@ -118,12 +116,12 @@ public class FileIOFactory {
             return 0;
         }
     }
-
+    
     static private class JarIO implements FileIO {
-        private final String path;
+        private String path;
         private int pos=0;
         private int real_pos=0;
-        private final int mode;
+        private int mode;
         private int len;
         private InputStream is;
         final private int cacheShift = 13;
@@ -133,7 +131,8 @@ public class FileIOFactory {
         final private LRUCache cache = new LRUCache(32); // 256k
 
         private byte[][] writeData = null;
-
+        private int writePageCount;
+        
         private InputStream getIS() {
             return Dosbox.class.getResourceAsStream(path);
         }
@@ -144,7 +143,7 @@ public class FileIOFactory {
             is = getIS();
             try {
                 len = is.available();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
             }
         }
         private byte[] fill(int offset) throws IOException {
@@ -159,7 +158,7 @@ public class FileIOFactory {
                 skip = offset;
             }
             while (skip>0) {
-                skip-= (int) is.skip(skip);
+                skip-=is.skip(skip);
             }
             real_pos = offset;
 
@@ -174,7 +173,7 @@ public class FileIOFactory {
                 done+=r;
                 todo-=r;
             }
-            real_pos += done;
+            real_pos += done; 
             return b;
         }
 
@@ -182,7 +181,7 @@ public class FileIOFactory {
             if (writeData != null && writeData[offset>>cacheShift]!=null) {
                 return writeData[offset>>cacheShift];
             }
-            Integer i = offset;
+            Integer i = new Integer(offset);
             byte[] b = (byte[])cache.get(i);
             if (b == null) {
                 b = fill(offset);
@@ -232,7 +231,7 @@ public class FileIOFactory {
             return read(b, 0, b.length);
         }
 
-        public int skipBytes(int n) {
+        public int skipBytes(int n) throws IOException {
             if (pos>=len)
                 return 0;
             if (n+pos>len)
@@ -252,6 +251,7 @@ public class FileIOFactory {
             if (data == null) {
                 data = get(offset);
                 writeData[offset>>cacheShift] = data;
+                writePageCount++;
             }
             int index = pos & cacheMask;
             pos++;
@@ -283,6 +283,7 @@ public class FileIOFactory {
                 }
                 if (writeData == null) {
                     writeData = new byte[(this.len>>cacheShift)+1][];
+                    writePageCount++;
                 }
                 byte[] data = writeData[offset>>cacheShift];
                 if (data == null) {
@@ -307,7 +308,7 @@ public class FileIOFactory {
             pos = (int)p;
         }
 
-        public long length() {
+        public long length() throws IOException {
             return len;
         }
 
@@ -319,7 +320,7 @@ public class FileIOFactory {
             is.close();
         }
 
-        public long getFilePointer() {
+        public long getFilePointer() throws IOException {
             return pos;
         }
 
@@ -347,7 +348,7 @@ public class FileIOFactory {
             return false;
         }
     }
-    static public String getFullPath(String path) {
+    static public String getFullPath(String path) throws FileNotFoundException {
         if (path.toLowerCase().startsWith("http://")) {
             return path.substring(0, path.lastIndexOf('/'));
         } else if (path.toLowerCase().startsWith("jar://")) {
@@ -356,7 +357,7 @@ public class FileIOFactory {
             return new File(path).getAbsoluteFile().getParentFile().getAbsolutePath();
         }
     }
-    static public InputStream openStream(String path) throws IOException {
+    static public InputStream openStream(String path) throws FileNotFoundException {
         if (path.toLowerCase().startsWith("http://")) {
             try {
                 URL url = new URL(path);
@@ -373,7 +374,7 @@ public class FileIOFactory {
                     is = zis;
                 }
                 return is;
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
             }
             throw new FileNotFoundException(path);
         } else if (path.toLowerCase().startsWith("jar://")) {
@@ -385,7 +386,7 @@ public class FileIOFactory {
             return is;
         } else {
             path = FileHelper.resolve_path(path);
-            return Files.newInputStream(Paths.get(path));
+            return new FileInputStream(path);
         }
     }
     static public FileIO open(String path, int mode) throws FileNotFoundException {
@@ -396,7 +397,7 @@ public class FileIOFactory {
                 urlConn.setDoInput(true);
                 urlConn.setUseCaches(true);
                 byte[] b = null;
-                long size;
+                long size = 0;
                 InputStream is = urlConn.getInputStream();
                 ByteArrayOutputStream os;
                 if (path.toLowerCase().endsWith(".zip")) {
@@ -427,7 +428,9 @@ public class FileIOFactory {
                 if (b == null)
                     b = os.toByteArray();
                 return new RamIO(b, mode);
-            } catch (OutOfMemoryError | Exception e) {
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 Main.showProgress(null, 0);
@@ -458,7 +461,7 @@ public class FileIOFactory {
                 File tmpFile = new File(dirPath+File.separator+path);
                 if (tmpFile.exists())
                     tmpFile.delete();
-                OutputStream out = Files.newOutputStream(tmpFile.toPath());
+                OutputStream out = new FileOutputStream(tmpFile);
                 byte[] buffer = new byte[16384];
                 int read;
                 int count = 0;
@@ -471,8 +474,8 @@ public class FileIOFactory {
                 } while (read>0);
                 tmpFile.deleteOnExit();
                 System.out.println("Copied "+count+" bytes to "+tmpFile.getAbsolutePath());
-                try {is.close();} catch (Exception ignored) {}
-                try {out.close();} catch (Exception ignored) {}
+                try {is.close();} catch (Exception e) {}
+                try {out.close();} catch (Exception e) {}
                 return new RandomIO(tmpFile, "rw");
             } catch (Exception e) {
                 e.printStackTrace();

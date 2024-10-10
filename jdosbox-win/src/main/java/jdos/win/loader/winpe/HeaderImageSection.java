@@ -11,7 +11,7 @@ public class HeaderImageSection {
 
     public static final int IMAGE_SIZEOF_SHORT_NAME = 8;
 
-    public final byte[] Name = new byte[IMAGE_SIZEOF_SHORT_NAME];
+    public byte[] Name = new byte[IMAGE_SIZEOF_SHORT_NAME];
     public long PhysicalAddress_or_VirtualSize;
     public long VirtualAddress;
     public long SizeOfRawData;

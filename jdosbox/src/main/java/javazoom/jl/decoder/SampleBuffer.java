@@ -31,10 +31,10 @@ package javazoom.jl.decoder;
  */
 public class SampleBuffer extends Obuffer
 {
-  private final short[] 		buffer;
-  private final int[] 		bufferp;
-  private final int 			channels;
-  private final int			frequency;
+  private short[] 		buffer;
+  private int[] 		bufferp;
+  private int 			channels;
+  private int			frequency;
   
   /**
    * Constructor
@@ -90,7 +90,7 @@ public class SampleBuffer extends Obuffer
 	    {
 		  	fs = f[i++];
 			fs = (fs>32767.0f ? 32767.0f 
-						   : (Math.max(fs, -32767.0f)));
+						   : (fs < -32767.0f ? -32767.0f : fs));
 			
 			s = (short)fs;
 			buffer[pos] = s;

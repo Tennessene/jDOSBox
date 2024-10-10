@@ -31,7 +31,7 @@ public abstract class Dos_Drive {
     /* Can be overridden for example in iso images */
     public String GetLabel(){return dirCache.GetLabel();}
 
-    public final DOS_Drive_Cache dirCache = new DOS_Drive_Cache();
+    public DOS_Drive_Cache dirCache = new DOS_Drive_Cache();
 
     // disk cycling functionality (request resources)
     public void Activate() {}

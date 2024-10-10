@@ -23,35 +23,35 @@ public class MainBase {
     static public void showProgress(String msg, int percent) {
         gui.showProgress(msg, percent);
     }
-
+    
     public static final class GFX_CallBackFunctions_t{
         static final public int GFX_CallBackReset=0;
         static final public int GFX_CallBackStop=1;
         static final public int GFX_CallBackRedraw=2;
     }
 
-    public interface GFX_CallBack_t {
-        void call(int function);
+    public static interface GFX_CallBack_t {
+        public void call(int function);
     }
 
-    static private final long startTime = System.currentTimeMillis();
+    static private long startTime = System.currentTimeMillis();
     // emulate SDL_GetTicks -- Gets the number of milliseconds since SDL library initialization.
     static public long GetTicks() {
         return (System.currentTimeMillis()-startTime);
     }
     // emulate SDL_GetTicks -- SDL_Delay -- Waits a specified number of milliseconds before returning.
     static public void Delay(long ms) {
-        try {Thread.sleep(ms);} catch (Exception ignored){}
+        try {Thread.sleep(ms);} catch (Exception e){}
     }
 
     static public /*Bitu*/int GFX_GetRGB(/*Bit8u*/int red,/*Bit8u*/int green,/*Bit8u*/int blue) {
-        return ((blue) | (green << 8) | (red << 16)) | (255 << 24);
+		return ((blue << 0) | (green << 8) | (red << 16)) | (255 << 24);	
     }
 
     static /*Bit32s*/int internal_cycles=0;
     static /*Bits*/int internal_frameskip=0;
     static public void GFX_SetTitle(/*Bit32s*/int cycles,/*Bits*/int frameskip,boolean paused){
-        StringBuilder title = new StringBuilder();
+        StringBuffer title = new StringBuffer();
         if(cycles != -1) internal_cycles = cycles;
         if(frameskip != -1) internal_frameskip = frameskip;
         if(CPU.CPU_CycleAutoAdjust) {
@@ -85,7 +85,7 @@ public class MainBase {
         public FocusChangeEvent(boolean hasfocus) {
             this.hasfocus = hasfocus;
         }
-        public final boolean hasfocus;
+        public boolean hasfocus;
     }
     static public class ShutdownException extends RuntimeException{}
     static public class KillException extends RuntimeException{}
@@ -114,7 +114,7 @@ public class MainBase {
             if (mouse_autoenable || !mouse_autolock) gui.showCursor(true);
         }
     }
-
+    
     static final public Object pauseMutex = new Object();
     static protected void handle(FocusChangeEvent event) {
         if (event.hasfocus) {
@@ -127,9 +127,9 @@ public class MainBase {
             }
             if (priority_nofocus == PRIORITY_LEVELS.PRIORITY_LEVEL_PAUSE) {
                 GFX_SetTitle(-1,-1,true);
-                Keyboard.KEYBOARD_ClrBuffer();
+			    Keyboard.KEYBOARD_ClrBuffer();
                 synchronized (pauseMutex) {
-                    try {pauseMutex.wait();} catch (Exception ignored){}
+                    try {pauseMutex.wait();} catch (Exception e){}
                 }
                 GFX_SetTitle(-1,-1,false);
             } else {
@@ -152,63 +152,73 @@ public class MainBase {
     static void SetPriority(int level) {
         if (true) return;
         switch (level) {
-            case PRIORITY_LEVELS.PRIORITY_LEVEL_PAUSE:	// if DOSBox is paused, assume idle priority
-            case PRIORITY_LEVELS.PRIORITY_LEVEL_LOWEST:
-                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                break;
-            case PRIORITY_LEVELS.PRIORITY_LEVEL_LOWER:
-                Thread.currentThread().setPriority((Thread.NORM_PRIORITY+Thread.MIN_PRIORITY)/2);
-                break;
-            case PRIORITY_LEVELS.PRIORITY_LEVEL_NORMAL:
-                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
-                break;
-            case PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHER:
-                Thread.currentThread().setPriority((Thread.NORM_PRIORITY+Thread.MAX_PRIORITY)/2);
-                break;
-            case PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHEST:
-                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-                break;
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_PAUSE:	// if DOSBox is paused, assume idle priority
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_LOWEST:
+            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+            break;
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_LOWER:
+            Thread.currentThread().setPriority((Thread.NORM_PRIORITY+Thread.MIN_PRIORITY)/2);
+            break;
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_NORMAL:
+            Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+            break;
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHER:
+            Thread.currentThread().setPriority((Thread.NORM_PRIORITY+Thread.MAX_PRIORITY)/2);
+            break;
+        case PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHEST:
+            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+            break;
         }
     }
-    private static final Section.SectionFunction GUI_ShutDown = section -> {
-        //GFX_Stop();
-        //if (sdl.draw.callback) (sdl.draw.callback)( GFX_CallBackStop );
-        if (mouse_locked) GFX_CaptureMouse();
-        //if (sdl.desktop.fullscreen) GFX_SwitchFullScreen();
-    };
-
-    private static final Mapper.MAPPER_Handler KillSwitch = pressed -> {
-        if (pressed) {
-            throw new KillException();
+    private static Section.SectionFunction GUI_ShutDown = new Section.SectionFunction() {
+        public void call(Section section) {
+            //GFX_Stop();
+	        //if (sdl.draw.callback) (sdl.draw.callback)( GFX_CallBackStop );
+	        if (mouse_locked) GFX_CaptureMouse();
+	        //if (sdl.desktop.fullscreen) GFX_SwitchFullScreen();
         }
     };
 
-    private static final Mapper.MAPPER_Handler CaptureMouse = pressed -> {
-        if (pressed) {
-            GFX_CaptureMouse();
+    private static Mapper.MAPPER_Handler KillSwitch = new  Mapper.MAPPER_Handler() {
+        public void call(boolean pressed) {
+            if (pressed) {
+                throw new KillException();
+            }
         }
     };
 
-    private static final Mapper.MAPPER_Handler SwitchFullScreen = pressed -> {
-        if (pressed)
-            gui.fullScreenToggle();
+    private static Mapper.MAPPER_Handler CaptureMouse = new  Mapper.MAPPER_Handler() {
+        public void call(boolean pressed) {
+            if (pressed) {
+                GFX_CaptureMouse();
+            }
+        }
+    };
+
+    private static Mapper.MAPPER_Handler SwitchFullScreen = new  Mapper.MAPPER_Handler() {
+        public void call(boolean pressed) {
+            if (pressed)
+                gui.fullScreenToggle();
+        }
     };
 
     protected static boolean paused = false;
     public static boolean keyboardPaused = false;
-    private static final Mapper.MAPPER_Handler PauseDOSBox = pressed -> {
-        if (!pressed) {
-            return;
+    private static Mapper.MAPPER_Handler PauseDOSBox = new  Mapper.MAPPER_Handler() {
+        public void call(boolean pressed) {
+            if (!pressed) {
+                return;
+            }
+            GFX_SetTitle(-1,-1,true);
+            synchronized (pauseMutex) {
+                paused = true;
+                keyboardPaused = true;
+                try {pauseMutex.wait();} catch (Exception e){}
+                paused = false;
+                keyboardPaused = true;
+            }
+            GFX_SetTitle(-1,-1,false);
         }
-        GFX_SetTitle(-1,-1,true);
-        synchronized (pauseMutex) {
-            paused = true;
-            keyboardPaused = true;
-            try {pauseMutex.wait();} catch (Exception ignored){}
-            paused = false;
-            keyboardPaused = true;
-        }
-        GFX_SetTitle(-1,-1,false);
     };
 
     static final class PRIORITY_LEVELS {
@@ -222,8 +232,8 @@ public class MainBase {
 
     private static int priority_focus;
     private static int priority_nofocus;
-
-    private static final Section.SectionFunction GUI_StartUp = new Section.SectionFunction() {
+    
+    private static Section.SectionFunction GUI_StartUp = new Section.SectionFunction() {
         public void call(Section sec) {
             sec.AddDestroyFunction(GUI_ShutDown);
             Section_prop section = (Section_prop)sec;
@@ -232,67 +242,43 @@ public class MainBase {
             String focus = p.GetSection().Get_string("active");
             String notfocus = p.GetSection().Get_string("inactive");
 
-            switch (focus) {
-                case "lowest":
-                    priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_LOWEST;
-                    break;
-                case "lower":
-                    priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_LOWER;
-                    break;
-                case "normal":
-                    priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_NORMAL;
-                    break;
-                case "higher":
-                    priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHER;
-                    break;
-                case "highest":
-                    priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHEST;
-                    break;
-            }
+            if      (focus.equals("lowest"))  { priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_LOWEST;  }
+            else if (focus.equals("lower"))   { priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_LOWER;   }
+            else if (focus.equals("normal"))  { priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_NORMAL;  }
+            else if (focus.equals("higher"))  { priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHER;  }
+            else if (focus.equals("highest")) { priority_focus = PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHEST; }
 
-            switch (notfocus) {
-                case "lowest":
-                    priority_nofocus = PRIORITY_LEVELS.PRIORITY_LEVEL_LOWEST;
-                    break;
-                case "lower":
-                    priority_nofocus = PRIORITY_LEVELS.PRIORITY_LEVEL_LOWER;
-                    break;
-                case "normal":
-                    priority_nofocus = PRIORITY_LEVELS.PRIORITY_LEVEL_NORMAL;
-                    break;
-                case "higher":
-                    priority_nofocus = PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHER;
-                    break;
-                case "highest":
-                    priority_nofocus = PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHEST;
-                    break;
-                case "pause":
-                    /* we only check for pause here, because it makes no sense
-                     * for DOSBox to be paused while it has focus
-                     */
-                    priority_nofocus = PRIORITY_LEVELS.PRIORITY_LEVEL_PAUSE;
-                    // :TODO: test this, it will probably crash
-                    break;
+            if      (notfocus.equals("lowest"))  { priority_nofocus=PRIORITY_LEVELS.PRIORITY_LEVEL_LOWEST;  }
+            else if (notfocus.equals("lower"))   { priority_nofocus=PRIORITY_LEVELS.PRIORITY_LEVEL_LOWER;   }
+            else if (notfocus.equals("normal"))  { priority_nofocus=PRIORITY_LEVELS.PRIORITY_LEVEL_NORMAL;  }
+            else if (notfocus.equals("higher"))  { priority_nofocus=PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHER;  }
+            else if (notfocus.equals("highest")) { priority_nofocus=PRIORITY_LEVELS.PRIORITY_LEVEL_HIGHEST; }
+            else if (notfocus.equals("pause"))   {
+                /* we only check for pause here, because it makes no sense
+                 * for DOSBox to be paused while it has focus
+                 */
+                priority_nofocus=PRIORITY_LEVELS.PRIORITY_LEVEL_PAUSE;
+                // :TODO: test this, it will probably crash
             }
             SetPriority(priority_focus); //Assume focus on startup
 
             Integer autolock = Dosbox.control.cmdline.FindInt("-autolock", true);
             if (autolock != null) {
-                mouse_autoenable = autolock ==1;
+                mouse_autoenable = autolock.intValue()==1;
             } else {
                 mouse_autoenable = section.Get_bool("autolock");
             }
             if (!mouse_autoenable) gui.showCursor(false);
             mouse_autolock = false;
             mouse_sensitivity = section.Get_int("sensitivity");
-
+            
             JavaMapper.MAPPER_AddHandler(KillSwitch, Mapper.MapKeys.MK_f9, Mapper.MMOD1, "shutdown", "ShutDown");
-            JavaMapper.MAPPER_AddHandler(CaptureMouse, Mapper.MapKeys.MK_f10, Mapper.MMOD1, "capmouse", "Cap Mouse");
-            JavaMapper.MAPPER_AddHandler(SwitchFullScreen, Mapper.MapKeys.MK_return, Mapper.MMOD2, "fullscr", "Fullscreen");
+	        JavaMapper.MAPPER_AddHandler(CaptureMouse, Mapper.MapKeys.MK_f10, Mapper.MMOD1, "capmouse", "Cap Mouse");
+	        JavaMapper.MAPPER_AddHandler(SwitchFullScreen, Mapper.MapKeys.MK_return, Mapper.MMOD2, "fullscr", "Fullscreen");
             if (Config.C_DEBUG) {
-                /* Pause binds with activate-debugger */
+	            /* Pause binds with activate-debugger */
             } else {
-                JavaMapper.MAPPER_AddHandler(PauseDOSBox, Mapper.MapKeys.MK_pause, Mapper.MMOD2, "pause", "Pause");
+	            JavaMapper.MAPPER_AddHandler(PauseDOSBox, Mapper.MapKeys.MK_pause, Mapper.MMOD2, "pause", "Pause");
             }
         }
     };
@@ -313,16 +299,16 @@ public class MainBase {
 
         Pstring = sdl_sec.Add_string("fullresolution",Property.Changeable.Always,"original");
         Pstring.Set_help("What resolution to use for fullscreen: original or fixed size (e.g. 1024x768).\n" +
-                "  Using your monitor's native resolution with aspect=true might give the best results.\n" +
-                "  If you end up with small window on a large screen, try an output different from surface.");
+                          "  Using your monitor's native resolution with aspect=true might give the best results.\n" +
+                  "  If you end up with small window on a large screen, try an output different from surface.");
 
         Pstring = sdl_sec.Add_string("windowresolution",Property.Changeable.Always,"original");
         Pstring.Set_help("Scale the window to this size IF the output device supports hardware scaling.\n" +
-                "  (output=surface does not!)");
+                          "  (output=surface does not!)");
         String[] outputs = {"surface", "overlay","opengl", "openglnb","ddraw"};
         Pstring = sdl_sec.Add_string("output",Property.Changeable.Always,"surface");
-        Pstring.Set_help("What video system to use for output.");
-        Pstring.Set_values(outputs);
+	    Pstring.Set_help("What video system to use for output.");
+	    Pstring.Set_values(outputs);
 
         Pbool = sdl_sec.Add_bool("autolock",Property.Changeable.Always,true);
         Pbool.Set_help("Mouse will automatically lock, if you click on the screen. (Press CTRL-F10 to unlock)");
@@ -337,13 +323,13 @@ public class MainBase {
         Pmulti = sdl_sec.Add_multi("priority", Property.Changeable.Always, ",");
         Pmulti.SetValue("higher,normal");
         Pmulti.Set_help("Priority levels for dosbox. Second entry behind the comma is for when dosbox is not focused/minimized.\n" +
-                "  pause is only valid for the second entry.");
+                         "  pause is only valid for the second entry.");
 
         String[] actt = { "lowest", "lower", "normal", "higher", "highest", "pause"};
         Pstring = Pmulti.GetSection().Add_string("active",Property.Changeable.Always,"higher");
         Pstring.Set_values(actt);
 
-        String[] inactt = { "lowest", "lower", "normal", "higher", "highest", "pause"};
+        String inactt[] = { "lowest", "lower", "normal", "higher", "highest", "pause"};
         Pstring = Pmulti.GetSection().Add_string("inactive",Property.Changeable.Always,"normal");
         Pstring.Set_values(inactt);
 
@@ -366,7 +352,7 @@ public class MainBase {
                 Process p = Runtime.getRuntime().exec(new String[] {edit,path});
                 if (p != null)
                     System.exit(0);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
 
             }
         }
@@ -396,7 +382,7 @@ public class MainBase {
             Process p = Runtime.getRuntime().exec(new String[] {edit,path});
             if (p != null)
                 System.exit(0);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
 
         }
         //if you get here the launching failed!
@@ -415,7 +401,7 @@ public class MainBase {
     static void erasemapperfile() {
         if(new File("dosbox.conf").exists()) {
             show_warning("Warning: dosbox.conf exists in current working directory.\nKeymapping might not be properly reset.\n" +
-                    "Please reset configuration as well and delete the dosbox.conf.\n");
+                         "Please reset configuration as well and delete the dosbox.conf.\n");
         }
         String path = Cross.CreatePlatformConfigDir() + JavaMapper.mapperfile;
         new File(path).delete();
@@ -424,7 +410,7 @@ public class MainBase {
 
     static void show_warning(String message) {
         // :TODO:
-        System.out.println(message);
+        Log.log_msg(message);
     }
 
     static void printconfiglocation() {
@@ -432,11 +418,11 @@ public class MainBase {
         if (!Dosbox.control.PrintConfig(path)) {
             Log.exit("tried creating "+path+". but failed.\n");
         }
-        System.out.println(path+"\n");
+        Log.log_msg(path+"\n");
         System.exit(0);
     }
 
-    protected static final Vector events = new Vector();
+    protected static Vector events = new Vector();
     protected static long startupTime;
 
     static void main(GUI g, String[] args) {
@@ -468,17 +454,17 @@ public class MainBase {
             if (Dosbox.control.cmdline.FindExist("-resetmapper")) erasemapperfile();
             // For now just use the java console, in the future we could open a separate swing windows and redirect to there if necessary
             if (Dosbox.control.cmdline.FindExist("-version") || Dosbox.control.cmdline.FindExist("--version")) {
-                System.out.println("\nDOSBox version "+Config.VERSION+", copyright 2002-2010 DOSBox Team.\n\n");
-                System.out.println("DOSBox is written by the DOSBox Team (See AUTHORS file))\n");
-                System.out.println("DOSBox comes with ABSOLUTELY NO WARRANTY.  This is free software,\n");
-                System.out.println("and you are welcome to redistribute it under certain conditions;\n");
-                System.out.println("please read the COPYING file thoroughly before doing so.\n\n");
+                Log.log_msg("\nDOSBox version "+Config.VERSION+", copyright 2002-2010 DOSBox Team.\n\n");
+                Log.log_msg("DOSBox is written by the DOSBox Team (See AUTHORS file))\n");
+                Log.log_msg("DOSBox comes with ABSOLUTELY NO WARRANTY.  This is free software,\n");
+                Log.log_msg("and you are welcome to redistribute it under certain conditions;\n");
+                Log.log_msg("please read the COPYING file thoroughly before doing so.\n\n");
                 return;
             }
             if (Dosbox.control.cmdline.FindExist("-printconf")) printconfiglocation();
-            System.out.println("DOSBox version "+Config.VERSION);
-            System.out.println("Copyright 2002-2010 DOSBox Team, published under GNU GPL.");
-            System.out.println("---");
+            Log.log_msg("DOSBox version "+Config.VERSION);
+            Log.log_msg("Copyright 2002-2010 DOSBox Team, published under GNU GPL.");
+            Log.log_msg("---");
 
 
             /* Parse configuration files */
@@ -490,7 +476,7 @@ public class MainBase {
                 if (!parsed_anyconfigfile) {
                     //Try to create the userlevel configfile.
                     if (Dosbox.control.PrintConfig(path)) {
-                        System.out.println("CONFIG: Generating default configuration.\nWriting it to "+path);
+                        Log.log_msg("CONFIG: Generating default configuration.\nWriting it to "+path);
                         //Load them as well. Makes relative paths much easier
                         if (Dosbox.control.ParseConfigFile(path)) parsed_anyconfigfile = true;
                     }
@@ -504,7 +490,7 @@ public class MainBase {
             if (!Dosbox.applet) {
                 //if none found => parse localdir conf
                 if (!parsed_anyconfigfile)
-                    if (Dosbox.control.ParseConfigFile(".dosbox" + File.separator + "dosbox-0.74.conf")) parsed_anyconfigfile = true;
+                    if (Dosbox.control.ParseConfigFile("dosbox.conf")) parsed_anyconfigfile = true;
                 //if none found => parse userlevel conf
                 if (!parsed_anyconfigfile) {
                     path = Cross.CreatePlatformConfigDir() + Cross.GetPlatformConfigName();
@@ -513,11 +499,11 @@ public class MainBase {
                 if (!parsed_anyconfigfile) {
                     path = Cross.CreatePlatformConfigDir() + Cross.GetPlatformConfigName();
                     if (Dosbox.control.PrintConfig(path)) {
-                        System.out.println("CONFIG: Generating default configuration.\nWriting it to "+path);
+                        Log.log_msg("CONFIG: Generating default configuration.\nWriting it to "+path);
                         //Load them as well. Makes relative paths much easier
                         Dosbox.control.ParseConfigFile(path);
                     } else {
-                        System.out.println("CONFIG: Using default settings. Create a configfile to change them");
+                        Log.log_msg("CONFIG: Using default settings. Create a configfile to change them");
                     }
                 }
             }
@@ -550,14 +536,14 @@ public class MainBase {
                 Dosbox.control.StartUp();
             } catch (Dos_programs.RebootException e) {
                 System.out.println("Rebooting");
-                try {myconf.Destroy();} catch (Exception ignored){}
+                try {myconf.Destroy();} catch (Exception e1){}
                 continue;
             } catch (ShutdownException e) {
                 if (saveName!=null) {
                     Loader.save(saveName, false);
                 }
                 System.out.println("Normal Shutdown");
-                try {myconf.Destroy();} catch (Exception ignored){}
+                try {myconf.Destroy();} catch (Exception e1){}
             } catch (KillException e) {
                 System.out.println("Normal Shutdown");
                 if (!Dosbox.applet)

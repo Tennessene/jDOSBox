@@ -2,6 +2,7 @@ package jdos.cpu.core_dynamic;
 
 import jdos.cpu.Paging;
 import jdos.hardware.Memory;
+import jdos.misc.Log;
 import jdos.util.IntRef;
 
 public class Decoder_basic {
@@ -16,14 +17,14 @@ public class Decoder_basic {
             return (CodePageHandlerDynRec)handler;
         }
         if ((handler.flags & Paging.PFLAG_NOCODE)!=0) {
-            //System.out.println("DYNREC:Can't run code in this page");
+            //Log.log_msg("DYNREC:Can't run code in this page");
             return null;
         }
         /*Bitu*/int lin_page=lin_addr>>>12;
         phys_page.value=lin_page;
         // find the physical page that the linear page is mapped to
         if (!Paging.PAGING_MakePhysPage(phys_page)) {
-            System.out.println("DYNREC:Can't find physpage for lin addr "+Integer.toString(lin_addr, 16));
+            Log.log_msg("DYNREC:Can't find physpage for lin addr "+Integer.toString(lin_addr, 16));
             return null;
         }
         // find a free CodePage

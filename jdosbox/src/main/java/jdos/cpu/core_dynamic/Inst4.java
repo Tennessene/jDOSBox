@@ -6,7 +6,7 @@ import jdos.hardware.Memory;
 
 public class Inst4 extends Helper {
     final static public class Lgdt_mem extends Op {
-        final EaaBase get_eaa;
+        EaaBase get_eaa;
 
         public Lgdt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -21,14 +21,23 @@ public class Inst4 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "LGDT "+get_eaa.description32();}
     }
 
     final static public class Lidt_mem extends Op {
-        final EaaBase get_eaa;
+        EaaBase get_eaa;
 
         public Lidt_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -43,14 +52,23 @@ public class Inst4 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "LIDT "+get_eaa.description32();}
     }
 
     final static public class Smsw_reg extends Op {
-        final Reg eard;
+        Reg eard;
 
         public Smsw_reg(int rm) {
             eard = Mod.ed(rm);
@@ -61,11 +79,23 @@ public class Inst4 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "SMSW "+eard.getName();}
     }
 
     final static public class Lmsw_reg extends Op {
-        final Reg eard;
+        Reg eard;
 
         public Lmsw_reg(int rm) {
             eard = Mod.ed(rm);
@@ -76,14 +106,24 @@ public class Inst4 extends Helper {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public boolean throwsException() {return true;}
+        public int sets() {
+            return 0;
+        }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "LMSW "+eard.getName();}
     }
 
     final static public class LarGdEd_reg extends Op {
-        final Reg earw;
-        final Reg rd;
+        Reg earw;
+        Reg rd;
 
         public LarGdEd_reg(int rm) {
             earw = Mod.ew(rm);
@@ -100,16 +140,21 @@ public class Inst4 extends Helper {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
         public boolean returnsIllegal() {return true;}
-
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "LAR "+rd.getName() + ", "+earw.getName16();}
     }
 
     final static public class LarGdEd_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public LarGdEd_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -127,16 +172,21 @@ public class Inst4 extends Helper {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
         public boolean returnsIllegal() {return true;}
-
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "LAR "+rd.getName() + ", "+get_eaa.description16();}
     }
 
     final static public class LslGdEd_reg extends Op {
-        final Reg earw;
-        final Reg rd;
+        Reg earw;
+        Reg rd;
 
         public LslGdEd_reg(int rm) {
             earw = Mod.ew(rm);
@@ -153,16 +203,21 @@ public class Inst4 extends Helper {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
         public boolean returnsIllegal() {return true;}
-
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "LSL "+rd.getName() + ", "+earw.getName16();}
     }
 
     final static public class LslGdEd_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public LslGdEd_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -180,15 +235,20 @@ public class Inst4 extends Helper {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
         public boolean returnsIllegal() {return true;}
-
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "LAR "+rd.getName() + ", "+get_eaa.description16();}
     }
 
 static abstract public class JumpCond32_d extends Op {
-        final int offset;
+        int offset;
 
         public JumpCond32_d() {
             offset = decode_fetchds();
@@ -203,7 +263,9 @@ static abstract public class JumpCond32_d extends Op {
             return Constants.BR_Link2;
         }
 
-    public boolean usesEip() {return true;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return true;}
         public boolean setsEip() {return true;}
     public String description() {return " off="+offset;}
     }
@@ -211,6 +273,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_o extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_O());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -224,6 +290,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_NO());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.OF;
         }
@@ -233,6 +303,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_b extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_B());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -246,6 +320,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_NB());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.CF;
         }
@@ -255,6 +333,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_z extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_Z());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -268,6 +350,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_NZ());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.ZF;
         }
@@ -277,6 +363,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_be extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_BE());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -290,6 +380,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_NBE());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.CF | CPU_Regs.ZF;
         }
@@ -299,6 +393,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_s extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_S());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -312,6 +410,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_NS());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.SF;
         }
@@ -321,6 +423,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_p extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_P());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -334,6 +440,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_NP());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.PF;
         }
@@ -343,6 +453,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_l extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_L());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -356,6 +470,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_NL());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF;
         }
@@ -367,6 +485,10 @@ static abstract public class JumpCond32_d extends Op {
             return jump(Flags.TFLG_LE());
         }
 
+        public int sets() {
+            return 0;
+        }
+
         public int gets() {
             return CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.ZF;
         }
@@ -376,6 +498,10 @@ static abstract public class JumpCond32_d extends Op {
     final static public class JumpCond32_d_nle extends JumpCond32_d {
         public int call() {
             return jump(Flags.TFLG_NLE());
+        }
+
+        public int sets() {
+            return 0;
         }
 
         public int gets() {
@@ -390,8 +516,18 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public boolean accessesMemory() {return true;}
+        public int sets() {
+            return 0;
+        }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public String description() {return "PUSH FS";}
     }
 
@@ -401,17 +537,26 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int setsSeg() {return FS|FROM_STACK;}
         public String description() {return "POP FS";}
     }
 
     final static public class BtEdGd_reg extends Op {
         int mask;
-        final Reg rd;
-        final Reg eard;
+        Reg rd;
+        Reg eard;
 
         public BtEdGd_reg(int rm) {
             rd = Mod.gd(rm);
@@ -429,12 +574,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtEdGd_mem extends Op {
         int mask;
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public BtEdGd_mem(int rm) {
             rd = Mod.gd(rm);
@@ -455,13 +608,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShldEdGdIb_reg extends Op {
-        final int op3;
-        final Reg rd;
-        final Reg eard;
+        int op3;
+        Reg rd;
+        Reg eard;
 
         public ShldEdGdIb_reg(int rm) {
             rd = Mod.gd(rm);
@@ -479,13 +639,21 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
     final static public class ShldEdGdIb_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
-        final int op3;
+        Reg rd;
+        EaaBase get_eaa;
+        int op3;
 
         public ShldEdGdIb_mem(int rm) {
             rd = Mod.gd(rm);
@@ -504,14 +672,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public boolean accessesMemory() {return true;}
+        public int gets() {
+            return 0;
+        }
 
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
     final static public class ShldEdGdCl_reg extends Op {
-        final Reg rd;
-        final Reg eard;
+        Reg rd;
+        Reg eard;
 
         public ShldEdGdCl_reg(int rm) {
             rd = Mod.gd(rm);
@@ -530,12 +704,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
     final static public class ShldEdGdCl_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public ShldEdGdCl_mem(int rm) {
             rd = Mod.gd(rm);
@@ -556,8 +738,14 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
-        public boolean accessesMemory() {return true;}
+        public int gets() {
+            return 0;
+        }
 
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHLD;}
     }
 
@@ -567,7 +755,18 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class PopGS extends Op {
@@ -576,16 +775,25 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int setsSeg() {return GS|FROM_STACK;}
     }
 
     final static public class BtsEdGd_reg extends Op {
         int mask;
-        final Reg rd;
-        final Reg eard;
+        Reg rd;
+        Reg eard;
 
         public BtsEdGd_reg(int rm) {
             rd = Mod.gd(rm);
@@ -604,12 +812,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEdGd_mem extends Op {
         int mask;
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public BtsEdGd_mem(int rm) {
             rd = Mod.gd(rm);
@@ -631,13 +847,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ShrdEdGdIb_reg extends Op {
-        final int op3;
-        final Reg rd;
-        final Reg eard;
+        int op3;
+        Reg rd;
+        Reg eard;
 
         public ShrdEdGdIb_reg(int rm) {
             rd = Mod.gd(rm);
@@ -655,13 +878,21 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ShrdEdGdIb_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
-        final int op3;
+        Reg rd;
+        EaaBase get_eaa;
+        int op3;
 
         public ShrdEdGdIb_mem(int rm) {
             rd = Mod.gd(rm);
@@ -680,14 +911,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public boolean accessesMemory() {return true;}
+        public int gets() {
+            return 0;
+        }
 
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ShrdEdGdCl_reg extends Op {
-        final Reg rd;
-        final Reg eard;
+        Reg rd;
+        Reg eard;
 
         public ShrdEdGdCl_reg(int rm) {
             rd = Mod.gd(rm);
@@ -706,12 +943,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ShrdEdGdCl_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public ShrdEdGdCl_mem(int rm) {
             rd = Mod.gd(rm);
@@ -732,14 +977,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF | CPU_Regs.MAYBE;
         }
 
-        public boolean accessesMemory() {return true;}
+        public int gets() {
+            return 0;
+        }
 
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_DSHRD;}
     }
 
     final static public class ImulGdEd_reg extends Op {
-        final Reg rd;
-        final Reg eard;
+        Reg rd;
+        Reg eard;
 
         public ImulGdEd_reg(int rm) {
             rd = Mod.gd(rm);
@@ -755,11 +1006,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.OF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ImulGdEd_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public ImulGdEd_mem(int rm) {
             rd = Mod.gd(rm);
@@ -776,12 +1035,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.OF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEdGd_reg extends Op {
-        final Reg rd;
-        final Reg eard;
+        Reg rd;
+        Reg eard;
 
         public CmpxchgEdGd_reg(int rm) {
             rd = Mod.gd(rm);
@@ -805,11 +1071,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class CmpxchgEdGd_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public CmpxchgEdGd_mem(int rm) {
             rd = Mod.gd(rm);
@@ -836,12 +1110,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LssEd extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public LssEd(int rm) {
             rd = Mod.gd(rm);
@@ -858,15 +1139,24 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int setsSeg() {return SS|FROM_MEMORY;}
     }
 
     final static public class BtrEdGd_reg extends Op {
-        final Reg rd;
-        final Reg eard;
+        Reg rd;
+        Reg eard;
 
         public BtrEdGd_reg(int rm) {
             rd = Mod.gd(rm);
@@ -885,11 +1175,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEdGd_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public BtrEdGd_mem(int rm) {
             rd = Mod.gd(rm);
@@ -911,12 +1209,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class LfsEd extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public LfsEd(int rm) {
             rd = Mod.gd(rm);
@@ -930,15 +1235,24 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int setsSeg() {return FS|FROM_MEMORY;}
     }
 
     final static public class LgsEd extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public LgsEd(int rm) {
             rd = Mod.gd(rm);
@@ -952,15 +1266,24 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
         public boolean throwsException() {return true;}
         public boolean accessesMemory() {return true;}
-
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int setsSeg() {return GS|FROM_MEMORY;}
     }
 
     final static public class MovzxGdEb_reg extends Op {
-        final Reg rd;
-        final Reg earb;
+        Reg rd;
+        Reg earb;
 
         public MovzxGdEb_reg(int rm) {
             rd = Mod.gd(rm);
@@ -972,11 +1295,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGdEb_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public MovzxGdEb_mem(int rm) {
             rd = Mod.gd(rm);
@@ -989,12 +1324,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGdEw_reg extends Op {
-        final Reg rd;
-        final Reg earw;
+        Reg rd;
+        Reg earw;
 
         public MovzxGdEw_reg(int rm) {
             rd = Mod.gd(rm);
@@ -1006,11 +1352,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovzxGdEw_mem extends Op {
-        final Reg rd;
-        final EaaBase get_eaa;
+        Reg rd;
+        EaaBase get_eaa;
 
         public MovzxGdEw_mem(int rm) {
             rd = Mod.gd(rm);
@@ -1023,12 +1381,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtEdIb_reg extends Op {
-        final Reg eard;
-        final int mask;
+        Reg eard;
+        int mask;
 
         public BtEdIb_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1045,11 +1414,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEdIb_reg extends Op {
-        final Reg eard;
-        final int mask;
+        Reg eard;
+        int mask;
 
         public BtsEdIb_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1067,11 +1444,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEdIb_reg extends Op {
-        final Reg eard;
-        final int mask;
+        Reg eard;
+        int mask;
 
         public BtrEdIb_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1089,11 +1474,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdIb_reg extends Op {
-        final Reg eard;
-        final int mask;
+        Reg eard;
+        int mask;
 
         public BtcEdIb_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1112,11 +1505,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtEdIb_mem extends Op {
-        final EaaBase get_eaa;
-        final int mask;
+        EaaBase get_eaa;
+        int mask;
 
         public BtEdIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1135,12 +1536,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtsEdIb_mem extends Op {
-        final EaaBase get_eaa;
-        final int mask;
+        EaaBase get_eaa;
+        int mask;
 
         public BtsEdIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1160,12 +1568,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtrEdIb_mem extends Op {
-        final EaaBase get_eaa;
-        final int mask;
+        EaaBase get_eaa;
+        int mask;
 
         public BtrEdIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1185,12 +1600,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdIb_mem extends Op {
-        final EaaBase get_eaa;
-        final int mask;
+        EaaBase get_eaa;
+        int mask;
 
         public BtcEdIb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1212,12 +1634,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdGd_reg extends Op {
-        final Reg eard;
-        final Reg rd;
+        Reg eard;
+        Reg rd;
 
         public BtcEdGd_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1236,11 +1665,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BtcEdGd_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public BtcEdGd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1261,12 +1698,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsfGdEd_reg extends Op {
-        final Reg eard;
-        final Reg rd;
+        Reg eard;
+        Reg rd;
 
         public BsfGdEd_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1291,11 +1735,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsfGdEd_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public BsfGdEd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1321,12 +1773,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsrGdEd_reg extends Op {
-        final Reg eard;
-        final Reg rd;
+        Reg eard;
+        Reg rd;
 
         public BsrGdEd_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1351,11 +1810,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class BsrGdEd_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public BsrGdEd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1381,12 +1848,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.ZF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEb_reg extends Op {
-        final Reg earb;
-        final Reg rd;
+        Reg earb;
+        Reg rd;
 
         public MovsxGdEb_reg(int rm) {
             earb = Mod.eb(rm);
@@ -1398,11 +1872,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEb_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public MovsxGdEb_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1415,12 +1901,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEw_reg extends Op {
-        final Reg earw;
-        final Reg rd;
+        Reg earw;
+        Reg rd;
 
         public MovsxGdEw_reg(int rm) {
             earw = Mod.ew(rm);
@@ -1432,11 +1929,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class MovsxGdEw_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public MovsxGdEw_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1449,12 +1958,23 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
         public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class XaddGdEd_reg extends Op {
-        final Reg eard;
-        final Reg rd;
+        Reg eard;
+        Reg rd;
 
         public XaddGdEd_reg(int rm) {
             eard = Mod.ed(rm);
@@ -1473,12 +1993,20 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_ADDD;}
     }
 
     final static public class XaddGdEd_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg rd;
+        EaaBase get_eaa;
+        Reg rd;
 
         public XaddGdEd_mem(int rm) {
             get_eaa =  Mod.getEaa(rm);
@@ -1499,13 +2027,19 @@ static abstract public class JumpCond32_d extends Op {
             return CPU_Regs.CF | CPU_Regs.AF  | CPU_Regs.ZF | CPU_Regs.SF | CPU_Regs.OF | CPU_Regs.PF;
         }
 
-        public boolean accessesMemory() {return true;}
+        public int gets() {
+            return 0;
+        }
 
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int getFlagType() {return FLAG_TYPE_ADDD;}
     }
 
     final static public class Bswapd extends Op {
-        final Reg reg;
+        Reg reg;
 
         public Bswapd(Reg reg) {
             this.reg = reg;
@@ -1516,17 +2050,34 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
+        public int sets() {
+            return 0;
+        }
+
+        public int gets() {
+            return 0;
+        }
+
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
     
     static abstract public class ConditionalMov_reg extends Op {
-        final Reg ed;
-        final Reg gd;
+        Reg ed;
+        Reg gd;
 
         public ConditionalMov_reg(int rm) {
             ed = Mod.ed(rm);
             gd = Mod.gd(rm);
         }
 
+        public int sets() {return 0;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
     }
 
     final static public class ConditionalMov_o_reg extends ConditionalMov_reg {
@@ -1738,16 +2289,20 @@ static abstract public class JumpCond32_d extends Op {
     }
 
      static abstract public class ConditionalMov_mem extends Op {
-        final EaaBase get_eaa;
-        final Reg gd;
+        EaaBase get_eaa;
+        Reg gd;
 
         public ConditionalMov_mem(int rm) {
             get_eaa= Mod.getEaa(rm);
             gd = Mod.gd(rm);
         }
 
-         public boolean accessesMemory() {return true;}
-     }
+        public int sets() {return 0;}
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
+    }
 
     final static public class ConditionalMov_o_mem extends ConditionalMov_mem {
         public ConditionalMov_o_mem(int rm) {
@@ -1974,7 +2529,7 @@ static abstract public class JumpCond32_d extends Op {
     }
 
     final static public class CompareExchange8B extends Op {
-        final EaaBase get_eaa;
+        EaaBase get_eaa;
 
         public CompareExchange8B(int rm) {
             get_eaa= Mod.getEaa(rm);
@@ -1983,7 +2538,7 @@ static abstract public class JumpCond32_d extends Op {
         public int call() {
             long value1 = ((CPU_Regs.reg_edx.dword & 0xffffffffL) << 32) | (CPU_Regs.reg_eax.dword & 0xffffffffL);
             int eaa = get_eaa.call();
-            long value2 = (Memory.mem_readd(eaa) & 0xffffffffL) | ((Memory.mem_readd(eaa+4) & 0xffffffffL) << 32);
+            long value2 = (Memory.mem_readd(eaa) & 0xffffffffl) | ((Memory.mem_readd(eaa+4) & 0xffffffffl) << 32);
             Flags.FillFlags();
             if (value1==value2) {
                 CPU_Regs.SETFLAGBIT(CPU_Regs.ZF, true);
@@ -1997,8 +2552,14 @@ static abstract public class JumpCond32_d extends Op {
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
-        public boolean accessesMemory() {return true;}
+        public int gets() {
+            return 0;
+        }
 
+        public boolean throwsException() {return false;}
+        public boolean accessesMemory() {return true;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
         public int sets() {return CPU_Regs.ZF;}
         public String description() {return "CMPXCHG8B " + get_eaa.description32();}
     }
@@ -2013,15 +2574,25 @@ static abstract public class JumpCond32_d extends Op {
         }
 
         public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
+        public int sets() {return 0;}
+        public int gets() {return 0;}
     }
 
     final static public class WriteMSR extends Op {
         public int call() {
             if (CPU.cpu.cpl != 0) return EXCEPTION(CPU.EXCEPTION_GP);
-            CPU.writeMSR(CPU_Regs.reg_ecx.dword, ((CPU_Regs.reg_edx.dword & 0xFFFFFFFFL) << 32) | (CPU_Regs.reg_eax.dword & 0xFFFFFFFFL));
+            CPU.writeMSR(CPU_Regs.reg_ecx.dword, ((CPU_Regs.reg_edx.dword & 0xFFFFFFFFl) << 32) | (CPU_Regs.reg_eax.dword & 0xFFFFFFFFl));
             CPU_Regs.reg_eip+=eip_count;return next.call();
         }
 
         public boolean throwsException() {return true;}
+        public boolean accessesMemory() {return false;}
+        public boolean usesEip() {return false;}
+        public boolean setsEip() {return false;}
+        public int sets() {return 0;}
+        public int gets() {return 0;}
     }
 }

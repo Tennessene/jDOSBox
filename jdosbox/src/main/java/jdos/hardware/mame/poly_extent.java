@@ -17,5 +17,5 @@ public final class poly_extent
     }
     public int       startx;                     /* starting X coordinate (inclusive) */
     public int       stopx;                      /* ending X coordinate (exclusive) */
-    public final Poly.poly_param_extent[] param = new Poly.poly_param_extent[Poly.MAX_VERTEX_PARAMS]; /* starting and dx values for each parameter */
+    public Poly.poly_param_extent[] param = new Poly.poly_param_extent[Poly.MAX_VERTEX_PARAMS]; /* starting and dx values for each parameter */
 }

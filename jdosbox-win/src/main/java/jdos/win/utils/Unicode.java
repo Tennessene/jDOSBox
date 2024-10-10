@@ -26,7 +26,7 @@ public class Unicode {
     public static final int C2_OTHERNEUTRAL = 0x000B; /* ON */
 
     public static short get_char_directionW(char c) {
-        byte direction = Character.getDirectionality(c);
+        byte direction = Character.getDirectionality((char)c);
         switch (direction) {
             case Character.DIRECTIONALITY_LEFT_TO_RIGHT:
                 return C2_LEFTTORIGHT;

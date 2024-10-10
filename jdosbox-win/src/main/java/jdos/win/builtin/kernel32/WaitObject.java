@@ -13,7 +13,7 @@ public class WaitObject extends WinObject {
 
     static public WaitObject getWait(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WaitObject))
+        if (object == null || !(object instanceof WaitObject))
             return null;
         return (WaitObject)object;
     }
@@ -74,5 +74,5 @@ public class WaitObject extends WinObject {
     }
 
     public WinObject owner;
-    public final Vector<WaitGroup> waiting = new Vector<>();
+    public Vector<WaitGroup> waiting = new Vector<WaitGroup>();
 }

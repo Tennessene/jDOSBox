@@ -43,7 +43,7 @@ public class Wsock32 extends BuiltinModule {
         StringUtil.strcpy(lpWSAData, "WinSock 2.0"); lpWSAData+=4;
         StringUtil.strcpy(lpWSAData, "Running"); lpWSAData+=4;
         writew(lpWSAData, 128); lpWSAData+=2;
-        writew(lpWSAData, 1024);
+        writew(lpWSAData, 1024); lpWSAData+=2;
         return 0;
     }
     

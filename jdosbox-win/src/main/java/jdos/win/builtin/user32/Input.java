@@ -40,7 +40,7 @@ public class Input extends WinAPI {
         return WinAPI.TRUE;
     }
 
-    static final String[] keyNames = new String[] {
+    static String[] keyNames = new String[] {
             null, "Esc", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "Backspace", "Tab",
             "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "Enter", "Ctrl", "A", "S",
             "D", "F", "G", "H", "J", "K", "L", ";", "'", "`", "Shift", "\\", "Z", "X", "C", "V",
@@ -76,7 +76,7 @@ public class Input extends WinAPI {
     }
 
     // values just captures from English XP
-    static final short[] keyvscc2vk = new short[] {
+    static short[] keyvscc2vk = new short[] {
             0x0, 0x1b, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0xbd, 0xbb, 0x8, 0x9,
             0x51, 0x57, 0x45, 0x52, 0x54, 0x59, 0x55, 0x49, 0x4f, 0x50, 0xdb, 0xdd, 0xd, 0x11, 0x41, 0x53,
             0x44, 0x46, 0x47, 0x48, 0x4a, 0x4b, 0x4c, 0xba, 0xde, 0xc0, 0x10, 0xdc, 0x5a, 0x58, 0x43, 0x56,
@@ -95,7 +95,7 @@ public class Input extends WinAPI {
             0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
     };
 
-    static final short[] keyvk2vsc = new short[] {
+    static short[] keyvk2vsc = new short[] {
             0x0, 0x0, 0x0, 0x46, 0x0, 0x0, 0x0, 0x0, 0xe, 0xf, 0x0, 0x0, 0x4c, 0x1c, 0x0, 0x0,
             0x2a, 0x1d, 0x38, 0x0, 0x3a, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0,
             0x39, 0x49, 0x51, 0x4f, 0x47, 0x4b, 0x48, 0x4d, 0x50, 0x0, 0x0, 0x0, 0x54, 0x52, 0x53, 0x63,
@@ -114,7 +114,7 @@ public class Input extends WinAPI {
             0x0, 0x5b, 0x0, 0x5f, 0x0, 0x5e, 0x0, 0x0, 0x0, 0x5d, 0x0, 0x62, 0x0, 0x0, 0x0, 0x0
     };
 
-    static final short[] keyvk2char = new short[] {
+    static short[] keyvk2char = new short[] {
             0x0, 0x0, 0x0, 0x3, 0x0, 0x0, 0x0, 0x0, 0x8, 0x9, 0x0, 0x0, 0x0, 0xd, 0x0, 0x0,
             0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1b, 0x0, 0x0, 0x0, 0x0,
             0x20, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -156,14 +156,16 @@ public class Input extends WinAPI {
     }
 
     // BOOL WINAPI ReleaseCapture(void)
-    static public void ReleaseCapture() {
+    static public int ReleaseCapture() {
         StaticData.mouseCapture = 0;
+        return TRUE;
     }
 
     // HWND WINAPI SetCapture(HWND hWnd)
-    static public void SetCapture(int hWnd) {
+    static public int SetCapture(int hWnd) {
         int result = StaticData.mouseCapture;
         StaticData.mouseCapture = hWnd;
+        return result;
     }
 
     // BOOL WINAPI SetCursorPos(int X, int Y)
@@ -175,7 +177,7 @@ public class Input extends WinAPI {
 
     // called from the cpu thread
     static public void processInput() {
-        while(!StaticData.inputQueue.isEmpty()) {
+        while(StaticData.inputQueue.size()>0) {
             Object msg = StaticData.inputQueue.remove(0);
             if (msg instanceof MouseInput) {
                 MouseInput mouseMsg = (MouseInput)msg;
@@ -193,9 +195,9 @@ public class Input extends WinAPI {
             this.pt = pt.copy();
             this.wParam = wParam;
         }
-        final int msg;
-        final WinPoint pt;
-        final int wParam;
+        int msg;
+        WinPoint pt;
+        int wParam;
     }
 
     static private class KeyboardInput {
@@ -205,10 +207,10 @@ public class Input extends WinAPI {
             this.lParam = lParam;
             this.keyState = keyState;
         }
-        final int msg;
-        final int wParam;
-        final int lParam;
-        final BitSet keyState;
+        int msg;
+        int wParam;
+        int lParam;
+        BitSet keyState;
     }
 
     // called from java thread
@@ -233,9 +235,9 @@ public class Input extends WinAPI {
     }
 
     static private void handeMouseInput(int msg, WinPoint pt, int wParam) {
-        WinWindow window;
+        WinWindow window = null;
         int hitTest = WinAPI.HTNOWHERE;
-        WinPoint relWinPt;
+        WinPoint relWinPt = null;
 
         if (StaticData.mouseCapture != 0) {
             window = WinWindow.get(StaticData.mouseCapture);
@@ -257,9 +259,21 @@ public class Input extends WinAPI {
             //hitTest = Message.SendMessageA(window.handle, WinAPI.WM_NCHITTEST, 0, WinAPI.MAKELONG(pt.x, pt.y));
         }
         if (msg != WinWindow.WM_MOUSEWHEEL) {
-            window.screenToWindow(pt);
+            if (hitTest != WinWindow.HTCLIENT)
+                msg += WinWindow.WM_NCMOUSEMOVE - WinWindow.WM_MOUSEMOVE;
+            else
+                window.screenToWindow(pt);
         }
         // :TODO: double click?
+
+        if (hitTest == WinWindow.HTERROR || hitTest == WinWindow.HTNOWHERE) {
+            window.postMessage(WinWindow.WM_SETCURSOR, window.handle, hitTest | (msg >> 16));
+            return;
+        }
+
+        if (StaticData.mouseCapture == 0) {
+            // :TODO: WM_MOUSEACTIVATE
+        }
 
         WinMsg m = window.getThread().getLastMessage();
         if (m != null && m.message == WinWindow.WM_MOUSEMOVE && m.message == msg) {

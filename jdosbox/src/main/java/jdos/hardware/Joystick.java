@@ -5,8 +5,6 @@ import jdos.misc.setup.Section;
 import jdos.misc.setup.Section_prop;
 import jdos.sdl.JavaMapper;
 
-import java.util.Arrays;
-
 public class Joystick extends Module_base {
     static private final class JoystickType {
         static public final int JOY_NONE=0;
@@ -30,11 +28,11 @@ public class Joystick extends Module_base {
         float xpos,ypos;
         double xtick,ytick;
         /*Bitu*/int xcount,ycount;
-        final boolean[] button=new boolean[2];
+        boolean[] button=new boolean[2];
     }
 
-    final int joytype;
-    static final Stick[] stick=new Stick[2];
+    int joytype;
+    static Stick[] stick=new Stick[2];
 
     static private /*Bit32u*/long last_write = 0;
     static private  boolean write_active = false;
@@ -42,100 +40,104 @@ public class Joystick extends Module_base {
     static private  boolean button_wrapping_enabled = true;
 
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler read_p201 = (port, iolen) -> {
-        /* Reset Joystick to 0 after TIMEOUT ms */
-        if(write_active && ((Pic.PIC_Ticks - last_write) > TIMEOUT)) {
-            write_active = false;
-            stick[0].xcount = 0;
-            stick[1].xcount = 0;
-            stick[0].ycount = 0;
-            stick[1].ycount = 0;
-    //		LOG_MSG("reset by time %d %d",PIC_Ticks,last_write);
-        }
+    static private IoHandler.IO_ReadHandler read_p201 = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            /* Reset Joystick to 0 after TIMEOUT ms */
+            if(write_active && ((Pic.PIC_Ticks - last_write) > TIMEOUT)) {
+                write_active = false;
+                stick[0].xcount = 0;
+                stick[1].xcount = 0;
+                stick[0].ycount = 0;
+                stick[1].ycount = 0;
+        //		LOG_MSG("reset by time %d %d",PIC_Ticks,last_write);
+            }
 
-        /*  Format of the byte to be returned:
-                                | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-                                +-------------------------------+
-                                  |   |   |   |   |   |   |   |
-          Joystick B, Button 2 ---+   |   |   |   |   |   |   +--- Joystick A, X Axis
-          Joystick B, Button 1 -------+   |   |   |   |   +------- Joystick A, Y Axis
-          Joystick A, Button 2 -----------+   |   |   +----------- Joystick B, X Axis
-          Joystick A, Button 1 ---------------+   +--------------- Joystick B, Y Axis
-        */
-        /*Bit8u*/short ret=0xff;
-        if (stick[0].enabled) {
-            if (stick[0].xcount!=0) stick[0].xcount--; else ret&=~1;
-            if (stick[0].ycount!=0) stick[0].ycount--; else ret&=~2;
-            if (stick[0].button[0]) ret&=~16;
-            if (stick[0].button[1]) ret&=~32;
-        }
-        if (stick[1].enabled) {
-            if (stick[1].xcount!=0) stick[1].xcount--; else ret&=~4;
-            if (stick[1].ycount!=0) stick[1].ycount--; else ret&=~8;
-            if (stick[1].button[0]) ret&=~64;
-            if (stick[1].button[1]) ret&=~128;
-        }
-        return ret;
-    };
-
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_ReadHandler read_p201_timed = (port, iolen) -> {
-        /*Bit8u*/short ret=0xff;
-        double currentTick = Pic.PIC_FullIndex();
-        if( stick[0].enabled ){
-            if( stick[0].xtick < currentTick ) ret &=~1;
-            if( stick[0].ytick < currentTick ) ret &=~2;
-        }
-        if( stick[1].enabled ){
-            if( stick[1].xtick < currentTick ) ret &=~4;
-            if( stick[1].ytick < currentTick ) ret &=~8;
-        }
-
-        if (stick[0].enabled) {
-            if (stick[0].button[0]) ret&=~16;
-            if (stick[0].button[1]) ret&=~32;
-        }
-        if (stick[1].enabled) {
-            if (stick[1].button[0]) ret&=~64;
-            if (stick[1].button[1]) ret&=~128;
-        }
-        return ret;
-    };
-
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler write_p201 = (port, val, iolen) -> {
-        /* Store writetime index */
-        write_active = true;
-        last_write = Pic.PIC_Ticks;
-        if (stick[0].enabled) {
-            stick[0].xcount=(/*Bitu*/int)((stick[0].xpos*RANGE)+RANGE);
-            stick[0].ycount=(/*Bitu*/int)((stick[0].ypos*RANGE)+RANGE);
-        }
-        if (stick[1].enabled) {
-            stick[1].xcount=(/*Bitu*/int)(((swap34? stick[1].ypos : stick[1].xpos)*RANGE)+RANGE);
-            stick[1].ycount=(/*Bitu*/int)(((swap34? stick[1].xpos : stick[1].ypos)*RANGE)+RANGE);
+            /**  Format of the byte to be returned:
+            **                        | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+            **                        +-------------------------------+
+            **                          |   |   |   |   |   |   |   |
+            **  Joystick B, Button 2 ---+   |   |   |   |   |   |   +--- Joystick A, X Axis
+            **  Joystick B, Button 1 -------+   |   |   |   |   +------- Joystick A, Y Axis
+            **  Joystick A, Button 2 -----------+   |   |   +----------- Joystick B, X Axis
+            **  Joystick A, Button 1 ---------------+   +--------------- Joystick B, Y Axis
+            **/
+            /*Bit8u*/short ret=0xff;
+            if (stick[0].enabled) {
+                if (stick[0].xcount!=0) stick[0].xcount--; else ret&=~1;
+                if (stick[0].ycount!=0) stick[0].ycount--; else ret&=~2;
+                if (stick[0].button[0]) ret&=~16;
+                if (stick[0].button[1]) ret&=~32;
+            }
+            if (stick[1].enabled) {
+                if (stick[1].xcount!=0) stick[1].xcount--; else ret&=~4;
+                if (stick[1].ycount!=0) stick[1].ycount--; else ret&=~8;
+                if (stick[1].button[0]) ret&=~64;
+                if (stick[1].button[1]) ret&=~128;
+            }
+            return ret;
         }
     };
 
-    /*Bitu*//*Bitu*//*Bitu*/
-    static private final IoHandler.IO_WriteHandler write_p201_timed = (port, val, iolen) -> {
-        // Store writetime index
-        // Axes take time = 24.2 microseconds + ( 0.011 microsecons/ohm * resistance )
-        // to reset to 0
-        // Precalculate the time at which each axis hits 0 here
-        double currentTick = Pic.PIC_FullIndex();
-        if (stick[0].enabled) {
-            stick[0].xtick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
-                    ((stick[0].xpos+1.0)* OHMS));
-            stick[0].ytick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
-                    ((stick[0].ypos+1.0)* OHMS));
+    static private IoHandler.IO_ReadHandler read_p201_timed = new IoHandler.IO_ReadHandler() {
+        public /*Bitu*/int call(/*Bitu*/int port, /*Bitu*/int iolen) {
+            /*Bit8u*/short ret=0xff;
+            double currentTick = Pic.PIC_FullIndex();
+            if( stick[0].enabled ){
+                if( stick[0].xtick < currentTick ) ret &=~1;
+                if( stick[0].ytick < currentTick ) ret &=~2;
+            }
+            if( stick[1].enabled ){
+                if( stick[1].xtick < currentTick ) ret &=~4;
+                if( stick[1].ytick < currentTick ) ret &=~8;
+            }
+
+            if (stick[0].enabled) {
+                if (stick[0].button[0]) ret&=~16;
+                if (stick[0].button[1]) ret&=~32;
+            }
+            if (stick[1].enabled) {
+                if (stick[1].button[0]) ret&=~64;
+                if (stick[1].button[1]) ret&=~128;
+            }
+            return ret;
         }
-        if (stick[1].enabled) {
-            stick[1].xtick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
-                    ((swap34? stick[1].ypos : stick[1].xpos)+1.0) * OHMS);
-            stick[1].ytick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
-                    ((swap34? stick[1].xpos : stick[1].ypos)+1.0) * OHMS);
+    };
+
+    static private IoHandler.IO_WriteHandler write_p201 = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            /* Store writetime index */
+            write_active = true;
+            last_write = Pic.PIC_Ticks;
+            if (stick[0].enabled) {
+                stick[0].xcount=(/*Bitu*/int)((stick[0].xpos*RANGE)+RANGE);
+                stick[0].ycount=(/*Bitu*/int)((stick[0].ypos*RANGE)+RANGE);
+            }
+            if (stick[1].enabled) {
+                stick[1].xcount=(/*Bitu*/int)(((swap34? stick[1].ypos : stick[1].xpos)*RANGE)+RANGE);
+                stick[1].ycount=(/*Bitu*/int)(((swap34? stick[1].xpos : stick[1].ypos)*RANGE)+RANGE);
+            }
+        }
+    };
+
+    static private IoHandler.IO_WriteHandler write_p201_timed = new IoHandler.IO_WriteHandler() {
+        public void call(/*Bitu*/int port, /*Bitu*/int val, /*Bitu*/int iolen) {
+            // Store writetime index
+            // Axes take time = 24.2 microseconds + ( 0.011 microsecons/ohm * resistance )
+            // to reset to 0
+            // Precalculate the time at which each axis hits 0 here
+            double currentTick = Pic.PIC_FullIndex();
+            if (stick[0].enabled) {
+                stick[0].xtick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
+                                     (double)(((stick[0].xpos+1.0)* OHMS)) );
+                stick[0].ytick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
+                                 (double)(((stick[0].ypos+1.0)* OHMS)) );
+            }
+            if (stick[1].enabled) {
+                stick[1].xtick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
+                                 (double)((swap34? stick[1].ypos : stick[1].xpos)+1.0) * OHMS);
+                stick[1].ytick = currentTick + 1000.0*( JOY_S_CONSTANT + S_PER_OHM *
+                                 (double)((swap34? stick[1].xpos : stick[1].ypos)+1.0) * OHMS);
+            }
         }
     };
 
@@ -179,15 +181,16 @@ public class Joystick extends Module_base {
         return 0.0f;
     }
 
-	private final IoHandler.IO_ReadHandleObject ReadHandler = new IoHandler.IO_ReadHandleObject();
-	private final IoHandler.IO_WriteHandleObject WriteHandler = new IoHandler.IO_WriteHandleObject();
+	private IoHandler.IO_ReadHandleObject ReadHandler = new IoHandler.IO_ReadHandleObject();
+	private IoHandler.IO_WriteHandleObject WriteHandler = new IoHandler.IO_WriteHandleObject();
 
     static Joystick test;
 
-    public static final Section.SectionFunction JOYSTICK_Destroy = new Section.SectionFunction() {
+    public static Section.SectionFunction JOYSTICK_Destroy = new Section.SectionFunction() {
         public void call(Section section) {
             test = null;
-            Arrays.fill(stick, null);
+            for (int i=0;i<stick.length;i++)
+                stick[i] = null;
         }
     };
 
@@ -222,7 +225,7 @@ public class Joystick extends Module_base {
 		stick[0].xtick = stick[0].ytick = stick[1].xtick =
 		                 stick[1].ytick = Pic.PIC_FullIndex();
     }
-    public static final Section.SectionFunction JOYSTICK_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction JOYSTICK_Init = new Section.SectionFunction() {
         public void call(Section section) {
             for (int i=0;i<stick.length;i++)
                 stick[i] = new Stick();

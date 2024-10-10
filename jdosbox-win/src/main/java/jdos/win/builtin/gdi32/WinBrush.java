@@ -13,7 +13,7 @@ public class WinBrush extends WinGDI {
 
     static public WinBrush get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinBrush))
+        if (object == null || !(object instanceof WinBrush))
             return null;
         return (WinBrush)object;
     }
@@ -23,9 +23,9 @@ public class WinBrush extends WinGDI {
         return create(BS_SOLID, crColor, 0).handle;
     }
 
-    public final int color;
-    public final int style;
-    public final int hatch;
+    public int color;
+    public int style;
+    public int hatch;
 
     public WinBrush(int handle, int style, int color, int hatch) {
         super(handle);

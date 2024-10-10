@@ -726,6 +726,7 @@ public final class MicroFloat {
     int dx = x1 - x2;
     if (dx > 0) {
       m2 = BitUtils.stickyRightShift(m2, dx);
+      x2 = x1;
     } else if (dx < 0) {
       m1 = BitUtils.stickyRightShift(m1, -dx);
       x1 = x2;
@@ -1102,7 +1103,7 @@ public final class MicroFloat {
     int idx = 0;
 
     // read sign
-    boolean negative;
+    boolean negative = false;
     char c = s.charAt(0);
     negative = (c == '-');
     if (negative || (c == '+')) {
@@ -1161,6 +1162,7 @@ public final class MicroFloat {
       } catch (NumberFormatException e) {
         throw new NumberFormatException(s);
       }
+      idx = len;
     } else if (idx != len) {
       // check that we parsed the entire string
       throw new NumberFormatException(s);
@@ -1209,7 +1211,7 @@ public final class MicroFloat {
       return "NaN";
     }
     boolean n = unpackSign(f);
-    StringBuilder sb = new StringBuilder(15);
+    StringBuffer sb = new StringBuffer(15);
     if (n) {
       sb.append('-');
     }
@@ -1303,7 +1305,7 @@ public final class MicroFloat {
     }
     if (scientific) {
       sb.append('E');
-      sb.append(base10x);
+      sb.append(Integer.toString(base10x));
     }
     return sb.toString();
   }

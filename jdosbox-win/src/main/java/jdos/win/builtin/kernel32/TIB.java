@@ -3,10 +3,10 @@ package jdos.win.builtin.kernel32;
 import jdos.win.builtin.WinAPI;
 
 public class TIB extends WinAPI {
-    final int address;
-    final WinProcess process;
-    final int tls;
-    final int tlsSize;
+    int address;
+    WinProcess process;
+    int tls;
+    int tlsSize;
 
     public TIB(WinProcess process, int threadId, int stackStart, int stackStop) {
         this.process = process;

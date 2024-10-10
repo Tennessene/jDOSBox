@@ -32,10 +32,10 @@ public class HdGeometry extends Internal {
     
         nb_sectors = Block.bdrv_get_geometry(bs);
     
-        /*
-          The function will be invoked during startup not only in sync I/O mode,
-          but also in async I/O mode. So the I/O throttling function has to
-          be disabled temporarily here, not permanently.
+        /**
+         * The function will be invoked during startup not only in sync I/O mode,
+         * but also in async I/O mode. So the I/O throttling function has to
+         * be disabled temporarily here, not permanently.
          */
         if (Block.bdrv_read_unthrottled(bs, 0, buf, 1) < 0) {
             return -1;

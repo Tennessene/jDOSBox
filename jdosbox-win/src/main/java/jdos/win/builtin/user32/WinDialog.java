@@ -273,7 +273,7 @@ public class WinDialog extends WinAPI {
         WinWindow wnd = WinWindow.get(hwndDlg);
         if (wnd == null)
             return 0;
-        Iterator<WinWindow> children = wnd.getChildren();
+        Iterator children = wnd.getChildren();
         while (children.hasNext()) {
             WinWindow child = (WinWindow) children.next();
             if (WinWindow.GetWindowLongA(child.handle, GWL_ID) == id)
@@ -762,14 +762,19 @@ public class WinDialog extends WinAPI {
 
         if (template.helpId != 0) window.helpContext = template.helpId;
 
-        WinWindow.SetWindowLongA(hwnd, DWLP_DLGPROC, dlgProc);
+        if (unicode) {
+            // WinWindow.SetWindowLongW( hwnd, DWLP_DLGPROC, dlgProc );
+            Win.panic("DIALOG_CreateIndirect unicode not implemented yet");
+        } else {
+            WinWindow.SetWindowLongA(hwnd, DWLP_DLGPROC, dlgProc);
+        }
 
         if (dlgProc != 0 && dlgInfo.hUserFont != 0)
             Message.SendMessageA(hwnd, WM_SETFONT, dlgInfo.hUserFont, 0);
 
         /* Create controls */
 
-        if (DIALOG_CreateControls32(hwnd, dlgTemplate, template, hInst, false)) {
+        if (DIALOG_CreateControls32(hwnd, dlgTemplate, template, hInst, unicode)) {
             /* Send initialisation messages and set focus */
 
             if (dlgProc != 0) {

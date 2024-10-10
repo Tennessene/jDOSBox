@@ -2,6 +2,7 @@ package jdos.hardware.mame;
 
 import jdos.cpu.Paging;
 import jdos.gui.Render;
+import jdos.hardware.Memory;
 import jdos.hardware.Pic;
 import jdos.hardware.VGA;
 import jdos.hardware.VGA_draw;
@@ -25,7 +26,7 @@ import java.util.Arrays;
 
     3dfx Voodoo Graphics SST-1/2 emulator.
 
-* <p>
+****************************************************************************
 
     Copyright Aaron Giles
     All rights reserved.
@@ -68,7 +69,7 @@ public class VoodooCommon extends PCI_Device {
     static final int TYPE_VOODOO_BANSHEE = 2;
     static final int TYPE_VOODOO_3 = 3;
 
-    static public long regAsUnsignedInt(int i) {return i & 0xFFFFFFFFL;}
+    static public long regAsUnsignedInt(int i) {return i & 0xFFFFFFFFl;}
     static public float regAsFloat(int i) {return Float.intBitsToFloat(i);}
     static public int setRegAsFloat(int i) {return Float.floatToRawIntBits((float)i);}
     static public int getRegB(int i) {return i & 0xFF;}
@@ -154,7 +155,7 @@ public class VoodooCommon extends PCI_Device {
         public int               reg_writes;             /* register writes */
         public int               reg_reads;              /* register reads */
         public int               tex_writes;             /* texture writes */
-        public final int[]             texture_mode = new int[16];       /* 16 different texture modes */
+        public int[]             texture_mode = new int[16];       /* 16 different texture modes */
         public int               render_override;        /* render override */
         public String            buffer;                 /* string */
     }
@@ -195,13 +196,13 @@ public class VoodooCommon extends PCI_Device {
         int                 holes;                  /* number of holes */
     }
 
-    interface voodoo_stall_func {
-        void call(PCI_Device device, int state);
+    static interface voodoo_stall_func {
+        public void call(PCI_Device device, int state);
     }
 
     static final class pci_state
     {
-    	final fifo_state          fifo = new fifo_state(new short[64*4]);   /* PCI FIFO */
+    	fifo_state          fifo = new fifo_state(new short[64*4]);   /* PCI FIFO */
     	int                 init_enable;               /* initEnable value */
     	int                 stall_state;               /* state of the system if we're stalled */
     	voodoo_stall_func   stall_callback;            /* callback for stalling/unstalling */
@@ -215,29 +216,25 @@ public class VoodooCommon extends PCI_Device {
     {
     	boolean             dirty;                  /* is the texel lookup dirty? */
     	int                 reg;                    /* pointer to our registers */
-    	final int[]               ir = new int[4];
-        final int[] ig = new int[4];
-        final int[] ib = new int[4];    /* I values for R,G,B */
-    	final int[]               qr = new int[4];
-        final int[] qg = new int[4];
-        final int[] qb = new int[4];    /* Q values for R,G,B */
-    	final int[]               y = new int[16];                  /* Y values */
+    	int[]               ir = new int[4], ig = new int[4], ib = new int[4];    /* I values for R,G,B */
+    	int[]               qr = new int[4], qg = new int[4], qb = new int[4];    /* Q values for R,G,B */
+    	int[]               y = new int[16];                  /* Y values */
     	int[]               palette;                /* pointer to associated RGB palette */
     	int[]               palettea;               /* pointer to associated ARGB palette */
-    	final int[]               texel = new int[256];             /* texel lookup */
+    	int[]               texel = new int[256];             /* texel lookup */
     }
 
 
     static final class tmu_shared_state
     {
-    	final int[]               rgb332 = new int[256];            /* RGB 3-3-2 lookup table */
-        final int[]               alpha8 = new int[256];            /* alpha 8-bit lookup table */
-        final int[]               int8 = new int[256];              /* intensity 8-bit lookup table */
-        final int[]               ai44 = new int[256];              /* alpha, intensity 4-4 lookup table */
+    	int[]               rgb332 = new int[256];            /* RGB 3-3-2 lookup table */
+        int[]               alpha8 = new int[256];            /* alpha 8-bit lookup table */
+        int[]               int8 = new int[256];              /* intensity 8-bit lookup table */
+        int[]               ai44 = new int[256];              /* alpha, intensity 4-4 lookup table */
 
-        final int[]               rgb565 = new int[65536];          /* RGB 5-6-5 lookup table */
-        final int[]               argb1555 = new int[65536];        /* ARGB 1-5-5-5 lookup table */
-        final int[]               argb4444 = new int[65536];        /* ARGB 4-4-4-4 lookup table */
+        int[]               rgb565 = new int[65536];          /* RGB 5-6-5 lookup table */
+        int[]               argb1555 = new int[65536];        /* ARGB 1-5-5-5 lookup table */
+        int[]               argb4444 = new int[65536];        /* ARGB 4-4-4-4 lookup table */
     }
 
 
@@ -250,8 +247,8 @@ public class VoodooCommon extends PCI_Device {
     	float               w1, s1, t1;             /* W, S, T for TMU 1 */
     }
 
-    interface voodoo_vblank_func {
-        void call(PCI_Device device, int state);
+    static interface voodoo_vblank_func {
+        public void call(PCI_Device device, int state);
     }
 
     static public final class fbi_state
@@ -266,7 +263,7 @@ public class VoodooCommon extends PCI_Device {
         }
         public short[]             ram;                    /* pointer to frame buffer RAM */
         public int                 mask;                   /* mask to apply to pointers */
-        public final int[]               rgboffs = new int[3];   /* word offset to 3 RGB buffers */
+        public int[]               rgboffs = new int[3];   /* word offset to 3 RGB buffers */
         public int                 auxoffs;                /* word offset to 1 aux buffer */
 
         public int                 frontbuf;               /* front buffer index */
@@ -311,33 +308,35 @@ public class VoodooCommon extends PCI_Device {
         public int                 dzdy;                   /* delta Z per Y */
         public long                dwdy;                   /* delta W per Y */
 
-        public final stats_block         lfb_stats = new stats_block();              /* LFB-access statistics */
+        public stats_block         lfb_stats = new stats_block();              /* LFB-access statistics */
 
         public int                 sverts;                 /* number of vertices ready */
-        public final setup_vertex[]      svert = new setup_vertex[3];               /* 3 setup vertices */
+        public setup_vertex[]      svert = new setup_vertex[3];               /* 3 setup vertices */
 
-        public final fifo_state          fifo = new fifo_state(null);                   /* framebuffer memory fifo */
-        public final cmdfifo_info[]      cmdfifo = new cmdfifo_info[2];             /* command FIFOs */
+        public fifo_state          fifo = new fifo_state(null);                   /* framebuffer memory fifo */
+        public cmdfifo_info[]      cmdfifo = new cmdfifo_info[2];             /* command FIFOs */
 
-        public final int[]               fogblend = new int[64];           /* 64-entry fog table */
-        public final int[]               fogdelta = new int[64];           /* 64-entry fog table */
+        public int[]               fogblend = new int[64];           /* 64-entry fog table */
+        public int[]               fogdelta = new int[64];           /* 64-entry fog table */
         public int                 fogdelta_mask;          /* mask for for delta (0xff for V1, 0xfc for V2) */
 
         public int[]               pen = new int[65536];             /* mapping from pixels to pens */
-        public final int[]               clut = new int[512];              /* clut gamma data */
+        public int[]               clut = new int[512];              /* clut gamma data */
         public boolean             clut_dirty;             /* do we need to recompute? */
     }
 
 
     static final class dac_state
     {
-    	final int[]               reg = new int[8];       /* 8 registers */
+    	int[]               reg = new int[8];       /* 8 registers */
     	int                 read_result;            /* pending read result */
     }
 
+    ;
+
     static final class banshee_info
     {
-    	final int[]               io = new int[0x40];               /* I/O registers */
+    	int[]               io = new int[0x40];               /* I/O registers */
         int[]               agp = new int[0x80];              /* AGP registers */
     	byte[]              vga = new byte[0x20];              /* VGA registers */
         byte[]              crtc = new byte[0x27];             /* VGA CRTC registers */
@@ -373,30 +372,30 @@ public class VoodooCommon extends PCI_Device {
     public int                 extra_cycles;           /* extra cycles not yet accounted for */
     public int                 trigger;                /* trigger used for stalling */
 
-    public final int[]               reg = new int[0x400];             /* raw registers */
+    public int[]               reg = new int[0x400];             /* raw registers */
     public byte[]              regaccess;              /* register access array */
     public String[]            regnames;               /* register names array */
     public boolean             alt_regmap;             /* enable alternate register map? */
 
-    public final pci_state           pci = new pci_state();  /* PCI state */
-    public final dac_state           dac = new dac_state();                    /* DAC state */
+    public pci_state           pci = new pci_state();  /* PCI state */
+    public dac_state           dac = new dac_state();                    /* DAC state */
 
-    public final fbi_state           fbi = new fbi_state();  /* FBI states */
-    public final tmu_state[]         tmu = new tmu_state[MAX_TMU];           /* TMU states */
-    public final tmu_shared_state    tmushare = new tmu_shared_state();               /* TMU shared state */
-    public final banshee_info        banshee = new banshee_info();                /* Banshee state */
+    public fbi_state           fbi = new fbi_state();  /* FBI states */
+    public tmu_state[]         tmu = new tmu_state[MAX_TMU];           /* TMU states */
+    public tmu_shared_state    tmushare = new tmu_shared_state();               /* TMU shared state */
+    public banshee_info        banshee = new banshee_info();                /* Banshee state */
 
     public Poly.poly_manager   poly = new Poly.poly_manager();                   /* polygon manager */
     public stats_block[]       thread_stats;           /* per-thread statistics */
 
-    public final voodoo_stats        stats = new voodoo_stats();                  /* internal statistics */
+    public voodoo_stats        stats = new voodoo_stats();                  /* internal statistics */
 
     public int                 last_status_pc;         /* PC of last status description (for logging) */
     public int                 last_status_value;      /* value of last status read (for logging) */
 
     public int                 next_rasterizer;        /* next rasterizer index */
-    public final raster_info[]       rasterizer = new raster_info[MAX_RASTERIZERS]; /* array of rasterizers */
-    final raster_info[]       raster_hash = new raster_info[RASTER_HASH_SIZE]; /* hash table of rasterizers */
+    public raster_info[]       rasterizer = new raster_info[MAX_RASTERIZERS]; /* array of rasterizers */
+    raster_info[]       raster_hash = new raster_info[RASTER_HASH_SIZE]; /* hash table of rasterizers */
 
     static final class rectangle {
         int min_x, max_x, min_y, max_y;
@@ -425,7 +424,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Macros for extracting pixels
      *
      *************************************/
@@ -461,7 +460,7 @@ public class VoodooCommon extends PCI_Device {
     static private void EXTRACT_x888_TO_888(int val, int[] a, int[] b, int[] c, int index){
     	a[index] = (val >> 16) & 0xff;
     	b[index] = (val >> 8) & 0xff;
-    	c[index] = (val) & 0xff;
+    	c[index] = (val >> 0) & 0xff;
     }
 
     static private void EXTRACT_888x_TO_888(int val, int[] a, int[] b, int[] c, int index) {
@@ -474,20 +473,20 @@ public class VoodooCommon extends PCI_Device {
     	a[index] = (val >> 24) & 0xff;
     	b[index] = (val >> 16) & 0xff;
     	c[index] = (val >> 8) & 0xff;
-    	d[index] = (val) & 0xff;
+    	d[index] = (val >> 0) & 0xff;
     }
 
     static private void EXTRACT_4444_TO_8888(int val, int[] a, int[] b, int[] c, int[] d, int index) {
     	a[index] = ((val >> 8) & 0xf0) | ((val >> 12) & 0x0f);
     	b[index] = ((val >> 4) & 0xf0) | ((val >> 8) & 0x0f);
-    	c[index] = ((val) & 0xf0) | ((val >> 4) & 0x0f);
-    	d[index] = ((val << 4) & 0xf0) | ((val) & 0x0f);
+    	c[index] = ((val >> 0) & 0xf0) | ((val >> 4) & 0x0f);
+    	d[index] = ((val << 4) & 0xf0) | ((val >> 0) & 0x0f);
     }
 
     static private void EXTRACT_332_TO_888(int val, int[] a, int[] b, int[] c, int index) {
-    	a[index] = ((val) & 0xe0) | ((val >> 3) & 0x1c) | ((val >> 6) & 0x03);
-    	b[index] = ((val << 3) & 0xe0) | ((val) & 0x1c) | ((val >> 3) & 0x03);
-    	c[index] = ((val << 6) & 0xc0) | ((val << 4) & 0x30) | ((val << 2) & 0xc0) | ((val) & 0x03);
+    	a[index] = ((val >> 0) & 0xe0) | ((val >> 3) & 0x1c) | ((val >> 6) & 0x03);
+    	b[index] = ((val << 3) & 0xe0) | ((val >> 0) & 0x1c) | ((val >> 3) & 0x03);
+    	c[index] = ((val << 6) & 0xc0) | ((val << 4) & 0x30) | ((val << 2) & 0xc0) | ((val << 0) & 0x03);
     }
     
     static int CLAMPr(int val,int min,int max) {
@@ -501,7 +500,7 @@ public class VoodooCommon extends PCI_Device {
 
     static int CLAMPED_Zr(int ITERZ, int FBZCP) {
     	int RESULT = ITERZ >> 12;
-    	if (FBZCP_RGBZW_CLAMP(FBZCP))
+    	if (!FBZCP_RGBZW_CLAMP(FBZCP))
     	{
     		RESULT &= 0xfffff;
     		if (RESULT == 0xfffff)
@@ -520,7 +519,7 @@ public class VoodooCommon extends PCI_Device {
 
     static int CLAMPED_Wr(long ITERW, int FBZCP) {
     	int RESULT = (short)((ITERW) >> 32);
-    	if (FBZCP_RGBZW_CLAMP(FBZCP))
+    	if (!FBZCP_RGBZW_CLAMP(FBZCP))
     	{
     		RESULT &= 0xffff;
     		if (RESULT == 0xffff)
@@ -537,7 +536,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Dithering tables
      *
      *************************************/
@@ -559,7 +558,7 @@ public class VoodooCommon extends PCI_Device {
     };
 
     /*************************************
-     * <p>
+     *
      *  Dithering macros
      *
      *************************************/
@@ -574,15 +573,15 @@ public class VoodooCommon extends PCI_Device {
         /* n ranges from 1.0000 to 2.0000 */
         for (int val = 0; val <= (1 << RECIPLOG_LOOKUP_BITS); val++)
         {
-            long value = (1L << RECIPLOG_LOOKUP_BITS) + val;
-            voodoo_reciplog[val * 2] = (int)((1L << (RECIPLOG_LOOKUP_PREC + RECIPLOG_LOOKUP_BITS)) / value);
+            long value = (1l << RECIPLOG_LOOKUP_BITS) + val;
+            voodoo_reciplog[val*2 + 0] = (int)((1l << (RECIPLOG_LOOKUP_PREC + RECIPLOG_LOOKUP_BITS)) / value);
             voodoo_reciplog[val*2 + 1] =  (int)(LOGB2((double)value / (double)(1 << RECIPLOG_LOOKUP_BITS)) * (double)(1 << RECIPLOG_LOOKUP_PREC));
         }
 
         /* create dithering tables */
         for (int val = 0; val < 256*16*2; val++)
         {
-            int g = (val) & 1;
+            int g = (val >> 0) & 1;
             int x = (val >> 1) & 3;
             int color = (val >> 3) & 0xff;
             int y = (val >> 11) & 3;
@@ -600,7 +599,7 @@ public class VoodooCommon extends PCI_Device {
         }
     }
     /*************************************
-     * <p>
+     *
      *  Register string table for debug
      *
      *************************************/
@@ -758,14 +757,14 @@ public class VoodooCommon extends PCI_Device {
     };
 
     /*************************************
-     * <p>
+     *
      *  Voodoo Banshee I/O space registers
      *
      *************************************/
     
     /* 0x000 */
     static final public int io_status                       = (0x000/4);   /*  */
-    static final public int io_pciInit0                     = (1);   /*  */
+    static final public int io_pciInit0                     = (0x004/4);   /*  */
     static final public int io_sipMonitor                   = (0x008/4);   /*  */
     static final public int io_lfbMemoryConfig              = (0x00c/4);   /*  */
     static final public int io_miscInit0                    = (0x010/4);   /*  */
@@ -834,7 +833,7 @@ public class VoodooCommon extends PCI_Device {
     static final public int io_vidCurrOverlayStartAddr      = (0x0fc/4);   /*  */
     
     /*************************************
-     * <p>
+     *
      *  Register constants
      *
      *************************************/
@@ -848,7 +847,7 @@ public class VoodooCommon extends PCI_Device {
     
     /* 0x000 */
     static final public int status          = (0x000/4);   /* R  P  */
-    static final public int intrCtrl        = (1);   /* RW P   -- Voodoo2/Banshee only */
+    static final public int intrCtrl        = (0x004/4);   /* RW P   -- Voodoo2/Banshee only */
     static final public int vertexAx        = (0x008/4);   /*  W PF */
     static final public int vertexAy        = (0x00c/4);   /*  W PF */
     static final public int vertexBx        = (0x010/4);   /*  W PF */
@@ -1070,7 +1069,7 @@ public class VoodooCommon extends PCI_Device {
     static final public int banshee2D_command           = (0x070/4);
         
     /*************************************
-     * <p>
+     *
      *  Alias map of the first 64
      *  registers when remapped
      *
@@ -1078,7 +1077,7 @@ public class VoodooCommon extends PCI_Device {
 
     static private final byte[] register_alias_map = new byte[]
     {
-    	status, 1,    vertexAx,   vertexAy,
+    	status,     0x004/4,    vertexAx,   vertexAy,
     	vertexBx,   vertexBy,   vertexCx,   vertexCy,
     	startR,     dRdX,       dRdY,       startG,
     	dGdX,       dGdY,       startB,     dBdX,
@@ -1100,7 +1099,7 @@ public class VoodooCommon extends PCI_Device {
 
 
     /*************************************
-     * <p>
+     *
      *  Table of per-register access rights
      *
      *************************************/
@@ -1398,7 +1397,7 @@ public class VoodooCommon extends PCI_Device {
         0,          0,          0,          0,
     };
 
-    static boolean INITEN_ENABLE_HW_INIT(int val) { return (((val)) & 1)!=0;}
+    static boolean INITEN_ENABLE_HW_INIT(int val) { return (((val) >> 0) & 1)!=0;}
     static boolean INITEN_ENABLE_PCI_FIFO(int val) { return (((val) >> 1) & 1)!=0;}
     static boolean INITEN_REMAP_INIT_TO_DAC(int val) { return (((val) >> 2) & 1)!=0;}
     static boolean INITEN_ENABLE_SNOOP0(int val) { return (((val) >> 4) & 1)!=0;}
@@ -1417,29 +1416,29 @@ public class VoodooCommon extends PCI_Device {
     static boolean INITEN_ENABLE_SLI_ADDRESS_SNOOP(int val) { return (((val) >> 23) & 1)!=0;}    /* voodoo 2 only */
     static int INITEN_SLI_SNOOP_ADDRESS(int val) { return (((val) >> 24) & 0xff);}  /* voodoo 2 only */
 
-    static int FBZCP_CC_RGBSELECT(int val)             { return (((val)) & 3);}
+    static int FBZCP_CC_RGBSELECT(int val)             { return (((val) >> 0) & 3);}
     static int FBZCP_CC_ASELECT(int val)               { return (((val) >> 2) & 3);}
-    static boolean FBZCP_CC_LOCALSELECT(int val)           { return (((val) >> 4) & 1) == 0;}
+    static boolean FBZCP_CC_LOCALSELECT(int val)           { return (((val) >> 4) & 1)!=0;}
     static int FBZCP_CCA_LOCALSELECT(int val)          { return (((val) >> 5) & 3);}
     static boolean FBZCP_CC_LOCALSELECT_OVERRIDE(int val)  { return (((val) >> 7) & 1)!=0;}
-    static boolean FBZCP_CC_ZERO_OTHER(int val)            { return (((val) >> 8) & 1) == 0;}
+    static boolean FBZCP_CC_ZERO_OTHER(int val)            { return (((val) >> 8) & 1)!=0;}
     static boolean FBZCP_CC_SUB_CLOCAL(int val)            { return (((val) >> 9) & 1)!=0;}
     static int FBZCP_CC_MSELECT(int val)               { return (((val) >> 10) & 7);}
-    static boolean FBZCP_CC_REVERSE_BLEND(int val)         { return (((val) >> 13) & 1) == 0;}
+    static boolean FBZCP_CC_REVERSE_BLEND(int val)         { return (((val) >> 13) & 1)!=0;}
     static int FBZCP_CC_ADD_ACLOCAL(int val)           { return (((val) >> 14) & 3);}
     static boolean FBZCP_CC_INVERT_OUTPUT(int val)         { return (((val) >> 16) & 1)!=0;}
-    static boolean FBZCP_CCA_ZERO_OTHER(int val)           { return (((val) >> 17) & 1) == 0;}
+    static boolean FBZCP_CCA_ZERO_OTHER(int val)           { return (((val) >> 17) & 1)!=0;}
     static boolean FBZCP_CCA_SUB_CLOCAL(int val)           { return (((val) >> 18) & 1)!=0;}
     static int FBZCP_CCA_MSELECT(int val)              { return (((val) >> 19) & 7);}
-    static boolean FBZCP_CCA_REVERSE_BLEND(int val)        { return (((val) >> 22) & 1) == 0;}
+    static boolean FBZCP_CCA_REVERSE_BLEND(int val)        { return (((val) >> 22) & 1)!=0;}
     static int FBZCP_CCA_ADD_ACLOCAL(int val)          { return (((val) >> 23) & 3);}
     static boolean FBZCP_CCA_INVERT_OUTPUT(int val)        { return (((val) >> 25) & 1)!=0;}
     static boolean FBZCP_CCA_SUBPIXEL_ADJUST(int val)      { return (((val) >> 26) & 1)!=0;}
     static boolean FBZCP_TEXTURE_ENABLE(int val)           { return (((val) >> 27) & 1)!=0;}
-    static boolean FBZCP_RGBZW_CLAMP(int val)              { return (((val) >> 28) & 1) == 0;}     /* voodoo 2 only */
+    static boolean FBZCP_RGBZW_CLAMP(int val)              { return (((val) >> 28) & 1)!=0;}     /* voodoo 2 only */
     static boolean FBZCP_ANTI_ALIAS(int val)               { return (((val) >> 29) & 1)!=0;}     /* voodoo 2 only */
     
-    static boolean ALPHAMODE_ALPHATEST(int val)            { return (((val)) & 1)!=0;}
+    static boolean ALPHAMODE_ALPHATEST(int val)            { return (((val) >> 0) & 1)!=0;}
     static int ALPHAMODE_ALPHAFUNCTION(int val)        { return (((val) >> 1) & 7);}
     static boolean ALPHAMODE_ALPHABLEND(int val)           { return (((val) >> 4) & 1)!=0;}
     static boolean ALPHAMODE_ANTIALIAS(int val)            { return (((val) >> 5) & 1)!=0;}
@@ -1449,15 +1448,15 @@ public class VoodooCommon extends PCI_Device {
     static int ALPHAMODE_DSTALPHABLEND(int val)        { return (((val) >> 20) & 15);}
     static int ALPHAMODE_ALPHAREF(int val)             { return (((val) >> 24) & 0xff);}
     
-    static boolean FOGMODE_ENABLE_FOG(int val)             { return (((val)) & 1)!=0;}
-    static boolean FOGMODE_FOG_ADD(int val)                { return (((val) >> 1) & 1) == 0;}
-    static boolean FOGMODE_FOG_MULT(int val)               { return (((val) >> 2) & 1) == 0;}
+    static boolean FOGMODE_ENABLE_FOG(int val)             { return (((val) >> 0) & 1)!=0;}
+    static boolean FOGMODE_FOG_ADD(int val)                { return (((val) >> 1) & 1)!=0;}
+    static boolean FOGMODE_FOG_MULT(int val)               { return (((val) >> 2) & 1)!=0;}
     static int FOGMODE_FOG_ZALPHA(int val)             { return (((val) >> 3) & 3);}
     static boolean FOGMODE_FOG_CONSTANT(int val)           { return (((val) >> 5) & 1)!=0;}
     static boolean FOGMODE_FOG_DITHER(int val)             { return (((val) >> 6) & 1)!=0;}      /* voodoo 2 only */
     static boolean FOGMODE_FOG_ZONES(int val)              { return (((val) >> 7) & 1)!=0;}      /* voodoo 2 only */
     
-    static boolean FBZMODE_ENABLE_CLIPPING(int val)        { return (((val)) & 1)!=0;}
+    static boolean FBZMODE_ENABLE_CLIPPING(int val)        { return (((val) >> 0) & 1)!=0;}
     static boolean FBZMODE_ENABLE_CHROMAKEY(int val)       { return (((val) >> 1) & 1)!=0;}
     static boolean FBZMODE_ENABLE_STIPPLE(int val)         { return (((val) >> 2) & 1)!=0;}
     static boolean FBZMODE_WBUFFER_SELECT(int val)         { return (((val) >> 3) & 1)!=0;}
@@ -1466,18 +1465,18 @@ public class VoodooCommon extends PCI_Device {
     static boolean FBZMODE_ENABLE_DITHERING(int val)       { return (((val) >> 8) & 1)!=0;}
     static boolean FBZMODE_RGB_BUFFER_MASK(int val)        { return (((val) >> 9) & 1)!=0;}
     static boolean FBZMODE_AUX_BUFFER_MASK(int val)        { return (((val) >> 10) & 1)!=0;}
-    static boolean FBZMODE_DITHER_TYPE(int val)            { return (((val) >> 11) & 1) == 0;}
-    static boolean FBZMODE_STIPPLE_PATTERN(int val)        { return (((val) >> 12) & 1) == 0;}
+    static boolean FBZMODE_DITHER_TYPE(int val)            { return (((val) >> 11) & 1)!=0;}
+    static boolean FBZMODE_STIPPLE_PATTERN(int val)        { return (((val) >> 12) & 1)!=0;}
     static boolean FBZMODE_ENABLE_ALPHA_MASK(int val)      { return (((val) >> 13) & 1)!=0;}
     static int FBZMODE_DRAW_BUFFER(int val)            { return (((val) >> 14) & 3);}
     static boolean FBZMODE_ENABLE_DEPTH_BIAS(int val)      { return (((val) >> 16) & 1)!=0;}
     static boolean FBZMODE_Y_ORIGIN(int val)               { return (((val) >> 17) & 1)!=0;}
     static boolean FBZMODE_ENABLE_ALPHA_PLANES(int val)    { return (((val) >> 18) & 1)!=0;}
     static boolean FBZMODE_ALPHA_DITHER_SUBTRACT(int val)  { return (((val) >> 19) & 1)!=0;}
-    static boolean FBZMODE_DEPTH_SOURCE_COMPARE(int val)   { return (((val) >> 20) & 1) == 0;}
-    static boolean FBZMODE_DEPTH_FLOAT_SELECT(int val)     { return (((val) >> 21) & 1) == 0;}     /* voodoo 2 only */
+    static boolean FBZMODE_DEPTH_SOURCE_COMPARE(int val)   { return (((val) >> 20) & 1)!=0;}
+    static boolean FBZMODE_DEPTH_FLOAT_SELECT(int val)     { return (((val) >> 21) & 1)!=0;}     /* voodoo 2 only */
     
-    static int LFBMODE_WRITE_FORMAT(int val)           { return (((val)) & 0xf);}
+    static int LFBMODE_WRITE_FORMAT(int val)           { return (((val) >> 0) & 0xf);}
     static int LFBMODE_WRITE_BUFFER_SELECT(int val)    { return (((val) >> 4) & 3);}
     static int LFBMODE_READ_BUFFER_SELECT(int val)     { return (((val) >> 6) & 3);}
     static boolean LFBMODE_ENABLE_PIXEL_PIPELINE(int val)  { return (((val) >> 8) & 1)!=0;}
@@ -1495,7 +1494,7 @@ public class VoodooCommon extends PCI_Device {
     static boolean CHROMARANGE_UNION_MODE(int val)         { return (((val) >> 27) & 1)!=0;}
     static boolean CHROMARANGE_ENABLE(int val)             { return (((val) >> 28) & 1)!=0;}
     
-    static boolean FBIINIT0_VGA_PASSTHRU(int val)          { return (((val)) & 1)!=0;}
+    static boolean FBIINIT0_VGA_PASSTHRU(int val)          { return (((val) >> 0) & 1)!=0;}
     static boolean FBIINIT0_GRAPHICS_RESET(int val)        { return (((val) >> 1) & 1)!=0;}
     static boolean FBIINIT0_FIFO_RESET(int val)            { return (((val) >> 2) & 1)!=0;}
     static boolean FBIINIT0_SWIZZLE_REG_WRITES(int val)    { return (((val) >> 3) & 1)!=0;}
@@ -1507,7 +1506,7 @@ public class VoodooCommon extends PCI_Device {
     static int FBIINIT0_MEMORY_FIFO_HWM(int val)       { return (((val) >> 14) & 0x7ff);}
     static int FBIINIT0_MEMORY_FIFO_BURST(int val)     { return (((val) >> 25) & 0x3f);}
     
-    static boolean FBIINIT1_PCI_DEV_FUNCTION(int val)       { return (((val)) & 1)!=0;}
+    static boolean FBIINIT1_PCI_DEV_FUNCTION(int val)       { return (((val) >> 0) & 1)!=0;}
     static boolean FBIINIT1_PCI_WRITE_WAIT_STATES(int val)  { return (((val) >> 1) & 1)!=0;}
     static boolean FBIINIT1_MULTI_SST1(int val)             { return (((val) >> 2) & 1)!=0;}      /* not on voodoo 2 */
     static boolean FBIINIT1_ENABLE_LFB(int val)             { return (((val) >> 3) & 1)!=0;}
@@ -1533,7 +1532,7 @@ public class VoodooCommon extends PCI_Device {
     static int FBIINIT1_VID_CLK_DELAY(int val)          { return (((val) >> 29) & 3);}
     static boolean FBIINIT1_DISABLE_FAST_READAHEAD(int val) { return (((val) >> 31) & 1)!=0;}
     
-    static boolean FBIINIT2_DISABLE_DITHER_SUB(int val)    { return (((val)) & 1)!=0;}
+    static boolean FBIINIT2_DISABLE_DITHER_SUB(int val)    { return (((val) >> 0) & 1)!=0;}
     static boolean FBIINIT2_DRAM_BANKING(int val)          { return (((val) >> 1) & 1)!=0;}
     static int FBIINIT2_ENABLE_TRIPLE_BUF(int val)     { return (((val) >> 4) & 1);}
     static boolean FBIINIT2_ENABLE_FAST_RAS_READ(int val)  { return (((val) >> 5) & 1)!=0;}
@@ -1547,7 +1546,7 @@ public class VoodooCommon extends PCI_Device {
     static boolean FBIINIT2_ENABLE_DRAM_REFRESH(int val)   { return (((val) >> 22) & 1)!=0;}
     static int FBIINIT2_REFRESH_LOAD_VALUE(int val)    { return (((val) >> 23) & 0x1ff);}
     
-    static boolean FBIINIT3_TRI_REGISTER_REMAP(int val)    { return (((val)) & 1)!=0;}
+    static boolean FBIINIT3_TRI_REGISTER_REMAP(int val)    { return (((val) >> 0) & 1)!=0;}
     static int FBIINIT3_VIDEO_FIFO_THRESH(int val)     { return (((val) >> 1) & 0x1f);}
     static boolean FBIINIT3_DISABLE_TMUS(int val)          { return (((val) >> 6) & 1)!=0;}
     static int FBIINIT3_FBI_MEMORY_TYPE(int val)       { return (((val) >> 8) & 7);}
@@ -1557,14 +1556,14 @@ public class VoodooCommon extends PCI_Device {
     static int FBIINIT3_TREX2FBI_DELAY(int val)        { return (((val) >> 17) & 0x1f);}
     static int FBIINIT3_YORIGIN_SUBTRACT(int val)      { return (((val) >> 22) & 0x3ff);}
     
-    static boolean FBIINIT4_PCI_READ_WAITS(int val) { return (((val)) & 1)!=0;}
+    static boolean FBIINIT4_PCI_READ_WAITS(int val) { return (((val) >> 0) & 1)!=0;}
     static boolean FBIINIT4_ENABLE_LFB_READAHEAD(int val) { return (((val) >> 1) & 1)!=0;}
     static int FBIINIT4_MEMORY_FIFO_LWM(int val) { return (((val) >> 2) & 0x3f);}
     static int FBIINIT4_MEMORY_FIFO_START_ROW(int val) { return (((val) >> 8) & 0x3ff);}
     static int FBIINIT4_MEMORY_FIFO_STOP_ROW(int val) { return (((val) >> 18) & 0x3ff);}
     static int FBIINIT4_VIDEO_CLOCKING_DELAY(int val) { return (((val) >> 29) & 7);}     /* voodoo 2 only */
    
-    static boolean FBIINIT5_DISABLE_PCI_STOP(int val)      { return (((val)) & 1)!=0;}      /* voodoo 2 only */
+    static boolean FBIINIT5_DISABLE_PCI_STOP(int val)      { return (((val) >> 0) & 1)!=0;}      /* voodoo 2 only */
     static boolean FBIINIT5_PCI_SLAVE_SPEED(int val)       { return (((val) >> 1) & 1)!=0;}      /* voodoo 2 only */
     static boolean FBIINIT5_DAC_DATA_OUTPUT_WIDTH(int val) { return (((val) >> 2) & 1)!=0;}      /* voodoo 2 only */
     static boolean FBIINIT5_DAC_DATA_17_OUTPUT(int val)    { return (((val) >> 3) & 1)!=0;}      /* voodoo 2 only */
@@ -1590,7 +1589,7 @@ public class VoodooCommon extends PCI_Device {
     static boolean FBIINIT5_DAC_DATA_18_CONTROL(int val)   { return (((val) >> 27) & 1)!=0;}     /* voodoo 2 only */
     static int FBIINIT5_RASTERIZER_UNIT_MODE(int val)  { return (((val) >> 30) & 3);}     /* voodoo 2 only */
     
-    static int FBIINIT6_WINDOW_ACTIVE_COUNTER(int val) { return (((val)) & 7);}      /* voodoo 2 only */
+    static int FBIINIT6_WINDOW_ACTIVE_COUNTER(int val) { return (((val) >> 0) & 7);}      /* voodoo 2 only */
     static int FBIINIT6_WINDOW_DRAG_COUNTER(int val)   { return (((val) >> 3) & 0x1f);}   /* voodoo 2 only */
     static boolean FBIINIT6_SLI_SYNC_MASTER(int val)       { return (((val) >> 8) & 1)!=0;}      /* voodoo 2 only */
     static int FBIINIT6_DAC_DATA_22_OUTPUT(int val)    { return (((val) >> 9) & 3);}      /* voodoo 2 only */
@@ -1603,7 +1602,7 @@ public class VoodooCommon extends PCI_Device {
     static int FBIINIT6_VGA_PASS_N_OUTPUT(int val)     { return (((val) >> 28) & 3);}     /* voodoo 2 only */
     static boolean FBIINIT6_X_VIDEO_TILES_BIT0(int val)    { return (((val) >> 30) & 1)!=0;}     /* voodoo 2 only */
     
-    static int FBIINIT7_GENERIC_STRAPPING(int val) { return (((val)) & 0xff);}   /* voodoo 2 only */
+    static int FBIINIT7_GENERIC_STRAPPING(int val) { return (((val) >> 0) & 0xff);}   /* voodoo 2 only */
     static boolean FBIINIT7_CMDFIFO_ENABLE(int val) { return (((val) >> 8) & 1)!=0;}      /* voodoo 2 only */
     static boolean FBIINIT7_CMDFIFO_MEMORY_STORE(int val) { return (((val) >> 9) & 1)!=0;}      /* voodoo 2 only */
     static boolean FBIINIT7_DISABLE_CMDFIFO_HOLES(int val) { return (((val) >> 10) & 1)!=0;}     /* voodoo 2 only */
@@ -1615,7 +1614,7 @@ public class VoodooCommon extends PCI_Device {
     static int FBIINIT7_CMDFIFO_PCI_TIMEOUT(int val) { return (((val) >> 20) & 0x7f);}  /* voodoo 2 only */
     static boolean FBIINIT7_ENABLE_TEXTURE_BURST(int val) { return (((val) >> 27) & 1)!=0;}     /* voodoo 2 only */
     
-    static boolean TEXMODE_ENABLE_PERSPECTIVE(int val)     { return (((val)) & 1)!=0;}
+    static boolean TEXMODE_ENABLE_PERSPECTIVE(int val)     { return (((val) >> 0) & 1)!=0;}
     static boolean TEXMODE_MINIFICATION_FILTER(int val)    { return (((val) >> 1) & 1)!=0;}
     static boolean TEXMODE_MAGNIFICATION_FILTER(int val)   { return (((val) >> 2) & 1)!=0;}
     static boolean TEXMODE_CLAMP_NEG_W(int val)            { return (((val) >> 3) & 1)!=0;}
@@ -1624,22 +1623,22 @@ public class VoodooCommon extends PCI_Device {
     static boolean TEXMODE_CLAMP_S(int val)                { return (((val) >> 6) & 1)!=0;}
     static boolean TEXMODE_CLAMP_T(int val)                { return (((val) >> 7) & 1)!=0;}
     static int TEXMODE_FORMAT(int val)                 { return (((val) >> 8) & 0xf);}
-    static boolean TEXMODE_TC_ZERO_OTHER(int val)          { return (((val) >> 12) & 1) == 0;}
+    static boolean TEXMODE_TC_ZERO_OTHER(int val)          { return (((val) >> 12) & 1)!=0;}
     static boolean TEXMODE_TC_SUB_CLOCAL(int val)          { return (((val) >> 13) & 1)!=0;}
     static int TEXMODE_TC_MSELECT(int val)             { return (((val) >> 14) & 7);}
-    static boolean TEXMODE_TC_REVERSE_BLEND(int val)       { return (((val) >> 17) & 1) == 0;}
+    static boolean TEXMODE_TC_REVERSE_BLEND(int val)       { return (((val) >> 17) & 1)!=0;}
     static int TEXMODE_TC_ADD_ACLOCAL(int val)         { return (((val) >> 18) & 3);}
     static boolean TEXMODE_TC_INVERT_OUTPUT(int val)       { return (((val) >> 20) & 1)!=0;}
-    static boolean TEXMODE_TCA_ZERO_OTHER(int val)         { return (((val) >> 21) & 1) == 0;}
+    static boolean TEXMODE_TCA_ZERO_OTHER(int val)         { return (((val) >> 21) & 1)!=0;}
     static boolean TEXMODE_TCA_SUB_CLOCAL(int val)         { return (((val) >> 22) & 1)!=0;}
     static int TEXMODE_TCA_MSELECT(int val)            { return (((val) >> 23) & 7);}
-    static boolean TEXMODE_TCA_REVERSE_BLEND(int val)      { return (((val) >> 26) & 1) == 0;}
+    static boolean TEXMODE_TCA_REVERSE_BLEND(int val)      { return (((val) >> 26) & 1)!=0;}
     static int TEXMODE_TCA_ADD_ACLOCAL(int val)        { return (((val) >> 27) & 3);}
     static boolean TEXMODE_TCA_INVERT_OUTPUT(int val)      { return (((val) >> 29) & 1)!=0;}
     static boolean TEXMODE_TRILINEAR(int val)              { return (((val) >> 30) & 1)!=0;}
     static boolean TEXMODE_SEQ_8_DOWNLD(int val)           { return (((val) >> 31) & 1)!=0;}
     
-    static int TEXLOD_LODMIN(int val)                  { return (((val)) & 0x3f);}
+    static int TEXLOD_LODMIN(int val)                  { return (((val) >> 0) & 0x3f);}
     static int TEXLOD_LODMAX(int val)                  { return (((val) >> 6) & 0x3f);}
     static int TEXLOD_LODBIAS(int val)                 { return (((val) >> 12) & 0x3f);}
     static boolean TEXLOD_LOD_ODD(int val)                 { return (((val) >> 18) & 1)!=0;}
@@ -1652,7 +1651,7 @@ public class VoodooCommon extends PCI_Device {
     static boolean TEXLOD_TDATA_SWAP(int val)              { return (((val) >> 26) & 1)!=0;}
     static boolean TEXLOD_TDIRECT_WRITE(int val)           { return (((val) >> 27) & 1)!=0;}     /* Voodoo 2 only */
     
-    static int TEXDETAIL_DETAIL_MAX(int val)           { return (((val)) & 0xff);}
+    static int TEXDETAIL_DETAIL_MAX(int val)           { return (((val) >> 0) & 0xff);}
     static int TEXDETAIL_DETAIL_BIAS(int val)          { return (((val) >> 8) & 0x3f);}
     static int TEXDETAIL_DETAIL_SCALE(int val)         { return (((val) >> 14) & 7);}
     static boolean TEXDETAIL_RGB_MIN_FILTER(int val)       { return (((val) >> 17) & 1)!=0;}     /* Voodoo 2 only */
@@ -1666,11 +1665,11 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Computes a fast 16.16 reciprocal
      *  of a 16.32 value; used for
      *  computing 1/w in the rasterizer.
-     * <p>
+     *
      *  Since it is trivial to also
      *  compute log2(1/w) = -log2(w) at
      *  the same time, we do that as well
@@ -1695,7 +1694,7 @@ public class VoodooCommon extends PCI_Device {
     	}
 
     	/* if we've spilled out of 32 bits, push it down under 32 */
-    	if ((value & 0xffff00000000L)!=0)
+    	if ((value & 0xffff00000000l)!=0)
     	{
     		temp = (int)(value >> 16);
     		exp -= 16;
@@ -1787,7 +1786,7 @@ public class VoodooCommon extends PCI_Device {
     		if (exponent < 64)
     			result <<= exponent;
     		else
-    			result = 0x7fffffffffffffffL;
+    			result = 0x7fffffffffffffffl;
     	}
     	if ((data & 0x80000000)!=0)
     		result = -result;
@@ -1795,7 +1794,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Rasterizer inlines
      *
      *************************************/
@@ -1852,7 +1851,7 @@ public class VoodooCommon extends PCI_Device {
 
     	/* classify texture formats into 3 format categories */
     	if (TEXMODE_FORMAT(eff_tex_mode) < 8)
-    		eff_tex_mode = (eff_tex_mode & ~(0xf << 8)) | (0);
+    		eff_tex_mode = (eff_tex_mode & ~(0xf << 8)) | (0 << 8);
     	else if (TEXMODE_FORMAT(eff_tex_mode) >= 10 && TEXMODE_FORMAT(eff_tex_mode) <= 12)
     		eff_tex_mode = (eff_tex_mode & ~(0xf << 8)) | (10 << 8);
     	else
@@ -1883,11 +1882,11 @@ public class VoodooCommon extends PCI_Device {
     	    hash ^= info.eff_tex_mode_1;
         }
 
-    	return (int)((hash & 0xFFFFFFFFL) % RASTER_HASH_SIZE);
+    	return (int)((hash & 0xFFFFFFFFl) % RASTER_HASH_SIZE);
     }
 
     /*************************************
-     * <p>
+     *
      *  Inline FIFO management
      *
      *************************************/
@@ -1974,7 +1973,7 @@ public class VoodooCommon extends PCI_Device {
     }
     
     /*************************************
-     * <p>
+     *
      *  Statistics management
      *
      *************************************/
@@ -2018,7 +2017,7 @@ public class VoodooCommon extends PCI_Device {
     }
     
     /*************************************
-     * <p>
+     *
      *  VBLANK management
      *
      *************************************/
@@ -2215,7 +2214,7 @@ public class VoodooCommon extends PCI_Device {
 
     
     /*************************************
-     * <p>
+     *
      *  Chip reset
      *
      *************************************/
@@ -2242,7 +2241,7 @@ public class VoodooCommon extends PCI_Device {
     
     
     /*************************************
-     * <p>
+     *
      *  Recompute video memory layout
      *
      *************************************/
@@ -2350,7 +2349,7 @@ public class VoodooCommon extends PCI_Device {
     
     
     /*************************************
-     * <p>
+     *
      *  NCC table management
      *
      *************************************/
@@ -2388,7 +2387,7 @@ public class VoodooCommon extends PCI_Device {
     	if (regnum < 4)
     	{
     		regnum *= 4;
-    		n.y[regnum] = (data) & 0xff;
+    		n.y[regnum+0] = (data >>  0) & 0xff;
     		n.y[regnum+1] = (data >>  8) & 0xff;
     		n.y[regnum+2] = (data >> 16) & 0xff;
     		n.y[regnum+3] = (data >> 24) & 0xff;
@@ -2425,7 +2424,7 @@ public class VoodooCommon extends PCI_Device {
     	for (i = 0; i < 256; i++)
     	{
     		int vi = (i >> 2) & 0x03;
-    		int vq = (i) & 0x03;
+    		int vq = (i >> 0) & 0x03;
     
     		/* start with the intensity */
     		r = g = b = n.y[(i >> 4) & 0x0f];
@@ -2449,7 +2448,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Faux DAC implementation
      *
      *************************************/
@@ -2465,28 +2464,29 @@ public class VoodooCommon extends PCI_Device {
     	int result = 0xff;
 
     	/* switch off the DAC register requested */
-        if (regnum == 5) {/* this is just to make startup happy */
-            switch (d.reg[7]) {
-                case 0x01:
-                    result = 0x55;
-                    break;
-                case 0x07:
-                    result = 0x71;
-                    break;
-                case 0x0b:
-                    result = 0x79;
-                    break;
-            }
-        } else {
-            result = d.reg[regnum];
-        }
+    	switch (regnum)
+    	{
+    		case 5:
+    			/* this is just to make startup happy */
+    			switch (d.reg[7])
+    			{
+    				case 0x01:  result = 0x55; break;
+    				case 0x07:  result = 0x71; break;
+    				case 0x0b:  result = 0x79; break;
+    			}
+    			break;
+
+    		default:
+    			result = d.reg[regnum];
+    			break;
+    	}
 
     	/* remember the read result; it is fetched elsewhere */
     	d.read_result = result;
     }
 
     /*************************************
-     * <p>
+     *
      *  Texuture parameter computation
      *
      *************************************/
@@ -2524,7 +2524,7 @@ public class VoodooCommon extends PCI_Device {
     
     	/* start with the base of LOD 0 */
     	if (t.texaddr_shift == 0 && (reg[t.reg+texBaseAddr] & 1)!=0)
-    		System.out.println("Tiled texture\n");
+    		Log.log_msg("Tiled texture\n");
     	base = (reg[t.reg+texBaseAddr] & t.texaddr_mask) << t.texaddr_shift;
     	t.lodoffset[0] = base & t.mask;
     
@@ -2543,8 +2543,8 @@ public class VoodooCommon extends PCI_Device {
     	}
     	else
     	{
-    		if ((t.lodmask & (1))!=0)
-    			base += (((t.wmask) + 1) * ((t.hmask) + 1)) << bppscale;
+    		if ((t.lodmask & (1 << 0))!=0)
+    			base += (((t.wmask >> 0) + 1) * ((t.hmask >> 0) + 1)) << bppscale;
     		t.lodoffset[1] = base & t.mask;
     		if ((t.lodmask & (1 << 1))!=0)
     			base += (((t.wmask >> 1) + 1) * ((t.hmask >> 1) + 1)) << bppscale;
@@ -2586,7 +2586,7 @@ public class VoodooCommon extends PCI_Device {
     }
     
 
-    final IntRef tmp_lodbase = new IntRef(0);
+    IntRef tmp_lodbase = new IntRef(0);
     private int prepare_tmu(tmu_state t)
     {
     	long texdx, texdy;
@@ -2625,7 +2625,7 @@ public class VoodooCommon extends PCI_Device {
     }
     
     /*************************************
-     * <p>
+     *
      *  Command FIFO depth computation
      *
      *************************************/
@@ -2755,7 +2755,7 @@ public class VoodooCommon extends PCI_Device {
     			return 2 + ((command >> 3) & 0x7ffff);
     
     		default:
-    			System.out.println("UNKNOWN PACKET TYPE " + (command & 7));
+    			Log.log_msg("UNKNOWN PACKET TYPE " + (command & 7));
     			return 1;
     	}
     }
@@ -2763,7 +2763,7 @@ public class VoodooCommon extends PCI_Device {
     
     
     /*************************************
-     * <p>
+     *
      *  Command FIFO execution
      *
      *************************************/
@@ -2835,12 +2835,12 @@ public class VoodooCommon extends PCI_Device {
     					//if (LOG_CMDFIFO) logerror("  RET $%06X\n", target);
     					Log.exit("RET in CMDFIFO!\n");
     					break;
-
+    
     				case 3:     /* JMP LOCAL FRAME BUFFER */
     					//if (LOG_CMDFIFO) logerror("  JMP LOCAL FRAMEBUF $%06X\n", target);
     					srcPos = target;
     					break;
-
+    
     				case 4:     /* JMP AGP */
     					//if (LOG_CMDFIFO) logerror("  JMP AGP $%06X\n", target);
     					Log.exit("JMP AGP in CMDFIFO!\n");
@@ -3116,7 +3116,7 @@ public class VoodooCommon extends PCI_Device {
     					{
     						int data = mem_readd(fbi.ram, srcPos);srcPos+=4;
     
-    						fbi.ram[addr] = (byte)(data);
+    						fbi.ram[addr + 0] = (byte)(data);
     						fbi.ram[addr + 1] = (byte)(data >> 8);
     						fbi.ram[addr + 2] = (byte)(data >> 16);
     						fbi.ram[addr + 3] = (byte)(data >> 24);
@@ -3180,7 +3180,7 @@ public class VoodooCommon extends PCI_Device {
     
     
     /*************************************
-     * <p>
+     *
      *  Handle execution if we're ready
      *
      *************************************/
@@ -3208,7 +3208,7 @@ public class VoodooCommon extends PCI_Device {
     
     
     /*************************************
-     * <p>
+     *
      *  Handle writes to the CMD FIFO
      *
      *************************************/
@@ -3279,7 +3279,7 @@ public class VoodooCommon extends PCI_Device {
     }
     
     /*************************************
-     * <p>
+     *
      *  Flush data from the FIFOs
      *
      *************************************/
@@ -3435,7 +3435,7 @@ public class VoodooCommon extends PCI_Device {
         /* first make sure this register is readable */
         if ((regaccess[regnum] & REGISTER_WRITE)==0)
         {
-            System.out.println("VOODOO."+this.pci_id+".ERROR:Invalid attempt to write "+regnames[regnum]);
+            Log.log_msg("VOODOO."+this.pci_id+".ERROR:Invalid attempt to write "+regnames[regnum]);
             return 0;
         }
         //System.out.print(count + " write " + regnames[regnum] + " " + data);
@@ -3769,7 +3769,7 @@ public class VoodooCommon extends PCI_Device {
                         }
                     }
                     else
-                        System.out.println("clutData ignored because video timing reset = 1");
+                        Log.log_msg("clutData ignored because video timing reset = 1");
                 }
                 break;
     
@@ -4007,7 +4007,7 @@ public class VoodooCommon extends PCI_Device {
                 break;
     
             /* nccTable entries are processed and expanded immediately */
-            case nccTable:
+            case nccTable+0:
             case nccTable+1:
             case nccTable+2:
             case nccTable+3:
@@ -4042,7 +4042,7 @@ public class VoodooCommon extends PCI_Device {
                 break;
     
             /* fogTable entries are processed and expanded immediately */
-            case fogTable:
+            case fogTable+0:
             case fogTable+1:
             case fogTable+2:
             case fogTable+3:
@@ -4078,8 +4078,8 @@ public class VoodooCommon extends PCI_Device {
                 if ((chips & 1)!=0)
                 {
                     int base = 2 * (regnum - fogTable);
-                    fbi.fogdelta[base] = (data) & 0xff;
-                    fbi.fogblend[base] = (data >> 8) & 0xff;
+                    fbi.fogdelta[base + 0] = (data >> 0) & 0xff;
+                    fbi.fogblend[base + 0] = (data >> 8) & 0xff;
                     fbi.fogdelta[base + 1] = (data >> 16) & 0xff;
                     fbi.fogblend[base + 1] = (data >> 24) & 0xff;
                 }
@@ -4122,7 +4122,7 @@ public class VoodooCommon extends PCI_Device {
     
             /* by default, just feed the data to the chips */
             default:
-                if ((chips & 1)!=0) reg[regnum] = data;
+                if ((chips & 1)!=0) reg[0x000 + regnum] = data;
                 if ((chips & 2)!=0) reg[0x100 + regnum] = data;
                 if ((chips & 4)!=0) reg[0x200 + regnum] = data;
                 if ((chips & 4)!=0) reg[0x300 + regnum] = data;
@@ -4141,7 +4141,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Voodoo LFB writes
      *
      *************************************/
@@ -4183,28 +4183,28 @@ public class VoodooCommon extends PCI_Device {
         /* first extract A,R,G,B from the data */
         switch (LFBMODE_WRITE_FORMAT(reg[lfbMode]) + 16 * LFBMODE_RGBA_LANES(reg[lfbMode]))
         {
-            case 0:      /* ARGB, 16-bit RGB 5-6-5 */
-            case 16 * 2:      /* RGBA, 16-bit RGB 5-6-5 */
+            case 16*0 + 0:      /* ARGB, 16-bit RGB 5-6-5 */
+            case 16*2 + 0:      /* RGBA, 16-bit RGB 5-6-5 */
                 EXTRACT_565_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 EXTRACT_565_TO_888(data >> 16, tmp_sr, tmp_sg, tmp_sb, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
-            case 16:      /* ABGR, 16-bit RGB 5-6-5 */
-            case 16 * 3:      /* BGRA, 16-bit RGB 5-6-5 */
+            case 16*1 + 0:      /* ABGR, 16-bit RGB 5-6-5 */
+            case 16*3 + 0:      /* BGRA, 16-bit RGB 5-6-5 */
                 EXTRACT_565_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 EXTRACT_565_TO_888(data >> 16, tmp_sb, tmp_sg, tmp_sr, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
 
-            case 1:      /* ARGB, 16-bit RGB x-5-5-5 */
+            case 16*0 + 1:      /* ARGB, 16-bit RGB x-5-5-5 */
                 EXTRACT_x555_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 EXTRACT_x555_TO_888(data >> 16, tmp_sr, tmp_sg, tmp_sb, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
                 offset <<= 1;
                 break;
-            case 16 + 1:      /* ABGR, 16-bit RGB x-5-5-5 */
+            case 16*1 + 1:      /* ABGR, 16-bit RGB x-5-5-5 */
                 EXTRACT_x555_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 EXTRACT_x555_TO_888(data >> 16, tmp_sb, tmp_sg, tmp_sr, 1);
                 mask = LFB_RGB_PRESENT | (LFB_RGB_PRESENT << 4);
@@ -4223,13 +4223,13 @@ public class VoodooCommon extends PCI_Device {
                 offset <<= 1;
                 break;
 
-            case 2:      /* ARGB, 16-bit ARGB 1-5-5-5 */
+            case 16*0 + 2:      /* ARGB, 16-bit ARGB 1-5-5-5 */
                 EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 0);
                 EXTRACT_1555_TO_8888(data >> 16, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 1);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | ((LFB_RGB_PRESENT | LFB_ALPHA_PRESENT) << 4);
                 offset <<= 1;
                 break;
-            case 16 + 2:      /* ABGR, 16-bit ARGB 1-5-5-5 */
+            case 16*1 + 2:      /* ABGR, 16-bit ARGB 1-5-5-5 */
                 EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 0);
                 EXTRACT_1555_TO_8888(data >> 16, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 1);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | ((LFB_RGB_PRESENT | LFB_ALPHA_PRESENT) << 4);
@@ -4248,11 +4248,11 @@ public class VoodooCommon extends PCI_Device {
                 offset <<= 1;
                 break;
 
-            case 4:      /* ARGB, 32-bit RGB x-8-8-8 */
+            case 16*0 + 4:      /* ARGB, 32-bit RGB x-8-8-8 */
                 EXTRACT_x888_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT;
                 break;
-            case 16 + 4:      /* ABGR, 32-bit RGB x-8-8-8 */
+            case 16*1 + 4:      /* ABGR, 32-bit RGB x-8-8-8 */
                 EXTRACT_x888_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT;
                 break;
@@ -4265,11 +4265,11 @@ public class VoodooCommon extends PCI_Device {
                 mask = LFB_RGB_PRESENT;
                 break;
 
-            case 5:      /* ARGB, 32-bit ARGB 8-8-8-8 */
+            case 16*0 + 5:      /* ARGB, 32-bit ARGB 8-8-8-8 */
                 EXTRACT_8888_TO_8888(data, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT;
                 break;
-            case 16 + 5:      /* ABGR, 32-bit ARGB 8-8-8-8 */
+            case 16*1 + 5:      /* ABGR, 32-bit ARGB 8-8-8-8 */
                 EXTRACT_8888_TO_8888(data, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT;
                 break;
@@ -4282,25 +4282,25 @@ public class VoodooCommon extends PCI_Device {
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT;
                 break;
 
-            case 12:     /* ARGB, 32-bit depth+RGB 5-6-5 */
+            case 16*0 + 12:     /* ARGB, 32-bit depth+RGB 5-6-5 */
             case 16*2 + 12:     /* RGBA, 32-bit depth+RGB 5-6-5 */
                 tmp_sw[0] = data >> 16;
                 EXTRACT_565_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
-            case 16 + 12:     /* ABGR, 32-bit depth+RGB 5-6-5 */
+            case 16*1 + 12:     /* ABGR, 32-bit depth+RGB 5-6-5 */
             case 16*3 + 12:     /* BGRA, 32-bit depth+RGB 5-6-5 */
                 tmp_sw[0] = data >> 16;
                 EXTRACT_565_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
 
-            case 13:     /* ARGB, 32-bit depth+RGB x-5-5-5 */
+            case 16*0 + 13:     /* ARGB, 32-bit depth+RGB x-5-5-5 */
                 tmp_sw[0] = data >> 16;
                 EXTRACT_x555_TO_888(data, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
-            case 16 + 13:     /* ABGR, 32-bit depth+RGB x-5-5-5 */
+            case 16*1 + 13:     /* ABGR, 32-bit depth+RGB x-5-5-5 */
                 tmp_sw[0] = data >> 16;
                 EXTRACT_x555_TO_888(data, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
@@ -4316,12 +4316,12 @@ public class VoodooCommon extends PCI_Device {
                 mask = LFB_RGB_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
 
-            case 14:     /* ARGB, 32-bit depth+ARGB 1-5-5-5 */
+            case 16*0 + 14:     /* ARGB, 32-bit depth+ARGB 1-5-5-5 */
                 tmp_sw[0] = data >> 16;
                 EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sr, tmp_sg, tmp_sb, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
-            case 16 + 14:     /* ABGR, 32-bit depth+ARGB 1-5-5-5 */
+            case 16*1 + 14:     /* ABGR, 32-bit depth+ARGB 1-5-5-5 */
                 tmp_sw[0] = data >> 16;
                 EXTRACT_1555_TO_8888(data, tmp_sa, tmp_sb, tmp_sg, tmp_sr, 0);
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | LFB_DEPTH_PRESENT_MSW;
@@ -4337,8 +4337,8 @@ public class VoodooCommon extends PCI_Device {
                 mask = LFB_RGB_PRESENT | LFB_ALPHA_PRESENT | LFB_DEPTH_PRESENT_MSW;
                 break;
 
-            case 15:     /* ARGB, 16-bit depth */
-            case 16 + 15:     /* ARGB, 16-bit depth */
+            case 16*0 + 15:     /* ARGB, 16-bit depth */
+            case 16*1 + 15:     /* ARGB, 16-bit depth */
             case 16*2 + 15:     /* ARGB, 16-bit depth */
             case 16*3 + 15:     /* ARGB, 16-bit depth */
                 tmp_sw[0] = data & 0xffff;
@@ -4352,7 +4352,7 @@ public class VoodooCommon extends PCI_Device {
         }
 
         /* compute X,Y */
-        x = (offset) & ((1 << fbi.lfb_stride) - 1);
+        x = (offset << 0) & ((1 << fbi.lfb_stride) - 1);
         y = (offset >> fbi.lfb_stride) & ((1 << fbi.lfb_stride) - 1);
 
         /* adjust the mask based on which half of the data is written */
@@ -4406,7 +4406,7 @@ public class VoodooCommon extends PCI_Device {
             //COMPUTE_DITHER_POINTERS_NO_DITHER_VAR(reg[fbzMode].u, y);
             if (FBZMODE_ENABLE_DITHERING(reg[fbzMode]))
             {
-                if (FBZMODE_DITHER_TYPE(reg[fbzMode]))
+                if (!FBZMODE_DITHER_TYPE(reg[fbzMode]))
                 {
                     dither_lookup = dither4_lookup;
                     dither_lookupPos = (y & 3) << 11;
@@ -4434,9 +4434,9 @@ public class VoodooCommon extends PCI_Device {
                             /* look up the dither value from the appropriate matrix */
                             int dither_offset = dither_lookupPos + ((x & 3) << 1);
                             /* apply dithering to R,G,B */
-                            tmp_sr[pix] = dither_lookup[(tmp_sr[pix] << 3) + dither_offset];
+                            tmp_sr[pix] = dither_lookup[(tmp_sr[pix] << 3) + 0 + dither_offset];
                             tmp_sg[pix] = dither_lookup[(tmp_sg[pix] << 3) + 1 + dither_offset];
-                            tmp_sb[pix] = dither_lookup[(tmp_sb[pix] << 3) + dither_offset];
+                            tmp_sb[pix] = dither_lookup[(tmp_sb[pix] << 3) + 0 + dither_offset];
                         }
                         else
                         {
@@ -4498,7 +4498,7 @@ public class VoodooCommon extends PCI_Device {
             {
                 dither4 = dither_matrix_4x4;
                 dither4Pos = (y & 3) * 4;
-                if (FBZMODE_DITHER_TYPE(reg[fbzMode]))
+                if (!FBZMODE_DITHER_TYPE(reg[fbzMode]))
                 {
                     dither = dither4;
                     ditherPos = dither4Pos;
@@ -4521,7 +4521,7 @@ public class VoodooCommon extends PCI_Device {
                 if ((mask & 0x0f)!=0)
                 {
                     final stats_block stats = fbi.lfb_stats;
-                    LongRef iterw = new LongRef((long) tmp_sw[pix] << (30-16));
+                    LongRef iterw = new LongRef(tmp_sw[pix] << (30-16));
                     IntRef iterz = new IntRef(tmp_sw[pix] << 12);
                     int color;
 
@@ -4542,18 +4542,22 @@ public class VoodooCommon extends PCI_Device {
                         }
                     }
                     final int pi = pix;
-                    PIXEL_PIPELINE_CALLBACK callback = (iterargb, result) -> {
-                        iterargb.value = reg[zaColor];
+                    PIXEL_PIPELINE_CALLBACK callback = new PIXEL_PIPELINE_CALLBACK() {
+                        public boolean call(IntRef iterargb, IntRef result) {
+                            iterargb.value = reg[zaColor];
 
-                        /* use the RGBA we stashed above */
-                        result.value = setRegRGBA(tmp_sr[pi], tmp_sg[pi], tmp_sb[pi], tmp_sa[pi]);
+                            /* use the RGBA we stashed above */
+                            result.value = setRegRGBA(tmp_sr[pi], tmp_sg[pi], tmp_sb[pi], tmp_sa[pi]);
 
-                        /* apply chroma key, alpha mask, and alpha testing */
-                        if (APPLY_CHROMAKEY(stats, reg[fbzMode], result.value))
-                            return false;
-                        if (APPLY_ALPHAMASK(stats, reg[fbzMode], tmp_sa[pi]))
-                            return false;
-                        return !APPLY_ALPHATEST(stats, reg[alphaMode], tmp_sa[pi]);
+                            /* apply chroma key, alpha mask, and alpha testing */
+                            if (!APPLY_CHROMAKEY(stats, reg[fbzMode], result.value))
+                                return false;
+                            if (!APPLY_ALPHAMASK(stats, reg[fbzMode], tmp_sa[pi]))
+                                return false;
+                            if (!APPLY_ALPHATEST(stats, reg[alphaMode], tmp_sa[pi]))
+                                return false;
+                            return true;
+                        }
                     };
 
                     PIXEL_PIPELINE(stats, x, y, reg[fbzColorPath], reg[fbzMode], reg[alphaMode], reg[fogMode], iterz, iterw, dither, ditherPos, dither4, dither4Pos, dither_lookup, dither_lookupPos, fbi.ram, destPos, fbi.ram, depthPos, callback);
@@ -4678,7 +4682,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Handle a write to the Voodoo
      *  memory space
      *
@@ -4692,7 +4696,7 @@ public class VoodooCommon extends PCI_Device {
 
         /* should not be getting accesses while stalled */
         if (pci.stall_state != NOT_STALLED)
-            System.out.println("voodoo_w while stalled!");
+            Log.log_msg("voodoo_w while stalled!");
 
         /* if we have something pending, flush the FIFOs up to the current time */
         if (pci.op_pending)
@@ -4728,7 +4732,7 @@ public class VoodooCommon extends PCI_Device {
                         if ((offset & 0xff) == swapbufferCMD)
                             fbi.swaps_pending++;
 
-                        System.out.println("Ignoring write to "+regnames[offset & 0xff]+" in CMDFIFO mode");
+                        Log.log_msg("Ignoring write to "+regnames[offset & 0xff]+" in CMDFIFO mode");
                         //g_profiler.stop();
                         return;
                     }
@@ -4854,7 +4858,7 @@ public class VoodooCommon extends PCI_Device {
 
 
     /*************************************
-     * <p>
+     *
      *  Handle a register read
      *
      *************************************/
@@ -4891,13 +4895,13 @@ public class VoodooCommon extends PCI_Device {
 
                 /* bits 5:0 are the PCI FIFO free space */
                 if (fifo_empty(pci.fifo))
-                    result |= 0x3f;
+                    result |= 0x3f << 0;
                 else
                 {
                     int temp = fifo_space(pci.fifo)/2;
                     if (temp > 0x3f)
                         temp = 0x3f;
-                    result |= temp;
+                    result |= temp << 0;
                 }
 
                 /* bit 6 is the vertical retrace */
@@ -5041,7 +5045,7 @@ public class VoodooCommon extends PCI_Device {
 
 
     /*************************************
-     * <p>
+     *
      *  Handle an LFB read
      *
      *************************************/
@@ -5125,9 +5129,9 @@ public class VoodooCommon extends PCI_Device {
     private int fastfill()
     {
     	int sx = (reg[clipLeftRight] >>> 16) & 0x3ff;
-    	int ex = (reg[clipLeftRight]) & 0x3ff;
+    	int ex = (reg[clipLeftRight] >>> 0) & 0x3ff;
     	int sy = (reg[clipLowYHighY] >>> 16) & 0x3ff;
-    	int ey = (reg[clipLowYHighY]) & 0x3ff;
+    	int ey = (reg[clipLowYHighY] >>> 0) & 0x3ff;
     	poly_extent[] extents = poly_extent.create(64);
     	int[] dithermatrix = new int[16];
     	int drawbufPos = 0;
@@ -5167,7 +5171,7 @@ public class VoodooCommon extends PCI_Device {
     			// COMPUTE_DITHER_POINTERS_NO_DITHER_VAR(reg[fbzMode], y);
                 if (FBZMODE_ENABLE_DITHERING(reg[fbzMode]))
                 {
-                    if (FBZMODE_DITHER_TYPE(reg[fbzMode]))
+                    if (!FBZMODE_DITHER_TYPE(reg[fbzMode]))
                     {
                         dither_lookup = dither4_lookup;
                         dither_lookupPos = (y & 3) << 11;
@@ -5193,9 +5197,9 @@ public class VoodooCommon extends PCI_Device {
                         int dithPos = dither_lookupPos + ((x & 3) << 1);
 
                         /* apply dithering to R,G,B */
-                        r = dither_lookup[dithPos + (r << 3)];
+                        r = dither_lookup[dithPos+(r << 3) + 0];
                         g = dither_lookup[dithPos+(g << 3) + 1];
-                        b = dither_lookup[dithPos + (b << 3)];
+                        b = dither_lookup[dithPos+(b << 3) + 0];
                     }
                     else
                     {
@@ -5271,7 +5275,7 @@ public class VoodooCommon extends PCI_Device {
 
     private int triangle()
     {
-    	int texcount;
+    	int texcount = 0;
     	int drawbufPos;
     	int destbuf;
     	int pixels;
@@ -5309,7 +5313,7 @@ public class VoodooCommon extends PCI_Device {
     			tmu[0].startt += (dy * tmu[0].dtdy + dx * tmu[0].dtdx) >> 4;
     
     			/* adjust iterated W/S/T for TMU 1 */
-    			if (texcount == 2)
+    			if (texcount >= 2)
     			{
     				tmu[1].startw += (dy * tmu[1].dwdy + dx * tmu[1].dwdx) >> 4;
     				tmu[1].starts += (dy * tmu[1].dsdy + dx * tmu[1].dsdx) >> 4;
@@ -5477,7 +5481,7 @@ public class VoodooCommon extends PCI_Device {
     
     	/* set up R,G,B */
     	tdiv = divisor * 4096.0f;
-    	if ((reg[sSetupMode] & (1))!=0)
+    	if ((reg[sSetupMode] & (1 << 0))!=0)
     	{
     		fbi.startr = (int)(fbi.svert[0].r * 4096.0f);
     		fbi.drdx = (int)(((fbi.svert[0].r - fbi.svert[1].r) * dx1 - (fbi.svert[0].r - fbi.svert[2].r) * dx2) * tdiv);
@@ -5741,42 +5745,45 @@ public class VoodooCommon extends PCI_Device {
        raster_fastfill - per-scanline
        implementation of the 'fastfill' command
    -------------------------------------------------*/
-    static final poly_draw_scanline_func raster_fastfill = (dest, destOffset, y, extent, extra, threadid) -> {
-        VoodooCommon v = extra.state;
-        stats_block stats = v.thread_stats[threadid];
-        int startx = extent.startx;
-        int stopx = extent.stopx;
-        int scry, x;
-
-        /* determine the screen Y */
-        scry = y;
-        if (FBZMODE_Y_ORIGIN(v.reg[fbzMode]))
-            scry = (v.fbi.yorigin - y) & 0x3ff;
-
-        /* fill this RGB row */
-        if (FBZMODE_RGB_BUFFER_MASK(v.reg[fbzMode]))
+    static final poly_draw_scanline_func raster_fastfill = new poly_draw_scanline_func() {
+        public void call(short[] dest, int destOffset, int y, poly_extent extent, poly_extra_data extra, int threadid)
         {
-            int ditherrowPos = (y & 3) * 4;
-            int destPos = scry * v.fbi.rowpixels;
-
-            for (x = startx; x < stopx; x++)
-                dest[destOffset+destPos+x] = (short)extra.dither[ditherrowPos+(x & 3)];
-            stats.pixels_out += stopx - startx;
-        }
-
-        /* fill this dest buffer row */
-        if (FBZMODE_AUX_BUFFER_MASK(v.reg[fbzMode]) && v.fbi.auxoffs != -1)
-        {
-            short color = (short)v.reg[zaColor];
-            int destPos = v.fbi.auxoffs / 2 + scry * v.fbi.rowpixels;
-
-            for (x = startx; x < stopx; x++)
-                v.fbi.ram[destPos+x]= color;
+            VoodooCommon v = extra.state;
+            stats_block stats = v.thread_stats[threadid];
+            int startx = extent.startx;
+            int stopx = extent.stopx;
+            int scry, x;
+           
+            /* determine the screen Y */
+            scry = y;
+            if (FBZMODE_Y_ORIGIN(v.reg[fbzMode]))
+                scry = (v.fbi.yorigin - y) & 0x3ff;
+           
+            /* fill this RGB row */
+            if (FBZMODE_RGB_BUFFER_MASK(v.reg[fbzMode]))
+            {
+                int ditherrowPos = (y & 3) * 4;
+                int destPos = scry * v.fbi.rowpixels;
+           
+                for (x = startx; x < stopx; x++)
+                    dest[destOffset+destPos+x] = (short)extra.dither[ditherrowPos+(x & 3)];
+                stats.pixels_out += stopx - startx;
+            }
+           
+            /* fill this dest buffer row */
+            if (FBZMODE_AUX_BUFFER_MASK(v.reg[fbzMode]) && v.fbi.auxoffs != -1)
+            {
+                short color = (short)v.reg[zaColor];
+                int destPos = v.fbi.auxoffs / 2 + scry * v.fbi.rowpixels;
+           
+                for (x = startx; x < stopx; x++)
+                    v.fbi.ram[destPos+x]= color;
+            }
         }
     };
 
     /*************************************
-     * <p>
+     *
      *  Rasterizer generator macro
      *
      *************************************/
@@ -5831,7 +5838,7 @@ public class VoodooCommon extends PCI_Device {
             {
                 dither4 = dither_matrix_4x4;
                 dither4Pos = (y & 3) * 4;
-                if (FBZMODE_DITHER_TYPE(FBZMODE))
+                if (!FBZMODE_DITHER_TYPE(FBZMODE))
                 {
                     dither = dither4;
                     ditherPos = dither4Pos;
@@ -5918,318 +5925,320 @@ public class VoodooCommon extends PCI_Device {
                 final byte[] DITHER4 = dither4;
                 final int DITHER4POS = dither4Pos;
 
-                PIXEL_PIPELINE_CALLBACK callback = (iterargb, result) -> {
-                    /* run the texture pipeline on TMU1 to produce a value in texel */
-                    /* note that they set LOD min to 8 to "disable" a TMU */
-                    if (TMUS >= 2 && v.tmu[1].lodmin < (8 << 8))
-                        texel.value = v.TEXTURE_PIPELINE(v.tmu[1], XX, DITHER4, DITHER4POS, TEXMODE1, texel.value, v.tmu[1].lookup, extra.lodbase1, ITERS1, ITERT1, ITERW1);
+                PIXEL_PIPELINE_CALLBACK callback = new PIXEL_PIPELINE_CALLBACK() {
+                    public boolean call(IntRef iterargb, IntRef result) {
+                        /* run the texture pipeline on TMU1 to produce a value in texel */
+                        /* note that they set LOD min to 8 to "disable" a TMU */
+                        if (TMUS >= 2 && v.tmu[1].lodmin < (8 << 8))
+                            texel.value = v.TEXTURE_PIPELINE(v.tmu[1], XX, DITHER4, DITHER4POS, TEXMODE1, texel.value, v.tmu[1].lookup, extra.lodbase1, ITERS1, ITERT1, ITERW1);
 
-                    /* run the texture pipeline on TMU0 to produce a final */
-                    /* result in texel */
-                    /* note that they set LOD min to 8 to "disable" a TMU */
-                    if (TMUS >= 1 && v.tmu[0].lodmin < (8 << 8)) {
-                        if (((v.reg[v.tmu[0].reg+trexInit1] >> 18) & 1)==0)
-                            texel.value = v.TEXTURE_PIPELINE(v.tmu[0], XX, DITHER4, DITHER4POS, TEXMODE0, texel.value, v.tmu[0].lookup, extra.lodbase0, ITERS0, ITERT0, ITERW0);
-                        else
-                            texel.value = 64;
-                    }
+                        /* run the texture pipeline on TMU0 to produce a final */
+                        /* result in texel */
+                        /* note that they set LOD min to 8 to "disable" a TMU */
+                        if (TMUS >= 1 && v.tmu[0].lodmin < (8 << 8)) {
+                            if (((v.reg[v.tmu[0].reg+trexInit1] >> 18) & 1)==0)
+                                texel.value = v.TEXTURE_PIPELINE(v.tmu[0], XX, DITHER4, DITHER4POS, TEXMODE0, texel.value, v.tmu[0].lookup, extra.lodbase0, ITERS0, ITERT0, ITERW0);
+                            else
+                                texel.value = 64;
+                        }
 
-                    /* colorpath pipeline selects source colors and does blending */
-                    // CLAMPED_ARGB(iterr, iterg, iterb, itera, v.reg[FBZCOLORPATH], iterargb);
-                    int r = iterr.value >> 12;
-                    int g = iterg.value >> 12;
-                    int b = iterb.value >> 12;
-                    int a = itera.value >> 12;
+                        /* colorpath pipeline selects source colors and does blending */
+                        // CLAMPED_ARGB(iterr, iterg, iterb, itera, v.reg[FBZCOLORPATH], iterargb);
+                        int r = iterr.value >> 12;
+                        int g = iterg.value >> 12;
+                        int b = iterb.value >> 12;
+                        int a = itera.value >> 12;
 
-                    {
-                        int ir;
-                        int ig;
-                        int ib;
-                        int ia;
-
-                        if (FBZCP_RGBZW_CLAMP(FBZCOLORPATH))
                         {
-                            r &= 0xfff;
-                            ir = r;
-                            if (r == 0xfff)
-                                ir = 0;
-                            else if (r == 0x100)
-                                ir = 0xff;
+                            int ir;
+                            int ig;
+                            int ib;
+                            int ia;
 
-                            g &= 0xfff;
-                            ig = g;
-                            if (g == 0xfff)
-                                ig = 0;
-                            else if (g == 0x100)
-                                ig = 0xff;
+                            if (!FBZCP_RGBZW_CLAMP(FBZCOLORPATH))
+                            {
+                                r &= 0xfff;
+                                ir = r;
+                                if (r == 0xfff)
+                                    ir = 0;
+                                else if (r == 0x100)
+                                    ir = 0xff;
 
-                            b &= 0xfff;
-                            ib = b;
-                            if (b == 0xfff)
-                                ib = 0;
-                            else if (b == 0x100)
-                                ib = 0xff;
+                                g &= 0xfff;
+                                ig = g;
+                                if (g == 0xfff)
+                                    ig = 0;
+                                else if (g == 0x100)
+                                    ig = 0xff;
 
-                            a &= 0xfff;
-                            ia = a;
-                            if (a == 0xfff)
-                                ia = 0;
-                            else if (a == 0x100)
-                                ia = 0xff;
+                                b &= 0xfff;
+                                ib = b;
+                                if (b == 0xfff)
+                                    ib = 0;
+                                else if (b == 0x100)
+                                    ib = 0xff;
+
+                                a &= 0xfff;
+                                ia = a;
+                                if (a == 0xfff)
+                                    ia = 0;
+                                else if (a == 0x100)
+                                    ia = 0xff;
+                            }
+                            else
+                            {
+                                ir = (r < 0) ? 0 : (r > 0xff) ? 0xff : r;
+                                ig = (g < 0) ? 0 : (g > 0xff) ? 0xff : g;
+                                ib = (b < 0) ? 0 : (b > 0xff) ? 0xff : b;
+                                ia = (a < 0) ? 0 : (a > 0xff) ? 0xff : a;
+                            }
+                            iterargb.value = setRegRGBA(ir, ig, ib, ia);
+                        }
+
+                        // COLORPATH_PIPELINE(v, stats, v.reg[FBZCOLORPATH], v.reg[FBZMODE], v.reg[ALPHAMODE], texel, iterz, iterw, iterargb);
+                        // #define COLORPATH_PIPELINE(VV, STATS, FBZCOLORPATH, FBZMODE, ALPHAMODE, TEXELARGB, ITERZ, ITERW, ITERARGB) \
+                        int blendr, blendg, blendb, blenda;
+                        int c_other;
+                        int c_local;
+
+                        /* compute c_other */
+                        switch (FBZCP_CC_RGBSELECT(FBZCOLORPATH))
+                        {
+                            case 0:     /* iterated RGB */
+                                c_other = iterargb.value;
+                                break;
+                            case 1:     /* texture RGB */
+                                c_other = texel.value;
+                                break;
+                            case 2:     /* color1 RGB */
+                                c_other = v.reg[color1];
+                                break;
+                            default:    /* reserved */
+                                c_other = 0;
+                                break;
+                        }
+
+                        /* handle chroma key */
+                        if (!v.APPLY_CHROMAKEY(stats, FBZMODE, c_other))
+                            return false;
+
+                        /* compute a_other */
+                        switch (FBZCP_CC_ASELECT(FBZCOLORPATH))
+                        {
+                            case 0:     /* iterated alpha */
+                                c_other = setRegA(c_other, getRegA(iterargb.value));
+                                break;
+
+                            case 1:     /* texture alpha */
+                                c_other = setRegA(c_other, getRegA(texel.value));
+                                break;
+
+                            case 2:     /* color1 alpha */
+                                c_other = setRegA(c_other, getRegA(v.reg[color1]));
+                                break;
+
+                            default:    /* reserved */
+                                c_other = setRegA(c_other, 0);
+                                break;
+                        }
+
+                        /* handle alpha mask */
+                        if (!v.APPLY_ALPHAMASK(stats, FBZMODE, getRegA(c_other)))
+                            return false;
+
+                        /* handle alpha test */
+                        if (!v.APPLY_ALPHATEST(stats, ALPHAMODE, getRegA(c_other)))
+                            return false;
+
+                        /* compute c_local */
+                        if (!FBZCP_CC_LOCALSELECT_OVERRIDE(FBZCOLORPATH))
+                        {
+                            if (!FBZCP_CC_LOCALSELECT(FBZCOLORPATH))    /* iterated RGB */
+                                c_local = iterargb.value;
+                            else                                            /* color0 RGB */
+                                c_local = v.reg[color0];
                         }
                         else
                         {
-                            ir = (r < 0) ? 0 : Math.min(r, 0xff);
-                            ig = (g < 0) ? 0 : Math.min(g, 0xff);
-                            ib = (b < 0) ? 0 : Math.min(b, 0xff);
-                            ia = (a < 0) ? 0 : Math.min(a, 0xff);
+                            if ((getRegA(texel.value) & 0x80)==0)                  /* iterated RGB */
+                                c_local = iterargb.value;
+                            else                                            /* color0 RGB */
+                                c_local = v.reg[color0];
                         }
-                        iterargb.value = setRegRGBA(ir, ig, ib, ia);
-                    }
 
-                    // COLORPATH_PIPELINE(v, stats, v.reg[FBZCOLORPATH], v.reg[FBZMODE], v.reg[ALPHAMODE], texel, iterz, iterw, iterargb);
-                    // #define COLORPATH_PIPELINE(VV, STATS, FBZCOLORPATH, FBZMODE, ALPHAMODE, TEXELARGB, ITERZ, ITERW, ITERARGB) \
-                    int blendr, blendg, blendb, blenda;
-                    int c_other;
-                    int c_local;
-
-                    /* compute c_other */
-                    switch (FBZCP_CC_RGBSELECT(FBZCOLORPATH))
-                    {
-                        case 0:     /* iterated RGB */
-                            c_other = iterargb.value;
-                            break;
-                        case 1:     /* texture RGB */
-                            c_other = texel.value;
-                            break;
-                        case 2:     /* color1 RGB */
-                            c_other = v.reg[color1];
-                            break;
-                        default:    /* reserved */
-                            c_other = 0;
-                            break;
-                    }
-
-                    /* handle chroma key */
-                    if (v.APPLY_CHROMAKEY(stats, FBZMODE, c_other))
-                        return false;
-
-                    /* compute a_other */
-                    switch (FBZCP_CC_ASELECT(FBZCOLORPATH))
-                    {
-                        case 0:     /* iterated alpha */
-                            c_other = setRegA(c_other, getRegA(iterargb.value));
-                            break;
-
-                        case 1:     /* texture alpha */
-                            c_other = setRegA(c_other, getRegA(texel.value));
-                            break;
-
-                        case 2:     /* color1 alpha */
-                            c_other = setRegA(c_other, getRegA(v.reg[color1]));
-                            break;
-
-                        default:    /* reserved */
-                            c_other = setRegA(c_other, 0);
-                            break;
-                    }
-
-                    /* handle alpha mask */
-                    if (v.APPLY_ALPHAMASK(stats, FBZMODE, getRegA(c_other)))
-                        return false;
-
-                    /* handle alpha test */
-                    if (v.APPLY_ALPHATEST(stats, ALPHAMODE, getRegA(c_other)))
-                        return false;
-
-                    /* compute c_local */
-                    if (!FBZCP_CC_LOCALSELECT_OVERRIDE(FBZCOLORPATH))
-                    {
-                        if (FBZCP_CC_LOCALSELECT(FBZCOLORPATH))    /* iterated RGB */
-                            c_local = iterargb.value;
-                        else                                            /* color0 RGB */
-                            c_local = v.reg[color0];
-                    }
-                    else
-                    {
-                        if ((getRegA(texel.value) & 0x80)==0)                  /* iterated RGB */
-                            c_local = iterargb.value;
-                        else                                            /* color0 RGB */
-                            c_local = v.reg[color0];
-                    }
-
-                    /* compute a_local */
-                    switch (FBZCP_CCA_LOCALSELECT(FBZCOLORPATH))
-                    {
-                        default:
-                        case 0:     /* iterated alpha */
-                            c_local = setRegA(c_local, getRegA(iterargb.value));
-                            break;
-
-                        case 1:     /* color0 alpha */
-                            c_local = setRegA(c_local, getRegA(v.reg[color0]));
-                            break;
-
-                        case 2:     /* clamped iterated Z[27:20] */
+                        /* compute a_local */
+                        switch (FBZCP_CCA_LOCALSELECT(FBZCOLORPATH))
                         {
-                            int temp = CLAMPED_Zr(iterz.value, FBZCOLORPATH);
-                            c_local = setRegA(c_local, temp & 0xFF);
-                            break;
+                            default:
+                            case 0:     /* iterated alpha */
+                                c_local = setRegA(c_local, getRegA(iterargb.value));
+                                break;
+
+                            case 1:     /* color0 alpha */
+                                c_local = setRegA(c_local, getRegA(v.reg[color0]));
+                                break;
+
+                            case 2:     /* clamped iterated Z[27:20] */
+                            {
+                                int temp = CLAMPED_Zr(iterz.value, FBZCOLORPATH);
+                                c_local = setRegA(c_local, temp & 0xFF);
+                                break;
+                            }
+
+                            case 3:     /* clamped iterated W[39:32] */
+                            {
+                                int temp = CLAMPED_Wr(iterw.value, FBZCOLORPATH);           /* Voodoo 2 only */
+                                c_local = setRegA(c_local, temp & 0xFF);
+                                break;
+                            }
                         }
 
-                        case 3:     /* clamped iterated W[39:32] */
+                        /* select zero or c_other */
+                        if (!FBZCP_CC_ZERO_OTHER(FBZCOLORPATH))
                         {
-                            int temp = CLAMPED_Wr(iterw.value, FBZCOLORPATH);           /* Voodoo 2 only */
-                            c_local = setRegA(c_local, temp & 0xFF);
-                            break;
+                            r = getRegR(c_other);
+                            g = getRegG(c_other);
+                            b = getRegB(c_other);
                         }
+                        else
+                            r = g = b = 0;
+
+                        /* select zero or a_other */
+                        if (!FBZCP_CCA_ZERO_OTHER(FBZCOLORPATH))
+                            a = getRegA(c_other);
+                        else
+                            a = 0;
+
+                        /* subtract c_local */
+                        if (FBZCP_CC_SUB_CLOCAL(FBZCOLORPATH))
+                        {
+                            r -= getRegR(c_local);
+                            g -= getRegG(c_local);
+                            b -= getRegB(c_local);
+                        }
+
+                        /* subtract a_local */
+                        if (FBZCP_CCA_SUB_CLOCAL(FBZCOLORPATH))
+                            a -= getRegA(c_local);
+
+                        /* blend RGB */
+                        switch (FBZCP_CC_MSELECT(FBZCOLORPATH))
+                        {
+                            default:    /* reserved */
+                            case 0:     /* 0 */
+                                blendr = blendg = blendb = 0;
+                                break;
+
+                            case 1:     /* c_local */
+                                blendr = getRegR(c_local);
+                                blendg = getRegG(c_local);
+                                blendb = getRegB(c_local);
+                                break;
+
+                            case 2:     /* a_other */
+                                blendr = blendg = blendb = getRegA(c_other);
+                                break;
+
+                            case 3:     /* a_local */
+                                blendr = blendg = blendb = getRegA(c_local);
+                                break;
+
+                            case 4:     /* texture alpha */
+                                blendr = blendg = blendb = getRegA(texel.value);
+                                break;
+
+                            case 5:     /* texture RGB (Voodoo 2 only) */
+                                blendr = getRegR(texel.value);
+                                blendg = getRegG(texel.value);
+                                blendb = getRegB(texel.value);
+                                break;
+                        }
+
+                        /* blend alpha */
+                        switch (FBZCP_CCA_MSELECT(FBZCOLORPATH))
+                        {
+                            default:    /* reserved */
+                            case 0:     /* 0 */
+                                blenda = 0;
+                                break;
+
+                            case 1:     /* a_local */
+                                blenda = getRegA(c_local);
+                                break;
+
+                            case 2:     /* a_other */
+                                blenda = getRegA(c_other);
+                                break;
+
+                            case 3:     /* a_local */
+                                blenda = getRegA(c_local);
+                                break;
+
+                            case 4:     /* texture alpha */
+                                blenda = getRegA(texel.value);
+                                break;
+                        }
+
+                        /* reverse the RGB blend */
+                        if (!FBZCP_CC_REVERSE_BLEND(FBZCOLORPATH))
+                        {
+                            blendr ^= 0xff;
+                            blendg ^= 0xff;
+                            blendb ^= 0xff;
+                        }
+
+                        /* reverse the alpha blend */
+                        if (!FBZCP_CCA_REVERSE_BLEND(FBZCOLORPATH))
+                            blenda ^= 0xff;
+
+                        /* do the blend */
+                        r = (r * (blendr + 1)) >> 8;
+                        g = (g * (blendg + 1)) >> 8;
+                        b = (b * (blendb + 1)) >> 8;
+                        a = (a * (blenda + 1)) >> 8;
+
+                        /* add clocal or alocal to RGB */
+                        switch (FBZCP_CC_ADD_ACLOCAL(FBZCOLORPATH))
+                        {
+                            case 3:     /* reserved */
+                            case 0:     /* nothing */
+                                break;
+
+                            case 1:     /* add c_local */
+                                r += getRegR(c_local);
+                                g += getRegG(c_local);
+                                b += getRegB(c_local);
+                                break;
+
+                            case 2:     /* add_alocal */
+                                r += getRegA(c_local);
+                                g += getRegA(c_local);
+                                b += getRegA(c_local);
+                                break;
+                        }
+
+                        /* add clocal or alocal to alpha */
+                        if (FBZCP_CCA_ADD_ACLOCAL(FBZCOLORPATH)!=0)
+                            a += getRegA(c_local);
+
+                        /* clamp */
+                        r = CLAMPr(r, 0x00, 0xff);
+                        g = CLAMPr(g, 0x00, 0xff);
+                        b = CLAMPr(b, 0x00, 0xff);
+                        a = CLAMPr(a, 0x00, 0xff);
+
+                        /* invert */
+                        if (FBZCP_CC_INVERT_OUTPUT(FBZCOLORPATH))
+                        {
+                            r ^= 0xff;
+                            g ^= 0xff;
+                            b ^= 0xff;
+                        }
+                        if (FBZCP_CCA_INVERT_OUTPUT(FBZCOLORPATH))
+                            a ^= 0xff;
+                        result.value = setRegRGBA(r, g, b, a);
+                        return true;
                     }
-
-                    /* select zero or c_other */
-                    if (FBZCP_CC_ZERO_OTHER(FBZCOLORPATH))
-                    {
-                        r = getRegR(c_other);
-                        g = getRegG(c_other);
-                        b = getRegB(c_other);
-                    }
-                    else
-                        r = g = b = 0;
-
-                    /* select zero or a_other */
-                    if (FBZCP_CCA_ZERO_OTHER(FBZCOLORPATH))
-                        a = getRegA(c_other);
-                    else
-                        a = 0;
-
-                    /* subtract c_local */
-                    if (FBZCP_CC_SUB_CLOCAL(FBZCOLORPATH))
-                    {
-                        r -= getRegR(c_local);
-                        g -= getRegG(c_local);
-                        b -= getRegB(c_local);
-                    }
-
-                    /* subtract a_local */
-                    if (FBZCP_CCA_SUB_CLOCAL(FBZCOLORPATH))
-                        a -= getRegA(c_local);
-
-                    /* blend RGB */
-                    switch (FBZCP_CC_MSELECT(FBZCOLORPATH))
-                    {
-                        default:    /* reserved */
-                        case 0:     /* 0 */
-                            blendr = blendg = blendb = 0;
-                            break;
-
-                        case 1:     /* c_local */
-                            blendr = getRegR(c_local);
-                            blendg = getRegG(c_local);
-                            blendb = getRegB(c_local);
-                            break;
-
-                        case 2:     /* a_other */
-                            blendr = blendg = blendb = getRegA(c_other);
-                            break;
-
-                        case 3:     /* a_local */
-                            blendr = blendg = blendb = getRegA(c_local);
-                            break;
-
-                        case 4:     /* texture alpha */
-                            blendr = blendg = blendb = getRegA(texel.value);
-                            break;
-
-                        case 5:     /* texture RGB (Voodoo 2 only) */
-                            blendr = getRegR(texel.value);
-                            blendg = getRegG(texel.value);
-                            blendb = getRegB(texel.value);
-                            break;
-                    }
-
-                    /* blend alpha */
-                    switch (FBZCP_CCA_MSELECT(FBZCOLORPATH))
-                    {
-                        default:    /* reserved */
-                        case 0:     /* 0 */
-                            blenda = 0;
-                            break;
-
-                        case 1:     /* a_local */
-                            blenda = getRegA(c_local);
-                            break;
-
-                        case 2:     /* a_other */
-                            blenda = getRegA(c_other);
-                            break;
-
-                        case 3:     /* a_local */
-                            blenda = getRegA(c_local);
-                            break;
-
-                        case 4:     /* texture alpha */
-                            blenda = getRegA(texel.value);
-                            break;
-                    }
-
-                    /* reverse the RGB blend */
-                    if (FBZCP_CC_REVERSE_BLEND(FBZCOLORPATH))
-                    {
-                        blendr ^= 0xff;
-                        blendg ^= 0xff;
-                        blendb ^= 0xff;
-                    }
-
-                    /* reverse the alpha blend */
-                    if (FBZCP_CCA_REVERSE_BLEND(FBZCOLORPATH))
-                        blenda ^= 0xff;
-
-                    /* do the blend */
-                    r = (r * (blendr + 1)) >> 8;
-                    g = (g * (blendg + 1)) >> 8;
-                    b = (b * (blendb + 1)) >> 8;
-                    a = (a * (blenda + 1)) >> 8;
-
-                    /* add clocal or alocal to RGB */
-                    switch (FBZCP_CC_ADD_ACLOCAL(FBZCOLORPATH))
-                    {
-                        case 3:     /* reserved */
-                        case 0:     /* nothing */
-                            break;
-
-                        case 1:     /* add c_local */
-                            r += getRegR(c_local);
-                            g += getRegG(c_local);
-                            b += getRegB(c_local);
-                            break;
-
-                        case 2:     /* add_alocal */
-                            r += getRegA(c_local);
-                            g += getRegA(c_local);
-                            b += getRegA(c_local);
-                            break;
-                    }
-
-                    /* add clocal or alocal to alpha */
-                    if (FBZCP_CCA_ADD_ACLOCAL(FBZCOLORPATH)!=0)
-                        a += getRegA(c_local);
-
-                    /* clamp */
-                    r = CLAMPr(r, 0x00, 0xff);
-                    g = CLAMPr(g, 0x00, 0xff);
-                    b = CLAMPr(b, 0x00, 0xff);
-                    a = CLAMPr(a, 0x00, 0xff);
-
-                    /* invert */
-                    if (FBZCP_CC_INVERT_OUTPUT(FBZCOLORPATH))
-                    {
-                        r ^= 0xff;
-                        g ^= 0xff;
-                        b ^= 0xff;
-                    }
-                    if (FBZCP_CCA_INVERT_OUTPUT(FBZCOLORPATH))
-                        a ^= 0xff;
-                    result.value = setRegRGBA(r, g, b, a);
-                    return true;
                 };
                 v.PIXEL_PIPELINE(stats, x, y, FBZCOLORPATH, FBZMODE, ALPHAMODE, FOGMODE, iterz, iterw, dither, ditherPos, dither4, dither4Pos, dither_lookup, dither_lookupPos, destbase, destPos, v.fbi.ram, depthPos, callback);
 
@@ -6273,7 +6282,7 @@ public class VoodooCommon extends PCI_Device {
 
 
     /*************************************
-     * <p>
+     *
      *  Common initialization
      *
      *************************************/
@@ -6307,7 +6316,7 @@ public class VoodooCommon extends PCI_Device {
         boolean screen_update_pending;
     }
 
-    static final voodoo_draw vdraw = new voodoo_draw();
+    static voodoo_draw vdraw = new voodoo_draw();
 
     static final private Pic.PIC_EventHandler Voodoo_VerticalBlankTimer = new Pic.PIC_EventHandler() {
             public void call(int val) {
@@ -6316,23 +6325,25 @@ public class VoodooCommon extends PCI_Device {
             }
     };
 
-    static final private Pic.PIC_EventHandler Voodoo_VerticalTimer = val -> {
-        if (vdraw.screen_update_pending)
-            return;
-        vdraw.v.vblank_off_callback();
+    static final private Pic.PIC_EventHandler Voodoo_VerticalTimer = new Pic.PIC_EventHandler() {
+        public void call(int val) {
+            if (vdraw.screen_update_pending)
+                return;
+            vdraw.v.vblank_off_callback();
 
-        vdraw.frame_start = Pic.PIC_FullIndex();
-        Pic.PIC_AddEvent( Voodoo_VerticalBlankTimer, vdraw.vfreq*95/100);
+            vdraw.frame_start = Pic.PIC_FullIndex();
+            Pic.PIC_AddEvent( Voodoo_VerticalBlankTimer, vdraw.vfreq*95/100);
 
-        if (Render.RENDER_StartUpdate()) return; // frameskip
+            if (!Render.RENDER_StartUpdate()) return; // frameskip
 
-        // draw all lines at once
-        for (int y=0;y<vdraw.v.fbi.height;y++) {
-            int inOffset = vdraw.v.fbi.rgboffs[vdraw.v.fbi.frontbuf] / 2 + y*vdraw.v.fbi.rowpixels;
-            int outOffset = Render.render.src.outPitch * y / 2;
-            System.arraycopy(vdraw.v.fbi.ram, inOffset, Render.render.src.outWrite16, outOffset, vdraw.v.fbi.width);
+            // draw all lines at once
+            for (int y=0;y<vdraw.v.fbi.height;y++) {
+                int inOffset = vdraw.v.fbi.rgboffs[vdraw.v.fbi.frontbuf] / 2 + y*vdraw.v.fbi.rowpixels;
+                int outOffset = Render.render.src.outPitch * y / 2;
+                System.arraycopy(vdraw.v.fbi.ram, inOffset, Render.render.src.outWrite16, outOffset, vdraw.v.fbi.width);
+            }
+            Render.RENDER_EndUpdate(false);
         }
-        Render.RENDER_EndUpdate(false);
     };
 
     static void Voodoo_Output_Enable(boolean enabled) {
@@ -6349,34 +6360,36 @@ public class VoodooCommon extends PCI_Device {
         }
     }
 
-    static final private Pic.PIC_EventHandler Voodoo_UpdateScreen = val -> {
-        vdraw.screen_update_pending = false;
-        // abort drawing
-        Render.RENDER_EndUpdate(true);
+    static final private Pic.PIC_EventHandler Voodoo_UpdateScreen = new Pic.PIC_EventHandler() {
+        public void call(int val) {
+            vdraw.screen_update_pending = false;
+            // abort drawing
+            Render.RENDER_EndUpdate(true);
 
-        if ((!vdraw.clock_enabled || !vdraw.output_on)&& vdraw.override_on) {
-            // switching off
-            Pic.PIC_RemoveEvents(Voodoo_VerticalTimer);
-            Pic.PIC_RemoveEvents(Voodoo_VerticalBlankTimer);
-            VGA_draw.VGA_SetOverride(false);
-            vdraw.override_on=false;
-        }
-
-        if ((vdraw.clock_enabled && vdraw.output_on)) {
-            // switching on
-            Pic.PIC_RemoveEvents(Voodoo_VerticalTimer); // shouldn't be needed
-
-            // TODO proper implementation of refresh rates and timings
-            vdraw.vfreq = 1000.0f/60.0f;
-            if (!vdraw.override_on) {
-                VGA_draw.VGA_SetOverride(true);
-                vdraw.override_on=true;
+            if ((!vdraw.clock_enabled || !vdraw.output_on)&& vdraw.override_on) {
+                // switching off
+                Pic.PIC_RemoveEvents(Voodoo_VerticalTimer);
+                Pic.PIC_RemoveEvents(Voodoo_VerticalBlankTimer);
+                VGA_draw.VGA_SetOverride(false);
+                vdraw.override_on=false;
             }
-            vdraw.height=vdraw.v.fbi.height;
-            System.out.println("Voodoo output "+(vdraw.v.fbi.width+1)+"x"+vdraw.v.fbi.height);
 
-            Render.RENDER_SetSize(vdraw.v.fbi.width+1, vdraw.v.fbi.height, 16, vdraw.vfreq, 4.0/3.0, false, false);
-            Voodoo_VerticalTimer.call(0);
+            if ((vdraw.clock_enabled && vdraw.output_on)) {
+                // switching on
+                Pic.PIC_RemoveEvents(Voodoo_VerticalTimer); // shouldn't be needed
+
+                // TODO proper implementation of refresh rates and timings
+                vdraw.vfreq = 1000.0f/60.0f;
+                if (!vdraw.override_on) {
+                    VGA_draw.VGA_SetOverride(true);
+                    vdraw.override_on=true;
+                }
+                vdraw.height=vdraw.v.fbi.height;
+                Log.log_msg("Voodoo output "+(vdraw.v.fbi.width+1)+"x"+vdraw.v.fbi.height);
+
+                Render.RENDER_SetSize(vdraw.v.fbi.width+1, vdraw.v.fbi.height, 16, vdraw.vfreq, 4.0/3.0, false, false);
+                Voodoo_VerticalTimer.call(0);
+            }
         }
     };
 
@@ -6446,9 +6459,9 @@ public class VoodooCommon extends PCI_Device {
     
     		/* 8-bit RGB (3-3-2) */
     		// EXTRACT_332_TO_888(val, r, g, b);
-            r = (((val)) & 0xe0) | (((val) >> 3) & 0x1c) | (((val) >> 6) & 0x03);
-            g = (((val) << 3) & 0xe0) | (((val)) & 0x1c) | (((val) >> 3) & 0x03);
-            b = (((val) << 6) & 0xc0) | (((val) << 4) & 0x30) | (((val) << 2) & 0xc0) | (((val)) & 0x03);
+            r = (((val) >> 0) & 0xe0) | (((val) >> 3) & 0x1c) | (((val) >> 6) & 0x03);
+            g = (((val) << 3) & 0xe0) | (((val) >> 0) & 0x1c) | (((val) >> 3) & 0x03);
+            b = (((val) << 6) & 0xc0) | (((val) << 4) & 0x30) | (((val) << 2) & 0xc0) | (((val) << 0) & 0x03);
 
     		tmushare.rgb332[val] = MAKE_ARGB(0xff, r, g, b);
     
@@ -6459,8 +6472,8 @@ public class VoodooCommon extends PCI_Device {
     		tmushare.int8[val] = MAKE_ARGB(0xff, val, val, val);
     
     		/* 8-bit alpha, intensity */
-    		a = ((val) & 0xf0) | ((val >> 4) & 0x0f);
-    		r = ((val << 4) & 0xf0) | ((val) & 0x0f);
+    		a = ((val >> 0) & 0xf0) | ((val >> 4) & 0x0f);
+    		r = ((val << 4) & 0xf0) | ((val << 0) & 0x0f);
     		tmushare.ai44[val] = MAKE_ARGB(a, r, r, r);
     	}
     
@@ -6490,8 +6503,8 @@ public class VoodooCommon extends PCI_Device {
     		//EXTRACT_4444_TO_8888(val, a, r, g, b);
             a = (((val) >> 8) & 0xf0) | (((val) >> 12) & 0x0f);
             r = (((val) >> 4) & 0xf0) | (((val) >> 8) & 0x0f);
-            g = (((val)) & 0xf0) | (((val) >> 4) & 0x0f);
-            b = (((val) << 4) & 0xf0) | (((val)) & 0x0f);
+            g = (((val) >> 0) & 0xf0) | (((val) >> 4) & 0x0f);
+            b = (((val) << 4) & 0xf0) | (((val) >> 0) & 0x0f);
     		tmushare.argb4444[val] = MAKE_ARGB(a, r, g, b);
     	}
     }
@@ -6508,7 +6521,7 @@ public class VoodooCommon extends PCI_Device {
     
     	/* mark the NCC tables dirty and configure their registers */
     	t.ncc[0].dirty = t.ncc[1].dirty = true;
-    	t.ncc[0].reg = t.reg + nccTable;
+    	t.ncc[0].reg = t.reg+nccTable+0;
     	t.ncc[1].reg = t.reg+nccTable+12;
     
     	/* create pointers to all the tables */
@@ -6663,7 +6676,7 @@ public class VoodooCommon extends PCI_Device {
     	reg[fbiInit1] = (1 << 1) | (1 << 8) | (1 << 12) | (2 << 20);
     	reg[fbiInit2] = (1 << 6) | (0x100 << 23);
     	reg[fbiInit3] = (2 << 13) | (0xf << 17);
-    	reg[fbiInit4] = (1);
+    	reg[fbiInit4] = (1 << 0);
 
     	/* initialize banshee registers */
     	Arrays.fill(banshee.io, 0);
@@ -6680,7 +6693,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Chroma keying macro
      *
      *************************************/
@@ -6693,7 +6706,7 @@ public class VoodooCommon extends PCI_Device {
                 if (((COLOR ^ reg[chromaKey]) & 0xffffff) == 0)
                 {
                     STATS.chroma_fail++;
-                    return true;
+                    return false;
                 }
             }
 
@@ -6701,7 +6714,7 @@ public class VoodooCommon extends PCI_Device {
             else
             {
                 int low, high, test;
-                int results;
+                int results = 0;
 
                 /* check blue */
                 low = getRegB(reg[chromaKey]);
@@ -6732,7 +6745,7 @@ public class VoodooCommon extends PCI_Device {
                     if (results != 0)
                     {
                         STATS.chroma_fail++;
-                        return true;
+                        return false;
                     }
                 }
                 else
@@ -6740,16 +6753,16 @@ public class VoodooCommon extends PCI_Device {
                     if (results == 7)
                     {
                         STATS.chroma_fail++;
-                        return true;
+                        return false;
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
     
     /*************************************
-     * <p>
+     *
      *  Alpha masking macro
      *
      *************************************/
@@ -6759,14 +6772,14 @@ public class VoodooCommon extends PCI_Device {
             if (((AA) & 1) == 0)
             {
                 STATS.afunc_fail++;
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /*************************************
-     * <p>
+     *
      *  Alpha testing macro
      *
      *************************************/
@@ -6778,54 +6791,54 @@ public class VoodooCommon extends PCI_Device {
             {
                 case 0:     /* alphaOP = never */
                     STATS.afunc_fail++;
-                    return true;
+                    return false;
                 case 1:     /* alphaOP = less than */
                     if ((AA) >= alpharef)
                     {
                         STATS.afunc_fail++;
-                        return true;
+                        return false;
                     }
                     break;
                 case 2:     /* alphaOP = equal */
                     if ((AA) != alpharef)
                     {
                         STATS.afunc_fail++;
-                        return true;
+                        return false;
                     }
                     break;
                 case 3:     /* alphaOP = less than or equal */
                     if ((AA) > alpharef)
                     {
                         STATS.afunc_fail++;
-                        return true;
+                        return false;
                     }
                     break;
                 case 4:     /* alphaOP = greater than */
                     if ((AA) <= alpharef)
                     {
                         STATS.afunc_fail++;
-                        return true;
+                        return false;
                     }
                     break;
                 case 5:     /* alphaOP = not equal */
                     if ((AA) == alpharef)
                     {
                         STATS.afunc_fail++;
-                        return true;
+                        return false;
                     }
                     break;
                 case 6:     /* alphaOP = greater than or equal */
                     if ((AA) < alpharef)
                     {
                         STATS.afunc_fail++;
-                        return true;
+                        return false;
                     }
                     break;
                 case 7:     /* alphaOP = always */
                     break;
             }
         }
-        return false;
+        return true;
     }
 
     /*-------------------------------------------------
@@ -6854,7 +6867,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     /*************************************
-     * <p>
+     *
      *  Texture pipeline macro
      *
      *************************************/
@@ -7028,7 +7041,7 @@ public class VoodooCommon extends PCI_Device {
     	}
 
     	/* select zero/other for RGB */
-    	if (TEXMODE_TC_ZERO_OTHER(TEXMODE))
+    	if (!TEXMODE_TC_ZERO_OTHER(TEXMODE))
     	{
     		tr = getRegR(COTHER);
     		tg = getRegG(COTHER);
@@ -7038,7 +7051,7 @@ public class VoodooCommon extends PCI_Device {
     		tr = tg = tb = 0;
 
     	/* select zero/other for alpha */
-    	if (TEXMODE_TCA_ZERO_OTHER(TEXMODE))
+    	if (!TEXMODE_TCA_ZERO_OTHER(TEXMODE))
     		ta = getRegA(COTHER);
     	else
     		ta = 0;
@@ -7129,7 +7142,7 @@ public class VoodooCommon extends PCI_Device {
     	}
 
     	/* reverse the RGB blend */
-    	if (TEXMODE_TC_REVERSE_BLEND(TEXMODE))
+    	if (!TEXMODE_TC_REVERSE_BLEND(TEXMODE))
     	{
     		blendr ^= 0xff;
     		blendg ^= 0xff;
@@ -7137,7 +7150,7 @@ public class VoodooCommon extends PCI_Device {
     	}
 
     	/* reverse the alpha blend */
-    	if (TEXMODE_TCA_REVERSE_BLEND(TEXMODE))
+    	if (!TEXMODE_TCA_REVERSE_BLEND(TEXMODE))
     		blenda ^= 0xff;
 
     	/* do the blend */
@@ -7171,10 +7184,10 @@ public class VoodooCommon extends PCI_Device {
     		ta += getRegA(c_local);
 
     	/* clamp */
-    	int rr = (tr < 0) ? 0 : Math.min(tr, 0xff);
-    	int rg = (tg < 0) ? 0 : Math.min(tg, 0xff);
-    	int rb = (tb < 0) ? 0 : Math.min(tb, 0xff);
-    	int ra = (ta < 0) ? 0 : Math.min(ta, 0xff);
+    	int rr = (tr < 0) ? 0 : (tr > 0xff) ? 0xff : tr;
+    	int rg = (tg < 0) ? 0 : (tg > 0xff) ? 0xff : tg;
+    	int rb = (tb < 0) ? 0 : (tb > 0xff) ? 0xff : tb;
+    	int ra = (ta < 0) ? 0 : (ta > 0xff) ? 0xff : ta;
         int RESULT = setRegRGBA(rr, rg, rb, ra);
 
     	/* invert */
@@ -7186,7 +7199,7 @@ public class VoodooCommon extends PCI_Device {
     }
 
     private interface PIXEL_PIPELINE_CALLBACK {
-        boolean call(IntRef iterargb, IntRef result);
+        public boolean call(IntRef iterargb, IntRef result);
     }
 
     private void PIXEL_PIPELINE(stats_block STATS, int XX, int YY, int FBZCOLORPATH, int FBZMODE, int ALPHAMODE, int FOGMODE, IntRef ITERZ, LongRef ITERW, byte[] DITHERs, int DITHERPOS, byte[] DITHER4s, int DITHER4POS, byte[] DITHER_LOOKUPs, int DITHER_LOOKUPPOS, short[] destbase, final int destPos, short[] depthbase, final int depthPos, PIXEL_PIPELINE_CALLBACK callback) {
@@ -7201,7 +7214,7 @@ public class VoodooCommon extends PCI_Device {
     	if (FBZMODE_ENABLE_STIPPLE(FBZMODE))
     	{
     		/* rotate mode */
-    		if (FBZMODE_STIPPLE_PATTERN(FBZMODE))
+    		if (!FBZMODE_STIPPLE_PATTERN(FBZMODE))
     		{
     			reg[stipple] = (reg[stipple] << 1) | (reg[stipple] >> 31);
     			if ((reg[stipple] & 0x80000000) == 0)
@@ -7224,7 +7237,7 @@ public class VoodooCommon extends PCI_Device {
     	}
 
     	/* compute "floating point" W value (used for depth and fog) */
-    	if ((ITERW.value & 0xffff00000000L)!=0)
+    	if ((ITERW.value & 0xffff00000000l)!=0)
     		wfloat = 0x0000;
     	else
     	{
@@ -7241,7 +7254,7 @@ public class VoodooCommon extends PCI_Device {
     	/* compute depth value (W or Z) for this pixel */
     	if (!FBZMODE_WBUFFER_SELECT(FBZMODE))
             depthval = CLAMPED_Zr(ITERZ.value, FBZCOLORPATH);
-    	else if (FBZMODE_DEPTH_FLOAT_SELECT(FBZMODE))
+    	else if (!FBZMODE_DEPTH_FLOAT_SELECT(FBZMODE))
     		depthval = wfloat;
     	else
     	{
@@ -7274,7 +7287,7 @@ public class VoodooCommon extends PCI_Device {
 
     		/* the source depth is either the iterated W/Z+bias or a */
     		/* constant value */
-    		if (FBZMODE_DEPTH_SOURCE_COMPARE(FBZMODE))
+    		if (!FBZMODE_DEPTH_SOURCE_COMPARE(FBZMODE))
     			depthsource = depthval;
     		else
     			depthsource = reg[zaColor] & 0xFFFF;
@@ -7361,7 +7374,7 @@ public class VoodooCommon extends PCI_Device {
                 int fogblend = 0;
 
                 /* if fog_add is zero, we start with the fog color */
-                if (FOGMODE_FOG_ADD(FOGMODE)) {
+                if (!FOGMODE_FOG_ADD(FOGMODE)) {
                     fr = getRegR(fogcolor);
                     fg = getRegG(fogcolor);
                     fb = getRegB(fogcolor);
@@ -7370,7 +7383,7 @@ public class VoodooCommon extends PCI_Device {
                 }
 
                 /* if fog_mult is zero, we subtract the incoming color */
-                if (FOGMODE_FOG_MULT(FOGMODE)) {
+                if (!FOGMODE_FOG_MULT(FOGMODE)) {
                     fr -= r;
                     fg -= g;
                     fb -= b;
@@ -7419,7 +7432,7 @@ public class VoodooCommon extends PCI_Device {
             }
 
             /* if fog_mult is 0, we add this to the original color */
-            if (FOGMODE_FOG_MULT(FOGMODE)) {
+            if (!FOGMODE_FOG_MULT(FOGMODE)) {
                 r += fr;
                 g += fg;
                 b += fb;
@@ -7503,7 +7516,7 @@ public class VoodooCommon extends PCI_Device {
                     b = (sb * (0x100 - da)) >> 8;
                     break;
                 case 15:    /* ASATURATE */
-                    ta = Math.min(sa, (0x100 - da));
+                    ta = (sa < (0x100 - da)) ? sa : (0x100 - da);
                     r = (sr * (ta + 1)) >> 8;
                     g = (sg * (ta + 1)) >> 8;
                     b = (sb * (ta + 1)) >> 8;
@@ -7582,9 +7595,9 @@ public class VoodooCommon extends PCI_Device {
                 int dithPos = DITHER_LOOKUPPOS + ((XX & 3) << 1);
 
                 /* apply dithering to R,G,B */
-                r = DITHER_LOOKUPs[dithPos + (r << 3)];
+                r = DITHER_LOOKUPs[dithPos+(r << 3) + 0];
                 g = DITHER_LOOKUPs[dithPos+(g << 3) + 1];
-                b = DITHER_LOOKUPs[dithPos + (b << 3)];
+                b = DITHER_LOOKUPs[dithPos+(b << 3) + 0];
             }
             else
             {
@@ -7663,7 +7676,7 @@ public class VoodooCommon extends PCI_Device {
     }
     
     /*************************************
-     * <p>
+     *
      *  Handle a read from the Voodoo
      *  memory space
      *
@@ -7682,8 +7695,9 @@ public class VoodooCommon extends PCI_Device {
         }
 
         public /*Bitu*/int readw(/*PhysPt*/int addr) {
-            if ((addr & 2)!=0)
-                return readd(addr -2) >>> 16;
+            int address = addr;
+            if ((address & 2)!=0)
+                return readd(address-2) >>> 16;
             return readd(addr) & 0xFFFF;
         }
 
@@ -7702,6 +7716,10 @@ public class VoodooCommon extends PCI_Device {
             return -1;
         }
 
+        public void writeb(/*PhysPt*/int addr,/*Bitu*/int val) {
+            Log.exit("No byte handler for write to " + Long.toString(addr, 16));
+        }
+
         public void writew(/*PhysPt*/int addr,/*Bitu*/int val) {
             addr = Paging.PAGING_GetPhysicalAddress(addr);
             if ((addr & 2)==0)
@@ -7718,13 +7736,13 @@ public class VoodooCommon extends PCI_Device {
 
     public static VoodooCommon voodoo;
 
-    public static final Section.SectionFunction Voodoo_ShutDown = new Section.SectionFunction() {
+    public static Section.SectionFunction Voodoo_ShutDown = new Section.SectionFunction() {
         public void call(Section section) {
             voodoo=null;
         }
     };
 
-    public static final Section.SectionFunction Voodoo_Init = new Section.SectionFunction() {
+    public static Section.SectionFunction Voodoo_Init = new Section.SectionFunction() {
         public void call(Section sec) {
             if (PCI.pci_interface != null) {
                 Section_prop section = (Section_prop)sec;

@@ -11,7 +11,7 @@ import jdos.win.utils.Error;
 public class IDirectInputDeviceA_Mouse extends IUnknown {
     static final int VTABLE_SIZE = 15;
 
-    static final int OFFSET_FLAGS = 0;
+    static int OFFSET_FLAGS = 0;
     static final int DATA_SIZE = 4;
 
 
@@ -21,7 +21,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
         return address;
     }
 
-    static void addIDirectSound(int address) {
+    static int addIDirectSound(int address) {
         address = addIUnknown(address);
         address = add(address, GetCapabilities);
         address = add(address, EnumObjects);
@@ -38,6 +38,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
         address = add(address, GetDeviceInfo);
         address = add(address, RunControlPanel);
         address = add(address, Initialize);
+        return address;
     }
 
     public static int create() {
@@ -54,7 +55,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     }
 
     // HRESULT GetCapabilities(this, LPDIDEVCAPS lpDIDevCaps)
-    static private final Callback.Handler GetCapabilities = new HandlerBase() {
+    static private Callback.Handler GetCapabilities = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.GetCapabilities";
         }
@@ -66,7 +67,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT EnumObjects(this, LPDIENUMDEVICEOBJECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwFlags)
-    static private final Callback.Handler EnumObjects = new HandlerBase() {
+    static private Callback.Handler EnumObjects = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.EnumObjects";
         }
@@ -80,7 +81,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT GetProperty(this, REFGUID rguidProp, LPDIPROPHEADER pdiph)
-    static private final Callback.Handler GetProperty = new HandlerBase() {
+    static private Callback.Handler GetProperty = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.GetProperty";
         }
@@ -93,7 +94,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT SetProperty(this, REFGUID rguidProp, LPCDIPROPHEADER pdiph)
-    static private final Callback.Handler SetProperty = new HandlerBase() {
+    static private Callback.Handler SetProperty = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.SetProperty";
         }
@@ -106,7 +107,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT Acquire(this)
-    static private final Callback.Handler Acquire = new HandlerBase() {
+    static private Callback.Handler Acquire = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.Acquire";
         }
@@ -117,7 +118,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT Unacquire(this)
-    static private final Callback.Handler Unacquire = new HandlerBase() {
+    static private Callback.Handler Unacquire = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.Unacquire";
         }
@@ -128,7 +129,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT GetDeviceState(this, DWORD cbData, LPVOID lpvData)
-    static private final Callback.Handler GetDeviceState = new HandlerBase() {
+    static private Callback.Handler GetDeviceState = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.GetDeviceState";
         }
@@ -144,7 +145,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT GetDeviceData(this, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
-    static private final Callback.Handler GetDeviceData = new HandlerBase() {
+    static private Callback.Handler GetDeviceData = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.GetDeviceData";
         }
@@ -159,7 +160,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT SetDataFormat(this, LPCDIDATAFORMAT lpdf)
-    static private final Callback.Handler SetDataFormat = new HandlerBase() {
+    static private Callback.Handler SetDataFormat = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.SetDataFormat";
         }
@@ -172,7 +173,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT SetEventNotification(this, HANDLE hEvent)
-    static private final Callback.Handler SetEventNotification = new HandlerBase() {
+    static private Callback.Handler SetEventNotification = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.SetEventNotification";
         }
@@ -184,7 +185,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT SetCooperativeLevel(this, HWND hwnd, DWORD dwFlags)
-    static private final Callback.Handler SetCooperativeLevel = new HandlerBase() {
+    static private Callback.Handler SetCooperativeLevel = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.SetCooperativeLevel";
         }
@@ -197,7 +198,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT GetObjectInfo(this, LPDIDEVICEOBJECTINSTANCEA pdidoi, DWORD dwObj, DWORD dwHow)
-    static private final Callback.Handler GetObjectInfo = new HandlerBase() {
+    static private Callback.Handler GetObjectInfo = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.GetObjectInfo";
         }
@@ -211,7 +212,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT GetDeviceInfo(this, LPDIDEVICEINSTANCEA pdidi)
-    static private final Callback.Handler GetDeviceInfo = new HandlerBase() {
+    static private Callback.Handler GetDeviceInfo = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.GetDeviceInfo";
         }
@@ -223,7 +224,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT RunControlPanel(this, HWND hwndOwner, DWORD dwFlags)
-    static private final Callback.Handler RunControlPanel = new HandlerBase() {
+    static private Callback.Handler RunControlPanel = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.RunControlPanel";
         }
@@ -236,7 +237,7 @@ public class IDirectInputDeviceA_Mouse extends IUnknown {
     };
 
     // HRESULT Initialize(this, HINSTANCE hinst, DWORD dwVersion, REFGUID rguid)
-    static private final Callback.Handler Initialize = new HandlerBase() {
+    static private Callback.Handler Initialize = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectInputDeviceA_Mouse.Initialize";
         }

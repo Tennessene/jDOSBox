@@ -10,23 +10,23 @@ import java.util.Enumeration;
 
 public class UnZip {
     static final int BUFFER = 2048*32;
-    public static void unzip(String fileName, String dir, Progress progress) {
-        BufferedOutputStream dest;
-        BufferedInputStream is;
+    public static boolean unzip(String fileName, String dir, Progress progress) {
+        BufferedOutputStream dest = null;
+        BufferedInputStream is = null;
 
         try {
             ZipEntry entry;
             ZipFile zipfile = new ZipFile(fileName);
-            Enumeration<? extends ZipEntry> e = zipfile.entries();
+            Enumeration e = zipfile.entries();
             long totalSize = 0;
             String root = null;
             while(e.hasMoreElements()) {
-                entry = e.nextElement();
+                entry = (ZipEntry) e.nextElement();
                 totalSize+=entry.getSize();
             }
             e = zipfile.entries();
             while(e.hasMoreElements()) {
-                entry = e.nextElement();
+                entry = (ZipEntry) e.nextElement();
                 System.out.println("Extracting: " +entry);
                 progress.status("Extracting: " +entry);
                 if (entry.isDirectory()) {
@@ -38,7 +38,7 @@ public class UnZip {
                 }
                 is = new BufferedInputStream(zipfile.getInputStream(entry));
                 int count;
-                byte[] data = new byte[BUFFER];
+                byte data[] = new byte[BUFFER];
                 File newFile = new File(dir+"/"+entry.getName());
                 if (!newFile.getParentFile().exists()) {
                     if (root == null) {
@@ -58,17 +58,21 @@ public class UnZip {
                         dest.close();
                         is.close();
                         FileHelper.deleteFile(new File(root));
-                        return;
+                        return false;
                     }
                 }
                 dest.flush();
                 dest.close();
                 is.close();
+                dest = null;
+                is = null;
             }
             zipfile.close();
+            return true;
         } catch(Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 }
 

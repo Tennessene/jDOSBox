@@ -23,11 +23,11 @@ import java.io.ByteArrayOutputStream;
 import java.util.Vector;
 
 public class NativeModule extends Module {
-    public final HeaderPE header = new HeaderPE();
+    public HeaderPE header = new HeaderPE();
 
     private Path path;
     private KernelHeap heap;
-    private final Loader loader;
+    private Loader loader;
     private int baseAddress;
     private int resourceStartAddress;
 
@@ -42,7 +42,7 @@ public class NativeModule extends Module {
         return name;
     }
 
-    static final Callback.Handler DllMainReturn = new Callback.Handler() {
+    static Callback.Handler DllMainReturn = new Callback.Handler() {
         public String getName() {
             return "DllMainReturn";
         }
@@ -60,7 +60,7 @@ public class NativeModule extends Module {
                 System.out.println(name+" has no DllMain");
         } else {
             int esp = CPU_Regs.reg_esp.dword;
-            // This code helps debug DllMain by giving the same stack pointer
+              // This code helps debug DllMain by giving the same stack pointer
 //                                KernelHeap stack = new KernelHeap(WinSystem.memory, WinSystem.getCurrentProcess().page_directory, 0x100000, 0x140000, 0x140000, true, false);
 //                                stack.alloc(0x40000, false);
 //                                Memory.mem_zero(0x100000, 0x40000);
@@ -183,26 +183,26 @@ public class NativeModule extends Module {
                             case 0: // IMAGE_REL_BASED_ABSOLUTE
                                 break;
                             case 1: // IMAGE_REL_BASED_HIGH
-                            {
-                                int s = Memory.mem_readw(page+offset);
-                                s+=delta >>> 16;
-                                Memory.mem_writew(page+offset, s);
-                            }
-                            break;
+                                {
+                                    int s = Memory.mem_readw(page+offset);
+                                    s+=delta >>> 16;
+                                    Memory.mem_writew(page+offset, s);
+                                }
+                                break;
                             case 2: // IMAGE_REL_BASED_LOW
-                            {
-                                int s = Memory.mem_readw(page+offset);
-                                s+=delta & 0xFFFF;
-                                Memory.mem_writew(page+offset, s);
-                            }
-                            break;
+                                {
+                                    int s = Memory.mem_readw(page+offset);
+                                    s+=delta & 0xFFFF;
+                                    Memory.mem_writew(page+offset, s);
+                                }
+                                break;
                             case 3: // IMAGE_REL_BASED_HIGHLOW
-                            {
-                                int s = Memory.mem_readd(page+offset);
-                                s+=delta;
-                                Memory.mem_writed(page+offset, s);
-                            }
-                            break;
+                                {
+                                    int s = Memory.mem_readd(page+offset);
+                                    s+=delta;
+                                    Memory.mem_writed(page+offset, s);
+                                }
+                                break;
                             default:
                                 Win.panic(name+"Unknown relocation type: "+type);
                         }
@@ -210,9 +210,9 @@ public class NativeModule extends Module {
                 }
             }
             return true;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
         } finally {
-            if (fis != null) try {fis.close();} catch (Exception ignored) {}
+            if (fis != null) try {fis.close();} catch (Exception e) {}
         }
         return false;
     }
@@ -243,12 +243,12 @@ public class NativeModule extends Module {
             NumberOfNamedEntries = is.readUnsignedShort();
             NumberOfIdEntries = is.readUnsignedShort();
         }
-        public final int Characteristics;
-        public final int TimeDateStamp;
-        public final int MajorVersion;
-        public final int MinorVersion;
-        public final int NumberOfNamedEntries;
-        public final int NumberOfIdEntries;
+        public int Characteristics;
+        public int TimeDateStamp;
+        public int MajorVersion;
+        public int MinorVersion;
+        public int NumberOfNamedEntries;
+        public int NumberOfIdEntries;
     }
     public int getAddressOfResource(int type, int id) {
         return getAddressOfResource(type, id, null);
@@ -338,7 +338,7 @@ public class NativeModule extends Module {
     }
 
     private int getResourceByCodePage(int resourceAddress, IntRef size) {
-        ResourceDirectory root = new ResourceDirectory(resourceAddress);
+         ResourceDirectory root = new ResourceDirectory(resourceAddress);
         int address = resourceAddress+ResourceDirectory.SIZE+root.NumberOfNamedEntries*8;
         int defaultOffset = 0;
 
@@ -416,11 +416,11 @@ public class NativeModule extends Module {
                 if (ord == 0) {
                     break;
                 }
-                importOrdinals.addElement(ord);
+                importOrdinals.addElement(new Long(ord));
             }
             long[] result = new long[importOrdinals.size()];
             for (int i=0;i<result.length;i++) {
-                result[i] = (Long) importOrdinals.elementAt(i);
+                result[i] = ((Long)importOrdinals.elementAt(i)).longValue();
             }
             return result;
         } catch (Exception e) {

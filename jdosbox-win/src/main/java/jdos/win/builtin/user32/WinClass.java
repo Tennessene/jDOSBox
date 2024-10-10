@@ -24,7 +24,7 @@ public class WinClass extends WinObject {
 
     static public WinClass get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinClass))
+        if (object == null || !(object instanceof WinClass))
             return null;
         return (WinClass)object;
     }
@@ -37,7 +37,7 @@ public class WinClass extends WinObject {
             winClass = WinClass.get(lpClassName);
         } else {
             String name = StringUtil.getString(lpClassName);
-            winClass = WinSystem.getCurrentProcess().classNames.get(name.toLowerCase());
+            winClass = (WinClass)WinSystem.getCurrentProcess().classNames.get(name.toLowerCase());
         }
         if (winClass == null) {
             SetLastError(Error.ERROR_CLASS_DOES_NOT_EXIST);
@@ -53,7 +53,7 @@ public class WinClass extends WinObject {
         if (window == null)
             return 0;
          if (nIndex>=0) {
-            Integer old = (Integer)window.winClass.extra.get(nIndex);
+            Integer old = (Integer)window.winClass.extra.get(new Integer(nIndex));
             if (old != null)
                 return old;
             return 0;
@@ -119,10 +119,10 @@ public class WinClass extends WinObject {
         if (window == null)
             return 0;
         if (nIndex>=0) {
-            Integer old = (Integer)window.winClass.extra.get(nIndex);
-            window.winClass.extra.put(nIndex, dwNewLong);
+            Integer old = (Integer)window.winClass.extra.get(new Integer(nIndex));
+            window.winClass.extra.put(new Integer(nIndex), new Integer(dwNewLong));
             if (old != null)
-                return old;
+                return old.intValue();
             return 0;
         }
         int result = 0;
@@ -269,7 +269,7 @@ public class WinClass extends WinObject {
         writed(address, pMenuName);address+=4;
         if (pClassName == 0)
             pClassName = StringUtil.allocateA(className);
-        writed(address, pClassName);
+        writed(address, pClassName);address+=4;
     }
 
     public void onFree() {
@@ -277,7 +277,7 @@ public class WinClass extends WinObject {
     }
 
     public WinDC dc;
-    public final int id;
+    public int id;
     public int style;
     public int eip;
     public int hInstance;
@@ -290,5 +290,5 @@ public class WinClass extends WinObject {
     public int hIconSm;
     public int cbClsExtra;
     public int cbWndExtra;
-    private final Hashtable extra = new Hashtable();
+    private Hashtable extra = new Hashtable();
 }

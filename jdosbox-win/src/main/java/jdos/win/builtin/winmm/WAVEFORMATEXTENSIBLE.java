@@ -13,7 +13,7 @@ public class WAVEFORMATEXTENSIBLE extends WinAPI {
         }
     }
 
-    public final WAVEFORMATEX Format;
+    public WAVEFORMATEX Format;
     public int wSamplesPerBlock;
     public int dwChannelMask;
     public Guid SubFormat;

@@ -4,14 +4,17 @@ import jdos.win.builtin.WinAPI;
 
 public class Caret extends WinAPI {
     // BOOL WINAPI DestroyCaret(void);
-    static public void DestroyCaret() {
+    static public int DestroyCaret() {
+        return TRUE;
     }
 
     // BOOL WINAPI HideCaret( HWND hwnd )
-    static public void HideCaret(int hwnd) {
+    static public int HideCaret(int hwnd) {
+        return TRUE;
     }
 
     // BOOL WINAPI ShowCaret(HWND hWnd)
-    static public void ShowCaret(int hWnd) {
+    static public int ShowCaret(int hWnd) {
+        return TRUE;
     }
 }

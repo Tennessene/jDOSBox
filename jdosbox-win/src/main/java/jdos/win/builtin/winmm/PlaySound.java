@@ -27,7 +27,7 @@ public class PlaySound extends WinAPI {
         Vector playSound = WinSystem.getCurrentProcess().playSound;
 
         /* SND_NOWAIT is ignored in w95/2k/xp. */
-        if ((fdwSound & SND_NOSTOP)!=0 && !playSound.isEmpty())
+        if ((fdwSound & SND_NOSTOP)!=0 && playSound.size()!=0)
             return FALSE;
 
         /* alloc internal structure, if we need to play something */
@@ -35,8 +35,8 @@ public class PlaySound extends WinAPI {
             ps = new ActivePlaySound(pszSound, hmod, fdwSound, bUnicode);
         }
 
-        for (Object o : playSound) {
-            ((ActivePlaySound) o).stop();
+        for (int i=0;i<playSound.size();i++) {
+            ((ActivePlaySound)playSound.get(i)).stop();
         }
 
         if (ps==null)
@@ -51,10 +51,10 @@ public class PlaySound extends WinAPI {
             this.flags = flags;
             this.unicode = unicode;
         }
-        public final int pszSound;
-        public final int hmod;
+        public int pszSound;
+        public int hmod;
         public int flags;
-        public final boolean unicode;
+        public boolean unicode;
         public boolean loop = false;
         private Thread thread = null;
         byte[] data = null;
@@ -68,9 +68,7 @@ public class PlaySound extends WinAPI {
             if (clip != null)
                 clip.stop();
             if (thread != null) {
-                try {thread.join();} catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                try {thread.join();} catch (Exception e) {}
             }
         }
 
@@ -112,7 +110,7 @@ public class PlaySound extends WinAPI {
                 clip.close();
                 clip = null;
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
             }
             playSound.remove(this);
             thread = null;
@@ -147,22 +145,22 @@ public class PlaySound extends WinAPI {
                 if ((flags & SND_ALIAS_ID) == SND_ALIAS_ID) {
                     flags &= ~(SND_ALIAS_ID ^ SND_ALIAS);
                     String sound;
-                    if (pszSound == SND_ALIAS_SYSTEMASTERISK) {
-                    }
-                    else if (pszSound == SND_ALIAS_SYSTEMDEFAULT) {
-                    }
-                    else if (pszSound == SND_ALIAS_SYSTEMEXCLAMATION) {
-                    }
-                    else if (pszSound == SND_ALIAS_SYSTEMEXIT) {
-                    }
-                    else if (pszSound == SND_ALIAS_SYSTEMHAND) {
-                    }
-                    else if (pszSound == SND_ALIAS_SYSTEMQUESTION) {
-                    }
-                    else if (pszSound == SND_ALIAS_SYSTEMSTART) {
-                    }
-                    else if (pszSound == SND_ALIAS_SYSTEMWELCOME) {
-                    }
+                    if (pszSound == SND_ALIAS_SYSTEMASTERISK)
+                        sound = "SystemAsterisk";
+                    else if (pszSound == SND_ALIAS_SYSTEMDEFAULT)
+                        sound = "SystemDefault";
+                    else if (pszSound == SND_ALIAS_SYSTEMEXCLAMATION)
+                        sound = "SystemExclamation";
+                    else if (pszSound == SND_ALIAS_SYSTEMEXIT)
+                        sound = "SystemExit";
+                    else if (pszSound == SND_ALIAS_SYSTEMHAND)
+                        sound = "SystemHand";
+                    else if (pszSound == SND_ALIAS_SYSTEMQUESTION)
+                        sound = "SystemQuestion";
+                    else if (pszSound == SND_ALIAS_SYSTEMSTART)
+                        sound = "SystemStart";
+                    else if (pszSound == SND_ALIAS_SYSTEMWELCOME)
+                        sound = "SystemWelcome";
                     else
                         return FALSE;
                 }

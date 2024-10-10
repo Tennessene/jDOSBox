@@ -58,7 +58,7 @@ public class SoftFPU {
 //            }
         }
         void ll(int lower, int upper) {
-            ll(lower & 0xFFFFFFFFL | ((upper & 0xFFFFFFFFL) << 32));
+            ll(lower & 0xFFFFFFFFl | ((upper & 0xFFFFFFFFl) << 32));
         }
         long ll() {
             return d;
@@ -67,7 +67,7 @@ public class SoftFPU {
             d = l;
         }
 
-        final L l = new L();
+        L l = new L();
         public long d;
     }
 
@@ -97,9 +97,9 @@ public class SoftFPU {
             for (int i=0;i<p_regs.length;i++)
                 p_regs[i] = new FPU_P_Reg();
         }
-        public final FPU_Reg[]		regs=new FPU_Reg[9];
-        public final FPU_P_Reg[]	    p_regs=new FPU_P_Reg[9];
-        public final int[]		    tags=new int[9];
+        public FPU_Reg[]		regs=new FPU_Reg[9];
+        public FPU_P_Reg[]	    p_regs=new FPU_P_Reg[9];
+        public int[]		    tags=new int[9];
         public /*Bit16u*/int   cw,cw_mask_all;
         public /*Bit16u*/int   sw;
         public /*Bitu*/int	    top;
@@ -123,10 +123,8 @@ public class SoftFPU {
     }
 
     static private void FPU_SetCW(/*Bitu*/int word){
-        /*Bit16u*/
-        fpu.cw = word;
-        /*Bit16u*/
-        fpu.cw_mask_all = word | 0x3f;
+        fpu.cw = (/*Bit16u*/int)word;
+        fpu.cw_mask_all = (/*Bit16u*/int)(word | 0x3f);
         fpu.round = ((word >>> 10) & 3);
     }
 
@@ -228,7 +226,7 @@ public class SoftFPU {
 
     static private class Test {
         /*Bit16s*/short begin;
-        final FPU_Reg eind=new FPU_Reg();
+        FPU_Reg eind=new FPU_Reg();
     }
     static private /*Real64*/long FPU_FLD80(/*PhysPt*/int addr) {
         Test test = new Test();
@@ -240,12 +238,12 @@ public class SoftFPU {
         /*Bit64s*/long exp64final = ((exp64 >0)?blah:-blah) +BIAS64;
 
         // 0x3FFF is for rounding
-        /*Bit64s*/long mant64 = ((test.eind.ll()+0x3FF) >>> 11) & 0xfffffffffffffL;
+        /*Bit64s*/long mant64 = ((test.eind.ll()+0x3FF) >>> 11) & 0xfffffffffffffl;
         /*Bit64s*/long sign = (test.begin&0x8000)!=0?1:0;
         FPU_Reg result=new FPU_Reg();
         result.ll((sign <<63)|(exp64final << 52)| mant64);
 
-        if(test.eind.ll() == 0x8000000000000000L && (test.begin & 0x7fff) == 0x7fff) {
+        if(test.eind.ll() == 0x8000000000000000l && (test.begin & 0x7fff) == 0x7fff) {
 		    //Detect INF and -INF (score 3.11 when drawing a slur.)
 		    result.d = sign!=0?MicroDouble.NEGATIVE_INFINITY:MicroDouble.POSITIVE_INFINITY;
 	    }
@@ -256,14 +254,14 @@ public class SoftFPU {
 
     static private void FPU_ST80(/*PhysPt*/int addr,/*Bitu*/int reg) {
         Test test = new Test();
-        /*Bit64s*/long sign80 = (fpu.regs[reg].ll() & (0x8000000000000000L))!=0?1:0;
-        /*Bit64s*/long exp80 =  fpu.regs[reg].ll() & (0x7ff0000000000000L);
+        /*Bit64s*/long sign80 = (fpu.regs[reg].ll() & (0x8000000000000000l))!=0?1:0;
+        /*Bit64s*/long exp80 =  fpu.regs[reg].ll() & (0x7ff0000000000000l);
         /*Bit64s*/long exp80final = (exp80>>52);
-        /*Bit64s*/long mant80 = fpu.regs[reg].ll() & (0x000fffffffffffffL);
+        /*Bit64s*/long mant80 = fpu.regs[reg].ll() & (0x000fffffffffffffl);
         /*Bit64s*/long mant80final = (mant80 << 11);
         if(fpu.regs[reg].d != 0){ //Zero is a special case
             // Elvira wants the 8 and tcalc doesn't
-            mant80final |= 0x8000000000000000L;
+            mant80final |= 0x8000000000000000l;
             //Ca-cyber doesn't like this when result is zero.
             exp80final += (BIAS80 - BIAS64);
         }
@@ -303,7 +301,7 @@ public class SoftFPU {
 
     static private void FPU_FBLD(/*PhysPt*/int addr,/*Bitu*/int store_to) {
         /*Bit64u*/long val = 0;
-        /*Bitu*/int in;
+        /*Bitu*/int in = 0;
         /*Bit64u*/long base = 1;
         for(/*Bitu*/int i = 0;i < 9;i++){
             in = Memory.mem_readb(addr + i);
@@ -365,14 +363,14 @@ public class SoftFPU {
     }
 
     static private void FPU_FBST(/*PhysPt*/int addr) {
-        StringBuilder val = new StringBuilder(String.valueOf(MicroDouble.longValue(fpu.regs[fpu.top].d)));
+        String val = String.valueOf(MicroDouble.longValue(fpu.regs[fpu.top].d));
         boolean sign = false;
-        if (val.toString().startsWith("-")) {
+        if (val.startsWith("-")) {
             sign = true;
-            val = new StringBuilder(val.substring(1));
+            val = val.substring(1);
         }
         while (val.length()<19) {
-            val.insert(0, "0");
+            val = "0"+val;
         }
         for (int i=0;i<9;i++) {
             short p = (short)((val.charAt(i*2)-'0') | ((val.charAt(i*2+1)-'0') << 4));
@@ -476,7 +474,7 @@ public class SoftFPU {
             FPU_SET_C3(0);FPU_SET_C2(0);FPU_SET_C0(1);return;
         }
         // st > other
-        FPU_SET_C3(0);FPU_SET_C2(0);FPU_SET_C0(0);
+        FPU_SET_C3(0);FPU_SET_C2(0);FPU_SET_C0(0);return;
     }
 
     static private void FPU_FUCOM(/*Bitu*/int st, /*Bitu*/int other){
@@ -521,7 +519,7 @@ public class SoftFPU {
     }
 
     static private void FPU_FXAM(){
-        if((fpu.regs[fpu.top].ll() & 0x8000000000000000L)!=0)	//sign
+        if((fpu.regs[fpu.top].ll() & 0x8000000000000000l)!=0)	//sign
         {
             FPU_SET_C1(1);
         }
@@ -567,11 +565,11 @@ public class SoftFPU {
     static private void FPU_FSTENV(/*PhysPt*/int addr){
         FPU_SET_TOP(fpu.top);
         if(!CPU.cpu.code.big) {
-            Memory.mem_writew(addr,(fpu.cw));
+            Memory.mem_writew(addr+0,(fpu.cw));
             Memory.mem_writew(addr+2,(fpu.sw));
             Memory.mem_writew(addr+4,(FPU_GetTag()));
         } else {
-            Memory.mem_writed(addr,(fpu.cw));
+            Memory.mem_writed(addr+0,(fpu.cw));
             Memory.mem_writed(addr+4,(fpu.sw));
             Memory.mem_writed(addr+8,(FPU_GetTag()));
         }
@@ -582,13 +580,13 @@ public class SoftFPU {
         /*Bit32u*/long tagbig;
         /*Bitu*/int cw;
         if(!CPU.cpu.code.big) {
-            cw     = Memory.mem_readw(addr);
+            cw     = Memory.mem_readw(addr+0);
             fpu.sw = Memory.mem_readw(addr+2);
             tag    = Memory.mem_readw(addr+4);
         } else {
-            cw     = Memory.mem_readd(addr);
+            cw     = Memory.mem_readd(addr + 0);
             fpu.sw = Memory.mem_readd(addr + 4);
-            tagbig = Memory.mem_readd(addr + 8) & 0xFFFFFFFFL;
+            tagbig = Memory.mem_readd(addr + 8) & 0xFFFFFFFFl;
             tag    = (int)(tagbig);
         }
         FPU_SetTag(tag);
@@ -621,7 +619,7 @@ public class SoftFPU {
         // if double ever uses a different base please correct this function
 
         FPU_Reg test = new FPU_Reg(fpu.regs[fpu.top]);
-        /*Bit64s*/long exp80 =  test.ll() & 0x7ff0000000000000L;
+        /*Bit64s*/long exp80 =  test.ll() & 0x7ff0000000000000l;
         /*Bit64s*/long exp80final = (exp80>>52) - BIAS64;
         exp80final = MicroDouble.longToDouble(exp80final);
         /*Real64*/long mant = MicroDouble.div(test.d , MicroDouble.pow(MicroDouble.TWO, exp80final));
@@ -701,7 +699,7 @@ public class SoftFPU {
         FPU_FCOM(op1,8);
     }
 
-    public static final FPU_rec fpu=new FPU_rec();
+    public static FPU_rec fpu=new FPU_rec();
 
     static private void FPU_FLDCW(/*PhysPt*/int addr){
         /*Bit16u*/int temp = Memory.mem_readw(addr);
@@ -980,18 +978,22 @@ public class SoftFPU {
     static public void FPU_ESC2_Normal(/*Bitu*/int rm) {
         /*Bitu*/int group=(rm >> 3) & 7;
         /*Bitu*/int sub=(rm & 7);
-        if (group == 0x05) {
-            if (sub == 0x01) {        /* FUCOMPP */
-                FPU_FUCOM(fpu.top, STV(1));
+        switch(group){
+        case 0x05:
+            switch(sub){
+            case 0x01:		/* FUCOMPP */
+                FPU_FUCOM(fpu.top,STV(1));
                 FPU_FPOP();
                 FPU_FPOP();
-            } else {
-                if (Log.level <= LogSeverities.LOG_WARN)
-                    Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 2:Unhandled group " + group + " subfunction " + sub);
+                break;
+            default:
+                if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 2:Unhandled group "+group+" subfunction "+sub);
+                break;
             }
-        } else {
-            if (Log.level <= LogSeverities.LOG_WARN)
-                Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 2:Unhandled group " + group + " subfunction " + sub);
+            break;
+        default:
+               if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 2:Unhandled group "+group+" subfunction "+sub);
+            break;
         }
     }
 
@@ -1030,30 +1032,31 @@ public class SoftFPU {
     static public void FPU_ESC3_Normal(/*Bitu*/int rm) {
         /*Bitu*/int group=(rm >> 3) & 7;
         /*Bitu*/int sub=(rm & 7);
-        if (group == 0x04) {
+        switch (group) {
+        case 0x04:
             switch (sub) {
-                case 0x00:                //FNENI
-                case 0x01:                //FNDIS
-                    if (Log.level <= LogSeverities.LOG_ERROR)
-                        Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_ERROR, "8087 only fpu code used esc 3: group 4: subfuntion :" + sub);
-                    break;
-                case 0x02:                //FNCLEX FCLEX
-                    FPU_FCLEX();
-                    break;
-                case 0x03:                //FNINIT FINIT
-                    FPU_FINIT();
-                    break;
-                case 0x04:                //FNSETPM
-                case 0x05:                //FRSTPM
+            case 0x00:				//FNENI
+            case 0x01:				//FNDIS
+                if (Log.level<=LogSeverities.LOG_ERROR) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_ERROR,"8087 only fpu code used esc 3: group 4: subfuntion :"+sub);
+                break;
+            case 0x02:				//FNCLEX FCLEX
+                FPU_FCLEX();
+                break;
+            case 0x03:				//FNINIT FINIT
+                FPU_FINIT();
+                break;
+            case 0x04:				//FNSETPM
+            case 0x05:				//FRSTPM
 //			Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_ERROR,"80267 protected mode (un)set. Nothing done");
-                    FPU_FNOP();
-                    break;
-                default:
-                    Log.exit("ESC 3:ILLEGAL OPCODE group " + group + " subfunction " + sub);
+                FPU_FNOP();
+                break;
+            default:
+                Log.exit("ESC 3:ILLEGAL OPCODE group "+group+" subfunction "+sub);
             }
-        } else {
-            if (Log.level <= LogSeverities.LOG_WARN)
-                Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 3:Unhandled group " + group + " subfunction " + sub);
+            break;
+        default:
+            if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 3:Unhandled group "+group+" subfunction "+sub);
+            break;
         }
     }
 
@@ -1268,12 +1271,14 @@ public class SoftFPU {
             FPU_FPOP();
             break;
         case 0x04:
-            if (sub == 0x00) {     /* FNSTSW AX*/
-                FPU_SET_TOP(fpu.top);
-                CPU_Regs.reg_eax.word(fpu.sw);
-            } else {
-                if (Log.level <= LogSeverities.LOG_WARN)
-                    Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 7:Unhandled group " + group + " subfunction " + sub);
+            switch(sub){
+                case 0x00:     /* FNSTSW AX*/
+                    FPU_SET_TOP(fpu.top);
+                    CPU_Regs.reg_eax.word(fpu.sw);
+                    break;
+                default:
+                    if (Log.level<=LogSeverities.LOG_WARN) Log.log(LogTypes.LOG_FPU,LogSeverities.LOG_WARN,"ESC 7:Unhandled group "+group+" subfunction "+sub);
+                    break;
             }
             break;
         default:

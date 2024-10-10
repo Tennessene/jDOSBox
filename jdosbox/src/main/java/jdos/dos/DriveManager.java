@@ -1,5 +1,6 @@
 package jdos.dos;
 
+import jdos.misc.Log;
 import jdos.misc.setup.Section;
 
 import java.util.Vector;
@@ -12,7 +13,7 @@ public class DriveManager {
     static public void InitializeDrive(int drive) {
         currentDrive = drive;
         DriveInfo driveInfo = driveInfos[currentDrive];
-        if (!driveInfo.disks.isEmpty()) {
+        if (driveInfo.disks.size() > 0) {
             driveInfo.currentDisk = 0;
             Dos_Drive disk = (Dos_Drive)driveInfo.disks.elementAt(driveInfo.currentDisk);
             Dos_files.Drives[currentDrive] = disk;
@@ -21,9 +22,9 @@ public class DriveManager {
     }
 
     static public int UnmountDrive(int drive) {
-        int result;
+        int result = 0;
         // unmanaged drive
-        if (driveInfos[drive].disks.isEmpty()) {
+        if (driveInfos[drive].disks.size() == 0) {
             result = Dos_files.Drives[drive].UnMount();
         } else {
             // managed drive
@@ -41,7 +42,7 @@ public class DriveManager {
 //	static void CycleDisk(bool pressed);
     static public void CycleAllDisks() {
         for (int idrive=0; idrive<Dos_files.DOS_DRIVES; idrive++) {
-            int numDisks = driveInfos[idrive].disks.size();
+            int numDisks = (int)driveInfos[idrive].disks.size();
             if (numDisks > 1) {
                 // cycle disk
                 int currentDisk = driveInfos[idrive].currentDisk;
@@ -54,7 +55,7 @@ public class DriveManager {
                 newDisk.curdir = oldDisk.curdir;
                 newDisk.Activate();
                 Dos_files.Drives[idrive] = newDisk;
-                System.out.println("Drive "+ ('A' + idrive) +": disk "+ (currentDisk + 1) +" of "+numDisks+" now active");
+                Log.log_msg("Drive "+String.valueOf('A'+idrive)+": disk "+String.valueOf(currentDisk+1)+" of "+numDisks+" now active");
             }
         }
     }
@@ -71,9 +72,9 @@ public class DriveManager {
 //	MAPPER_AddHandler(&CycleDrive, MK_f3, MMOD2, "cycledrive", "Cycle Drv");
 
     static private class DriveInfo {
-        final Vector disks = new Vector();
+        Vector disks = new Vector();
         /*Bit32u*/int currentDisk;
     }
-    static private final DriveInfo[] driveInfos = new DriveInfo[Dos_files.DOS_DRIVES];
+    static private DriveInfo[] driveInfos = new DriveInfo[Dos_files.DOS_DRIVES];
     static int currentDrive;
 }

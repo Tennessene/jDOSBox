@@ -110,8 +110,8 @@ final class BitReserve
    
 	 
    
-   /*
-     Read 1 bit from the bit stream.
+   /**
+    * Read 1 bit from the bit stream.
 	*/
 /*
    public int hget1bit_old()
@@ -143,8 +143,8 @@ final class BitReserve
       return val;
    }
    
-   /*
-     Retrieves bits from the reserve.
+   /**
+    * Retrieves bits from the reserve.     
     */
 /*   
    public int readBits(int[] out, int len)

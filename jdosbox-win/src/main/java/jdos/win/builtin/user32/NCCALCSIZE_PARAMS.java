@@ -22,6 +22,6 @@ public class NCCALCSIZE_PARAMS extends WinAPI {
         return result;
     }
 
-    final WinRect[] rgrc = new WinRect[3];
-    final int lppos; // PWINDOWPOS
+    WinRect[] rgrc = new WinRect[3];
+    int lppos; // PWINDOWPOS
 }

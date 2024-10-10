@@ -7,6 +7,8 @@ public class DosKeyboardLayout extends Module_base {
     public DosKeyboardLayout(Section configuration) {
         super(configuration);
     }
-    public static final Section.SectionFunction DOS_KeyboardLayout_Init = section -> {
+    public static Section.SectionFunction DOS_KeyboardLayout_Init = new Section.SectionFunction() {
+        public void call(Section section) {
+        }
     };
 }

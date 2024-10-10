@@ -25,27 +25,27 @@ public class TEXTMETRIC extends WinAPI {
         tmUnderlined = readb(address);address+=1;
         tmStruckOut = readb(address);address+=1;
         tmPitchAndFamily = readb(address);address+=1;
-        tmCharSet = readb(address);
+        tmCharSet = readb(address);address+=1;
     }
 
-    public final int tmHeight;
-    public final int tmAscent;
-    public final int tmDescent;
-    public final int tmInternalLeading;
-    public final int tmExternalLeading;
-    public final int tmAveCharWidth;
-    public final int tmMaxCharWidth;
-    public final int tmWeight;
-    public final int tmOverhang;
-    public final int tmDigitizedAspectX;
-    public final int tmDigitizedAspectY;
-    public final int tmFirstChar;
-    public final int tmLastChar;
-    public final int tmDefaultChar;
-    public final int tmBreakChar;
-    public final int tmItalic;
-    public final int tmUnderlined;
-    public final int tmStruckOut;
-    public final int tmPitchAndFamily;
-    public final int tmCharSet;
+    public int tmHeight;
+    public int tmAscent;
+    public int tmDescent;
+    public int tmInternalLeading;
+    public int tmExternalLeading;
+    public int tmAveCharWidth;
+    public int tmMaxCharWidth;
+    public int tmWeight;
+    public int tmOverhang;
+    public int tmDigitizedAspectX;
+    public int tmDigitizedAspectY;
+    public int tmFirstChar;
+    public int tmLastChar;
+    public int tmDefaultChar;
+    public int tmBreakChar;
+    public int tmItalic;
+    public int tmUnderlined;
+    public int tmStruckOut;
+    public int tmPitchAndFamily;
+    public int tmCharSet;
 }

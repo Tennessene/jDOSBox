@@ -8,14 +8,13 @@ import jdos.util.IntRef;
 import jdos.util.LongRef;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
 public class FilePath {
-    static public final Hashtable<String, Object> disks = new Hashtable<>();
-    static final Set<String> faked = new HashSet<>();
+    static public Hashtable<String, Object> disks = new Hashtable<String, Object>();
+    static Set<String> faked = new HashSet<String>();
 
     static {
         faked.add("\\windows\\system32\\dsound.vxd");
@@ -125,10 +124,10 @@ public class FilePath {
     private FilePathInterface delagate;
 
     static private class FatPath implements FilePathInterface {
-        final String fullPath;
-        final String path;
-        final Drive_fat drive;
-        final DOS_File file;
+        String fullPath;
+        String path;
+        Drive_fat drive;
+        DOS_File file;
         long length = 0;
 
         public FatPath(Drive_fat drive, String path) {
@@ -215,9 +214,9 @@ public class FilePath {
 
         public InputStream getInputStream() {
             return new InputStream() {
-                final byte[] buf = new byte[1];
+                byte[] buf = new byte[1];
 
-                public int read() {
+                public int read() throws IOException {
 
                     int result = FatPath.this.read(buf);
                     if (result == 1)
@@ -282,7 +281,7 @@ public class FilePath {
         }
     }
     static private class JavaPath implements FilePathInterface {
-        final File file;
+        File file;
         RandomAccessFile openFile;
 
         public boolean open(boolean write) {
@@ -299,7 +298,6 @@ public class FilePath {
                 try {
                     openFile.seek(pos);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
@@ -309,7 +307,6 @@ public class FilePath {
                 try {
                     openFile.skipBytes(count);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
@@ -319,7 +316,6 @@ public class FilePath {
                 try {
                     return openFile.getFilePointer();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
             return 0;
@@ -330,7 +326,6 @@ public class FilePath {
                 try {
                     return openFile.read(buffer);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
             return 0;
@@ -341,7 +336,6 @@ public class FilePath {
                 try {
                     openFile.write(buffer);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
@@ -351,7 +345,6 @@ public class FilePath {
                 try {
                     openFile.close();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
                 openFile = null;
             }
@@ -418,34 +411,34 @@ public class FilePath {
 
         public InputStream getInputStream() {
             try {
-                return Files.newInputStream(file.toPath());
+                return new FileInputStream(file);
             } catch (Exception e) {
                 return null;
             }
         }
     }
 
-    private interface FilePathInterface {
-        FilePath getParentFile();
-        boolean exists();
-        String getName();
-        boolean mkdirs();
-        boolean delete();
-        boolean createNewFile();
-        FilePath[] listFiles(FileFilter filter);
-        long lastModified();
-        long length();
-        boolean isDirectory();
-        boolean renameTo(FilePath path);
-        String getAbsolutePath();
-        InputStream getInputStream();
+    private static interface FilePathInterface {
+        public FilePath getParentFile();
+        public boolean exists();
+        public String getName();
+        public boolean mkdirs();
+        public boolean delete();
+        public boolean createNewFile();
+        public FilePath[] listFiles(FileFilter filter);
+        public long lastModified();
+        public long length();
+        public boolean isDirectory();
+        public boolean renameTo(FilePath path);
+        public String getAbsolutePath();
+        public InputStream getInputStream();
 
-        boolean open(boolean write);
-        void seek(long pos);
-        void skipBytes(int count);
-        long getFilePointer();
-        int read(byte[] buffer);
-        void write(byte[] buffer);
-        void close();
+        public boolean open(boolean write);
+        public void seek(long pos);
+        public void skipBytes(int count);
+        public long getFilePointer();
+        public int read(byte[] buffer);
+        public void write(byte[] buffer);
+        public void close();
     }
 }

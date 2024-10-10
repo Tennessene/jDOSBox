@@ -10,8 +10,8 @@ public class VirtualMemory {
         this.address = address;
         this.size = size;
     }
-    public final long address;
-    public final int size;
+    public long address;
+    public int size;
 
     public void commit(long p, int size) {
         if ((p & 0xFFF) != 0) {

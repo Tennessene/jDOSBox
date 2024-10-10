@@ -1,5 +1,6 @@
 package jdos.misc.setup;
 
+import jdos.misc.Log;
 import jdos.misc.Msg;
 
 import java.util.Vector;
@@ -19,8 +20,8 @@ public abstract class Property {
 
     public void Set_values(String[] in) {
         int type = default_value.type;
-        for (String s : in) {
-            suggested_values.add(new Value(s, type));
+        for (int i=0;i<in.length;i++) {
+            suggested_values.add(new Value(in[i], type));
         }
     }
     public void Set_help(String str) {
@@ -49,7 +50,7 @@ public abstract class Property {
             if (in.equals(v))
                 return true;
         }
-        if (warn) System.out.println("\""+ in +"\" is not a valid value for variable: "+propname+".\nIt might now be reset to the default value: "+ default_value);
+        if (warn) Log.log_msg("\""+in.toString()+"\" is not a valid value for variable: "+propname+".\nIt might now be reset to the default value: "+default_value.toString());
         return false;
     }
 
@@ -63,7 +64,7 @@ public abstract class Property {
     public int Get_type() {return default_value.type;}
 
     protected Value value = new Value();
-    protected final Vector suggested_values = new Vector();
-    protected final Value default_value = new Value();
+    protected Vector suggested_values = new Vector();
+    protected Value default_value = new Value();
     protected final int change;
 }

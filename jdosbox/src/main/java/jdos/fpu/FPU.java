@@ -14,8 +14,8 @@ public class FPU {
     static public final boolean shouldInline = true;
     static private final boolean LOG = false;
 
-    public static final double[] regs = new double[9];
-    public static final int[] tags = new int[9];
+    public static double[] regs = new double[9];
+    public static int[] tags = new int[9];
     public static int cw;
     public static int cw_mask_all;
     public static int sw;
@@ -61,8 +61,7 @@ public class FPU {
 
     static private void FPU_SetCW(/*Bitu*/int word) {
         cw = word;
-        /*Bit16u*/
-        cw_mask_all = word | 0x3f;
+        cw_mask_all = (/*Bit16u*/int) (word | 0x3f);
         round = ((word >>> 10) & 3);
     }
 
@@ -174,12 +173,12 @@ public class FPU {
             round = 0x7FF;
         }
         /*Bit64s*/
-        long mant64 = ((eind + round) >>> 11) & 0xfffffffffffffL;
+        long mant64 = ((eind + round) >>> 11) & 0xfffffffffffffl;
         /*Bit64s*/
         long sign = (begin & 0x8000) != 0 ? 1 : 0;
         double result = Double.longBitsToDouble((sign << 63) | (exp64final << 52) | mant64);
 
-        if (eind == 0x8000000000000000L && (begin & 0x7fff) == 0x7fff) {
+        if (eind == 0x8000000000000000l && (begin & 0x7fff) == 0x7fff) {
             //Detect INF and -INF (score 3.11 when drawing a slur.)
             result = sign != 0 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
         }
@@ -191,18 +190,18 @@ public class FPU {
     static private void FPU_ST80(/*PhysPt*/int addr,/*Bitu*/int reg) {
         long value = Double.doubleToRawLongBits(regs[reg]);
         /*Bit64s*/
-        long sign80 = (value & (0x8000000000000000L)) != 0 ? 1 : 0;
+        long sign80 = (value & (0x8000000000000000l)) != 0 ? 1 : 0;
         /*Bit64s*/
-        long exp80 = value & (0x7ff0000000000000L);
+        long exp80 = value & (0x7ff0000000000000l);
         /*Bit64s*/
         long exp80final = (exp80 >> 52);
         /*Bit64s*/
-        long mant80 = value & (0x000fffffffffffffL);
+        long mant80 = value & (0x000fffffffffffffl);
         /*Bit64s*/
         long mant80final = (mant80 << 11);
         if (regs[reg] != 0) { //Zero is a special case
             // Elvira wants the 8 and tcalc doesn't
-            mant80final |= 0x8000000000000000L;
+            mant80final |= 0x8000000000000000l;
             //Ca-cyber doesn't like this when result is zero.
             exp80final += (BIAS80 - BIAS64);
         }
@@ -240,7 +239,7 @@ public class FPU {
         /*Bit64u*/
         long val = 0;
         /*Bitu*/
-        int in;
+        int in = 0;
         /*Bit64u*/
         long base = 1;
         for (/*Bitu*/int i = 0; i < 9; i++) {
@@ -306,7 +305,7 @@ public class FPU {
     static private void FPU_FBST(/*PhysPt*/int addr) {
         boolean sign = false;
         double val = regs[top];
-        if ((Double.doubleToRawLongBits(val) & 0x8000000000000000L) != 0) { //sign
+        if ((Double.doubleToRawLongBits(val) & 0x8000000000000000l) != 0) { //sign
             sign = true;
             val = -val;
         }
@@ -516,7 +515,7 @@ public class FPU {
 
     static private void FPU_FXAM() {
         long bits = Double.doubleToRawLongBits(regs[top]);
-        if ((bits & 0x8000000000000000L) != 0)    //sign
+        if ((bits & 0x8000000000000000l) != 0)    //sign
         {
             FPU_SET_C1(1);
         } else {
@@ -572,11 +571,11 @@ public class FPU {
     static private void FPU_FSTENV(/*PhysPt*/int addr) {
         FPU_SET_TOP(top);
         if (!CPU.cpu.code.big) {
-            Memory.mem_writew(addr, (cw));
+            Memory.mem_writew(addr + 0, (cw));
             Memory.mem_writew(addr + 2, (sw));
             Memory.mem_writew(addr + 4, (FPU_GetTag()));
         } else {
-            Memory.mem_writed(addr, (cw));
+            Memory.mem_writed(addr + 0, (cw));
             Memory.mem_writed(addr + 4, (sw));
             Memory.mem_writed(addr + 8, (FPU_GetTag()));
         }
@@ -590,13 +589,13 @@ public class FPU {
         /*Bitu*/
         int cw;
         if (!CPU.cpu.code.big) {
-            cw = Memory.mem_readw(addr);
+            cw = Memory.mem_readw(addr + 0);
             sw = Memory.mem_readw(addr + 2);
             tag = Memory.mem_readw(addr + 4);
         } else {
-            cw = Memory.mem_readd(addr);
+            cw = Memory.mem_readd(addr + 0);
             sw = Memory.mem_readd(addr + 4);
-            tagbig = Memory.mem_readd(addr + 8) & 0xFFFFFFFFL;
+            tagbig = Memory.mem_readd(addr + 8) & 0xFFFFFFFFl;
             tag = (int) (tagbig);
         }
         FPU_SetTag(tag);
@@ -632,7 +631,7 @@ public class FPU {
 
         long bits = Double.doubleToRawLongBits(regs[top]);
         /*Bit64s*/
-        long exp80 = bits & 0x7ff0000000000000L;
+        long exp80 = bits & 0x7ff0000000000000l;
         /*Bit64s*/
         long exp80final = (exp80 >> 52) - BIAS64;
         /*Real64*/
@@ -1648,12 +1647,15 @@ public class FPU {
                 if (LOG) System.out.println("FCMOV_ST0_STj PF");
                 break;
             case 0x05:
-                if (sub == 0x01) {        /* FUCOMPP */
-                    FUCOMPP();
-                    if (LOG) System.out.println("FUCOMPP");
-                } else {
-                    if (Log.level <= LogSeverities.LOG_WARN)
-                        Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 2:Unhandled group " + group + " subfunction " + sub);
+                switch (sub) {
+                    case 0x01:		/* FUCOMPP */
+                        FUCOMPP();
+                        if (LOG) System.out.println("FUCOMPP");
+                        break;
+                    default:
+                        if (Log.level <= LogSeverities.LOG_WARN)
+                            Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 2:Unhandled group " + group + " subfunction " + sub);
+                        break;
                 }
                 break;
             default:
@@ -2098,12 +2100,15 @@ public class FPU {
                 if (LOG) System.out.println("FSTP_STi");
                 break;
             case 0x04:
-                if (sub == 0x00) {     /* FNSTSW AX*/
-                    FNSTSW_AX();
-                    if (LOG) System.out.println("FNSTSW_AX");
-                } else {
-                    if (Log.level <= LogSeverities.LOG_WARN)
-                        Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 7:Unhandled group " + group + " subfunction " + sub);
+                switch (sub) {
+                    case 0x00:     /* FNSTSW AX*/
+                        FNSTSW_AX();
+                        if (LOG) System.out.println("FNSTSW_AX");
+                        break;
+                    default:
+                        if (Log.level <= LogSeverities.LOG_WARN)
+                            Log.log(LogTypes.LOG_FPU, LogSeverities.LOG_WARN, "ESC 7:Unhandled group " + group + " subfunction " + sub);
+                        break;
                 }
                 break;
             case 0x05:
@@ -2123,10 +2128,12 @@ public class FPU {
 
     public static boolean softFPU = false;
 
-    public static final Section.SectionFunction FPU_Init = configuration -> {
-        FPU_FINIT();
-        SoftFPU.FPU_FINIT();
-        Section_prop section = (Section_prop) configuration;
-        softFPU = section.Get_bool("softfpu");
+    public static Section.SectionFunction FPU_Init = new Section.SectionFunction() {
+        public void call(Section configuration) {
+            FPU_FINIT();
+            SoftFPU.FPU_FINIT();
+            Section_prop section = (Section_prop) configuration;
+            softFPU = section.Get_bool("softfpu");
+        }
     };
 }

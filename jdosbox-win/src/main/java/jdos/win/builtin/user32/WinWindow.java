@@ -20,7 +20,7 @@ public class WinWindow extends WinObject {
 
     static public WinWindow get(int handle) {
         WinObject object = getObject(handle);
-        if (!(object instanceof WinWindow))
+        if (object == null || !(object instanceof WinWindow))
             return null;
         return (WinWindow)object;
     }
@@ -164,7 +164,7 @@ public class WinWindow extends WinObject {
             // :TODO: min/max stuff
         }
 
-        wndPtr.rectWindow.set(cs.x, cs.y, cs.x +cs.cx, cs.y+cs.cy);
+        wndPtr.rectWindow.set(cs.x, cs.y, +cs.x+cs.cx, cs.y+cs.cy);
         System.out.println(wndPtr.handle+" "+wndPtr.rectWindow);
         wndPtr.rectClient=wndPtr.rectWindow.copy();
 
@@ -227,16 +227,16 @@ public class WinWindow extends WinObject {
     }
 
     // BOOL WINAPI DestroyWindow(HWND hWnd)
-    public static void DestroyWindow(int hWnd) {
+    public static int DestroyWindow(int hWnd) {
         WinWindow window = WinWindow.get(hWnd);
         if (window == null) {
-            return;
+            return FALSE;
         }
         if (hWnd == GetDesktopWindow() || window.getThread().getProcess() != WinSystem.getCurrentProcess()) {
             SetLastError(ERROR_ACCESS_DENIED);
-            return;
+            return FALSE;
         }
-        if (Hook.HOOK_CallHooks(WH_CBT, HCBT_DESTROYWND, hWnd, 0)!=0) return;
+        if (Hook.HOOK_CallHooks(WH_CBT, HCBT_DESTROYWND, hWnd, 0)!=0) return FALSE;
 
         if (WinMenu.MENU_IsMenuActive() == hWnd)
             WinMenu.EndMenu();
@@ -251,7 +251,7 @@ public class WinWindow extends WinObject {
             /* FIXME: clean up palette - see "Internals" p.352 */
         }
 
-        if (IsWindow(hWnd)==0) return;
+        if (IsWindow(hWnd)==0) return TRUE;
 
           /* Hide the window */
         if ((GetWindowLongA(hWnd, GWL_STYLE ) & WS_VISIBLE)!=0) {
@@ -262,7 +262,7 @@ public class WinWindow extends WinObject {
                 WinPos.SetWindowPos(hWnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW );
         }
 
-        if (IsWindow(hWnd)==0) return;
+        if (IsWindow(hWnd)==0) return TRUE;
 
           /* Recursively destroy owned windows */
         if (!is_child)
@@ -288,20 +288,21 @@ public class WinWindow extends WinObject {
           /* Send destroy messages */
 
         WIN_SendDestroyMsg(hWnd);
-        if (IsWindow(hWnd)==0) return;
+        if (IsWindow(hWnd)==0) return TRUE;
 
         if (Clipboard.GetClipboardOwner() == hWnd)
             Clipboard.CLIPBOARD_ReleaseOwner();
 
           /* Destroy the window storage */
         WIN_DestroyWindow(hWnd);
+        return TRUE;
     }
 
     // BOOL WINAPI EnableWindow(HWND hWnd, BOOL bEnable)
-    public static void EnableWindow(int hWnd, int bEnable) {
+    public static int EnableWindow(int hWnd, int bEnable) {
         if (hWnd == HWND_BROADCAST) {
             SetLastError(Error.ERROR_INVALID_PARAMETER);
-            return;
+            return FALSE;
         }
         boolean isDisabled = IsWindowEnabled(hWnd)==0;
         if (bEnable != 0 && isDisabled) {
@@ -326,6 +327,7 @@ public class WinWindow extends WinObject {
                 Message.SendMessageA(hWnd, WM_ENABLE, FALSE, 0);
             }
         }
+        return BOOL(isDisabled);
     }
 
     // BOOL WINAPI EnumWindows(WNDENUMPROC lpEnumFunc, LPARAM lParam)
@@ -384,8 +386,8 @@ public class WinWindow extends WinObject {
         while (children.hasNext()) {
             WinWindow child = children.next();
             if (hwndChildAfter != 0) {
-                if (child.handle == hwndChildAfter) {
-                }
+                if (child.handle == hwndChildAfter)
+                    hwndChildAfter = 0;
             } else {
                 if (winClass != null && child.winClass != winClass)
                     continue;
@@ -515,7 +517,7 @@ public class WinWindow extends WinObject {
         case GW_OWNER:
             return wndPtr.owner;
         case GW_CHILD:
-            if (wndPtr.children.isEmpty())
+            if (wndPtr.children.size()==0)
                 return 0;
             return wndPtr.children.getFirst().handle;
         }
@@ -881,12 +883,12 @@ public class WinWindow extends WinObject {
         }
     }
 
-    static public void WIN_DestroyWindow(int hwnd) {
+    static public int WIN_DestroyWindow(int hwnd) {
         WinWindow window = WinWindow.get(hwnd);
         if (window == null)
-            return;
+            return 0;
 
-        while (!window.children.isEmpty()) {
+        while (window.children.size()>0) {
             WinWindow child = window.children.get(0);
             WIN_DestroyWindow(child.handle);
         }
@@ -907,20 +909,21 @@ public class WinWindow extends WinObject {
 
         /* free resources associated with the window */
         if (IsWindow(hwnd)==0)
-            return;
+            return 0;
         if ((window.dwStyle & (WS_CHILD | WS_POPUP)) != WS_CHILD) {
             if (window.wIDmenu!=0)
                 WinMenu.DestroyMenu(window.wIDmenu);
         }
         if (window.hSysMenu!=0) WinMenu.DestroyMenu(window.hSysMenu);
         window.close();
+        return 0;
     }
 
     private WinWindow(int id) {
         super(id);
     }
 
-    public final WinTimer timer = new WinTimer(handle);
+    public WinTimer timer = new WinTimer(handle);
 
     public WinRect rectWindow = new WinRect();
     public WinRect rectClient = new WinRect();
@@ -942,12 +945,12 @@ public class WinWindow extends WinObject {
     private int hIconSmall;
     public int hSysMenu;
     public int flags;
-    public final WinPoint min_pos = new WinPoint();
-    public final WinPoint max_pos = new WinPoint();
-    public final WinRect normal_rect = new WinRect(0, 0, 640, 480);
+    public WinPoint min_pos = new WinPoint();
+    public WinPoint max_pos = new WinPoint();
+    public WinRect normal_rect = new WinRect(0, 0, 640, 480);
     public DialogInfo dlgInfo = null;
-    private final Hashtable<Integer, Integer> extra = new Hashtable<>();
-    public final Hashtable<String, Integer> props = new Hashtable<>();
+    private Hashtable<Integer, Integer> extra = new Hashtable<Integer, Integer>();
+    public Hashtable<String, Integer> props = new Hashtable<String, Integer>();
     public int lastActivePopup;
     private WinDC dc;
     WinClass winClass;
@@ -955,7 +958,7 @@ public class WinWindow extends WinObject {
     public boolean isActive = false;
     public WinRect invalidationRect = null;
 
-    public final LinkedList<WinWindow> children = new LinkedList<>(); // first one is on top
+    public LinkedList<WinWindow> children = new LinkedList<WinWindow>(); // first one is on top
 
     // Used by desktop
     public WinWindow(int id, WinClass winClass, String name) {
@@ -1001,9 +1004,11 @@ public class WinWindow extends WinObject {
     }
 
     public WinWindow findWindowFromPoint(int x, int y) {
-        for (WinWindow child : children) {
-            if ((child.dwStyle & WS_VISIBLE) != 0 && child.rectWindow.contains(x, y)) {
-                return child.findWindowFromPoint(x - child.rectWindow.left, y - child.rectWindow.top);
+        Iterator<WinWindow> i = children.iterator();
+        while (i.hasNext()) {
+            WinWindow child = i.next();
+            if ((child.dwStyle & WS_VISIBLE)!=0 &&  child.rectWindow.contains(x, y)) {
+                return child.findWindowFromPoint(x-child.rectWindow.left, y-child.rectWindow.top);
             }
         }
         return this;
@@ -1012,7 +1017,9 @@ public class WinWindow extends WinObject {
     public int findWindow(String className, String windowName) {
         if (this.winClass.className.equals(className) || this.name.equals(windowName))
             return getHandle();
-        for (WinWindow child : children) {
+        Iterator<WinWindow> i = children.iterator();
+        while (i.hasNext()) {
+            WinWindow child = i.next();
             int result = child.findWindow(className, windowName);
             if (result != 0)
                 return result;

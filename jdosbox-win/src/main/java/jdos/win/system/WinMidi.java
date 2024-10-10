@@ -45,10 +45,12 @@ public class WinMidi extends WinMCI {
             sequencer = MidiSystem.getSequencer();
             sequencer.open();
             sequencer.setSequence(sequence);
-            sequencer.addMetaEventListener(meta -> {
-                if ( meta.getType() == 47 ) {
-                    if (hWnd != 0)
-                        sendNotification(MCI_NOTIFY_SUCCESSFUL);
+            sequencer.addMetaEventListener(new MetaEventListener() {
+                public void meta(MetaMessage meta) {
+                    if ( meta.getType() == 47 ) {
+                        if (hWnd != 0)
+                            sendNotification(MCI_NOTIFY_SUCCESSFUL);
+                    }
                 }
             });
             return true;

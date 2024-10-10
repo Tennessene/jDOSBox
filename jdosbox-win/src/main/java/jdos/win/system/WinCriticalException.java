@@ -28,7 +28,7 @@ public class WinCriticalException {
         Memory.mem_writed(address, 0); address+=4;
         Memory.mem_writed(address, 0); address+=4;
         Memory.mem_writed(address, 0); address+=4;
-        Memory.mem_writed(address, spinCount);
+        Memory.mem_writed(address, spinCount); address+=4;
     }
 
     static public void enter(int address) {
@@ -66,8 +66,8 @@ public class WinCriticalException {
             Memory.mem_writed(address+8, recursionCount);
         } else {
             WaitObject object = WaitObject.getWait(Memory.mem_readd(address));
-            if (!object.waiting.isEmpty()) {
-                WaitGroup group = object.waiting.remove(0);
+            if (object.waiting.size()>0) {
+                WaitGroup group = (WaitGroup)object.waiting.remove(0);
                 Memory.mem_writed(address+12, group.thread.getHandle()); // set new owner
                 Scheduler.addThread(group.thread, false); // wake up the waiting thread
                 // leave recursion count at 1

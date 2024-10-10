@@ -17,6 +17,6 @@ public class SystemTime {
         Memory.mem_writew(lpSystemTime, c.get(Calendar.HOUR_OF_DAY));lpSystemTime+=2;
         Memory.mem_writew(lpSystemTime, c.get(Calendar.MINUTE));lpSystemTime+=2;
         Memory.mem_writew(lpSystemTime, c.get(Calendar.SECOND));lpSystemTime+=2;
-        Memory.mem_writew(lpSystemTime, c.get(Calendar.MILLISECOND));
+        Memory.mem_writew(lpSystemTime, c.get(Calendar.MILLISECOND));lpSystemTime+=2;
     }
 }

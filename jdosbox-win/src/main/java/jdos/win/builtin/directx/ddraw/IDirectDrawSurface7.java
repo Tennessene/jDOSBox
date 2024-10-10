@@ -12,7 +12,7 @@ public class IDirectDrawSurface7 extends IUnknown {
         return IDirectDrawSurface.create("IDirectDrawSurface7", pDirectDraw, pDesc, IDirectDrawSurface.FLAGS_CAPS2 | IDirectDrawSurface.FLAGS_DESC2);
     }
 
-    static private void createVTable() {
+    static private int createVTable() {
         int address = allocateVTable("IDirectDrawSurface7", IDirectDrawSurface.VTABLE_COUNT+13);
         int result = address;
         address = IDirectDrawSurface.addIDirectDrawSurface(address);
@@ -34,11 +34,12 @@ public class IDirectDrawSurface7 extends IUnknown {
         address = add(address, GetPriority);
         address = add(address, SetLOD);
         address = add(address, GetLOD);
+        return result;
     }
 
     /* added in v2 */
     // HRESULT GetDDInterface(this, LPVOID *lplpDD)
-    static private final Callback.Handler GetDDInterface = new HandlerBase() {
+    static private Callback.Handler GetDDInterface = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.GetDDInterface";
         }
@@ -50,7 +51,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT PageLock(this, DWORD dwFlags)
-    static private final Callback.Handler PageLock = new HandlerBase() {
+    static private Callback.Handler PageLock = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.PageLock";
         }
@@ -62,7 +63,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT PageUnlock(this, DWORD dwFlags)
-    static private final Callback.Handler PageUnlock = new HandlerBase() {
+    static private Callback.Handler PageUnlock = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.PageUnlock";
         }
@@ -75,7 +76,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     
     /* added in v3 */
     // HRESULT SetSurfaceDesc(this, LPDDSURFACEDESC2 lpDDSD, DWORD dwFlags)
-    static private final Callback.Handler SetSurfaceDesc = new HandlerBase() {
+    static private Callback.Handler SetSurfaceDesc = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.SetSurfaceDesc";
         }
@@ -89,7 +90,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     
     /* added in v4 */
     // HRESULT SetPrivateData(this, REFGUID tag, LPVOID pData, DWORD cbSize, DWORD dwFlags)
-    static private final Callback.Handler SetPrivateData = new HandlerBase() {
+    static private Callback.Handler SetPrivateData = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.SetPrivateData";
         }
@@ -104,7 +105,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT GetPrivateData(this, REFGUID tag, LPVOID pBuffer, LPDWORD pcbBufferSize)
-    static private final Callback.Handler GetPrivateData = new HandlerBase() {
+    static private Callback.Handler GetPrivateData = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.GetPrivateData";
         }
@@ -118,7 +119,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT FreePrivateData(this, REFGUID tag)
-    static private final Callback.Handler FreePrivateData = new HandlerBase() {
+    static private Callback.Handler FreePrivateData = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.FreePrivateData";
         }
@@ -130,7 +131,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT GetUniquenessValue(this, LPDWORD pValue)
-    static private final Callback.Handler GetUniquenessValue = new HandlerBase() {
+    static private Callback.Handler GetUniquenessValue = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.GetUniquenessValue";
         }
@@ -142,7 +143,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT ChangeUniquenessValue(this)
-    static private final Callback.Handler ChangeUniquenessValue = new HandlerBase() {
+    static private Callback.Handler ChangeUniquenessValue = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.ChangeUniquenessValue";
         }
@@ -154,7 +155,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     
     /* added in v7 */
     // HRESULT SetPriority(this, DWORD prio)
-    static private final Callback.Handler SetPriority = new HandlerBase() {
+    static private Callback.Handler SetPriority = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.SetPriority";
         }
@@ -166,7 +167,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT GetPriority(this, LPDWORD prio)
-    static private final Callback.Handler GetPriority = new HandlerBase() {
+    static private Callback.Handler GetPriority = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.GetPriority";
         }
@@ -178,7 +179,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT SetLOD(this, DWORD lod)
-    static private final Callback.Handler SetLOD = new HandlerBase() {
+    static private Callback.Handler SetLOD = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.SetLOD";
         }
@@ -190,7 +191,7 @@ public class IDirectDrawSurface7 extends IUnknown {
     };
     
     // HRESULT GetLOD(this, LPDWORD lod)
-    static private final Callback.Handler GetLOD = new HandlerBase() {
+    static private Callback.Handler GetLOD = new HandlerBase() {
         public java.lang.String getName() {
             return "IDirectDrawSurface7.GetLOD";
         }

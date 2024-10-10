@@ -1,5 +1,5 @@
 package jdos.cpu.core_dynamic;
 
 public interface Decode {
-    int call(Op prev);
+    public int call(Op prev);
 }

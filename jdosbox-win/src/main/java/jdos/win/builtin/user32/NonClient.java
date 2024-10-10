@@ -4,14 +4,16 @@ import jdos.win.builtin.WinAPI;
 
 public class NonClient extends WinAPI {
     // BOOL WINAPI AdjustWindowRectEx(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle)
-    static public void AdjustWindowRectEx(int lpRect, int dwStyle, int bMenu, int dwExStyle) {
+    static public int AdjustWindowRectEx(int lpRect, int dwStyle, int bMenu, int dwExStyle) {
         log("Faked");
+        return TRUE;
     }
 
-    static public void NC_HandleNCPaint(int hwnd , int clip) {
+    static public int NC_HandleNCPaint(int hwnd , int clip) {
+        return 0;
     }
 
-    static public void NC_HandleSetCursor(int hwnd, int wParam, int lParam) {
+    static public int NC_HandleSetCursor(int hwnd, int wParam, int lParam) {
         switch((short)LOWORD(lParam))
         {
         case HTERROR:
@@ -26,33 +28,29 @@ public class NonClient extends WinAPI {
                 int hCursor = WinClass.GetClassLongA(hwnd, GCL_HCURSOR);
                 if (hCursor!=0) {
                     WinCursor.SetCursor(hCursor);
-                    return;
+                    return TRUE;
                 }
-                return;
+                return FALSE;
             }
 
         case HTLEFT:
         case HTRIGHT:
-            WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZEWE));
-            return;
+            return WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZEWE));
 
         case HTTOP:
         case HTBOTTOM:
-            WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZENS));
-            return;
+            return WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZENS));
 
         case HTTOPLEFT:
         case HTBOTTOMRIGHT:
-            WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZENWSE));
-            return;
+            return WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZENWSE));
 
         case HTTOPRIGHT:
         case HTBOTTOMLEFT:
-            WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZENESW));
-            return;
+            return WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_SIZENESW));
         }
 
         /* Default cursor: arrow */
-        WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_ARROW));
+        return WinCursor.SetCursor(WinCursor.LoadCursorA(0, IDC_ARROW));
     }
 }
